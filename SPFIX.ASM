@@ -220,27 +220,27 @@ loc_46D1E:
         repne scasb
         pop cx
         pop di
-        jnz short loc_46D52
+        jnz short hasatsign
         cmp byte_598D4, 0
-        jnz short loc_46D37
+        jnz short demoFileNotMissing
         lea si, a@ErrorBadOrMis ; "\"@\"-ERROR: Bad or missing \":filename"...
         call    conprint
         jmp loc_470B1
 ; ---------------------------------------------------------------------------
 
-loc_46D37:              ; CODE XREF: start+10Bj
+demoFileNotMissing:              ; CODE XREF: start+10Bj
         cmp byte_599D5, 1
-        jz  short loc_46D48
+        jz  short spNotWithoutDemo
         lea si, aSpWithoutDemo ; "SP without demo: "
         call    conprintln
         jmp loc_470B1
 ; ---------------------------------------------------------------------------
 
-loc_46D48:              ; CODE XREF: start+11Cj
+spNotWithoutDemo:              ; CODE XREF: start+11Cj
         mov byte_5A2F6, 1
         mov speed?, 0
 
-loc_46D52:              ; CODE XREF: start+104j
+hasatsign:              ; CODE XREF: start+104j
         push    di
         push    cx
         mov al, 41h ; 'A'
