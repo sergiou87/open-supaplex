@@ -1025,7 +1025,7 @@ slideDownGameDash endp
 
 setint9     proc near       ; CODE XREF: start+2A2p
         push    ds
-        mov ax, 40h ; '@'
+        mov ax, 0040h;
         mov ds, ax
         assume ds:nothing
 
@@ -13569,7 +13569,7 @@ sub_4C6EF   proc near       ; CODE XREF: sub_47F39+9p
 sub_4C6EF   endp
 
 ; ---------------------------------------------------------------------------
-        dd 2780B81Eh
+        dd 1780B81Eh
 ; ---------------------------------------------------------------------------
         jmp short loc_4C684
 ; ---------------------------------------------------------------------------
