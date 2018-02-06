@@ -15911,8 +15911,8 @@ loc_4D618:              ; CODE XREF: readLevels+CBj
         mov ax, demoseg
         mov es, ax
         assume es:demoseg
-        lea si, word_50A78
-        lea di, byte_5BA41+6EFh
+        lea si, ds:[00768h]
+        lea di, ds:[0BE20h]
         mov ax, word_599D6
         mov word_510E6, ax
         mov cx, ax
