@@ -3136,10 +3136,10 @@ loc_47EA9:              ; CODE XREF: sub_47E98+Aj
         cmp keyPressed, 0
         jnz short keyIsPressed
 
-loc_47EB0:              ; CODE XREF: sub_47E98+1Ej
-        call    sub_4D34F
+mouseIsClicked:              ; CODE XREF: sub_47E98+1Ej
+        call    getMouseStatus
         cmp bx, 0
-        jnz short loc_47EB0
+        jnz short mouseIsClicked     ; wait for mouse to not be clicked
 
 loc_47EB8:              ; CODE XREF: sub_47E98+28j
         call    sub_48E59
@@ -3158,7 +3158,7 @@ loc_47EC6:              ; CODE XREF: sub_47E98+57j
         push    cx
         cmp cx, 0
         jz  short loc_47EF1
-        call    sub_4D34F
+        call    getMouseStatus
         cmp bx, 0
         jnz short loc_47F02
         cmp keyPressed, 0
@@ -3184,7 +3184,7 @@ locret_47F01:               ; CODE XREF: sub_47E98+66j
 
 loc_47F02:              ; CODE XREF: sub_47E98+44j
                     ; sub_47E98+70j
-        call    sub_4D34F
+        call    getMouseStatus
         cmp bx, 0
         jnz short loc_47F02
         jmp short loc_47EF1
@@ -4891,7 +4891,7 @@ gamelooprep:                ; CODE XREF: runLevel+33Cj
         call    sub_48E59
 
 loc_48B23:              ; CODE XREF: runLevel+63j
-        call    sub_4D34F
+        call    getMouseStatus
         cmp bx, 2
         jnz short loc_48B38
         cmp word_51978, 0
@@ -9614,13 +9614,13 @@ loc_4AB56:              ; CODE XREF: sub_4AB1B+25j
         mov word_58475, 0
 
 loc_4AB7F:              ; CODE XREF: sub_4AB1B+6Aj
-        call    sub_4D34F
+        call    getMouseStatus
         cmp bx, 0
         jnz short loc_4AB7F
 
 noKeyPressed:               ; CODE XREF: sub_4AB1B+79j
                     ; sub_4AB1B+8Aj ...
-        call    sub_4D34F
+        call    getMouseStatus
         cmp bx, 0
         jnz short loc_4ABEB
         mov al, keyPressed
@@ -9666,7 +9666,7 @@ loc_4ABCC:              ; CODE XREF: sub_4AB1B+92j
 
 loc_4ABEB:              ; CODE XREF: sub_4AB1B+72j
                     ; sub_4AB1B+8Ej ...
-        call    sub_4D34F
+        call    getMouseStatus
         cmp bx, 0
         jnz short loc_4ABEB
         mov ax, 2020h
@@ -9851,24 +9851,24 @@ loc_4AD48:              ; CODE XREF: sub_4AD0E+1Dj
         call    sub_4BA5F
 
 loc_4AD6C:              ; CODE XREF: sub_4AD0E+64j
-        call    sub_4D34F
+        call    getMouseStatus
         cmp bx, 0
         jnz short loc_4AD6C
 
 loc_4AD74:              ; CODE XREF: sub_4AD0E+88j
         call    videoloop
-        call    sub_4D34F
+        call    getMouseStatus
         mov word_5847D, bx
-        mov word_5847F, cx
-        mov word_58483, dx
+        mov mousex, cx
+        mov mousey, dx
         call    sub_4B899
         call    sub_4B85C
         call    sub_4B8BE
         mov bx, word_5847D
         cmp bx, 0
         jz  short loc_4AD74
-        mov cx, word_5847F
-        mov dx, word_58483
+        mov cx, mousex
+        mov dx, mousey
         mov si, 5Ah ; 'Z'
         cmp [si], cx
         jg  short loc_4ADCE
@@ -9908,7 +9908,7 @@ loc_4ADCE:              ; CODE XREF: sub_4AD0E+97j
         call    sub_4C0DD
 
 loc_4ADF3:              ; CODE XREF: sub_4AD0E+EBj
-        call    sub_4D34F
+        call    getMouseStatus
         cmp bx, 0
         jnz short loc_4ADF3
         call    sub_4B85C
@@ -9996,24 +9996,24 @@ loc_4AE75:              ; CODE XREF: sub_4ADFF+68j
         call    sub_4BA5F
 
 loc_4AE89:              ; CODE XREF: sub_4ADFF+90j
-        call    sub_4D34F
+        call    getMouseStatus
         cmp bx, 0
         jnz short loc_4AE89
 
 loc_4AE91:              ; CODE XREF: sub_4ADFF+B4j
         call    videoloop
-        call    sub_4D34F
+        call    getMouseStatus
         mov word_5847D, bx
-        mov word_5847F, cx
-        mov word_58483, dx
+        mov mousex, cx
+        mov mousey, dx
         call    sub_4B899
         call    sub_4B85C
         call    sub_4B8BE
         mov bx, word_5847D
         cmp bx, 0
         jz  short loc_4AE91
-        mov cx, word_5847F
-        mov dx, word_58483
+        mov cx, mousex
+        mov dx, mousey
         mov si, 5Ah ; 'Z'
         cmp [si], cx
         jg  short loc_4AEE9
@@ -10042,7 +10042,7 @@ loc_4AEE9:              ; CODE XREF: sub_4ADFF+C3j
         call    sub_4C0DD
 
 loc_4AF00:              ; CODE XREF: sub_4ADFF+107j
-        call    sub_4D34F
+        call    getMouseStatus
         cmp bx, 0
         jnz short loc_4AF00
         call    sub_4B85C
@@ -10933,7 +10933,7 @@ loc_4B5BE:              ; CODE XREF: sub_4B419+198j
         call    fade
 
 loc_4B5E6:              ; CODE XREF: sub_4B419+1D3j
-        call    sub_4D34F
+        call    getMouseStatus
         cmp bx, 0
         jnz short loc_4B5E6
 
@@ -11276,12 +11276,12 @@ sub_4B85C   proc near       ; CODE XREF: sub_4AB1B+FCp
         inc dx
         mov al, 1
         out dx, al      ; EGA port: graphics controller data register
-        mov ax, word_58483
+        mov ax, mousey
         mov bx, 7Ah ; 'z'
         mul bx
         add ax, 4D5Ch
         mov si, ax
-        mov ax, word_5847F
+        mov ax, mousex
         shr ax, 1
         shr ax, 1
         shr ax, 1
@@ -11394,7 +11394,7 @@ sub_4B8BE   proc near       ; CODE XREF: sub_4AB1B+FFp
 		db  83h, 0E3h, 0Eh
         mov si, [bx+si]
         mov di, word_5847B
-        mov bx, word_5847F
+        mov bx, mousex
         and bl, 7
         mov bh, 8
         sub bh, bl
@@ -13774,19 +13774,19 @@ loc_4C806:              ; CODE XREF: runMainMenu+6Dj
 loc_4C81A:              ; CODE XREF: runMainMenu+77j
         call    videoloop
         inc word_5195D
-        call    sub_4D34F
+        call    getMouseStatus
         mov word_5847D, bx
-        cmp word_5847F, cx
+        cmp mousex, cx
         jnz short loc_4C834
-        cmp word_58483, dx
+        cmp mousey, dx
         jz  short loc_4C83A
 
 loc_4C834:              ; CODE XREF: runMainMenu+98j
         mov word_58465, 0EF98h
 
 loc_4C83A:              ; CODE XREF: runMainMenu+9Ej
-        mov word_5847F, cx
-        mov word_58483, dx
+        mov mousex, cx
+        mov mousey, dx
         call    sub_4B899
         call    sub_4B85C
         call    sub_4B8BE
@@ -13966,28 +13966,28 @@ loc_4C9B0:              ; CODE XREF: runMainMenu+131j
 
 loc_4C9FF:              ; CODE XREF: runMainMenu+236j
         mov word_58465, 0EF98h
-        mov cx, word_5847F
-        mov dx, word_58483
-        mov si, 0
+        mov cx, mousex
+        mov dx, mousey
+        mov si, offset menudata
 
-loc_4CA10:              ; CODE XREF: runMainMenu+29Bj
+checkmousecoords:              ; CODE XREF: runMainMenu+29Bj
         cmp [si], cx
-        jg  short loc_4CA29
+        jg  short nomousehit
         cmp [si+2], dx
-        jg  short loc_4CA29
+        jg  short nomousehit
         cmp [si+4], cx
-        jl  short loc_4CA29
+        jl  short nomousehit
         cmp [si+6], dx
-        jl  short loc_4CA29
+        jl  short nomousehit
         call [si+8]
         jmp loc_4C7FD
 ; ---------------------------------------------------------------------------
 
-loc_4CA29:              ; CODE XREF: runMainMenu+27Ej
+nomousehit:              ; CODE XREF: runMainMenu+27Ej
                     ; runMainMenu+283j ...
         add si, 0Ah
         cmp word ptr [si], 0FFFFh
-        jnz short loc_4CA10
+        jnz short checkmousecoords
         jmp loc_4C7FD
 ; ---------------------------------------------------------------------------
 
@@ -15436,7 +15436,7 @@ sub_4D2E9   endp
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_4D34F   proc near       ; CODE XREF: sub_47E98:loc_47EB0p
+getMouseStatus   proc near       ; CODE XREF: sub_47E98:mouseIsClickedp
                     ; sub_47E98+3Ep ...
         cmp byte_58487, 0
         jz  short loc_4D360
@@ -15511,28 +15511,28 @@ loc_4D3D4:              ; CODE XREF: getMouseStatus+7Dj
         mov cx, 10h
         mov word_58481, cx
 
-loc_4D3E8:              ; CODE XREF: sub_4D34F+90j
+loc_4D3E8:              ; CODE XREF: getMouseStatus+90j
         cmp cx, 130h
         jl  short loc_4D3F5
         mov cx, 130h
         mov word_58481, cx
 
-loc_4D3F5:              ; CODE XREF: sub_4D34F+9Dj
+loc_4D3F5:              ; CODE XREF: getMouseStatus+9Dj
         cmp dx, 8
         jg  short loc_4D401
         mov dx, 8
         mov word_58485, dx
 
-loc_4D401:              ; CODE XREF: sub_4D34F+A9j
+loc_4D401:              ; CODE XREF: getMouseStatus+A9j
         cmp dx, 0C0h ; '?'
         jl  short locret_4D40E
         mov dx, 0C0h ; '?'
         mov word_58485, dx
 
-locret_4D40E:               ; CODE XREF: sub_4D34F+Ej
-                    ; sub_4D34F+B6j
+locret_4D40E:               ; CODE XREF: getMouseStatus+Ej
+                    ; getMouseStatus+B6j
         retn
-sub_4D34F   endp
+getMouseStatus   endp
 
 
 ; =============== S U B R O U T I N E =======================================
