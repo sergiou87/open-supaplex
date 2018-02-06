@@ -38,54 +38,60 @@ electron     = 24
 bug      = 25
 
 ; ===========================================================================
-
 ; Segment type: Regular
-zeg000      segment byte public 'UNK'
+; Range:  0000 - 7DFF
+; Length: 7E00
+zeg000      segment para public 'UNK'
         assume cs:zeg000
         assume es:nothing, ss:nothing, ds:nothing
         db 7E00h dup(0)
 zeg000      ends
 
 ; ===========================================================================
-
 ; Segment type: Regular
-zeg001      segment byte public 'UNK'
+; Range:  7E00 - FAFF
+; Length: 7D00
+zeg001      segment para public 'UNK'
         assume cs:zeg001
         assume es:nothing, ss:nothing, ds:nothing
         db 7D00h dup(0)
 zeg001      ends
 
 ; ===========================================================================
-
 ; Segment type: Regular
-zeg002      segment byte public 'UNK'
+; Range: FB00 - 177FF
+; Length: 7D00
+zeg002      segment para public 'UNK'
         assume cs:zeg002
         assume es:nothing, ss:nothing, ds:nothing
         db 7D00h dup(0)
 zeg002      ends
 
 ; ===========================================================================
-
 ; Segment type: Regular
-zeg003      segment byte public 'UNK'
+; Range: 17800 - 1F4FF
+; Length: 7D00
+zeg003      segment para public 'UNK'
         assume cs:zeg003
         assume es:nothing, ss:nothing, ds:nothing
         db 7D00h dup(0)
 zeg003      ends
 
 ; ===========================================================================
-
 ; Segment type: Regular
-zeg004      segment byte public 'UNK'
+; Range: 1F500 - 27200
+; Length: 7D00
+zeg004      segment para public 'UNK'
         assume cs:zeg004
         assume es:nothing, ss:nothing, ds:nothing
-        db 7D30h dup(0)
+        db 7D00h dup(0)
 zeg004      ends
 
 ; ===========================================================================
-
 ; Segment type: Regular
-demoseg      segment byte public 'UNK'
+; Range: 27200 - 36C1F
+; Length: FA20
+demoseg      segment para public 'UNK'
         assume cs:demoseg
         assume es:nothing, ss:nothing, ds:nothing
         db 16h dup(0FFh), 0FA0Ah dup(0)
@@ -93,10 +99,10 @@ demoseg      ends
 
 
 ; ===========================================================================
-
 ; Segment type: Pure code
 ; Segment permissions: Execute
-code        segment byte public 'CODE' use16
+; Start: 36C20
+code        segment para public 'CODE' use16
         assume cs:code
         assume es:nothing, ss:stackseg, ds:nothing, fs:nothing, gs:nothing
 
@@ -24100,7 +24106,7 @@ data        ends
 ; ===========================================================================
 
 ; Segment type: Regular
-seg003      segment byte public 'UNK' use16
+seg003      segment para public 'DATA' use16
         assume cs:seg003
         assume es:nothing, ss:nothing, ds:data, fs:nothing, gs:nothing
 unk_5A340   db    0
@@ -24117,7 +24123,7 @@ seg003      ends
 ; ===========================================================================
 
 ; Segment type: Regular
-seg004      segment byte public 'UNK' use16
+seg004      segment para public 'DATA' use16
         assume cs:seg004
         assume es:nothing, ss:nothing, ds:data, fs:nothing, gs:nothing
 unk_5A450   db 0CFh ; ?
@@ -24129,7 +24135,7 @@ seg004      ends
 ; ===========================================================================
 
 ; Segment type: Regular
-seg005      segment byte public 'UNK' use16
+seg005      segment para public 'DATA' use16
         assume cs:seg005
         assume es:nothing, ss:nothing, ds:data, fs:nothing, gs:nothing
 unk_5BA40   db 0CFh ; ?
@@ -24139,7 +24145,7 @@ seg005      ends
 ; ===========================================================================
 
 ; Segment type: Uninitialized
-stackseg        segment byte stack 'STACK' use16
+stackseg        segment para stack 'STACK' use16
         assume cs:stackseg
         assume es:nothing, ss:nothing, ds:data, fs:nothing, gs:nothing
 byte_65690  db 400h dup(0)
