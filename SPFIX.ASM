@@ -7081,7 +7081,7 @@ loc_49B84:              ; CODE XREF: sub_4955B+619j
         call    sub_48F6D
         call    sub_501C0
         call    sub_4A2E6
-        mov si, word_510C9
+        mov si, murphyloc
         mov ax, si
         shr ax, 1
         call    sub_4A291
@@ -7357,9 +7357,9 @@ gameloop?   proc near       ; CODE XREF: runLevel:loc_48B8Bp
         inc dx
         mov al, 1
         out dx, al      ; EGA port: graphics controller data register
-        mov si, word_510C9
+        mov si, murphyloc
         call    update?
-        mov word_510C9, si
+        mov murphyloc, si
         cmp word ptr dword_51A03, 0
         jz  short loc_49E0A
         mov dx, 3C8h
@@ -8076,17 +8076,17 @@ sub_4A271   proc near       ; CODE XREF: start+344p sub_4A463+22p
         mov ax, ds
         mov es, ax
         assume es:data
-        mov di, 1834h
-        mov cx, 5A0h
-        mov ax, 3
+        mov di, offset leveldata
+        mov cx, levelcells
+        mov ax, murphy
         repne scasw
         pop es
         assume es:nothing
-        mov ax, 59Fh
+        mov ax, levelcells-1
         sub ax, cx
         mov cx, ax
         shl cx, 1
-        mov word_510C9, cx
+        mov murphyloc, cx
         mov si, cx
 sub_4A271   endp ; sp-analysis failed
 

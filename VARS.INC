@@ -26,3 +26,6 @@ port4way     = 23
 electron     = 24
 bug      = 25
 
+
+
+levelcells = 5A0h
