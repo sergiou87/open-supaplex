@@ -2507,7 +2507,7 @@ loc_47B46:              ; CODE XREF: readBackDat+Dj
 loc_47B49:              ; CODE XREF: readBackDat+8j
         mov word_50A76, ax
         push    ds
-        mov ax, 1F50h
+        mov ax, seg zeg004
         mov bx, word_50A76
         mov ds, ax
         assume ds:nothing
@@ -2942,7 +2942,7 @@ loc_47DB5:              ; CODE XREF: readGfxDat+8j
         mov word_50A76, ax
         mov bx, word_50A76
         push    ds
-        mov ax, 0FB0h
+        mov ax, seg zeg002
         mov ds, ax
         assume ds:nothing
         mov ax, 3F00h
@@ -3000,7 +3000,7 @@ loc_47DFC:              ; CODE XREF: readControlsDat+8j
         mov word_50A76, ax
         mov bx, word_50A76
         push    ds
-        mov ax, 1780h
+        mov ax, seg zeg003
         mov ds, ax
         assume ds:nothing
         mov ax, 3F00h
@@ -9522,7 +9522,7 @@ loc_4AAED:              ; CODE XREF: readMenuDat+8j
         mov word_50A76, ax
         mov bx, word_50A76
         push    ds
-        mov ax, 17E0h
+        mov ax, seg zeg001
         mov ds, ax
         assume ds:nothing
         mov ax, 3F00h
@@ -13380,7 +13380,7 @@ sub_4C5AF   endp
 sub_4C611   proc near       ; CODE XREF: sub_4C407+14p
                     ; sub_4C407:loc_4C44Fp ...
         push    ds
-        mov ax, 17E0h
+        mov ax, seg zeg001
         mov ds, ax
         assume ds:nothing
         mov si, 0
@@ -13468,7 +13468,7 @@ sub_4C611   endp
 
 sub_4C680   proc near       ; CODE XREF: sub_4B149p
         push    ds
-        mov ax, 1FB0h
+        mov ax, seg zeg002
 sub_4C680   endp ; sp-analysis failed
 
 ; START OF FUNCTION CHUNK FOR sub_4C6EF
@@ -13564,7 +13564,7 @@ sub_4C6EF   proc near       ; CODE XREF: sub_47F39+9p
 ; FUNCTION CHUNK AT 5A64 SIZE 0000006B BYTES
 
         push    ds
-        mov ax, 2F50h
+        mov ax, zeg004
         jmp short loc_4C684
 sub_4C6EF   endp
 
@@ -15795,9 +15795,9 @@ readLevels  proc near       ; CODE XREF: start:loc_46F3Ep
         push    ds
         pop es
         assume es:data
-        mov si, 3720h
+        mov si, seg demoseg
         mov ds, si
-        assume ds:nothing
+        assume ds:demoseg
         mov si, 0BE20h
         mov di, 768h
         mov cx, ax
@@ -22131,9 +22131,9 @@ sub_4FE9C   endp
 
 sub_50077   proc near       ; CODE XREF: sub_500F3:loc_500FFp
         push    es
-        mov ax, 1000h
+        mov ax, seg zeg000
         mov es, ax
-        assume es:nothing
+        assume es:zeg000
 
 loc_5007D:              ; CODE XREF: sub_50077+78j
         mov bl, [si]
@@ -22218,11 +22218,11 @@ sub_500F3   endp
 sub_50103   proc near       ; CODE XREF: sub_4FD21+3Fp
         push    ds
         push    es
-        mov ax, 1000h
+        mov ax, seg zeg000
         mov ds, ax
-        assume ds:nothing
+        assume ds:zeg000
         mov es, ax
-        assume es:nothing
+        assume es:zeg000
         mov si, 951h
         mov di, 1911h
         pushf
@@ -22269,11 +22269,11 @@ sub_50103   endp
 sub_50144   proc near       ; CODE XREF: sub_4FDFD+98p
         push    ds
         push    es
-        mov ax, 1000h
+        mov ax, seg zeg000
         mov ds, ax
-        assume ds:nothing
+        assume ds:zeg000
         mov es, ax
-        assume es:nothing
+        assume es:zeg000
         mov si, 20Bh
         mov di, 11CBh
         pushf
@@ -22335,14 +22335,14 @@ sub_50144   endp
 sub_50199   proc near       ; CODE XREF: sub_4FC20+A2p
                     ; sub_4FC20+F7p
         push    es
-        mov ax, 1000h
+        mov ax, seg zeg000
         mov es, ax
-        assume es:nothing
+        assume es:zeg000
         mov di, 0FC0h
         push    ds
         mov ax, es
         mov ds, ax
-        assume ds:nothing
+        assume ds:zeg000
         mov si, 0
         mov bx, 7
 
@@ -22375,9 +22375,9 @@ sub_501C0   proc near       ; CODE XREF: start+338p sub_4955B+678p ...
         cmp videoStatusUnk, 2
         jnz short loc_501EA
         push    es
-        mov ax, 1000h
+        mov ax, seg zeg000
         mov es, ax
-        assume es:nothing
+        assume es:zeg000
         mov di, 0
         mov si, 4C15h
         mov dx, 60h ; '`'
@@ -22487,9 +22487,9 @@ loc_50253:              ; CODE XREF: sub_5024B+5j
         mul bx
         add si, ax
         push    ds
-        mov ax, 1000h
+        mov ax, seg zeg000
         mov ds, ax
-        assume ds:nothing
+        assume ds:zeg000
         mov di, 0
         mov dx, 3CEh
         mov al, 5
