@@ -14001,7 +14001,7 @@ runMainMenu endp
 
 ; ---------------------------------------------------------------------------
 
-loc_4CA41:                              ; DATA XREF: data:0044o
+showControls:                              ; DATA XREF: data:0044o
                 mov     byte_50919, 0FFh
                 call    sub_4C6F5
                 call    sub_4CAFC
@@ -14043,7 +14043,7 @@ loc_4CAAB:                              ; CODE XREF: code:5E87j
                 mov     cx, mousex
                 sub     cx, 140h
                 mov     dx, mousey
-                mov     si, 0ACh ; '¼'
+                mov     si, offset controlsbuttons ; 0ACh
 
 loc_4CABA:                              ; CODE XREF: code:5EC7j
                 cmp     [si], cx

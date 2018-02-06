@@ -41,7 +41,7 @@ menudata:        ; mouse positions of buttons on menu
         dw 3Ch
         dw 157
         dw 45h
-        dw offset loc_4CA41
+        dw offset showControls
         dw 8Ch
         dw 5Ah
         dw 9Bh
@@ -93,6 +93,8 @@ menudata:        ; mouse positions of buttons on menu
         dw 34h
         dw offset sub_4B7B7
         dw 0FFFFh
+
+controlsbuttons:
         dw 0Ch
         dw 0Dh
         dw 6Bh
@@ -1331,7 +1333,7 @@ menudata:        ; mouse positions of buttons on menu
 		db    0
 		db    0
 
-                
+
 byte_50910  db 0            ; DATA XREF: sub_4B671+5w sub_4B6C9+5w ...
 byte_50911  db 0            ; DATA XREF: sub_4B671+Aw sub_4B6C9+Aw ...
 byte_50912  db 0            ; DATA XREF: sub_4B671w sub_4B6C9w ...
