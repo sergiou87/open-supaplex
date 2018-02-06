@@ -6,86 +6,1332 @@
 
 data        segment para public 'DATA' use16
         assume cs:data
-dataStart   db 5, 0, 6, 0, 9Dh, 0, 0Eh, 0
-off_50318   dw offset sub_4AB1B ; DATA XREF: runMainMenu+28Fr
-            dw offset programStart
-word_5031C  dw 0Fh, 9Dh, 17h, 40EEh, 5, 18h, 9Dh, 20h, 41DFh, 5, 21h
-        dw 9Dh, 29h, 42ECh, 5, 2Ah, 9Dh, 32h, 4529h, 5, 33h, 9Dh
-        dw 3Bh, 4539h, 5, 3Ch, 9Dh, 45h, 5E21h, 8Ch, 5Ah, 9Bh
-        dw 6Ch, 4642h, 8Ch, 79h, 9Bh, 8Ah, 468Fh, 60h, 8Ch, 73h
-        dw 0A3h, 4755h, 53h, 0A8h, 7Eh, 0C0h, 47F9h, 0Bh, 8Eh
-        dw 43h, 99h, 4AA9h, 0Bh, 0B5h, 43h, 0C0h, 4A51h, 0Bh, 9Ah
-        dw 43h, 0B4h, 4B01h, 2 dup(8Eh), 132h, 99h, 4B51h, 8Eh
-        dw 0B5h, 132h, 0C0h, 4B0Bh, 129h, 25h, 138h, 34h, 4B97h
-        dw 0FFFFh, 0Ch, 0Dh, 6Bh, 24h, 5B03h, 0Ch, 31h, 6Bh, 48h
-        dw 5AF9h, 0Ch, 55h, 6Bh, 6Ch, 5B0Dh, 0Ch, 79h, 6Bh, 90h
-        dw 5B17h, 84h, 0Dh, 0D3h, 1Fh, 5ADBh, 7Eh, 2Bh, 0A9h, 36h
-        dw 5AE5h, 0AEh, 2Bh, 0D9h, 36h, 5AEFh, 84h, 56h, 0AFh
-        dw 78h, 5B21h, 86h, 84h, 0A8h, 98h, 5B3Eh, 0C9h, 50h, 0DDh
-        dw 9Ah, 5B58h, 0E9h, 50h, 0FCh, 9Ah, 5B61h, 0, 0B5h, 13Fh
-        dw 0C7h, 5B6Dh, 11Ch, 0, 13Fh, 0B4h, 5B6Dh, 0FFFFh, 9001h
-        dw 5100h, 500h, 0, 7Fh, 4Ch, 12h, 7A03h, 4700h, 500h, 100h
-        dw 7Ah, 46h, 45h, 4C00h, 200h, 2E00h, 200h, 46h, 8, 7
-        dw 0FFh, 3 dup(0), 67h, 27h, 10h, 7601h, 4D00h, 2600h
-        dw 300h, 77h, 4Eh, 6, 7C01h, 5500h, 200h, 100h, 7Ch, 70h
-        dw 8, 7902h, 7300h, 300h, 100h, 78h, 75h, 2, 7900h, 7E00h
-        dw 1800h, 100h, 90h, 7Fh, 2, 0FFh, 2 dup(0), 100h, 5Eh
-        dw 2Ch, 3, 5E00h, 2A00h, 1300h, 100h, 71h, 51h, 28h, 7203h
-        dw 5200h, 0E00h, 0FF00h, 3 dup(0), 5E01h, 4E00h, 200h
-        dw 0, 5Fh, 4Eh, 0Bh, 6A03h, 4F00h, 900h, 100h, 73h, 81h
-        dw 2Ah, 7400h, 8100h, 1400h, 0FF00h, 3 dup(0), 5801h, 7300h
-        dw 300h, 0, 59h, 73h, 17h, 7001h, 7300h, 300h, 100h, 77h
-        dw 5Eh, 2, 7803h, 5D00h, 800h, 300h, 78h, 5Eh, 8, 0FFh
-        dw 2 dup(0), 100h, 16h, 72h, 2, 0B00h, 7200h, 0B00h, 100h
-        dw 0Ah, 97h, 26h, 600h, 9700h, 400h, 100h, 5, 9Ch, 6, 0E01h
-        dw 9B00h, 300h, 0, 0Fh, 99h, 6, 1501h, 0A000h, 800h, 0
-        dw 16h, 0A0h, 14h, 2A02h, 9F00h, 900h, 0, 33h, 97h, 4Ah
-        dw 7D03h, 9800h, 0A00h, 0, 87h, 0A1h, 9, 9001h, 0A100h
-        dw 500h, 0FF00h, 3 dup(0), 2203h, 7100h, 500h, 200h, 46h
-        dw 74h, 3, 4901h, 7100h, 500h, 100h, 49h, 54h, 7, 4803h
-        dw 4C00h, 200h, 0, 9, 6Fh, 5, 900h, 7000h, 600h, 100h
-        dw 7, 70h, 44h, 801h, 7000h, 4400h, 0, 9, 2Dh, 6, 900h
-        dw 2E00h, 500h, 0FF00h, 3 dup(0), 8A01h, 2500h, 200h, 0
-        dw 7Dh, 25h, 0Dh, 7C01h, 4300h, 1F00h, 300h, 7Dh, 44h
-        dw 6, 8300h, 4900h, 1300h, 100h, 96h, 51h, 9, 9703h, 2400h
-        dw 400h, 200h, 0B6h, 27h, 4, 0C001h, 2600h, 300h, 0FF00h
-        dw 3 dup(0), 9C01h, 4100h, 700h, 100h, 9Ch, 45h, 2, 9D01h
-        dw 4500h, 200h, 0, 0B6h, 47h, 2, 0B701h, 5500h, 0E00h
-        dw 100h, 0B7h, 66h, 7, 0B701h, 7C00h, 0D00h, 200h, 0A8h
-        dw 8Bh, 0Fh, 0A500h, 8B00h, 300h, 0FF00h, 3 dup(0), 0B401h
-        dw 4100h, 700h, 100h, 0B4h, 45h, 2, 0B501h, 4500h, 200h
-        dw 0, 0B6h, 47h, 2, 0B701h, 5500h, 0E00h, 100h, 0B7h, 66h
-        dw 7, 0B701h, 7C00h, 0D00h, 200h, 0A8h, 8Bh, 0Fh, 0A500h
-        dw 8B00h, 300h, 0FF00h, 3 dup(0), 0B400h, 5A00h, 600h
-        dw 100h, 0BAh, 5Ah, 18h, 0BB00h, 4300h, 2600h, 100h, 0E1h
-        dw 43h, 21h, 0E200h, 2300h, 2100h, 0FF00h, 3 dup(0), 9601h
-        dw 0A000h, 400h, 0, 96h, 0A1h, 1Fh, 0B501h, 0A100h, 1D00h
-        dw 200h, 0B5h, 85h, 8, 0BD01h, 7D00h, 1600h, 200h, 0BDh
-        dw 67h, 4, 0C001h, 6300h, 1900h, 0, 0C0h, 4Ah, 33h, 0F302h
-        dw 4A00h, 1100h, 0FF00h, 3 dup(0), 103h, 7E01h, 0A00h
-        dw 0FF00h, 3 dup(0), 103h, 8301h, 0A00h, 0FF00h, 3 dup(0)
-        dw 103h, 8801h, 0A00h, 0FF00h, 3 dup(0), 103h, 8D01h, 0A00h
-        dw 0FF00h, 3 dup(0), 103h, 9201h, 0A00h, 0FF00h, 3 dup(0)
-        dw 103h, 9701h, 0A00h, 0FF00h, 3 dup(0), 103h, 7401h, 400h
-        dw 0, 105h, 77h, 4, 103h, 6F01h, 200h, 0, 103h, 70h, 7
-        dw 0C00h, 7101h, 200h, 100h, 110h, 72h, 2, 1101h, 7201h
-        dw 200h, 0, 118h, 71h, 7, 1800h, 7201h, 700h, 0, 11Bh
-        dw 77h, 3, 2400h, 7701h, 200h, 100h, 125h, 83h, 0Ch, 2100h
-        dw 8301h, 400h, 300h, 11Bh, 7Eh, 4, 0FFh, 2 dup(0), 100h
-        dw 9Fh, 0B4h, 0Eh, 0A000h, 0A700h, 1C00h, 100h, 0BBh, 0A6h
-        dw 8, 0BB00h, 9500h, 0A00h, 0FF00h, 3 dup(0), 0B01h, 9800h
-        dw 0B00h, 0, 0Ch, 8Eh, 38h, 0FFh, 3 dup(0), 0Ch, 99h, 38h
-        dw 4301h, 9900h, 0B00h, 0FF00h, 3 dup(0), 0B01h, 0BF00h
-        dw 0B00h, 0, 0Ch, 0B5h, 38h, 0FFh, 3 dup(0), 0Ch, 0C0h
-        dw 38h, 4301h, 0C000h, 0B00h, 0FF00h, 3 dup(0), 8D01h
-        dw 6900h, 1000h, 0, 8Eh, 5Ah, 0Dh, 0FFh, 3 dup(0), 8Dh
-        dw 6Ah, 0Eh, 9A01h, 6900h, 0F00h, 0FF00h, 3 dup(0), 8D01h
-        dw 8700h, 1000h, 0, 8Eh, 78h, 0Dh, 0FFh, 3 dup(0), 8Dh
-        dw 88h, 0Eh, 9A01h, 8700h, 0F00h, 0FF00h, 3 dup(0), 8E01h
-        dw 9800h, 0B00h, 0, 8Fh, 8Eh, 0A3h, 0FFh, 3 dup(0), 8Fh
-        dw 99h, 0A4h, 3201h, 9801h, 0B00h, 0FF00h, 3 dup(0), 8E01h
-        dw 0BF00h, 0B00h, 0, 8Fh, 0B5h, 0A4h, 0FFh, 3 dup(0), 8Eh
-        dw 0C0h, 0A4h, 3201h, 0C001h, 0C00h, 0FF00h, 3 dup(0)
+menudata:        ; mouse positions of buttons on menu
+        dw 5            ; start x
+        dw 6            ; start y
+        dw 157          ; end x
+        dw 14           ; end y
+        dw offset sub_4AB1B     ; function to call 
+        dw 5
+        dw 0Fh
+        dw 157
+        dw 17h
+        dw offset sub_4AD0E
+        dw 5    ; sx
+        dw 18h  ; sy
+        dw 157  ; ex
+        dw 20h  ; ey
+        dw offset sub_4ADFF
+        dw 5
+        dw 21h
+        dw 157
+        dw 29h
+        dw offset sub_4AF0C
+        dw 5
+        dw 2Ah
+        dw 157
+        dw 32h
+        dw offset sub_4B149
+        dw 5
+        dw 33h
+        dw 157
+        dw 3Bh
+        dw offset sub_4B159
+        dw 5
+        dw 3Ch
+        dw 157
+        dw 45h
+        dw offset loc_4CA41
+        dw 8Ch
+        dw 5Ah
+        dw 9Bh
+        dw 6Ch
+        dw offset loc_4B262
+        dw 8Ch
+        dw 79h
+        dw 9Bh
+        dw 8Ah
+        dw offset loc_4B2AF
+        dw 60h
+        dw 8Ch
+        dw 73h
+        dw 0A3h
+        dw offset sub_4B375
+        dw 53h
+        dw 0A8h
+        dw 7Eh
+        dw 0C0h
+        dw offset sub_4B419
+        dw 0Bh
+        dw 8Eh
+        dw 43h
+        dw 99h
+        dw offset sub_4B6C9
+        dw 0Bh
+        dw 0B5h
+        dw 43h
+        dw 0C0h
+        dw offset sub_4B671
+        dw 0Bh
+        dw 9Ah
+        dw 43h
+        dw 0B4h
+        dw offset sub_4B721
+        dw 8Eh
+        dw 8Eh
+        dw 132h
+        dw 99h
+        dw offset sub_4B771
+        dw 8Eh
+        dw 0B5h
+        dw 132h
+        dw 0C0h
+        dw offset sub_4B72B
+        dw 129h
+        dw 25h
+        dw 138h
+        dw 34h
+        dw offset sub_4B7B7
+        dw 0FFFFh
+        dw 0Ch
+        dw 0Dh
+        dw 6Bh
+        dw 24h
+        dw offset sub_4C723
+        dw 0Ch
+        dw 31h
+        dw 6Bh
+        dw 48h
+        dw offset sub_4C719
+        dw 0Ch
+        dw 55h
+        dw 6Bh
+        dw 6Ch
+        dw offset sub_4C72D
+        dw 0Ch
+        dw 79h
+        dw 6Bh
+        dw 90h
+        dw offset sub_4C737
+        dw 84h
+        dw 0Dh
+        dw 0D3h
+        dw 1Fh
+        dw offset loc_4C6FB
+        dw 7Eh
+        dw 2Bh
+        dw 0A9h
+        dw 36h
+        dw offset sub_4C705
+        dw 0AEh
+        dw 2Bh
+        dw 0D9h
+        dw 36h
+        dw offset sub_4C70F
+        dw 84h
+        dw 56h
+        dw 0AFh
+        dw 78h
+        dw offset sub_4C741
+        dw 86h
+        dw 84h
+        dw 0A8h
+        dw 98h
+        dw offset loc_4C75E
+        dw 0C9h
+        dw 50h
+        dw 0DDh
+        dw 9Ah
+        dw offset loc_4C778
+        dw 0E9h
+        dw 50h
+        dw 0FCh
+        dw 9Ah
+        dw offset loc_4C781
+        dw 0
+        dw 0B5h
+        dw 13Fh
+        dw 0C7h
+        dw offset loc_4C78D
+        dw 11Ch
+        dw 0
+        dw 13Fh
+        dw 0B4h
+        dw offset loc_4C78D
+        dw 0FFFFh ; end
+        dw 9001h
+        dw 5100h
+        dw 500h
+        dw 0
+        dw 7Fh
+        dw 4Ch
+        dw 12h
+        dw 7A03h
+        dw 4700h
+        dw 500h
+        dw 100h
+        dw 7Ah
+        dw 46h
+        dw 45h
+        dw 4C00h
+        dw 200h
+        dw 2E00h
+        dw 200h
+        dw 46h
+        dw 8
+        dw 7
+        dw 0FFh
+        dw 0
+        dw 0
+        dw 0
+        dw 67h
+        dw 27h
+        dw 10h
+        dw 7601h
+        dw 4D00h
+        dw 2600h
+        dw 300h
+        dw 77h
+        dw 4Eh
+        dw 6
+        dw 7C01h
+        dw 5500h
+        dw 200h
+        dw 100h
+        dw 7Ch
+        dw 70h
+        dw 8
+        dw 7902h
+        dw 7300h
+        dw 300h
+        dw 100h
+        dw 78h
+        dw 75h
+        dw 2
+        dw 7900h
+        dw 7E00h
+        dw 1800h
+        dw 100h
+        dw 90h
+        dw 7Fh
+        dw 2
+        dw 0FFh
+        dw 0
+        dw 0
+        dw 100h
+        dw 5Eh
+        db  2Ch ; ,
+        db    0
+        db    3
+        db    0
+        db    0
+        db  5Eh ; ^
+        db    0
+        db  2Ah ; *
+        db    0
+        db  13h
+        db    0
+        db    1
+		db  71h	; q
+		db    0
+		db  51h	; Q
+		db    0
+		db  28h	; (
+		db    0
+		db    3
+		db  72h	; r
+		db    0
+		db  52h	; R
+		db    0
+		db  0Eh
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    1
+		db  5Eh	; ^
+		db    0
+		db  4Eh	; N
+		db    0
+		db    2
+		db    0
+		db    0
+		db  5Fh	; _
+		db    0
+		db  4Eh	; N
+		db    0
+		db  0Bh
+		db    0
+		db    3
+		db  6Ah	; j
+		db    0
+		db  4Fh	; O
+		db    0
+		db    9
+		db    0
+		db    1
+		db  73h	; s
+		db    0
+		db  81h	; 
+		db    0
+		db  2Ah	; *
+		db    0
+		db    0
+		db  74h	; t
+		db    0
+		db  81h	; 
+		db    0
+		db  14h
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    1
+		db  58h	; X
+		db    0
+		db  73h	; s
+		db    0
+		db    3
+		db    0
+		db    0
+		db  59h	; Y
+		db    0
+		db  73h	; s
+		db    0
+		db  17h
+		db    0
+		db    1
+		db  70h	; p
+		db    0
+		db  73h	; s
+		db    0
+		db    3
+		db    0
+		db    1
+		db  77h	; w
+		db    0
+		db  5Eh	; ^
+		db    0
+		db    2
+		db    0
+		db    3
+		db  78h	; x
+		db    0
+		db  5Dh	; ]
+		db    0
+		db    8
+		db    0
+		db    3
+		db  78h	; x
+		db    0
+		db  5Eh	; ^
+		db    0
+		db    8
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    1
+		db  16h
+		db    0
+		db  72h	; r
+		db    0
+		db    2
+		db    0
+		db    0
+		db  0Bh
+		db    0
+		db  72h	; r
+		db    0
+		db  0Bh
+		db    0
+		db    1
+		db  0Ah
+		db    0
+		db  97h	; —
+		db    0
+		db  26h	; &
+		db    0
+		db    0
+		db    6
+		db    0
+		db  97h	; —
+		db    0
+		db    4
+		db    0
+		db    1
+		db    5
+		db    0
+		db  9Ch	; œ
+		db    0
+		db    6
+		db    0
+		db    1
+		db  0Eh
+		db    0
+		db  9Bh	; ›
+		db    0
+		db    3
+		db    0
+		db    0
+		db  0Fh
+		db    0
+		db  99h	; ™
+		db    0
+		db    6
+		db    0
+		db    1
+		db  15h
+		db    0
+		db 0A0h	;  
+		db    0
+		db    8
+		db    0
+		db    0
+		db  16h
+		db    0
+		db 0A0h	;  
+		db    0
+		db  14h
+		db    0
+		db    2
+		db  2Ah	; *
+		db    0
+		db  9Fh	; Ÿ
+		db    0
+		db    9
+		db    0
+		db    0
+		db  33h	; 3
+		db    0
+		db  97h	; —
+		db    0
+		db  4Ah	; J
+		db    0
+		db    3
+		db  7Dh	; }
+		db    0
+		db  98h	; ˜
+		db    0
+		db  0Ah
+		db    0
+		db    0
+		db  87h	; ‡
+		db    0
+		db 0A1h	; ¡
+		db    0
+		db    9
+		db    0
+		db    1
+		db  90h	; 
+		db    0
+		db 0A1h	; ¡
+		db    0
+		db    5
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    3
+		db  22h	; "
+		db    0
+		db  71h	; q
+		db    0
+		db    5
+		db    0
+		db    2
+		db  46h	; F
+		db    0
+		db  74h	; t
+		db    0
+		db    3
+		db    0
+		db    1
+		db  49h	; I
+		db    0
+		db  71h	; q
+		db    0
+		db    5
+		db    0
+		db    1
+		db  49h	; I
+		db    0
+		db  54h	; T
+		db    0
+		db    7
+		db    0
+		db    3
+		db  48h	; H
+		db    0
+		db  4Ch	; L
+		db    0
+		db    2
+		db    0
+		db    0
+		db    9
+		db    0
+		db  6Fh	; o
+		db    0
+		db    5
+		db    0
+		db    0
+		db    9
+		db    0
+		db  70h	; p
+		db    0
+		db    6
+		db    0
+		db    1
+		db    7
+		db    0
+		db  70h	; p
+		db    0
+		db  44h	; D
+		db    0
+		db    1
+		db    8
+		db    0
+		db  70h	; p
+		db    0
+		db  44h	; D
+		db    0
+		db    0
+		db    9
+		db    0
+		db  2Dh	; -
+		db    0
+		db    6
+		db    0
+		db    0
+		db    9
+		db    0
+		db  2Eh	; .
+		db    0
+		db    5
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    1
+		db  8Ah	; Š
+		db    0
+		db  25h	; %
+		db    0
+		db    2
+		db    0
+		db    0
+		db  7Dh	; }
+		db    0
+		db  25h	; %
+		db    0
+		db  0Dh
+		db    0
+		db    1
+		db  7Ch	; |
+		db    0
+		db  43h	; C
+		db    0
+		db  1Fh
+		db    0
+		db    3
+		db  7Dh	; }
+		db    0
+		db  44h	; D
+		db    0
+		db    6
+		db    0
+		db    0
+		db  83h	; ƒ
+		db    0
+		db  49h	; I
+		db    0
+		db  13h
+		db    0
+		db    1
+		db  96h	; –
+		db    0
+		db  51h	; Q
+		db    0
+		db    9
+		db    0
+		db    3
+		db  97h	; —
+		db    0
+		db  24h	; $
+		db    0
+		db    4
+		db    0
+		db    2
+		db 0B6h	; ¶
+		db    0
+		db  27h	; '
+		db    0
+		db    4
+		db    0
+		db    1
+		db 0C0h	; À
+		db    0
+		db  26h	; &
+		db    0
+		db    3
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    1
+		db  9Ch	; œ
+		db    0
+		db  41h	; A
+		db    0
+		db    7
+		db    0
+		db    1
+		db  9Ch	; œ
+		db    0
+		db  45h	; E
+		db    0
+		db    2
+		db    0
+		db    1
+		db  9Dh	; 
+		db    0
+		db  45h	; E
+		db    0
+		db    2
+		db    0
+		db    0
+		db 0B6h	; ¶
+		db    0
+		db  47h	; G
+		db    0
+		db    2
+		db    0
+		db    1
+		db 0B7h	; ·
+		db    0
+		db  55h	; U
+		db    0
+		db  0Eh
+		db    0
+		db    1
+		db 0B7h	; ·
+		db    0
+		db  66h	; f
+		db    0
+		db    7
+		db    0
+		db    1
+		db 0B7h	; ·
+		db    0
+		db  7Ch	; |
+		db    0
+		db  0Dh
+		db    0
+		db    2
+		db 0A8h	; ¨
+		db    0
+		db  8Bh	; ‹
+		db    0
+		db  0Fh
+		db    0
+		db    0
+		db 0A5h	; ¥
+		db    0
+		db  8Bh	; ‹
+		db    0
+		db    3
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    1
+		db 0B4h	; ´
+		db    0
+		db  41h	; A
+		db    0
+		db    7
+		db    0
+		db    1
+		db 0B4h	; ´
+		db    0
+		db  45h	; E
+		db    0
+		db    2
+		db    0
+		db    1
+		db 0B5h	; µ
+		db    0
+		db  45h	; E
+		db    0
+		db    2
+		db    0
+		db    0
+		db 0B6h	; ¶
+		db    0
+		db  47h	; G
+		db    0
+		db    2
+		db    0
+		db    1
+		db 0B7h	; ·
+		db    0
+		db  55h	; U
+		db    0
+		db  0Eh
+		db    0
+		db    1
+		db 0B7h	; ·
+		db    0
+		db  66h	; f
+		db    0
+		db    7
+		db    0
+		db    1
+		db 0B7h	; ·
+		db    0
+		db  7Ch	; |
+		db    0
+		db  0Dh
+		db    0
+		db    2
+		db 0A8h	; ¨
+		db    0
+		db  8Bh	; ‹
+		db    0
+		db  0Fh
+		db    0
+		db    0
+		db 0A5h	; ¥
+		db    0
+		db  8Bh	; ‹
+		db    0
+		db    3
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db 0B4h	; ´
+		db    0
+		db  5Ah	; Z
+		db    0
+		db    6
+		db    0
+		db    1
+		db 0BAh	; º
+		db    0
+		db  5Ah	; Z
+		db    0
+		db  18h
+		db    0
+		db    0
+		db 0BBh	; »
+		db    0
+		db  43h	; C
+		db    0
+		db  26h	; &
+		db    0
+		db    1
+		db 0E1h	; á
+		db    0
+		db  43h	; C
+		db    0
+		db  21h	; !
+		db    0
+		db    0
+		db 0E2h	; â
+		db    0
+		db  23h	; #
+		db    0
+		db  21h	; !
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    1
+		db  96h	; –
+		db    0
+		db 0A0h	;  
+		db    0
+		db    4
+		db    0
+		db    0
+		db  96h	; –
+		db    0
+		db 0A1h	; ¡
+		db    0
+		db  1Fh
+		db    0
+		db    1
+		db 0B5h	; µ
+		db    0
+		db 0A1h	; ¡
+		db    0
+		db  1Dh
+		db    0
+		db    2
+		db 0B5h	; µ
+		db    0
+		db  85h	; …
+		db    0
+		db    8
+		db    0
+		db    1
+		db 0BDh	; ½
+		db    0
+		db  7Dh	; }
+		db    0
+		db  16h
+		db    0
+		db    2
+		db 0BDh	; ½
+		db    0
+		db  67h	; g
+		db    0
+		db    4
+		db    0
+		db    1
+		db 0C0h	; À
+		db    0
+		db  63h	; c
+		db    0
+		db  19h
+		db    0
+		db    0
+		db 0C0h	; À
+		db    0
+		db  4Ah	; J
+		db    0
+		db  33h	; 3
+		db    0
+		db    2
+		db 0F3h	; ó
+		db    0
+		db  4Ah	; J
+		db    0
+		db  11h
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    3
+		db    1
+		db    1
+		db  7Eh	; ~
+		db    0
+		db  0Ah
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    3
+		db    1
+		db    1
+		db  83h	; ƒ
+		db    0
+		db  0Ah
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    3
+		db    1
+		db    1
+		db  88h	; ˆ
+		db    0
+		db  0Ah
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    3
+		db    1
+		db    1
+		db  8Dh	; 
+		db    0
+		db  0Ah
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    3
+		db    1
+		db    1
+		db  92h	; ’
+		db    0
+		db  0Ah
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    3
+		db    1
+		db    1
+		db  97h	; —
+		db    0
+		db  0Ah
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    3
+		db    1
+		db    1
+		db  74h	; t
+		db    0
+		db    4
+		db    0
+		db    0
+		db    5
+		db    1
+		db  77h	; w
+		db    0
+		db    4
+		db    0
+		db    3
+		db    1
+		db    1
+		db  6Fh	; o
+		db    0
+		db    2
+		db    0
+		db    0
+		db    3
+		db    1
+		db  70h	; p
+		db    0
+		db    7
+		db    0
+		db    0
+		db  0Ch
+		db    1
+		db  71h	; q
+		db    0
+		db    2
+		db    0
+		db    1
+		db  10h
+		db    1
+		db  72h	; r
+		db    0
+		db    2
+		db    0
+		db    1
+		db  11h
+		db    1
+		db  72h	; r
+		db    0
+		db    2
+		db    0
+		db    0
+		db  18h
+		db    1
+		db  71h	; q
+		db    0
+		db    7
+		db    0
+		db    0
+		db  18h
+		db    1
+		db  72h	; r
+		db    0
+		db    7
+		db    0
+		db    0
+		db  1Bh
+		db    1
+		db  77h	; w
+		db    0
+		db    3
+		db    0
+		db    0
+		db  24h	; $
+		db    1
+		db  77h	; w
+		db    0
+		db    2
+		db    0
+		db    1
+		db  25h	; %
+		db    1
+		db  83h	; ƒ
+		db    0
+		db  0Ch
+		db    0
+		db    0
+		db  21h	; !
+		db    1
+		db  83h	; ƒ
+		db    0
+		db    4
+		db    0
+		db    3
+		db  1Bh
+		db    1
+		db  7Eh	; ~
+		db    0
+		db    4
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    1
+		db  9Fh	; Ÿ
+		db    0
+		db 0B4h	; ´
+		db    0
+		db  0Eh
+		db    0
+		db    0
+		db 0A0h	;  
+		db    0
+		db 0A7h	; §
+		db    0
+		db  1Ch
+		db    0
+		db    1
+		db 0BBh	; »
+		db    0
+		db 0A6h	; ¦
+		db    0
+		db    8
+		db    0
+		db    0
+		db 0BBh	; »
+		db    0
+		db  95h	; •
+		db    0
+		db  0Ah
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    1
+		db  0Bh
+		db    0
+		db  98h	; ˜
+		db    0
+		db  0Bh
+		db    0
+		db    0
+		db  0Ch
+		db    0
+		db  8Eh	; Ž
+		db    0
+		db  38h	; 8
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db  0Ch
+		db    0
+		db  99h	; ™
+		db    0
+		db  38h	; 8
+		db    0
+		db    1
+		db  43h	; C
+		db    0
+		db  99h	; ™
+		db    0
+		db  0Bh
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    1
+		db  0Bh
+		db    0
+		db 0BFh	; ¿
+		db    0
+		db  0Bh
+		db    0
+		db    0
+		db  0Ch
+		db    0
+		db 0B5h	; µ
+		db    0
+		db  38h	; 8
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db  0Ch
+		db    0
+		db 0C0h	; À
+		db    0
+		db  38h	; 8
+		db    0
+		db    1
+		db  43h	; C
+		db    0
+		db 0C0h	; À
+		db    0
+		db  0Bh
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    1
+		db  8Dh	; 
+		db    0
+		db  69h	; i
+		db    0
+		db  10h
+		db    0
+		db    0
+		db  8Eh	; Ž
+		db    0
+		db  5Ah	; Z
+		db    0
+		db  0Dh
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db  8Dh	; 
+		db    0
+		db  6Ah	; j
+		db    0
+		db  0Eh
+		db    0
+		db    1
+		db  9Ah	; š
+		db    0
+		db  69h	; i
+		db    0
+		db  0Fh
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    1
+		db  8Dh	; 
+		db    0
+		db  87h	; ‡
+		db    0
+		db  10h
+		db    0
+		db    0
+		db  8Eh	; Ž
+		db    0
+		db  78h	; x
+		db    0
+		db  0Dh
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db  8Dh	; 
+		db    0
+		db  88h	; ˆ
+		db    0
+		db  0Eh
+		db    0
+		db    1
+		db  9Ah	; š
+		db    0
+		db  87h	; ‡
+		db    0
+		db  0Fh
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    1
+		db  8Eh	; Ž
+		db    0
+		db  98h	; ˜
+		db    0
+		db  0Bh
+		db    0
+		db    0
+		db  8Fh	; 
+		db    0
+		db  8Eh	; Ž
+		db    0
+		db 0A3h	; £
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db  8Fh	; 
+		db    0
+		db  99h	; ™
+		db    0
+		db 0A4h	; ¤
+		db    0
+		db    1
+		db  32h	; 2
+		db    1
+		db  98h	; ˜
+		db    0
+		db  0Bh
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    1
+		db  8Eh	; Ž
+		db    0
+		db 0BFh	; ¿
+		db    0
+		db  0Bh
+		db    0
+		db    0
+		db  8Fh	; 
+		db    0
+		db 0B5h	; µ
+		db    0
+		db 0A4h	; ¤
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db  8Eh	; Ž
+		db    0
+		db 0C0h	; À
+		db    0
+		db 0A4h	; ¤
+		db    0
+		db    1
+		db  32h	; 2
+		db    1
+		db 0C0h	; À
+		db    0
+		db  0Ch
+		db    0
+		db 0FFh
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+		db    0
+
+                
 byte_50910  db 0            ; DATA XREF: sub_4B671+5w sub_4B6C9+5w ...
 byte_50911  db 0            ; DATA XREF: sub_4B671+Aw sub_4B6C9+Aw ...
 byte_50912  db 0            ; DATA XREF: sub_4B671w sub_4B6C9w ...

@@ -1466,21 +1466,114 @@ loc_47551:              ; CODE XREF: readConfig+Fj
 readConfig  endp
 
 ; ---------------------------------------------------------------------------
-        db 0B8h, 0, 3Ch, 0B9h, 2 dup(0), 0BAh, 1Dh, 37h, 0CDh
-        db 21h, 73h, 3, 0E9h, 68h, 0FBh, 0A3h, 66h, 7, 0BEh, 68h
-        db 7, 80h, 3Eh, 78h, 95h, 2, 75h, 5, 0C6h, 4, 73h, 0EBh
-        db 33h, 80h, 3Eh, 78h, 95h, 1, 75h, 5, 0C6h, 4, 69h, 0EBh
-        db 27h, 80h, 3Eh, 78h, 95h, 3, 75h, 5, 0C6h, 4, 61h, 0EBh
-        db 1Bh, 80h, 3Eh, 78h, 95h, 5, 75h, 5, 0C6h, 4, 72h, 0EBh
-        db 0Fh, 80h, 3Eh, 77h, 95h, 5, 75h, 5, 0C6h, 4, 63h, 0EBh
-        db 3, 0C6h, 4, 62h, 46h, 80h, 3Eh, 30h, 6, 0, 75h, 5, 0C6h
-        db 4, 6Bh, 0EBh, 3, 0C6h, 4, 6Ah, 46h, 80h, 3Eh, 76h, 95h
-        db 0, 74h, 5, 0C6h, 4, 6Dh, 0EBh, 3, 0C6h, 4, 6Eh, 46h
-        db 80h, 3Eh, 75h, 95h, 0, 74h, 5, 0C6h, 4, 78h, 0EBh, 3
-        db 0C6h, 4, 79h, 8Bh, 1Eh, 66h, 7, 0B8h, 0, 40h, 0B9h
-        db 4, 0, 0BAh, 68h, 7, 0CDh, 21h, 73h, 3, 0E9h, 0DFh, 0FAh
-        db 0B8h, 0, 3Eh, 8Bh, 1Eh, 66h, 7, 0CDh, 21h, 73h, 3, 0E9h
-        db 0D1h, 0FAh, 0C3h
+sub_4755A       proc near               ; CODE XREF: code:loc_4CAECp
+                mov     ax, 3C00h
+                mov     cx, 0
+                mov     dx, 371Dh
+                int     21h             ; DOS - 2+ - CREATE A FILE WITH HANDLE (CREAT)
+                                        ; CX = attributes for file
+                                        ; DS:DX -> ASCIZ filename (may include drive and path)
+                jnb     short loc_4756A
+                jmp     exit
+; ---------------------------------------------------------------------------
+
+loc_4756A:                              ; CODE XREF: sub_4755A+Bj
+                mov     word_50A76, ax
+                mov     si, 768h
+                cmp     byte_59888, 2
+                jnz     short loc_4757C
+                mov     byte ptr [si], 73h ; 's'
+                jmp     short loc_475AF
+; ---------------------------------------------------------------------------
+
+loc_4757C:                              ; CODE XREF: sub_4755A+1Bj
+                cmp     byte_59888, 1
+                jnz     short loc_47588
+                mov     byte ptr [si], 69h ; 'i'
+                jmp     short loc_475AF
+; ---------------------------------------------------------------------------
+
+loc_47588:                              ; CODE XREF: sub_4755A+27j
+                cmp     byte_59888, 3
+                jnz     short loc_47594
+                mov     byte ptr [si], 61h ; 'a'
+                jmp     short loc_475AF
+; ---------------------------------------------------------------------------
+
+loc_47594:                              ; CODE XREF: sub_4755A+33j
+                cmp     byte_59888, 5
+                jnz     short loc_475A0
+                mov     byte ptr [si], 72h ; 'r'
+                jmp     short loc_475AF
+; ---------------------------------------------------------------------------
+
+loc_475A0:                              ; CODE XREF: sub_4755A+3Fj
+                cmp     byte_59887, 5
+                jnz     short loc_475AC
+                mov     byte ptr [si], 63h ; 'c'
+                jmp     short loc_475AF
+; ---------------------------------------------------------------------------
+
+loc_475AC:                              ; CODE XREF: sub_4755A+4Bj
+                mov     byte ptr [si], 62h ; 'b'
+
+loc_475AF:                              ; CODE XREF: sub_4755A+20j
+                                        ; sub_4755A+2Cj ...
+                inc     si
+                cmp     byte_50940, 0
+                jnz     short loc_475BC
+                mov     byte ptr [si], 6Bh ; 'k'
+                jmp     short loc_475BF
+; ---------------------------------------------------------------------------
+
+loc_475BC:                              ; CODE XREF: sub_4755A+5Bj
+                mov     byte ptr [si], 6Ah ; 'j'
+
+loc_475BF:                              ; CODE XREF: sub_4755A+60j
+                inc     si
+                cmp     byte_59886, 0
+                jz      short loc_475CC
+                mov     byte ptr [si], 6Dh ; 'm'
+                jmp     short loc_475CF
+; ---------------------------------------------------------------------------
+
+loc_475CC:                              ; CODE XREF: sub_4755A+6Bj
+                mov     byte ptr [si], 6Eh ; 'n'
+
+loc_475CF:                              ; CODE XREF: sub_4755A+70j
+                inc     si
+                cmp     byte_59885, 0
+                jz      short loc_475DC
+                mov     byte ptr [si], 78h ; 'x'
+                jmp     short loc_475DF
+; ---------------------------------------------------------------------------
+
+loc_475DC:                              ; CODE XREF: sub_4755A+7Bj
+                mov     byte ptr [si], 79h ; 'y'
+
+loc_475DF:                              ; CODE XREF: sub_4755A+80j
+                mov     bx, word_50A76
+                mov     ax, 4000h
+                mov     cx, 4
+                mov     dx, 768h
+                int     21h             ; DOS - 2+ - WRITE TO FILE WITH HANDLE
+                                        ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
+                jnb     short loc_475F3
+                jmp     exit
+; ---------------------------------------------------------------------------
+
+loc_475F3:                              ; CODE XREF: sub_4755A+94j
+                mov     ax, 3E00h
+                mov     bx, word_50A76
+                int     21h             ; DOS - 2+ - CLOSE A FILE WITH HANDLE
+                                        ; BX = file handle
+                jnb     short locret_47601
+                jmp     exit
+; ---------------------------------------------------------------------------
+
+locret_47601:                           ; CODE XREF: sub_4755A+A2j
+                retn
+sub_4755A       endp
 
 ; =============== S U B R O U T I N E =======================================
 
@@ -10353,6 +10446,7 @@ loc_4B248:              ; CODE XREF: demoSomething?+4Bj
 demoSomething?  endp
 
 ; ---------------------------------------------------------------------------
+loc_4B262:
         mov byte_50915, 1
         mov byte_50913, 0
         mov byte_50914, 1
@@ -10384,6 +10478,7 @@ loc_4B2A5:              ; CODE XREF: code:4678j code:467Fj
         call    sub_4B8BE
         retn
 ; ---------------------------------------------------------------------------
+loc_4B2AF:
         mov byte_50915, 1
         mov byte_50913, 1
         mov byte_50914, 0
@@ -13484,10 +13579,15 @@ sub_4C6EF   proc near       ; CODE XREF: sub_47F39+9p
 sub_4C6EF   endp
 
 ; ---------------------------------------------------------------------------
-        dd 1780B81Eh
+sub_4C6F5:
+        ;TODO
+        push ds
+        mov ax, demoseg
+        ; dd 1780B81Eh
 ; ---------------------------------------------------------------------------
         jmp short loc_4C684
 ; ---------------------------------------------------------------------------
+loc_4C6FB:
         call    sub_4C705
         call    sound?4
         call    sub_4CAFC
@@ -13580,6 +13680,7 @@ loc_4C75A:              ; CODE XREF: sub_4C741+Fj
 sub_4C741   endp
 
 ; ---------------------------------------------------------------------------
+loc_4C75E:
         cmp byte_59885, 1
         jnz short loc_4C76C
         mov byte_59885, 0
@@ -13594,15 +13695,18 @@ loc_4C774:              ; CODE XREF: code:5B4Aj
         call    sub_4CC7C
         retn
 ; ---------------------------------------------------------------------------
+loc_4C778:
         mov byte_50940, 0
         call    sub_4CCDF
         retn
 ; ---------------------------------------------------------------------------
+loc_4C781:
         mov byte_50940, 1
         call    sub_4921B
         call    sub_4CCDF
         retn
 ; ---------------------------------------------------------------------------
+loc_4C78D:
         mov word_58463, 1
         retn
 
@@ -13896,24 +14000,87 @@ loc_4CA34:              ; CODE XREF: runMainMenu+223j
 runMainMenu endp
 
 ; ---------------------------------------------------------------------------
-        db 0C6h, 6, 9, 6, 0FFh, 0E8h, 0ACh, 0FCh, 0E8h, 0B0h, 0
-        db 0E8h, 2Dh, 2, 0E8h, 8Dh, 2, 0BEh, 55h, 60h, 0E8h, 0DEh
-        db 0Dh, 0E8h, 54h, 0FBh, 0C7h, 6, 53h, 81h, 2 dup(0), 0E8h
-        db 0F8h, 0EDh, 0E8h, 57h, 0EEh, 0E8h, 0A5h, 9, 0E8h, 0CFh
-        db 2, 0FFh, 6, 4Dh, 16h, 0E8h, 0DBh, 8, 89h, 1Eh, 6Dh
-        db 2 dup(81h), 0C1h, 40h, 1, 89h, 0Eh, 6Fh, 81h, 89h, 16h
-        db 73h, 81h, 0E8h, 12h, 0EEh, 0E8h, 0D2h, 0EDh, 0E8h, 31h
-        db 0EEh, 8Bh, 1Eh, 6Dh, 81h, 83h, 0FBh, 2, 74h, 56h, 80h
-        db 3Eh, 6Eh, 16h, 1, 74h, 4Fh, 83h, 3Eh, 53h, 81h, 1, 74h
-        db 48h, 83h, 0FBh, 1, 74h, 2, 0EBh, 0BCh, 8Bh, 0Eh, 6Fh
-        db 2 dup(81h), 0E9h, 40h, 1, 8Bh, 16h, 73h, 81h, 0BEh
-        db 0ACh, 0, 39h, 0Ch, 7Fh, 23h, 39h, 54h, 2, 7Fh, 1Eh
-        db 39h, 4Ch, 4, 7Ch, 19h, 39h, 54h, 6, 7Ch, 14h, 0FFh
-        db 54h, 8, 0E8h, 3Ch, 9, 0FFh, 6, 4Dh, 16h, 0E8h, 75h
-        db 8, 83h, 0FBh, 0, 75h, 0F1h, 0EBh, 86h, 83h, 0C6h, 0Ah
-        db 83h, 3Ch, 0FFh, 75h, 0D1h, 0E9h, 7Bh, 0FFh, 0E8h, 6Bh
-        db 0AAh, 0E8h, 5Dh, 0F9h, 0E8h, 0FDh, 0F7h, 0BEh, 15h
-        db 60h, 0E8h, 3Bh, 0Dh, 0C3h
+
+loc_4CA41:                              ; DATA XREF: data:0044o
+                mov     byte_50919, 0FFh
+                call    sub_4C6F5
+                call    sub_4CAFC
+                call    sub_4CC7C
+                call    sub_4CCDF
+                mov     si, 6055h
+                call    sub_4D836
+                call    sub_4C5AF
+                mov     word_58463, 0
+                call    sub_4B85C
+                call    sub_4B8BE
+
+loc_4CA67:                              ; CODE XREF: code:5E89j
+                                        ; code:5EBFj ...
+                call    videoloop
+                call    sub_4CD3C
+                inc     word_5195D
+                call    getMouseStatus
+                mov     word_5847D, bx
+                add     cx, 140h
+                mov     mousex, cx
+                mov     mousey, dx
+                call    sub_4B899
+                call    sub_4B85C
+                call    sub_4B8BE
+                mov     bx, word_5847D
+                cmp     bx, 2
+                jz      short loc_4CAEC
+                cmp     byte_5197E, 1
+                jz      short loc_4CAEC
+                cmp     word_58463, 1
+                jz      short loc_4CAEC
+                cmp     bx, 1
+                jz      short loc_4CAAB
+                jmp     short loc_4CA67
+; ---------------------------------------------------------------------------
+
+loc_4CAAB:                              ; CODE XREF: code:5E87j
+                mov     cx, mousex
+                sub     cx, 140h
+                mov     dx, mousey
+                mov     si, 0ACh ; '¼'
+
+loc_4CABA:                              ; CODE XREF: code:5EC7j
+                cmp     [si], cx
+                jg      short loc_4CAE1
+                cmp     [si+2], dx
+                jg      short loc_4CAE1
+                cmp     [si+4], cx
+                jl      short loc_4CAE1
+                cmp     [si+6], dx
+                jl      short loc_4CAE1
+                call    word ptr [si+8]
+
+loc_4CAD0:                              ; CODE XREF: code:5EBDj
+                call    videoloop
+                inc     word_5195D
+                call    getMouseStatus
+                cmp     bx, 0
+                jnz     short loc_4CAD0
+                jmp     short loc_4CA67
+; ---------------------------------------------------------------------------
+
+loc_4CAE1:                              ; CODE XREF: code:5E9Cj
+                                        ; code:5EA1j ...
+                add     si, 0Ah
+                cmp     word ptr [si], 0FFFFh
+                jnz     short loc_4CABA
+                jmp     loc_4CA67
+; ---------------------------------------------------------------------------
+
+loc_4CAEC:                              ; CODE XREF: code:5E74j
+                                        ; code:5E7Bj ...
+                call    sub_4755A
+                call    loc_4C44F
+                call    sub_4C2F2
+                mov     si, 6015h
+                call    sub_4D836
+                retn
 
 ; =============== S U B R O U T I N E =======================================
 
@@ -15280,18 +15447,18 @@ sub_4D34F   proc near       ; CODE XREF: sub_47E98:loc_47EB0p
         jmp locret_4D40E
 ; ---------------------------------------------------------------------------
 
-loc_4D360:              ; CODE XREF: sub_4D34F+5j
+loc_4D360:              ; CODE XREF: getMouseStatus+5j
         xor bx, bx
         cmp byte_5197E, 1
         jnz short loc_4D36C
         mov bx, 2
 
-loc_4D36C:              ; CODE XREF: sub_4D34F+18j
+loc_4D36C:              ; CODE XREF: getMouseStatus+18j
         cmp byte_51999, 1
         jnz short loc_4D376
         mov bx, 1
 
-loc_4D376:              ; CODE XREF: sub_4D34F+22j
+loc_4D376:              ; CODE XREF: getMouseStatus+22j
         mov cx, 1
         mov ax, word ptr dword_58488
         shr ax, 1
@@ -15303,40 +15470,40 @@ loc_4D376:              ; CODE XREF: sub_4D34F+22j
         sub word_58485, ax
         xor cx, cx
 
-loc_4D390:              ; CODE XREF: sub_4D34F+39j
+loc_4D390:              ; CODE XREF: getMouseStatus+39j
         cmp byte_519CD, 1
         jnz short loc_4D39D
         add word_58485, ax
         xor cx, cx
 
-loc_4D39D:              ; CODE XREF: sub_4D34F+46j
+loc_4D39D:              ; CODE XREF: getMouseStatus+46j
         cmp byte_519C8, 1
         jnz short loc_4D3AA
         sub word_58481, ax
         xor cx, cx
 
-loc_4D3AA:              ; CODE XREF: sub_4D34F+53j
+loc_4D3AA:              ; CODE XREF: getMouseStatus+53j
         cmp byte_519CA, 1
         jnz short loc_4D3B7
         add word_58481, ax
         xor cx, cx
 
-loc_4D3B7:              ; CODE XREF: sub_4D34F+60j
+loc_4D3B7:              ; CODE XREF: getMouseStatus+60j
         or  cx, cx
         jnz short loc_4D3C1
         inc word ptr dword_58488
         jmp short loc_4D3C7
 ; ---------------------------------------------------------------------------
 
-loc_4D3C1:              ; CODE XREF: sub_4D34F+6Aj
+loc_4D3C1:              ; CODE XREF: getMouseStatus+6Aj
         mov word ptr dword_58488, 1
 
-loc_4D3C7:              ; CODE XREF: sub_4D34F+70j
+loc_4D3C7:              ; CODE XREF: getMouseStatus+70j
         cmp word ptr dword_58488, 40h ; '@'
         jbe short loc_4D3D4
         mov word ptr dword_58488, 40h ; '@'
 
-loc_4D3D4:              ; CODE XREF: sub_4D34F+7Dj
+loc_4D3D4:              ; CODE XREF: getMouseStatus+7Dj
         mov cx, word_58481
         mov dx, word_58485
         cmp cx, 10h
