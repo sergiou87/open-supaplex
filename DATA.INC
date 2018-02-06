@@ -430,101 +430,101 @@ word_51854  dw 2A69h        ; DATA XREF: sub_48F6D+65r
 word_51856  dw 2E38h        ; DATA XREF: sub_48F6D+27r
 word_51858  dw 2E39h        ; DATA XREF: sub_48F6D+9Fr
 movingFunctions3 dw offset sub_4F312    ; DATA XREF: uncalled?4+16r
-        dw 86F2h
-        dw 86F2h
-        dw 86F2h
-        dw 86F2h
-        dw 86F2h
-        dw 86F2h
-        dw 86F2h
+        dw offset sub_4F312
+        dw offset sub_4F312
+        dw offset sub_4F312
+        dw offset sub_4F312
+        dw offset sub_4F312
+        dw offset sub_4F312
+        dw offset sub_4F312
         dw offset sub_4F40D
-        dw 87EDh
-        dw 87EDh
-        dw 87EDh
-        dw 87EDh
-        dw 87EDh
-        dw 87EDh
-        dw 87EDh
+        dw offset sub_4F40D
+        dw offset sub_4F40D
+        dw offset sub_4F40D
+        dw offset sub_4F40D
+        dw offset sub_4F40D
+        dw offset sub_4F40D
+        dw offset sub_4F40D
         dw offset sub_4F50A
-        dw 88EAh
-        dw 88EAh
-        dw 88EAh
-        dw 88EAh
-        dw 88EAh
-        dw 88EAh
-        dw 88EAh
+        dw offset sub_4F50A
+        dw offset sub_4F50A
+        dw offset sub_4F50A
+        dw offset sub_4F50A
+        dw offset sub_4F50A
+        dw offset sub_4F50A
+        dw offset sub_4F50A
         dw offset sub_4F5B5
-        dw 8995h
-        dw 8995h
-        dw 8995h
-        dw 8995h
-        dw 8995h
-        dw 8995h
-        dw 8995h
+        dw offset sub_4F5B5
+        dw offset sub_4F5B5
+        dw offset sub_4F5B5
+        dw offset sub_4F5B5
+        dw offset sub_4F5B5
+        dw offset sub_4F5B5
+        dw offset sub_4F5B5
         dw offset sub_4F65B
-        dw 8A3Bh
-        dw 8A3Bh
-        dw 8A3Bh
-        dw 8A3Bh
-        dw 8A3Bh
-        dw 8A3Bh
-        dw 8A3Bh
+        dw offset sub_4F65B
+        dw offset sub_4F65B
+        dw offset sub_4F65B
+        dw offset sub_4F65B
+        dw offset sub_4F65B
+        dw offset sub_4F65B
+        dw offset sub_4F65B
         dw offset sub_4F708
-        dw 8AE8h
-        dw 8AE8h
-        dw 8AE8h
-        dw 8AE8h
-        dw 8AE8h
-        dw 8AE8h
-        dw 8AE8h
+        dw offset sub_4F708
+        dw offset sub_4F708
+        dw offset sub_4F708
+        dw offset sub_4F708
+        dw offset sub_4F708
+        dw offset sub_4F708
+        dw offset sub_4F708
 movingFunctions2 dw offset sub_4F7D1    ; DATA XREF: uncalled?6+16r
-        dw 8BB1h
-        dw 8BB1h
-        dw 8BB1h
-        dw 8BB1h
-        dw 8BB1h
-        dw 8BB1h
-        dw 8BB1h
+        dw offset sub_4F7D1
+        dw offset sub_4F7D1
+        dw offset sub_4F7D1
+        dw offset sub_4F7D1
+        dw offset sub_4F7D1
+        dw offset sub_4F7D1
+        dw offset sub_4F7D1
         dw offset sub_4F8A5
-        dw 8C85h
-        dw 8C85h
-        dw 8C85h
-        dw 8C85h
-        dw 8C85h
-        dw 8C85h
-        dw 8C85h
+        dw offset sub_4F8A5
+        dw offset sub_4F8A5
+        dw offset sub_4F8A5
+        dw offset sub_4F8A5
+        dw offset sub_4F8A5
+        dw offset sub_4F8A5
+        dw offset sub_4F8A5
         dw offset sub_4F97B
-        dw 8D5Bh
-        dw 8D5Bh
-        dw 8D5Bh
-        dw 8D5Bh
-        dw 8D5Bh
-        dw 8D5Bh
-        dw 8D5Bh
+        dw offset sub_4F97B
+        dw offset sub_4F97B
+        dw offset sub_4F97B
+        dw offset sub_4F97B
+        dw offset sub_4F97B
+        dw offset sub_4F97B
+        dw offset sub_4F97B
         dw offset sub_4FA26
-        dw 8E06h
-        dw 8E06h
-        dw 8E06h
-        dw 8E06h
-        dw 8E06h
-        dw 8E06h
-        dw 8E06h
+        dw offset sub_4FA26
+        dw offset sub_4FA26
+        dw offset sub_4FA26
+        dw offset sub_4FA26
+        dw offset sub_4FA26
+        dw offset sub_4FA26
+        dw offset sub_4FA26
         dw offset sub_4FACC
-        dw 8EACh
-        dw 8EACh
-        dw 8EACh
-        dw 8EACh
-        dw 8EACh
-        dw 8EACh
-        dw 8EACh
+        dw offset sub_4FACC
+        dw offset sub_4FACC
+        dw offset sub_4FACC
+        dw offset sub_4FACC
+        dw offset sub_4FACC
+        dw offset sub_4FACC
+        dw offset sub_4FACC
         dw offset sub_4FB79
-        dw 8F59h
-        dw 8F59h
-        dw 8F59h
-        dw 8F59h
-        dw 8F59h
-        dw 8F59h
-        dw 8F59h
+        dw offset sub_4FB79
+        dw offset sub_4FB79
+        dw offset sub_4FB79
+        dw offset sub_4FB79
+        dw offset sub_4FB79
+        dw offset sub_4FB79
+        dw offset sub_4FB79
 movingFunctions dw 0            ; DATA XREF: gameloop?+70r
         dw offset uncalled?
         dw 0
