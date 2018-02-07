@@ -13582,7 +13582,7 @@ sub_4C6EF   endp
 sub_4C6F5:
         ;TODO
         push ds
-        mov ax, demoseg
+        mov ax, controlsseg
         ; dd 1780B81Eh
 ; ---------------------------------------------------------------------------
         jmp short loc_4C684
