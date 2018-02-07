@@ -3224,7 +3224,7 @@ sub_47F39   proc near       ; CODE XREF: readPallettes+Fp
         call    enableFloppy?
         mov si, 60D5h
         call    sub_4D836
-        call    sub_4C6EF
+        call    vgaloadbackseg
         cmp byte_53A10, 1
         jnz short loc_47F56
         mov si, 370Fh
@@ -10135,7 +10135,7 @@ loc_4AFB6:              ; CODE XREF: sub_4AF0C+B9j
 loc_4AFE3:              ; CODE XREF: sub_4AF0C+58j
         mov si, 60D5h
         call    fade
-        call    sub_4C6EF
+        call    vgaloadbackseg
         mov byte_5091A, 0
         mov si, 83A4h
         mov di, 5716h
@@ -10302,7 +10302,7 @@ sub_4AF0C   endp
 
 
 sub_4B149   proc near
-        call    sub_4C680
+        call    vgaloadgfxseg
         call    sub_4C5AF
         call    sub_47E98
         call    loc_4C44F
@@ -10516,7 +10516,7 @@ loc_4B2F2:              ; CODE XREF: code:46C5j code:46CCj
 sub_4B2FC   proc near       ; CODE XREF: sub_4B375+56p
         mov si, 60D5h
         call    fade
-        call    sub_4C6EF
+        call    vgaloadbackseg
         mov si, 8718h
         mov ah, 0Fh
         mov di, 5BDFh
@@ -10883,7 +10883,7 @@ locret_4B582:               ; CODE XREF: sub_4B419+27j
 loc_4B583:              ; CODE XREF: sub_4B419+17j
         mov si, 60D5h
         call    fade
-        call    sub_4C6EF
+        call    vgaloadbackseg
         mov si, 84FFh
         mov di, 786Dh
         mov ah, 0Fh
@@ -10990,7 +10990,7 @@ loc_4B63D:              ; CODE XREF: sub_4B419+1DAj
 
 loc_4B647:              ; CODE XREF: sub_4B419+222j
         call    readEverything
-        call    sub_4C6EF
+        call    vgaloadbackseg
 
 loc_4B64D:              ; CODE XREF: sub_4B419+22Cj
         mov si, 60D5h
@@ -11200,7 +11200,7 @@ sub_4B7B7   proc near
         inc dx
         mov al, bh
         out dx, al      ; Video: CRT controller internal registers
-        call    sub_4C6EF
+        call    vgaloadbackseg
         mov si, 861Dh
         mov di, 5252h
         mov ah, 0Fh
@@ -13244,7 +13244,7 @@ sub_4C4BD   endp
 sub_4C4F9   proc near       ; CODE XREF: sub_4C407+11p
         mov si, 60D5h
         call    sub_4D836
-        call    sub_4C6EF
+        call    vgaloadbackseg
         mov si, 8577h
         mov di, 6A2Ch
         mov ah, 0Fh
@@ -13476,16 +13476,15 @@ sub_4C611   endp
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_4C680   proc near       ; CODE XREF: sub_4B149p
+vgaloadgfxseg:
         push    ds
         mov ax, seg gfxseg
-sub_4C680   endp ; sp-analysis failed
 
-; START OF FUNCTION CHUNK FOR sub_4C6EF
+; START OF FUNCTION CHUNK FOR vgaloadbackseg
 
-loc_4C684:              ; CODE XREF: sub_4C6EF+4j code:5AD9j
+vgaloadseginax:              ; CODE XREF: vgaloadbackseg+4j code:5AD9j
         mov ds, ax
-        assume ds:gfxseg
+        assume ds:nothing
         mov si, 0
         mov di, 4D84h
         mov dx, 3CEh
@@ -13517,11 +13516,11 @@ loc_4C684:              ; CODE XREF: sub_4C6EF+4j code:5AD9j
         out dx, al      ; EGA port: graphics controller data register
         mov cx, 0C8h ; '?'
 
-loc_4C6AD:              ; CODE XREF: sub_4C6EF-22j
+loc_4C6AD:              ; CODE XREF: vgaloadbackseg-22j
         push    cx
         mov ah, 1
 
-loc_4C6B0:              ; CODE XREF: sub_4C6EF-28j
+loc_4C6B0:              ; CODE XREF: vgaloadbackseg-28j
         mov dx, 3C4h
         mov al, 2
         out dx, al      ; EGA: sequencer address reg
@@ -13563,29 +13562,21 @@ loc_4C6B0:              ; CODE XREF: sub_4C6EF-28j
         pop ds
         assume ds:data
         retn
-; END OF FUNCTION CHUNK FOR sub_4C6EF
+; END OF FUNCTION CHUNK FOR vgaloadbackseg
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_4C6EF   proc near       ; CODE XREF: sub_47F39+9p
-                    ; sub_4AF0C+DDp ...
-
-; FUNCTION CHUNK AT 5A64 SIZE 0000006B BYTES
-
+vgaloadbackseg:
         push    ds
         mov ax, backseg
-        jmp short loc_4C684
-sub_4C6EF   endp
+        jmp short vgaloadseginax
 
 ; ---------------------------------------------------------------------------
-sub_4C6F5:
-        ;TODO
+vgaloadcontrolsseg:
         push ds
         mov ax, controlsseg
-        ; dd 1780B81Eh
-; ---------------------------------------------------------------------------
-        jmp short loc_4C684
+        jmp short vgaloadseginax
 ; ---------------------------------------------------------------------------
 loc_4C6FB:
         call    sub_4C705
@@ -14003,7 +13994,7 @@ runMainMenu endp
 
 showControls:                              ; DATA XREF: data:0044o
                 mov     byte_50919, 0FFh
-                call    sub_4C6F5
+                call    vgaloadcontrolsseg
                 call    sub_4CAFC
                 call    sub_4CC7C
                 call    sub_4CCDF
