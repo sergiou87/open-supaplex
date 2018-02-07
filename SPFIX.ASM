@@ -2514,7 +2514,7 @@ loc_47B46:              ; CODE XREF: readBackDat+Dj
 loc_47B49:              ; CODE XREF: readBackDat+8j
         mov word_50A76, ax
         push    ds
-        mov ax, seg zeg004
+        mov ax, seg backseg
         mov bx, word_50A76
         mov ds, ax
         assume ds:nothing
@@ -2949,7 +2949,7 @@ loc_47DB5:              ; CODE XREF: readGfxDat+8j
         mov word_50A76, ax
         mov bx, word_50A76
         push    ds
-        mov ax, seg zeg002
+        mov ax, seg gfxseg
         mov ds, ax
         assume ds:nothing
         mov ax, 3F00h
@@ -3007,9 +3007,9 @@ loc_47DFC:              ; CODE XREF: readControlsDat+8j
         mov word_50A76, ax
         mov bx, word_50A76
         push    ds
-        mov ax, seg zeg003
+        mov ax, seg controlsseg
         mov ds, ax
-        assume ds:nothing
+        assume ds:controlsseg
         mov ax, 3F00h
         mov cx, 7D00h
         mov dx, 0
@@ -9530,7 +9530,7 @@ loc_4AAED:              ; CODE XREF: readMenuDat+8j
         mov word_50A76, ax
         mov bx, word_50A76
         push    ds
-        mov ax, seg zeg001
+        mov ax, seg menuseg
         mov ds, ax
         assume ds:nothing
         mov ax, 3F00h
@@ -13390,7 +13390,7 @@ sub_4C5AF   endp
 sub_4C611   proc near       ; CODE XREF: sub_4C407+14p
                     ; sub_4C407:loc_4C44Fp ...
         push    ds
-        mov ax, seg zeg001
+        mov ax, seg menuseg
         mov ds, ax
         assume ds:nothing
         mov si, 0
@@ -13478,14 +13478,14 @@ sub_4C611   endp
 
 sub_4C680   proc near       ; CODE XREF: sub_4B149p
         push    ds
-        mov ax, seg zeg002
+        mov ax, seg gfxseg
 sub_4C680   endp ; sp-analysis failed
 
 ; START OF FUNCTION CHUNK FOR sub_4C6EF
 
 loc_4C684:              ; CODE XREF: sub_4C6EF+4j code:5AD9j
         mov ds, ax
-        assume ds:nothing
+        assume ds:gfxseg
         mov si, 0
         mov di, 4D84h
         mov dx, 3CEh
@@ -13574,7 +13574,7 @@ sub_4C6EF   proc near       ; CODE XREF: sub_47F39+9p
 ; FUNCTION CHUNK AT 5A64 SIZE 0000006B BYTES
 
         push    ds
-        mov ax, zeg004
+        mov ax, backseg
         jmp short loc_4C684
 sub_4C6EF   endp
 
@@ -14009,7 +14009,7 @@ showControls:                              ; DATA XREF: data:0044o
                 call    sub_4CCDF
                 mov     si, 6055h
                 call    sub_4D836
-                call    sub_4C5AF
+                call    sub_4C5AF  ; DO SLIDE
                 mov     word_58463, 0
                 call    sub_4B85C
                 call    sub_4B8BE
@@ -16399,15 +16399,15 @@ sub_4D8B0   proc near       ; CODE XREF: start+2A5p
         push    ds
         xor ax, ax
         mov ds, ax
-        assume ds:zeg000
+        assume ds:nothing
         mov bx, 200h
         mov [bx], ax
-        mov ax, seg seg004
+        mov ax, seg soundseg
         mov [bx+2], ax
         xor ax, ax
         mov bx, 204h
         mov [bx], ax
-        mov ax, seg seg005
+        mov ax, seg sound2seg
         mov [bx+2], ax
         pop ds
         assume ds:data
@@ -16582,9 +16582,9 @@ loc_4DA51:              ; CODE XREF: readSound+5j
         mov word_50A76, ax
         mov bx, word_50A76
         push    ds
-        mov ax, seg seg004
+        mov ax, seg soundseg
         mov ds, ax
-        assume ds:seg004
+        assume ds:soundseg
         mov ax, 3F00h
         mov dx, 0
         int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
@@ -16629,9 +16629,9 @@ loc_4DA86:              ; CODE XREF: readSound2+5j
         mov word_50A76, ax
         mov bx, word_50A76
         push    ds
-        mov ax, seg seg005
+        mov ax, seg sound2seg
         mov ds, ax
-        assume ds:seg005
+        assume ds:sound2seg
         mov ax, 3F00h
         mov dx, 0
         int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE

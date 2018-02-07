@@ -5,24 +5,24 @@ zeg000      segment para public 'UNK' use16
 zeg000      ends
 
 ; ===========================================================================
-zeg001      segment para public 'UNK' use16
+menuseg      segment para public 'UNK' use16
         db 7D00h dup(0)
-zeg001      ends
+menuseg      ends
 
 ; ===========================================================================
-zeg002      segment para public 'UNK' use16
+gfxseg      segment para public 'UNK' use16
         db 7D00h dup(0)
-zeg002      ends
+gfxseg      ends
 
 ; ===========================================================================
-zeg003      segment para public 'UNK' use16
+controlsseg      segment para public 'UNK' use16
         db 7D00h dup(0)
-zeg003      ends
+controlsseg      ends
 
 ; ===========================================================================
-zeg004      segment para public 'UNK' use16
+backseg      segment para public 'UNK' use16
         db 7D00h dup(0)
-zeg004      ends
+backseg      ends
 
 ; ===========================================================================
 demoseg      segment para public 'UNK' use16
@@ -43,18 +43,18 @@ doserrors      segment para public 'UNK' use16
 doserrors      ends
 
 ; ===========================================================================
-seg004      segment para public 'UNK' use16
+soundseg      segment para public 'UNK' use16
         db 0CFh ; ?
         db 1Fh dup(0)
         db 0DFh dup(0)
         db 14F1h dup(0)
-seg004      ends
+soundseg      ends
 
 ; ===========================================================================
-seg005      segment para public 'UNK' use16
+sound2seg      segment para public 'UNK' use16
         db 0CFh ; ?
         db 9C4Fh dup(0)
-seg005      ends
+sound2seg      ends
 
 ; Segment type: Uninitialized
 stackseg        segment para stack 'STACK' use16
