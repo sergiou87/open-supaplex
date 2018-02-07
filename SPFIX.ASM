@@ -3,11 +3,6 @@
 nosmart
 
 
-include VARS.INC
-include SEGMENTS.INC
-include DATA.INC
-
-
 ; ===========================================================================
 code segment para public 'CODE' use16
         assume cs:code
@@ -22675,5 +22670,12 @@ showNewCredits  endp
 
 ; ---------------------------------------------------------------------------
 code        ends
+
+
+
+include VARS.INC
+include SEGMENTS.INC
+include DATA.INC
+
 
 end start
