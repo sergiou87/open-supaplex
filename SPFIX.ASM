@@ -25,7 +25,6 @@ start       proc near
         mov ds, dx
         assume ds:data
 
-;pprogramStart::
 programStart:               ; CODE XREF: runMainMenu+28Fp
                     ; DATA XREF: data:000Ao
         ;db 26h, 8Ah, 0Eh, 80h, 00h
@@ -64,15 +63,15 @@ copyNextCmdLineByte:            ; CODE XREF: start+28j
 processCommandLine:         ; CODE XREF: start+F7j
         mov al, 3Ah ; ':'
         repne scasb
-        jz  short nocolon
-        jmp hasColon
+        jz  short hascolon
+        jmp nohascolon
 ; ---------------------------------------------------------------------------
 
-nocolon:                ; CODE XREF: start+39j
+hascolon:                ; CODE XREF: start+39j
         mov al, 20h ; ' '
         mov si, 95C4h
 
-loc_46C63:              ; CODE XREF: start+52j
+copyArgument:              ; CODE XREF: start+52j
         or  cx, cx
         jz  short loc_46C74
         mov ah, es:[di]
@@ -81,7 +80,7 @@ loc_46C63:              ; CODE XREF: start+52j
         mov [si], ah
         inc si
         inc di
-        loop    loc_46C63
+        loop    copyArgument
 
 loc_46C74:              ; CODE XREF: start+45j start+4Cj
         xor al, al
@@ -173,7 +172,7 @@ loc_46CE4:              ; CODE XREF: start+A6j start+ABj
         repne scasb
         jnz short loc_46D09
         call    conprintln
-        jmp loc_470B1
+        jmp immediateexit
 ; ---------------------------------------------------------------------------
 
 loc_46CF4:              ; CODE XREF: start+B4j
@@ -201,13 +200,11 @@ loc_46D13:              ; CODE XREF: start+E7j
         jmp processCommandLine
 ; ---------------------------------------------------------------------------
 
-hasColon:               ; CODE XREF: start+3Bj
+nohascolon:               ; CODE XREF: start+3Bj
         pop cx
         pop di
         push    di
         push    cx
-
-loc_46D1E:
         mov al, 40h ; '@'
         repne scasb
         pop cx
@@ -217,7 +214,7 @@ loc_46D1E:
         jnz short demoFileNotMissing
         lea si, a@ErrorBadOrMis ; "\"@\"-ERROR: Bad or missing \":filename"...
         call    conprint
-        jmp loc_470B1
+        jmp immediateexit
 ; ---------------------------------------------------------------------------
 
 demoFileNotMissing:              ; CODE XREF: start+10Bj
@@ -225,7 +222,7 @@ demoFileNotMissing:              ; CODE XREF: start+10Bj
         jz  short spNotWithoutDemo
         lea si, aSpWithoutDemo ; "SP without demo: "
         call    conprintln
-        jmp loc_470B1
+        jmp immediateexit
 ; ---------------------------------------------------------------------------
 
 spNotWithoutDemo:              ; CODE XREF: start+11Cj
@@ -280,13 +277,13 @@ loc_46D82:              ; CODE XREF: start+15Aj
         cmp ah, 30h ; '0'
         jb  short loc_46DA2
         cmp ah, 39h ; '9'
-        jbe short loc_46DA6
+        jbe short modifysetfns
 
 loc_46DA2:              ; CODE XREF: start+17Bj
         mov ah, al
         mov al, 30h ; '0'
 
-loc_46DA6:              ; CODE XREF: start+180j
+modifysetfns:              ; CODE XREF: start+180j
         mov word ptr aLevels_dat_0+8, ax ; "AT"
         mov word ptr aLevel_lst+7, ax ; "ST"
         mov word ptr aDemo0_bin+7, ax ; "IN"
@@ -663,7 +660,7 @@ loc_470A8:              ; CODE XREF: start+458j
         call    resetint8
         call    soundShutdown?
 
-loc_470B1:              ; CODE XREF: start+D1j start+114j ...
+immediateexit:              ; CODE XREF: start+D1j start+114j ...
         mov ax, 4C00h
         int 21h     ; DOS - 2+ - QUIT WITH EXIT CODE (EXIT)
 ; END OF FUNCTION CHUNK FOR start   ; AL = exit code
