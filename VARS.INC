@@ -29,3 +29,5 @@ bug      = 25
 
 
 levelcells = 5A0h
+levelbytes = 600h
+maxdemolength = 0BE0Ah
