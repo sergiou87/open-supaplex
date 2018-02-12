@@ -64,7 +64,7 @@ processCommandLine:         ; CODE XREF: start+F7j
 
 hascolon:                ; CODE XREF: start+39j
         mov al, 20h ; ' '
-        mov si, 95C4h
+        mov si, offset demoFileName
 
 copyArgument:              ; CODE XREF: start+52j
         or  cx, cx
@@ -98,7 +98,7 @@ loc_46C84:              ; CODE XREF: start+6Aj
 
 loc_46C8C:              ; CODE XREF: start+67j
         mov ax, 3D00h
-        mov dx, 95C4h
+        mov dx, offset demoFileName
         int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
                     ; DS:DX -> ASCIZ filename
                     ; AL = access mode
@@ -177,14 +177,14 @@ loc_46CF6:              ; CODE XREF: start+C2j
         mov byte_599D5, 1
 
 loc_46CFB:              ; CODE XREF: start:loc_46CF4j
-        cmp byte_598D4, 0
+        cmp demoFileName, 0
         jz  short loc_46D09
         mov byte_599D4, 2
         jmp short loc_46D13
 ; ---------------------------------------------------------------------------
 
 loc_46D09:              ; CODE XREF: start+74j start+A2j ...
-        mov byte_598D4, 0
+        mov demoFileName, 0
         mov byte_599D4, 0
 
 loc_46D13:              ; CODE XREF: start+E7j
@@ -204,8 +204,9 @@ nohascolon:               ; CODE XREF: start+3Bj
         repne scasb
         pop cx
         pop di
-        jnz short hasatsign
-        cmp byte_598D4, 0
+        jnz short runSpFile
+        ; When @ is specd we need a valid file
+        cmp demoFileName, 0
         jnz short demoFileNotMissing
         lea si, a@ErrorBadOrMis ; "\"@\"-ERROR: Bad or missing \":filename"...
         call    conprint
@@ -214,17 +215,17 @@ nohascolon:               ; CODE XREF: start+3Bj
 
 demoFileNotMissing:              ; CODE XREF: start+10Bj
         cmp byte_599D5, 1
-        jz  short spNotWithoutDemo
+        jz  short spHasAtAndDemo
         lea si, aSpWithoutDemo ; "SP without demo: "
         call    conprintln
         jmp immediateexit
 ; ---------------------------------------------------------------------------
 
-spNotWithoutDemo:              ; CODE XREF: start+11Cj
-        mov byte_5A2F6, 1
+spHasAtAndDemo:              ; CODE XREF: start+11Cj
+        mov fastMode, 1
         mov speed?, 0
 
-hasatsign:              ; CODE XREF: start+104j
+runSpFile:              ; CODE XREF: start+104j
         push    di
         push    cx
         mov al, 41h ; 'A'
@@ -444,8 +445,8 @@ leaveVideoStatus:           ; CODE XREF: start+28Aj
         call    setint24
         call    setint9
         call    sub_4D8B0
-        cmp byte_5A2F6, 0
-        jnz short loc_46EE4
+        cmp fastMode, 0
+        jnz short isFastMode
         call    sub_4D517
         call    sub_4D4E4
         mov si, 60D5h
@@ -454,13 +455,13 @@ leaveVideoStatus:           ; CODE XREF: start+28Aj
         mov si, 5F15h
         call    fade
 
-loc_46EE4:              ; CODE XREF: start+2ADj
+isFastMode:              ; CODE XREF: start+2ADj
         call    readMoving
         call    sub_4D4E4
         mov al, byte_59B6B
         or  al, byte_59B84
         or  al, byte_599D4
-        or  al, byte_5A2F6
+        or  al, fastMode
         jz  short loc_46F00
         call    readEverything
         jmp short loc_46F0F
@@ -485,12 +486,12 @@ loc_46F20:              ; CODE XREF: start+2F7j
         mov byte_50940, 0
 
 loc_46F25:              ; CODE XREF: start+2FEj
-        cmp byte_5A2F6, 0
-        jz  short loc_46F2F
+        cmp fastMode, 0
+        jz  short isNotFastMode
         jmp loc_46FBE
 ; ---------------------------------------------------------------------------
 
-loc_46F2F:              ; CODE XREF: start+30Aj
+isNotFastMode:              ; CODE XREF: start+30Aj
         mov si, 60D5h
         call    fade
         mov word_58467, 1
@@ -527,12 +528,12 @@ loc_46F77:              ; CODE XREF: start+352j
 ; ---------------------------------------------------------------------------
 
 loc_46F8E:              ; CODE XREF: start+369j
-        cmp byte_5A2F6, 1
-        jnz short loc_46F98
+        cmp fastMode, 1
+        jnz short isNotFastMode2
         jmp doneWithDemoPlayback
 ; ---------------------------------------------------------------------------
 
-loc_46F98:              ; CODE XREF: start+373j
+isNotFastMode2:              ; CODE XREF: start+373j
         call    slideDownGameDash
         cmp byte_59B71, 0
         jz  short loc_46FA5
@@ -622,8 +623,8 @@ loc_47067:              ; CODE XREF: start+36Bj start+391j ...
 doneWithDemoPlayback:           ; CODE XREF: start+375j
         call    resetint9
         call    sub_4D2E1
-        cmp byte_5A2F6, 1
-        jnz short loc_470A8
+        cmp fastMode, 1
+        jnz short isNotFastMode3
         cmp byte_5A19C, 0
         jz  short loc_47094
         cmp byte_5A19B, 0
@@ -650,7 +651,7 @@ loc_470A1:              ; CODE XREF: start+479j
 printMessageAfterward:          ; CODE XREF: start+46Cj start+472j ...
         call    conprintln
 
-loc_470A8:              ; CODE XREF: start+458j
+isNotFastMode3:              ; CODE XREF: start+458j
         call    resetint24
         call    resetint8
         call    soundShutdown?
@@ -665,7 +666,7 @@ immediateexit:              ; CODE XREF: start+D1j start+114j ...
 
 conprintln  proc near       ; CODE XREF: start+CEp start+122p ...
         call    conprint
-        lea si, byte_598D4
+        lea si, demoFileName
         call    conprint
         lea si, a@ErrorBadOrMis+2Ah ; "\r\n"
 conprintln  endp ; sp-analysis failed
@@ -744,7 +745,7 @@ loc_47105:              ; CODE XREF: fileReadUnk1+Aj
         push    bx
         push    ax
         mov cx, 4
-        lea dx, word_50A78
+        lea dx, fileLevelData
         mov ax, 3F00h
         int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
                     ; BX = file handle, CX = number of bytes to read
@@ -755,12 +756,12 @@ loc_47105:              ; CODE XREF: fileReadUnk1+Aj
         neg bx
         shl bx, 1
         shl bx, 1
-        mov si, 768h
+        mov si, offset fileLevelData
         mov ax, [bx-691Eh]
         cmp ax, word_50A7A
         jnz short bail
         mov ax, [bx-6920h]
-        cmp ax, word_50A78
+        cmp ax, fileLevelData
         jnz short bail
         xor ah, ah
         clc
@@ -903,7 +904,7 @@ crt?1       endp
 ; =============== S U B R O U T I N E =======================================
 
 
-slideDownGameDash proc near     ; CODE XREF: start:loc_46F98p
+slideDownGameDash proc near     ; CODE XREF: start:isNotFastMode2p
         cmp videoStatusUnk, 2
         jnz short loc_4720C
         call    crt?1
@@ -1299,7 +1300,7 @@ setint24    endp
 ; =============== S U B R O U T I N E =======================================
 
 
-resetint24  proc near       ; CODE XREF: start:loc_470A8p
+resetint24  proc near       ; CODE XREF: start:isNotFastMode3p
                     ; loadScreen2-7DDp
         push    ds
         push    es
@@ -1353,17 +1354,17 @@ loc_474BB:              ; CODE XREF: readConfig+15j
 ; ---------------------------------------------------------------------------
 
 loc_474BE:              ; CODE XREF: readConfig+8j
-        mov word_50A76, ax
-        mov bx, word_50A76
+        mov lastFileHandle, ax
+        mov bx, lastFileHandle
         mov ax, 3F00h
         mov cx, 4
-        mov dx, 768h
+        mov dx, offset fileLevelData
         int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
                     ; BX = file handle, CX = number of bytes to read
                     ; DS:DX -> buffer
         pushf
         mov ax, 3E00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                     ; BX = file handle
         jnb short loc_474DF
@@ -1377,7 +1378,7 @@ loc_474DF:              ; CODE XREF: readConfig+39j
 ; ---------------------------------------------------------------------------
 
 loc_474E5:              ; CODE XREF: readConfig+3Fj
-        mov si, 768h
+        mov si, offset fileLevelData
         cmp byte ptr [si], 73h ; 's'
         jnz short loc_474F2
         call    loadBeep2
@@ -1462,8 +1463,8 @@ sub_4755A       proc near               ; CODE XREF: code:loc_4CAECp
 ; ---------------------------------------------------------------------------
 
 loc_4756A:                              ; CODE XREF: sub_4755A+Bj
-                mov     word_50A76, ax
-                mov     si, 768h
+                mov     lastFileHandle, ax
+                mov     si, offset fileLevelData
                 cmp     byte_59888, 2
                 jnz     short loc_4757C
                 mov     byte ptr [si], 73h ; 's'
@@ -1536,10 +1537,10 @@ loc_475DC:                              ; CODE XREF: sub_4755A+7Bj
                 mov     byte ptr [si], 79h ; 'y'
 
 loc_475DF:                              ; CODE XREF: sub_4755A+80j
-                mov     bx, word_50A76
+                mov     bx, lastFileHandle
                 mov     ax, 4000h
                 mov     cx, 4
-                mov     dx, 768h
+                mov     dx, offset fileLevelData
                 int     21h             ; DOS - 2+ - WRITE TO FILE WITH HANDLE
                                         ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
                 jnb     short loc_475F3
@@ -1548,7 +1549,7 @@ loc_475DF:                              ; CODE XREF: sub_4755A+80j
 
 loc_475F3:                              ; CODE XREF: sub_4755A+94j
                 mov     ax, 3E00h
-                mov     bx, word_50A76
+                mov     bx, lastFileHandle
                 int     21h             ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                                         ; BX = file handle
                 jnb     short locret_47601
@@ -1600,7 +1601,7 @@ loc_47629:              ; CODE XREF: readDemo+175j
         mov word_599D8, 0
         cmp byte_599D4, 1
         jnz short loc_4763C
-        mov dx, 95C4h
+        mov dx, offset demoFileName
         jmp short loc_47647
 ; ---------------------------------------------------------------------------
 
@@ -1621,7 +1622,7 @@ loc_47647:              ; CODE XREF: readDemo+31j
 ; ---------------------------------------------------------------------------
 
 loc_47651:              ; CODE XREF: readDemo+43j
-        mov word_50A76, ax
+        mov lastFileHandle, ax
         mov bx, ax
         cmp byte_599D4, 1
         jnz short loc_47674
@@ -1632,7 +1633,7 @@ loc_47651:              ; CODE XREF: readDemo+43j
         mov dx, 600h
         int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
                     ; AL = method: offset from beginning of file
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         jmp short loc_476DB
 ; ---------------------------------------------------------------------------
 
@@ -1661,7 +1662,7 @@ loc_47690:              ; CODE XREF: readDemo+76j readDemo+7Aj ...
         cmp word_599D8, 0
         jnz short loc_476DB
         mov ax, 3F00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         pop cx
         push    cx
         mov dx, cx
@@ -1675,7 +1676,7 @@ loc_47690:              ; CODE XREF: readDemo+76j readDemo+7Aj ...
         push    dx
         push    es
         pop ds
-        assume ds:nothing
+        assume ds:demoseg
         int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
                     ; BX = file handle, CX = number of bytes to read
                     ; DS:DX -> buffer
@@ -1715,7 +1716,7 @@ loc_476EA:              ; CODE XREF: readDemo+DDj
 
 loc_476F3:              ; CODE XREF: readDemo+E4j
         mov dx, word_510DF
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         push    ds
         mov ax, es
         mov ds, ax
@@ -1728,7 +1729,7 @@ loc_476F3:              ; CODE XREF: readDemo+E4j
         pop ds
         assume ds:data
         mov ax, 3E00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                     ; BX = file handle
         mov ax, 0
@@ -1742,7 +1743,7 @@ loc_47719:              ; CODE XREF: readDemo+FCj
 loc_4771A:              ; CODE XREF: readDemo+E8j
         push    ax
         mov ax, 3E00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                     ; BX = file handle
         jnb short loc_47729
@@ -1775,7 +1776,7 @@ loc_47743:              ; CODE XREF: readDemo+134j
 
 loc_4775A:              ; CODE XREF: readDemo+145j
                     ; readDemo+14Aj
-        cmp bx, 0BE0Ah
+        cmp bx, maxdemolength
         jnb short loc_47765
         inc bx
         inc ax
@@ -1835,8 +1836,8 @@ loc_4779C:              ; CODE XREF: readPallettes+Dj
 
 loc_4779F:              ; CODE XREF: readPallettes+8j
                     ; readPallettes+14j
-        mov word_50A76, ax
-        mov bx, word_50A76
+        mov lastFileHandle, ax
+        mov bx, lastFileHandle
         mov ax, 3F00h
         mov cx, 100h
         mov dx, 5FD5h
@@ -1849,7 +1850,7 @@ loc_4779F:              ; CODE XREF: readPallettes+8j
 
 loc_477B6:              ; CODE XREF: readPallettes+2Bj
         mov ax, 3E00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                     ; BX = file handle
         jnb short locret_477C4
@@ -2038,7 +2039,7 @@ loadScreen2 proc near       ; CODE XREF: start:loc_46F00p
 ; ---------------------------------------------------------------------------
 
 loc_478C0:              ; CODE XREF: loadScreen2+8j
-        mov word_50A76, ax
+        mov lastFileHandle, ax
         mov dx, 3CEh
         mov al, 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -2074,9 +2075,9 @@ loc_478CD:
 loc_478E7:              ; CODE XREF: loadScreen2+6Bj
         push    cx
         mov ax, 3F00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         mov cx, 0A0h ; '?'
-        mov dx, 768h
+        mov dx, offset fileLevelData
         int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
                     ; BX = file handle, CX = number of bytes to read
                     ; DS:DX -> buffer
@@ -2085,7 +2086,7 @@ loc_478E7:              ; CODE XREF: loadScreen2+6Bj
 ; ---------------------------------------------------------------------------
 
 loc_478FC:              ; CODE XREF: loadScreen2+44j
-        mov si, 768h
+        mov si, offset fileLevelData
         mov ah, 1
 
 loc_47901:              ; CODE XREF: loadScreen2+65j
@@ -2106,7 +2107,7 @@ loc_47901:              ; CODE XREF: loadScreen2+65j
         pop cx
         loop    loc_478E7
         mov ax, 3E00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                     ; BX = file handle
         jnb short loc_4792E
@@ -2159,7 +2160,7 @@ loc_4792E:              ; CODE XREF: loadScreen2+76j
 ; ---------------------------------------------------------------------------
 
 loc_47978:              ; CODE XREF: loadScreen2+C0j
-        mov word_50A76, ax
+        mov lastFileHandle, ax
         mov dx, 3CEh
         mov al, 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -2181,9 +2182,9 @@ loc_47978:              ; CODE XREF: loadScreen2+C0j
 loc_47995:              ; CODE XREF: loadScreen2+119j
         push    cx
         mov ax, 3F00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         mov cx, 0A0h ; '?'
-        mov dx, 768h
+        mov dx, offset fileLevelData
         int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
                     ; BX = file handle, CX = number of bytes to read
                     ; DS:DX -> buffer
@@ -2192,7 +2193,7 @@ loc_47995:              ; CODE XREF: loadScreen2+119j
 ; ---------------------------------------------------------------------------
 
 loc_479AA:              ; CODE XREF: loadScreen2+F2j
-        mov si, 768h
+        mov si, offset fileLevelData
         mov ah, 1
 
 loc_479AF:              ; CODE XREF: loadScreen2+113j
@@ -2213,7 +2214,7 @@ loc_479AF:              ; CODE XREF: loadScreen2+113j
         pop cx
         loop    loc_47995
         mov ax, 3E00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                     ; BX = file handle
         jnb short loc_479DC
@@ -2236,7 +2237,7 @@ loadScreen2 endp ; sp-analysis failed
 
 ; Attributes: bp-based frame
 
-readMoving  proc near       ; CODE XREF: start:loc_46EE4p
+readMoving  proc near       ; CODE XREF: start:isFastModep
                     ; start+382p ...
 
 var_6       = word ptr -6
@@ -2277,7 +2278,7 @@ loc_47A10:              ; CODE XREF: readMoving+13j
 ; ---------------------------------------------------------------------------
 
 loc_47A13:              ; CODE XREF: readMoving+Ej
-        mov word_50A76, ax
+        mov lastFileHandle, ax
         mov dx, 3CEh
         mov al, 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -2316,9 +2317,9 @@ loc_47A40:              ; CODE XREF: readMoving+BAj
 
 loc_47A45:              ; CODE XREF: readMoving+AEj
         mov ax, 3F00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         mov cx, 28h ; '('
-        mov dx, 768h
+        mov dx, offset fileLevelData
         int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
                     ; BX = file handle, CX = number of bytes to read
                     ; DS:DX -> buffer
@@ -2327,7 +2328,7 @@ loc_47A45:              ; CODE XREF: readMoving+AEj
 ; ---------------------------------------------------------------------------
 
 loc_47A59:              ; CODE XREF: readMoving+6Dj
-        mov si, 768h
+        mov si, offset fileLevelData
         mov ax, [bp+var_4]
         mov bx, 7Ah ; 'z'
         mul bx
@@ -2365,7 +2366,7 @@ loc_47A75:              ; CODE XREF: readMoving+86j
         cmp ax, 1D0h
         jl  short loc_47A40
         mov ax, 3E00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                     ; BX = file handle
         jnb short loc_47AB1
@@ -2384,9 +2385,9 @@ loc_47AB1:              ; CODE XREF: readMoving+C5j
 ; ---------------------------------------------------------------------------
 
 loc_47ABE:              ; CODE XREF: readMoving+D2j
-        mov word_50A76, ax
+        mov lastFileHandle, ax
         mov ax, 3F00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         mov cx, 1400h
         mov dx, 3815h
         int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
@@ -2398,7 +2399,7 @@ loc_47ABE:              ; CODE XREF: readMoving+D2j
 
 loc_47AD5:              ; CODE XREF: readMoving+E9j
         mov ax, 3E00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                     ; BX = file handle
         jnb short loc_47AE3
@@ -2445,9 +2446,9 @@ loc_47B07:              ; CODE XREF: readPanelDat+Dj
 ; ---------------------------------------------------------------------------
 
 loc_47B0A:              ; CODE XREF: readPanelDat+8j
-        mov word_50A76, ax
+        mov lastFileHandle, ax
         mov ax, 3F00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         mov cx, 0F00h
         mov dx, 4C15h
         int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
@@ -2459,7 +2460,7 @@ loc_47B0A:              ; CODE XREF: readPanelDat+8j
 
 loc_47B21:              ; CODE XREF: readPanelDat+2Bj
         mov ax, 3E00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                     ; BX = file handle
         jnb short locret_47B2F
@@ -2496,10 +2497,10 @@ loc_47B46:              ; CODE XREF: readBackDat+Dj
 ; ---------------------------------------------------------------------------
 
 loc_47B49:              ; CODE XREF: readBackDat+8j
-        mov word_50A76, ax
+        mov lastFileHandle, ax
         push    ds
         mov ax, seg backseg
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         mov ds, ax
         assume ds:nothing
         mov ax, 3F00h
@@ -2517,7 +2518,7 @@ loc_47B49:              ; CODE XREF: readBackDat+8j
 loc_47B67:              ; CODE XREF: readBackDat+31j
         pop ds
         mov ax, 3E00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                     ; BX = file handle
         jnb short locret_47B76
@@ -2554,9 +2555,9 @@ loc_47B8D:              ; CODE XREF: readChars6Dat+Dj
 ; ---------------------------------------------------------------------------
 
 loc_47B90:              ; CODE XREF: readChars6Dat+8j
-        mov word_50A76, ax
+        mov lastFileHandle, ax
         mov ax, 3F00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         mov cx, 200h
         mov dx, 5B15h
         int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
@@ -2568,7 +2569,7 @@ loc_47B90:              ; CODE XREF: readChars6Dat+8j
 
 loc_47BA7:              ; CODE XREF: readChars6Dat+2Bj
         mov ax, 3E00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                     ; BX = file handle
         jnb short loc_47BB5
@@ -2587,9 +2588,9 @@ loc_47BB5:              ; CODE XREF: readChars6Dat+39j
 ; ---------------------------------------------------------------------------
 
 loc_47BC2:              ; CODE XREF: readChars6Dat+46j
-        mov word_50A76, ax
+        mov lastFileHandle, ax
         mov ax, 3F00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         mov cx, 200h
         mov dx, 5D15h
         int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
@@ -2601,7 +2602,7 @@ loc_47BC2:              ; CODE XREF: readChars6Dat+46j
 
 loc_47BD9:              ; CODE XREF: readChars6Dat+5Dj
         mov ax, 3E00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                     ; BX = file handle
         jnb short locret_47BE7
@@ -2646,7 +2647,7 @@ readTitleDatAndGraphics? proc near  ; CODE XREF: start+2BBp
 ; ---------------------------------------------------------------------------
 
 loc_47C18:              ; CODE XREF: readTitleDatAndGraphics?+2Bj
-        mov word_50A76, ax
+        mov lastFileHandle, ax
         mov dx, 3CEh
         mov al, 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -2680,9 +2681,9 @@ loc_47C18:              ; CODE XREF: readTitleDatAndGraphics?+2Bj
 loc_47C3F:              ; CODE XREF: readTitleDatAndGraphics?+8Ej
         push    cx
         mov ax, 3F00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         mov cx, 0A0h ; '?'
-        mov dx, 768h
+        mov dx, offset fileLevelData
         int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
                     ; BX = file handle, CX = number of bytes to read
                     ; DS:DX -> buffer
@@ -2691,7 +2692,7 @@ loc_47C3F:              ; CODE XREF: readTitleDatAndGraphics?+8Ej
 ; ---------------------------------------------------------------------------
 
 loc_47C54:              ; CODE XREF: readTitleDatAndGraphics?+67j
-        mov si, 768h
+        mov si, offset fileLevelData
         mov ah, 1
 
 loc_47C59:              ; CODE XREF: readTitleDatAndGraphics?+88j
@@ -2712,7 +2713,7 @@ loc_47C59:              ; CODE XREF: readTitleDatAndGraphics?+88j
         pop cx
         loop    loc_47C3F
         mov ax, 3E00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                     ; BX = file handle
         jnb short loc_47C86
@@ -2765,7 +2766,7 @@ loc_47CA8:              ; CODE XREF: readLevelsLst+8j
 ; ---------------------------------------------------------------------------
 
 loc_47CB5:              ; CODE XREF: readLevelsLst+15j
-        mov word_50A76, ax
+        mov lastFileHandle, ax
         mov bx, 2A6Ch
         mov ax, 3030h
         mov dx, 2031h
@@ -2800,14 +2801,14 @@ loc_47CF1:              ; CODE XREF: readLevelsLst+83j
         push    ax
         push    bx
         mov cx, ax
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         mov ax, 4200h
         int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
                     ; AL = method: offset from beginning of file
         pop dx
         push    dx
         mov cx, 17h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         mov ax, 3F00h
         int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
                     ; BX = file handle, CX = number of bytes to read
@@ -2824,7 +2825,7 @@ loc_47CF1:              ; CODE XREF: readLevelsLst+83j
         cmp byte_59B62, 0
         jz  short loc_47D8D
         mov ax, 3E00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                     ; BX = file handle
         jnb short loc_47D35
@@ -2844,7 +2845,7 @@ loc_47D35:              ; CODE XREF: readLevelsLst+95j
 
 loc_47D45:              ; CODE XREF: readLevelsLst+A5j
         mov bx, ax
-        mov word_50A76, bx
+        mov lastFileHandle, bx
         mov cx, 0C24h
         mov dx, 2A6Ch
         mov ax, 4000h
@@ -2872,8 +2873,8 @@ loc_47D6A:              ; CODE XREF: readLevelsLst+C5j
 ; ---------------------------------------------------------------------------
 
 loc_47D6D:              ; CODE XREF: readLevelsLst+Aj
-        mov word_50A76, ax
-        mov bx, word_50A76
+        mov lastFileHandle, ax
+        mov bx, lastFileHandle
         mov ax, 3F00h
         mov cx, 0C24h
         mov dx, 2A6Ch
@@ -2884,7 +2885,7 @@ loc_47D6D:              ; CODE XREF: readLevelsLst+Aj
 
 loc_47D81:              ; CODE XREF: readLevelsLst+77j
         mov ax, 3E00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                     ; BX = file handle
         jmp exit
@@ -2893,7 +2894,7 @@ loc_47D81:              ; CODE XREF: readLevelsLst+77j
 loc_47D8D:              ; CODE XREF: readLevelsLst+8Aj
                     ; readLevelsLst:loc_47D5Bj ...
         mov ax, 3E00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                     ; BX = file handle
         jnb short locret_47D9B
@@ -2930,8 +2931,8 @@ loc_47DB2:              ; CODE XREF: readGfxDat+Dj
 ; ---------------------------------------------------------------------------
 
 loc_47DB5:              ; CODE XREF: readGfxDat+8j
-        mov word_50A76, ax
-        mov bx, word_50A76
+        mov lastFileHandle, ax
+        mov bx, lastFileHandle
         push    ds
         mov ax, seg gfxseg
         mov ds, ax
@@ -2951,7 +2952,7 @@ loc_47DB5:              ; CODE XREF: readGfxDat+8j
 loc_47DD3:              ; CODE XREF: readGfxDat+31j
         pop ds
         mov ax, 3E00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                     ; BX = file handle
         jnb short locret_47DE2
@@ -2988,8 +2989,8 @@ loc_47DF9:              ; CODE XREF: readControlsDat+Dj
 ; ---------------------------------------------------------------------------
 
 loc_47DFC:              ; CODE XREF: readControlsDat+8j
-        mov word_50A76, ax
-        mov bx, word_50A76
+        mov lastFileHandle, ax
+        mov bx, lastFileHandle
         push    ds
         mov ax, seg controlsseg
         mov ds, ax
@@ -3009,7 +3010,7 @@ loc_47DFC:              ; CODE XREF: readControlsDat+8j
 loc_47E1A:              ; CODE XREF: readControlsDat+31j
         pop ds
         mov ax, 3E00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                     ; BX = file handle
         jnb short locret_47E29
@@ -4909,8 +4910,8 @@ loc_48B6B:              ; CODE XREF: runLevel+82j runLevel+94j ...
 ; ---------------------------------------------------------------------------
 
 loc_48B78:              ; CODE XREF: runLevel+B8j
-        cmp word ptr dword_51A03, 0
-        jz  short loc_48B8B
+        cmp word ptr flashingbackgroundon, 0
+        jz  short noFlashing
         mov dx, 3C8h
         xor al, al
         out dx, al
@@ -4920,10 +4921,10 @@ loc_48B78:              ; CODE XREF: runLevel+B8j
         out dx, al
         out dx, al
 
-loc_48B8B:              ; CODE XREF: runLevel+C2j
+noFlashing:              ; CODE XREF: runLevel+C2j
         call    gameloop?
-        cmp word ptr dword_51A03, 0
-        jz  short loc_48BA1
+        cmp word ptr flashingbackgroundon, 0
+        jz  short noFlashing2
         mov dx, 3C8h
         xor al, al
         out dx, al
@@ -4933,11 +4934,11 @@ loc_48B8B:              ; CODE XREF: runLevel+C2j
         out dx, al
         out dx, al
 
-loc_48BA1:              ; CODE XREF: runLevel+D8j
+noFlashing2:              ; CODE XREF: runLevel+D8j
         call    sub_4FDFD
         call    sub_4FD65
-        cmp word ptr dword_51A03, 0
-        jz  short loc_48BBE
+        cmp word ptr flashingbackgroundon, 0
+        jz  short noFlashing3
         mov dx, 3C8h
         xor al, al
         out dx, al
@@ -4949,7 +4950,7 @@ loc_48BA1:              ; CODE XREF: runLevel+D8j
         mov al, 0Fh
         out dx, al
 
-loc_48BBE:              ; CODE XREF: runLevel+F1j
+noFlashing3:              ; CODE XREF: runLevel+F1j
         call    sub_4A910
         call    sub_4A5E0
         call    sub_49EBE
@@ -5046,12 +5047,12 @@ loc_48C79:              ; CODE XREF: runLevel+164j
 
 loc_48C86:              ; CODE XREF: runLevel+139j
                     ; runLevel+147j ...
-        cmp byte_5A2F6, 1
-        jnz short loc_48C90
+        cmp fastMode, 1
+        jnz short isNotFastMode4
         jmp loc_48D59
 ; ---------------------------------------------------------------------------
 
-loc_48C90:              ; CODE XREF: runLevel+1D0j
+isNotFastMode4:              ; CODE XREF: runLevel+1D0j
         cmp gameSpeed, 0Ah
         jb  short loc_48C9A
         jmp loc_48D59
@@ -5194,8 +5195,8 @@ loc_48D59:              ; CODE XREF: runLevel+19Bj
         mov cx, word_5195F
         mov ah, cl
         and ah, 7
-        cmp word ptr dword_51A03, 0
-        jz  short loc_48D9A
+        cmp word ptr flashingbackgroundon, 0
+        jz  short noFlashing4
         mov dx, 3C8h
         xor al, al
         out dx, al
@@ -5205,13 +5206,13 @@ loc_48D59:              ; CODE XREF: runLevel+19Bj
         out dx, al
         out dx, al
 
-loc_48D9A:              ; CODE XREF: runLevel+2D1j
+noFlashing4:              ; CODE XREF: runLevel+2D1j
         mov byte_510A6, ah
-        cmp byte_5A2F6, 1
-        jz  short loc_48DA8
+        cmp fastMode, 1
+        jz  short isFastMode2
         call    videoloop
 
-loc_48DA8:              ; CODE XREF: runLevel+2E8j
+isFastMode2:              ; CODE XREF: runLevel+2E8j
         cmp word_51A07, 1
         jbe short loc_48DB2
         call    sound?9
@@ -5222,12 +5223,12 @@ loc_48DB2:              ; CODE XREF: runLevel+2F2j
 loc_48DB6:              ; CODE XREF: runLevel+310j
         dec cx
         jz  short loc_48DCD
-        cmp byte_5A2F6, 1
-        jz  short loc_48DC6
+        cmp fastMode, 1
+        jz  short isFastMode3
         call    sub_4D457
         call    videoloop
 
-loc_48DC6:              ; CODE XREF: runLevel+303j
+isFastMode3:              ; CODE XREF: runLevel+303j
         push    cx
         call    sub_4955B
         pop cx
@@ -5235,8 +5236,8 @@ loc_48DC6:              ; CODE XREF: runLevel+303j
 ; ---------------------------------------------------------------------------
 
 loc_48DCD:              ; CODE XREF: runLevel+2FCj
-        cmp word ptr dword_51A03, 0
-        jz  short loc_48DDE
+        cmp word ptr flashingbackgroundon, 0
+        jz  short noFlashing5
         mov dx, 3C8h
         xor al, al
         out dx, al
@@ -5245,7 +5246,7 @@ loc_48DCD:              ; CODE XREF: runLevel+2FCj
         out dx, al
         out dx, al
 
-loc_48DDE:              ; CODE XREF: runLevel+317j
+noFlashing5:              ; CODE XREF: runLevel+317j
         cmp word_5197A, 0
         jnz short loc_48E03
         inc word_5195D
@@ -5284,7 +5285,7 @@ loc_48E30:              ; CODE XREF: runLevel+362j
         mov word_51A01, 0
         mov word_51963, 0
         mov word_51965, 0
-        mov word ptr dword_51A03, 0
+        mov word ptr flashingbackgroundon, 0
         mov word_51A07, 1
         mov dx, 3C8h
         xor al, al
@@ -6107,7 +6108,7 @@ loc_493EB:              ; CODE XREF: somethingspsig+85j
         push    bx
         push    cx
         mov ax, 3F00h
-        mov dx, 768h
+        mov dx, offset fileLevelData
         int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
                     ; BX = file handle, CX = number of bytes to read
                     ; DS:DX -> buffer
@@ -6121,7 +6122,7 @@ loc_493EB:              ; CODE XREF: somethingspsig+85j
         assume es:data
         push    di
         push    cx
-        mov di, 768h
+        mov di, offset fileLevelData
         mov al, 0FFh
         cld
         repne scasb
@@ -6138,7 +6139,7 @@ loc_4941C:              ; CODE XREF: somethingspsig+BCj
         neg cx
         mov ax, 4000h
         mov bx, word_510E4
-        mov dx, 768h
+        mov dx, offset fileLevelData
         int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
                     ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
         pop bx
@@ -6176,7 +6177,7 @@ sub_4945D   proc near       ; CODE XREF: sub_4955B+294p
         mov word_51A01, 0
         mov word_51963, 0
         mov word_51965, 0
-        mov word ptr dword_51A03, 0
+        mov word ptr flashingbackgroundon, 0
         mov word_51A07, 1
         push    ax
         mov dx, 3C8h
@@ -6454,7 +6455,7 @@ loc_49649:              ; CODE XREF: sub_4955B+E9j
 loc_49656:              ; CODE XREF: sub_4955B+F3j
         cmp byte_5199D, 0
         jz  short loc_49663
-        mov word ptr dword_51A03, 1
+        mov word ptr flashingbackgroundon, 1
 
 loc_49663:              ; CODE XREF: sub_4955B+100j
         cmp byte ptr word_519A9, 0
@@ -7142,7 +7143,7 @@ loc_49B84:              ; CODE XREF: sub_4955B+619j
         mov word_51A01, 0
         mov word_51963, 0
         mov word_51965, 0
-        mov word ptr dword_51A03, 0
+        mov word ptr flashingbackgroundon, 0
         mov word_51A07, 1
         mov dx, 3C8h
         xor al, al
@@ -7221,7 +7222,7 @@ loc_49C41:              ; CODE XREF: sub_4955B+404j
         mov word_51A01, 0
         mov word_51963, 0
         mov word_51965, 0
-        mov word ptr dword_51A03, 0
+        mov word ptr flashingbackgroundon, 0
         mov word_51A07, 1
         mov dx, 3C8h
         xor al, al
@@ -7315,7 +7316,7 @@ loc_49D29:              ; CODE XREF: sub_4955B+7BFj
         mov word_51A01, 0
         mov word_51963, 0
         mov word_51965, 0
-        mov word ptr dword_51A03, 0
+        mov word ptr flashingbackgroundon, 0
 
 loc_49D48:              ; CODE XREF: sub_4955B+7D3j
         cmp byte ptr word_519B3, 0
@@ -7421,7 +7422,7 @@ sub_49D58   endp
 ; =============== S U B R O U T I N E =======================================
 
 
-gameloop?   proc near       ; CODE XREF: runLevel:loc_48B8Bp
+gameloop?   proc near       ; CODE XREF: runLevel:noFlashingp
         mov dx, 3CEh
         mov al, 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -7437,7 +7438,7 @@ gameloop?   proc near       ; CODE XREF: runLevel:loc_48B8Bp
         mov si, murphyloc
         call    update?
         mov murphyloc, si
-        cmp word ptr dword_51A03, 0
+        cmp word ptr flashingbackgroundon, 0
         jz  short loc_49E0A
         mov dx, 3C8h
         xor al, al
@@ -7467,7 +7468,7 @@ loc_49E14:              ; CODE XREF: gameloop?+2Fj
         inc dx
         mov al, 1
         out dx, al      ; EGA port: graphics controller data register
-        cmp word ptr dword_51A03, 0
+        cmp word ptr flashingbackgroundon, 0
         jz  short loc_49E33
         mov dx, 3C8h
         xor al, al
@@ -8388,7 +8389,7 @@ loc_4A3F3:              ; CODE XREF: sub_4A3D2+15j
         mov word_51A01, 0
         mov word_51963, 0
         mov word_51965, 0
-        mov word ptr dword_51A03, 0
+        mov word ptr flashingbackgroundon, 0
         mov word_51A07, 1
         mov dx, 3C8h
         xor al, al
@@ -9201,7 +9202,7 @@ sub_4A61F   endp
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_4A910   proc near       ; CODE XREF: runLevel:loc_48BBEp
+sub_4A910   proc near       ; CODE XREF: runLevel:noFlashing3p
         mov dx, 3CEh
         mov al, 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -9511,8 +9512,8 @@ readMenuDat proc near       ; CODE XREF: readEverything+9p
 ; ---------------------------------------------------------------------------
 
 loc_4AAED:              ; CODE XREF: readMenuDat+8j
-        mov word_50A76, ax
-        mov bx, word_50A76
+        mov lastFileHandle, ax
+        mov bx, lastFileHandle
         push    ds
         mov ax, seg menuseg
         mov ds, ax
@@ -9532,7 +9533,7 @@ loc_4AAED:              ; CODE XREF: readMenuDat+8j
 loc_4AB0B:              ; CODE XREF: readMenuDat+25j
         pop ds
         mov ax, 3E00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                     ; BX = file handle
         jnb short locret_4AB1A
@@ -10758,7 +10759,7 @@ loc_4B4A3:              ; CODE XREF: sub_4B419+50j
 
 loc_4B4B8:              ; CODE XREF: sub_4B419+95j
         mov ax, 3E00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                     ; BX = file handle
         jnb short loc_4B4C6
@@ -13890,7 +13891,7 @@ loc_4C946:              ; CODE XREF: runMainMenu+1A8j
 loc_4C955:              ; CODE XREF: runMainMenu+1B7j
         cmp byte_519D4, 1
         jnz short loc_4C977
-        cmp byte_598D4, 0
+        cmp demoFileName, 0
         jz  short loc_4C977
         cmp byte_599D5, 1
         jnz short loc_4C977
@@ -13904,7 +13905,7 @@ loc_4C977:              ; CODE XREF: runMainMenu+1C6j
                     ; runMainMenu+1CDj ...
         cmp byte_519D5, 1
         jnz short loc_4C9B0
-        cmp byte_598D4, 0
+        cmp demoFileName, 0
         jz  short loc_4C9B0
         mov byte_599D4, 1
         mov word_5196C, 1
@@ -15856,7 +15857,7 @@ readLevels  proc near       ; CODE XREF: start:loc_46F3Ep
         mov ds, si
         assume ds:demoseg
         mov si, 0BE20h
-        mov di, 768h
+        mov di, offset fileLevelData
         mov cx, ax
         shl cx, 1
         add ax, cx
@@ -15894,7 +15895,7 @@ loc_4D5A3:              ; CODE XREF: readLevels+55j
         mov ax, 3D00h
         cmp byte_599D4, 0
         jz  short loc_4D5BB
-        mov dx, 95C4h
+        mov dx, offset demoFileName
         cmp word_599DA, 0
         jz  short loc_4D5BB
         lea dx, aLevels_dat ; "LEVELS.DAT"
@@ -15910,7 +15911,7 @@ loc_4D5BB:              ; CODE XREF: readLevels+63j
 ; ---------------------------------------------------------------------------
 
 loc_4D5C2:              ; CODE XREF: readLevels+75j
-        mov word_50A76, ax
+        mov lastFileHandle, ax
         cmp byte_510DE, 0
         jz  short loc_4D5D1
         mov ax, word_510E6
@@ -15941,7 +15942,7 @@ loc_4D5E3:              ; CODE XREF: readLevels+91j
         shr ax, cl
         mov cx, ax
         mov ax, 4200h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
                     ; AL = method: offset from beginning of file
         jnb short loc_4D604
@@ -15950,9 +15951,9 @@ loc_4D5E3:              ; CODE XREF: readLevels+91j
 
 loc_4D604:              ; CODE XREF: readLevels+B7j
         mov ax, 3F00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         mov cx, 600h
-        mov dx, 768h
+        mov dx, offset fileLevelData
         int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
                     ; BX = file handle, CX = number of bytes to read
                     ; DS:DX -> buffer
@@ -16040,7 +16041,7 @@ loc_4D68F:              ; CODE XREF: readLevels+142j
         push    ds
         pop es
         assume es:data
-        mov si, 768h
+        mov si, offset fileLevelData
         mov di, 988Bh
         mov cx, 300h
         cld
@@ -16052,8 +16053,8 @@ loc_4D68F:              ; CODE XREF: readLevels+142j
         mov es, ax
         assume es:data
         mov cx, 600h
-        mov si, 768h
-        mov di, 1834h
+        mov si, offset fileLevelData
+        mov di, offset leveldata
         xor ah, ah
 
 loc_4D6B8:              ; CODE XREF: readLevels+172j
@@ -16062,7 +16063,7 @@ loc_4D6B8:              ; CODE XREF: readLevels+172j
         loop    loc_4D6B8
         mov di, 2434h
         xor al, al
-        mov cx, 600h
+        mov cx, levelbytes
         rep stosb
         pop es
         assume es:nothing
@@ -16076,7 +16077,7 @@ loc_4D6B8:              ; CODE XREF: readLevels+172j
 loc_4D6DC:              ; CODE XREF: readLevels+184j
                     ; readLevels+18Bj
         mov ax, 3E00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                     ; BX = file handle
         jnb short loc_4D6EA
@@ -16123,7 +16124,7 @@ loc_4D706:              ; CODE XREF: fade+Cj
         mov [bp+var_8], ax
         mov word_510A2, 0
         mov cx, 40h ; '@'
-        mov di, 768h
+        mov di, offset fileLevelData
 
 loc_4D71D:              ; CODE XREF: fade+33j
         lodsb
@@ -16160,7 +16161,7 @@ loc_4D74F:              ; CODE XREF: fade+134j
         mov al, 0
         out dx, al
         mov cx, 10h
-        mov si, 768h
+        mov si, offset fileLevelData
         mov di, 6115h
 
 loc_4D75E:              ; CODE XREF: fade+115j
@@ -16250,12 +16251,12 @@ loc_4D75E:              ; CODE XREF: fade+115j
 ; ---------------------------------------------------------------------------
 
 loc_4D808:              ; CODE XREF: fade+113j
-        cmp byte_5A2F6, 1
-        jz  short loc_4D815
+        cmp fastMode, 1
+        jz  short isFastMode4
         call    videoloop
         call    sub_4D457
 
-loc_4D815:              ; CODE XREF: fade+11Dj
+isFastMode4:              ; CODE XREF: fade+11Dj
         dec [bp+var_4]
         mov ax, [bp+var_2]
         inc ax
@@ -16554,8 +16555,8 @@ readSound   proc near       ; CODE XREF: loadBeep+9p loadBeep2+9p ...
 ; ---------------------------------------------------------------------------
 
 loc_4DA51:              ; CODE XREF: readSound+5j
-        mov word_50A76, ax
-        mov bx, word_50A76
+        mov lastFileHandle, ax
+        mov bx, lastFileHandle
         push    ds
         mov ax, seg soundseg
         mov ds, ax
@@ -16574,7 +16575,7 @@ loc_4DA51:              ; CODE XREF: readSound+5j
 loc_4DA6C:              ; CODE XREF: readSound+1Fj
         pop ds
         mov ax, 3E00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                     ; BX = file handle
         jnb short locret_4DA7B
@@ -16601,8 +16602,8 @@ readSound2  proc near       ; CODE XREF: loadBeep2+12p
 ; ---------------------------------------------------------------------------
 
 loc_4DA86:              ; CODE XREF: readSound2+5j
-        mov word_50A76, ax
-        mov bx, word_50A76
+        mov lastFileHandle, ax
+        mov bx, lastFileHandle
         push    ds
         mov ax, seg sound2seg
         mov ds, ax
@@ -16621,7 +16622,7 @@ loc_4DA86:              ; CODE XREF: readSound2+5j
 loc_4DAA1:              ; CODE XREF: readSound2+1Fj
         pop ds
         mov ax, 3E00h
-        mov bx, word_50A76
+        mov bx, lastFileHandle
         int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                     ; BX = file handle
         jnb short locret_4DAB0
@@ -21757,7 +21758,7 @@ sub_4FDCE   endp
 ; Attributes: bp-based frame
 
 sub_4FDFD   proc near       ; CODE XREF: runLevel+29p
-                    ; runLevel:loc_48BA1p ...
+                    ; runLevel:noFlashing2p ...
 
 var_2       = word ptr -2
 

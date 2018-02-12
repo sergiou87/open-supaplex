@@ -1382,9 +1382,9 @@ byte_50954  db 0, 10h dup(1), 4, 2, 0Eh dup(1), 2 dup(4), 2 dup(2)
         db 5 dup(2), 8 dup(3), 4 dup(4), 4 dup(2), 0Ah dup(3)
         db 3 dup(4), 3 dup(2), 0Ch dup(3), 2 dup(4), 2 dup(2)
         db 0Eh dup(3), 4, 2, 10h dup(3)
-word_50A76  dw 0            ; DATA XREF: readConfig:loc_474BEw
+lastFileHandle  dw 0            ; DATA XREF: readConfig:loc_474BEw
                     ; readConfig+20r ...
-word_50A78  dw 0            ; DATA XREF: fileReadUnk1+28o
+fileLevelData  dw 0            ; DATA XREF: fileReadUnk1+28o
                     ; fileReadUnk1+4Er ...
 word_50A7A  dw 0            ; DATA XREF: fileReadUnk1+44r
 byte_50A7C  db 5A0h dup(0)
@@ -1959,9 +1959,9 @@ int9off     dw 0            ; DATA XREF: setint9+1Bw resetint9+41r
 int9seg     dw 0            ; DATA XREF: setint9+17w resetint9+45r
 word_51A01  dw 0            ; DATA XREF: runLevel:loc_48E30w
                     ; sub_4945Dw ...
-dword_51A03 dd 0            ; DATA XREF: runLevel:loc_48B78r
+flashingbackgroundon dd 0            ; DATA XREF: runLevel:loc_48B78r
                     ; runLevel+D3r ...
-word_51A07  dw 1            ; DATA XREF: runLevel:loc_48DA8r
+word_51A07  dw 1            ; DATA XREF: runLevel:isFastMode2r
                     ; runLevel:loc_48DB2r ...
 keyPressed  db 0            ; DATA XREF: int9handler:storeKeyw
                     ; int9handler:storeNoKeyPressedw ...
@@ -2584,7 +2584,7 @@ byte_59890  db 58h          ; DATA XREF: sub_4955B:loc_49A2Cw
 word_59891  dw 3336h        ; DATA XREF: sub_4955B+4D7w
 aVersions146_xB db 'VERSIONS 1-4 + 6.X BY HERMAN PERK',0
 aSupaplexSpeedF db 'SUPAPLEX SPEED FIX VERSION 6.3',0
-byte_598D4  db 100h dup(0)      ; DATA XREF: start:loc_46CFBr
+demoFileName  db 100h dup(0)      ; DATA XREF: start:loc_46CFBr
                     ; start:loc_46D09w ...
 byte_599D4  db 0            ; DATA XREF: start+E2w start+EEw ...
 byte_599D5  db 0            ; DATA XREF: start:loc_46CF6w
@@ -2700,7 +2700,7 @@ a@ErrorLevel?Su db '"@"-ERROR: Level(?) successful: ',0 ; DATA XREF: start+47Bo
 a@ErrorLevel?Fa db '"@"-ERROR: Level(?) failed:     ',0 ; DATA XREF: start:loc_470A1o
 a@ErrorBadOrMis db '"@"-ERROR: Bad or missing ":filename.ext"!',0Dh,0Ah,0
                     ; DATA XREF: start+10Do
-byte_5A2F6  db 0            ; DATA XREF: start:loc_46D48w
+fastMode  db 0            ; DATA XREF: start:loc_46D48w
                     ; start+2A8r ...
 speed?2     db 0            ; DATA XREF: int9handler+8Dr
                     ; int9handler+98r ...
