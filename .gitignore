@@ -3,3 +3,4 @@ tasm/
 *.id*
 *.nam
 *.til
+/solve/
