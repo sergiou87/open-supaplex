@@ -1127,7 +1127,7 @@ loc_47400:              ; CODE XREF: int8handler+95j
         pop ax
         pop dx
         pushf
-        call    int8loc
+        call   [int8loc]
         pop ds
         iret
 ; ---------------------------------------------------------------------------
