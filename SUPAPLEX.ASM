@@ -421,19 +421,19 @@ isFastMode:              ; CODE XREF: start+2ADj
         or  al, byte_59B84
         or  al, byte_599D4
         or  al, fastMode
-        jz  short loc_46F00
+        jz  short openingSequence
         call    readEverything
-        jmp short loc_46F0F
+        jmp short afterOpeningSequence
 ; ---------------------------------------------------------------------------
 
-loc_46F00:              ; CODE XREF: start+2D9j
+openingSequence:
         call    loadScreen2
         call    readEverything
         call    sub_502CF
         call    openCreditsBlock
         call    showNewCredits
 
-loc_46F0F:              ; CODE XREF: start+2DEj
+afterOpeningSequence:              ; CODE XREF: start+2DEj
         call    readConfig
         cmp byte_50946, 0
         jz  short loc_46F20
