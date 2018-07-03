@@ -3192,26 +3192,26 @@ sub_47F39   endp
 ; =============== S U B R O U T I N E =======================================
 
 
-uncalled?   proc near       ; DATA XREF: data:160Co
+movefun   proc near       ; DATA XREF: data:160Co
         cmp byte ptr leveldata[si], 1
         jz  short loc_47F98
         retn
 ; ---------------------------------------------------------------------------
 
-loc_47F98:              ; CODE XREF: uncalled?+5j
+loc_47F98:              ; CODE XREF: movefun+5j
         mov ax, leveldata[si]
         cmp ax, 1
         jz  short loc_47FA4
         jmp loc_48035
 ; ---------------------------------------------------------------------------
 
-loc_47FA4:              ; CODE XREF: uncalled?+Fj
+loc_47FA4:              ; CODE XREF: movefun+Fj
         cmp byte_51035, 2
         jnz short loc_47FAC
         retn
 ; ---------------------------------------------------------------------------
 
-loc_47FAC:              ; CODE XREF: uncalled?+19j
+loc_47FAC:              ; CODE XREF: movefun+19j
         mov ax, leveldata[si+78h]
         cmp ax, 0
         jz  short loc_47FF4
@@ -3224,8 +3224,8 @@ loc_47FAC:              ; CODE XREF: uncalled?+19j
         retn
 ; ---------------------------------------------------------------------------
 
-loc_47FC5:              ; CODE XREF: uncalled?+28j
-                    ; uncalled?+2Dj ...
+loc_47FC5:              ; CODE XREF: movefun+28j
+                    ; movefun+2Dj ...
         cmp leveldata[si+78h-2], 0
         jz  short loc_47FFB
         cmp leveldata[si+78h-2], 8888h
@@ -3233,8 +3233,8 @@ loc_47FC5:              ; CODE XREF: uncalled?+28j
         cmp leveldata[si+78h-2], 0AAAAh
         jz  short loc_47FFB
 
-loc_47FDC:              ; CODE XREF: uncalled?+72j
-                    ; uncalled?+1F1j
+loc_47FDC:              ; CODE XREF: movefun+72j
+                    ; movefun+1F1j
         cmp leveldata[si+78h+2], 0
         jz  short loc_48011
         cmp leveldata[si+78h+2], 8888h
@@ -3244,26 +3244,26 @@ loc_47FDC:              ; CODE XREF: uncalled?+72j
         retn
 ; ---------------------------------------------------------------------------
 
-loc_47FF4:              ; CODE XREF: uncalled?+23j
+loc_47FF4:              ; CODE XREF: movefun+23j
         mov byte ptr leveldata[si+1], 40h ; '@'
         jmp short loc_48035
 ; ---------------------------------------------------------------------------
 
-loc_47FFB:              ; CODE XREF: uncalled?+3Aj
-                    ; uncalled?+42j ...
+loc_47FFB:              ; CODE XREF: movefun+3Aj
+                    ; movefun+42j ...
         cmp leveldata[si-2], 0
         jz  short loc_48004
         jmp short loc_47FDC
 ; ---------------------------------------------------------------------------
 
-loc_48004:              ; CODE XREF: uncalled?+70j
+loc_48004:              ; CODE XREF: movefun+70j
         mov byte ptr leveldata[si+1], 50h ; 'P'
         mov leveldata[si-2], 8888h
         jmp short loc_48035
 ; ---------------------------------------------------------------------------
 
-loc_48011:              ; CODE XREF: uncalled?+51j
-                    ; uncalled?+59j ...
+loc_48011:              ; CODE XREF: movefun+51j
+                    ; movefun+59j ...
         cmp leveldata[si+2], 0
         jz  short loc_48028
         cmp leveldata[si+2], 9999h
@@ -3271,19 +3271,19 @@ loc_48011:              ; CODE XREF: uncalled?+51j
         cmp leveldata[si-78h+2h], 1
         jz  short loc_48028
 
-locret_48027:               ; CODE XREF: uncalled?+8Ej
+locret_48027:               ; CODE XREF: movefun+8Ej
         retn
 ; ---------------------------------------------------------------------------
 
-loc_48028:              ; CODE XREF: uncalled?+86j
-                    ; uncalled?+95j
+loc_48028:              ; CODE XREF: movefun+86j
+                    ; movefun+95j
         mov byte ptr leveldata[si+1], 60h ; '`'
         mov leveldata[si+2], 8888h
         jmp short $+2
 ; ---------------------------------------------------------------------------
 
-loc_48035:              ; CODE XREF: uncalled?+11j
-                    ; uncalled?+69j ...
+loc_48035:              ; CODE XREF: movefun+11j
+                    ; movefun+69j ...
         mov bl, byte ptr leveldata[si+1]
         xor bh, bh
         mov al, bl
@@ -3293,54 +3293,54 @@ loc_48035:              ; CODE XREF: uncalled?+11j
         jmp short loc_48078
 ; ---------------------------------------------------------------------------
 
-loc_48045:              ; CODE XREF: uncalled?+B1j
+loc_48045:              ; CODE XREF: movefun+B1j
         cmp al, 20h ; ' '
         jnz short loc_4804C
         jmp loc_48212
 ; ---------------------------------------------------------------------------
 
-loc_4804C:              ; CODE XREF: uncalled?+B7j
+loc_4804C:              ; CODE XREF: movefun+B7j
         cmp al, 30h ; '0'
         jnz short loc_48053
         jmp loc_48277
 ; ---------------------------------------------------------------------------
 
-loc_48053:              ; CODE XREF: uncalled?+BEj
+loc_48053:              ; CODE XREF: movefun+BEj
         cmp byte_51035, 2
         jnz short loc_4805B
         retn
 ; ---------------------------------------------------------------------------
 
-loc_4805B:              ; CODE XREF: uncalled?+C8j
+loc_4805B:              ; CODE XREF: movefun+C8j
         cmp al, 40h ; '@'
         jnz short loc_48062
         jmp loc_482DC
 ; ---------------------------------------------------------------------------
 
-loc_48062:              ; CODE XREF: uncalled?+CDj
+loc_48062:              ; CODE XREF: movefun+CDj
         cmp al, 50h ; 'P'
         jnz short loc_48069
         jmp loc_4830A
 ; ---------------------------------------------------------------------------
 
-loc_48069:              ; CODE XREF: uncalled?+D4j
+loc_48069:              ; CODE XREF: movefun+D4j
         cmp al, 60h ; '`'
         jnz short loc_48070
         jmp loc_48378
 ; ---------------------------------------------------------------------------
 
-loc_48070:              ; CODE XREF: uncalled?+DBj
+loc_48070:              ; CODE XREF: movefun+DBj
         cmp al, 70h ; 'p'
         jnz short locret_48077
         jmp loc_483E6
 ; ---------------------------------------------------------------------------
 
-locret_48077:               ; CODE XREF: uncalled?+E2j
+locret_48077:               ; CODE XREF: movefun+E2j
         retn
 ; ---------------------------------------------------------------------------
 
-loc_48078:              ; CODE XREF: uncalled?+B3j
-                    ; uncalled?+475j
+loc_48078:              ; CODE XREF: movefun+B3j
+                    ; movefun+475j
         xor bh, bh
         shl bl, 1
         shl bl, 1
@@ -3354,7 +3354,7 @@ loc_48078:              ; CODE XREF: uncalled?+B3j
         mov ds, ax
         mov cx, 12h
 
-loc_48096:              ; CODE XREF: uncalled?+10Ej
+loc_48096:              ; CODE XREF: movefun+10Ej
         movsb
         movsb
         add si, 78h ; 'x'
@@ -3373,69 +3373,69 @@ loc_48096:              ; CODE XREF: uncalled?+10Ej
         retn
 ; ---------------------------------------------------------------------------
 
-loc_480BB:              ; CODE XREF: uncalled?+11Bj
+loc_480BB:              ; CODE XREF: movefun+11Bj
         cmp bl, 18h
         jge short loc_480C5
         mov [si+1835h], bl
         retn
 ; ---------------------------------------------------------------------------
 
-loc_480C5:              ; CODE XREF: uncalled?+12Ej
+loc_480C5:              ; CODE XREF: movefun+12Ej
         mov byte ptr [si+1835h], 0
         cmp byte_51035, 2
         jnz short loc_480D2
         retn
 ; ---------------------------------------------------------------------------
 
-loc_480D2:              ; CODE XREF: uncalled?+13Fj
+loc_480D2:              ; CODE XREF: movefun+13Fj
         cmp word ptr [si+18ACh], 0
         jnz short loc_480DC
         jmp loc_4816D
 ; ---------------------------------------------------------------------------
 
-loc_480DC:              ; CODE XREF: uncalled?+147j
+loc_480DC:              ; CODE XREF: movefun+147j
         cmp word ptr [si+18ACh], 9999h
         jnz short loc_480E7
         jmp loc_4816D
 ; ---------------------------------------------------------------------------
 
-loc_480E7:              ; CODE XREF: uncalled?+152j
+loc_480E7:              ; CODE XREF: movefun+152j
         cmp byte ptr [si+18ACh], 3
         jnz short loc_480F1
         jmp loc_481A4
 ; ---------------------------------------------------------------------------
 
-loc_480F1:              ; CODE XREF: uncalled?+15Cj
+loc_480F1:              ; CODE XREF: movefun+15Cj
         cmp byte ptr [si+18ACh], 11h
         jnz short loc_480FB
         jmp loc_481FE
 ; ---------------------------------------------------------------------------
 
-loc_480FB:              ; CODE XREF: uncalled?+166j
+loc_480FB:              ; CODE XREF: movefun+166j
         cmp word ptr [si+18ACh], 2BBh
         jnz short loc_48106
         jmp loc_481C6
 ; ---------------------------------------------------------------------------
 
-loc_48106:              ; CODE XREF: uncalled?+171j
+loc_48106:              ; CODE XREF: movefun+171j
         cmp word ptr [si+18ACh], 4BBh
         jnz short loc_48111
         jmp loc_481E2
 ; ---------------------------------------------------------------------------
 
-loc_48111:              ; CODE XREF: uncalled?+17Cj
+loc_48111:              ; CODE XREF: movefun+17Cj
         cmp byte ptr [si+18ACh], 18h
         jnz short loc_4811B
         jmp loc_481FE
 ; ---------------------------------------------------------------------------
 
-loc_4811B:              ; CODE XREF: uncalled?+186j
+loc_4811B:              ; CODE XREF: movefun+186j
         cmp word ptr [si+18ACh], 8
         jnz short loc_48125
         jmp loc_48205
 ; ---------------------------------------------------------------------------
 
-loc_48125:              ; CODE XREF: uncalled?+190j
+loc_48125:              ; CODE XREF: movefun+190j
         call    sound?7
         cmp word ptr [si+18ACh], 1
         jz  short loc_4813E
@@ -3446,8 +3446,8 @@ loc_48125:              ; CODE XREF: uncalled?+190j
         retn
 ; ---------------------------------------------------------------------------
 
-loc_4813E:              ; CODE XREF: uncalled?+19Dj
-                    ; uncalled?+1A4j ...
+loc_4813E:              ; CODE XREF: movefun+19Dj
+                    ; movefun+1A4j ...
         cmp word ptr [si+18AAh], 0
         jz  short loc_4817A
         cmp word ptr [si+18AAh], 8888h
@@ -3465,40 +3465,40 @@ loc_4816A:
         retn
 ; ---------------------------------------------------------------------------
 
-loc_4816D:              ; CODE XREF: uncalled?+149j
-                    ; uncalled?+154j
+loc_4816D:              ; CODE XREF: movefun+149j
+                    ; movefun+154j
         mov word ptr [si+1834h], 7001h
         mov word ptr [si+18ACh], 9999h
         retn
 ; ---------------------------------------------------------------------------
 
-loc_4817A:              ; CODE XREF: uncalled?+1B3j
-                    ; uncalled?+1BBj ...
+loc_4817A:              ; CODE XREF: movefun+1B3j
+                    ; movefun+1BBj ...
         cmp word ptr [si+1832h], 0
         jz  short loc_48184
         jmp loc_47FDC
 ; ---------------------------------------------------------------------------
 
-loc_48184:              ; CODE XREF: uncalled?+1EFj
+loc_48184:              ; CODE XREF: movefun+1EFj
         mov byte ptr [si+1835h], 50h ; 'P'
         mov word ptr [si+1832h], 8888h
         retn
 ; ---------------------------------------------------------------------------
 
-loc_48190:              ; CODE XREF: uncalled?+1CAj
-                    ; uncalled?+1D2j ...
+loc_48190:              ; CODE XREF: movefun+1CAj
+                    ; movefun+1D2j ...
         cmp word ptr [si+1836h], 0
         jz  short loc_48198
         retn
 ; ---------------------------------------------------------------------------
 
-loc_48198:              ; CODE XREF: uncalled?+205j
+loc_48198:              ; CODE XREF: movefun+205j
         mov byte ptr [si+1835h], 60h ; '`'
         mov word ptr [si+1836h], 8888h
         retn
 ; ---------------------------------------------------------------------------
 
-loc_481A4:              ; CODE XREF: uncalled?+15Ej
+loc_481A4:              ; CODE XREF: movefun+15Ej
         mov bl, [si+18ADh]
         cmp bl, 0Eh
         jz  short locret_48211
@@ -3513,53 +3513,53 @@ loc_481A4:              ; CODE XREF: uncalled?+15Ej
         cmp bl, 26h ; '&'
         jz  short locret_48211
 
-loc_481C6:              ; CODE XREF: uncalled?+173j
+loc_481C6:              ; CODE XREF: movefun+173j
         cmp byte ptr [si+18AAh], 18h
         jnz short loc_481D3
         mov word ptr [si+18ACh], 18h
 
-loc_481D3:              ; CODE XREF: uncalled?+23Bj
+loc_481D3:              ; CODE XREF: movefun+23Bj
         cmp byte ptr [si+18AAh], 1Fh
         jz  short loc_481E0
         mov word ptr [si+18AAh], 0
 
-loc_481E0:              ; CODE XREF: uncalled?+248j
+loc_481E0:              ; CODE XREF: movefun+248j
         jmp short loc_481FE
 ; ---------------------------------------------------------------------------
 
-loc_481E2:              ; CODE XREF: uncalled?+17Ej
+loc_481E2:              ; CODE XREF: movefun+17Ej
         cmp byte ptr [si+18AEh], 18h
         jnz short loc_481EF
         mov word ptr [si+18ACh], 18h
 
-loc_481EF:              ; CODE XREF: uncalled?+257j
+loc_481EF:              ; CODE XREF: movefun+257j
         cmp byte ptr [si+18AEh], 1Fh
         jz  short loc_481FC
         mov word ptr [si+18AEh], 0
 
-loc_481FC:              ; CODE XREF: uncalled?+264j
+loc_481FC:              ; CODE XREF: movefun+264j
         jmp short $+2
 ; ---------------------------------------------------------------------------
 
-loc_481FE:              ; CODE XREF: uncalled?+168j
-                    ; uncalled?+188j ...
+loc_481FE:              ; CODE XREF: movefun+168j
+                    ; movefun+188j ...
         add si, 78h ; 'x'
         call    sub_4A61F
         retn
 ; ---------------------------------------------------------------------------
 
-loc_48205:              ; CODE XREF: uncalled?+192j
+loc_48205:              ; CODE XREF: movefun+192j
         add si, 78h ; 'x'
         mov bx, si
         shr bx, 1
         mov byte ptr [bx+2434h], 6
 
-locret_48211:               ; CODE XREF: uncalled?+21Bj
-                    ; uncalled?+220j ...
+locret_48211:               ; CODE XREF: movefun+21Bj
+                    ; movefun+220j ...
         retn
 ; ---------------------------------------------------------------------------
 
-loc_48212:              ; CODE XREF: uncalled?+B9j
+loc_48212:              ; CODE XREF: movefun+B9j
         and bl, 7
         shl bl, 1
         xor bh, bh
@@ -3574,7 +3574,7 @@ loc_48212:              ; CODE XREF: uncalled?+B9j
 loc_48228:
         mov cx, 10h
 
-loc_4822B:              ; CODE XREF: uncalled?+2A5j
+loc_4822B:              ; CODE XREF: movefun+2A5j
         movsb
         movsb
         movsb
@@ -3590,7 +3590,7 @@ loc_4822B:              ; CODE XREF: uncalled?+2A5j
         jnz short loc_4824A
         mov word ptr [si+1836h], 0AAAAh
 
-loc_4824A:              ; CODE XREF: uncalled?+2B2j
+loc_4824A:              ; CODE XREF: movefun+2B2j
         cmp bl, 26h ; '&'
         jnz short loc_4825D
         mov [si+1835h], bl
@@ -3600,21 +3600,21 @@ loc_4824A:              ; CODE XREF: uncalled?+2B2j
         retn
 ; ---------------------------------------------------------------------------
 
-loc_4825D:              ; CODE XREF: uncalled?+2BDj
+loc_4825D:              ; CODE XREF: movefun+2BDj
         cmp bl, 28h ; '('
         jge short loc_48267
         mov [si+1835h], bl
         retn
 ; ---------------------------------------------------------------------------
 
-loc_48267:              ; CODE XREF: uncalled?+2D0j
+loc_48267:              ; CODE XREF: movefun+2D0j
         mov word ptr [si+1834h], 0FFFFh
         add si, 78h ; 'x'
         mov word ptr [si+1834h], 1001h
         retn
 ; ---------------------------------------------------------------------------
 
-loc_48277:              ; CODE XREF: uncalled?+C0j
+loc_48277:              ; CODE XREF: movefun+C0j
         and bl, 7
         shl bl, 1
         xor bh, bh
@@ -3629,7 +3629,7 @@ loc_48277:              ; CODE XREF: uncalled?+C0j
 loc_4828D:
         mov cx, 10h
 
-loc_48290:              ; CODE XREF: uncalled?+30Aj
+loc_48290:              ; CODE XREF: movefun+30Aj
         movsb
         movsb
         movsb
@@ -3645,7 +3645,7 @@ loc_48290:              ; CODE XREF: uncalled?+30Aj
         jnz short loc_482AF
         mov word ptr [si+1832h], 0AAAAh
 
-loc_482AF:              ; CODE XREF: uncalled?+317j
+loc_482AF:              ; CODE XREF: movefun+317j
         cmp bl, 36h ; '6'
         jnz short loc_482C2
         mov [si+1835h], bl
@@ -3655,21 +3655,21 @@ loc_482AF:              ; CODE XREF: uncalled?+317j
         retn
 ; ---------------------------------------------------------------------------
 
-loc_482C2:              ; CODE XREF: uncalled?+322j
+loc_482C2:              ; CODE XREF: movefun+322j
         cmp bl, 38h ; '8'
         jge short loc_482CC
         mov [si+1835h], bl
         retn
 ; ---------------------------------------------------------------------------
 
-loc_482CC:              ; CODE XREF: uncalled?+335j
+loc_482CC:              ; CODE XREF: movefun+335j
         mov word ptr [si+1834h], 0FFFFh
         add si, 78h ; 'x'
         mov word ptr [si+1834h], 1001h
         retn
 ; ---------------------------------------------------------------------------
 
-loc_482DC:              ; CODE XREF: uncalled?+CFj
+loc_482DC:              ; CODE XREF: movefun+CFj
         inc bl
         cmp bl, 42h ; 'B'
         jge short loc_482E8
@@ -3677,7 +3677,7 @@ loc_482DC:              ; CODE XREF: uncalled?+CFj
         retn
 ; ---------------------------------------------------------------------------
 
-loc_482E8:              ; CODE XREF: uncalled?+351j
+loc_482E8:              ; CODE XREF: movefun+351j
         cmp word ptr [si+18ACh], 0
         jz  short loc_482F6
         dec bl
@@ -3685,7 +3685,7 @@ loc_482E8:              ; CODE XREF: uncalled?+351j
         retn
 ; ---------------------------------------------------------------------------
 
-loc_482F6:              ; CODE XREF: uncalled?+35Dj
+loc_482F6:              ; CODE XREF: movefun+35Dj
         mov word ptr [si+1834h], 0FFFFh
         add si, 78h ; 'x'
         mov byte ptr [si+1834h], 1
@@ -3693,7 +3693,7 @@ loc_482F6:              ; CODE XREF: uncalled?+35Dj
         retn
 ; ---------------------------------------------------------------------------
 
-loc_4830A:              ; CODE XREF: uncalled?+D6j
+loc_4830A:              ; CODE XREF: movefun+D6j
         xor bh, bh
         and bl, 0Fh
         shl bl, 1
@@ -3706,7 +3706,7 @@ loc_4830A:              ; CODE XREF: uncalled?+D6j
         mov ds, ax
         mov cx, 10h
 
-loc_48323:              ; CODE XREF: uncalled?+39Dj
+loc_48323:              ; CODE XREF: movefun+39Dj
         movsb
         movsb
         movsb
@@ -3724,7 +3724,7 @@ loc_48323:              ; CODE XREF: uncalled?+39Dj
         retn
 ; ---------------------------------------------------------------------------
 
-loc_48341:              ; CODE XREF: uncalled?+3AAj
+loc_48341:              ; CODE XREF: movefun+3AAj
         cmp word ptr [si+18AAh], 0
         jnz short loc_48371
         cmp word ptr [si+1832h], 0
@@ -3732,7 +3732,7 @@ loc_48341:              ; CODE XREF: uncalled?+3AAj
         cmp word ptr [si+1832h], 8888h
         jnz short loc_48371
 
-loc_48357:              ; CODE XREF: uncalled?+3BDj
+loc_48357:              ; CODE XREF: movefun+3BDj
         mov leveldata[si], 0FFFFh
         sub si, 2
         mov byte ptr [si+1834h], 1
@@ -3741,14 +3741,14 @@ loc_48357:              ; CODE XREF: uncalled?+3BDj
         retn
 ; ---------------------------------------------------------------------------
 
-loc_48371:              ; CODE XREF: uncalled?+3B6j
-                    ; uncalled?+3C5j
+loc_48371:              ; CODE XREF: movefun+3B6j
+                    ; movefun+3C5j
         dec bl
         mov [si+1835h], bl
         retn
 ; ---------------------------------------------------------------------------
 
-loc_48378:              ; CODE XREF: uncalled?+DDj
+loc_48378:              ; CODE XREF: movefun+DDj
         xor bh, bh
         and bl, 7
         shl bl, 1
@@ -3761,7 +3761,7 @@ loc_48378:              ; CODE XREF: uncalled?+DDj
         mov ds, ax
         mov cx, 10h
 
-loc_48391:              ; CODE XREF: uncalled?+40Bj
+loc_48391:              ; CODE XREF: movefun+40Bj
         movsb
         movsb
         movsb
@@ -3779,7 +3779,7 @@ loc_48391:              ; CODE XREF: uncalled?+40Bj
         retn
 ; ---------------------------------------------------------------------------
 
-loc_483AF:              ; CODE XREF: uncalled?+418j
+loc_483AF:              ; CODE XREF: movefun+418j
         cmp word ptr [si+18AEh], 0
         jnz short loc_483DF
         cmp word ptr [si+1836h], 0
@@ -3787,7 +3787,7 @@ loc_483AF:              ; CODE XREF: uncalled?+418j
         cmp word ptr [si+1836h], 8888h
         jnz short loc_483DF
 
-loc_483C5:              ; CODE XREF: uncalled?+42Bj
+loc_483C5:              ; CODE XREF: movefun+42Bj
         mov word ptr [si+1834h], 0FFFFh
         add si, 2
         mov byte ptr [si+1834h], 1
@@ -3800,14 +3800,14 @@ locret_483DE:
         retn
 ; ---------------------------------------------------------------------------
 
-loc_483DF:              ; CODE XREF: uncalled?+424j
-                    ; uncalled?+433j
+loc_483DF:              ; CODE XREF: movefun+424j
+                    ; movefun+433j
         dec bl
         mov [si+1835h], bl
         retn
 ; ---------------------------------------------------------------------------
 
-loc_483E6:              ; CODE XREF: uncalled?+E4j
+loc_483E6:              ; CODE XREF: movefun+E4j
         cmp word ptr [si+18ACh], 0
         jz  short loc_483F6
         cmp word ptr [si+18ACh], 9999h
@@ -3815,32 +3815,32 @@ loc_483E6:              ; CODE XREF: uncalled?+E4j
         retn
 ; ---------------------------------------------------------------------------
 
-loc_483F6:              ; CODE XREF: uncalled?+45Bj
-                    ; uncalled?+463j
+loc_483F6:              ; CODE XREF: movefun+45Bj
+                    ; movefun+463j
         mov word ptr [si+1834h], 0FFFFh
         add si, 78h ; 'x'
         mov word ptr [si+1834h], 1001h
         jmp loc_48078
-uncalled?   endp
+movefun   endp
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-uncalled?2  proc near       ; DATA XREF: data:1612o
+movefun2  proc near       ; DATA XREF: data:1612o
         cmp byte ptr [si+1834h], 4
         jz  short loc_48410
         retn
 ; ---------------------------------------------------------------------------
 
-loc_48410:              ; CODE XREF: uncalled?2+5j
+loc_48410:              ; CODE XREF: movefun2+5j
         mov ax, [si+1834h]
         cmp ax, 4
         jz  short loc_4841B
         jmp short loc_48495
 ; ---------------------------------------------------------------------------
 
-loc_4841B:              ; CODE XREF: uncalled?2+Fj
+loc_4841B:              ; CODE XREF: movefun2+Fj
         mov ax, [si+18ACh]
         cmp ax, 0
         jz  short loc_48463
@@ -3853,8 +3853,8 @@ loc_4841B:              ; CODE XREF: uncalled?2+Fj
         retn
 ; ---------------------------------------------------------------------------
 
-loc_48434:              ; CODE XREF: uncalled?2+1Fj
-                    ; uncalled?2+24j ...
+loc_48434:              ; CODE XREF: movefun2+1Fj
+                    ; movefun2+24j ...
         cmp word ptr [si+18AAh], 0
         jz  short loc_4846A
         cmp word ptr [si+18AAh], 8888h
@@ -3862,8 +3862,8 @@ loc_48434:              ; CODE XREF: uncalled?2+1Fj
         cmp word ptr [si+18AAh], 0AAAAh
         jz  short loc_4846A
 
-loc_4844B:              ; CODE XREF: uncalled?2+69j
-                    ; uncalled?2+1C7j
+loc_4844B:              ; CODE XREF: movefun2+69j
+                    ; movefun2+1C7j
         cmp word ptr [si+18AEh], 0
         jz  short loc_48480
 
@@ -3875,39 +3875,39 @@ loc_48452:
         retn
 ; ---------------------------------------------------------------------------
 
-loc_48463:              ; CODE XREF: uncalled?2+1Aj
+loc_48463:              ; CODE XREF: movefun2+1Aj
         mov byte ptr [si+1835h], 40h ; '@'
         jmp short loc_48495
 ; ---------------------------------------------------------------------------
 
-loc_4846A:              ; CODE XREF: uncalled?2+31j
-                    ; uncalled?2+39j ...
+loc_4846A:              ; CODE XREF: movefun2+31j
+                    ; movefun2+39j ...
         cmp word ptr [si+1832h], 0
         jz  short loc_48473
         jmp short loc_4844B
 ; ---------------------------------------------------------------------------
 
-loc_48473:              ; CODE XREF: uncalled?2+67j
+loc_48473:              ; CODE XREF: movefun2+67j
         mov byte ptr [si+1835h], 50h ; 'P'
         mov word ptr [si+1832h], 8888h
         jmp short loc_48495
 ; ---------------------------------------------------------------------------
 
-loc_48480:              ; CODE XREF: uncalled?2+48j
-                    ; uncalled?2+50j ...
+loc_48480:              ; CODE XREF: movefun2+48j
+                    ; movefun2+50j ...
         cmp word ptr [si+1836h], 0
         jz  short loc_48488
         retn
 ; ---------------------------------------------------------------------------
 
-loc_48488:              ; CODE XREF: uncalled?2+7Dj
+loc_48488:              ; CODE XREF: movefun2+7Dj
         mov byte ptr [si+1835h], 60h ; '`'
         mov word ptr [si+1836h], 8888h
         jmp short $+2
 ; ---------------------------------------------------------------------------
 
-loc_48495:              ; CODE XREF: uncalled?2+11j
-                    ; uncalled?2+60j ...
+loc_48495:              ; CODE XREF: movefun2+11j
+                    ; movefun2+60j ...
         mov bl, [si+1835h]
         xor bh, bh
         mov al, bl
@@ -3917,37 +3917,37 @@ loc_48495:              ; CODE XREF: uncalled?2+11j
         jmp short loc_484D0
 ; ---------------------------------------------------------------------------
 
-loc_484A5:              ; CODE XREF: uncalled?2+99j
+loc_484A5:              ; CODE XREF: movefun2+99j
         cmp al, 20h ; ' '
         jnz short loc_484AC
         jmp loc_4861B
 ; ---------------------------------------------------------------------------
 
-loc_484AC:              ; CODE XREF: uncalled?2+9Fj
+loc_484AC:              ; CODE XREF: movefun2+9Fj
         cmp al, 30h ; '0'
         jnz short loc_484B3
         jmp loc_48677
 ; ---------------------------------------------------------------------------
 
-loc_484B3:              ; CODE XREF: uncalled?2+A6j
+loc_484B3:              ; CODE XREF: movefun2+A6j
         cmp al, 40h ; '@'
         jnz short loc_484BA
         jmp loc_486D2
 ; ---------------------------------------------------------------------------
 
-loc_484BA:              ; CODE XREF: uncalled?2+ADj
+loc_484BA:              ; CODE XREF: movefun2+ADj
         cmp al, 50h ; 'P'
         jnz short loc_484C1
         jmp loc_48700
 ; ---------------------------------------------------------------------------
 
-loc_484C1:              ; CODE XREF: uncalled?2+B4j
+loc_484C1:              ; CODE XREF: movefun2+B4j
         cmp al, 60h ; '`'
         jnz short loc_484C8
         jmp loc_4876E
 ; ---------------------------------------------------------------------------
 
-loc_484C8:              ; CODE XREF: uncalled?2+BBj
+loc_484C8:              ; CODE XREF: movefun2+BBj
         cmp al, 70h ; 'p'
 
 loc_484CA:
@@ -3957,12 +3957,12 @@ loc_484CC:
         jmp loc_487DC
 ; ---------------------------------------------------------------------------
 
-locret_484CF:               ; CODE XREF: uncalled?2:loc_484CAj
+locret_484CF:               ; CODE XREF: movefun2:loc_484CAj
         retn
 ; ---------------------------------------------------------------------------
 
-loc_484D0:              ; CODE XREF: uncalled?2+9Bj
-                    ; uncalled?2+3F3j
+loc_484D0:              ; CODE XREF: movefun2+9Bj
+                    ; movefun2+3F3j
         xor bh, bh
         shl bl, 1
         shl bl, 1
@@ -3976,7 +3976,7 @@ loc_484D0:              ; CODE XREF: uncalled?2+9Bj
         mov ds, ax
         mov cx, 12h
 
-loc_484EE:              ; CODE XREF: uncalled?2+EEj
+loc_484EE:              ; CODE XREF: movefun2+EEj
         movsb
         movsb
         add si, 78h ; 'x'
@@ -3995,63 +3995,63 @@ loc_484EE:              ; CODE XREF: uncalled?2+EEj
         retn
 ; ---------------------------------------------------------------------------
 
-loc_48513:              ; CODE XREF: uncalled?2+FBj
+loc_48513:              ; CODE XREF: movefun2+FBj
         cmp bl, 18h
         jge short loc_4851D
         mov [si+1835h], bl
         retn
 ; ---------------------------------------------------------------------------
 
-loc_4851D:              ; CODE XREF: uncalled?2+10Ej
+loc_4851D:              ; CODE XREF: movefun2+10Ej
         mov byte ptr [si+1835h], 0
         cmp word ptr [si+18ACh], 0
         jnz short loc_4852C
         jmp loc_485BB
 ; ---------------------------------------------------------------------------
 
-loc_4852C:              ; CODE XREF: uncalled?2+11Fj
+loc_4852C:              ; CODE XREF: movefun2+11Fj
         cmp word ptr [si+18ACh], 9999h
         jnz short loc_48537
         jmp loc_485BB
 ; ---------------------------------------------------------------------------
 
-loc_48537:              ; CODE XREF: uncalled?2+12Aj
+loc_48537:              ; CODE XREF: movefun2+12Aj
         cmp byte ptr [si+18ACh], 3
         jnz short loc_48541
         jmp loc_485F2
 ; ---------------------------------------------------------------------------
 
-loc_48541:              ; CODE XREF: uncalled?2+134j
+loc_48541:              ; CODE XREF: movefun2+134j
         cmp word ptr [si+18ACh], 14h
         jnz short loc_4854B
         jmp loc_48614
 ; ---------------------------------------------------------------------------
 
-loc_4854B:              ; CODE XREF: uncalled?2+13Ej
+loc_4854B:              ; CODE XREF: movefun2+13Ej
         cmp byte ptr [si+18ACh], 11h
         jnz short loc_48555
         jmp loc_48614
 ; ---------------------------------------------------------------------------
 
-loc_48555:              ; CODE XREF: uncalled?2+148j
+loc_48555:              ; CODE XREF: movefun2+148j
         cmp byte ptr [si+18ACh], 18h
         jnz short loc_4855F
         jmp loc_48614
 ; ---------------------------------------------------------------------------
 
-loc_4855F:              ; CODE XREF: uncalled?2+152j
+loc_4855F:              ; CODE XREF: movefun2+152j
         cmp word ptr [si+18ACh], 12h
         jnz short loc_48569
         jmp loc_48614
 ; ---------------------------------------------------------------------------
 
-loc_48569:              ; CODE XREF: uncalled?2+15Cj
+loc_48569:              ; CODE XREF: movefun2+15Cj
         cmp word ptr [si+18ACh], 8
         jnz short loc_48573
         jmp loc_48614
 ; ---------------------------------------------------------------------------
 
-loc_48573:              ; CODE XREF: uncalled?2+166j
+loc_48573:              ; CODE XREF: movefun2+166j
         call    sound?7
         cmp word ptr [si+18ACh], 1
         jz  short loc_4858C
@@ -4062,8 +4062,8 @@ loc_48573:              ; CODE XREF: uncalled?2+166j
         retn
 ; ---------------------------------------------------------------------------
 
-loc_4858C:              ; CODE XREF: uncalled?2+173j
-                    ; uncalled?2+17Aj ...
+loc_4858C:              ; CODE XREF: movefun2+173j
+                    ; movefun2+17Aj ...
         cmp word ptr [si+18AAh], 0
         jz  short loc_485C8
         cmp word ptr [si+18AAh], 8888h
@@ -4079,40 +4079,40 @@ loc_4858C:              ; CODE XREF: uncalled?2+173j
         retn
 ; ---------------------------------------------------------------------------
 
-loc_485BB:              ; CODE XREF: uncalled?2+121j
-                    ; uncalled?2+12Cj
+loc_485BB:              ; CODE XREF: movefun2+121j
+                    ; movefun2+12Cj
         mov word ptr [si+1834h], 7004h
         mov word ptr [si+18ACh], 9999h
         retn
 ; ---------------------------------------------------------------------------
 
-loc_485C8:              ; CODE XREF: uncalled?2+189j
-                    ; uncalled?2+191j ...
+loc_485C8:              ; CODE XREF: movefun2+189j
+                    ; movefun2+191j ...
         cmp word ptr [si+1832h], 0
         jz  short loc_485D2
         jmp loc_4844B
 ; ---------------------------------------------------------------------------
 
-loc_485D2:              ; CODE XREF: uncalled?2+1C5j
+loc_485D2:              ; CODE XREF: movefun2+1C5j
         mov byte ptr [si+1835h], 50h ; 'P'
         mov word ptr [si+1832h], 8888h
         retn
 ; ---------------------------------------------------------------------------
 
-loc_485DE:              ; CODE XREF: uncalled?2+1A0j
-                    ; uncalled?2+1A8j ...
+loc_485DE:              ; CODE XREF: movefun2+1A0j
+                    ; movefun2+1A8j ...
         cmp word ptr [si+1836h], 0
         jz  short loc_485E6
         retn
 ; ---------------------------------------------------------------------------
 
-loc_485E6:              ; CODE XREF: uncalled?2+1DBj
+loc_485E6:              ; CODE XREF: movefun2+1DBj
         mov byte ptr [si+1835h], 60h ; '`'
         mov word ptr [si+1836h], 8888h
         retn
 ; ---------------------------------------------------------------------------
 
-loc_485F2:              ; CODE XREF: uncalled?2+136j
+loc_485F2:              ; CODE XREF: movefun2+136j
         mov bl, [si+18ADh]
         cmp bl, 0Eh
         jz  short locret_4861A
@@ -4127,17 +4127,17 @@ loc_485F2:              ; CODE XREF: uncalled?2+136j
         cmp bl, 26h ; '&'
         jz  short locret_4861A
 
-loc_48614:              ; CODE XREF: uncalled?2+140j
-                    ; uncalled?2+14Aj ...
+loc_48614:              ; CODE XREF: movefun2+140j
+                    ; movefun2+14Aj ...
         add si, 78h ; 'x'
         call    sub_4A61F
 
-locret_4861A:               ; CODE XREF: uncalled?2+1F1j
-                    ; uncalled?2+1F6j ...
+locret_4861A:               ; CODE XREF: movefun2+1F1j
+                    ; movefun2+1F6j ...
         retn
 ; ---------------------------------------------------------------------------
 
-loc_4861B:              ; CODE XREF: uncalled?2+A1j
+loc_4861B:              ; CODE XREF: movefun2+A1j
         and bl, 7
         shl bl, 1
         xor bh, bh
@@ -4150,7 +4150,7 @@ loc_4861B:              ; CODE XREF: uncalled?2+A1j
         mov ds, ax
         mov cx, 10h
 
-loc_48634:              ; CODE XREF: uncalled?2+236j
+loc_48634:              ; CODE XREF: movefun2+236j
         movsb
         movsb
         movsb
@@ -4166,7 +4166,7 @@ loc_48634:              ; CODE XREF: uncalled?2+236j
         jnz short loc_48653
         mov word ptr [si+1836h], 0AAAAh
 
-loc_48653:              ; CODE XREF: uncalled?2+243j
+loc_48653:              ; CODE XREF: movefun2+243j
         cmp bl, 26h ; '&'
         jnz short loc_48666
         mov [si+1835h], bl
@@ -4176,19 +4176,19 @@ loc_48653:              ; CODE XREF: uncalled?2+243j
         retn
 ; ---------------------------------------------------------------------------
 
-loc_48666:              ; CODE XREF: uncalled?2+24Ej
+loc_48666:              ; CODE XREF: movefun2+24Ej
         cmp bl, 28h ; '('
         jge short loc_48670
         mov [si+1835h], bl
         retn
 ; ---------------------------------------------------------------------------
 
-loc_48670:              ; CODE XREF: uncalled?2+261j
+loc_48670:              ; CODE XREF: movefun2+261j
         mov word ptr [si+1834h], 7004h
         retn
 ; ---------------------------------------------------------------------------
 
-loc_48677:              ; CODE XREF: uncalled?2+A8j
+loc_48677:              ; CODE XREF: movefun2+A8j
         and bl, 7
         shl bl, 1
         xor bh, bh
@@ -4201,7 +4201,7 @@ loc_48677:              ; CODE XREF: uncalled?2+A8j
         mov ds, ax
         mov cx, 10h
 
-loc_48690:              ; CODE XREF: uncalled?2+292j
+loc_48690:              ; CODE XREF: movefun2+292j
         movsb
         movsb
         movsb
@@ -4217,7 +4217,7 @@ loc_48690:              ; CODE XREF: uncalled?2+292j
         jnz short loc_486AF
         mov word ptr [si+1832h], 0AAAAh
 
-loc_486AF:              ; CODE XREF: uncalled?2+29Fj
+loc_486AF:              ; CODE XREF: movefun2+29Fj
         cmp bl, 36h ; '6'
         jnz short loc_486C1
         mov [si+1835h], bl
@@ -4225,19 +4225,19 @@ loc_486AF:              ; CODE XREF: uncalled?2+29Fj
         call    sub_48957
         add si, 2
 
-loc_486C1:              ; CODE XREF: uncalled?2+2AAj
+loc_486C1:              ; CODE XREF: movefun2+2AAj
         cmp bl, 38h ; '8'
         jge short loc_486CB
         mov [si+1835h], bl
         retn
 ; ---------------------------------------------------------------------------
 
-loc_486CB:              ; CODE XREF: uncalled?2+2BCj
+loc_486CB:              ; CODE XREF: movefun2+2BCj
         mov word ptr [si+1834h], 7004h
         retn
 ; ---------------------------------------------------------------------------
 
-loc_486D2:              ; CODE XREF: uncalled?2+AFj
+loc_486D2:              ; CODE XREF: movefun2+AFj
         inc bl
         cmp bl, 42h ; 'B'
         jge short loc_486DE
@@ -4245,7 +4245,7 @@ loc_486D2:              ; CODE XREF: uncalled?2+AFj
         retn
 ; ---------------------------------------------------------------------------
 
-loc_486DE:              ; CODE XREF: uncalled?2+2CFj
+loc_486DE:              ; CODE XREF: movefun2+2CFj
         cmp word ptr [si+18ACh], 0
         jz  short loc_486EC
         dec bl
@@ -4253,7 +4253,7 @@ loc_486DE:              ; CODE XREF: uncalled?2+2CFj
         retn
 ; ---------------------------------------------------------------------------
 
-loc_486EC:              ; CODE XREF: uncalled?2+2DBj
+loc_486EC:              ; CODE XREF: movefun2+2DBj
         mov word ptr [si+1834h], 0FFFFh
         add si, 78h ; 'x'
         mov byte ptr [si+1834h], 4
@@ -4261,7 +4261,7 @@ loc_486EC:              ; CODE XREF: uncalled?2+2DBj
         retn
 ; ---------------------------------------------------------------------------
 
-loc_48700:              ; CODE XREF: uncalled?2+B6j
+loc_48700:              ; CODE XREF: movefun2+B6j
         xor bh, bh
         and bl, 0Fh
         shl bl, 1
@@ -4274,7 +4274,7 @@ loc_48700:              ; CODE XREF: uncalled?2+B6j
         mov ds, ax
         mov cx, 10h
 
-loc_48719:              ; CODE XREF: uncalled?2+31Bj
+loc_48719:              ; CODE XREF: movefun2+31Bj
         movsb
         movsb
         movsb
@@ -4292,7 +4292,7 @@ loc_48719:              ; CODE XREF: uncalled?2+31Bj
         retn
 ; ---------------------------------------------------------------------------
 
-loc_48737:              ; CODE XREF: uncalled?2+328j
+loc_48737:              ; CODE XREF: movefun2+328j
         cmp word ptr [si+18AAh], 0
         jnz short loc_48767
         cmp word ptr [si+1832h], 0
@@ -4300,7 +4300,7 @@ loc_48737:              ; CODE XREF: uncalled?2+328j
         cmp word ptr [si+1832h], 8888h
         jnz short loc_48767
 
-loc_4874D:              ; CODE XREF: uncalled?2+33Bj
+loc_4874D:              ; CODE XREF: movefun2+33Bj
         mov word ptr [si+1834h], 0FFFFh
         sub si, 2
         mov byte ptr [si+1834h], 4
@@ -4309,14 +4309,14 @@ loc_4874D:              ; CODE XREF: uncalled?2+33Bj
         retn
 ; ---------------------------------------------------------------------------
 
-loc_48767:              ; CODE XREF: uncalled?2+334j
-                    ; uncalled?2+343j
+loc_48767:              ; CODE XREF: movefun2+334j
+                    ; movefun2+343j
         dec bl
         mov [si+1835h], bl
         retn
 ; ---------------------------------------------------------------------------
 
-loc_4876E:              ; CODE XREF: uncalled?2+BDj
+loc_4876E:              ; CODE XREF: movefun2+BDj
         xor bh, bh
         and bl, 7
         shl bl, 1
@@ -4329,7 +4329,7 @@ loc_4876E:              ; CODE XREF: uncalled?2+BDj
         mov ds, ax
         mov cx, 10h
 
-loc_48787:              ; CODE XREF: uncalled?2+389j
+loc_48787:              ; CODE XREF: movefun2+389j
         movsb
         movsb
         movsb
@@ -4347,7 +4347,7 @@ loc_48787:              ; CODE XREF: uncalled?2+389j
         retn
 ; ---------------------------------------------------------------------------
 
-loc_487A5:              ; CODE XREF: uncalled?2+396j
+loc_487A5:              ; CODE XREF: movefun2+396j
         cmp word ptr [si+18AEh], 0
         jnz short loc_487D5
         cmp word ptr [si+1836h], 0
@@ -4355,7 +4355,7 @@ loc_487A5:              ; CODE XREF: uncalled?2+396j
         cmp word ptr [si+1836h], 8888h
         jnz short loc_487D5
 
-loc_487BB:              ; CODE XREF: uncalled?2+3A9j
+loc_487BB:              ; CODE XREF: movefun2+3A9j
         mov word ptr [si+1834h], 0FFFFh
         add si, 2
         mov byte ptr [si+1834h], 4
@@ -4364,14 +4364,14 @@ loc_487BB:              ; CODE XREF: uncalled?2+3A9j
         retn
 ; ---------------------------------------------------------------------------
 
-loc_487D5:              ; CODE XREF: uncalled?2+3A2j
-                    ; uncalled?2+3B1j
+loc_487D5:              ; CODE XREF: movefun2+3A2j
+                    ; movefun2+3B1j
         dec bl
         mov [si+1835h], bl
         retn
 ; ---------------------------------------------------------------------------
 
-loc_487DC:              ; CODE XREF: uncalled?2:loc_484CCj
+loc_487DC:              ; CODE XREF: movefun2:loc_484CCj
         cmp word ptr [si+18ACh], 0
         jz  short loc_487EC
         cmp word ptr [si+18ACh], 9999h
@@ -4379,13 +4379,13 @@ loc_487DC:              ; CODE XREF: uncalled?2:loc_484CCj
         retn
 ; ---------------------------------------------------------------------------
 
-loc_487EC:              ; CODE XREF: uncalled?2+3D9j
-                    ; uncalled?2+3E1j
+loc_487EC:              ; CODE XREF: movefun2+3D9j
+                    ; movefun2+3E1j
         mov word ptr [si+1834h], 0FFFFh
         add si, 78h ; 'x'
         mov word ptr [si+1834h], 1004h
         jmp loc_484D0
-uncalled?2  endp
+movefun2  endp
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -4506,8 +4506,8 @@ sub_487FE   endp
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_488DC   proc near       ; CODE XREF: uncalled?+124p
-                    ; uncalled?+2C6p ...
+sub_488DC   proc near       ; CODE XREF: movefun+124p
+                    ; movefun+2C6p ...
         cmp byte ptr [si+1834h], 1Fh
         jz  short loc_488E9
         mov word ptr [si+1834h], 0
@@ -4575,8 +4575,8 @@ sub_488DC   endp
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_48957   proc near       ; CODE XREF: uncalled?2+104p
-                    ; uncalled?2+257p ...
+sub_48957   proc near       ; CODE XREF: movefun2+104p
+                    ; movefun2+257p ...
         cmp byte ptr [si+1834h], 1Fh
         jz  short loc_48964
         mov word ptr [si+1834h], 0
@@ -7765,13 +7765,13 @@ sub_49FED   endp
 ; =============== S U B R O U T I N E =======================================
 
 
-uncalled?7  proc near       ; DATA XREF: data:163Co
+movefun7  proc near       ; DATA XREF: data:163Co
         cmp byte ptr [si+1834h], 19h
         jz  short loc_4A045
         retn
 ; ---------------------------------------------------------------------------
 
-loc_4A045:              ; CODE XREF: uncalled?7+5j
+loc_4A045:              ; CODE XREF: movefun7+5j
         mov ax, word_5195D
         and ax, 3
         cmp ax, 0
@@ -7779,7 +7779,7 @@ loc_4A045:              ; CODE XREF: uncalled?7+5j
         retn
 ; ---------------------------------------------------------------------------
 
-loc_4A051:              ; CODE XREF: uncalled?7+11j
+loc_4A051:              ; CODE XREF: movefun7+11j
         mov bl, [si+1835h]
         inc bl
         cmp bl, 0Eh
@@ -7790,14 +7790,14 @@ loc_4A051:              ; CODE XREF: uncalled?7+11j
         neg al
         mov bl, al
 
-loc_4A067:              ; CODE XREF: uncalled?7+1Dj
+loc_4A067:              ; CODE XREF: movefun7+1Dj
         mov [si+1835h], bl
         cmp bl, 0
         jge short loc_4A071
         retn
 ; ---------------------------------------------------------------------------
 
-loc_4A071:              ; CODE XREF: uncalled?7+31j
+loc_4A071:              ; CODE XREF: movefun7+31j
         cmp byte ptr [si+17BAh], 3
         jz  short loc_4A0AB
         cmp byte ptr [si+17BCh], 3
@@ -7817,11 +7817,11 @@ loc_4A071:              ; CODE XREF: uncalled?7+31j
         jmp short loc_4A0AE
 ; ---------------------------------------------------------------------------
 
-loc_4A0AB:              ; CODE XREF: uncalled?7+39j
-                    ; uncalled?7+40j ...
+loc_4A0AB:              ; CODE XREF: movefun7+39j
+                    ; movefun7+40j ...
         call    sound?8
 
-loc_4A0AE:              ; CODE XREF: uncalled?7+6Cj
+loc_4A0AE:              ; CODE XREF: movefun7+6Cj
         xor bh, bh
         mov di, [si+6155h]
         mov si, bx
@@ -7833,7 +7833,7 @@ loc_4A0AE:              ; CODE XREF: uncalled?7+6Cj
         mov ds, ax
         mov cx, 10h
 
-loc_4A0C6:              ; CODE XREF: uncalled?7+91j
+loc_4A0C6:              ; CODE XREF: movefun7+91j
         movsb
         movsb
         add si, 78h ; 'x'
@@ -7841,19 +7841,19 @@ loc_4A0C6:              ; CODE XREF: uncalled?7+91j
         loop    loc_4A0C6
         pop ds
         retn
-uncalled?7  endp
+movefun7  endp
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-uncalled?5  proc near       ; DATA XREF: data:1630o
+movefun5  proc near       ; DATA XREF: data:1630o
         cmp byte ptr [si+1834h], 13h
         jz  short loc_4A0DA
         retn
 ; ---------------------------------------------------------------------------
 
-loc_4A0DA:              ; CODE XREF: uncalled?5+5j
+loc_4A0DA:              ; CODE XREF: movefun5+5j
         mov bl, [si+1835h]
         inc bl
         cmp bl, 0
@@ -7862,7 +7862,7 @@ loc_4A0DA:              ; CODE XREF: uncalled?5+5j
         retn
 ; ---------------------------------------------------------------------------
 
-loc_4A0EA:              ; CODE XREF: uncalled?5+11j
+loc_4A0EA:              ; CODE XREF: movefun5+11j
         call    sub_4A1AE
         and al, byte_5196A
         neg al
@@ -7943,7 +7943,7 @@ loc_4A0EA:              ; CODE XREF: uncalled?5+11j
         add si, 79h ; 'y'
         pop ds
         retn
-uncalled?5  endp
+movefun5  endp
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -8386,13 +8386,13 @@ sub_4A463   endp
 ; =============== S U B R O U T I N E =======================================
 
 
-uncalled?3  proc near       ; DATA XREF: data:161Ao
+movefun3  proc near       ; DATA XREF: data:161Ao
         cmp byte ptr [si+1834h], 8
         jz  short loc_4A491
         retn
 ; ---------------------------------------------------------------------------
 
-loc_4A491:              ; CODE XREF: uncalled?3+5j
+loc_4A491:              ; CODE XREF: movefun3+5j
         mov ax, [si+1834h]
         cmp ax, 3008h
         jge short loc_4A4D4
@@ -8404,32 +8404,32 @@ loc_4A491:              ; CODE XREF: uncalled?3+5j
         retn
 ; ---------------------------------------------------------------------------
 
-loc_4A4A9:              ; CODE XREF: uncalled?3+1Dj
+loc_4A4A9:              ; CODE XREF: movefun3+1Dj
         mov byte ptr [si+1835h], 20h ; ' '
         mov byte ptr [si+18ADh], 8
         retn
 ; ---------------------------------------------------------------------------
 
-loc_4A4B4:              ; CODE XREF: uncalled?3+14j
+loc_4A4B4:              ; CODE XREF: movefun3+14j
         cmp word ptr [si+18ACh], 0
         jnz short loc_4A4C2
         mov word ptr [si+1834h], 8
         retn
 ; ---------------------------------------------------------------------------
 
-loc_4A4C2:              ; CODE XREF: uncalled?3+30j
+loc_4A4C2:              ; CODE XREF: movefun3+30j
         mov bl, [si+1835h]
         inc bl
         cmp bl, 22h ; '"'
         jnz short loc_4A4CF
         mov bl, 30h ; '0'
 
-loc_4A4CF:              ; CODE XREF: uncalled?3+42j
+loc_4A4CF:              ; CODE XREF: movefun3+42j
         mov [si+1835h], bl
         retn
 ; ---------------------------------------------------------------------------
 
-loc_4A4D4:              ; CODE XREF: uncalled?3+Fj
+loc_4A4D4:              ; CODE XREF: movefun3+Fj
         push    si
         mov bl, [si+1835h]
         xor bh, bh
@@ -8447,7 +8447,7 @@ loc_4A4D4:              ; CODE XREF: uncalled?3+Fj
         mov ds, ax
         mov cx, 12h
 
-loc_4A4F9:              ; CODE XREF: uncalled?3+78j
+loc_4A4F9:              ; CODE XREF: movefun3+78j
         movsb
         movsb
         add si, 78h ; 'x'
@@ -8464,7 +8464,7 @@ loc_4A4F9:              ; CODE XREF: uncalled?3+78j
         retn
 ; ---------------------------------------------------------------------------
 
-loc_4A516:              ; CODE XREF: uncalled?3+86j
+loc_4A516:              ; CODE XREF: movefun3+86j
         mov word ptr [si+1834h], 0
         mov word ptr [si+18ACh], 8
         add si, 78h ; 'x'
@@ -8475,16 +8475,16 @@ loc_4A516:              ; CODE XREF: uncalled?3+86j
         retn
 ; ---------------------------------------------------------------------------
 
-loc_4A537:              ; CODE XREF: uncalled?3+A1j
+loc_4A537:              ; CODE XREF: movefun3+A1j
         cmp byte ptr [si+18ACh], 1Fh
         jnz short loc_4A53F
         retn
 ; ---------------------------------------------------------------------------
 
-loc_4A53F:              ; CODE XREF: uncalled?3+B3j
+loc_4A53F:              ; CODE XREF: movefun3+B3j
         call    sub_4A61F
         retn
-uncalled?3  endp
+movefun3  endp
 
 ; ---------------------------------------------------------------------------
 
@@ -8621,8 +8621,8 @@ sub_4A5E0   endp
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_4A61F   proc near       ; CODE XREF: uncalled?+271p
-                    ; uncalled?2+20Fp ...
+sub_4A61F   proc near       ; CODE XREF: movefun+271p
+                    ; movefun2+20Fp ...
         cmp byte ptr [si+1834h], 6
         jnz short loc_4A627
         retn
@@ -16906,8 +16906,8 @@ sound?6     endp
 ; =============== S U B R O U T I N E =======================================
 
 
-sound?7     proc near       ; CODE XREF: uncalled?:loc_48125p
-                    ; uncalled?2:loc_48573p
+sound?7     proc near       ; CODE XREF: movefun:loc_48125p
+                    ; movefun2:loc_48573p
         cmp byte_59885, 1
         jz  short loc_4DCBA
         retn
@@ -16971,7 +16971,7 @@ sound?7     endp
 ; =============== S U B R O U T I N E =======================================
 
 
-sound?8     proc near       ; CODE XREF: uncalled?7:loc_4A0ABp
+sound?8     proc near       ; CODE XREF: movefun7:loc_4A0ABp
         cmp byte_59885, 1
         jz  short loc_4DD23
         retn
@@ -20068,7 +20068,7 @@ sub_4F2AF   endp
 ; =============== S U B R O U T I N E =======================================
 
 
-uncalled?4  proc near       ; DATA XREF: data:162Co
+movefun4  proc near       ; DATA XREF: data:162Co
         cmp byte_510D7, 1
         jz  short notSnikSnak
         cmp byte ptr leveldata[si], sniksnak ; 17
@@ -20081,10 +20081,10 @@ uncalled?4  proc near       ; DATA XREF: data:162Co
         jz  short notSnikSnak
         call    ax
 
-notSnikSnak:                ; CODE XREF: uncalled?4+5j
-                    ; uncalled?4+Cj ...
+notSnikSnak:                ; CODE XREF: movefun4+5j
+                    ; movefun4+Cj ...
         retn
-uncalled?4  endp
+movefun4  endp
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -20741,7 +20741,7 @@ sub_4F708   endp
 ; =============== S U B R O U T I N E =======================================
 
 
-uncalled?6  proc near       ; DATA XREF: data:163Ao
+movefun6  proc near       ; DATA XREF: data:163Ao
         cmp byte_510D7, 1
         jz  short locret_4F7D0
         cmp byte ptr leveldata[si], 18h
@@ -20754,10 +20754,10 @@ uncalled?6  proc near       ; DATA XREF: data:163Ao
         jz  short locret_4F7D0
         call    ax
 
-locret_4F7D0:               ; CODE XREF: uncalled?6+5j
-                    ; uncalled?6+Cj ...
+locret_4F7D0:               ; CODE XREF: movefun6+5j
+                    ; movefun6+Cj ...
         retn
-uncalled?6  endp
+movefun6  endp
 
 
 ; =============== S U B R O U T I N E =======================================

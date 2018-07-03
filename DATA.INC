@@ -1390,8 +1390,8 @@ word_50A7A  dw 0            ; DATA XREF: fileReadUnk1+44r
 byte_50A7C  db 5A0h dup(0)
 byte_5101C  db 0, 18h dup(14h)  ; DATA XREF: sub_4955B+21Fw
                     ; sub_4955B+224w ...
-byte_51035  db 0            ; DATA XREF: uncalled?:loc_47FA4r
-                    ; uncalled?:loc_48053r ...
+byte_51035  db 0            ; DATA XREF: movefun:loc_47FA4r
+                    ; movefun:loc_48053r ...
 byte_51036  db 0            ; DATA XREF: sub_4A3BBr sub_4A3BB+7r
 byte_51037  db 3Fh dup(0)       ; DATA XREF: sub_4F2AFr
 word_51076  dw 13h dup(0)       ; DATA XREF: readLevels+10Ar
@@ -1601,11 +1601,11 @@ word_51580  dw 1AB2h        ; DATA XREF: sub_4AAB4+14r
         db 2Ah
         db 96h
         db 33h
-word_515A2  dw 32A2h        ; DATA XREF: uncalled?+FAr
+word_515A2  dw 32A2h        ; DATA XREF: movefun+FAr
         db 7Ah, 33h, 7Eh, 33h, 82h, 33h, 86h, 33h, 8Ah, 33h, 8Eh
         db 33h, 92h, 33h, 96h, 33h, 1Ah, 3Bh, 1Eh, 3Bh, 22h, 3Bh
         db 26h, 3Bh, 2Ah, 3Bh, 2Eh, 3Bh, 32h, 3Bh, 36h, 3Bh
-word_515C4  dw 1358h        ; DATA XREF: uncalled?2+DAr
+word_515C4  dw 1358h        ; DATA XREF: movefun2+DAr
         db 8Eh, 0Ch, 92h, 0Ch, 96h, 0Ch, 9Ah, 0Ch, 8Fh, 0Ch, 0A2h
         db 0Ch, 0A6h, 0Ch, 0AAh, 0Ch, 2Eh, 14h, 32h, 14h, 36h
         db 14h, 3Ah, 14h, 3Eh, 14h, 42h, 14h, 46h, 14h, 4Ah, 14h
@@ -1677,7 +1677,7 @@ word_51852  dw 2A68h        ; DATA XREF: sub_48F6D+CBr
 word_51854  dw 2A69h        ; DATA XREF: sub_48F6D+65r
 word_51856  dw 2E38h        ; DATA XREF: sub_48F6D+27r
 word_51858  dw 2E39h        ; DATA XREF: sub_48F6D+9Fr
-movingFunctions3 dw offset sub_4F312    ; DATA XREF: uncalled?4+16r
+movingFunctions3 dw offset sub_4F312    ; DATA XREF: movefun4+16r
         dw offset sub_4F312
         dw offset sub_4F312
         dw offset sub_4F312
@@ -1725,7 +1725,7 @@ movingFunctions3 dw offset sub_4F312    ; DATA XREF: uncalled?4+16r
         dw offset sub_4F708
         dw offset sub_4F708
         dw offset sub_4F708
-movingFunctions2 dw offset sub_4F7D1    ; DATA XREF: uncalled?6+16r
+movingFunctions2 dw offset sub_4F7D1    ; DATA XREF: movefun6+16r
         dw offset sub_4F7D1
         dw offset sub_4F7D1
         dw offset sub_4F7D1
@@ -1774,31 +1774,31 @@ movingFunctions2 dw offset sub_4F7D1    ; DATA XREF: uncalled?6+16r
         dw offset sub_4FB79
         dw offset sub_4FB79
 movingFunctions dw 0            ; DATA XREF: gameloop?+70r
-        dw offset uncalled?
+        dw offset movefun
         dw 0
         dw 0
-        dw offset uncalled?2
-        dw 0
-        dw 0
-        dw 0
-        dw offset uncalled?3
+        dw offset movefun2
         dw 0
         dw 0
         dw 0
+        dw offset movefun3
         dw 0
         dw 0
         dw 0
         dw 0
         dw 0
-        dw offset uncalled?4
-        dw 0
-        dw offset uncalled?5
         dw 0
         dw 0
         dw 0
+        dw offset movefun4
         dw 0
-        dw offset uncalled?6
-        dw offset uncalled?7
+        dw offset movefun5
+        dw 0
+        dw 0
+        dw 0
+        dw 0
+        dw offset movefun6
+        dw offset movefun7
         dw 0
         dw 0
         dw 0
@@ -1825,7 +1825,7 @@ word_51967  dw 0            ; DATA XREF: crt?2+2Dr crt?2+3Aw ...
 byte_51969  db 0            ; DATA XREF: sub_4BA5F:loc_4BA69w
                     ; sub_4BA5F+88r ...
 byte_5196A  db 0            ; DATA XREF: sub_48A20+66w
-                    ; uncalled?5+1Br ...
+                    ; movefun5+1Br ...
 byte_5196B  db 0            ; DATA XREF: sub_48A20+6Bw
                     ; update?+88Fr ...
 word_5196C  dw 0            ; DATA XREF: start+41Dw
@@ -1987,8 +1987,6 @@ byte_51ACA  db 7Ah dup(0)
 
 ;1834h
 leveldata   dw 900h dup(0), 0Dh dup(2020h), 20h, 0Dh dup(2020h), 20h
-                    ; DATA XREF: uncalled?r
-                    ; uncalled?:loc_47F98r ...
         dw 612h dup(0), 202Dh, 4552h, 4C50h, 5941h, 5320h, 494Bh
         dw 5050h, 4445h, 4C20h, 5645h, 4C45h, 2153h, 2021h, 0A2Dh
         dw 2 dup(2D2Dh), 5520h, 424Eh, 4C45h, 4549h, 4556h, 4241h
