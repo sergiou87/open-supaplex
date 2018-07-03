@@ -1401,35 +1401,35 @@ sub_4755A       proc near               ; CODE XREF: code:loc_4CAECp
 loc_4756A:                              ; CODE XREF: sub_4755A+Bj
                 mov     lastFileHandle, ax
                 mov     si, offset fileLevelData
-                cmp     byte_59888, 2
+                cmp     sndType, 2
                 jnz     short loc_4757C
                 mov     byte ptr [si], 73h ; 's'
                 jmp     short loc_475AF
 ; ---------------------------------------------------------------------------
 
 loc_4757C:                              ; CODE XREF: sub_4755A+1Bj
-                cmp     byte_59888, 1
+                cmp     sndType, 1
                 jnz     short loc_47588
                 mov     byte ptr [si], 69h ; 'i'
                 jmp     short loc_475AF
 ; ---------------------------------------------------------------------------
 
 loc_47588:                              ; CODE XREF: sub_4755A+27j
-                cmp     byte_59888, 3
+                cmp     sndType, 3
                 jnz     short loc_47594
                 mov     byte ptr [si], 61h ; 'a'
                 jmp     short loc_475AF
 ; ---------------------------------------------------------------------------
 
 loc_47594:                              ; CODE XREF: sub_4755A+33j
-                cmp     byte_59888, 5
+                cmp     sndType, 5
                 jnz     short loc_475A0
                 mov     byte ptr [si], 72h ; 'r'
                 jmp     short loc_475AF
 ; ---------------------------------------------------------------------------
 
 loc_475A0:                              ; CODE XREF: sub_4755A+3Fj
-                cmp     byte_59887, 5
+                cmp     musType, 5
                 jnz     short loc_475AC
                 mov     byte ptr [si], 63h ; 'c'
                 jmp     short loc_475AF
@@ -14056,7 +14056,7 @@ sub_4CAFC   proc near       ; CODE XREF: code:5AE1p sub_4C705+6p ...
         mov ah, 4
         mov si, 28Eh
         call    sub_4CF13
-        cmp byte_59888, 3
+        cmp sndType, 3
         jnz short loc_4CBC6
         mov si, 578Bh
         mov cx, 5
@@ -14072,12 +14072,12 @@ sub_4CAFC   proc near       ; CODE XREF: code:5AE1p sub_4C705+6p ...
 ; ---------------------------------------------------------------------------
 
 loc_4CBC6:              ; CODE XREF: sub_4CAFC+A9j
-        cmp byte_59888, 4
+        cmp sndType, 4
         jnz short loc_4CC11
         mov ah, 6
         mov si, 1CAh
         call    sub_4CF13
-        cmp byte_59887, 3
+        cmp musType, 3
         jnz short loc_4CBF3
         mov si, 68B1h
         mov cx, 9
@@ -14104,7 +14104,7 @@ loc_4CBF3:              ; CODE XREF: sub_4CAFC+DEj
 ; ---------------------------------------------------------------------------
 
 loc_4CC11:              ; CODE XREF: sub_4CAFC+CFj
-        cmp byte_59888, 5
+        cmp sndType, 5
         jnz short loc_4CC36
         mov si, 79DAh
         mov cx, 7
@@ -14127,7 +14127,7 @@ loc_4CC36:              ; CODE XREF: sub_4CAFC+11Aj
         mov ah, 6
         mov si, 2E2h
         call    sub_4CF13
-        cmp byte_59888, 1
+        cmp sndType, 1
         jnz short loc_4CC67
         mov si, 6380h
         mov cx, 5
@@ -16342,8 +16342,8 @@ soundShutdown?  endp
 
 ; ---------------------------------------------------------------------------
         call    sound?1
-        mov byte_59887, 0
-        mov byte_59888, 0
+        mov musType, 0
+        mov sndType, 0
         mov soundEnabled?, 0
         retn
 
@@ -16356,8 +16356,8 @@ loadBeep    proc near       ; CODE XREF: readConfig:loc_4751Ap
         mov dx, offset aBeep_snd ; "BEEP.SND"
         mov cx, 0AC4h
         call    readSound
-        mov byte_59887, 1
-        mov byte_59888, 1
+        mov musType, 1
+        mov sndType, 1
         mov soundEnabled?, 1
         call    sound?2
         mov byte_59889, 0
@@ -16379,8 +16379,8 @@ loadBeep2   proc near       ; CODE XREF: readConfig+4Cp sub_4C70Fp
         mov dx, offset aSample_snd ; "SAMPLE.SND"
         mov cx, 8DACh
         call    readSound2
-        mov byte_59887, 1
-        mov byte_59888, 2
+        mov musType, 1
+        mov sndType, 2
         mov soundEnabled?, 1
         call    sound?2
         mov byte_59889, 0
@@ -16399,8 +16399,8 @@ loadAdlib   proc near       ; CODE XREF: readConfig+56p sub_4C723p
         mov dx, offset aAdlib_snd ; "ADLIB.SND"
         mov cx, 14EAh
         call    readSound
-        mov byte_59887, 3
-        mov byte_59888, 3
+        mov musType, 3
+        mov sndType, 3
         mov soundEnabled?, 0
         call    sound?2
         mov byte_59889, 0
@@ -16422,8 +16422,8 @@ loadBlaster  proc near       ; CODE XREF: readConfig+60p sub_4C719p
         mov dx, offset aBlaster_snd ; "BLASTER.SND"
         mov cx, 991Bh
         call    readSound2
-        mov byte_59887, 3
-        mov byte_59888, 4
+        mov musType, 3
+        mov sndType, 4
         mov soundEnabled?, 0
         call    sound?2
         mov byte_59889, 0
@@ -16442,8 +16442,8 @@ loadRoland  proc near       ; CODE XREF: readConfig+6Ap sub_4C72Dp
         mov dx, offset aRoland_snd ; "ROLAND.SND"
         mov cx, 0F80h
         call    readSound
-        mov byte_59887, 5
-        mov byte_59888, 5
+        mov musType, 5
+        mov sndType, 5
         mov soundEnabled?, 0
         call    sound?2
         mov byte_59889, 0
@@ -16465,8 +16465,8 @@ loadCombined proc near       ; CODE XREF: readConfig+74p sub_4C737p
         mov dx, offset aBlaster_snd ; "BLASTER.SND"
         mov cx, 991Bh
         call    readSound2
-        mov byte_59887, 5
-        mov byte_59888, 4
+        mov musType, 5
+        mov sndType, 4
         mov soundEnabled?, 0
         call    sound?2
         mov byte_59889, 0
@@ -16576,7 +16576,7 @@ readSound2  endp
 sound?1     proc near       ; CODE XREF: soundShutdown?+5p
                     ; code:6CC7p ...
         mov soundEnabled?, 0
-        cmp byte_59887, 1
+        cmp musType, 1
         jnz short loc_4DAC9
         mov ah, 2
         int 80h     ; LINUX -
@@ -16601,7 +16601,7 @@ sound?1     proc near       ; CODE XREF: soundShutdown?+5p
 ; ---------------------------------------------------------------------------
 
 loc_4DAC9:              ; CODE XREF: sound?1+Aj
-        cmp byte_59887, 3
+        cmp musType, 3
         jnz short loc_4DAD9
         mov dx, 388h
         mov ah, 2
@@ -16610,7 +16610,7 @@ loc_4DAC9:              ; CODE XREF: sound?1+Aj
 ; ---------------------------------------------------------------------------
 
 loc_4DAD9:              ; CODE XREF: sound?1+1Dj
-        cmp byte_59887, 5
+        cmp musType, 5
         jnz short loc_4DAE8
         mov ah, 2
         int 80h     ; LINUX -
@@ -16618,8 +16618,8 @@ loc_4DAD9:              ; CODE XREF: sound?1+1Dj
         int 80h     ; LINUX -
 
 loc_4DAE8:              ; CODE XREF: sound?1+16j sound?1+26j ...
-        mov byte_59887, 0
-        cmp byte_59888, 2
+        mov musType, 0
+        cmp sndType, 2
         jnz short loc_4DAFA
         mov ah, 1
         int 81h
@@ -16627,13 +16627,13 @@ loc_4DAE8:              ; CODE XREF: sound?1+16j sound?1+26j ...
 ; ---------------------------------------------------------------------------
 
 loc_4DAFA:              ; CODE XREF: sound?1+41j
-        cmp byte_59888, 4
+        cmp sndType, 4
         jnz short loc_4DB05
         mov ah, 2
         int 81h
 
 loc_4DB05:              ; CODE XREF: sound?1+47j sound?1+4Ej
-        mov byte_59888, 0
+        mov sndType, 0
         retn
 sound?1     endp
 
@@ -16648,7 +16648,7 @@ sound?2     proc near       ; CODE XREF: start+39Bp start+410p ...
 ; ---------------------------------------------------------------------------
 
 loc_4DB13:              ; CODE XREF: sound?2+5j
-        cmp byte_59887, 1
+        cmp musType, 1
         jnz short loc_4DB26
         mov ax, 0
         int 80h     ; LINUX - old_setup_syscall
@@ -16657,7 +16657,7 @@ loc_4DB13:              ; CODE XREF: sound?2+5j
 ; ---------------------------------------------------------------------------
 
 loc_4DB26:              ; CODE XREF: sound?2+Dj
-        cmp byte_59887, 3
+        cmp musType, 3
         jnz short loc_4DB3C
         mov dx, 388h
         mov ax, 0
@@ -16667,7 +16667,7 @@ loc_4DB26:              ; CODE XREF: sound?2+Dj
 ; ---------------------------------------------------------------------------
 
 loc_4DB3C:              ; CODE XREF: sound?2+20j
-        cmp byte_59887, 5
+        cmp musType, 5
         jnz short locret_4DB4D
         mov ax, 0
         int 80h     ; LINUX - old_setup_syscall
@@ -16682,7 +16682,7 @@ sound?2     endp
 
 
 sound?3     proc near       ; CODE XREF: start+354p runLevel+41p ...
-        cmp byte_59887, 1
+        cmp musType, 1
         jnz short loc_4DB5B
         mov ah, 2
         int 80h     ; LINUX -
@@ -16690,7 +16690,7 @@ sound?3     proc near       ; CODE XREF: start+354p runLevel+41p ...
 ; ---------------------------------------------------------------------------
 
 loc_4DB5B:              ; CODE XREF: sound?3+5j
-        cmp byte_59887, 3
+        cmp musType, 3
         jnz short loc_4DB6B
         mov dx, 388h
         mov ah, 2
@@ -16699,7 +16699,7 @@ loc_4DB5B:              ; CODE XREF: sound?3+5j
 ; ---------------------------------------------------------------------------
 
 loc_4DB6B:              ; CODE XREF: sound?3+12j
-        cmp byte_59887, 5
+        cmp musType, 5
         jnz short locret_4DB76
         mov ah, 2
         int 80h     ; LINUX -
@@ -16727,7 +16727,7 @@ loc_4DB7F:              ; CODE XREF: sound?4+5j
 loc_4DB87:              ; CODE XREF: sound?4+Dj
         mov byte_5988B, 0Fh
         mov byte_59889, 5
-        cmp byte_59888, 1
+        cmp sndType, 1
         jnz short loc_4DB9F
         mov ax, 400h
         int 80h     ; LINUX -
@@ -16735,7 +16735,7 @@ loc_4DB87:              ; CODE XREF: sound?4+Dj
 ; ---------------------------------------------------------------------------
 
 loc_4DB9F:              ; CODE XREF: sound?4+1Fj
-        cmp byte_59888, 2
+        cmp sndType, 2
         jnz short loc_4DBB4
         mov dx, 5D38h
         mov ah, 3
@@ -16746,7 +16746,7 @@ loc_4DB9F:              ; CODE XREF: sound?4+1Fj
 ; ---------------------------------------------------------------------------
 
 loc_4DBB4:              ; CODE XREF: sound?4+2Dj
-        cmp byte_59888, 3
+        cmp sndType, 3
         jnz short loc_4DBC5
         mov ax, 400h
         mov dx, 388h
@@ -16755,7 +16755,7 @@ loc_4DBB4:              ; CODE XREF: sound?4+2Dj
 ; ---------------------------------------------------------------------------
 
 loc_4DBC5:              ; CODE XREF: sound?4+42j
-        cmp byte_59888, 4
+        cmp sndType, 4
         jnz short loc_4DBD3
         mov ax, 0
         int 81h
@@ -16763,7 +16763,7 @@ loc_4DBC5:              ; CODE XREF: sound?4+42j
 ; ---------------------------------------------------------------------------
 
 loc_4DBD3:              ; CODE XREF: sound?4+53j
-        cmp byte_59888, 5
+        cmp sndType, 5
         jnz short locret_4DBDF
         mov ax, 400h
         int 80h     ; LINUX -
@@ -16792,7 +16792,7 @@ loc_4DBE8:              ; CODE XREF: sound?5+5j
 loc_4DBF0:              ; CODE XREF: sound?5+Dj
         mov byte_5988B, 0Fh
         mov byte_59889, 4
-        cmp byte_59888, 1
+        cmp sndType, 1
         jnz short loc_4DC08
         mov ax, 401h
         int 80h     ; LINUX -
@@ -16800,7 +16800,7 @@ loc_4DBF0:              ; CODE XREF: sound?5+Dj
 ; ---------------------------------------------------------------------------
 
 loc_4DC08:              ; CODE XREF: sound?5+1Fj
-        cmp byte_59888, 2
+        cmp sndType, 2
         jnz short loc_4DC1D
         mov dx, 5D38h
         mov ah, 3
@@ -16811,7 +16811,7 @@ loc_4DC08:              ; CODE XREF: sound?5+1Fj
 ; ---------------------------------------------------------------------------
 
 loc_4DC1D:              ; CODE XREF: sound?5+2Dj
-        cmp byte_59888, 3
+        cmp sndType, 3
         jnz short loc_4DC2E
         mov ax, 401h
         mov dx, 388h
@@ -16820,7 +16820,7 @@ loc_4DC1D:              ; CODE XREF: sound?5+2Dj
 ; ---------------------------------------------------------------------------
 
 loc_4DC2E:              ; CODE XREF: sound?5+42j
-        cmp byte_59888, 4
+        cmp sndType, 4
         jnz short loc_4DC3C
         mov ax, 1
         int 81h
@@ -16828,7 +16828,7 @@ loc_4DC2E:              ; CODE XREF: sound?5+42j
 ; ---------------------------------------------------------------------------
 
 loc_4DC3C:              ; CODE XREF: sound?5+53j
-        cmp byte_59888, 5
+        cmp sndType, 5
         jnz short locret_4DC48
         mov ax, 401h
         int 80h     ; LINUX -
@@ -16857,7 +16857,7 @@ loc_4DC51:              ; CODE XREF: sound?6+5j
 loc_4DC59:              ; CODE XREF: sound?6+Dj
         mov byte_5988B, 7
         mov byte_59889, 2
-        cmp byte_59888, 1
+        cmp sndType, 1
         jnz short loc_4DC71
         mov ax, 402h
         int 80h     ; LINUX -
@@ -16865,7 +16865,7 @@ loc_4DC59:              ; CODE XREF: sound?6+Dj
 ; ---------------------------------------------------------------------------
 
 loc_4DC71:              ; CODE XREF: sound?6+1Fj
-        cmp byte_59888, 2
+        cmp sndType, 2
         jnz short loc_4DC86
         mov dx, 5D38h
         mov ah, 3
@@ -16876,7 +16876,7 @@ loc_4DC71:              ; CODE XREF: sound?6+1Fj
 ; ---------------------------------------------------------------------------
 
 loc_4DC86:              ; CODE XREF: sound?6+2Dj
-        cmp byte_59888, 3
+        cmp sndType, 3
         jnz short loc_4DC97
         mov ax, 402h
         mov dx, 388h
@@ -16885,7 +16885,7 @@ loc_4DC86:              ; CODE XREF: sound?6+2Dj
 ; ---------------------------------------------------------------------------
 
 loc_4DC97:              ; CODE XREF: sound?6+42j
-        cmp byte_59888, 4
+        cmp sndType, 4
         jnz short loc_4DCA5
         mov ax, 2
         int 81h
@@ -16893,7 +16893,7 @@ loc_4DC97:              ; CODE XREF: sound?6+42j
 ; ---------------------------------------------------------------------------
 
 loc_4DCA5:              ; CODE XREF: sound?6+53j
-        cmp byte_59888, 5
+        cmp sndType, 5
         jnz short locret_4DCB1
         mov ax, 402h
         int 80h     ; LINUX -
@@ -16922,7 +16922,7 @@ loc_4DCBA:              ; CODE XREF: sound?7+5j
 loc_4DCC2:              ; CODE XREF: sound?7+Dj
         mov byte_5988B, 7
         mov byte_59889, 2
-        cmp byte_59888, 1
+        cmp sndType, 1
         jnz short loc_4DCDA
         mov ax, 403h
         int 80h     ; LINUX -
@@ -16930,7 +16930,7 @@ loc_4DCC2:              ; CODE XREF: sound?7+Dj
 ; ---------------------------------------------------------------------------
 
 loc_4DCDA:              ; CODE XREF: sound?7+1Fj
-        cmp byte_59888, 2
+        cmp sndType, 2
         jnz short loc_4DCEF
         mov dx, 5D38h
         mov ah, 3
@@ -16941,7 +16941,7 @@ loc_4DCDA:              ; CODE XREF: sound?7+1Fj
 ; ---------------------------------------------------------------------------
 
 loc_4DCEF:              ; CODE XREF: sound?7+2Dj
-        cmp byte_59888, 3
+        cmp sndType, 3
         jnz short loc_4DD00
         mov ax, 403h
         mov dx, 388h
@@ -16950,7 +16950,7 @@ loc_4DCEF:              ; CODE XREF: sound?7+2Dj
 ; ---------------------------------------------------------------------------
 
 loc_4DD00:              ; CODE XREF: sound?7+42j
-        cmp byte_59888, 4
+        cmp sndType, 4
         jnz short loc_4DD0E
         mov ax, 3
         int 81h
@@ -16958,7 +16958,7 @@ loc_4DD00:              ; CODE XREF: sound?7+42j
 ; ---------------------------------------------------------------------------
 
 loc_4DD0E:              ; CODE XREF: sound?7+53j
-        cmp byte_59888, 5
+        cmp sndType, 5
         jnz short locret_4DD1A
         mov ax, 403h
         int 80h     ; LINUX -
@@ -16986,7 +16986,7 @@ loc_4DD23:              ; CODE XREF: sound?8+5j
 loc_4DD2B:              ; CODE XREF: sound?8+Dj
         mov byte_5988B, 3
         mov byte_59889, 3
-        cmp byte_59888, 1
+        cmp sndType, 1
         jnz short loc_4DD43
         mov ax, 404h
         int 80h     ; LINUX -
@@ -16994,7 +16994,7 @@ loc_4DD2B:              ; CODE XREF: sound?8+Dj
 ; ---------------------------------------------------------------------------
 
 loc_4DD43:              ; CODE XREF: sound?8+1Fj
-        cmp byte_59888, 2
+        cmp sndType, 2
         jnz short loc_4DD58
         mov dx, 5D38h
         mov ah, 3
@@ -17005,7 +17005,7 @@ loc_4DD43:              ; CODE XREF: sound?8+1Fj
 ; ---------------------------------------------------------------------------
 
 loc_4DD58:              ; CODE XREF: sound?8+2Dj
-        cmp byte_59888, 3
+        cmp sndType, 3
         jnz short loc_4DD69
         mov ax, 404h
         mov dx, 388h
@@ -17014,7 +17014,7 @@ loc_4DD58:              ; CODE XREF: sound?8+2Dj
 ; ---------------------------------------------------------------------------
 
 loc_4DD69:              ; CODE XREF: sound?8+42j
-        cmp byte_59888, 4
+        cmp sndType, 4
         jnz short loc_4DD77
         mov ax, 4
         int 81h
@@ -17022,7 +17022,7 @@ loc_4DD69:              ; CODE XREF: sound?8+42j
 ; ---------------------------------------------------------------------------
 
 loc_4DD77:              ; CODE XREF: sound?8+53j
-        cmp byte_59888, 5
+        cmp sndType, 5
         jnz short locret_4DD83
         mov ax, 404h
         int 80h     ; LINUX -
@@ -17051,7 +17051,7 @@ xxxxxxxxdcdc:               ; CODE XREF: sound?9+5j
 loc_4DD94:              ; CODE XREF: sound?9+Dj
         mov byte_5988B, 3
         mov byte_59889, 1
-        cmp byte_59888, 1
+        cmp sndType, 1
         jnz short loc_4DDAC
         mov ax, 405h
         int 80h     ; LINUX -
@@ -17059,7 +17059,7 @@ loc_4DD94:              ; CODE XREF: sound?9+Dj
 ; ---------------------------------------------------------------------------
 
 loc_4DDAC:              ; CODE XREF: sound?9+1Fj
-        cmp byte_59888, 2
+        cmp sndType, 2
         jnz short loc_4DDC1
         mov dx, 5D38h
         mov ah, 3
@@ -17070,7 +17070,7 @@ loc_4DDAC:              ; CODE XREF: sound?9+1Fj
 ; ---------------------------------------------------------------------------
 
 loc_4DDC1:              ; CODE XREF: sound?9+2Dj
-        cmp byte_59888, 3
+        cmp sndType, 3
         jnz short loc_4DDD2
         mov ax, 405h
         mov dx, 388h
@@ -17079,7 +17079,7 @@ loc_4DDC1:              ; CODE XREF: sound?9+2Dj
 ; ---------------------------------------------------------------------------
 
 loc_4DDD2:              ; CODE XREF: sound?9+42j
-        cmp byte_59888, 4
+        cmp sndType, 4
         jnz short loc_4DDE0
         mov ax, 5
         int 81h
@@ -17087,7 +17087,7 @@ loc_4DDD2:              ; CODE XREF: sound?9+42j
 ; ---------------------------------------------------------------------------
 
 loc_4DDE0:              ; CODE XREF: sound?9+53j
-        cmp byte_59888, 5
+        cmp sndType, 5
         jnz short locret_4DDEC
         mov ax, 405h
         int 80h     ; LINUX -
@@ -17110,7 +17110,7 @@ loc_4DDF5:              ; CODE XREF: sound?10+5j
         mov byte_5988B, 0FAh ; '?'
         mov byte_59889, 0Ah
         call    sound?3
-        cmp byte_59888, 1
+        cmp sndType, 1
         jnz short loc_4DE10
         mov ax, 1
         int 80h     ; LINUX - sys_exit
@@ -17119,7 +17119,7 @@ loc_4DDF5:              ; CODE XREF: sound?10+5j
 ; ---------------------------------------------------------------------------
 
 loc_4DE10:              ; CODE XREF: sound?10+1Aj
-        cmp byte_59888, 2
+        cmp sndType, 2
         jnz short loc_4DE25
         mov dx, 5D38h
         mov ah, 3
@@ -17130,7 +17130,7 @@ loc_4DE10:              ; CODE XREF: sound?10+1Aj
 ; ---------------------------------------------------------------------------
 
 loc_4DE25:              ; CODE XREF: sound?10+28j
-        cmp byte_59888, 3
+        cmp sndType, 3
         jnz short loc_4DE36
         mov ax, 1
         mov dx, 388h
@@ -17140,9 +17140,9 @@ loc_4DE25:              ; CODE XREF: sound?10+28j
 ; ---------------------------------------------------------------------------
 
 loc_4DE36:              ; CODE XREF: sound?10+3Dj
-        cmp byte_59888, 4
+        cmp sndType, 4
         jnz short loc_4DE52
-        cmp byte_59887, 5
+        cmp musType, 5
         jnz short loc_4DE4B
         mov ax, 1
         int 80h     ; LINUX - sys_exit
@@ -17157,7 +17157,7 @@ loc_4DE4B:              ; CODE XREF: sound?10+55j
 ; ---------------------------------------------------------------------------
 
 loc_4DE52:              ; CODE XREF: sound?10+4Ej
-        cmp byte_59888, 5
+        cmp sndType, 5
         jnz short locret_4DE5E
         mov ax, 1
         int 80h     ; LINUX - sys_exit
@@ -17172,7 +17172,7 @@ sound?10    endp
 
 
 sound?11    proc near       ; CODE XREF: int8handler+51p
-        cmp byte_59887, 1
+        cmp musType, 1
         jnz short loc_4DE6C
         mov ah, 1
         int 80h     ; LINUX -
@@ -17180,7 +17180,7 @@ sound?11    proc near       ; CODE XREF: int8handler+51p
 ; ---------------------------------------------------------------------------
 
 loc_4DE6C:              ; CODE XREF: sound?11+5j
-        cmp byte_59887, 3
+        cmp musType, 3
         jnz short loc_4DE7C
         mov dx, 388h
         mov ah, 1
@@ -17189,7 +17189,7 @@ loc_4DE6C:              ; CODE XREF: sound?11+5j
 ; ---------------------------------------------------------------------------
 
 loc_4DE7C:              ; CODE XREF: sound?11+12j
-        cmp byte_59887, 5
+        cmp musType, 5
         jnz short locret_4DE87
         mov ah, 1
         int 80h     ; LINUX -
