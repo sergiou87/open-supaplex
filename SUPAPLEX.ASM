@@ -15454,7 +15454,7 @@ videoloop   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
         push    dx
         push    ax
         cmp byte ptr dword_59B67, 0
-        jnz short loc_4D42E
+        jnz short waitForVsync
         mov dx, 3DAh
         cli
         in  al, dx      ; Video status bits:
@@ -15479,7 +15479,7 @@ videoloop   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
         test    ah, 8
         jnz short loc_4D453
 
-loc_4D42E:              ; CODE XREF: videoloop+7j
+waitForVsync:              ; CODE XREF: videoloop+7j
                     ; videoloop+31j
         sti
         nop
@@ -15500,7 +15500,7 @@ loc_4D42E:              ; CODE XREF: videoloop+7j
                     ; 2: 1=light pen switch is open; 0=closed
                     ; 3: 1=vertical sync pulse is occurring.
         test    al, 1000b
-        jz  short loc_4D42E
+        jz  short waitForVsync
         cmp byte ptr dword_59B67, 0
         jz  short loc_4D453
         mov dx, 3C0h
