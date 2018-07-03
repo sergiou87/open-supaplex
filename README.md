@@ -62,6 +62,9 @@ more CPU.
 ### Running
 Run `build\supaplex.exe` after building.
 
+### Testing
+Run `TEST.BAT` to run some tests.
+
 
 # License
 I could not find any license with the original executable prohibiting
