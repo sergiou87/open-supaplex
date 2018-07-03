@@ -1,4 +1,2 @@
-*.exe
-*.lst
-*.map
-*.obj
+build/
+tasm/
