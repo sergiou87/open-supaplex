@@ -1,4 +1,4 @@
-#Supaplex
+# Supaplex
 [Supaplex](https://en.wikipedia.org/wiki/Supaplex) is a game made in the early nineties.
 
 Since then the source code has been lost. Some enthusiasts have disassembled the game,
@@ -17,7 +17,7 @@ analyzed source of the SPFIX63.EXE file.
 ## Getting Started
 ### Prerequisites
 - You need [DosBox](https://www.dosbox.com/) to build and run.
-- You will need the (original Supaplex files)[https://cdn.chills.co.za/supaplex.zip].
+- You will need the [original Supaplex files](https://cdn.chills.co.za/supaplex.zip).
     Extract the files into the `supaplex` directory.
 - You will need [TASM 4.1](https://cdn.chills.co.za/tasm4.zip).
     Extract the files into the `tasm` directory.
@@ -51,6 +51,8 @@ Remaining memory:  139k
 
 C:\>TASM\TLINK.EXE BUILD\SUPAPLEX.OBJ
 Turbo Link  Version 7.1.30.1. Copyright (c) 1987, 1996 Borland International
+
+C:\>
 ```
 Note: if the build is too slow, press F12 repeatedly or change your DOSBox config to use
 more CPU.
