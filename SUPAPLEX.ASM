@@ -60,7 +60,7 @@ processCommandLine:         ; CODE XREF: start+F7j
 ; ---------------------------------------------------------------------------
 
 hascolon:                ; CODE XREF: start+39j
-        mov al, 20h ; ' '
+        mov al, 20h 
         mov si, offset demoFileName
 
 copyArgument:              ; CODE XREF: start+52j
