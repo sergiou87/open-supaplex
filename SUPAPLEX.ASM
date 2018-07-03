@@ -854,14 +854,19 @@ slideDownGameDash endp
 
 
 setint9     proc near       ; CODE XREF: start+2A2p
+
+; waits for shift, ctrl, alt, system, and suspend to NOT be pressed
         push    ds
         mov ax, 0040h;
         mov ds, ax
         assume ds:nothing
 
-loc_47216:              ; CODE XREF: setint9+Cj
-        test    word ptr [ds:0017h], 0F70Fh
-        jnz short loc_47216
+keysstillpressed:
+        ; test keyboard state flags at 0040:0017
+        test    word ptr [ds:0017h], 0F70Fh 
+        jnz short keysstillpressed 
+
+; keys no longer pressed, we can continue
         pop ds
         assume ds:data
         push    ds
