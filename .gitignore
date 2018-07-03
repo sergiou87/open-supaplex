@@ -4,3 +4,4 @@ tasm/
 *.nam
 *.til
 /solve/
+TESTOUT.TXT
