@@ -1,6 +1,8 @@
 # Supaplex
 [Supaplex](https://en.wikipedia.org/wiki/Supaplex) is a game made in the early nineties.
 
+![image](https://user-images.githubusercontent.com/3305301/42215866-25134eb4-7ec0-11e8-913d-b64604632fa8.png)
+
 Since then the source code has been lost. Some enthusiasts have disassembled the game,
 fixed many bugs, and added many features. Today the game and the so-called speed fix can
 be downloaded free from [here](http://www.elmerproductions.com/sp/dlinst.html). 
