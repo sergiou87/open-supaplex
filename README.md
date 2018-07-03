@@ -22,7 +22,8 @@ analyzed source of the SPFIX63.EXE file.
 - You will need the [original Supaplex files](https://cdn.chills.co.za/supaplex.zip).
     Extract the files into the `supaplex` directory.
 - You will need [TASM 4.1](https://cdn.chills.co.za/tasm4.zip).
-    Extract the files into the `tasm` directory.
+    Extract the files into the `tasm` directory. Feel free to put them in your path
+    (in dosbox)
 
 ### Building
 Open DOSBox and mount this directory. To do this, start DOSBox and type this:
@@ -31,30 +32,18 @@ mount C <wherever this is>
 C:
 ```
 
-To build, just run `build.bat`
+To build, run `TASM\MAKE`:
 ```
-C:\>build
-C:\>DEL BUILD\SUPAPLEX.OBJ
-
-C:\>DEL BUILD\SUPAPLEX.LST
-
-C:\>DEL BUILD\SUPAPLEX.MAP
-
-C:\>DEL BUILD\SUPAPLEX.EXE
-
-C:\>TASM\TASM.EXE /m2 SUPAPLEX.ASM BUILD\SUPAPLEX.OBJ BUILD\SUPAPLEX.LST
+C:\>TASK\MAKE
+MAKE Version 4.0  Copyright (c) 1987, 1996 Borland International
+        TASM\TASMX /m2 SUPAPLEX.ASM BUILD\SUPAPLEX.OBJ BUILD\SUPAPLEX.LST
 Turbo Assembler  Version 4.1  Copyright (c) 1988, 1996 Borland International
 
 Assembling file:   SUPAPLEX.ASM  to  BUILD\SUPAPLEX.OBJ
-Error messages:    None
-Warning messages:  None
-Passes:            2
-Remaining memory:  139k
 
-C:\>TASM\TLINK.EXE BUILD\SUPAPLEX.OBJ
-Turbo Link  Version 7.1.30.1. Copyright (c) 1987, 1996 Borland International
 
-C:\>
+...
+
 ```
 Note: if the build is too slow, press F12 repeatedly or change your DOSBox config to use
 more CPU.
