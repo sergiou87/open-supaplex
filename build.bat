@@ -1,8 +1,9 @@
-del spfix.obj
-del spfix.exe
-tasm /m2 spfix.asm spfix.obj spfix.lst
+DEL BUILD\SUPAPLEX.OBJ
+DEL BUILD\SUPAPLEX.LST
+DEL BUILD\SUPAPLEX.MAP
+DEL BUILD\SUPAPLEX.EXE
 
-tlink spfix.obj
 
-copy spfix.exe c:\supaplex
+TASM\TASM.EXE /m2 SUPAPLEX.ASM BUILD\SUPAPLEX.OBJ BUILD\SUPAPLEX.LST
 
+TASM\TLINK.EXE BUILD\SUPAPLEX.OBJ
