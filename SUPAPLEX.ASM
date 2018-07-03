@@ -1331,7 +1331,7 @@ loc_474F2:              ; CODE XREF: readConfig+4Aj
 loc_474FC:              ; CODE XREF: readConfig+54j
         cmp byte ptr [si], 62h ; 'b'
         jnz short loc_47506
-        call    loadAdlib2
+        call    loadBlaster
         jmp short loc_4751D
 ; ---------------------------------------------------------------------------
 
@@ -13531,7 +13531,7 @@ sub_4C70F   endp
 
 
 sub_4C719   proc near
-        call    loadAdlib2
+        call    loadBlaster
         call    sound?4
         call    sub_4CAFC
         retn
@@ -16414,7 +16414,7 @@ loadAdlib   endp
 ; =============== S U B R O U T I N E =======================================
 
 
-loadAdlib2  proc near       ; CODE XREF: readConfig+60p sub_4C719p
+loadBlaster  proc near       ; CODE XREF: readConfig+60p sub_4C719p
         call    sound?1
         mov dx, offset aAdlib_snd ; "ADLIB.SND"
         mov cx, 14EAh
@@ -16431,7 +16431,7 @@ loadAdlib2  proc near       ; CODE XREF: readConfig+60p sub_4C719p
         mov byte_5988B, 0
         mov byte_5988C, 0
         retn
-loadAdlib2  endp
+loadBlaster  endp
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -16527,7 +16527,7 @@ readSound   endp
 
 
 readSound2  proc near       ; CODE XREF: loadBeep2+12p
-                    ; loadAdlib2+12p ...
+                    ; loadBlaster+12p ...
         mov ax, 3D00h
         int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
                     ; DS:DX -> ASCIZ filename

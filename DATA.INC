@@ -2014,10 +2014,10 @@ aControls_dat   db 'CONTROLS.DAT',0     ; DATA XREF: readControlsDat+3o
 aBeep_snd   db 'BEEP.SND',0         ; DATA XREF: loadBeep+3o loadBeep2+3o
 aSample_snd db 'SAMPLE.SND',0       ; DATA XREF: loadBeep2+Co
 aAdlib_snd  db 'ADLIB.SND',0        ; DATA XREF: loadAdlib+3o
-                    ; loadAdlib2+3o
+                    ; loadBlaster+3o
 aRoland_snd db 'ROLAND.SND',0       ; DATA XREF: loadRoland+3o
                     ; loadRoland2+3o
-aBlaster_snd    db 'BLASTER.SND',0      ; DATA XREF: loadAdlib2+Co
+aBlaster_snd    db 'BLASTER.SND',0      ; DATA XREF: loadBlaster+Co
                     ; loadRoland2+Co
 aPlayer_lst db 'PLAYER.LST',0       ; DATA XREF: readPlayersLst+Ao
                     ; start+18Fw ...
