@@ -12,9 +12,9 @@
 
 		.386p
 		.model flat
-;.intel_syntax noprefix
 
 		include	ENUMS.inc
+		org 10000h
 
 ; ===========================================================================
 
@@ -31,6 +31,7 @@
 ; Segment permissions: Read/Write
 segA		segment	byte public 'DATA' use16
 		assume cs:segA
+		
 		db 7E00h dup(0)
 segA		ends
 
@@ -95,7 +96,6 @@ code		segment	byte public 'CODE' use16
 start		proc near
 
 ; FUNCTION CHUNK AT 027F SIZE 00000217 BYTES
-
 		mov	dx, seg	data
 		mov	ds, dx
 		assume ds:data
