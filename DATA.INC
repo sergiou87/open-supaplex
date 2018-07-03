@@ -2698,7 +2698,9 @@ aFileLevel  db '!! File < Level: ',0 ; DATA XREF: start+ADo
 aFileDemo   db '!! File >> Demo: ',0 ; DATA XREF: start:loc_46CB7o
 a@ErrorLevel?Su db '"@"-ERROR: Level(?) successful: ',0 ; DATA XREF: start+47Bo
 a@ErrorLevel?Fa db '"@"-ERROR: Level(?) failed:     ',0 ; DATA XREF: start:loc_470A1o
-a@ErrorBadOrMis db '"@"-ERROR: Bad or missing ":filename.ext"!',0Dh,0Ah,0
+a@ErrorBadOrMis db '"@"-ERROR: Bad or missing ":filename.ext"!'
+crlf    dw 0A0Dh
+        db 0
                     ; DATA XREF: start+10Do
 fastMode  db 0            ; DATA XREF: start:loc_46D48w
                     ; start+2A8r ...

@@ -1,7 +1,4 @@
-.386
-.model small
-nosmart
-
+include GLOBALS.INC
 
 
 code segment para public 'CODE' use16
@@ -9,8 +6,7 @@ code segment para public 'CODE' use16
 
 ; =============== S U B R O U T I N E =======================================
 
-; atoi, stored in al
-public atoi
+; atoi, string stored in al
 atoi        proc near       ; CODE XREF: start+202p start+223p ...
         xor ax, ax      ; reset ax
         mov bl, 0Ah     ; bl = 10
@@ -39,6 +35,33 @@ atoireturn:                 ; CODE XREF: atoi:againj atoi+Ej ...
         retn
 atoi        endp
 
+; =============== S U B R O U T I N E =======================================
+
+
+conprintln  proc near       ; CODE XREF: start+CEp start+122p ...
+        call    conprint
+        lea si, demoFileName
+        call    conprint
+        lea si, crlf ; "\r\n"
+conprintln  endp ; sp-analysis failed
+
+; =============== S U B R O U T I N E =======================================
+
+
+conprint    proc near       ; CODE XREF: start+111p conprintlnp ...
+        mov dl, [si]
+        or  dl, dl
+        jz  short hitZeroTerm
+        inc si
+        mov ah, 2
+        int 21h     ; DOS - DISPLAY OUTPUT
+                    ; DL = character to send to standard output
+        jmp short conprint
+; ---------------------------------------------------------------------------
+
+hitZeroTerm:                ; CODE XREF: conprint+4j
+        retn
+conprint    endp
 
 
 

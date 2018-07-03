@@ -1,13 +1,9 @@
-.386
-.model small
-nosmart
-
+include GLOBALS.INC
 
 ; ===========================================================================
 code segment para public 'CODE' use16
         assume cs:code
 
-global atoi
 ; =============== S U B R O U T I N E =======================================
 
 ; Attributes: noreturn
@@ -390,11 +386,6 @@ loc_46E6F:              ; CODE XREF: start+24Bj
 
 loc_46E75:              ; CODE XREF: start+251j
         mov byte_59B84, al
-        jmp short doesNotHaveCommandLine
-start       endp ; sp-analysis failed
-
-; ---------------------------------------------------------------------------
-; START OF FUNCTION CHUNK FOR start
 
 doesNotHaveCommandLine:         ; CODE XREF: start+13j start+23Fj ...
         call    getTime
@@ -628,35 +619,7 @@ immediateexit:              ; CODE XREF: start+D1j start+114j ...
         mov ax, 4C00h
         int 21h     ; DOS - 2+ - QUIT WITH EXIT CODE (EXIT)
 ; END OF FUNCTION CHUNK FOR start   ; AL = exit code
-
-; =============== S U B R O U T I N E =======================================
-
-
-conprintln  proc near       ; CODE XREF: start+CEp start+122p ...
-        call    conprint
-        lea si, demoFileName
-        call    conprint
-        lea si, a@ErrorBadOrMis+2Ah ; "\r\n"
-conprintln  endp ; sp-analysis failed
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-conprint    proc near       ; CODE XREF: start+111p conprintlnp ...
-        mov dl, [si]
-        or  dl, dl
-        jz  short hitZeroTerm
-        inc si
-        mov ah, 2
-        int 21h     ; DOS - DISPLAY OUTPUT
-                    ; DL = character to send to standard output
-        jmp short conprint
-; ---------------------------------------------------------------------------
-
-hitZeroTerm:                ; CODE XREF: conprint+4j
-        retn
-conprint    endp
+start       endp ; sp-analysis failed
 
 ; ---------------------------------------------------------------------------
 ; START OF FUNCTION CHUNK FOR loadScreen2
