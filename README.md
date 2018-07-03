@@ -63,7 +63,8 @@ more CPU.
 Run `build\supaplex.exe` after building.
 
 ### Testing
-For tests you have to download some solves and extract to the `solves` directory. Then
+For tests you have to [download some solves](https://cdn.chills.co.za/solve.zip) and
+extract to the `solve` directory. Then
 Run `TEST.BAT` to run some tests. output will be put in `TESTOUT.TXT`.
 
 
