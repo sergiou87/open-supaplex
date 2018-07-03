@@ -1,2 +1,5 @@
 build/
 tasm/
+*.id*
+*.nam
+*.til
