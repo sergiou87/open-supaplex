@@ -1345,7 +1345,7 @@ loc_47506:              ; CODE XREF: readConfig+5Ej
 loc_47510:              ; CODE XREF: readConfig+68j
         cmp byte ptr [si], 63h ; 'c'
         jnz short loc_4751A
-        call    loadRoland2
+        call    loadCombined
         jmp short loc_4751D
 ; ---------------------------------------------------------------------------
 
@@ -13564,7 +13564,7 @@ sub_4C72D   endp
 
 
 sub_4C737   proc near
-        call    loadRoland2
+        call    loadCombined
         call    sound?4
         call    sub_4CAFC
         retn
@@ -16457,7 +16457,7 @@ loadRoland  endp
 ; =============== S U B R O U T I N E =======================================
 
 
-loadRoland2 proc near       ; CODE XREF: readConfig+74p sub_4C737p
+loadCombined proc near       ; CODE XREF: readConfig+74p sub_4C737p
         call    sound?1
         mov dx, offset aRoland_snd ; "ROLAND.SND"
         mov cx, 0F80h
@@ -16474,7 +16474,7 @@ loadRoland2 proc near       ; CODE XREF: readConfig+74p sub_4C737p
         mov byte_5988B, 0
         mov byte_5988C, 0
         retn
-loadRoland2 endp
+loadCombined endp
 
 
 ; =============== S U B R O U T I N E =======================================
