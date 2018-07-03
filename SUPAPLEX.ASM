@@ -403,12 +403,12 @@ atoi        proc near       ; CODE XREF: start+202p start+223p ...
         or  cx, cx      ; test cx
 
 again:                  ; CODE XREF: atoi+22j
-        jz  short return    ; return if cx == 0
+        jz  short atoireturn    ; return if cx == 0
         mov bh, es:[di] ; load dest char
         cmp bh, 30h ; '0'
-        jb  short return    ; bail if less than '0'
+        jb  short atoireturn    ; bail if less than '0'
         cmp bh, 39h ; '9'
-        ja  short return    ; bail if bigger than '9'
+        ja  short atoireturn    ; bail if bigger than '9'
         sub bh, 30h ; '0'   ; bh now binary of nr
         mul bl      ; ax = 10 * al
         add al, bh      ; al += bh
@@ -421,7 +421,7 @@ leaveAL:                ; CODE XREF: atoi+1Cj
         jmp short again
 ; ---------------------------------------------------------------------------
 
-return:                 ; CODE XREF: atoi:againj atoi+Ej ...
+atoireturn:                 ; CODE XREF: atoi:againj atoi+Ej ...
         retn
 atoi        endp
 
