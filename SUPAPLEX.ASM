@@ -4834,7 +4834,7 @@ loc_48B4A:              ; CODE XREF: runLevel+89j
         cmp byte_59B7A, 0
         jnz short loc_48B6B
         mov byte_59B7A, 0Ah
-        call    sub_49D58
+        call    levelScanThing
         call    sub_48F6D
         call    sub_4A2E6
 
@@ -7275,7 +7275,7 @@ sub_49D53   endp ; sp-analysis failed
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_49D58   proc near       ; CODE XREF: runLevel+A7p
+levelScanThing   proc near       ; CODE XREF: runLevel+A7p
         push    es
         push    ds
         pop es
@@ -7285,12 +7285,12 @@ sub_49D58   proc near       ; CODE XREF: runLevel+A7p
         mov di, offset leveldata
         mov ax, 0F11Fh
 
-loc_49D65:              ; CODE XREF: sub_49D58+18j
+loc_49D65:              ; CODE XREF: levelScanThing+18j
         cmp es:[di], al
         jnz short loc_49D6D
         mov es:[di], ah
 
-loc_49D6D:              ; CODE XREF: sub_49D58+10j
+loc_49D6D:              ; CODE XREF: levelScanThing+10j
         inc di
         inc di
         dec cx
@@ -7301,7 +7301,7 @@ loc_49D6D:              ; CODE XREF: sub_49D58+10j
         mov cx, 5A0h
         mov di, offset leveldata
 
-loc_49D84:              ; CODE XREF: sub_49D58+4Cj
+loc_49D84:              ; CODE XREF: levelScanThing+4Cj
         mov ax, 6
         repne scasw
         jnz short loc_49DA6
@@ -7314,16 +7314,16 @@ loc_49D84:              ; CODE XREF: sub_49D58+4Cj
         ja  short loc_49DA2
         mov es:[di-2], ax
 
-loc_49DA2:              ; CODE XREF: sub_49D58+3Fj
-                    ; sub_49D58+44j
+loc_49DA2:              ; CODE XREF: levelScanThing+3Fj
+                    ; levelScanThing+44j
         or  cx, cx
         jnz short loc_49D84
 
-loc_49DA6:              ; CODE XREF: sub_49D58+31j
+loc_49DA6:              ; CODE XREF: levelScanThing+31j
         mov cx, 5A0h
         mov di, offset leveldata
 
-loc_49DAC:              ; CODE XREF: sub_49D58+7Fj
+loc_49DAC:              ; CODE XREF: levelScanThing+7Fj
         mov ax, 5
         repne scasw
         jnz short loc_49DD9
@@ -7340,19 +7340,19 @@ loc_49DAC:              ; CODE XREF: sub_49D58+7Fj
         add ax, 1Ch
         mov es:[di-2], ax
 
-loc_49DD5:              ; CODE XREF: sub_49D58+67j
-                    ; sub_49D58+6Cj ...
+loc_49DD5:              ; CODE XREF: levelScanThing+67j
+                    ; levelScanThing+6Cj ...
         or  cx, cx
         jnz short loc_49DAC
 
-loc_49DD9:              ; CODE XREF: sub_49D58+59j
+loc_49DD9:              ; CODE XREF: levelScanThing+59j
         mov byte_59B7B, 1
 
-loc_49DDE:              ; CODE XREF: sub_49D58+24j
+loc_49DDE:              ; CODE XREF: levelScanThing+24j
         pop es
         assume es:nothing
         retn
-sub_49D58   endp
+levelScanThing   endp
 
 
 ; =============== S U B R O U T I N E =======================================
