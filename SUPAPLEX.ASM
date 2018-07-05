@@ -5586,7 +5586,7 @@ loc_49067:              ; CODE XREF: sub_48F6D+101j
         inc dx
         mov al, 0FFh
         out dx, al      ; EGA port: graphics controller data register
-        mov bx, 1834h
+        mov bx, offset leveldata
         mov di, 4D34h
         mov cx, 16h
         add bx, 76h ; 'v'
@@ -8157,7 +8157,7 @@ sub_4A2E6   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
         xor bx, bx
         xor dx, dx
         mov cx, 5A0h
-        mov si, 1834h
+        mov si, offset leveldata
 
 loc_4A2F0:              ; CODE XREF: sub_4A2E6+D1j
         mov ax, [si]
