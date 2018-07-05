@@ -3467,7 +3467,7 @@ loc_4816A:
 
 loc_4816D:              ; CODE XREF: movefun+149j
                     ; movefun+154j
-        mov word ptr [si+1834h], 7001h
+        mov word ptr leveldata[si], 7001h
         mov word ptr [si+18ACh], 9999h
         retn
 ; ---------------------------------------------------------------------------
@@ -3608,9 +3608,9 @@ loc_4825D:              ; CODE XREF: movefun+2BDj
 ; ---------------------------------------------------------------------------
 
 loc_48267:              ; CODE XREF: movefun+2D0j
-        mov word ptr [si+1834h], 0FFFFh
+        mov word ptr leveldata[si], 0FFFFh
         add si, 78h ; 'x'
-        mov word ptr [si+1834h], 1001h
+        mov word ptr leveldata[si], 1001h
         retn
 ; ---------------------------------------------------------------------------
 
@@ -3663,9 +3663,9 @@ loc_482C2:              ; CODE XREF: movefun+322j
 ; ---------------------------------------------------------------------------
 
 loc_482CC:              ; CODE XREF: movefun+335j
-        mov word ptr [si+1834h], 0FFFFh
+        mov word ptr leveldata[si], 0FFFFh
         add si, 78h ; 'x'
-        mov word ptr [si+1834h], 1001h
+        mov word ptr leveldata[si], 1001h
         retn
 ; ---------------------------------------------------------------------------
 
@@ -3686,9 +3686,9 @@ loc_482E8:              ; CODE XREF: movefun+351j
 ; ---------------------------------------------------------------------------
 
 loc_482F6:              ; CODE XREF: movefun+35Dj
-        mov word ptr [si+1834h], 0FFFFh
+        mov word ptr leveldata[si], 0FFFFh
         add si, 78h ; 'x'
-        mov byte ptr [si+1834h], 1
+        mov byte ptr leveldata[si], 1
         mov byte ptr [si+1835h], 10h
         retn
 ; ---------------------------------------------------------------------------
@@ -3735,7 +3735,7 @@ loc_48341:              ; CODE XREF: movefun+3AAj
 loc_48357:              ; CODE XREF: movefun+3BDj
         mov leveldata[si], 0FFFFh
         sub si, 2
-        mov byte ptr [si+1834h], 1
+        mov byte ptr leveldata[si], 1
         mov byte ptr [si+1835h], 22h ; '"'
         mov word ptr [si+18ACh], 0FFFFh
         retn
@@ -3788,9 +3788,9 @@ loc_483AF:              ; CODE XREF: movefun+418j
         jnz short loc_483DF
 
 loc_483C5:              ; CODE XREF: movefun+42Bj
-        mov word ptr [si+1834h], 0FFFFh
+        mov word ptr leveldata[si], 0FFFFh
         add si, 2
-        mov byte ptr [si+1834h], 1
+        mov byte ptr leveldata[si], 1
         mov byte ptr [si+1835h], 32h ; '2'
 
 loc_483D8:
@@ -3817,9 +3817,9 @@ loc_483E6:              ; CODE XREF: movefun+E4j
 
 loc_483F6:              ; CODE XREF: movefun+45Bj
                     ; movefun+463j
-        mov word ptr [si+1834h], 0FFFFh
+        mov word ptr leveldata[si], 0FFFFh
         add si, 78h ; 'x'
-        mov word ptr [si+1834h], 1001h
+        mov word ptr leveldata[si], 1001h
         jmp loc_48078
 movefun   endp
 
@@ -3828,7 +3828,7 @@ movefun   endp
 
 
 movefun2  proc near       ; DATA XREF: data:1612o
-        cmp byte ptr [si+1834h], 4
+        cmp byte ptr leveldata[si], 4
         jz  short loc_48410
         retn
 ; ---------------------------------------------------------------------------
@@ -4081,7 +4081,7 @@ loc_4858C:              ; CODE XREF: movefun2+173j
 
 loc_485BB:              ; CODE XREF: movefun2+121j
                     ; movefun2+12Cj
-        mov word ptr [si+1834h], 7004h
+        mov word ptr leveldata[si], 7004h
         mov word ptr [si+18ACh], 9999h
         retn
 ; ---------------------------------------------------------------------------
@@ -4184,7 +4184,7 @@ loc_48666:              ; CODE XREF: movefun2+24Ej
 ; ---------------------------------------------------------------------------
 
 loc_48670:              ; CODE XREF: movefun2+261j
-        mov word ptr [si+1834h], 7004h
+        mov word ptr leveldata[si], 7004h
         retn
 ; ---------------------------------------------------------------------------
 
@@ -4233,7 +4233,7 @@ loc_486C1:              ; CODE XREF: movefun2+2AAj
 ; ---------------------------------------------------------------------------
 
 loc_486CB:              ; CODE XREF: movefun2+2BCj
-        mov word ptr [si+1834h], 7004h
+        mov word ptr leveldata[si], 7004h
         retn
 ; ---------------------------------------------------------------------------
 
@@ -4254,9 +4254,9 @@ loc_486DE:              ; CODE XREF: movefun2+2CFj
 ; ---------------------------------------------------------------------------
 
 loc_486EC:              ; CODE XREF: movefun2+2DBj
-        mov word ptr [si+1834h], 0FFFFh
+        mov word ptr leveldata[si], 0FFFFh
         add si, 78h ; 'x'
-        mov byte ptr [si+1834h], 4
+        mov byte ptr leveldata[si], 4
         mov byte ptr [si+1835h], 10h
         retn
 ; ---------------------------------------------------------------------------
@@ -4301,9 +4301,9 @@ loc_48737:              ; CODE XREF: movefun2+328j
         jnz short loc_48767
 
 loc_4874D:              ; CODE XREF: movefun2+33Bj
-        mov word ptr [si+1834h], 0FFFFh
+        mov word ptr leveldata[si], 0FFFFh
         sub si, 2
-        mov byte ptr [si+1834h], 4
+        mov byte ptr leveldata[si], 4
         mov byte ptr [si+1835h], 22h ; '"'
         mov word ptr [si+18ACh], 9999h
         retn
@@ -4356,9 +4356,9 @@ loc_487A5:              ; CODE XREF: movefun2+396j
         jnz short loc_487D5
 
 loc_487BB:              ; CODE XREF: movefun2+3A9j
-        mov word ptr [si+1834h], 0FFFFh
+        mov word ptr leveldata[si], 0FFFFh
         add si, 2
-        mov byte ptr [si+1834h], 4
+        mov byte ptr leveldata[si], 4
         mov byte ptr [si+1835h], 32h ; '2'
         mov word ptr [si+18ACh], 9999h
         retn
@@ -4381,9 +4381,9 @@ loc_487DC:              ; CODE XREF: movefun2:loc_484CCj
 
 loc_487EC:              ; CODE XREF: movefun2+3D9j
                     ; movefun2+3E1j
-        mov word ptr [si+1834h], 0FFFFh
+        mov word ptr leveldata[si], 0FFFFh
         add si, 78h ; 'x'
-        mov word ptr [si+1834h], 1004h
+        mov word ptr leveldata[si], 1004h
         jmp loc_484D0
 movefun2  endp
 
@@ -4392,9 +4392,9 @@ movefun2  endp
 
 
 sub_487FE   proc near       ; CODE XREF: update?+E0Cp update?+E2Ap ...
-        cmp byte ptr [si+1834h], 1Fh
+        cmp byte ptr leveldata[si], 1Fh
         jz  short loc_4880B
-        mov word ptr [si+1834h], 0
+        mov word ptr leveldata[si], 0
 
 loc_4880B:              ; CODE XREF: sub_487FE+5j
         cmp word ptr [si+17BCh], 0
@@ -4508,9 +4508,9 @@ sub_487FE   endp
 
 sub_488DC   proc near       ; CODE XREF: movefun+124p
                     ; movefun+2C6p ...
-        cmp byte ptr [si+1834h], 1Fh
+        cmp byte ptr leveldata[si], 1Fh
         jz  short loc_488E9
-        mov word ptr [si+1834h], 0
+        mov word ptr leveldata[si], 0
 
 loc_488E9:              ; CODE XREF: sub_488DC+5j
         cmp word ptr [si+17BCh], 0
@@ -4577,9 +4577,9 @@ sub_488DC   endp
 
 sub_48957   proc near       ; CODE XREF: movefun2+104p
                     ; movefun2+257p ...
-        cmp byte ptr [si+1834h], 1Fh
+        cmp byte ptr leveldata[si], 1Fh
         jz  short loc_48964
-        mov word ptr [si+1834h], 0
+        mov word ptr leveldata[si], 0
 
 loc_48964:              ; CODE XREF: sub_48957+5j
         cmp word ptr [si+17BCh], 0
@@ -7766,7 +7766,7 @@ sub_49FED   endp
 
 
 movefun7  proc near       ; DATA XREF: data:163Co
-        cmp byte ptr [si+1834h], 19h
+        cmp byte ptr leveldata[si], 19h
         jz  short loc_4A045
         retn
 ; ---------------------------------------------------------------------------
@@ -7848,7 +7848,7 @@ movefun7  endp
 
 
 movefun5  proc near       ; DATA XREF: data:1630o
-        cmp byte ptr [si+1834h], 13h
+        cmp byte ptr leveldata[si], 13h
         jz  short loc_4A0DA
         retn
 ; ---------------------------------------------------------------------------
@@ -8066,7 +8066,7 @@ loc_4A242:              ; CODE XREF: sub_4A23C+1Fj
         jnz short loc_4A259
 
 loc_4A253:              ; CODE XREF: sub_4A23C+Cj
-        mov word ptr [si+1834h], 0
+        mov word ptr leveldata[si], 0
 
 loc_4A259:              ; CODE XREF: sub_4A23C+11j
                     ; sub_4A23C+15j
@@ -8387,7 +8387,7 @@ sub_4A463   endp
 
 
 movefun3  proc near       ; DATA XREF: data:161Ao
-        cmp byte ptr [si+1834h], 8
+        cmp byte ptr leveldata[si], 8
         jz  short loc_4A491
         retn
 ; ---------------------------------------------------------------------------
@@ -8413,7 +8413,7 @@ loc_4A4A9:              ; CODE XREF: movefun3+1Dj
 loc_4A4B4:              ; CODE XREF: movefun3+14j
         cmp word ptr [si+18ACh], 0
         jnz short loc_4A4C2
-        mov word ptr [si+1834h], 8
+        mov word ptr leveldata[si], 8
         retn
 ; ---------------------------------------------------------------------------
 
@@ -8465,7 +8465,7 @@ loc_4A4F9:              ; CODE XREF: movefun3+78j
 ; ---------------------------------------------------------------------------
 
 loc_4A516:              ; CODE XREF: movefun3+86j
-        mov word ptr [si+1834h], 0
+        mov word ptr leveldata[si], 0
         mov word ptr [si+18ACh], 8
         add si, 78h ; 'x'
         cmp word ptr [si+18ACh], 0
@@ -8489,7 +8489,7 @@ movefun3  endp
 ; ---------------------------------------------------------------------------
 
 loc_4A543:              ; DATA XREF: data:1648o
-        cmp byte ptr [si+1834h], 1Fh
+        cmp byte ptr leveldata[si], 1Fh
         jz  short loc_4A54B
         retn
 ; ---------------------------------------------------------------------------
@@ -8533,7 +8533,7 @@ loc_4A582:              ; CODE XREF: code:396Aj
         pop si
         cmp bl, 8
         jnz short locret_4A59F
-        mov word ptr [si+1834h], 0
+        mov word ptr leveldata[si], 0
         mov byte_510C0, 0
 
 locret_4A59F:               ; CODE XREF: code:3972j
@@ -8544,7 +8544,7 @@ loc_4A5A0:              ; CODE XREF: code:393Ej
         inc bl
         cmp bl, 89h ; '?'
         jnz short loc_4A5B3
-        mov word ptr [si+1834h], 4
+        mov word ptr leveldata[si], 4
         mov byte_510C0, 0
         retn
 ; ---------------------------------------------------------------------------
@@ -8609,7 +8609,7 @@ loc_4A608:              ; CODE XREF: sub_4A5E0+10j
         push    si
         push    cx
         push    bx
-        mov word ptr [si+1834h], 0FF18h
+        mov word ptr leveldata[si], 0FF18h
         call    sub_4A61F
         pop bx
         pop cx
@@ -8623,7 +8623,7 @@ sub_4A5E0   endp
 
 sub_4A61F   proc near       ; CODE XREF: movefun+271p
                     ; movefun2+20Fp ...
-        cmp byte ptr [si+1834h], 6
+        cmp byte ptr leveldata[si], 6
         jnz short loc_4A627
         retn
 ; ---------------------------------------------------------------------------
@@ -9155,9 +9155,9 @@ sub_4A910   proc near       ; CODE XREF: runLevel:noFlashing3p
         cmp al, 1
         jle short loc_4A954
         mov si, word_510DC
-        cmp word ptr [si+1834h], 0
+        cmp word ptr leveldata[si], 0
         jnz short loc_4A932
-        mov word ptr [si+1834h], 14h
+        mov word ptr leveldata[si], 14h
 
 loc_4A932:              ; CODE XREF: sub_4A910+1Aj
         mov di, [si+6155h]
@@ -9279,7 +9279,7 @@ loc_4A9EF:              ; CODE XREF: sub_4A9C4+Aj sub_4A9C4+Fj
         sub si, 78h ; 'x'
         call    sub_4AAB4
         add si, 0F0h ; '?'
-        cmp word ptr [si+1834h], 9999h
+        cmp word ptr leveldata[si], 9999h
         jnz short locret_4AA04
         call    sub_4AAB4
 
@@ -9374,7 +9374,7 @@ loc_4AA8A:              ; CODE XREF: sub_4AA34+19j
         sub si, 2
         call    sub_4AAB4
         add si, 7Ah ; 'z'
-        cmp word ptr [si+1834h], 9999h
+        cmp word ptr leveldata[si], 9999h
         jnz short locret_4AA9E
         call    sub_4AAB4
 
@@ -9406,13 +9406,13 @@ sub_4AA34   endp
 
 sub_4AAB4   proc near       ; CODE XREF: sub_4A9C4+2Ep
                     ; sub_4A9C4+3Dp ...
-        cmp byte ptr [si+1834h], 1Fh
+        cmp byte ptr leveldata[si], 1Fh
         jnz short loc_4AABC
         retn
 ; ---------------------------------------------------------------------------
 
 loc_4AABC:              ; CODE XREF: sub_4AAB4+5j
-        mov word ptr [si+1834h], 0
+        mov word ptr leveldata[si], 0
         push    si
         push    ds
         mov di, [si+6155h]
@@ -18004,7 +18004,7 @@ loc_4E353:              ; CODE XREF: update?+4BEj
         mov byte ptr [si+17BDh], 1
         mov byte ptr [si+17BCh], 3
         mov byte ptr [si+1835h], 3
-        mov byte ptr [si+1834h], 0
+        mov byte ptr leveldata[si], 0
         sub si, 78h ; 'x'
         jmp loc_4E8F0
 ; ---------------------------------------------------------------------------
@@ -18014,7 +18014,7 @@ loc_4E36D:              ; CODE XREF: update?+28Bj
         mov byte ptr [si+1833h], 2
         mov byte ptr [si+1832h], 3
         mov byte ptr [si+1835h], 3
-        mov byte ptr [si+1834h], 0
+        mov byte ptr leveldata[si], 0
         sub si, 2
         jmp loc_4E8F0
 ; ---------------------------------------------------------------------------
@@ -18033,7 +18033,7 @@ loc_4E399:              ; CODE XREF: update?+504j
         mov byte ptr [si+18ADh], 3
         mov byte ptr [si+18ACh], 3
         mov byte ptr [si+1835h], 3
-        mov byte ptr [si+1834h], 0
+        mov byte ptr leveldata[si], 0
         add si, 78h ; 'x'
         jmp loc_4E8F0
 ; ---------------------------------------------------------------------------
@@ -18043,7 +18043,7 @@ loc_4E3B3:              ; CODE XREF: update?+367j
         mov byte ptr [si+1837h], 4
         mov byte ptr [si+1836h], 3
         mov byte ptr [si+1835h], 3
-        mov byte ptr [si+1834h], 0
+        mov byte ptr leveldata[si], 0
         add si, 2
         jmp loc_4E8F0
 ; ---------------------------------------------------------------------------
@@ -18073,7 +18073,7 @@ loc_4E3F3:              ; CODE XREF: update?+55Ej
         mov byte ptr [si+17BDh], 5
         mov byte ptr [si+17BCh], 3
         mov byte ptr [si+1835h], 3
-        mov byte ptr [si+1834h], 0
+        mov byte ptr leveldata[si], 0
         sub si, 78h ; 'x'
         jmp loc_4E8F0
 ; ---------------------------------------------------------------------------
@@ -18094,7 +18094,7 @@ loc_4E41E:              ; CODE XREF: update?+293j
         mov byte ptr [si+1833h], 2
         mov byte ptr [si+1832h], 3
         mov byte ptr [si+1835h], 3
-        mov byte ptr [si+1834h], 0
+        mov byte ptr leveldata[si], 0
         sub si, 2
         jmp loc_4E8F0
 ; ---------------------------------------------------------------------------
@@ -18124,7 +18124,7 @@ loc_4E461:              ; CODE XREF: update?+5CCj
         mov byte ptr [si+18ADh], 7
         mov byte ptr [si+18ACh], 3
         mov byte ptr [si+1835h], 3
-        mov byte ptr [si+1834h], 0
+        mov byte ptr leveldata[si], 0
         add si, 78h ; 'x'
         jmp loc_4E8F0
 ; ---------------------------------------------------------------------------
@@ -18145,7 +18145,7 @@ loc_4E48C:              ; CODE XREF: update?+36Fj
         mov byte ptr [si+1837h], 8
         mov byte ptr [si+1836h], 3
         mov byte ptr [si+1835h], 3
-        mov byte ptr [si+1834h], 0
+        mov byte ptr leveldata[si], 0
         add si, 2
         jmp loc_4E8F0
 ; ---------------------------------------------------------------------------
@@ -18253,7 +18253,7 @@ loc_4E56E:              ; CODE XREF: update?+6D9j
         mov byte ptr [si+17BDh], 9
         mov byte ptr [si+17BCh], 3
         mov byte ptr [si+1835h], 3
-        mov byte ptr [si+1834h], 0
+        mov byte ptr leveldata[si], 0
         sub si, 78h ; 'x'
         jmp loc_4E8F0
 ; ---------------------------------------------------------------------------
@@ -18264,7 +18264,7 @@ loc_4E588:              ; CODE XREF: update?+2A2j
         mov byte ptr [si+1833h], 0Ah
         mov byte ptr [si+1832h], 3
         mov byte ptr [si+1835h], 3
-        mov byte ptr [si+1834h], 0
+        mov byte ptr leveldata[si], 0
         sub si, 2
         jmp loc_4E8F0
 ; ---------------------------------------------------------------------------
@@ -18284,7 +18284,7 @@ loc_4E5BA:              ; CODE XREF: update?+725j
         mov byte ptr [si+18ADh], 0Bh
         mov byte ptr [si+18ACh], 3
         mov byte ptr [si+1835h], 3
-        mov byte ptr [si+1834h], 0
+        mov byte ptr leveldata[si], 0
         add si, 78h ; 'x'
         jmp loc_4E8F0
 ; ---------------------------------------------------------------------------
@@ -18295,7 +18295,7 @@ loc_4E5D4:              ; CODE XREF: update?+37Ej
         mov byte ptr [si+1837h], 0Ch
         mov byte ptr [si+1836h], 3
         mov byte ptr [si+1835h], 3
-        mov byte ptr [si+1834h], 0
+        mov byte ptr leveldata[si], 0
         add si, 2
         jmp loc_4E8F0
 ; ---------------------------------------------------------------------------
@@ -18515,7 +18515,7 @@ loc_4E7B8:              ; CODE XREF: update?+8AAj update?+8D4j ...
         mov cx, 5A0h
 
 loc_4E7C9:              ; CODE XREF: update?+94Aj
-        cmp word ptr [si+1834h], 12h
+        cmp word ptr leveldata[si], 12h
         jnz short loc_4E7D7
         push    cx
         push    si
@@ -18607,7 +18607,7 @@ loc_4E863:              ; CODE XREF: update?+2D6j
         mov byte ptr [si+1833h], 1Dh
         mov byte ptr [si+1832h], 3
         mov byte ptr [si+1835h], 3
-        mov byte ptr [si+1834h], 0
+        mov byte ptr leveldata[si], 0
         sub si, 2
         jmp short loc_4E8F0
 ; ---------------------------------------------------------------------------
@@ -18633,7 +18633,7 @@ loc_4E89A:              ; CODE XREF: update?+3B1j
         mov byte ptr [si+1837h], 1Fh
         mov byte ptr [si+1836h], 3
         mov byte ptr [si+1835h], 3
-        mov byte ptr [si+1834h], 0
+        mov byte ptr leveldata[si], 0
         add si, 2
         jmp short loc_4E8F0
 ; ---------------------------------------------------------------------------
@@ -19234,7 +19234,7 @@ loc_4EC90:              ; CODE XREF: update?+DFAj
         call    sub_4FD21
 
 loc_4EC93:              ; CODE XREF: update?+CA3j update?+CC3j
-        mov word ptr [si+1834h], 3
+        mov word ptr leveldata[si], 3
         add si, 78h ; 'x'
         call    sub_487FE
         sub si, 78h ; 'x'
@@ -19250,7 +19250,7 @@ loc_4ECAE:              ; CODE XREF: update?+E18j
         call    sub_4FD21
 
 loc_4ECB1:              ; CODE XREF: update?+CABj update?+CCBj
-        mov word ptr [si+1834h], 3
+        mov word ptr leveldata[si], 3
         add si, 2
         call    sub_487FE
         sub si, 2
@@ -19271,14 +19271,14 @@ loc_4ECCF:              ; CODE XREF: update?+CB3j update?+CD3j
         mov word ptr [si+17BCh], 0
 
 loc_4ECDC:              ; CODE XREF: update?+E44j
-        mov word ptr [si+1834h], 3
+        mov word ptr leveldata[si], 3
         retn
 ; ---------------------------------------------------------------------------
 
 loc_4ECE3:              ; CODE XREF: update?+D03j
-        cmp byte ptr [si+1834h], 1Fh
+        cmp byte ptr leveldata[si], 1Fh
         jz  short loc_4ECF0
-        mov word ptr [si+1834h], 0
+        mov word ptr leveldata[si], 0
 
 loc_4ECF0:              ; CODE XREF: update?+E58j
         mov word ptr [si+1832h], 3
@@ -19290,9 +19290,9 @@ loc_4ECF0:              ; CODE XREF: update?+E58j
 ; ---------------------------------------------------------------------------
 
 loc_4ED06:              ; CODE XREF: update?+D0Bj
-        cmp byte ptr [si+1834h], 1Fh
+        cmp byte ptr leveldata[si], 1Fh
         jz  short loc_4ED13
-        mov word ptr [si+1834h], 0
+        mov word ptr leveldata[si], 0
 
 loc_4ED13:              ; CODE XREF: update?+E7Bj
         mov word ptr [si+1836h], 3
@@ -19340,7 +19340,7 @@ loc_4ED49:              ; CODE XREF: update?+B97j
 ; ---------------------------------------------------------------------------
 
 loc_4ED5A:              ; CODE XREF: update?+EC0j update?+EC7j
-        mov word ptr [si+1834h], 3
+        mov word ptr leveldata[si], 3
         mov word ptr [si+1832h], 1
         cmp byte ptr [si+1830h], 1Fh
         jz  short loc_4ED73
@@ -19365,7 +19365,7 @@ loc_4ED81:              ; CODE XREF: update?+B9Fj
 ; ---------------------------------------------------------------------------
 
 loc_4ED92:              ; CODE XREF: update?+EF8j update?+EFFj
-        mov word ptr [si+1834h], 3
+        mov word ptr leveldata[si], 3
         mov word ptr [si+1836h], 1
         cmp byte ptr [si+1838h], 1Fh
         jz  short loc_4EDAB
@@ -19390,7 +19390,7 @@ loc_4EDB9:              ; CODE XREF: update?+BA7j
 ; ---------------------------------------------------------------------------
 
 loc_4EDCA:              ; CODE XREF: update?+F30j update?+F37j
-        mov word ptr [si+1834h], 3
+        mov word ptr leveldata[si], 3
         mov word ptr [si+1832h], 8
         cmp byte ptr [si+1830h], 1Fh
         jz  short loc_4EDE3
@@ -19415,7 +19415,7 @@ loc_4EDF1:              ; CODE XREF: update?+BAFj
 ; ---------------------------------------------------------------------------
 
 loc_4EE02:              ; CODE XREF: update?+F68j update?+F6Fj
-        mov word ptr [si+1834h], 3
+        mov word ptr leveldata[si], 3
         mov word ptr [si+1836h], 8
         cmp byte ptr [si+1838h], 1Fh
         jz  short loc_4EE1B
@@ -19440,7 +19440,7 @@ loc_4EE29:              ; CODE XREF: update?+BB7j
 ; ---------------------------------------------------------------------------
 
 loc_4EE3A:              ; CODE XREF: update?+FA0j update?+FA7j
-        mov word ptr [si+1834h], 3
+        mov word ptr leveldata[si], 3
         mov word ptr [si+17BCh], 12h
         cmp byte ptr [si+1744h], 1Fh
         jz  short loc_4EE53
@@ -19465,7 +19465,7 @@ loc_4EE61:              ; CODE XREF: update?+BBFj
 ; ---------------------------------------------------------------------------
 
 loc_4EE72:              ; CODE XREF: update?+FD8j update?+FDFj
-        mov word ptr [si+1834h], 3
+        mov word ptr leveldata[si], 3
         mov word ptr [si+1832h], 12h
         cmp byte ptr [si+1830h], 1Fh
         jz  short loc_4EE8B
@@ -19491,7 +19491,7 @@ loc_4EE99:              ; CODE XREF: update?+BC7j
 
 loc_4EEAA:              ; CODE XREF: update?+1010j
                     ; update?+1017j
-        mov word ptr [si+1834h], 3
+        mov word ptr leveldata[si], 3
         mov word ptr [si+18ACh], 12h
         cmp byte ptr [si+1924h], 1Fh
         jz  short loc_4EEC3
@@ -19517,7 +19517,7 @@ loc_4EED1:              ; CODE XREF: update?+BCFj
 
 loc_4EEE2:              ; CODE XREF: update?+1048j
                     ; update?+104Fj
-        mov word ptr [si+1834h], 3
+        mov word ptr leveldata[si], 3
         mov word ptr [si+1836h], 12h
         cmp byte ptr [si+1838h], 1Fh
         jz  short loc_4EEFB
@@ -19551,7 +19551,7 @@ locret_4EF2B:               ; CODE XREF: update?+1087j
 
 loc_4EF2C:              ; CODE XREF: update?+1080j
         push    si
-        mov word ptr [si+1834h], 3
+        mov word ptr leveldata[si], 3
         mov di, [si+6155h]
         mov si, word_5157E
         call    sub_4F200
@@ -19572,7 +19572,7 @@ loc_4EF53:              ; CODE XREF: update?+CBBj update?+CDBj
         sub si, 2
         call    sub_487FE
         add si, 2
-        mov word ptr [si+1834h], 3
+        mov word ptr leveldata[si], 3
         retn
 ; ---------------------------------------------------------------------------
 
@@ -19645,9 +19645,9 @@ locret_4EFD2:               ; CODE XREF: update?+113Aj
 ; ---------------------------------------------------------------------------
 
 loc_4EFD3:              ; CODE XREF: update?+D5Bj
-        cmp byte ptr [si+1834h], 1Fh
+        cmp byte ptr leveldata[si], 1Fh
         jz  short loc_4EFE0
-        mov word ptr [si+1834h], 0
+        mov word ptr leveldata[si], 0
 
 loc_4EFE0:              ; CODE XREF: update?+1148j
         mov word ptr [si+1744h], 3
@@ -19664,9 +19664,9 @@ locret_4F000:               ; CODE XREF: update?+1165j
 ; ---------------------------------------------------------------------------
 
 loc_4F001:              ; CODE XREF: update?+D63j
-        cmp byte ptr [si+1834h], 1Fh
+        cmp byte ptr leveldata[si], 1Fh
         jz  short loc_4F00E
-        mov word ptr [si+1834h], 0
+        mov word ptr leveldata[si], 0
 
 loc_4F00E:              ; CODE XREF: update?+1176j
         mov word ptr [si+1830h], 3
@@ -19683,9 +19683,9 @@ locret_4F02D:               ; CODE XREF: update?+1192j
 ; ---------------------------------------------------------------------------
 
 loc_4F02E:              ; CODE XREF: update?+D6Bj
-        cmp byte ptr [si+1834h], 1Fh
+        cmp byte ptr leveldata[si], 1Fh
         jz  short loc_4F03B
-        mov word ptr [si+1834h], 0
+        mov word ptr leveldata[si], 0
 
 loc_4F03B:              ; CODE XREF: update?+11A3j
         mov word ptr [si+1924h], 3
@@ -19702,9 +19702,9 @@ locret_4F05B:               ; CODE XREF: update?+11C0j
 ; ---------------------------------------------------------------------------
 
 loc_4F05C:              ; CODE XREF: update?+D73j
-        cmp byte ptr [si+1834h], 1Fh
+        cmp byte ptr leveldata[si], 1Fh
         jz  short loc_4F069
-        mov word ptr [si+1834h], 0
+        mov word ptr leveldata[si], 0
 
 loc_4F069:              ; CODE XREF: update?+11D1j
         mov word ptr [si+1838h], 3
@@ -19721,9 +19721,9 @@ locret_4F088:               ; CODE XREF: update?+11EDj
 ; ---------------------------------------------------------------------------
 
 loc_4F089:              ; CODE XREF: update?+D7Bj
-        cmp byte ptr [si+1834h], 1Fh
+        cmp byte ptr leveldata[si], 1Fh
         jz  short loc_4F096
-        mov word ptr [si+1834h], 0
+        mov word ptr leveldata[si], 0
 
 loc_4F096:              ; CODE XREF: update?+11FEj
         sub si, 78h ; 'x'
@@ -19740,9 +19740,9 @@ loc_4F0A9:              ; CODE XREF: update?+1211j
 ; ---------------------------------------------------------------------------
 
 loc_4F0AC:              ; CODE XREF: update?+D8Bj
-        cmp byte ptr [si+1834h], 1Fh
+        cmp byte ptr leveldata[si], 1Fh
         jz  short loc_4F0B9
-        mov word ptr [si+1834h], 0
+        mov word ptr leveldata[si], 0
 
 loc_4F0B9:              ; CODE XREF: update?+1221j
         add si, 78h ; 'x'
@@ -19807,9 +19807,9 @@ loc_4F121:              ; CODE XREF: update?+1289j
 ; ---------------------------------------------------------------------------
 
 loc_4F12B:              ; CODE XREF: update?+DBBj
-        cmp byte ptr [si+1834h], 1Fh
+        cmp byte ptr leveldata[si], 1Fh
         jz  short loc_4F138
-        mov word ptr [si+1834h], 0
+        mov word ptr leveldata[si], 0
 
 loc_4F138:              ; CODE XREF: update?+12A0j
         mov word ptr [si+17BCh], 3
@@ -19819,9 +19819,9 @@ loc_4F138:              ; CODE XREF: update?+12A0j
 ; ---------------------------------------------------------------------------
 
 loc_4F148:              ; CODE XREF: update?+DC3j
-        cmp byte ptr [si+1834h], 1Fh
+        cmp byte ptr leveldata[si], 1Fh
         jz  short loc_4F155
-        mov word ptr [si+1834h], 0
+        mov word ptr leveldata[si], 0
 
 loc_4F155:              ; CODE XREF: update?+12BDj
         mov word ptr [si+1832h], 3
@@ -19831,9 +19831,9 @@ loc_4F155:              ; CODE XREF: update?+12BDj
 ; ---------------------------------------------------------------------------
 
 loc_4F165:              ; CODE XREF: update?+DCBj
-        cmp byte ptr [si+1834h], 1Fh
+        cmp byte ptr leveldata[si], 1Fh
         jz  short loc_4F172
-        mov word ptr [si+1834h], 0
+        mov word ptr leveldata[si], 0
 
 loc_4F172:              ; CODE XREF: update?+12DAj
         mov word ptr [si+18ACh], 3
@@ -19843,9 +19843,9 @@ loc_4F172:              ; CODE XREF: update?+12DAj
 ; ---------------------------------------------------------------------------
 
 loc_4F182:              ; CODE XREF: update?+DD3j
-        cmp byte ptr [si+1834h], 1Fh
+        cmp byte ptr leveldata[si], 1Fh
         jz  short loc_4F18F
-        mov word ptr [si+1834h], 0
+        mov word ptr leveldata[si], 0
 
 loc_4F18F:              ; CODE XREF: update?+12F7j
         mov word ptr [si+1836h], 3
@@ -19855,9 +19855,9 @@ loc_4F18F:              ; CODE XREF: update?+12F7j
 ; ---------------------------------------------------------------------------
 
 loc_4F19F:              ; CODE XREF: update?+DDBj
-        cmp byte ptr [si+1834h], 1Fh
+        cmp byte ptr leveldata[si], 1Fh
         jz  short loc_4F1AC
-        mov word ptr [si+1834h], 0
+        mov word ptr leveldata[si], 0
 
 loc_4F1AC:              ; CODE XREF: update?+1314j
         mov word ptr [si+1832h], 3
@@ -19867,9 +19867,9 @@ loc_4F1AC:              ; CODE XREF: update?+1314j
 ; ---------------------------------------------------------------------------
 
 loc_4F1BC:              ; CODE XREF: update?+DE3j
-        cmp byte ptr [si+1834h], 1Fh
+        cmp byte ptr leveldata[si], 1Fh
         jz  short loc_4F1C9
-        mov word ptr [si+1834h], 0
+        mov word ptr leveldata[si], 0
 
 loc_4F1C9:              ; CODE XREF: update?+1331j
         mov word ptr [si+1836h], 3
@@ -19885,7 +19885,7 @@ loc_4F1E6:              ; CODE XREF: update?+134Aj
 ; ---------------------------------------------------------------------------
 
 loc_4F1EA:              ; CODE XREF: update?+DEBj
-        mov word ptr [si+1834h], 3
+        mov word ptr leveldata[si], 3
         mov byte_510DB, 2
         dec byte_5195C
         call    sub_4FDCE
@@ -20165,9 +20165,9 @@ loc_4F37B:              ; CODE XREF: sub_4F312+57j
 ; ---------------------------------------------------------------------------
 
 loc_4F38E:              ; CODE XREF: sub_4F312+6Ej
-        mov word ptr [si+1834h], 1BBh
+        mov word ptr leveldata[si], 1BBh
         sub si, 78h ; 'x'
-        mov word ptr [si+1834h], 1011h
+        mov word ptr leveldata[si], 1011h
         retn
 ; ---------------------------------------------------------------------------
 
@@ -20181,9 +20181,9 @@ loc_4F39E:              ; CODE XREF: sub_4F312+5Cj
 ; ---------------------------------------------------------------------------
 
 loc_4F3B1:              ; CODE XREF: sub_4F312+91j
-        mov word ptr [si+1834h], 2BBh
+        mov word ptr leveldata[si], 2BBh
         sub si, 2
-        mov word ptr [si+1834h], 1811h
+        mov word ptr leveldata[si], 1811h
         retn
 ; ---------------------------------------------------------------------------
 
@@ -20201,9 +20201,9 @@ locret_4F3D6:               ; CODE XREF: sub_4F312+BFj
 ; ---------------------------------------------------------------------------
 
 loc_4F3D7:              ; CODE XREF: sub_4F312+B4j
-        mov word ptr [si+1834h], 3BBh
+        mov word ptr leveldata[si], 3BBh
         add si, 78h ; 'x'
-        mov word ptr [si+1834h], 2011h
+        mov word ptr leveldata[si], 2011h
         retn
 ; ---------------------------------------------------------------------------
 
@@ -20221,9 +20221,9 @@ locret_4F3FC:               ; CODE XREF: sub_4F312+E5j
 ; ---------------------------------------------------------------------------
 
 loc_4F3FD:              ; CODE XREF: sub_4F312+DAj
-        mov word ptr [si+1834h], 4BBh
+        mov word ptr leveldata[si], 4BBh
         add si, 2
-        mov word ptr [si+1834h], 2811h
+        mov word ptr leveldata[si], 2811h
         retn
 sub_4F312   endp
 
@@ -20305,9 +20305,9 @@ loc_4F478:              ; CODE XREF: sub_4F40D+59j
 ; ---------------------------------------------------------------------------
 
 loc_4F48B:              ; CODE XREF: sub_4F40D+70j
-        mov word ptr [si+1834h], 1BBh
+        mov word ptr leveldata[si], 1BBh
         sub si, 78h ; 'x'
-        mov word ptr [si+1834h], 1011h
+        mov word ptr leveldata[si], 1011h
         retn
 ; ---------------------------------------------------------------------------
 
@@ -20321,9 +20321,9 @@ loc_4F49B:              ; CODE XREF: sub_4F40D+68j
 ; ---------------------------------------------------------------------------
 
 loc_4F4AE:              ; CODE XREF: sub_4F40D+93j
-        mov word ptr [si+1834h], 2BBh
+        mov word ptr leveldata[si], 2BBh
         sub si, 2
-        mov word ptr [si+1834h], 1811h
+        mov word ptr leveldata[si], 1811h
         retn
 ; ---------------------------------------------------------------------------
 
@@ -20341,9 +20341,9 @@ locret_4F4D3:               ; CODE XREF: sub_4F40D+C1j
 ; ---------------------------------------------------------------------------
 
 loc_4F4D4:              ; CODE XREF: sub_4F40D+B6j
-        mov word ptr [si+1834h], 3BBh
+        mov word ptr leveldata[si], 3BBh
         add si, 78h ; 'x'
-        mov word ptr [si+1834h], 2011h
+        mov word ptr leveldata[si], 2011h
         retn
 ; ---------------------------------------------------------------------------
 
@@ -20361,9 +20361,9 @@ locret_4F4F9:               ; CODE XREF: sub_4F40D+E7j
 ; ---------------------------------------------------------------------------
 
 loc_4F4FA:              ; CODE XREF: sub_4F40D+DCj
-        mov word ptr [si+1834h], 4BBh
+        mov word ptr leveldata[si], 4BBh
         add si, 2
-        mov word ptr [si+1834h], 2811h
+        mov word ptr leveldata[si], 2811h
         retn
 sub_4F40D   endp
 
@@ -20408,7 +20408,7 @@ loc_4F546:              ; CODE XREF: sub_4F50A+2Dj
 ; ---------------------------------------------------------------------------
 
 loc_4F553:              ; CODE XREF: sub_4F50A+3Fj
-        mov word ptr [si+1834h], 11h
+        mov word ptr leveldata[si], 11h
         cmp word ptr [si+1832h], 0
         jnz short loc_4F566
         mov byte ptr [si+1835h], 1
@@ -20425,9 +20425,9 @@ loc_4F566:              ; CODE XREF: sub_4F50A+54j
 loc_4F573:              ; CODE XREF: sub_4F50A+61j
         cmp word ptr [si+17BCh], 0
         jnz short loc_4F58A
-        mov word ptr [si+1834h], 1BBh
+        mov word ptr leveldata[si], 1BBh
         sub si, 78h ; 'x'
-        mov word ptr [si+1834h], 1011h
+        mov word ptr leveldata[si], 1011h
         retn
 ; ---------------------------------------------------------------------------
 
@@ -20499,7 +20499,7 @@ loc_4F5EC:              ; CODE XREF: sub_4F5B5+28j
 ; ---------------------------------------------------------------------------
 
 loc_4F5F9:              ; CODE XREF: sub_4F5B5+3Aj
-        mov word ptr [si+1834h], 11h
+        mov word ptr leveldata[si], 11h
         cmp word ptr [si+18ACh], 0
         jnz short loc_4F60C
         mov byte ptr [si+1835h], 3
@@ -20516,9 +20516,9 @@ loc_4F60C:              ; CODE XREF: sub_4F5B5+4Fj
 loc_4F619:              ; CODE XREF: sub_4F5B5+5Cj
         cmp word ptr [si+1832h], 0
         jnz short loc_4F630
-        mov word ptr [si+1834h], 2BBh
+        mov word ptr leveldata[si], 2BBh
         sub si, 2
-        mov word ptr [si+1834h], 1811h
+        mov word ptr leveldata[si], 1811h
         retn
 ; ---------------------------------------------------------------------------
 
@@ -20597,7 +20597,7 @@ loc_4F699:              ; CODE XREF: sub_4F66B+1Fj
 ; ---------------------------------------------------------------------------
 
 loc_4F6A6:              ; CODE XREF: sub_4F66B+31j
-        mov word ptr [si+1834h], 11h
+        mov word ptr leveldata[si], 11h
         cmp word ptr [si+1836h], 0
         jnz short loc_4F6B9
         mov byte ptr [si+1835h], 5
@@ -20614,9 +20614,9 @@ loc_4F6B9:              ; CODE XREF: sub_4F66B+46j
 loc_4F6C6:              ; CODE XREF: sub_4F66B+53j
         cmp word ptr [si+18ACh], 0
         jnz short loc_4F6DD
-        mov word ptr [si+1834h], 3BBh
+        mov word ptr leveldata[si], 3BBh
         add si, 78h ; 'x'
-        mov word ptr [si+1834h], 2011h
+        mov word ptr leveldata[si], 2011h
         retn
 ; ---------------------------------------------------------------------------
 
@@ -20688,7 +20688,7 @@ loc_4F740:              ; CODE XREF: sub_4F708+29j
 ; ---------------------------------------------------------------------------
 
 loc_4F74D:              ; CODE XREF: sub_4F708+3Bj
-        mov word ptr [si+1834h], 11h
+        mov word ptr leveldata[si], 11h
         cmp word ptr [si+17BCh], 0
         jnz short loc_4F760
         mov byte ptr [si+1835h], 7
@@ -20705,9 +20705,9 @@ loc_4F760:              ; CODE XREF: sub_4F708+50j
 loc_4F76D:              ; CODE XREF: sub_4F708+5Dj
         cmp word ptr [si+1836h], 0
         jnz short loc_4F784
-        mov word ptr [si+1834h], 4BBh
+        mov word ptr leveldata[si], 4BBh
         add si, 2
-        mov word ptr [si+1834h], 2811h
+        mov word ptr leveldata[si], 2811h
         retn
 ; ---------------------------------------------------------------------------
 
@@ -20826,9 +20826,9 @@ loc_4F826:              ; CODE XREF: sub_4F7D1+43j
 ; ---------------------------------------------------------------------------
 
 loc_4F835:              ; CODE XREF: sub_4F7D1+5Aj
-        mov word ptr [si+1834h], 1BBh
+        mov word ptr leveldata[si], 1BBh
         sub si, 78h ; 'x'
-        mov word ptr [si+1834h], 1018h
+        mov word ptr leveldata[si], 1018h
         retn
 ; ---------------------------------------------------------------------------
 
@@ -20841,9 +20841,9 @@ loc_4F845:              ; CODE XREF: sub_4F7D1+48j
 ; ---------------------------------------------------------------------------
 
 loc_4F854:              ; CODE XREF: sub_4F7D1+79j
-        mov word ptr [si+1834h], 2BBh
+        mov word ptr leveldata[si], 2BBh
         sub si, 2
-        mov word ptr [si+1834h], 1818h
+        mov word ptr leveldata[si], 1818h
         retn
 ; ---------------------------------------------------------------------------
 
@@ -20856,9 +20856,9 @@ loc_4F864:              ; CODE XREF: sub_4F7D1+4Dj
 ; ---------------------------------------------------------------------------
 
 loc_4F873:              ; CODE XREF: sub_4F7D1+98j
-        mov word ptr [si+1834h], 3BBh
+        mov word ptr leveldata[si], 3BBh
         add si, 78h ; 'x'
-        mov word ptr [si+1834h], 2018h
+        mov word ptr leveldata[si], 2018h
         retn
 ; ---------------------------------------------------------------------------
 
@@ -20875,9 +20875,9 @@ locret_4F894:               ; CODE XREF: sub_4F7D1+BEj
 ; ---------------------------------------------------------------------------
 
 loc_4F895:              ; CODE XREF: sub_4F7D1+B7j
-        mov word ptr [si+1834h], 4BBh
+        mov word ptr leveldata[si], 4BBh
         add si, 2
-        mov word ptr [si+1834h], 2818h
+        mov word ptr leveldata[si], 2818h
         retn
 sub_4F7D1   endp
 
@@ -20947,9 +20947,9 @@ loc_4F8FC:              ; CODE XREF: sub_4F8A5+45j
 ; ---------------------------------------------------------------------------
 
 loc_4F90B:              ; CODE XREF: sub_4F8A5+5Cj
-        mov word ptr [si+1834h], 1BBh
+        mov word ptr leveldata[si], 1BBh
         sub si, 78h ; 'x'
-        mov word ptr [si+1834h], 1018h
+        mov word ptr leveldata[si], 1018h
         retn
 ; ---------------------------------------------------------------------------
 
@@ -20962,9 +20962,9 @@ loc_4F91B:              ; CODE XREF: sub_4F8A5+54j
 ; ---------------------------------------------------------------------------
 
 loc_4F92A:              ; CODE XREF: sub_4F8A5+7Bj
-        mov word ptr [si+1834h], 2BBh
+        mov word ptr leveldata[si], 2BBh
         sub si, 2
-        mov word ptr [si+1834h], 1818h
+        mov word ptr leveldata[si], 1818h
         retn
 ; ---------------------------------------------------------------------------
 
@@ -20977,9 +20977,9 @@ loc_4F93A:              ; CODE XREF: sub_4F8A5+4Fj
 ; ---------------------------------------------------------------------------
 
 loc_4F949:              ; CODE XREF: sub_4F8A5+9Aj
-        mov word ptr [si+1834h], 3BBh
+        mov word ptr leveldata[si], 3BBh
         add si, 78h ; 'x'
-        mov word ptr [si+1834h], 2018h
+        mov word ptr leveldata[si], 2018h
         retn
 ; ---------------------------------------------------------------------------
 
@@ -20996,9 +20996,9 @@ locret_4F96A:               ; CODE XREF: sub_4F8A5+C0j
 ; ---------------------------------------------------------------------------
 
 loc_4F96B:              ; CODE XREF: sub_4F8A5+B9j
-        mov word ptr [si+1834h], 4BBh
+        mov word ptr leveldata[si], 4BBh
         add si, 2
-        mov word ptr [si+1834h], 2818h
+        mov word ptr leveldata[si], 2818h
         retn
 sub_4F8A5   endp
 
@@ -21043,7 +21043,7 @@ loc_4F9B7:              ; CODE XREF: sub_4F97B+2Dj
 ; ---------------------------------------------------------------------------
 
 loc_4F9C4:              ; CODE XREF: sub_4F97B+3Fj
-        mov word ptr [si+1834h], 18h
+        mov word ptr leveldata[si], 18h
         cmp word ptr [si+1832h], 0
         jnz short loc_4F9D7
         mov byte ptr [si+1835h], 1
@@ -21060,9 +21060,9 @@ loc_4F9D7:              ; CODE XREF: sub_4F97B+54j
 loc_4F9E4:              ; CODE XREF: sub_4F97B+61j
         cmp word ptr [si+17BCh], 0
         jnz short loc_4F9FB
-        mov word ptr [si+1834h], 1BBh
+        mov word ptr leveldata[si], 1BBh
         sub si, 78h ; 'x'
-        mov word ptr [si+1834h], 1018h
+        mov word ptr leveldata[si], 1018h
         retn
 ; ---------------------------------------------------------------------------
 
@@ -21134,7 +21134,7 @@ loc_4FA5D:              ; CODE XREF: sub_4FA26+28j
 ; ---------------------------------------------------------------------------
 
 loc_4FA6A:              ; CODE XREF: sub_4FA26+3Aj
-        mov word ptr [si+1834h], 18h
+        mov word ptr leveldata[si], 18h
         cmp word ptr [si+18ACh], 0
         jnz short loc_4FA7D
         mov byte ptr [si+1835h], 3
@@ -21151,9 +21151,9 @@ loc_4FA7D:              ; CODE XREF: sub_4FA26+4Fj
 loc_4FA8A:              ; CODE XREF: sub_4FA26+5Cj
         cmp word ptr [si+1832h], 0
         jnz short loc_4FAA1
-        mov word ptr [si+1834h], 2BBh
+        mov word ptr leveldata[si], 2BBh
         sub si, 2
-        mov word ptr [si+1834h], 1818h
+        mov word ptr leveldata[si], 1818h
         retn
 ; ---------------------------------------------------------------------------
 
@@ -21225,7 +21225,7 @@ loc_4FB0A:              ; CODE XREF: sub_4FACC+2Fj
 ; ---------------------------------------------------------------------------
 
 loc_4FB17:              ; CODE XREF: sub_4FACC+41j
-        mov word ptr [si+1834h], 18h
+        mov word ptr leveldata[si], 18h
         cmp word ptr [si+1836h], 0
         jnz short loc_4FB2A
         mov byte ptr [si+1835h], 5
@@ -21242,9 +21242,9 @@ loc_4FB2A:              ; CODE XREF: sub_4FACC+56j
 loc_4FB37:              ; CODE XREF: sub_4FACC+63j
         cmp word ptr [si+18ACh], 0
         jnz short loc_4FB4E
-        mov word ptr [si+1834h], 3BBh
+        mov word ptr leveldata[si], 3BBh
         add si, 78h ; 'x'
-        mov word ptr [si+1834h], 2018h
+        mov word ptr leveldata[si], 2018h
         retn
 ; ---------------------------------------------------------------------------
 
@@ -21316,7 +21316,7 @@ loc_4FBB1:              ; CODE XREF: sub_4FB79+29j
 ; ---------------------------------------------------------------------------
 
 loc_4FBBE:              ; CODE XREF: sub_4FB79+3Bj
-        mov word ptr [si+1834h], 18h
+        mov word ptr leveldata[si], 18h
         cmp word ptr [si+17BCh], 0
         jnz short loc_4FBD1
         mov byte ptr [si+1835h], 7
@@ -21333,9 +21333,9 @@ loc_4FBD1:              ; CODE XREF: sub_4FB79+50j
 loc_4FBDE:              ; CODE XREF: sub_4FB79+5Dj
         cmp word ptr [si+1836h], 0
         jnz short loc_4FBF5
-        mov word ptr [si+1834h], 4BBh
+        mov word ptr leveldata[si], 4BBh
         add si, 2
-        mov word ptr [si+1834h], 2818h
+        mov word ptr leveldata[si], 2818h
         retn
 ; ---------------------------------------------------------------------------
 
@@ -21633,7 +21633,7 @@ sub_4FD65   endp
 
 loc_4FDAF:              ; CODE XREF: update?+1209j
                     ; update?:loc_4F0A9j ...
-        mov word ptr [si+1834h], 3
+        mov word ptr leveldata[si], 3
 ; END OF FUNCTION CHUNK FOR update?
 
 ; =============== S U B R O U T I N E =======================================
