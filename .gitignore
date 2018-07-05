@@ -5,3 +5,4 @@ tasm/
 *.til
 /solve/
 TESTOUT.TXT
+/tc/
