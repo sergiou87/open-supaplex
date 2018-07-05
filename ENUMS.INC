@@ -29,3 +29,9 @@ port4way	 = 23
 electron	 = 24
 bug		 = 25
 
+
+stBeep = 1
+stSample = 2
+stAdlib = 3
+stBlaster = 4
+stRoland = 5
