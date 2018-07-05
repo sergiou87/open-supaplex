@@ -35,3 +35,10 @@ stSample = 2
 stAdlib = 3
 stBlaster = 4
 stRoland = 5
+
+
+levelWidth = 60         ; 3C
+levelHeight = 24        ; 18
+levelSize = levelWidth * levelHeight    ; 1440/5A0
+
+levelDataLength = 1536 ; 600
