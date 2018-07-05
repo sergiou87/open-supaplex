@@ -117,7 +117,7 @@ loc_46C99:
         jnz short loc_46CAF
 
 loc_46CAA:
-        cmp ax, 600h
+        cmp ax, levelDataLength
 
 loc_46CAD:
         jb  short loc_46CB7
@@ -144,7 +144,7 @@ loc_46CB7:              ; CODE XREF: start:loc_46CADj
         lea si, aFileLevel    ; "!! File < Level: "
 
 loc_46CD1:
-        cmp ax, 600h
+        cmp ax, levelDataLength
         jnb short loc_46CF4
         call    fileReadUnk1
         mov word_599DA, ax
@@ -1566,7 +1566,7 @@ loc_47651:              ; CODE XREF: readDemo+43j
         jnz short loc_476DB
         mov ax, 4200h
         xor cx, cx
-        mov dx, 600h
+        mov dx, levelDataLength
         int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
                     ; AL = method: offset from beginning of file
         mov bx, lastFileHandle
@@ -1584,7 +1584,7 @@ loc_47674:              ; CODE XREF: readDemo+52j
         jb  short loc_47690
         or  dx, dx
         jnz short loc_47690
-        cmp ax, 600h
+        cmp ax, levelDataLength
         jnb short loc_47690
         call    fileReadUnk1
         mov word_599D8, ax
@@ -1607,7 +1607,7 @@ loc_47690:              ; CODE XREF: readDemo+76j readDemo+7Aj ...
         mov cl, 9
         shl dx, cl
         add dx, 0BE20h
-        mov cx, 600h
+        mov cx, levelDataLength
         push    ds
         push    dx
         push    es
@@ -1625,7 +1625,7 @@ loc_47690:              ; CODE XREF: readDemo+76j readDemo+7Aj ...
 ; ---------------------------------------------------------------------------
 
 loc_476CB:              ; CODE XREF: readDemo+BDj
-        cmp ax, 600h
+        cmp ax, levelDataLength
         jz  short loc_476D3
         jmp loc_47783
 ; ---------------------------------------------------------------------------
@@ -2754,7 +2754,7 @@ loc_47CF1:              ; CODE XREF: readLevelsLst+83j
         pop dx
         pop cx
         jb  short loc_47D81
-        add dx, 600h
+        add dx, levelDataLength
         adc ax, 0
         add bx, 1Ch
         loop    loc_47CF1
@@ -6159,7 +6159,7 @@ loc_494B8:              ; CODE XREF: sub_4945D+56j
         mov speed?2, bl
         mov bx, word_510E4
         mov ax, 4000h
-        mov cx, 600h
+        mov cx, levelDataLength
         mov dx, 988Bh
         int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
                     ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
@@ -6908,7 +6908,7 @@ loc_49A4E:              ; CODE XREF: sub_4955B+4EEj
 ; ---------------------------------------------------------------------------
 
 loc_49A5C:              ; CODE XREF: sub_4955B+4FCj
-        mov cx, 600h
+        mov cx, levelDataLength
         mov dx, 988Bh
         call    writeToFh1
         jnb short loc_49A6A
@@ -7061,7 +7061,7 @@ loc_49B49:              ; CODE XREF: sub_4955B+5E9j
 loc_49B6F:              ; CODE XREF: sub_4955B+60Fj
         cmp byte_5988D, 0
         jz  short loc_49B84
-        mov cx, 600h
+        mov cx, levelDataLength
         mov dx, 988Bh
         call    readFromFh1
         jb  short loc_49B84
@@ -15888,7 +15888,7 @@ loc_4D5E3:              ; CODE XREF: readLevels+91j
 loc_4D604:              ; CODE XREF: readLevels+B7j
         mov ax, 3F00h
         mov bx, lastFileHandle
-        mov cx, 600h
+        mov cx, levelDataLength
         mov dx, offset fileLevelData
         int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
                     ; BX = file handle, CX = number of bytes to read
@@ -15988,7 +15988,7 @@ loc_4D68F:              ; CODE XREF: readLevels+142j
         mov ax, ds
         mov es, ax
         assume es:data
-        mov cx, 600h
+        mov cx, levelDataLength
         mov si, offset fileLevelData
         mov di, offset leveldata
         xor ah, ah
