@@ -6846,7 +6846,7 @@ loc_499D8:              ; CODE XREF: sub_4955B+478j
 
 loc_499E9:              ; CODE XREF: sub_4955B+489j
         mov cx, 1238h
-        mov dx, 1834h
+        mov dx, offset leveldata
         call    writeToFh1
         jnb short loc_499F7
         jmp loc_49C1F
@@ -6980,7 +6980,7 @@ loc_49AC5:              ; CODE XREF: sub_4955B+55Ej
 
 loc_49AD1:              ; CODE XREF: sub_4955B+568j
         mov cx, 1238h
-        mov dx, 1834h
+        mov dx, offset leveldata
         call    readFromFh1
         jnb short loc_49ADF
         jmp loc_49C1A
