@@ -7359,21 +7359,19 @@ levelScanThing   endp
 
 
 gameloop?   proc near       ; CODE XREF: runLevel:noFlashingp
+
+        ; set graphics write mode = 1
         mov dx, 3CEh
         mov al, 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
+        out dx, al
         inc dx
         mov al, 1
-        out dx, al      ; EGA port: graphics controller data register
+        out dx, al
+
         mov si, murphyloc
         call    update?
         mov murphyloc, si
+
         cmp word ptr flashingbackgroundon, 0
         jz  short loc_49E0A
         mov dx, 3C8h
@@ -7391,19 +7389,15 @@ loc_49E0A:              ; CODE XREF: gameloop?+1Aj
         jz  short loc_49E14
         call    sub_5024B
 
-loc_49E14:              ; CODE XREF: gameloop?+2Fj
+loc_49E14:
+        ; set graphics write mode = 1
         mov dx, 3CEh
         mov al, 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
+        out dx, al
         inc dx
         mov al, 1
-        out dx, al      ; EGA port: graphics controller data register
+        out dx, al
+
         cmp word ptr flashingbackgroundon, 0
         jz  short loc_49E33
         mov dx, 3C8h
@@ -7458,19 +7452,15 @@ updatemoving?:              ; CODE XREF: gameloop?+9Ej
         add di, 4
         loop    updatemoving?
 
-loc_49E80:              ; CODE XREF: gameloop?+89j
+doneWithGameLoop:
+        ; set graphics write mode = 0
         mov dx, 3CEh
         mov al, 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
+        out dx, al
         inc dx
         mov al, 0
-        out dx, al      ; EGA port: graphics controller data register
+        out dx, al
+
         cmp word_510D1, 1
         jz  short loc_49E99
         cmp word_510CF, 0
@@ -7487,19 +7477,15 @@ loc_49E99:              ; CODE XREF: gameloop?+AFj
         call    sub_4A61F
         mov word_51978, 40h ; '@'
 
-loc_49EB3:              ; CODE XREF: gameloop?+BEj
+loc_49EB3:
+        ; set graphics write mode = 0
         mov dx, 3CEh
         mov al, 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
+        out dx, al
         inc dx
         mov al, 1
-        out dx, al      ; EGA port: graphics controller data register
+        out dx, al
+        
         retn
 gameloop?   endp
 
