@@ -7374,17 +7374,20 @@ gameloop?   proc near       ; CODE XREF: runLevel:noFlashingp
 
         cmp word ptr flashingbackgroundon, 0
         jz  short loc_49E0A
+
+        ; flashes background
+        ; set palette ix 0 = #3f2121 (maroon)
         mov dx, 3C8h
         xor al, al
         out dx, al
         inc dx
-        mov al, 3Fh ; '?'
+        mov al, 3Fh
         out dx, al
         out dx, al
-        mov al, 21h ; '!'
+        mov al, 21h
         out dx, al
 
-loc_49E0A:              ; CODE XREF: gameloop?+1Aj
+loc_49E0A:
         cmp byte ptr word_510C1, 0
         jz  short loc_49E14
         call    sub_5024B
@@ -7400,17 +7403,20 @@ loc_49E14:
 
         cmp word ptr flashingbackgroundon, 0
         jz  short loc_49E33
+        
+        ; flashes background
+        ; set palette ix 0 = #3f2121 (maroon)
         mov dx, 3C8h
         xor al, al
         out dx, al
         inc dx
-        mov al, 3Fh ; '?'
+        mov al, 3Fh
         out dx, al
-        mov al, 21h ; '!'
+        mov al, 21h
         out dx, al
         out dx, al
 
-loc_49E33:              ; CODE XREF: gameloop?+43j
+loc_49E33:
         mov di, offset movingObjects?
         mov si, 7Ah ; 'z'
         mov cx, 526h
