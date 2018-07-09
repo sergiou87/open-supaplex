@@ -470,7 +470,7 @@ loc_46F3E:              ; CODE XREF: start+428j start+444j
         call    sub_4A2E6
         call    sub_4A3BB
         call    enableFloppy?
-        call    sub_4A271
+        call    findMurphy
         mov si, 6015h
         call    fade
         cmp byte_59886, 0
@@ -7500,7 +7500,7 @@ loc_49EB3:
         inc dx
         mov al, 1
         out dx, al
-        
+
         retn
 gameloop?   endp
 
@@ -8086,7 +8086,7 @@ sub_4A23C   endp
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_4A271   proc near       ; CODE XREF: start+344p sub_4A463+22p
+findMurphy   proc near       ; CODE XREF: start+344p sub_4A463+22p
         push    es
         mov ax, ds
         mov es, ax
@@ -8103,7 +8103,7 @@ sub_4A271   proc near       ; CODE XREF: start+344p sub_4A463+22p
         shl cx, 1
         mov murphyloc, cx
         mov si, cx
-sub_4A271   endp ; sp-analysis failed
+findMurphy   endp ; sp-analysis failed
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -8379,7 +8379,7 @@ sub_4A463   proc near       ; CODE XREF: sub_4945D:loc_4953Bp
         call    sub_4A3BB
         mov byte_59B7B, 1
         call    sub_48A20
-        call    sub_4A271
+        call    findMurphy
         retn
 sub_4A463   endp
 
@@ -17214,16 +17214,13 @@ sound?11    endp
 
 update?     proc near       ; CODE XREF: gameloop?+Ep
 
-; FUNCTION CHUNK AT 8122 SIZE 000004BE BYTES
-; FUNCTION CHUNK AT 918F SIZE 00000006 BYTES
-
         cmp byte ptr leveldata[si], 3
-        jz  short loc_4DE9E
+        jz  short hasValidMurphy
         mov word_510CF, 0
         retn
 ; ---------------------------------------------------------------------------
 
-loc_4DE9E:              ; CODE XREF: update?+5j
+hasValidMurphy:              ; CODE XREF: update?+5j
         mov word_510CF, 1
         mov word_510C7, si
         mov ax, leveldata[si]
