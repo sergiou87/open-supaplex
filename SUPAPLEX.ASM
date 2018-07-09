@@ -7418,45 +7418,54 @@ loc_49E14:
 
 loc_49E33:
         mov di, offset movingObjects?
-        mov si, 7Ah ; 'z'
-        mov cx, 526h
+        mov si, 7Ah ; level width in words + 2 (index of first gamefiled cell)
+        mov cx, 526h ; unsure count
         xor dx, dx
         xor bh, bh
 
-loc_49E40:              ; CODE XREF: gameloop?+84j
+checkCellForMovingObject:              ; CODE XREF: gameloop?+84j
         mov bl, byte ptr leveldata[si]
+
         test    bl, 0Dh
-        jz  short loc_49E61
-        cmp bl, 20h ; ' '
-        jnb short loc_49E61
-        shl bx, 1       ; multiply by 2 to go from byte to word
+        jz  short moveToNextCell
+
+        cmp bl, 20h
+        jnb short moveToNextCell
+
+        ; multiply by 2 to go from byte to word
+        shl bx, 1
         mov ax, movingFunctions[bx]
         or  ax, ax
-        jz  short loc_49E61
+        jz  short moveToNextCell
+
+        ; log moving object for call
+        ; each index has 2 bytes for index and 2 bytes as fn ptr to call
         inc dx
         mov [di], si
         mov [di+2], ax
         add di, 4
 
-loc_49E61:              ; CODE XREF: gameloop?+67j
-                    ; gameloop?+6Cj ...
+moveToNextCell:
+
         add si, 2
-        loop    loc_49E40
+        loop    checkCellForMovingObject
+
         cmp dx, 0
-        jz  short loc_49E80
-        mov cx, dx
+        jz  short doneWithGameLoop ; not a single moving object
+        mov cx, dx ; cx = number of moving objects
         mov di, offset movingObjects?
 
-updatemoving?:              ; CODE XREF: gameloop?+9Ej
+; call moving functions one by one
+callNextMovingFunction:
         push    di
         push    cx
-        mov si, [di]
-        mov ax, [di+2]
+        mov si, [di]    ; the cell for the moving object
+        mov ax, [di+2]  ; the function to call
         call    ax
         pop cx
         pop di
         add di, 4
-        loop    updatemoving?
+        loop    callNextMovingFunction
 
 doneWithGameLoop:
         ; set graphics write mode = 0
