@@ -20,7 +20,7 @@ analyzed source of the SPFIX63.EXE file.
 ### Prerequisites
 - You need [DosBox](https://www.dosbox.com/) to build and run.
 - You will need the [original Supaplex files](https://cdn.chills.co.za/supaplex.zip).
-    Extract the files into the `supaplex` directory.
+    Extract the files into the `build` directory.
 - You will need [TASM 4.1](https://cdn.chills.co.za/tasm4.zip).
     Extract the files into the `tasm` directory. Feel free to put them in your path
     (in dosbox)
