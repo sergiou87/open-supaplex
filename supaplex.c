@@ -1,17 +1,17 @@
-include GLOBALS.INC
+// include GLOBALS.INC
 
-; ===========================================================================
-code segment para public 'CODE' use16
-        assume cs:code
+// ; ===========================================================================
+// code segment para public 'CODE' use16
+//         assume cs:code
 
-; =============== S U B R O U T I N E =======================================
+// ; =============== S U B R O U T I N E =======================================
 
-; Attributes: noreturn
+// ; Attributes: noreturn
 
-        public start
-start       proc near
-
-; FUNCTION CHUNK AT 027F SIZE 00000217 BYTES
+//         public start
+void main(void)
+{
+//; FUNCTION CHUNK AT 027F SIZE 00000217 BYTES
 
         mov dx, seg data
         mov ds, dx
@@ -20,635 +20,812 @@ start       proc near
 programStart:               ; CODE XREF: runMainMenu+28Fp
                     ; DATA XREF: data:000Ao
         ;db 26h, 8Ah, 0Eh, 80h, 00h
-        mov cl, [es:80h]        ; Length of command line arguments
-        mov cbCommandLine, cl
-        cmp cl, 2
-        jnb short hasCommandLine
-        jmp doesNotHaveCommandLine
-; ---------------------------------------------------------------------------
+        cl = *(es:80h);
+        cbCommandLine = cl
+        if (cl >= 2)
+        {
+            goto hasCommandLine
+        }
+        goto doesNotHaveCommandLine
+//// ; ---------------------------------------------------------------------------
 
-hasCommandLine:             ; CODE XREF: start+11j
-        cld
-        xor ch, ch      ; cx = nr command line bytes
-        mov di, 81h ; '?'   ; start of command line args in PSP
-        push    di
-        push    cx
+hasCommandLine:             //; CODE XREF: start+11j
+        //cld
+        ch = 0; // cx = nr command line bytes
+        di = 0x81; // '?' start of command line args in PSP
+        push(di);
+        push(cx);
 
 readAndProcessCommandLine:
-        mov si, offset commandLine
+        si = &commandLine
 
-copyNextCmdLineByte:            ; CODE XREF: start+28j
-        mov al, es:[di]
-        mov [si], al
-        inc si
-        inc di
-        loop    copyNextCmdLineByte
-        pop cx
-        pop di
-        mov di, ds
-        mov es, di
-        assume es:data
-        mov di, offset commandLine
-        push    di
-        push    cx
+copyNextCmdLineByte:            //; CODE XREF: start+28j
+        al = es:[di];
+        *si = al;
+        si++;
+        di++;
+        cx--;
+        if (cx > 0)
+        {
+            goto copyNextCmdLineByte
+        }
+        pop(cx)
+        pop(di)
+        di = ds
+        es = di
+        // assume es:data
+        di = &commandLine
+        push(di)
+        push(cx)
 
-processCommandLine:         ; CODE XREF: start+F7j
-        mov al, 3Ah ; ':'
-        repne scasb
-        jz  short hascolon
-        jmp nohascolon
-; ---------------------------------------------------------------------------
+processCommandLine:         //; CODE XREF: start+F7j
+        if (strchr(commandLine, ':') == NULL)
+        {
+            goto nohascolon;
+        }
+        else
+        {
+            goto hascolon;
+        }
+//// ; ---------------------------------------------------------------------------
 
-hascolon:                ; CODE XREF: start+39j
-        mov al, 20h 
-        mov si, offset demoFileName
+hascolon:                //; CODE XREF: start+39j
+        al = 0x20; // ' ' (space)
+        si = &demoFileName;
 
-copyArgument:              ; CODE XREF: start+52j
-        or  cx, cx
-        jz  short loc_46C74
-        mov ah, es:[di]
-        cmp ah, al
-        jz  short loc_46C74
-        mov [si], ah
-        inc si
-        inc di
-        loop    copyArgument
+copyArgument:              //; CODE XREF: start+52j
+        if (cx == 0)
+        {
+            goto loc_46C74;
+        }
+        ah = es:[di];
+        if (ah == al)
+        {
+            goto loc_46C74;
+        }
+        ah = *si;
+        si++;
+        di++;
+        cx--;
+        if (cx > 0)
+        {
+            goto copyArgument;
+        }
 
-loc_46C74:              ; CODE XREF: start+45j start+4Cj
-        xor al, al
-        mov [si], al
-        pop cx
-        pop di
-        push    di
-        push    cx
-        mov al, 3Ah ; ':'
-        repne scasb
-        dec di
-        inc cx
-        mov al, 20h ; ' '
+loc_46C74:              //; CODE XREF: start+45j start+4Cj
+        al = 0;
+        *si = al; // Adds \0 at the end?
+        pop(cx);
+        pop(di);
+        push(di);
+        push(cx);
+        al = 0x3A; // ':'
+        di = strchr(some_string, ':'); //repne scasb
+        di--;
+        cx++;
+        al = 0x20; // ' ' (espacio)
 
-loc_46C84:              ; CODE XREF: start+6Aj
-        cmp es:[di], al
-        jz  short loc_46C8C
-        stosb
-        loop    loc_46C84
+loc_46C84:              //; CODE XREF: start+6Aj
+        if (es:[di] == al)
+        {
+            goto loc_46C8C;
+        }
+        es:[di] = al; // stosb
+        cx--;
+        if (cx > 0)
+        {
+            goto loc_46C84;
+        }
 
-loc_46C8C:              ; CODE XREF: start+67j
-        mov ax, 3D00h
-        mov dx, offset demoFileName
-        int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-                    ; DS:DX -> ASCIZ filename
-                    ; AL = access mode
-                    ; 0 - read
-        jb  short loc_46D09
-        mov bx, ax
-        push    bx
+loc_46C8C:              //; CODE XREF: start+67j
+        ax = 0x3D00;
+        dx = &demoFileName;
+        FILE *file = fopen(demoFileName, 'r');
+        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
+        //             ; DS:DX -> ASCIZ filename
+        //             ; AX = action -> 0x3D - open file
+        //             ; AL = access mode -> 0 - read
+        if (file == NULL)
+        {
+            goto loc_46D09;
+        }
+        bx = ax;
+        push(bx);
 
 loc_46C99:
-        mov ax, 4202h
-        xor cx, cx
-        mov dx, cx
-        int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
-                    ; AL = method: offset from end of file
-        pop bx
-        pushf
-        jb  short loc_46CAF
-        or  dx, dx
-        jnz short loc_46CAF
+        ax = 0x4202;
+        cx = 0;
+        dx = cx;
+        int result = fseek(file, 0, SEEK_END);
+        // int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
+        //             ; AL = method: 0x02 -> offset from end of file
+        pop(bx);
+        pushf();
+        if (result < 0) // jb  short loc_46CAF
+        {
+            goto loc_46CAF
+        }
+        
+        if (dx != 0)
+        {
+            goto loc_46CAF
+        }
 
 loc_46CAA:
-        cmp ax, levelDataLength
+        if (ax < levelDataLength)
+        {
 
 loc_46CAD:
-        jb  short loc_46CB7
+            goto loc_46CB7;
+        }
 
-loc_46CAF:              ; CODE XREF: start+84j start+88j
-        push    ax
-        push    dx
-        mov ah, 3Eh
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-        pop dx
-        pop ax
+loc_46CAF:              //; CODE XREF: start+84j start+88j
+        push(ax);
+        push(dx);
+        ah = 0x3E;
+        fclose(file);
+        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
+        //             ; BX = file handle
+        pop(dx);
+        pop(ax);
 
-loc_46CB7:              ; CODE XREF: start:loc_46CADj
+loc_46CB7:              //; CODE XREF: start:loc_46CADj
         db 8Dh, 36h, 65h, 9Fh
-        ;lea si, [aFileDemo] ; "!! File >> Demo: "
-        mov word_599DA, 0
-        popf
+        si = **aFileDemo; //;lea si, [aFileDemo] ; "!! File >> Demo: "
+        
+        word_599DA = 0
+        popf();
+        
         jb  short loc_46D09
-        or  dx, dx
-        jnz short loc_46CE4
-        cmp ax, 0C60Ah
-        ja  short loc_46CE4
-        lea si, aFileLevel    ; "!! File < Level: "
+        if (dx > 0)
+        {
+            goto loc_46CE4;
+        }
+        if (ax > 0xC60A)
+        {
+            goto loc_46CE4;
+        }
+        si = *aFileLevel; // lea si, aFileLevel    ; "!! File < Level: "
 
 loc_46CD1:
-        cmp ax, levelDataLength
-        jnb short loc_46CF4
-        call    fileReadUnk1
-        mov word_599DA, ax
-        pushf
-        mov ah, 3Eh
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-        popf
-        jnb short loc_46CF6
+        if (ax >= levelDataLength)
+        {
+            goto loc_46CF4;
+        }
+        fileReadUnk1();
+        word_599DA = ax;
+        pushf();
+        ah = 0x3E;
+        fclose(file);
+        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
+        //             ; BX = file handle
+        popf();
+        // jnb short loc_46CF6  // where do the flags come from??
 
-loc_46CE4:              ; CODE XREF: start+A6j start+ABj
-        pop cx
-        pop di
-        push    di
-        push    cx
-        mov al, 40h ; '@'
-        repne scasb
-        jnz short loc_46D09
-        call    conprintln
-        jmp immediateexit
-; ---------------------------------------------------------------------------
+loc_46CE4:              //; CODE XREF: start+A6j start+ABj
+        pop(cx);
+        pop(di);
+        push(di);
+        push(cx);
+        al = 0x40; // '@'
+        if (strchr(some_string, '@') == NULL)
+        {
+            goto loc_46D09;
+        }
+        
+        conprintln();
+        goto immediateexit;
+// ; ---------------------------------------------------------------------------
 
-loc_46CF4:              ; CODE XREF: start+B4j
-        jz  short loc_46CFB
+loc_46CF4:              //; CODE XREF: start+B4j
+        if (ax == levelDataLength)
+        {
+            goto loc_46CFB;
+        }
 
-loc_46CF6:              ; CODE XREF: start+C2j
-        mov byte_599D5, 1
+loc_46CF6:              //; CODE XREF: start+C2j
+        byte_599D5 = 1;
 
-loc_46CFB:              ; CODE XREF: start:loc_46CF4j
-        cmp demoFileName, 0
-        jz  short loc_46D09
-        mov byte_599D4, 2
-        jmp short loc_46D13
-; ---------------------------------------------------------------------------
+loc_46CFB:              //; CODE XREF: start:loc_46CF4j
+        if (demoFileName == 0)
+        {
+            goto loc_46D09;
+        }
+        
+        byte_599D4 = 2;
+        goto loc_46D13;
+// ; ---------------------------------------------------------------------------
 
-loc_46D09:              ; CODE XREF: start+74j start+A2j ...
-        mov demoFileName, 0
-        mov byte_599D4, 0
+loc_46D09:              //; CODE XREF: start+74j start+A2j ...
+        demoFileName = 0;
+        byte_599D4 = 0;
 
-loc_46D13:              ; CODE XREF: start+E7j
-        pop cx
-        pop di
-        push    di
-        push    cx
-        jmp processCommandLine
-; ---------------------------------------------------------------------------
+loc_46D13:              //; CODE XREF: start+E7j
+        pop(cx);
+        pop(di);
+        push(di);
+        push(cx);
+        goto processCommandLine;
+// ; ---------------------------------------------------------------------------
 
 nohascolon:               ; CODE XREF: start+3Bj
-        pop cx
-        pop di
-        push    di
-        push    cx
-        mov al, 40h ; '@'
-        repne scasb
-        pop cx
-        pop di
-        jnz short runSpFile
-        ; When @ is specd we need a valid file
-        cmp demoFileName, 0
-        jnz short demoFileNotMissing
-        lea si, a@ErrorBadOrMis ; "\"@\"-ERROR: Bad or missing \":filename"...
-        call    conprint
-        jmp immediateexit
-; ---------------------------------------------------------------------------
+        pop(cx);
+        pop(di);
+        push(di);
+        push(cx);
+        al = '@';
+        int hasAt = strch(some_string, '@'); // repne scasb
+        pop(cx);
+        pop(di);
+        if (hasAt == NULL)
+        {
+            goto runSpFile;
+        }
+        //; When @ is specd we need a valid file
+        if (demoFileName != 0)
+        {
+            goto demoFileNotMissing;
+        }
+        si = *a@ErrorBadOrMis; // "\"@\"-ERROR: Bad or missing \":filename"...
+        conprint();
+        goto immediateexit;
+// ; ---------------------------------------------------------------------------
 
-demoFileNotMissing:              ; CODE XREF: start+10Bj
-        cmp byte_599D5, 1
-        jz  short spHasAtAndDemo
-        lea si, aSpWithoutDemo ; "SP without demo: "
-        call    conprintln
-        jmp immediateexit
-; ---------------------------------------------------------------------------
+demoFileNotMissing:              //; CODE XREF: start+10Bj
+        if (byte_599D5 == 1)
+        {
+            goto spHasAtAndDemo;
+        }
+        si = *aSpWithoutDemo; //"SP without demo: "
+        conprintln();
+        goto immediateexit;
+// ; ---------------------------------------------------------------------------
 
-spHasAtAndDemo:              ; CODE XREF: start+11Cj
-        mov fastMode, 1
-        mov speed?, 0
+spHasAtAndDemo:              //; CODE XREF: start+11Cj
+        fastMode = 1;
+        speed? = 0
 
-runSpFile:              ; CODE XREF: start+104j
-        push    di
-        push    cx
-        mov al, 41h ; 'A'
-        jmp short loc_46D5A
-; ---------------------------------------------------------------------------
+runSpFile:              //; CODE XREF: start+104j
+        push(di);
+        push(cx);
+        al = 0x41h; // 'A'
+        goto loc_46D5A;
+// ; ---------------------------------------------------------------------------
 
 loc_46D58:              ; CODE XREF: start+14Fj
-        mov al, 61h ; 'a'
+        al = 0x61; // 'a'
 
 loc_46D5A:              ; CODE XREF: start+136j
-        lea bx, word_59B60
+        bx = *word_59B60;
 
 loc_46D5E:              ; CODE XREF: start+14Dj start+153j
-        repne scasb
-        jnz short loc_46D64
-        or  [bx], al
+        int result = strchr(some_string, 'a');
+        if (result == NULL)
+        {
+            goto loc_46D64;
+        }
+        [bx] = [bx] | al; // check if whatever is in bx is 'a'??
 
-loc_46D64:              ; CODE XREF: start+140j
-        pop cx
-        pop di
-        push    di
-        push    cx
-        inc bx
-        inc al
-        cmp al, 5Bh ; '['
-        jb  short loc_46D5E
-        jz  short loc_46D58
-        cmp al, 7Bh ; '{'
-        jb  short loc_46D5E
-        cmp byte_59B63, 0
-        jz  short loc_46D82
-        mov word_51970, 1
+loc_46D64:              //; CODE XREF: start+140j
+        pop(cx);
+        pop(di);
+        push(di);
+        push(cx);
+        bx++;
+        al++;
+        if (al < 0x5B) // '['
+        {
+            goto loc_46D5E;
+        }
+        else if (al == 0x5B) // '['
+        {
+            goto loc_46D58;
+        }
+        
+        if (al < 0x7B) // '{'
+        {
+            goto loc_46D5E;
+        }
+        
+        if (byte_59B63 == 0)
+        {
+            goto loc_46D82;
+        }
+        word_51970 = 1;
 
-loc_46D82:              ; CODE XREF: start+15Aj
-        mov al, 21h ; '!'
-        repne scasb
-        jnz short loc_46DBF
-        cmp cx, 1
-        jb  short loc_46DBF
-        mov ax, es:[di]
-        cmp al, 30h ; '0'
-        jb  short loc_46DBF
-        cmp al, 39h ; '9'
-        ja  short loc_46DBF
-        cmp ah, 30h ; '0'
-        jb  short loc_46DA2
-        cmp ah, 39h ; '9'
-        jbe short modifysetfns
+loc_46D82:              //; CODE XREF: start+15Aj
+        al = 0x21; // '!'
+        int result = strchr(some_string, '!');
+        if (result == NULL)
+        {
+            goto loc_46DBF;
+        }
+        
+        if (cx < 1)
+        {
+            goto loc_46DBF;
+        }
+        ax = es:[di];
+        if (al < 0x30) // '0'
+        {
+            goto loc_46DBF;
+        }
+        
+        if (al > 0x39) // '9'
+        {
+            goto loc_46DBF;
+        }
 
-loc_46DA2:              ; CODE XREF: start+17Bj
-        mov ah, al
-        mov al, 30h ; '0'
+        if (ah < 0x30) // '0'
+        {
+            goto loc_46DA2;
+        }
 
-modifysetfns:              ; CODE XREF: start+180j
-        mov word ptr aLevels_dat_0+8, ax ; "AT"
-        mov word ptr aLevel_lst+7, ax ; "ST"
-        mov word ptr aDemo0_bin+7, ax ; "IN"
-        mov word ptr aPlayer_lst+8, ax ; "ST"
-        mov word ptr aHallfame_lst+0Ah, ax ; "ST"
-        cmp byte ptr dword_59B76, 0
-        jnz short loc_46DBF
-        mov word ptr aSavegame_sav+0Ah, ax ; "AV"
+        if (ah <0 0x39) // '9'
+        {
+            goto modifysetfns;
+        }
 
-loc_46DBF:              ; CODE XREF: start+166j start+16Bj ...
-        pop cx
-        pop di
-        push    di
-        push    cx
-        mov al, 23h ; '#'
-        repne scasb
-        jnz short loc_46E18
-        mov byte_59B85, 0FFh
-        mov word_58DAC, 4628h
-        mov word_58DAE, 524Fh
-        mov word_58DB0, 4543h
-        mov word_58DB2, 2944h
-        mov di, 8AA8h
-        mov cx, 6Fh ; 'o'
-        mov al, 2
-        push    es
-        push    ds
-        pop es
+loc_46DA2:              //; CODE XREF: start+17Bj
+        ah = al;
+        al = 0x30; // '0'
+
+modifysetfns:              //; CODE XREF: start+180j
+        // This changes the suffix of the files with whatever is in AX? like LEVELS.DAT with LEVELS.D00 or LEVEL.LST with LEVEL.L10 ??
+        aLevels_dat_0[8] = ax; // "AT"
+        aLevel_lst[7] = ax; // "ST"
+        aDemo0_bin[7] = ax; // "IN"
+        aPlayer_lst[8] = ax; // "ST"
+        aHallfame_lst[0Ah] = ax; // "ST"
+        if (*dword_59B76 != 0) // cmp byte ptr dword_59B76, 0
+        {
+            goto loc_46DBF;
+        }
+        
+        aSavegame_sav[0Ah] = ax; //"AV"
+
+loc_46DBF:              //; CODE XREF: start+166j start+16Bj ...
+        pop(cx);
+        pop(di);
+        push(di);
+        push(cx);
+        al = 0x23; //'#'
+        
+        if (strchr(something, '#') == NULL)
+        {
+            goto loc_46E18;
+        }
+        byte_59B85 = 0x0FF;
+        word_58DAC = 0x4628;
+        word_58DAE = 0x524F;
+        word_58DB0 = 0x4543;
+        word_58DB2 = 0x2944;
+        di = 0x8AA8;
+        cx = 0x6F; // 'o'
+        al = 2;
+        push(es);
+        push(ds);
+        pop(es);
         rep stosb
-        mov al, 20h ; ' '
-        mov cx, 8
-        mov di, 8B1Ch
+        al = 0x20; // ' '
+        cx = 8;
+        di = 0x8B1C; //
         rep stosb
-        mov cx, 8
-        mov di, 8B9Ch
+        cx = 8;
+        di = 0x8B9C;
         rep stosb
-        mov cx, 16h
-        mov di, 8853h
+        cx = 0x16;
+        di = 0x8853;
         rep stosb
-        mov cx, 16h
-        mov di, 886Ah
+        cx = 0x16;
+        di = 0x886A;
         rep stosb
-        pop es
-        assume es:nothing
-        jmp short loc_46E39
-; ---------------------------------------------------------------------------
+        pop(es);
+        // assume es:nothing
+        goto loc_46E39;
+//// ; ---------------------------------------------------------------------------
 
-loc_46E18:              ; CODE XREF: start+1A7j
-        pop cx
-        pop di
-        push    di
-        push    cx
-        mov al, 26h ; '&'
-        repne scasb
-        jnz short loc_46E39
-        call    atoi        ; reset ax
-        cmp al, 1
-        jnb short loc_46E2B
-        inc al
+loc_46E18:              //; CODE XREF: start+1A7j
+        pop(cx);
+        pop(di);
+        push(di);
+        push(cx);
+        al = 0x26; // '&'
+        
+        if (strchr(something, '&') == NULL)
+        {
+            goto loc_46E39;
+        }
+        atoi(something) // reset ax
+        if (al >= 1)
+        {
+            goto loc_46E2B;
+        }
+        al++;
 
-loc_46E2B:              ; CODE XREF: start+207j
-        cmp al, 14h
-        jbe short loc_46E31
-        mov al, 14h
+loc_46E2B:              //; CODE XREF: start+207j
+        if (al <= 0x14) // In ascii this is DC4 - Device Control 4??
+        {
+            goto loc_46E31;
+        }
+        al = 0x14;
 
-loc_46E31:              ; CODE XREF: start+20Dj
-        dec al
-        mov byte_5981F, al
-        mov byte_58D46, al
+loc_46E31:              //; CODE XREF: start+20Dj
+        al--;
+        byte_5981F = al;
+        byte_58D46 = al;
 
-loc_46E39:              ; CODE XREF: start+1F6j start+200j
-        pop cx
-        pop di
-        push    di
-        push    cx
-        mov al, 2Ah ; '*'
-        repne scasb
-        jnz short loc_46E59
-        call    atoi        ; reset ax
-        cmp al, 0Ah
-        jbe short loc_46E4C
-        mov al, 0Ah
+loc_46E39:              //; CODE XREF: start+1F6j start+200j
+        pop(cx);
+        pop(di);
+        push(di);
+        push(cx);
+        al = 0x2A; // '*'
+        if (strchr(something, '*') == NULL)
+        {
+            goto loc_46E59;
+        }
+        atoi(whatever)        // ; reset ax
+        if (al <= 0x0A) // '\n'
+        {
+            goto loc_46E4C;
+        }
+        al = 0x0A; // '\n'
 
-loc_46E4C:              ; CODE XREF: start+228j
-        mov ah, 0Ah
-        sub ah, al
-        jb  short loc_46E59
-        or  ah, 0C0h
-        mov speed?3, ah
+loc_46E4C:              //; CODE XREF: start+228j
+        ah =  0x0A;
+        ah -= al;
+        if (ah < 0)
+        {
+            goto loc_46E59;
+        }
+        
+        ah |= 0x0C0;
+        speed?3 = ah;
 
-loc_46E59:              ; CODE XREF: start+221j start+230j
-        pop cx
-        pop di
-        mov al, 2Fh ; '/'
-        repne scasb
-        jnz short doesNotHaveCommandLine
-        mov byte_59B84, 0FFh
-        call    atoi        ; reset ax
-        cmp al, 1
-        jnb short loc_46E6F
-        inc al
+loc_46E59:              //; CODE XREF: start+221j start+230j
+        pop(cx);
+        pop(di);
+        al = 0x2F; // '/'
+        if (strchr(something, '/') == NULL)
+        {
+            goto doesNotHaveCommandLine;
+        }
+        byte_59B84 = 0x0FF;
+        atoi()        //; reset ax
+        
+        if (al >= 1)
+        {
+            goto loc_46E6F;
+        }
+        al++;
 
-loc_46E6F:              ; CODE XREF: start+24Bj
-        cmp al, 6Fh ; 'o'
-        jbe short loc_46E75
-        mov al, 6Fh ; 'o'
+loc_46E6F:              //; CODE XREF: start+24Bj
+        if (al <= 0x6F) // 'o'
+        {
+            goto loc_46E75;
+        }
+        al = 0x6F; // 'o'
 
-loc_46E75:              ; CODE XREF: start+251j
-        mov byte_59B84, al
+loc_46E75:              //; CODE XREF: start+251j
+        byte_59B84 = al;
 
-doesNotHaveCommandLine:         ; CODE XREF: start+13j start+23Fj ...
-        call    getTime
-        call    checkVideo
-        cmp byte_59B64, 0
-        jz  short leaveVideoStatus
-        mov videoStatusUnk, 2
+doesNotHaveCommandLine:         //; CODE XREF: start+13j start+23Fj ...
+        getTime();
+        checkVideo();
+        if (byte_59B64 == 0)
+        {
+            goto leaveVideoStatus;
+        }
+        videoStatusUnk = 2;
 
-leaveVideoStatus:           ; CODE XREF: start+28Aj
-        mov ax, 0A000h
-        mov es, ax
-        assume es:nothing
-        call    sub_4D2BF
-        call    sub_4D2E9
-        call    setint8
-        call    setint24
-        call    setint9
-        call    sub_4D8B0
-        cmp fastMode, 0
-        jnz short isFastMode
-        call    sub_4D517
-        call    sub_4D4E4
-        mov si, 60D5h
-        call    sub_4D836
-        call    readTitleDatAndGraphics?
-        mov si, 5F15h
-        call    fade
+leaveVideoStatus:           //; CODE XREF: start+28Aj
+        ax = 0xA000;
+        es = ax;
+        // assume es:nothing
+        sub_4D2BF();
+        sub_4D2E9();
+        setint8();
+        setint24();
+        setint9();
+        sub_4D8B0();
+        if (fastMode != 0)
+        {
+            goto isFastMode;
+        }
+        sub_4D517();
+        sub_4D4E4();
+        si = 0x60D5;
+        sub_4D836();
+        readTitleDatAndGraphics?();
+        si = 0x5F15;
+        fade();
 
-isFastMode:              ; CODE XREF: start+2ADj
-        call    readMoving
-        call    sub_4D4E4
-        mov al, byte_59B6B
-        or  al, byte_59B84
-        or  al, byte_599D4
-        or  al, fastMode
-        jz  short openingSequence
-        call    readEverything
-        jmp short afterOpeningSequence
-; ---------------------------------------------------------------------------
+isFastMode:              //; CODE XREF: start+2ADj
+        readMoving();
+        sub_4D4E4();
+        // Conditions to whether show 
+        al = byte_59B6B;
+        al |= byte_59B84;
+        al |= byte_599D4;
+        al |= fastMode;
+        if (al == 0)
+        {
+            goto openingSequence;
+        }
+        readEverything();
+        goto afterOpeningSequence;
+//// ; ---------------------------------------------------------------------------
 
 openingSequence:
-        call    loadScreen2
-        call    readEverything
-        call    sub_502CF
-        call    openCreditsBlock
-        call    showNewCredits
+        loadScreen2();
+        readEverything();
+        sub_502CF();
+        openCreditsBlock();
+        showNewCredits();
 
-afterOpeningSequence:              ; CODE XREF: start+2DEj
-        call    readConfig
-        cmp byte_50946, 0
-        jz  short loc_46F20
-        mov byte_50940, 1
-        jmp short loc_46F25
-; ---------------------------------------------------------------------------
+afterOpeningSequence:              //; CODE XREF: start+2DEj
+        readConfig();
+        if (byte_50946 == 0)
+        {
+            goto loc_46F20;
+        }
+        byte_50940 = 1;
+        goto loc_46F25;
+//// ; ---------------------------------------------------------------------------
 
-loc_46F20:              ; CODE XREF: start+2F7j
-        mov byte_50940, 0
+loc_46F20:              //; CODE XREF: start+2F7j
+        byte_50940 = 0;
 
-loc_46F25:              ; CODE XREF: start+2FEj
-        cmp fastMode, 0
-        jz  short isNotFastMode
-        jmp loc_46FBE
-; ---------------------------------------------------------------------------
+loc_46F25:              //; CODE XREF: start+2FEj
+        if (fastMode == 0)
+        {
+            goto isNotFastMode;
+        }
+        goto loc_46FBE;
+//// ; ---------------------------------------------------------------------------
 
-isNotFastMode:              ; CODE XREF: start+30Aj
-        mov si, 60D5h
-        call    fade
-        mov word_58467, 1
-        jmp loc_46FBE
-; ---------------------------------------------------------------------------
+isNotFastMode:              //; CODE XREF: start+30Aj
+        si = 0x60D5;
+        fade();
+        word_58467 = 1;
+        goto loc_46FBE;
+//// ; ---------------------------------------------------------------------------
 
-loc_46F3E:              ; CODE XREF: start+428j start+444j
-        call    readLevels
-        mov si, 60D5h
-        call    fade
-        mov byte_5A33F, 0
-        call    sub_4C293
-        call    sub_48A20
-        call    sub_4D464
-        call    sub_48F6D
-        call    sub_501C0
-        call    sub_4A2E6
-        call    sub_4A3BB
-        call    enableFloppy?
-        call    findMurphy
-        mov si, 6015h
-        call    fade
-        cmp byte_59886, 0
-        jnz short loc_46F77
-        call    sound?3
+loc_46F3E:              //; CODE XREF: start+428j start+444j
+        readLevels();
+        si = 0x60D5;
+        fade();
+        byte_5A33F = 0;
+        sub_4C293();
+        sub_48A20();
+        sub_4D464();
+        sub_48F6D();
+        sub_501C0();
+        sub_4A2E6();
+        sub_4A3BB();
+        enableFloppy?();
+        findMurphy();
+        si = 0x6015;
+        fade();
+        if (byte_59886 != 0)
+        {
+            goto loc_46F77;
+        }
+        sound?3();
 
-loc_46F77:              ; CODE XREF: start+352j
-        mov byte_5A33F, 1
-        call    runLevel
-        mov byte_599D4, 0
-        cmp word_5197A, 0
-        jz  short loc_46F8E
-        jmp loc_47067
-; ---------------------------------------------------------------------------
+loc_46F77:              //; CODE XREF: start+352j
+        byte_5A33F = 1;
+        runLevel();
+        byte_599D4 = 0;
+        if (word_5197A == 0)
+        {
+            goto loc_46F8E;
+        }
+        goto loc_47067;
+//// ; ---------------------------------------------------------------------------
 
-loc_46F8E:              ; CODE XREF: start+369j
-        cmp fastMode, 1
-        jnz short isNotFastMode2
-        jmp doneWithDemoPlayback
-; ---------------------------------------------------------------------------
+loc_46F8E:              //; CODE XREF: start+369j
+        if (fastMode != 1)
+        {
+            goto isNotFastMode2;
+        }
+        goto doneWithDemoPlayback;
+//// ; ---------------------------------------------------------------------------
 
-isNotFastMode2:              ; CODE XREF: start+373j
-        call    slideDownGameDash
-        cmp byte_59B71, 0
-        jz  short loc_46FA5
-        call    readMoving
+isNotFastMode2:              //; CODE XREF: start+373j
+        slideDownGameDash();
+        if (byte_59B71 == 0)
+        {
+            goto loc_46FA5;
+        }
+        readMoving();
 
-loc_46FA5:              ; CODE XREF: start+380j
-        mov byte_5A33F, 0
-        cmp word_5197A, 0
-        jz  short loc_46FB4
-        jmp loc_47067
-; ---------------------------------------------------------------------------
+loc_46FA5:              //; CODE XREF: start+380j
+        byte_5A33F = 0;
+        if (word_5197A == 0)
+        {
+            goto loc_46FB4;
+        }
+        goto loc_47067;
+//// ; ---------------------------------------------------------------------------
 
-loc_46FB4:              ; CODE XREF: start+38Fj
-        cmp byte_59886, 0
-        jnz short loc_46FBE
-        call    sound?2
+loc_46FB4:              //; CODE XREF: start+38Fj
+        if (byte_59886 != 0)
+        {
+            goto loc_46FBE;
+        }
+        sound?2();
 
-loc_46FBE:              ; CODE XREF: start+30Cj start+31Bj ...
-        call    enableFloppy?
-        call    sub_49544
-        cmp byte_599D4, 2
-        jnz short loc_46FFF
-        mov byte_599D4, 1
-        cmp byte_599D5, 1
-        jnz short loc_46FDF
-        mov ax, 0
-        call    demoSomething?
-        jmp short loc_46FE4
-; ---------------------------------------------------------------------------
+loc_46FBE:              //; CODE XREF: start+30Cj start+31Bj ...
+        enableFloppy?();
+        sub_49544();
+        if (byte_599D4 != 2)
+        {
+            goto loc_46FFF;
+        }
+        byte_599D4 = 1;
+        if (byte_599D5 != 1)
+        {
+            goto loc_46FDF;
+        }
+        ax = 0;
+        demoSomething?();
+        goto loc_46FE4;
+//// ; ---------------------------------------------------------------------------
 
-loc_46FDF:              ; CODE XREF: start+3B5j
-        mov byte_510DE, 0
+loc_46FDF:              //; CODE XREF: start+3B5j
+        byte_510DE = 0;
 
-loc_46FE4:              ; CODE XREF: start+3BDj
-        mov ax, 1
-        mov byte_510B3, 0
-        mov byte_5A2F9, 1
-        mov byte ptr a00s0010_sp+3, 2Dh ; '-' ; "001$0.SP"
-        mov word ptr a00s0010_sp+4, 2D2Dh ; "01$0.SP"
-        push    ax
-        jmp short loc_4701A
-; ---------------------------------------------------------------------------
+loc_46FE4:              //; CODE XREF: start+3BDj
+        ax = 1;
+        byte_510B3 = 0;
+        byte_5A2F9 = 1;
+        a00s0010_sp[3] = 0x2D; // '-' ; "001$0.SP"
+        a00s0010_sp[4] = 0x2D2D; // "01$0.SP"
+        push(ax);
+        goto loc_4701A;
+//// ; ---------------------------------------------------------------------------
 
-loc_46FFF:              ; CODE XREF: start+3A9j
-        mov al, byte_59B84
-        mov byte_59B84, 0
-        mov byte_510DE, 0
-        inc al
-        jz  short loc_4704B
-        dec al
-        jz  short loc_4704B
-        xor ah, ah
-        push    ax
-        call    sub_4BF4A
+loc_46FFF:              //; CODE XREF: start+3A9j
+        al = byte_59B84
+        byte_59B84 = 0;
+        byte_510DE = 0;
+        al++;
+        if (al == 0)
+        {
+            goto loc_4704B;
+        }
+        al--;
+        if (al == 0)
+        {
+            goto loc_4704B;
+        }
+        ah = 0;
+        push(ax);
+        sub_4BF4A();
 
-loc_4701A:              ; CODE XREF: start+3DDj start+433j
-        mov byte_5A33F, 1
-        mov byte_51ABE, 1
-        call    sub_4C34A
-        call    sub_4C293
-        mov word_58467, 0
-        call    sound?2
-        pop ax
-        mov word_51ABC, ax
-        call    sub_4B899
-        call    sub_4C141
-        mov word_5196C, 0
-        mov byte_5A19B, 0
-        jmp loc_46F3E
-; ---------------------------------------------------------------------------
+loc_4701A:              //; CODE XREF: start+3DDj start+433j
+        byte_5A33F = 1;
+        byte_51ABE = 1;
+        sub_4C34A();
+        sub_4C293();
+        word_58467 = 0;
+        sound?2();
+        pop(ax);
+        word_51ABC = ax;
+        sub_4B899();
+        sub_4C141();
+        word_5196C = 0;
+        byte_5A19B = 0;
+        goto loc_46F3E;
+//// ; ---------------------------------------------------------------------------
 
-loc_4704B:              ; CODE XREF: start+3EEj start+3F2j
-        mov ax, 1
-        cmp byte_59B6B, 0
-        jnz short loc_4701A
-        mov byte_5A2F9, 0
-        call    runMainMenu
-        cmp word_5197A, 0
-        jnz short loc_47067
-        jmp loc_46F3E
-; ---------------------------------------------------------------------------
+loc_4704B:              //; CODE XREF: start+3EEj start+3F2j
+        ax = 1;
+        if (byte_59B6B != 0)
+        {
+            goto loc_4701A;
+        }
+        byte_5A2F9 = 0;
+        runMainMenu();
+        if (word_5197A != 0)
+        {
+            goto loc_47067;
+        }
+        goto loc_46F3E;
+//// ; ---------------------------------------------------------------------------
 
-loc_47067:              ; CODE XREF: start+36Bj start+391j ...
-        mov si, 60D5h
-        call    fade
+loc_47067:              //; CODE XREF: start+36Bj start+391j ...
+        si = 0x60D5;
+        fade();
 
-doneWithDemoPlayback:           ; CODE XREF: start+375j
-        call    resetint9
-        call    sub_4D2E1
-        cmp fastMode, 1
-        jnz short isNotFastMode3
-        cmp byte_5A19C, 0
-        jz  short loc_47094
-        cmp byte_5A19B, 0
-        jz  short loc_4708E
-        lea si, aDemoSuccessful ; "Demo successful: "
-        jmp short printMessageAfterward
-; ---------------------------------------------------------------------------
+doneWithDemoPlayback:           //; CODE XREF: start+375j
+        resetint9();
+        sub_4D2E1();
+        if (fastMode != 1)
+        {
+            goto isNotFastMode3;
+        }
+        
+        if (byte_5A19C == 0)
+        {
+            goto loc_47094;
+        }
+        
+        if (byte_5A19B == 0)
+        {
+            goto loc_4708E;
+        }
+        
+        si = *aDemoSuccessful; // "Demo successful: "
+        goto printMessageAfterward;
+//// ; ---------------------------------------------------------------------------
 
-loc_4708E:              ; CODE XREF: start+466j
-        lea si, aDemoFailed ; "Demo failed:     "
-        jmp short printMessageAfterward
-; ---------------------------------------------------------------------------
+loc_4708E:              //; CODE XREF: start+466j
+        si = *aDemoFailed; //"Demo failed:     "
+        goto printMessageAfterward;
+//// ; ---------------------------------------------------------------------------
 
-loc_47094:              ; CODE XREF: start+45Fj
-        cmp byte_5A19B, 0
-        jz  short loc_470A1
-        lea si, a@ErrorLevel?Su ; "\"@\"-ERROR: Level(?) successful: "
-        jmp short printMessageAfterward
-; ---------------------------------------------------------------------------
+loc_47094:              //; CODE XREF: start+45Fj
+        if (byte_5A19B == 0)
+        {
+            goto loc_470A1;
+        }
+        si = *a@ErrorLevel?Su; // "\"@\"-ERROR: Level(?) successful: "
+        goto printMessageAfterward;
+//// ; ---------------------------------------------------------------------------
 
-loc_470A1:              ; CODE XREF: start+479j
-        lea si, a@ErrorLevel?Fa ; "\"@\"-ERROR: Level(?) failed:     "
+loc_470A1:              //; CODE XREF: start+479j
+        si = *a@ErrorLevel?Fa; // "\"@\"-ERROR: Level(?) failed:     "
 
-printMessageAfterward:          ; CODE XREF: start+46Cj start+472j ...
-        call    conprintln
+printMessageAfterward:          //; CODE XREF: start+46Cj start+472j ...
+        conprintln();
 
-isNotFastMode3:              ; CODE XREF: start+458j
-        call    resetint24
-        call    resetint8
-        call    soundShutdown?
+isNotFastMode3:              //; CODE XREF: start+458j
+        resetint24();
+        resetint8();
+        soundShutdown?();
 
-immediateexit:              ; CODE XREF: start+D1j start+114j ...
-        mov ax, 4C00h
-        int 21h     ; DOS - 2+ - QUIT WITH EXIT CODE (EXIT)
-; END OF FUNCTION CHUNK FOR start   ; AL = exit code
-start       endp ; sp-analysis failed
-
-; ---------------------------------------------------------------------------
-; START OF FUNCTION CHUNK FOR loadScreen2
-
-exit:                   ; CODE XREF: readConfig:loc_474BBj
-                    ; readConfig+3Bj ...
-        push    ax
-        call    resetint9
-        call    resetint24
-        call    soundShutdown?
-        call    sub_4D2E1
-        call    resetint8
-        pop ax
-        push    ax
-        call    writeexitmessage
-        pop ax
-        or  al, al
-        jnz short exitnow
-        dec al
-
-exitnow:                ; CODE XREF: loadScreen2-7C9j
-        mov ah, 4Ch
-        int 21h     ; DOS - 2+ - QUIT WITH EXIT CODE (EXIT)
-; END OF FUNCTION CHUNK FOR loadScreen2 ; AL = exit code
-
-; =============== S U B R O U T I N E =======================================
+immediateexit:              //; CODE XREF: start+D1j start+114j ...
+        exit(0);
+//         mov ax, 4C00h
+//         int 21h     ; DOS - 2+ - QUIT WITH EXIT CODE (EXIT)
+// ; END OF FUNCTION CHUNK FOR start   ; AL = exit code
 
 
-fileReadUnk1    proc near       ; CODE XREF: start+B6p readDemo+81p
+// ; ---------------------------------------------------------------------------
+// ; START OF FUNCTION CHUNK FOR loadScreen2
+
+exit:                   //; CODE XREF: readConfig:loc_474BBj
+                    //; readConfig+3Bj ...
+        push(ax);
+        resetint9();
+        resetint24();
+        soundShutdown?();
+        sub_4D2E1();
+        resetint8();
+        pop(ax);
+        push(ax);
+        writeexitmessage();
+        pop(ax);
+        if (al != 0)
+        {
+            goto exitnow;
+        }
+        al--;
+
+exitnow:                //; CODE XREF: loadScreen2-7C9j
+        exit(al);  //mov ah, 4Ch
+//         int 21h     ; DOS - 2+ - QUIT WITH EXIT CODE (EXIT)
+// ; END OF FUNCTION CHUNK FOR loadScreen2 ; AL = exit code
+}
+
+//; =============== S U B R O U T I N E =======================================
+
+
+void fileReadUnk1() //    proc near       ; CODE XREF: start+B6p readDemo+81p
+{
         push    bx
         lea bx, word_599DC
         mov cx, 0Ah     ; cx = 10
@@ -659,12 +836,12 @@ loop_:                  ; CODE XREF: fileReadUnk1+Fj
         add bx, 2
         loop    loop_
         jmp short bail
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47105:              ; CODE XREF: fileReadUnk1+Aj
         pop bx
         push    bx
-        push    cx
+        push(cx);
         mov ax, 4200h
         xor cx, cx
         mov dx, cx
@@ -697,7 +874,7 @@ loc_47105:              ; CODE XREF: fileReadUnk1+Aj
         xor ah, ah
         clc
         jmp short done
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 bail:                   ; CODE XREF: fileReadUnk1+11j
                     ; fileReadUnk1+20j ...
@@ -707,7 +884,7 @@ bail:                   ; CODE XREF: fileReadUnk1+11j
 done:                   ; CODE XREF: fileReadUnk1+57j
         pop bx
         retn
-fileReadUnk1    endp
+}
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -718,38 +895,38 @@ crt?2       proc near       ; CODE XREF: slideDownGameDash:loc_4720Cp
         jz  short loc_4715C
         mov cx, 5Fh ; '_'
         jmp short loc_4715F
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4715C:              ; CODE XREF: crt?2+5j
         mov cx, 90h ; '?'
 
 loc_4715F:              ; CODE XREF: crt?2+Aj crt?2+5Fj
         mov dx, 3D4h
-        mov al, 18h
+        al = 18h
         out dx, al      ; Video: CRT cntrlr addr
                     ; line compare (scan line). Used for split screen operations.
         inc dx
-        mov al, cl
+        al = cl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 7
+        al = 7
         out dx, al      ; Video: CRT cntrlr addr
-                    ; bit 8 for certain CRTC regs. Data bits:
-                    ; 0: vertical total (Reg 06)
-                    ; 1: vert disp'd enable end (Reg 12H)
-                    ; 2: vert retrace start (Reg 10H)
-                    ; 3: start vert blanking (Reg 15H)
-                    ; 4: line compare (Reg 18H)
-                    ; 5: cursor location (Reg 0aH)
+                    // ; bit 8 for certain CRTC regs. Data bits:
+                    // ; 0: vertical total (Reg 06)
+                    // ; 1: vert disp'd enable end (Reg 12H)
+                    // ; 2: vert retrace start (Reg 10H)
+                    // ; 3: start vert blanking (Reg 15H)
+                    // ; 4: line compare (Reg 18H)
+                    // ; 5: cursor location (Reg 0aH)
         inc dx
-        mov al, 3Fh ; '?'
+        al = 3Fh ; '?'
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 9
+        al = 9
         out dx, al      ; Video: CRT cntrlr addr
                     ; maximum scan line
         inc dx
-        mov al, 80h ; '?'
+        al = 80h ; '?'
         out dx, al      ; Video: CRT controller internal registers
         mov bx, word_51967
         cmp bx, 4DAEh
@@ -759,18 +936,18 @@ loc_4715F:              ; CODE XREF: crt?2+Aj crt?2+5Fj
 
 loc_4718E:              ; CODE XREF: crt?2+35j
         mov dx, 3D4h
-        mov al, 0Dh
+        al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (low)
         inc dx
-        mov al, bl
+        al = bl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 0Ch
+        al = 0Ch
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (high)
         inc dx
-        mov al, bh
+        al = bh
         out dx, al      ; Video: CRT controller internal registers
         call    videoloop
         call    sub_4D457
@@ -789,18 +966,18 @@ crt?1       proc near       ; CODE XREF: slideDownGameDash+7p
         jz  short loc_471BE
         mov cx, 0B0h ; '?'
         jmp short loc_471C1
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_471BE:              ; CODE XREF: crt?1+5j
         mov cx, 0C8h ; '?'
 
 loc_471C1:              ; CODE XREF: crt?1+Aj crt?1+4Bj
         mov dx, 3D4h
-        mov al, 18h
+        al = 18h
         out dx, al      ; Video: CRT cntrlr addr
                     ; line compare (scan line). Used for split screen operations.
         inc dx
-        mov al, cl
+        al = cl
         out dx, al      ; Video: CRT controller internal registers
         mov bx, word_51967
         cmp bx, 4DAEh
@@ -810,18 +987,18 @@ loc_471C1:              ; CODE XREF: crt?1+Aj crt?1+4Bj
 
 loc_471DC:              ; CODE XREF: crt?1+21j
         mov dx, 3D4h
-        mov al, 0Dh
+        al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (low)
         inc dx
-        mov al, bl
+        al = bl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 0Ch
+        al = 0Ch
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (high)
         inc dx
-        mov al, bh
+        al = bh
         out dx, al      ; Video: CRT controller internal registers
         call    videoloop
         call    sub_4D457
@@ -840,7 +1017,7 @@ slideDownGameDash proc near     ; CODE XREF: start:isNotFastMode2p
         jnz short loc_4720C
         call    crt?1
         jmp short locret_4720F
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4720C:              ; CODE XREF: slideDownGameDash+5j
         call    crt?2
@@ -872,7 +1049,7 @@ keysstillpressed:
         push    ds
         push    es
         mov ah, 35h ; '5'
-        mov al, 9
+        al = 9
         int 21h     ; DOS - 2+ - GET INTERRUPT VECTOR
                     ; AL = interrupt number
                     ; Return: ES:BX = value of interrupt vector
@@ -883,7 +1060,7 @@ keysstillpressed:
         mov ds, ax
         assume ds:code
         mov ah, 25h ; '%'
-        mov al, 9
+        al = 9
         int 21h     ; DOS - SET INTERRUPT VECTOR
                     ; AL = interrupt number
                     ; DS:DX = new vector to be used for specified interrupt
@@ -898,8 +1075,9 @@ setint9     endp
 ; =============== S U B R O U T I N E =======================================
 
 
-resetint9   proc near       ; CODE XREF: start:doneWithDemoPlaybackp
-                    ; loadScreen2-7E0p ...
+void resetint9() //   proc near       ; CODE XREF: start:doneWithDemoPlaybackp
+{
+                    // ; loadScreen2-7E0p ...
         cmp byte_5199A, 0
         jnz short resetint9
         cmp byte ptr word_519A7, 0
@@ -924,25 +1102,26 @@ resetint9   proc near       ; CODE XREF: start:doneWithDemoPlaybackp
         mov ax, int9seg
         mov ds, ax
         mov ah, 25h ; '%'
-        mov al, 9
+        al = 9
         int 21h     ; DOS - SET INTERRUPT VECTOR
                     ; AL = interrupt number
                     ; DS:DX = new vector to be used for specified interrupt
         pop es
         pop ds
         retn
-resetint9   endp
+}
 
-; ---------------------------------------------------------------------------
-        nop
+// ; ---------------------------------------------------------------------------
+        // nop
 
-; =============== S U B R O U T I N E =======================================
+// ; =============== S U B R O U T I N E =======================================
 
 
-int9handler proc far        ; DATA XREF: setint9+1Fo
+void int9handler() // proc far        ; DATA XREF: setint9+1Fo
+{
         push    ax
         push    bx
-        push    cx
+        push(cx);
         push    ds
         mov ax, seg data
         mov ds, ax
@@ -971,7 +1150,7 @@ int9handler proc far        ; DATA XREF: setint9+1Fo
         test    cl, 80h     ; think key up
         jz  short storeKey
         jmp storeNoKeyPressed
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 storeKey:               ; CODE XREF: int9handler+2Bj
         mov keyPressed, cl
@@ -984,7 +1163,7 @@ storeKey:               ; CODE XREF: int9handler+2Bj
         mov cl, speed?3
         mov gameSpeed, cl
         jmp short loc_47320
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 checkSlash:             ; CODE XREF: int9handler+3Ej
                     ; int9handler+45j
@@ -993,7 +1172,7 @@ checkSlash:             ; CODE XREF: int9handler+3Ej
         mov speed?, 0
         mov gameSpeed, 0Ah
         jmp short checkX
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 checkPlus:              ; CODE XREF: int9handler+54j
         cmp cl, 4Eh ; 'N'   ; Grey +
@@ -1013,7 +1192,7 @@ checkMinus:             ; CODE XREF: int9handler+65j
         dec gameSpeed
 
 loc_47320:              ; CODE XREF: int9handler+4Fj
-        push    cx
+        push(cx);
         mov cl, speed?2
         and cl, 0F0h
         or  cl, gameSpeed
@@ -1022,7 +1201,7 @@ loc_47320:              ; CODE XREF: int9handler+4Fj
         mov speed?2, cl
 
 dontUpdateSpeed?2:          ; CODE XREF: int9handler+9Cj
-        pop cx
+        pop(cx);
 
 checkX:                 ; CODE XREF: int9handler+39j
                     ; int9handler+60j ...
@@ -1033,29 +1212,30 @@ checkX:                 ; CODE XREF: int9handler+39j
         mov word_51974, 1
         mov word_5197A, 1
         jmp short doneexit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 storeNoKeyPressed:          ; CODE XREF: int9handler+2Dj
         mov keyPressed, 0
 
 doneexit:                   ; CODE XREF: int9handler+A6j
                     ; int9handler+ADj ...
-        mov al, 100000b ; nonspecific EOI
+        al = 100000b ; nonspecific EOI
         out 20h, al     ; Interrupt controller, 8259A.
         pop ds
-        pop cx
+        pop(cx);
         pop bx
         pop ax
         iret
 int9handler endp
 
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
         nop
 
-; =============== S U B R O U T I N E =======================================
+// ; =============== S U B R O U T I N E =======================================
 
 
-int8handler proc far        ; DATA XREF: setint8+10o
+void int8handler() // proc far        ; DATA XREF: setint8+10o
+{
         push    ds
         push    dx
         push    ax
@@ -1064,20 +1244,20 @@ int8handler proc far        ; DATA XREF: setint8+10o
         inc byte_59B96
         cmp byte_510AE, 0
         jz  short loc_473AA
-        mov al, byte_510AF
-        inc al
+        al = byte_510AF
+        al++;
         mov byte_510AF, al
         cmp al, 32h ; '2'
         jl  short loc_473AA
         mov byte_510AF, 0
-        mov al, byte_510B0
-        inc al
+        al = byte_510B0
+        al++;
         mov byte_510B0, al
         cmp al, 3Ch ; '<'
         jl  short loc_473AA
         mov byte_510B0, 0
-        mov al, byte_510B1
-        inc al
+        al = byte_510B1
+        al++;
         mov byte_510B1, al
         cmp al, 3Ch ; '<'
         jl  short loc_473AA
@@ -1130,16 +1310,17 @@ loc_47400:              ; CODE XREF: int8handler+95j
         call   [int8loc]
         pop ds
         iret
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47414:              ; CODE XREF: int8handler+A5j
-        mov al, 20h ; ' '
+        al = 20h ; ' '
         out 20h, al     ; Interrupt controller, 8259A.
         pop ax
         pop dx
         pop ds
         iret
-int8handler endp
+// int8handler endp
+}
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -1149,7 +1330,7 @@ setint8     proc near       ; CODE XREF: start+29Cp
         push    ds
         push    es
         mov ah, 35h ; '5'
-        mov al, 8
+        al = 8
         int 21h     ; DOS - 2+ - GET INTERRUPT VECTOR
                     ; AL = interrupt number
                     ; Return: ES:BX = value of interrupt vector
@@ -1160,15 +1341,15 @@ setint8     proc near       ; CODE XREF: start+29Cp
         mov ds, ax
         assume ds:code
         mov ah, 25h ; '%'
-        mov al, 8
+        al = 8
         int 21h     ; DOS - SET INTERRUPT VECTOR
                     ; AL = interrupt number
                     ; DS:DX = new vector to be used for specified interrupt
-        mov al, 36h ; '6'
+        al = 36h ; '6'
         out 43h, al     ; Timer 8253-5 (AT: 8254.2).
-        mov al, 38h ; '8'
+        al = 38h ; '8'
         out 40h, al     ; Timer 8253-5 (AT: 8254.2).
-        mov al, 5Dh ; ']'
+        al = 5Dh ; ']'
         out 40h, al     ; Timer 8253-5 (AT: 8254.2).
         pop es
         pop ds
@@ -1188,15 +1369,15 @@ resetint8   proc near       ; CODE XREF: start+48Bp
         mov ax, word ptr int8loc+2
         mov ds, ax
         mov ah, 25h ; '%'
-        mov al, 8
+        al = 8
         int 21h     ; DOS - SET INTERRUPT VECTOR
                     ; AL = interrupt number
                     ; DS:DX = new vector to be used for specified interrupt
-        mov al, 36h ; '6'
+        al = 36h ; '6'
         out 43h, al     ; Timer 8253-5 (AT: 8254.2).
-        mov al, 0FFh
+        al = 0FFh
         out 40h, al     ; Timer 8253-5 (AT: 8254.2).
-        mov al, 0FFh
+        al = 0FFh
         out 40h, al     ; Timer 8253-5 (AT: 8254.2).
         pop es
         pop ds
@@ -1211,7 +1392,7 @@ setint24    proc near       ; CODE XREF: start+29Fp
         push    ds
         push    es
         mov ah, 35h ; '5'
-        mov al, 24h ; '$'
+        al = 24h ; '$'
         int 21h     ; DOS - 2+ - GET INTERRUPT VECTOR
                     ; AL = interrupt number
                     ; Return: ES:BX = value of interrupt vector
@@ -1222,7 +1403,7 @@ setint24    proc near       ; CODE XREF: start+29Fp
         mov ds, ax
         assume ds:code
         mov ah, 25h ; '%'
-        mov al, 24h ; '$'
+        al = 24h ; '$'
         int 21h     ; DOS - SET INTERRUPT VECTOR
                     ; AL = interrupt number
                     ; DS:DX = new vector to be used for specified interrupt
@@ -1244,7 +1425,7 @@ resetint24  proc near       ; CODE XREF: start:isNotFastMode3p
         mov ax, word_510A9
         mov ds, ax
         mov ah, 25h ; '%'
-        mov al, 24h ; '$'
+        al = 24h ; '$'
         int 21h     ; DOS - SET INTERRUPT VECTOR
                     ; AL = interrupt number
                     ; DS:DX = new vector to be used for specified interrupt
@@ -1258,7 +1439,7 @@ resetint24  endp
 
 
 int24handler    proc far        ; DATA XREF: setint24+10o
-        mov al, 1
+        al = 1
         iret
 int24handler    endp
 
@@ -1277,17 +1458,17 @@ readConfig  proc near       ; CODE XREF: start:loc_46F0Fp
         cmp ax, 2
         jnz short loc_474B3
         jmp loc_47551
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_474B3:              ; CODE XREF: readConfig+Dj
         cmp ax, 3
         jnz short loc_474BB
         jmp loc_47551
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_474BB:              ; CODE XREF: readConfig+15j
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_474BE:              ; CODE XREF: readConfig+8j
         mov lastFileHandle, ax
@@ -1305,13 +1486,13 @@ loc_474BE:              ; CODE XREF: readConfig+8j
                     ; BX = file handle
         jnb short loc_474DF
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_474DF:              ; CODE XREF: readConfig+39j
         popf
         jnb short loc_474E5
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_474E5:              ; CODE XREF: readConfig+3Fj
         mov si, offset fileLevelData
@@ -1319,35 +1500,35 @@ loc_474E5:              ; CODE XREF: readConfig+3Fj
         jnz short loc_474F2
         call    loadBeep2
         jmp short loc_4751D
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_474F2:              ; CODE XREF: readConfig+4Aj
         cmp byte ptr [si], 61h ; 'a'
         jnz short loc_474FC
         call    loadAdlib
         jmp short loc_4751D
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_474FC:              ; CODE XREF: readConfig+54j
         cmp byte ptr [si], 62h ; 'b'
         jnz short loc_47506
         call    loadBlaster
         jmp short loc_4751D
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47506:              ; CODE XREF: readConfig+5Ej
         cmp byte ptr [si], 72h ; 'r'
         jnz short loc_47510
         call    loadRoland
         jmp short loc_4751D
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47510:              ; CODE XREF: readConfig+68j
         cmp byte ptr [si], 63h ; 'c'
         jnz short loc_4751A
         call    loadCombined
         jmp short loc_4751D
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4751A:              ; CODE XREF: readConfig+72j
         call    loadBeep
@@ -1377,7 +1558,7 @@ loc_47540:              ; CODE XREF: readConfig+98j
 
 locret_47550:               ; CODE XREF: readConfig+A8j
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47551:              ; CODE XREF: readConfig+Fj
                     ; readConfig+17j
@@ -1386,7 +1567,7 @@ loc_47551:              ; CODE XREF: readConfig+Fj
         retn
 readConfig  endp
 
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 sub_4755A       proc near               ; CODE XREF: code:loc_4CAECp
                 mov     ax, 3C00h
                 mov     cx, 0
@@ -1396,7 +1577,7 @@ sub_4755A       proc near               ; CODE XREF: code:loc_4CAECp
                                         ; DS:DX -> ASCIZ filename (may include drive and path)
                 jnb     short loc_4756A
                 jmp     exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4756A:                              ; CODE XREF: sub_4755A+Bj
                 mov     lastFileHandle, ax
@@ -1405,35 +1586,35 @@ loc_4756A:                              ; CODE XREF: sub_4755A+Bj
                 jnz     short loc_4757C
                 mov     byte ptr [si], 73h ; 's'
                 jmp     short loc_475AF
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4757C:                              ; CODE XREF: sub_4755A+1Bj
                 cmp     sndType, 1
                 jnz     short loc_47588
                 mov     byte ptr [si], 69h ; 'i'
                 jmp     short loc_475AF
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47588:                              ; CODE XREF: sub_4755A+27j
                 cmp     sndType, 3
                 jnz     short loc_47594
                 mov     byte ptr [si], 61h ; 'a'
                 jmp     short loc_475AF
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47594:                              ; CODE XREF: sub_4755A+33j
                 cmp     sndType, 5
                 jnz     short loc_475A0
                 mov     byte ptr [si], 72h ; 'r'
                 jmp     short loc_475AF
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_475A0:                              ; CODE XREF: sub_4755A+3Fj
                 cmp     musType, 5
                 jnz     short loc_475AC
                 mov     byte ptr [si], 63h ; 'c'
                 jmp     short loc_475AF
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_475AC:                              ; CODE XREF: sub_4755A+4Bj
                 mov     byte ptr [si], 62h ; 'b'
@@ -1445,7 +1626,7 @@ loc_475AF:                              ; CODE XREF: sub_4755A+20j
                 jnz     short loc_475BC
                 mov     byte ptr [si], 6Bh ; 'k'
                 jmp     short loc_475BF
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_475BC:                              ; CODE XREF: sub_4755A+5Bj
                 mov     byte ptr [si], 6Ah ; 'j'
@@ -1456,7 +1637,7 @@ loc_475BF:                              ; CODE XREF: sub_4755A+60j
                 jz      short loc_475CC
                 mov     byte ptr [si], 6Dh ; 'm'
                 jmp     short loc_475CF
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_475CC:                              ; CODE XREF: sub_4755A+6Bj
                 mov     byte ptr [si], 6Eh ; 'n'
@@ -1467,7 +1648,7 @@ loc_475CF:                              ; CODE XREF: sub_4755A+70j
                 jz      short loc_475DC
                 mov     byte ptr [si], 78h ; 'x'
                 jmp     short loc_475DF
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_475DC:                              ; CODE XREF: sub_4755A+7Bj
                 mov     byte ptr [si], 79h ; 'y'
@@ -1481,7 +1662,7 @@ loc_475DF:                              ; CODE XREF: sub_4755A+80j
                                         ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
                 jnb     short loc_475F3
                 jmp     exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_475F3:                              ; CODE XREF: sub_4755A+94j
                 mov     ax, 3E00h
@@ -1490,7 +1671,7 @@ loc_475F3:                              ; CODE XREF: sub_4755A+94j
                                         ; BX = file handle
                 jnb     short locret_47601
                 jmp     exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_47601:                           ; CODE XREF: sub_4755A+A2j
                 retn
@@ -1502,7 +1683,7 @@ sub_4755A       endp
 enableFloppy?   proc near       ; CODE XREF: start+341p
                     ; start:loc_46FBEp ...
         mov dx, 3F2h
-        mov al, 1111b
+        al = 1111b
         out dx, al      ; Floppy: digital output reg bits:
                     ; 0-1: Drive to select 0-3 (AT: bit 1 not used)
                     ; 2:   0=reset diskette controller; 1=enable controller
@@ -1533,13 +1714,13 @@ readDemo    proc near       ; CODE XREF: readEverything+12p
         mov cx, 0
 
 loc_47629:              ; CODE XREF: readDemo+175j
-        push    cx
+        push(cx);
         mov word_599D8, 0
         cmp byte_599D4, 1
         jnz short loc_4763C
         mov dx, offset demoFileName
         jmp short loc_47647
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4763C:              ; CODE XREF: readDemo+2Cj
         mov bx, offset aDemo0_bin ; "DEMO0.BIN"
@@ -1555,7 +1736,7 @@ loc_47647:              ; CODE XREF: readDemo+31j
                     ; 0 - read
         jnb short loc_47651
         jmp loc_47783
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47651:              ; CODE XREF: readDemo+43j
         mov lastFileHandle, ax
@@ -1571,7 +1752,7 @@ loc_47651:              ; CODE XREF: readDemo+43j
                     ; AL = method: offset from beginning of file
         mov bx, lastFileHandle
         jmp short loc_476DB
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47674:              ; CODE XREF: readDemo+52j
         push    bx
@@ -1599,8 +1780,8 @@ loc_47690:              ; CODE XREF: readDemo+76j readDemo+7Aj ...
         jnz short loc_476DB
         mov ax, 3F00h
         mov bx, lastFileHandle
-        pop cx
-        push    cx
+        pop(cx);
+        push(cx);
         mov dx, cx
         shl cx, 1
         add dx, cx
@@ -1622,13 +1803,13 @@ loc_47690:              ; CODE XREF: readDemo+76j readDemo+7Aj ...
         assume ds:data
         jnb short loc_476CB
         jmp loc_47783
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_476CB:              ; CODE XREF: readDemo+BDj
         cmp ax, levelDataLength
         jz  short loc_476D3
         jmp loc_47783
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_476D3:              ; CODE XREF: readDemo+C5j
         pop bx
@@ -1648,7 +1829,7 @@ loc_476EA:              ; CODE XREF: readDemo+DDj
         jnz short loc_476F3
         xor ax, ax
         jmp short loc_4771A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_476F3:              ; CODE XREF: readDemo+E4j
         mov dx, word_510DF
@@ -1671,7 +1852,7 @@ loc_476F3:              ; CODE XREF: readDemo+E4j
         mov ax, 0
         jnb short loc_47783
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47719:              ; CODE XREF: readDemo+FCj
         pop ds
@@ -1684,7 +1865,7 @@ loc_4771A:              ; CODE XREF: readDemo+E8j
                     ; BX = file handle
         jnb short loc_47729
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47729:              ; CODE XREF: readDemo+11Bj
         pop ax
@@ -1722,7 +1903,7 @@ loc_47765:              ; CODE XREF: readDemo+14Fj
                     ; readDemo+155j
         pop ds
         assume ds:data
-        pop cx
+        pop(cx);
         mov bx, cx
         shl bx, 1
         mov dx, word_510DF
@@ -1732,16 +1913,16 @@ loc_47765:              ; CODE XREF: readDemo+14Fj
         cmp cx, 0Ah
         jz  short loc_47781
         jmp loc_47629
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47781:              ; CODE XREF: readDemo+173j
         pop es
         assume es:nothing
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47783:              ; CODE XREF: readDemo+45j readDemo+BFj ...
-        pop cx
+        pop(cx);
         pop es
         retn
 readDemo    endp
@@ -1763,12 +1944,12 @@ readPallettes   proc near       ; CODE XREF: readEverythingp
         call    sub_47F39
         jb  short loc_4779C
         jmp short loc_4779F
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4779C:              ; CODE XREF: readPallettes+Dj
                     ; readPallettes+12j
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4779F:              ; CODE XREF: readPallettes+8j
                     ; readPallettes+14j
@@ -1782,7 +1963,7 @@ loc_4779F:              ; CODE XREF: readPallettes+8j
                     ; DS:DX -> buffer
         jnb short loc_477B6
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_477B6:              ; CODE XREF: readPallettes+2Bj
         mov ax, 3E00h
@@ -1791,7 +1972,7 @@ loc_477B6:              ; CODE XREF: readPallettes+2Bj
                     ; BX = file handle
         jnb short locret_477C4
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_477C4:               ; CODE XREF: readPallettes+39j
         retn
@@ -1817,7 +1998,7 @@ var_2       = word ptr -2
         mov ax, es
         mov ds, ax
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -1826,22 +2007,22 @@ var_2       = word ptr -2
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 1
+        al = 1
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3C4h
-        mov al, 2
+        al = 2
         out dx, al      ; EGA: sequencer address reg
                     ; map mask: data bits 0-3 enable writes to bit planes 0-3
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: sequencer data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov [bp+var_2], 5A23h
         mov [bp+var_4], 5A24h
@@ -1854,10 +2035,10 @@ loc_47800:              ; CODE XREF: openCreditsBlock+AFj
         mov cx, 2
 
 loc_47809:              ; CODE XREF: openCreditsBlock+4Cj
-        push    cx
+        push(cx);
         call    videoloop
         call    sub_4D457
-        pop cx
+        pop(cx);
         loop    loc_47809
         mov ax, es
         mov ds, ax
@@ -1913,7 +2094,7 @@ loc_47864:              ; CODE XREF: openCreditsBlock+A6j
         dec dx
         jnz short loc_47800
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -1922,32 +2103,32 @@ loc_47864:              ; CODE XREF: openCreditsBlock+A6j
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 1
+        al = 1
         out dx, al      ; EGA port: graphics controller data register
         pop ds
         mov cx, 1
 
 loc_47884:              ; CODE XREF: openCreditsBlock+C7j
-        push    cx
+        push(cx);
         call    videoloop
         call    sub_4D457
-        pop cx
+        pop(cx);
         loop    loc_47884
         mov bx, 4DD4h
         mov word_51967, bx
         mov dx, 3D4h
-        mov al, 0Dh
+        al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (low)
         inc dx
-        mov al, bl
+        al = bl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 0Ch
+        al = 0Ch
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (high)
         inc dx
-        mov al, bh
+        al = bh
         out dx, al      ; Video: CRT controller internal registers
         mov si, 5F55h
         call    fade
@@ -1972,12 +2153,12 @@ loadScreen2 proc near       ; CODE XREF: start:loc_46F00p
                     ; 0 - read
         jnb short loc_478C0
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_478C0:              ; CODE XREF: loadScreen2+8j
         mov lastFileHandle, ax
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -1986,30 +2167,30 @@ loc_478C0:              ; CODE XREF: loadScreen2+8j
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
 
 loc_478CD:
         mov dx, 3CEh
-        mov al, 1
+        al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
         mov cx, 0C8h ; '?'
         mov di, 4DACh
 
 loc_478E7:              ; CODE XREF: loadScreen2+6Bj
-        push    cx
+        push(cx);
         mov ax, 3F00h
         mov bx, lastFileHandle
         mov cx, 0A0h ; '?'
@@ -2019,7 +2200,7 @@ loc_478E7:              ; CODE XREF: loadScreen2+6Bj
                     ; DS:DX -> buffer
         jnb short loc_478FC
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_478FC:              ; CODE XREF: loadScreen2+44j
         mov si, offset fileLevelData
@@ -2027,11 +2208,11 @@ loc_478FC:              ; CODE XREF: loadScreen2+44j
 
 loc_47901:              ; CODE XREF: loadScreen2+65j
         mov dx, 3C4h
-        mov al, 2
+        al = 2
         out dx, al      ; EGA: sequencer address reg
                     ; map mask: data bits 0-3 enable writes to bit planes 0-3
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: sequencer data register
         mov cx, 28h ; '('
         rep movsb
@@ -2040,7 +2221,7 @@ loc_47901:              ; CODE XREF: loadScreen2+65j
         test    ah, 0Fh
         jnz short loc_47901
         add di, 7Ah ; 'z'
-        pop cx
+        pop(cx);
         loop    loc_478E7
         mov ax, 3E00h
         mov bx, lastFileHandle
@@ -2048,38 +2229,38 @@ loc_47901:              ; CODE XREF: loadScreen2+65j
                     ; BX = file handle
         jnb short loc_4792E
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4792E:              ; CODE XREF: loadScreen2+76j
         mov dx, 3C4h
-        mov al, 2
+        al = 2
         out dx, al      ; EGA: sequencer address reg
                     ; map mask: data bits 0-3 enable writes to bit planes 0-3
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: sequencer data register
         mov dx, 3CEh
-        mov al, 1
+        al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
         mov bx, 4DACh
         mov word_51967, bx
         mov dx, 3D4h
-        mov al, 0Dh
+        al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (low)
         inc dx
-        mov al, bl
+        al = bl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 0Ch
+        al = 0Ch
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (high)
         inc dx
-        mov al, bh
+        al = bh
         out dx, al      ; Video: CRT controller internal registers
         call    videoloop
         mov byte_510A6, 0
@@ -2093,30 +2274,30 @@ loc_4792E:              ; CODE XREF: loadScreen2+76j
                     ; 0 - read
         jnb short loc_47978
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47978:              ; CODE XREF: loadScreen2+C0j
         mov lastFileHandle, ax
         mov dx, 3CEh
-        mov al, 1
+        al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
         mov cx, 0C8h ; '?'
         mov di, 4DD4h
 
 loc_47995:              ; CODE XREF: loadScreen2+119j
-        push    cx
+        push(cx);
         mov ax, 3F00h
         mov bx, lastFileHandle
         mov cx, 0A0h ; '?'
@@ -2126,7 +2307,7 @@ loc_47995:              ; CODE XREF: loadScreen2+119j
                     ; DS:DX -> buffer
         jnb short loc_479AA
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_479AA:              ; CODE XREF: loadScreen2+F2j
         mov si, offset fileLevelData
@@ -2134,11 +2315,11 @@ loc_479AA:              ; CODE XREF: loadScreen2+F2j
 
 loc_479AF:              ; CODE XREF: loadScreen2+113j
         mov dx, 3C4h
-        mov al, 2
+        al = 2
         out dx, al      ; EGA: sequencer address reg
                     ; map mask: data bits 0-3 enable writes to bit planes 0-3
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: sequencer data register
         mov cx, 28h ; '('
         rep movsb
@@ -2147,7 +2328,7 @@ loc_479AF:              ; CODE XREF: loadScreen2+113j
         test    ah, 0Fh
         jnz short loc_479AF
         add di, 7Ah ; 'z'
-        pop cx
+        pop(cx);
         loop    loc_47995
         mov ax, 3E00h
         mov bx, lastFileHandle
@@ -2155,15 +2336,15 @@ loc_479AF:              ; CODE XREF: loadScreen2+113j
                     ; BX = file handle
         jnb short loc_479DC
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_479DC:              ; CODE XREF: loadScreen2+124j
         mov dx, 3C4h
-        mov al, 2
+        al = 2
         out dx, al      ; EGA: sequencer address reg
                     ; map mask: data bits 0-3 enable writes to bit planes 0-3
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: sequencer data register
         retn
 loadScreen2 endp ; sp-analysis failed
@@ -2200,23 +2381,23 @@ loc_479ED:              ; CODE XREF: readMoving+27j
         jnz short loc_47A0B
         popf
         jmp loc_47AE3
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47A0B:              ; CODE XREF: readMoving+1Ej
         popf
         jb  short loc_47A10
         jmp short loc_479ED
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47A10:              ; CODE XREF: readMoving+13j
                     ; readMoving+25j
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47A13:              ; CODE XREF: readMoving+Ej
         mov lastFileHandle, ax
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -2225,22 +2406,22 @@ loc_47A13:              ; CODE XREF: readMoving+Ej
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 1
+        al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov ax, 0B72h
         mov [bp+var_6], ax
@@ -2248,7 +2429,7 @@ loc_47A13:              ; CODE XREF: readMoving+Ej
         mov [bp+var_4], ax
 
 loc_47A40:              ; CODE XREF: readMoving+BAj
-        mov al, 0
+        al = 0
         mov [bp+var_1], al
 
 loc_47A45:              ; CODE XREF: readMoving+AEj
@@ -2261,7 +2442,7 @@ loc_47A45:              ; CODE XREF: readMoving+AEj
                     ; DS:DX -> buffer
         jnb short loc_47A59
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47A59:              ; CODE XREF: readMoving+6Dj
         mov si, offset fileLevelData
@@ -2276,23 +2457,23 @@ loc_47A69:              ; CODE XREF: readMoving+8Cj
         jb  short loc_47A75
         sub di, 4D0Ch
         jmp short loc_47A69
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47A75:              ; CODE XREF: readMoving+86j
         mov cl, [bp+var_1]
         mov ah, 1
         shl ah, cl
         mov dx, 3C4h
-        mov al, 2
+        al = 2
         out dx, al      ; EGA: sequencer address reg
                     ; map mask: data bits 0-3 enable writes to bit planes 0-3
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: sequencer data register
         mov cx, 14h
         rep movsw
-        mov al, [bp+var_1]
-        inc al
+        al = [bp+var_1]
+        al++;
         mov [bp+var_1], al
         cmp al, 4
         jl  short loc_47A45
@@ -2307,7 +2488,7 @@ loc_47A75:              ; CODE XREF: readMoving+86j
                     ; BX = file handle
         jnb short loc_47AB1
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47AB1:              ; CODE XREF: readMoving+C5j
         mov ax, 3D00h
@@ -2318,7 +2499,7 @@ loc_47AB1:              ; CODE XREF: readMoving+C5j
                     ; 0 - read
         jnb short loc_47ABE
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47ABE:              ; CODE XREF: readMoving+D2j
         mov lastFileHandle, ax
@@ -2331,7 +2512,7 @@ loc_47ABE:              ; CODE XREF: readMoving+D2j
                     ; DS:DX -> buffer
         jnb short loc_47AD5
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47AD5:              ; CODE XREF: readMoving+E9j
         mov ax, 3E00h
@@ -2340,16 +2521,16 @@ loc_47AD5:              ; CODE XREF: readMoving+E9j
                     ; BX = file handle
         jnb short loc_47AE3
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47AE3:              ; CODE XREF: readMoving+21j
                     ; readMoving+F7j
         mov dx, 3C4h
-        mov al, 2
+        al = 2
         out dx, al      ; EGA: sequencer address reg
                     ; map mask: data bits 0-3 enable writes to bit planes 0-3
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: sequencer data register
         mov sp, bp
         pop bp
@@ -2374,12 +2555,12 @@ readPanelDat    proc near       ; CODE XREF: readPanelDat+14j
         call    sub_47F39
         jb  short loc_47B07
         jmp short readPanelDat
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47B07:              ; CODE XREF: readPanelDat+Dj
                     ; readPanelDat+12j
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47B0A:              ; CODE XREF: readPanelDat+8j
         mov lastFileHandle, ax
@@ -2392,7 +2573,7 @@ loc_47B0A:              ; CODE XREF: readPanelDat+8j
                     ; DS:DX -> buffer
         jnb short loc_47B21
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47B21:              ; CODE XREF: readPanelDat+2Bj
         mov ax, 3E00h
@@ -2401,7 +2582,7 @@ loc_47B21:              ; CODE XREF: readPanelDat+2Bj
                     ; BX = file handle
         jnb short locret_47B2F
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_47B2F:               ; CODE XREF: readPanelDat+39j
         retn
@@ -2425,12 +2606,12 @@ readBackDat proc near       ; CODE XREF: readBackDat+14j
         call    sub_47F39
         jb  short loc_47B46
         jmp short readBackDat
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47B46:              ; CODE XREF: readBackDat+Dj
                     ; readBackDat+12j
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47B49:              ; CODE XREF: readBackDat+8j
         mov lastFileHandle, ax
@@ -2449,7 +2630,7 @@ loc_47B49:              ; CODE XREF: readBackDat+8j
         pop ds
         assume ds:data
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47B67:              ; CODE XREF: readBackDat+31j
         pop ds
@@ -2459,7 +2640,7 @@ loc_47B67:              ; CODE XREF: readBackDat+31j
                     ; BX = file handle
         jnb short locret_47B76
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_47B76:               ; CODE XREF: readBackDat+41j
         retn
@@ -2483,12 +2664,12 @@ readChars6Dat   proc near       ; CODE XREF: readChars6Dat+14j
         call    sub_47F39
         jb  short loc_47B8D
         jmp short readChars6Dat
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47B8D:              ; CODE XREF: readChars6Dat+Dj
                     ; readChars6Dat+12j
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47B90:              ; CODE XREF: readChars6Dat+8j
         mov lastFileHandle, ax
@@ -2501,7 +2682,7 @@ loc_47B90:              ; CODE XREF: readChars6Dat+8j
                     ; DS:DX -> buffer
         jnb short loc_47BA7
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47BA7:              ; CODE XREF: readChars6Dat+2Bj
         mov ax, 3E00h
@@ -2510,7 +2691,7 @@ loc_47BA7:              ; CODE XREF: readChars6Dat+2Bj
                     ; BX = file handle
         jnb short loc_47BB5
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47BB5:              ; CODE XREF: readChars6Dat+39j
         mov ax, 3D00h
@@ -2521,7 +2702,7 @@ loc_47BB5:              ; CODE XREF: readChars6Dat+39j
                     ; 0 - read
         jnb short loc_47BC2
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47BC2:              ; CODE XREF: readChars6Dat+46j
         mov lastFileHandle, ax
@@ -2534,7 +2715,7 @@ loc_47BC2:              ; CODE XREF: readChars6Dat+46j
                     ; DS:DX -> buffer
         jnb short loc_47BD9
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47BD9:              ; CODE XREF: readChars6Dat+5Dj
         mov ax, 3E00h
@@ -2543,7 +2724,7 @@ loc_47BD9:              ; CODE XREF: readChars6Dat+5Dj
                     ; BX = file handle
         jnb short locret_47BE7
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_47BE7:               ; CODE XREF: readChars6Dat+6Bj
         retn
@@ -2557,18 +2738,18 @@ readTitleDatAndGraphics? proc near  ; CODE XREF: start+2BBp
         mov bx, 4D84h
         mov word_51967, bx
         mov dx, 3D4h
-        mov al, 0Dh
+        al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (low)
         inc dx
-        mov al, bl
+        al = bl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 0Ch
+        al = 0Ch
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (high)
         inc dx
-        mov al, bh
+        al = bh
         out dx, al      ; Video: CRT controller internal registers
         call    videoloop
         mov byte_510A6, 0
@@ -2580,12 +2761,12 @@ readTitleDatAndGraphics? proc near  ; CODE XREF: start+2BBp
                     ; 0 - read
         jnb short loc_47C18
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47C18:              ; CODE XREF: readTitleDatAndGraphics?+2Bj
         mov lastFileHandle, ax
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -2594,28 +2775,28 @@ loc_47C18:              ; CODE XREF: readTitleDatAndGraphics?+2Bj
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 1
+        al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
         mov cx, 0C8h ; '?'
         mov di, (offset videoStatusUnk+1570h)
 
 loc_47C3F:              ; CODE XREF: readTitleDatAndGraphics?+8Ej
-        push    cx
+        push(cx);
         mov ax, 3F00h
         mov bx, lastFileHandle
         mov cx, 0A0h ; '?'
@@ -2625,7 +2806,7 @@ loc_47C3F:              ; CODE XREF: readTitleDatAndGraphics?+8Ej
                     ; DS:DX -> buffer
         jnb short loc_47C54
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47C54:              ; CODE XREF: readTitleDatAndGraphics?+67j
         mov si, offset fileLevelData
@@ -2633,11 +2814,11 @@ loc_47C54:              ; CODE XREF: readTitleDatAndGraphics?+67j
 
 loc_47C59:              ; CODE XREF: readTitleDatAndGraphics?+88j
         mov dx, 3C4h
-        mov al, 2
+        al = 2
         out dx, al      ; EGA: sequencer address reg
                     ; map mask: data bits 0-3 enable writes to bit planes 0-3
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: sequencer data register
         mov cx, 28h ; '('
         rep movsb
@@ -2646,7 +2827,7 @@ loc_47C59:              ; CODE XREF: readTitleDatAndGraphics?+88j
         test    ah, 0Fh
         jnz short loc_47C59
         add di, 7Ah ; 'z'
-        pop cx
+        pop(cx);
         loop    loc_47C3F
         mov ax, 3E00h
         mov bx, lastFileHandle
@@ -2654,22 +2835,22 @@ loc_47C59:              ; CODE XREF: readTitleDatAndGraphics?+88j
                     ; BX = file handle
         jnb short loc_47C86
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47C86:              ; CODE XREF: readTitleDatAndGraphics?+99j
         mov dx, 3C4h
-        mov al, 2
+        al = 2
         out dx, al      ; EGA: sequencer address reg
                     ; map mask: data bits 0-3 enable writes to bit planes 0-3
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: sequencer data register
         mov dx, 3CEh
-        mov al, 1
+        al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
         retn
 readTitleDatAndGraphics? endp
@@ -2688,7 +2869,7 @@ readLevelsLst   proc near       ; CODE XREF: readLevelsLst+CCj
                     ; 0 - read
         jb  short loc_47CA8
         jmp loc_47D6D
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47CA8:              ; CODE XREF: readLevelsLst+8j
         mov ax, 3D00h
@@ -2699,7 +2880,7 @@ loc_47CA8:              ; CODE XREF: readLevelsLst+8j
                     ; 0 - read
         jnb short loc_47CB5
         jmp loc_47D5D
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47CB5:              ; CODE XREF: readLevelsLst+15j
         mov lastFileHandle, ax
@@ -2721,7 +2902,7 @@ loc_47CC4:              ; CODE XREF: readLevelsLst:loc_47CE4j
         cmp ah, 39h ; '9'
         jbe short loc_47CE4
         mov ah, 30h ; '0'
-        inc al
+        al++;
 
 loc_47CE4:              ; CODE XREF: readLevelsLst+3Aj
                     ; readLevelsLst+43j
@@ -2732,7 +2913,7 @@ loc_47CE4:              ; CODE XREF: readLevelsLst+3Aj
         mov bx, 2A70h
 
 loc_47CF1:              ; CODE XREF: readLevelsLst+83j
-        push    cx
+        push(cx);
         push    dx
         push    ax
         push    bx
@@ -2752,7 +2933,7 @@ loc_47CF1:              ; CODE XREF: readLevelsLst+83j
         pop bx
         pop ax
         pop dx
-        pop cx
+        pop(cx);
         jb  short loc_47D81
         add dx, levelDataLength
         adc ax, 0
@@ -2766,7 +2947,7 @@ loc_47CF1:              ; CODE XREF: readLevelsLst+83j
                     ; BX = file handle
         jnb short loc_47D35
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47D35:              ; CODE XREF: readLevelsLst+95j
         mov ax, 3C00h
@@ -2777,7 +2958,7 @@ loc_47D35:              ; CODE XREF: readLevelsLst+95j
                     ; DS:DX -> ASCIZ filename (may include drive and path)
         jnb short loc_47D45
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47D45:              ; CODE XREF: readLevelsLst+A5j
         mov bx, ax
@@ -2789,11 +2970,11 @@ loc_47D45:              ; CODE XREF: readLevelsLst+A5j
                     ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
         jnb short loc_47D5B
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47D5B:              ; CODE XREF: readLevelsLst+BBj
         jmp short loc_47D8D
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47D5D:              ; CODE XREF: readLevelsLst+17j
         cmp ax, 2
@@ -2801,12 +2982,12 @@ loc_47D5D:              ; CODE XREF: readLevelsLst+17j
         call    sub_47F39
         jb  short loc_47D6A
         jmp readLevelsLst
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47D6A:              ; CODE XREF: readLevelsLst+C5j
                     ; readLevelsLst+CAj
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47D6D:              ; CODE XREF: readLevelsLst+Aj
         mov lastFileHandle, ax
@@ -2825,7 +3006,7 @@ loc_47D81:              ; CODE XREF: readLevelsLst+77j
         int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                     ; BX = file handle
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47D8D:              ; CODE XREF: readLevelsLst+8Aj
                     ; readLevelsLst:loc_47D5Bj ...
@@ -2835,7 +3016,7 @@ loc_47D8D:              ; CODE XREF: readLevelsLst+8Aj
                     ; BX = file handle
         jnb short locret_47D9B
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_47D9B:               ; CODE XREF: readLevelsLst+FBj
         retn
@@ -2859,12 +3040,12 @@ readGfxDat  proc near       ; CODE XREF: readGfxDat+14j
         call    sub_47F39
         jb  short loc_47DB2
         jmp short readGfxDat
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47DB2:              ; CODE XREF: readGfxDat+Dj
                     ; readGfxDat+12j
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47DB5:              ; CODE XREF: readGfxDat+8j
         mov lastFileHandle, ax
@@ -2883,7 +3064,7 @@ loc_47DB5:              ; CODE XREF: readGfxDat+8j
         pop ds
         assume ds:data
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47DD3:              ; CODE XREF: readGfxDat+31j
         pop ds
@@ -2893,7 +3074,7 @@ loc_47DD3:              ; CODE XREF: readGfxDat+31j
                     ; BX = file handle
         jnb short locret_47DE2
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_47DE2:               ; CODE XREF: readGfxDat+41j
         retn
@@ -2917,12 +3098,12 @@ readControlsDat proc near       ; CODE XREF: readControlsDat+14j
         call    sub_47F39
         jb  short loc_47DF9
         jmp short readControlsDat
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47DF9:              ; CODE XREF: readControlsDat+Dj
                     ; readControlsDat+12j
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47DFC:              ; CODE XREF: readControlsDat+8j
         mov lastFileHandle, ax
@@ -2941,7 +3122,7 @@ loc_47DFC:              ; CODE XREF: readControlsDat+8j
         pop ds
         assume ds:data
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47E1A:              ; CODE XREF: readControlsDat+31j
         pop ds
@@ -2951,7 +3132,7 @@ loc_47E1A:              ; CODE XREF: readControlsDat+31j
                     ; BX = file handle
         jnb short locret_47E29
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_47E29:               ; CODE XREF: readControlsDat+41j
         retn
@@ -3067,16 +3248,16 @@ loc_47EB8:              ; CODE XREF: sub_47E98+28j
         cmp byte_50941, 4
         jg  short loc_47EB8
         mov cx, 1068h
-        push    cx
+        push(cx);
 
 loc_47EC6:              ; CODE XREF: sub_47E98+57j
-        pop cx
+        pop(cx);
         dec cx
-        push    cx
+        push(cx);
         call    videoloop
         call    sub_4D457
-        pop cx
-        push    cx
+        pop(cx);
+        push(cx);
         cmp cx, 0
         jz  short loc_47EF1
         call    getMouseStatus
@@ -3088,11 +3269,11 @@ loc_47EC6:              ; CODE XREF: sub_47E98+57j
         cmp byte_50941, 4
         jg  short loc_47F21
         jmp short loc_47EC6
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47EF1:              ; CODE XREF: sub_47E98+3Cj
                     ; sub_47E98+72j ...
-        pop cx
+        pop(cx);
         mov word_510A2, 0
         cmp byte_59B86, 0
         clc
@@ -3101,7 +3282,7 @@ loc_47EF1:              ; CODE XREF: sub_47E98+3Cj
 
 locret_47F01:               ; CODE XREF: sub_47E98+66j
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47F02:              ; CODE XREF: sub_47E98+44j
                     ; sub_47E98+70j
@@ -3109,7 +3290,7 @@ loc_47F02:              ; CODE XREF: sub_47E98+44j
         cmp bx, 0
         jnz short loc_47F02
         jmp short loc_47EF1
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47F0C:              ; CODE XREF: sub_47E98+4Bj
                     ; sub_47E98+85j
@@ -3121,7 +3302,7 @@ loc_47F18:              ; CODE XREF: sub_47E98+79j
         cmp keyPressed, 0
         jnz short loc_47F0C
         jmp short loc_47EF1
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47F21:              ; CODE XREF: sub_47E98+55j
                     ; sub_47E98+9Dj
@@ -3151,7 +3332,7 @@ sub_47F39   proc near       ; CODE XREF: readPallettes+Fp
         mov si, 370Fh
         mov byte_53A10, 2
         jmp short loc_47F5E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47F56:              ; CODE XREF: sub_47F39+11j
         mov si, 3701h
@@ -3165,18 +3346,18 @@ loc_47F5E:              ; CODE XREF: sub_47F39+1Bj
         call    sub_4D836
         mov bx, 4D84h
         mov dx, 3D4h
-        mov al, 0Dh
+        al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (low)
         inc dx
-        mov al, bl
+        al = bl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 0Ch
+        al = 0Ch
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (high)
         inc dx
-        mov al, bh
+        al = bh
         out dx, al      ; Video: CRT controller internal registers
         call    sub_47E98
         pushf
@@ -3186,7 +3367,7 @@ loc_47F5E:              ; CODE XREF: sub_47F39+1Bj
         retn
 sub_47F39   endp
 
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
         nop
 
 ; =============== S U B R O U T I N E =======================================
@@ -3196,20 +3377,20 @@ movefun   proc near       ; DATA XREF: data:160Co
         cmp byte ptr leveldata[si], 1
         jz  short loc_47F98
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47F98:              ; CODE XREF: movefun+5j
         mov ax, leveldata[si]
         cmp ax, 1
         jz  short loc_47FA4
         jmp loc_48035
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47FA4:              ; CODE XREF: movefun+Fj
         cmp byte_51035, 2
         jnz short loc_47FAC
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47FAC:              ; CODE XREF: movefun+19j
         mov ax, leveldata[si+78h]
@@ -3222,7 +3403,7 @@ loc_47FAC:              ; CODE XREF: movefun+19j
         cmp ax, 5
         jz  short loc_47FC5
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47FC5:              ; CODE XREF: movefun+28j
                     ; movefun+2Dj ...
@@ -3242,25 +3423,25 @@ loc_47FDC:              ; CODE XREF: movefun+72j
         cmp leveldata[si+78h+2], 0AAAAh
         jz  short loc_48011
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47FF4:              ; CODE XREF: movefun+23j
         mov byte ptr leveldata[si+1], 40h ; '@'
         jmp short loc_48035
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_47FFB:              ; CODE XREF: movefun+3Aj
                     ; movefun+42j ...
         cmp leveldata[si-2], 0
         jz  short loc_48004
         jmp short loc_47FDC
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48004:              ; CODE XREF: movefun+70j
         mov byte ptr leveldata[si+1], 50h ; 'P'
         mov leveldata[si-2], 8888h
         jmp short loc_48035
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48011:              ; CODE XREF: movefun+51j
                     ; movefun+59j ...
@@ -3273,71 +3454,71 @@ loc_48011:              ; CODE XREF: movefun+51j
 
 locret_48027:               ; CODE XREF: movefun+8Ej
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48028:              ; CODE XREF: movefun+86j
                     ; movefun+95j
         mov byte ptr leveldata[si+1], 60h ; '`'
         mov leveldata[si+2], 8888h
         jmp short $+2
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48035:              ; CODE XREF: movefun+11j
                     ; movefun+69j ...
         mov bl, byte ptr leveldata[si+1]
         xor bh, bh
-        mov al, bl
+        al = bl
         and al, 0F0h
         cmp al, 10h
         jnz short loc_48045
         jmp short loc_48078
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48045:              ; CODE XREF: movefun+B1j
         cmp al, 20h ; ' '
         jnz short loc_4804C
         jmp loc_48212
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4804C:              ; CODE XREF: movefun+B7j
         cmp al, 30h ; '0'
         jnz short loc_48053
         jmp loc_48277
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48053:              ; CODE XREF: movefun+BEj
         cmp byte_51035, 2
         jnz short loc_4805B
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4805B:              ; CODE XREF: movefun+C8j
         cmp al, 40h ; '@'
         jnz short loc_48062
         jmp loc_482DC
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48062:              ; CODE XREF: movefun+CDj
         cmp al, 50h ; 'P'
         jnz short loc_48069
         jmp loc_4830A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48069:              ; CODE XREF: movefun+D4j
         cmp al, 60h ; '`'
         jnz short loc_48070
         jmp loc_48378
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48070:              ; CODE XREF: movefun+DBj
         cmp al, 70h ; 'p'
         jnz short locret_48077
         jmp loc_483E6
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_48077:               ; CODE XREF: movefun+E2j
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48078:              ; CODE XREF: movefun+B3j
                     ; movefun+475j
@@ -3371,69 +3552,69 @@ loc_48096:              ; CODE XREF: movefun+10Ej
         call    sub_488DC
         add si, 78h ; 'x'
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_480BB:              ; CODE XREF: movefun+11Bj
         cmp bl, 18h
         jge short loc_480C5
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_480C5:              ; CODE XREF: movefun+12Ej
         mov byte ptr [si+1835h], 0
         cmp byte_51035, 2
         jnz short loc_480D2
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_480D2:              ; CODE XREF: movefun+13Fj
         cmp word ptr [si+18ACh], 0
         jnz short loc_480DC
         jmp loc_4816D
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_480DC:              ; CODE XREF: movefun+147j
         cmp word ptr [si+18ACh], 9999h
         jnz short loc_480E7
         jmp loc_4816D
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_480E7:              ; CODE XREF: movefun+152j
         cmp byte ptr [si+18ACh], 3
         jnz short loc_480F1
         jmp loc_481A4
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_480F1:              ; CODE XREF: movefun+15Cj
         cmp byte ptr [si+18ACh], 11h
         jnz short loc_480FB
         jmp loc_481FE
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_480FB:              ; CODE XREF: movefun+166j
         cmp word ptr [si+18ACh], 2BBh
         jnz short loc_48106
         jmp loc_481C6
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48106:              ; CODE XREF: movefun+171j
         cmp word ptr [si+18ACh], 4BBh
         jnz short loc_48111
         jmp loc_481E2
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48111:              ; CODE XREF: movefun+17Cj
         cmp byte ptr [si+18ACh], 18h
         jnz short loc_4811B
         jmp loc_481FE
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4811B:              ; CODE XREF: movefun+186j
         cmp word ptr [si+18ACh], 8
         jnz short loc_48125
         jmp loc_48205
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48125:              ; CODE XREF: movefun+190j
         call    sound?7
@@ -3444,7 +3625,7 @@ loc_48125:              ; CODE XREF: movefun+190j
         cmp word ptr [si+18ACh], 5
         jz  short loc_4813E
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4813E:              ; CODE XREF: movefun+19Dj
                     ; movefun+1A4j ...
@@ -3463,40 +3644,40 @@ loc_4813E:              ; CODE XREF: movefun+19Dj
 loc_4816A:
         jz  short loc_48190
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4816D:              ; CODE XREF: movefun+149j
                     ; movefun+154j
         mov word ptr leveldata[si], 7001h
         mov word ptr [si+18ACh], 9999h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4817A:              ; CODE XREF: movefun+1B3j
                     ; movefun+1BBj ...
         cmp word ptr [si+1832h], 0
         jz  short loc_48184
         jmp loc_47FDC
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48184:              ; CODE XREF: movefun+1EFj
         mov byte ptr [si+1835h], 50h ; 'P'
         mov word ptr [si+1832h], 8888h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48190:              ; CODE XREF: movefun+1CAj
                     ; movefun+1D2j ...
         cmp word ptr [si+1836h], 0
         jz  short loc_48198
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48198:              ; CODE XREF: movefun+205j
         mov byte ptr [si+1835h], 60h ; '`'
         mov word ptr [si+1836h], 8888h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_481A4:              ; CODE XREF: movefun+15Ej
         mov bl, [si+18ADh]
@@ -3525,7 +3706,7 @@ loc_481D3:              ; CODE XREF: movefun+23Bj
 
 loc_481E0:              ; CODE XREF: movefun+248j
         jmp short loc_481FE
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_481E2:              ; CODE XREF: movefun+17Ej
         cmp byte ptr [si+18AEh], 18h
@@ -3539,14 +3720,14 @@ loc_481EF:              ; CODE XREF: movefun+257j
 
 loc_481FC:              ; CODE XREF: movefun+264j
         jmp short $+2
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_481FE:              ; CODE XREF: movefun+168j
                     ; movefun+188j ...
         add si, 78h ; 'x'
         call    sub_4A61F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48205:              ; CODE XREF: movefun+192j
         add si, 78h ; 'x'
@@ -3557,7 +3738,7 @@ loc_48205:              ; CODE XREF: movefun+192j
 locret_48211:               ; CODE XREF: movefun+21Bj
                     ; movefun+220j ...
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48212:              ; CODE XREF: movefun+B9j
         and bl, 7
@@ -3598,21 +3779,21 @@ loc_4824A:              ; CODE XREF: movefun+2B2j
         call    sub_488DC
         sub si, 2
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4825D:              ; CODE XREF: movefun+2BDj
         cmp bl, 28h ; '('
         jge short loc_48267
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48267:              ; CODE XREF: movefun+2D0j
         mov word ptr leveldata[si], 0FFFFh
         add si, 78h ; 'x'
         mov word ptr leveldata[si], 1001h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48277:              ; CODE XREF: movefun+C0j
         and bl, 7
@@ -3653,21 +3834,21 @@ loc_482AF:              ; CODE XREF: movefun+317j
         call    sub_488DC
         add si, 2
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_482C2:              ; CODE XREF: movefun+322j
         cmp bl, 38h ; '8'
         jge short loc_482CC
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_482CC:              ; CODE XREF: movefun+335j
         mov word ptr leveldata[si], 0FFFFh
         add si, 78h ; 'x'
         mov word ptr leveldata[si], 1001h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_482DC:              ; CODE XREF: movefun+CFj
         inc bl
@@ -3675,7 +3856,7 @@ loc_482DC:              ; CODE XREF: movefun+CFj
         jge short loc_482E8
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_482E8:              ; CODE XREF: movefun+351j
         cmp word ptr [si+18ACh], 0
@@ -3683,7 +3864,7 @@ loc_482E8:              ; CODE XREF: movefun+351j
         dec bl
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_482F6:              ; CODE XREF: movefun+35Dj
         mov word ptr leveldata[si], 0FFFFh
@@ -3691,7 +3872,7 @@ loc_482F6:              ; CODE XREF: movefun+35Dj
         mov byte ptr leveldata[si], 1
         mov byte ptr [si+1835h], 10h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4830A:              ; CODE XREF: movefun+D6j
         xor bh, bh
@@ -3722,7 +3903,7 @@ loc_48323:              ; CODE XREF: movefun+39Dj
         jge short loc_48341
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48341:              ; CODE XREF: movefun+3AAj
         cmp word ptr [si+18AAh], 0
@@ -3739,14 +3920,14 @@ loc_48357:              ; CODE XREF: movefun+3BDj
         mov byte ptr [si+1835h], 22h ; '"'
         mov word ptr [si+18ACh], 0FFFFh
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48371:              ; CODE XREF: movefun+3B6j
                     ; movefun+3C5j
         dec bl
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48378:              ; CODE XREF: movefun+DDj
         xor bh, bh
@@ -3777,7 +3958,7 @@ loc_48391:              ; CODE XREF: movefun+40Bj
         jge short loc_483AF
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_483AF:              ; CODE XREF: movefun+418j
         cmp word ptr [si+18AEh], 0
@@ -3798,14 +3979,14 @@ loc_483D8:
 
 locret_483DE:
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_483DF:              ; CODE XREF: movefun+424j
                     ; movefun+433j
         dec bl
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_483E6:              ; CODE XREF: movefun+E4j
         cmp word ptr [si+18ACh], 0
@@ -3813,7 +3994,7 @@ loc_483E6:              ; CODE XREF: movefun+E4j
         cmp word ptr [si+18ACh], 9999h
         jz  short loc_483F6
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_483F6:              ; CODE XREF: movefun+45Bj
                     ; movefun+463j
@@ -3831,14 +4012,14 @@ movefun2  proc near       ; DATA XREF: data:1612o
         cmp byte ptr leveldata[si], 4
         jz  short loc_48410
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48410:              ; CODE XREF: movefun2+5j
         mov ax, [si+1834h]
         cmp ax, 4
         jz  short loc_4841B
         jmp short loc_48495
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4841B:              ; CODE XREF: movefun2+Fj
         mov ax, [si+18ACh]
@@ -3851,7 +4032,7 @@ loc_4841B:              ; CODE XREF: movefun2+Fj
         cmp ax, 5
         jz  short loc_48434
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48434:              ; CODE XREF: movefun2+1Fj
                     ; movefun2+24j ...
@@ -3873,79 +4054,79 @@ loc_48452:
         cmp word ptr [si+18AEh], 0AAAAh
         jz  short loc_48480
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48463:              ; CODE XREF: movefun2+1Aj
         mov byte ptr [si+1835h], 40h ; '@'
         jmp short loc_48495
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4846A:              ; CODE XREF: movefun2+31j
                     ; movefun2+39j ...
         cmp word ptr [si+1832h], 0
         jz  short loc_48473
         jmp short loc_4844B
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48473:              ; CODE XREF: movefun2+67j
         mov byte ptr [si+1835h], 50h ; 'P'
         mov word ptr [si+1832h], 8888h
         jmp short loc_48495
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48480:              ; CODE XREF: movefun2+48j
                     ; movefun2+50j ...
         cmp word ptr [si+1836h], 0
         jz  short loc_48488
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48488:              ; CODE XREF: movefun2+7Dj
         mov byte ptr [si+1835h], 60h ; '`'
         mov word ptr [si+1836h], 8888h
         jmp short $+2
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48495:              ; CODE XREF: movefun2+11j
                     ; movefun2+60j ...
         mov bl, [si+1835h]
         xor bh, bh
-        mov al, bl
+        al = bl
         and al, 0F0h
         cmp al, 10h
         jnz short loc_484A5
         jmp short loc_484D0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_484A5:              ; CODE XREF: movefun2+99j
         cmp al, 20h ; ' '
         jnz short loc_484AC
         jmp loc_4861B
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_484AC:              ; CODE XREF: movefun2+9Fj
         cmp al, 30h ; '0'
         jnz short loc_484B3
         jmp loc_48677
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_484B3:              ; CODE XREF: movefun2+A6j
         cmp al, 40h ; '@'
         jnz short loc_484BA
         jmp loc_486D2
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_484BA:              ; CODE XREF: movefun2+ADj
         cmp al, 50h ; 'P'
         jnz short loc_484C1
         jmp loc_48700
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_484C1:              ; CODE XREF: movefun2+B4j
         cmp al, 60h ; '`'
         jnz short loc_484C8
         jmp loc_4876E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_484C8:              ; CODE XREF: movefun2+BBj
         cmp al, 70h ; 'p'
@@ -3955,11 +4136,11 @@ loc_484CA:
 
 loc_484CC:
         jmp loc_487DC
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_484CF:               ; CODE XREF: movefun2:loc_484CAj
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_484D0:              ; CODE XREF: movefun2+9Bj
                     ; movefun2+3F3j
@@ -3993,63 +4174,63 @@ loc_484EE:              ; CODE XREF: movefun2+EEj
         call    sub_48957
         add si, 78h ; 'x'
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48513:              ; CODE XREF: movefun2+FBj
         cmp bl, 18h
         jge short loc_4851D
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4851D:              ; CODE XREF: movefun2+10Ej
         mov byte ptr [si+1835h], 0
         cmp word ptr [si+18ACh], 0
         jnz short loc_4852C
         jmp loc_485BB
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4852C:              ; CODE XREF: movefun2+11Fj
         cmp word ptr [si+18ACh], 9999h
         jnz short loc_48537
         jmp loc_485BB
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48537:              ; CODE XREF: movefun2+12Aj
         cmp byte ptr [si+18ACh], 3
         jnz short loc_48541
         jmp loc_485F2
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48541:              ; CODE XREF: movefun2+134j
         cmp word ptr [si+18ACh], 14h
         jnz short loc_4854B
         jmp loc_48614
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4854B:              ; CODE XREF: movefun2+13Ej
         cmp byte ptr [si+18ACh], 11h
         jnz short loc_48555
         jmp loc_48614
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48555:              ; CODE XREF: movefun2+148j
         cmp byte ptr [si+18ACh], 18h
         jnz short loc_4855F
         jmp loc_48614
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4855F:              ; CODE XREF: movefun2+152j
         cmp word ptr [si+18ACh], 12h
         jnz short loc_48569
         jmp loc_48614
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48569:              ; CODE XREF: movefun2+15Cj
         cmp word ptr [si+18ACh], 8
         jnz short loc_48573
         jmp loc_48614
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48573:              ; CODE XREF: movefun2+166j
         call    sound?7
@@ -4060,7 +4241,7 @@ loc_48573:              ; CODE XREF: movefun2+166j
         cmp word ptr [si+18ACh], 5
         jz  short loc_4858C
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4858C:              ; CODE XREF: movefun2+173j
                     ; movefun2+17Aj ...
@@ -4077,40 +4258,40 @@ loc_4858C:              ; CODE XREF: movefun2+173j
         cmp word ptr [si+18AEh], 0AAAAh
         jz  short loc_485DE
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_485BB:              ; CODE XREF: movefun2+121j
                     ; movefun2+12Cj
         mov word ptr leveldata[si], 7004h
         mov word ptr [si+18ACh], 9999h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_485C8:              ; CODE XREF: movefun2+189j
                     ; movefun2+191j ...
         cmp word ptr [si+1832h], 0
         jz  short loc_485D2
         jmp loc_4844B
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_485D2:              ; CODE XREF: movefun2+1C5j
         mov byte ptr [si+1835h], 50h ; 'P'
         mov word ptr [si+1832h], 8888h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_485DE:              ; CODE XREF: movefun2+1A0j
                     ; movefun2+1A8j ...
         cmp word ptr [si+1836h], 0
         jz  short loc_485E6
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_485E6:              ; CODE XREF: movefun2+1DBj
         mov byte ptr [si+1835h], 60h ; '`'
         mov word ptr [si+1836h], 8888h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_485F2:              ; CODE XREF: movefun2+136j
         mov bl, [si+18ADh]
@@ -4135,7 +4316,7 @@ loc_48614:              ; CODE XREF: movefun2+140j
 locret_4861A:               ; CODE XREF: movefun2+1F1j
                     ; movefun2+1F6j ...
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4861B:              ; CODE XREF: movefun2+A1j
         and bl, 7
@@ -4174,19 +4355,19 @@ loc_48653:              ; CODE XREF: movefun2+243j
         call    sub_48957
         sub si, 2
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48666:              ; CODE XREF: movefun2+24Ej
         cmp bl, 28h ; '('
         jge short loc_48670
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48670:              ; CODE XREF: movefun2+261j
         mov word ptr leveldata[si], 7004h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48677:              ; CODE XREF: movefun2+A8j
         and bl, 7
@@ -4230,12 +4411,12 @@ loc_486C1:              ; CODE XREF: movefun2+2AAj
         jge short loc_486CB
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_486CB:              ; CODE XREF: movefun2+2BCj
         mov word ptr leveldata[si], 7004h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_486D2:              ; CODE XREF: movefun2+AFj
         inc bl
@@ -4243,7 +4424,7 @@ loc_486D2:              ; CODE XREF: movefun2+AFj
         jge short loc_486DE
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_486DE:              ; CODE XREF: movefun2+2CFj
         cmp word ptr [si+18ACh], 0
@@ -4251,7 +4432,7 @@ loc_486DE:              ; CODE XREF: movefun2+2CFj
         dec bl
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_486EC:              ; CODE XREF: movefun2+2DBj
         mov word ptr leveldata[si], 0FFFFh
@@ -4259,7 +4440,7 @@ loc_486EC:              ; CODE XREF: movefun2+2DBj
         mov byte ptr leveldata[si], 4
         mov byte ptr [si+1835h], 10h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48700:              ; CODE XREF: movefun2+B6j
         xor bh, bh
@@ -4290,7 +4471,7 @@ loc_48719:              ; CODE XREF: movefun2+31Bj
         jge short loc_48737
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48737:              ; CODE XREF: movefun2+328j
         cmp word ptr [si+18AAh], 0
@@ -4307,14 +4488,14 @@ loc_4874D:              ; CODE XREF: movefun2+33Bj
         mov byte ptr [si+1835h], 22h ; '"'
         mov word ptr [si+18ACh], 9999h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48767:              ; CODE XREF: movefun2+334j
                     ; movefun2+343j
         dec bl
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4876E:              ; CODE XREF: movefun2+BDj
         xor bh, bh
@@ -4345,7 +4526,7 @@ loc_48787:              ; CODE XREF: movefun2+389j
         jge short loc_487A5
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_487A5:              ; CODE XREF: movefun2+396j
         cmp word ptr [si+18AEh], 0
@@ -4362,14 +4543,14 @@ loc_487BB:              ; CODE XREF: movefun2+3A9j
         mov byte ptr [si+1835h], 32h ; '2'
         mov word ptr [si+18ACh], 9999h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_487D5:              ; CODE XREF: movefun2+3A2j
                     ; movefun2+3B1j
         dec bl
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_487DC:              ; CODE XREF: movefun2:loc_484CCj
         cmp word ptr [si+18ACh], 0
@@ -4377,7 +4558,7 @@ loc_487DC:              ; CODE XREF: movefun2:loc_484CCj
         cmp word ptr [si+18ACh], 9999h
         jz  short loc_487EC
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_487EC:              ; CODE XREF: movefun2+3D9j
                     ; movefun2+3E1j
@@ -4406,17 +4587,17 @@ loc_4880B:              ; CODE XREF: sub_487FE+5j
         cmp word ptr [si+17BCh], 4
         jz  short loc_4882F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48829:              ; CODE XREF: sub_487FE+21j
         mov byte ptr [si+17BDh], 40h ; '@'
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4882F:              ; CODE XREF: sub_487FE+28j
         mov byte ptr [si+17BDh], 40h ; '@'
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48835:              ; CODE XREF: sub_487FE+12j
                     ; sub_487FE+1Aj
@@ -4432,7 +4613,7 @@ loc_48843:              ; CODE XREF: sub_487FE+69j
         cmp word ptr [si+17BEh], 4
         jz  short loc_488BA
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48852:              ; CODE XREF: sub_487FE+3Cj
         cmp word ptr [si+1832h], 1
@@ -4442,14 +4623,14 @@ loc_48852:              ; CODE XREF: sub_487FE+3Cj
         cmp word ptr [si+1832h], 5
         jz  short loc_48869
         jmp short loc_48843
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48869:              ; CODE XREF: sub_487FE+59j
                     ; sub_487FE+60j ...
         mov byte ptr [si+17BBh], 60h ; '`'
         mov word ptr [si+17BCh], 8888h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48875:              ; CODE XREF: sub_487FE+4Aj
         cmp word ptr [si+1836h], 1
@@ -4459,14 +4640,14 @@ loc_48875:              ; CODE XREF: sub_487FE+4Aj
         cmp word ptr [si+1836h], 5
         jz  short loc_4888B
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4888B:              ; CODE XREF: sub_487FE+7Cj
                     ; sub_487FE+83j ...
         mov byte ptr [si+17BFh], 50h ; 'P'
         mov word ptr [si+17BCh], 8888h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48897:              ; CODE XREF: sub_487FE+43j
         cmp word ptr [si+1832h], 1
@@ -4476,14 +4657,14 @@ loc_48897:              ; CODE XREF: sub_487FE+43j
         cmp word ptr [si+1832h], 5
         jz  short loc_488AE
         jmp short loc_48843
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_488AE:              ; CODE XREF: sub_487FE+9Ej
                     ; sub_487FE+A5j ...
         mov byte ptr [si+17BBh], 60h ; '`'
         mov word ptr [si+17BCh], 8888h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_488BA:              ; CODE XREF: sub_487FE+51j
         cmp word ptr [si+1836h], 1
@@ -4493,7 +4674,7 @@ loc_488BA:              ; CODE XREF: sub_487FE+51j
         cmp word ptr [si+1836h], 5
         jz  short loc_488D0
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_488D0:              ; CODE XREF: sub_487FE+C1j
                     ; sub_487FE+C8j ...
@@ -4518,13 +4699,13 @@ loc_488E9:              ; CODE XREF: sub_488DC+5j
         cmp word ptr [si+17BCh], 9999h
         jz  short loc_488F9
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_488F9:              ; CODE XREF: sub_488DC+1Aj
         cmp byte ptr [si+1744h], 4
         jz  short loc_48901
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48901:              ; CODE XREF: sub_488DC+12j
                     ; sub_488DC+22j
@@ -4535,7 +4716,7 @@ loc_48908:              ; CODE XREF: sub_488DC+49j
         cmp word ptr [si+17BEh], 1
         jz  short loc_48934
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48910:              ; CODE XREF: sub_488DC+2Aj
         cmp word ptr [si+1832h], 1
@@ -4545,14 +4726,14 @@ loc_48910:              ; CODE XREF: sub_488DC+2Aj
         cmp word ptr [si+1832h], 5
         jz  short loc_48927
         jmp short loc_48908
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48927:              ; CODE XREF: sub_488DC+39j
                     ; sub_488DC+40j ...
         mov word ptr [si+17BAh], 6001h
         mov word ptr [si+17BCh], 8888h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48934:              ; CODE XREF: sub_488DC+31j
         cmp word ptr [si+1836h], 1
@@ -4562,7 +4743,7 @@ loc_48934:              ; CODE XREF: sub_488DC+31j
         cmp word ptr [si+1836h], 5
         jz  short loc_4894A
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4894A:              ; CODE XREF: sub_488DC+5Dj
                     ; sub_488DC+64j ...
@@ -4587,13 +4768,13 @@ loc_48964:              ; CODE XREF: sub_48957+5j
         cmp word ptr [si+17BCh], 9999h
         jz  short loc_48974
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48974:              ; CODE XREF: sub_48957+1Aj
         cmp byte ptr [si+1744h], 1
         jz  short loc_4897C
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4897C:              ; CODE XREF: sub_48957+12j
                     ; sub_48957+22j
@@ -4604,7 +4785,7 @@ loc_48983:              ; CODE XREF: sub_48957+49j
         cmp word ptr [si+17BEh], 4
         jz  short loc_489AF
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4898B:              ; CODE XREF: sub_48957+2Aj
         cmp word ptr [si+1832h], 1
@@ -4614,14 +4795,14 @@ loc_4898B:              ; CODE XREF: sub_48957+2Aj
         cmp word ptr [si+1832h], 5
         jz  short loc_489A2
         jmp short loc_48983
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_489A2:              ; CODE XREF: sub_48957+39j
                     ; sub_48957+40j ...
         mov word ptr [si+17BAh], 6004h
         mov word ptr [si+17BCh], 8888h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_489AF:              ; CODE XREF: sub_48957+31j
         cmp word ptr [si+1836h], 1
@@ -4631,7 +4812,7 @@ loc_489AF:              ; CODE XREF: sub_48957+31j
         cmp word ptr [si+1836h], 5
         jz  short loc_489C5
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_489C5:              ; CODE XREF: sub_48957+5Dj
                     ; sub_48957+64j ...
@@ -4640,7 +4821,7 @@ loc_489C5:              ; CODE XREF: sub_48957+5Dj
         retn
 sub_48957   endp
 
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
         db  2Eh ; .
         db  8Bh ; ?
         db 0C0h ; +
@@ -4656,17 +4837,18 @@ sub_48957   endp
         db  8Bh ; ?
         db 0C0h ; +
 
-; =============== S U B R O U T I N E =======================================
+// ; =============== S U B R O U T I N E =======================================
 
-; ax contains a status code if a DOS function fails.
-writeexitmessage    proc near       ; CODE XREF: loadScreen2-7CFp
+// ; ax contains a status code if a DOS function fails.
+void writeexitmessage() //    proc near       ; CODE XREF: loadScreen2-7CFp
+{
         push    es
         mov bx, ax
         mov ax, seg doserrors
         mov es, ax
         assume es:doserrors
         mov di, 0
-        mov al, 0
+        al = 0
 
         ; find message #bx
 keeplooking:              ; CODE XREF: writeexitmessage+13j
@@ -4677,7 +4859,7 @@ keeplooking:              ; CODE XREF: writeexitmessage+13j
 
 writechar:              ; CODE XREF: writeexitmessage+23j
         mov ah, 0Eh
-        mov al, es:[di]
+        al = es:[di]
         cmp al, 0
         jz  short write_crlf
         inc di
@@ -4686,17 +4868,17 @@ writechar:              ; CODE XREF: writeexitmessage+23j
                     ; AL = character, BH = display page (alpha modes)
                     ; BL = foreground color (graphics modes)
         jmp short writechar
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 write_crlf:              ; CODE XREF: writeexitmessage+1Cj
         mov ah, 0Eh
-        mov al, 0Ah
+        al = 0Ah
         mov bh, 0
         int 10h     ; - VIDEO - WRITE CHARACTER AND ADVANCE CURSOR (TTY WRITE)
                     ; AL = character, BH = display page (alpha modes)
                     ; BL = foreground color (graphics modes)
         mov ah, 0Eh
-        mov al, 0Dh
+        al = 0Dh
         mov bh, 0
         int 10h     ; - VIDEO - WRITE CHARACTER AND ADVANCE CURSOR (TTY WRITE)
                     ; AL = character, BH = display page (alpha modes)
@@ -4704,23 +4886,24 @@ write_crlf:              ; CODE XREF: writeexitmessage+1Cj
         pop es
         assume es:nothing
         retn
-writeexitmessage    endp
+}
 
-; ---------------------------------------------------------------------------
-        db  2Eh ; .
-        db  8Bh ; ?
-        db 0C0h ; +
-        db  2Eh ; .
-        db  8Bh ; ?
-        db 0C0h ; +
-        db  2Eh ; .
-        db  8Bh ; ?
-        db 0C0h ; +
+// ; ---------------------------------------------------------------------------
+//         db  2Eh ; .
+//         db  8Bh ; ?
+//         db 0C0h ; +
+//         db  2Eh ; .
+//         db  8Bh ; ?
+//         db 0C0h ; +
+//         db  2Eh ; .
+//         db  8Bh ; ?
+//         db 0C0h ; +
 
-; =============== S U B R O U T I N E =======================================
+// ; =============== S U B R O U T I N E =======================================
 
 
-sub_48A20   proc near       ; CODE XREF: start+32Fp
+void sub_48A20() //   proc near       ; CODE XREF: start+32Fp
+{
                     ; runLevel:notFunctionKeyp ...
         mov ax, word_510C3
         mov word_510BC, ax
@@ -4757,10 +4940,10 @@ sub_48A20   proc near       ; CODE XREF: start+32Fp
         mov byte_510DB, 0
         mov word_510DC, 0
         retn
-sub_48A20   endp
+}
 
 
-; =============== S U B R O U T I N E =======================================
+// ; =============== S U B R O U T I N E =======================================
 
 
 runLevel    proc near       ; CODE XREF: start+35Cp
@@ -4769,7 +4952,7 @@ runLevel    proc near       ; CODE XREF: start+35Cp
         mov byte_5A19C, 1
         mov byte_510BA, 0
         jmp short loc_48AD8
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48ACE:              ; CODE XREF: runLevel+5j
         mov byte_5A19C, 0
@@ -4784,7 +4967,7 @@ loc_48ADF:              ; CODE XREF: runLevel+BAj
         call    sub_4FDFD
 
 isFunctionKey:              ; CODE XREF: runLevel+35j
-        mov al, keyPressed
+        al = keyPressed
         cmp al, 3Bh ; ';'   ; F1
         jb  short notFunctionKey
         cmp al, 44h ; 'D'   ; F10
@@ -4843,7 +5026,7 @@ loc_48B6B:              ; CODE XREF: runLevel+82j runLevel+94j ...
         cmp byte_5A2F8, 1
         jnz short loc_48B78
         jmp loc_48ADF
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48B78:              ; CODE XREF: runLevel+B8j
         cmp word ptr flashingbackgroundon, 0
@@ -4852,7 +5035,7 @@ loc_48B78:              ; CODE XREF: runLevel+B8j
         xor al, al
         out dx, al
         inc dx
-        mov al, 35h ; '5'
+        al = 35h ; '5'
         out dx, al
         out dx, al
         out dx, al
@@ -4865,7 +5048,7 @@ noFlashing:              ; CODE XREF: runLevel+C2j
         xor al, al
         out dx, al
         inc dx
-        mov al, 21h ; '!'
+        al = 21h ; '!'
         out dx, al
         out dx, al
         out dx, al
@@ -4879,11 +5062,11 @@ noFlashing2:              ; CODE XREF: runLevel+D8j
         xor al, al
         out dx, al
         inc dx
-        mov al, 2Dh ; '-'
+        al = 2Dh ; '-'
         out dx, al
-        mov al, 21h ; '!'
+        al = 21h ; '!'
         out dx, al
-        mov al, 0Fh
+        al = 0Fh
         out dx, al
 
 noFlashing3:              ; CODE XREF: runLevel+F1j
@@ -4897,7 +5080,7 @@ noFlashing3:              ; CODE XREF: runLevel+F1j
         jnz short loc_48BED
         test    speed?3, 80h
         jz  short loc_48BED
-        mov al, gameSpeed
+        al = gameSpeed
         xchg    al, speed?3
         cmp al, 0BFh ; '?'
         jz  short loc_48BED
@@ -4909,14 +5092,14 @@ loc_48BED:              ; CODE XREF: runLevel+119j
         cmp speed?, 0
         jnz short loc_48BF7
         jmp loc_48C86
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48BF7:              ; CODE XREF: runLevel+137j
         inc byte_59B94
         cmp byte_59B96, 0Ah
         jnb short loc_48C05
         jmp loc_48C86
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48C05:              ; CODE XREF: runLevel+145j
         mov byte_59B96, 0
@@ -4943,27 +5126,27 @@ loc_48C1A:              ; CODE XREF: runLevel+154j
         cmp gameSpeed, 9
         jz  short loc_48C4F
         jmp short loc_48C86
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48C4F:              ; CODE XREF: runLevel+182j
                     ; runLevel+190j
         cmp gameSpeed, 0Ah
         jb  short loc_48C59
         jmp loc_48D59
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48C59:              ; CODE XREF: runLevel+199j
                     ; runLevel+1A9j
         inc gameSpeed
         jmp short loc_48C86
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48C5F:              ; CODE XREF: runLevel+166j
         cmp gameSpeed, 0Ah
         jb  short loc_48C59
         dec speed?
         jmp short loc_48C86
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48C6C:              ; CODE XREF: runLevel+189j
         cmp gameSpeed, 0
@@ -4972,39 +5155,39 @@ loc_48C6C:              ; CODE XREF: runLevel+189j
 loc_48C73:              ; CODE XREF: runLevel+1C3j
         dec gameSpeed
         jmp short loc_48C86
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48C79:              ; CODE XREF: runLevel+164j
         cmp gameSpeed, 0
         ja  short loc_48C73
         dec speed?
         jmp short $+2
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48C86:              ; CODE XREF: runLevel+139j
                     ; runLevel+147j ...
         cmp fastMode, 1
         jnz short isNotFastMode4
         jmp loc_48D59
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 isNotFastMode4:              ; CODE XREF: runLevel+1D0j
         cmp gameSpeed, 0Ah
         jb  short loc_48C9A
         jmp loc_48D59
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48C9A:              ; CODE XREF: runLevel+1DAj
         mov cx, 6
         sub cl, gameSpeed
         jg  short loc_48CBD
-        mov al, gameSpeed
+        al = gameSpeed
         inc byte_59B95
         sub al, 5
         cmp al, byte_59B95
         jb  short loc_48CB5
         jmp loc_48D59
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48CB5:              ; CODE XREF: runLevel+1F5j
         mov byte_59B95, 0
@@ -5026,7 +5209,7 @@ loc_48CBE:              ; CODE XREF: runLevel+29Aj
         jg  short loc_48D38
         cmp ax, 0FFF0h
         jl  short loc_48D38
-        push    cx
+        push(cx);
         inc cx
         idiv    cl
         shl ah, 1
@@ -5036,12 +5219,12 @@ loc_48CBE:              ; CODE XREF: runLevel+29Aj
         jb  short loc_48CF9
         dec al
         jmp short loc_48CF9
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48CF3:              ; CODE XREF: runLevel+22Cj
         cmp ah, cl
         jb  short loc_48CF9
-        inc al
+        al++;
 
 loc_48CF9:              ; CODE XREF: runLevel+232j
                     ; runLevel+236j ...
@@ -5056,12 +5239,12 @@ loc_48CF9:              ; CODE XREF: runLevel+232j
         jb  short loc_48D16
         dec al
         jmp short loc_48D16
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48D10:              ; CODE XREF: runLevel+249j
         cmp ah, cl
         jb  short loc_48D16
-        inc al
+        al++;
 
 loc_48D16:              ; CODE XREF: runLevel+24Fj
                     ; runLevel+253j ...
@@ -5078,30 +5261,30 @@ loc_48D16:              ; CODE XREF: runLevel+24Fj
         mul cx
         add bx, ax
         add bx, 4D34h
-        pop cx
+        pop(cx);
 
 loc_48D38:              ; CODE XREF: runLevel+20Ej
                     ; runLevel+213j ...
         mov dx, 3D4h
-        mov al, 0Dh
+        al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (low)
         inc dx
-        mov al, bl
+        al = bl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 0Ch
+        al = 0Ch
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (high)
         inc dx
-        mov al, bh
+        al = bh
         out dx, al      ; Video: CRT controller internal registers
         call    videoloop
         call    sub_4D457
         dec cx
         jz  short loc_48D58
         jmp loc_48CBE
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48D58:              ; CODE XREF: runLevel+298j
         pop bx
@@ -5115,18 +5298,18 @@ loc_48D59:              ; CODE XREF: runLevel+19Bj
         and al, 7
         mov byte_510A6, al
         mov dx, 3D4h
-        mov al, 0Dh
+        al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (low)
         inc dx
-        mov al, bl
+        al = bl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 0Ch
+        al = 0Ch
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (high)
         inc dx
-        mov al, bh
+        al = bh
         out dx, al      ; Video: CRT controller internal registers
         mov cx, word_5195F
         mov ah, cl
@@ -5137,7 +5320,7 @@ loc_48D59:              ; CODE XREF: runLevel+19Bj
         xor al, al
         out dx, al
         inc dx
-        mov al, 3Fh ; '?'
+        al = 3Fh ; '?'
         out dx, al
         out dx, al
         out dx, al
@@ -5165,11 +5348,11 @@ loc_48DB6:              ; CODE XREF: runLevel+310j
         call    videoloop
 
 isFastMode3:              ; CODE XREF: runLevel+303j
-        push    cx
+        push(cx);
         call    sub_4955B
-        pop cx
+        pop(cx);
         jmp short loc_48DB6
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48DCD:              ; CODE XREF: runLevel+2FCj
         cmp word ptr flashingbackgroundon, 0
@@ -5191,13 +5374,13 @@ noFlashing5:              ; CODE XREF: runLevel+317j
         cmp word_51978, 0
         jnz short loc_48DFA
         jmp gamelooprep
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48DFA:              ; CODE XREF: runLevel+33Aj
         dec word_51978
         jz  short loc_48E03
         jmp gamelooprep
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48E03:              ; CODE XREF: runLevel+328j
                     ; runLevel+333j ...
@@ -5244,7 +5427,7 @@ sub_48E59   proc near       ; CODE XREF: sub_47E98:loc_47EB8p
         cmp byte_50940, 0
         jnz short loc_48E67
         jmp loc_48F68
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48E67:              ; CODE XREF: sub_48E59+9j
         mov word_50942, ax
@@ -5253,18 +5436,18 @@ loc_48E67:              ; CODE XREF: sub_48E59+9j
         mov word_50951, ax
         mov byte_50953, al
         mov byte_50954, al
-        mov al, byte_50946
+        al = byte_50946
         test    al, al
         jnz short loc_48E83
         jmp loc_48F68
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48E83:              ; CODE XREF: sub_48E59+25j
         mov ah, 1
         call    sub_49FED
         jnb short loc_48E8D
         jmp loc_48F68
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48E8D:              ; CODE XREF: sub_48E59+2Fj
         mov word_50942, ax
@@ -5282,7 +5465,7 @@ loc_48EA5:              ; CODE XREF: sub_48E59+47j
         jz  short loc_48EB1
         mov ax, 1
         jmp short loc_48EBB
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48EB1:              ; CODE XREF: sub_48E59+51j
         cmp byte_519F6, 0
@@ -5296,7 +5479,7 @@ loc_48EBB:              ; CODE XREF: sub_48E59+56j
         call    sub_49FED
         jnb short loc_48EC8
         jmp loc_48F68
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48EC8:              ; CODE XREF: sub_48E59+6Aj
         mov word_50944, ax
@@ -5314,7 +5497,7 @@ loc_48EE0:              ; CODE XREF: sub_48E59+82j
         jz  short loc_48EEC
         mov ax, 1
         jmp short loc_48EF6
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48EEC:              ; CODE XREF: sub_48E59+8Cj
         cmp byte_519F8, 0
@@ -5341,21 +5524,21 @@ loc_48EF6:              ; CODE XREF: sub_48E59+91j
         jnz short loc_48F1F
         add bl, 4
         jmp short loc_48F68
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48F1F:              ; CODE XREF: sub_48E59+BFj
         test    al, 20h
         jnz short loc_48F28
         add bl, 4
         jmp short loc_48F68
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48F28:              ; CODE XREF: sub_48E59+C8j
         cmp byte_519F5, 0
         jz  short loc_48F34
         add bl, 4
         jmp short loc_48F3E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48F34:              ; CODE XREF: sub_48E59+D4j
         cmp byte_519F4, 0
@@ -5365,7 +5548,7 @@ loc_48F34:              ; CODE XREF: sub_48E59+D4j
 loc_48F3E:              ; CODE XREF: sub_48E59+D9j
                     ; sub_48E59+E0j
         jmp short loc_48F68
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48F40:              ; CODE XREF: sub_48E59+B7j
         mov dx, 201h
@@ -5376,21 +5559,21 @@ loc_48F40:              ; CODE XREF: sub_48E59+B7j
         jnz short loc_48F4C
         mov bl, 9
         jmp short loc_48F68
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48F4C:              ; CODE XREF: sub_48E59+EDj
         test    al, 20h
         jnz short loc_48F54
         mov bl, 9
         jmp short loc_48F68
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48F54:              ; CODE XREF: sub_48E59+F5j
         cmp byte_519F5, 0
         jz  short loc_48F5F
         mov bl, 9
         jmp short loc_48F68
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_48F5F:              ; CODE XREF: sub_48E59+100j
         cmp byte_519F4, 0
@@ -5409,7 +5592,7 @@ sub_48E59   endp
 
 sub_48F6D   proc near       ; CODE XREF: start+335p runLevel+AAp ...
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -5418,7 +5601,7 @@ sub_48F6D   proc near       ; CODE XREF: start+335p runLevel+AAp ...
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 1
+        al = 1
         out dx, al      ; EGA port: graphics controller data register
         push    ds
         mov si, word_5184A
@@ -5560,7 +5743,7 @@ loc_49067:              ; CODE XREF: sub_48F6D+101j
         loop    loc_49067
         pop ds
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -5569,22 +5752,22 @@ loc_49067:              ; CODE XREF: sub_48F6D+101j
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 1
+        al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
         mov bx, offset leveldata
         mov di, 4D34h
@@ -5593,13 +5776,13 @@ loc_49067:              ; CODE XREF: sub_48F6D+101j
         add di, 3CEh
 
 loc_4909F:              ; CODE XREF: sub_48F6D+18Ej
-        push    cx
+        push(cx);
         mov cx, 3Ah ; ':'
         add bx, 4
         add di, 4
 
 loc_490A9:              ; CODE XREF: sub_48F6D+184j
-        mov al, [bx]
+        al = [bx]
         cmp al, 28h ; '('
         jbe short loc_490B1
         xor al, al
@@ -5610,7 +5793,7 @@ loc_490B1:              ; CODE XREF: sub_48F6D+140j
         shl ax, 1
         mov si, ax
         add si, 3815h
-        push    cx
+        push(cx);
         mov cx, 10h
 
 loc_490C2:              ; CODE XREF: sub_48F6D+17Aj
@@ -5618,16 +5801,16 @@ loc_490C2:              ; CODE XREF: sub_48F6D+17Aj
 
 loc_490C4:              ; CODE XREF: sub_48F6D+175j
         mov dx, 3C4h
-        mov al, 2
+        al = 2
         out dx, al      ; EGA: sequencer address reg
                     ; map mask: data bits 0-3 enable writes to bit planes 0-3
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: sequencer data register
-        mov al, [si]
+        al = [si]
         mov es:[di], al
         inc si
-        mov al, [si]
+        al = [si]
         mov es:[di+1], al
         shl ah, 1
         add si, 4Fh ; 'O'
@@ -5635,35 +5818,35 @@ loc_490C4:              ; CODE XREF: sub_48F6D+175j
         jnz short loc_490C4
         add di, 7Ah ; 'z'
         loop    loc_490C2
-        pop cx
+        pop(cx);
         sub di, 79Eh
         dec cx
         jz  short loc_490F3
         jmp short loc_490A9
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_490F3:              ; CODE XREF: sub_48F6D+182j
-        pop cx
+        pop(cx);
         add di, 728h
         dec cx
         jz  short loc_490FD
         jmp short loc_4909F
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_490FD:              ; CODE XREF: sub_48F6D+18Cj
         mov dx, 3C4h
-        mov al, 2
+        al = 2
         out dx, al      ; EGA: sequencer address reg
                     ; map mask: data bits 0-3 enable writes to bit planes 0-3
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: sequencer data register
         mov dx, 3CEh
-        mov al, 1
+        al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
         mov bx, word_5195F
         mov cl, 3
@@ -5675,21 +5858,21 @@ loc_490FD:              ; CODE XREF: sub_48F6D+18Cj
         add bx, 4D34h
         mov word_51967, bx
         mov dx, 3D4h
-        mov al, 0Dh
+        al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (low)
         inc dx
-        mov al, bl
+        al = bl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 0Ch
+        al = 0Ch
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (high)
         inc dx
-        mov al, bh
+        al = bh
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -5698,7 +5881,7 @@ loc_490FD:              ; CODE XREF: sub_48F6D+18Cj
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 1
+        al = 1
         out dx, al      ; EGA port: graphics controller data register
         retn
 sub_48F6D   endp
@@ -5855,7 +6038,7 @@ sub_4921B   proc near       ; CODE XREF: readConfig+8Cp
         jbe short loc_492A6
         div bp
         mov word_5094D, ax
-        mov al, 1
+        al = 1
         mov byte_50946, al
 
 loc_492A6:              ; CODE XREF: sub_4921B+19j
@@ -5870,12 +6053,12 @@ sub_4921B   endp
 
 sub_492A8   proc near       ; CODE XREF: sub_4955B+27p
                     ; sub_4A3E9+76p
-        mov al, byte_510E2
+        al = byte_510E2
         dec al
         jz  short loc_492B3
         mov byte_510E2, al
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_492B3:              ; CODE XREF: sub_492A8+5j
         push    es
@@ -5883,7 +6066,7 @@ loc_492B3:              ; CODE XREF: sub_492A8+5j
         mov es, ax
         assume es:demoseg
         mov bx, word_510DF
-        mov al, es:[bx]
+        al = es:[bx]
         inc bx
         pop es
         assume es:nothing
@@ -5900,10 +6083,10 @@ loc_492CA:              ; CODE XREF: sub_492A8+47j
         shr al, 1
         shr al, 1
         shr al, 1
-        inc al
+        al++;
         mov byte_510E2, al
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_492E3:              ; CODE XREF: sub_492A8+1Cj
         mov word_51978, 64h ; 'd'
@@ -5933,7 +6116,7 @@ loc_49311:              ; CODE XREF: sub_492F1+Dj
         jnz short locret_49359
 
 loc_4931E:              ; CODE XREF: sub_492F1+24j
-        mov al, byte_510E1
+        al = byte_510E1
         mov ah, byte_510E2
         shl ah, 1
         shl ah, 1
@@ -5941,7 +6124,7 @@ loc_4931E:              ; CODE XREF: sub_492F1+24j
         shl ah, 1
         or  al, ah
         mov byte_510E1, al
-        mov al, byte_510E2
+        al = byte_510E2
         add byte_59B5C, al
         inc byte_59B5C
         mov ax, 4000h
@@ -5964,7 +6147,7 @@ sub_492F1   endp
 
 somethingspsig  proc near       ; CODE XREF: runLevel+355p
                     ; sub_4945D+30p ...
-        mov al, speed?2
+        al = speed?2
         xor al, byte_59B5F
         mov byte_59B5D, al
         xor al, byte_59B5C
@@ -5992,7 +6175,7 @@ somethingspsig  proc near       ; CODE XREF: runLevel+355p
         mov bx, word_510E4
         xor cx, cx
         xor dx, dx
-        mov al, 2
+        al = 2
         int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
                     ; AL = method: offset from end of file
         mov byte_510E1, 0FFh
@@ -6032,23 +6215,23 @@ somethingspsig  proc near       ; CODE XREF: runLevel+355p
 loc_493EB:              ; CODE XREF: somethingspsig+85j
                     ; somethingspsig+8Dj
         push    bx
-        push    cx
+        push(cx);
         mov ax, 4200h
         xor cx, cx
         mov dx, cx
         int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
                     ; AL = method: offset from beginning of file
-        pop cx
+        pop(cx);
         pop bx
         jb  short loc_49430
         push    bx
-        push    cx
+        push(cx);
         mov ax, 3F00h
         mov dx, offset fileLevelData
         int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
                     ; BX = file handle, CX = number of bytes to read
                     ; DS:DX -> buffer
-        pop cx
+        pop(cx);
         pop bx
         jb  short loc_49430
         push    bx
@@ -6056,10 +6239,10 @@ loc_493EB:              ; CODE XREF: somethingspsig+85j
         push    ds
         pop es
         assume es:data
-        push    di
-        push    cx
+        push(di);
+        push(cx);
         mov di, offset fileLevelData
-        mov al, 0FFh
+        al = 0FFh
         cld
         repne scasb
         jz  short loc_4941C
@@ -6068,7 +6251,7 @@ loc_493EB:              ; CODE XREF: somethingspsig+85j
 
 loc_4941C:              ; CODE XREF: somethingspsig+BCj
         pop ax
-        pop di
+        pop(di);
         pop es
         assume es:nothing
         sub cx, ax
@@ -6147,7 +6330,7 @@ loc_494A6:              ; CODE XREF: sub_4945D+41j
                     ; DS:DX -> ASCIZ filename (may include drive and path)
         jnb short loc_494B8
         jmp locret_49543
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_494B8:              ; CODE XREF: sub_4945D+56j
         mov word_510E4, ax
@@ -6236,7 +6419,7 @@ sub_4955B   proc near       ; CODE XREF: runLevel:loc_48B6Bp
         jz  short loc_49567
         call    sub_4914A
         jmp short loc_4957B
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49567:              ; CODE XREF: sub_4955B+5j
         cmp byte_510DE, 0
@@ -6267,13 +6450,13 @@ loc_4959A:              ; CODE XREF: sub_4955B+39j
         jnz short loc_495A9
         mov byte ptr word_510C1+1, 0
         jmp loc_49635
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_495A9:              ; CODE XREF: sub_4955B+44j
         cmp byte ptr word_510C1+1, 0
         jz  short loc_495B3
         jmp loc_49635
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_495B3:              ; CODE XREF: sub_4955B+53j
         mov byte ptr word_510C1+1, 20h ; ' '
@@ -6284,14 +6467,14 @@ loc_495B3:              ; CODE XREF: sub_4955B+53j
         jnz short loc_495ED
         mov cl, 90h ; '?'
         mov dx, 3D4h
-        mov al, 18h
+        al = 18h
         out dx, al      ; Video: CRT cntrlr addr
                     ; line compare (scan line). Used for split screen operations.
         inc dx
-        mov al, cl
+        al = cl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 7
+        al = 7
         out dx, al      ; Video: CRT cntrlr addr
                     ; bit 8 for certain CRTC regs. Data bits:
                     ; 0: vertical total (Reg 06)
@@ -6301,29 +6484,29 @@ loc_495B3:              ; CODE XREF: sub_4955B+53j
                     ; 4: line compare (Reg 18H)
                     ; 5: cursor location (Reg 0aH)
         inc dx
-        mov al, 3Fh ; '?'
+        al = 3Fh ; '?'
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 9
+        al = 9
         out dx, al      ; Video: CRT cntrlr addr
                     ; maximum scan line
         inc dx
-        mov al, 80h ; '?'
+        al = 80h ; '?'
         out dx, al      ; Video: CRT controller internal registers
         jmp short loc_49635
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_495ED:              ; CODE XREF: sub_4955B+6Ej
         mov cl, 0C8h ; '?'
         mov dx, 3D4h
-        mov al, 18h
+        al = 18h
         out dx, al      ; Video: CRT cntrlr addr
                     ; line compare (scan line). Used for split screen operations.
         inc dx
-        mov al, cl
+        al = cl
         out dx, al      ; Video: CRT controller internal registers
         jmp short loc_49635
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_495FB:              ; CODE XREF: sub_4955B+62j
         mov byte ptr word_510C1, 1
@@ -6331,14 +6514,14 @@ loc_495FB:              ; CODE XREF: sub_4955B+62j
         jnz short loc_49629
         mov cl, 5Fh ; '_'
         mov dx, 3D4h
-        mov al, 18h
+        al = 18h
         out dx, al      ; Video: CRT cntrlr addr
                     ; line compare (scan line). Used for split screen operations.
         inc dx
-        mov al, cl
+        al = cl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 7
+        al = 7
         out dx, al      ; Video: CRT cntrlr addr
                     ; bit 8 for certain CRTC regs. Data bits:
                     ; 0: vertical total (Reg 06)
@@ -6348,26 +6531,26 @@ loc_495FB:              ; CODE XREF: sub_4955B+62j
                     ; 4: line compare (Reg 18H)
                     ; 5: cursor location (Reg 0aH)
         inc dx
-        mov al, 3Fh ; '?'
+        al = 3Fh ; '?'
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 9
+        al = 9
         out dx, al      ; Video: CRT cntrlr addr
                     ; maximum scan line
         inc dx
-        mov al, 80h ; '?'
+        al = 80h ; '?'
         out dx, al      ; Video: CRT controller internal registers
         jmp short loc_49635
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49629:              ; CODE XREF: sub_4955B+AAj
         mov cl, 0B0h ; '?'
         mov dx, 3D4h
-        mov al, 18h
+        al = 18h
         out dx, al      ; Video: CRT cntrlr addr
                     ; line compare (scan line). Used for split screen operations.
         inc dx
-        mov al, cl
+        al = cl
         out dx, al      ; Video: CRT controller internal registers
 
 loc_49635:              ; CODE XREF: sub_4955B+4Bj
@@ -6375,13 +6558,13 @@ loc_49635:              ; CODE XREF: sub_4955B+4Bj
         cmp word_51970, 1
         jz  short loc_4963F
         jmp loc_49949
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4963F:              ; CODE XREF: sub_4955B+DFj
         cmp byte_510E3, 0
         jz  short loc_49649
         jmp loc_49742
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49649:              ; CODE XREF: sub_4955B+E9j
         cmp byte ptr dword_519AF, 0
@@ -6433,13 +6616,13 @@ loc_496AC:              ; CODE XREF: sub_4955B+149j
         cmp byte_510DE, 0
         jz  short loc_496B6
         jmp loc_49742
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_496B6:              ; CODE XREF: sub_4955B+156j
         cmp speed?3, 0
         jge short loc_496C0
         jmp loc_49742
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_496C0:              ; CODE XREF: sub_4955B+160j
         cmp byte_5197F, 0
@@ -6496,27 +6679,27 @@ loc_49742:              ; CODE XREF: sub_4955B+EBj
         cmp byte_5199A, 1
         jnz short loc_4974C
         jmp loc_497D1
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4974C:              ; CODE XREF: sub_4955B+1ECj
         mov ax, word_5195D
         and ax, 7
         jz  short loc_49757
         jmp loc_4988E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49757:              ; CODE XREF: sub_4955B+1F7j
         cmp byte_510E3, 0
         jz  short loc_49761
         jmp loc_4988E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49761:              ; CODE XREF: sub_4955B+201j
         cmp byte_519B8, 0
         jnz short loc_4976F
         mov byte_59B7C, 0
         jmp short loc_49786
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4976F:              ; CODE XREF: sub_4955B+20Bj
         cmp byte_59B7C, 0
@@ -6525,7 +6708,7 @@ loc_4976F:              ; CODE XREF: sub_4955B+20Bj
         and byte_5101C, 1
         xor byte_5101C, 1
         jmp short loc_497CE
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49786:              ; CODE XREF: sub_4955B+212j
                     ; sub_4955B+219j
@@ -6533,7 +6716,7 @@ loc_49786:              ; CODE XREF: sub_4955B+212j
         jnz short loc_49794
         mov byte_59B7D, 0
         jmp short loc_497AB
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49794:              ; CODE XREF: sub_4955B+230j
         cmp byte_59B7D, 0
@@ -6542,7 +6725,7 @@ loc_49794:              ; CODE XREF: sub_4955B+230j
         and byte_51035, 2
         xor byte_51035, 2
         jmp short loc_497CE
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_497AB:              ; CODE XREF: sub_4955B+237j
                     ; sub_4955B+23Ej
@@ -6550,7 +6733,7 @@ loc_497AB:              ; CODE XREF: sub_4955B+237j
         jnz short loc_497B9
         mov byte_59B7E, 0
         jmp short loc_497CE
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_497B9:              ; CODE XREF: sub_4955B+255j
         cmp byte_59B7E, 0
@@ -6562,19 +6745,19 @@ loc_497B9:              ; CODE XREF: sub_4955B+255j
 loc_497CE:              ; CODE XREF: sub_4955B+229j
                     ; sub_4955B+24Ej ...
         jmp loc_4988E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_497D1:              ; CODE XREF: sub_4955B+1EEj
         cmp byte_510DE, 0
         jz  short loc_497DB
         jmp loc_4988E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_497DB:              ; CODE XREF: sub_4955B+27Bj
         cmp speed?3, 0
         jge short loc_497E5
         jmp loc_4988E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_497E5:              ; CODE XREF: sub_4955B+285j
         cmp byte_519B8, 1
@@ -6582,7 +6765,7 @@ loc_497E5:              ; CODE XREF: sub_4955B+285j
         mov ax, 0
         call    sub_4945D
         jmp loc_4988E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_497F5:              ; CODE XREF: sub_4955B+28Fj
         cmp byte_519B9, 1
@@ -6590,7 +6773,7 @@ loc_497F5:              ; CODE XREF: sub_4955B+28Fj
         mov ax, 1
         call    sub_4945D
         jmp loc_4988E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49805:              ; CODE XREF: sub_4955B+29Fj
         cmp byte_519BA, 1
@@ -6598,7 +6781,7 @@ loc_49805:              ; CODE XREF: sub_4955B+29Fj
         mov ax, 2
         call    sub_4945D
         jmp short loc_4988E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49814:              ; CODE XREF: sub_4955B+2AFj
         cmp byte_519BB, 1
@@ -6606,7 +6789,7 @@ loc_49814:              ; CODE XREF: sub_4955B+2AFj
         mov ax, 3
         call    sub_4945D
         jmp short loc_4988E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49823:              ; CODE XREF: sub_4955B+2BEj
         cmp byte_519BC, 1
@@ -6614,7 +6797,7 @@ loc_49823:              ; CODE XREF: sub_4955B+2BEj
         mov ax, 4
         call    sub_4945D
         jmp short loc_4988E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49832:              ; CODE XREF: sub_4955B+2CDj
         cmp byte_519BD, 1
@@ -6622,7 +6805,7 @@ loc_49832:              ; CODE XREF: sub_4955B+2CDj
         mov ax, 5
         call    sub_4945D
         jmp short loc_4988E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49841:              ; CODE XREF: sub_4955B+2DCj
         cmp byte_519BE, 1
@@ -6630,7 +6813,7 @@ loc_49841:              ; CODE XREF: sub_4955B+2DCj
         mov ax, 6
         call    sub_4945D
         jmp short loc_4988E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49850:              ; CODE XREF: sub_4955B+2EBj
         cmp byte_519BF, 1
@@ -6638,7 +6821,7 @@ loc_49850:              ; CODE XREF: sub_4955B+2EBj
         mov ax, 7
         call    sub_4945D
         jmp short loc_4988E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4985F:              ; CODE XREF: sub_4955B+2FAj
         cmp byte_519C0, 1
@@ -6646,7 +6829,7 @@ loc_4985F:              ; CODE XREF: sub_4955B+2FAj
         mov ax, 8
         call    sub_4945D
         jmp short loc_4988E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4986E:              ; CODE XREF: sub_4955B+309j
         cmp byte_519C1, 1
@@ -6654,7 +6837,7 @@ loc_4986E:              ; CODE XREF: sub_4955B+309j
         mov ax, 9
         call    sub_4945D
         jmp short loc_4988E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4987D:              ; CODE XREF: sub_4955B+318j
         cmp byte_519D5, 1
@@ -6668,13 +6851,13 @@ loc_4988E:              ; CODE XREF: sub_4955B+1F9j
         cmp byte_510E3, 0
         jz  short loc_49898
         jmp loc_49949
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49898:              ; CODE XREF: sub_4955B+338j
         cmp byte_510DE, 0
         jz  short loc_498A2
         jmp loc_49949
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_498A2:              ; CODE XREF: sub_4955B+342j
         cmp byte_51989, 0
@@ -6682,14 +6865,14 @@ loc_498A2:              ; CODE XREF: sub_4955B+342j
         mov byte_59B7F, 0
         mov byte_59B80, 5
         jmp short loc_498FC
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_498B5:              ; CODE XREF: sub_4955B+34Cj
         cmp byte_59B7F, 0
         jz  short loc_498C2
         dec byte_59B7F
         jmp short loc_498FC
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_498C2:              ; CODE XREF: sub_4955B+35Fj
         cmp byte_59B80, 0
@@ -6721,14 +6904,14 @@ loc_498FC:              ; CODE XREF: sub_4955B+358j
         mov byte_59B81, 0
         mov byte_59B82, 5
         jmp short loc_49949
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4990F:              ; CODE XREF: sub_4955B+3A6j
         cmp byte_59B81, 0
         jz  short loc_4991C
         dec byte_59B81
         jmp short loc_49949
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4991C:              ; CODE XREF: sub_4955B+3B9j
         cmp byte_59B82, 0
@@ -6754,13 +6937,13 @@ loc_49949:              ; CODE XREF: sub_4955B+E1j
         mov byte_59B6B, 0
         jz  short loc_49958
         jmp loc_49A89
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49958:              ; CODE XREF: sub_4955B+3F8j
         cmp byte_5199A, 1
         jz  short loc_49962
         jmp loc_49C41
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49962:              ; CODE XREF: sub_4955B+402j
         cmp byte_519D5, 1
@@ -6821,7 +7004,7 @@ writeToFh1  proc near       ; CODE XREF: sub_4955B+486p
         retn
 writeToFh1  endp
 
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 ; START OF FUNCTION CHUNK FOR sub_4955B
 
 loc_499C8:              ; CODE XREF: sub_4955B+454j
@@ -6833,7 +7016,7 @@ loc_499C8:              ; CODE XREF: sub_4955B+454j
                     ; DS:DX -> ASCIZ filename (may include drive and path)
         jnb short loc_499D8
         jmp loc_49C28
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_499D8:              ; CODE XREF: sub_4955B+478j
         mov fh1, ax
@@ -6842,7 +7025,7 @@ loc_499D8:              ; CODE XREF: sub_4955B+478j
         call    writeToFh1
         jnb short loc_499E9
         jmp loc_49C1F
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_499E9:              ; CODE XREF: sub_4955B+489j
         mov cx, 1238h
@@ -6850,14 +7033,14 @@ loc_499E9:              ; CODE XREF: sub_4955B+489j
         call    writeToFh1
         jnb short loc_499F7
         jmp loc_49C1F
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_499F7:              ; CODE XREF: sub_4955B+497j
         cmp byte_510DE, 0
         jnz short loc_49A03
         mov dx, 87A8h
         jmp short loc_49A06
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49A03:              ; CODE XREF: sub_4955B+4A1j
         mov dx, 87DAh
@@ -6869,14 +7052,14 @@ loc_49A06:              ; CODE XREF: sub_4955B+4A6j
         pop bx
         jnb short loc_49A13
         jmp loc_49C1F
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49A13:              ; CODE XREF: sub_4955B+4B3j
         mov cx, 6
         mov byte_5988D, 63h ; 'c'
         mov ax, word ptr aLevels_dat_0+8 ; "AT"
         mov word_5988E, ax
-        mov al, [bx]
+        al = [bx]
         cmp byte_510DE, 0
         jz  short loc_49A2C
         or  al, 80h
@@ -6889,7 +7072,7 @@ loc_49A2C:              ; CODE XREF: sub_4955B+4CDj
         call    writeToFh1
         jnb short loc_49A40
         jmp loc_49C1F
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49A40:              ; CODE XREF: sub_4955B+4E0j
         mov cx, 0E6h ; '?'
@@ -6897,7 +7080,7 @@ loc_49A40:              ; CODE XREF: sub_4955B+4E0j
         call    writeToFh1
         jnb short loc_49A4E
         jmp loc_49C1F
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49A4E:              ; CODE XREF: sub_4955B+4EEj
         mov cx, 23h ; '#'
@@ -6905,7 +7088,7 @@ loc_49A4E:              ; CODE XREF: sub_4955B+4EEj
         call    writeToFh1
         jnb short loc_49A5C
         jmp loc_49C1F
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49A5C:              ; CODE XREF: sub_4955B+4FCj
         mov cx, levelDataLength
@@ -6913,7 +7096,7 @@ loc_49A5C:              ; CODE XREF: sub_4955B+4FCj
         call    writeToFh1
         jnb short loc_49A6A
         jmp loc_49C1F
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49A6A:              ; CODE XREF: sub_4955B+50Aj
         mov ax, 3E00h
@@ -6922,19 +7105,19 @@ loc_49A6A:              ; CODE XREF: sub_4955B+50Aj
                     ; BX = file handle
         jnb short loc_49A78
         jmp loc_49C28
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49A78:              ; CODE XREF: sub_4955B+518j
         push    si
         mov si, 0A001h
         jmp loc_49C2C
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49A7F:              ; CODE XREF: sub_4955B+456j
         cmp byte ptr dword_519A3, 1
         jz  short loc_49A89
         jmp loc_49C41
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49A89:              ; CODE XREF: sub_4955B+3FAj
                     ; sub_4955B+529j
@@ -6946,7 +7129,7 @@ loc_49A89:              ; CODE XREF: sub_4955B+3FAj
                     ; 0 - read
         jnb short loc_49A96
         jmp loc_49C28
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49A96:              ; CODE XREF: sub_4955B+536j
         mov fh1, ax
@@ -6960,7 +7143,7 @@ loc_49AA3:              ; CODE XREF: sub_4955B+543j
         call    readFromFh1
         jnb short loc_49AB1
         jmp loc_49C1A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49AB1:              ; CODE XREF: sub_4955B+551j
         mov cx, word_5A30D
@@ -6976,7 +7159,7 @@ loc_49AC5:              ; CODE XREF: sub_4955B+55Ej
         int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                     ; BX = file handle
         jmp loc_49C28
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49AD1:              ; CODE XREF: sub_4955B+568j
         mov cx, 1238h
@@ -6984,7 +7167,7 @@ loc_49AD1:              ; CODE XREF: sub_4955B+568j
         call    readFromFh1
         jnb short loc_49ADF
         jmp loc_49C1A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49ADF:              ; CODE XREF: sub_4955B+57Fj
         mov cx, 1Ch
@@ -6992,7 +7175,7 @@ loc_49ADF:              ; CODE XREF: sub_4955B+57Fj
         call    readFromFh1
         jnb short loc_49AED
         jmp loc_49C1A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49AED:              ; CODE XREF: sub_4955B+58Dj
         mov cx, 6
@@ -7000,7 +7183,7 @@ loc_49AED:              ; CODE XREF: sub_4955B+58Dj
         call    readFromFh1
         jnb short loc_49AFB
         jmp loc_49C1A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49AFB:              ; CODE XREF: sub_4955B+59Bj
         mov cx, 84h ; '?'
@@ -7008,7 +7191,7 @@ loc_49AFB:              ; CODE XREF: sub_4955B+59Bj
         call    readFromFh1
         jnb short loc_49B09
         jmp loc_49C1A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49B09:              ; CODE XREF: sub_4955B+5A9j
         mov cx, 4
@@ -7016,7 +7199,7 @@ loc_49B09:              ; CODE XREF: sub_4955B+5A9j
         call    readFromFh1
         jnb short loc_49B17
         jmp loc_49C1A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49B17:              ; CODE XREF: sub_4955B+5B7j
         mov cx, 7
@@ -7024,7 +7207,7 @@ loc_49B17:              ; CODE XREF: sub_4955B+5B7j
         call    readFromFh1
         jnb short loc_49B25
         jmp loc_49C1A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49B25:              ; CODE XREF: sub_4955B+5C5j
         mov cx, 4
@@ -7032,7 +7215,7 @@ loc_49B25:              ; CODE XREF: sub_4955B+5C5j
         call    readFromFh1
         jnb short loc_49B33
         jmp loc_49C1A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49B33:              ; CODE XREF: sub_4955B+5D3j
         mov cx, 53h ; 'S'
@@ -7042,7 +7225,7 @@ loc_49B33:              ; CODE XREF: sub_4955B+5D3j
         pop word_510C1
         jnb short loc_49B49
         jmp loc_49C1A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49B49:              ; CODE XREF: sub_4955B+5E9j
         mov cx, 23h ; '#'
@@ -7056,7 +7239,7 @@ loc_49B49:              ; CODE XREF: sub_4955B+5E9j
         pop word_51961
         jnb short loc_49B6F
         jmp loc_49C1A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49B6F:              ; CODE XREF: sub_4955B+60Fj
         cmp byte_5988D, 0
@@ -7118,7 +7301,7 @@ loc_49C12:              ; CODE XREF: sub_4955B+6A8j
         mov si, 6015h
         call    fade
         jmp short loc_49C40
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49C1A:              ; CODE XREF: sub_4955B+553j
                     ; sub_4955B+581j ...
@@ -7218,7 +7401,7 @@ loc_49CE4:              ; CODE XREF: sub_4955B+7A6j
         jnz short loc_49CF3
         mov word_51970, 0
         jmp short loc_49D03
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49CF3:              ; CODE XREF: sub_4955B+78Ej
         cmp byte ptr [bx+166Dh], 0
@@ -7307,7 +7490,7 @@ loc_49D84:              ; CODE XREF: levelScanThing+4Cj
         jnz short loc_49DA6
         mov bx, 59Fh
         sub bx, cx
-        mov al, [bx-6775h]
+        al = [bx-6775h]
         cmp ax, 1Ch
         jb  short loc_49DA2
         cmp ax, 25h ; '%'
@@ -7329,7 +7512,7 @@ loc_49DAC:              ; CODE XREF: levelScanThing+7Fj
         jnz short loc_49DD9
         mov bx, 59Fh
         sub bx, cx
-        mov al, [bx-6775h]
+        al = [bx-6775h]
         cmp ax, 1Ah
         jb  short loc_49DD5
         cmp ax, 27h ; '''
@@ -7362,10 +7545,10 @@ gameloop?   proc near       ; CODE XREF: runLevel:noFlashingp
 
         ; set graphics write mode = 1
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al
         inc dx
-        mov al, 1
+        al = 1
         out dx, al
 
         mov si, murphyloc
@@ -7381,10 +7564,10 @@ gameloop?   proc near       ; CODE XREF: runLevel:noFlashingp
         xor al, al
         out dx, al
         inc dx
-        mov al, 3Fh
+        al = 3Fh
         out dx, al
         out dx, al
-        mov al, 21h
+        al = 21h
         out dx, al
 
 loc_49E0A:
@@ -7395,10 +7578,10 @@ loc_49E0A:
 loc_49E14:
         ; set graphics write mode = 1
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al
         inc dx
-        mov al, 1
+        al = 1
         out dx, al
 
         cmp word ptr flashingbackgroundon, 0
@@ -7410,9 +7593,9 @@ loc_49E14:
         xor al, al
         out dx, al
         inc dx
-        mov al, 3Fh
+        al = 3Fh
         out dx, al
-        mov al, 21h
+        al = 21h
         out dx, al
         out dx, al
 
@@ -7457,23 +7640,23 @@ moveToNextCell:
 
 ; call moving functions one by one
 callNextMovingFunction:
-        push    di
-        push    cx
+        push(di);
+        push(cx);
         mov si, [di]    ; the cell for the moving object
         mov ax, [di+2]  ; the function to call
         call    ax
-        pop cx
-        pop di
+        pop(cx);
+        pop(di);
         add di, 4
         loop    callNextMovingFunction
 
 doneWithGameLoop:
         ; set graphics write mode = 0
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al
         inc dx
-        mov al, 0
+        al = 0
         out dx, al
 
         cmp word_510D1, 1
@@ -7481,7 +7664,7 @@ doneWithGameLoop:
         cmp word_510CF, 0
         jz  short loc_49E99
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49E99:              ; CODE XREF: gameloop?+AFj
                     ; gameloop?+B6j
@@ -7495,10 +7678,10 @@ loc_49E99:              ; CODE XREF: gameloop?+AFj
 loc_49EB3:
         ; set graphics write mode = 0
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al
         inc dx
-        mov al, 1
+        al = 1
         out dx, al
 
         retn
@@ -7534,7 +7717,7 @@ loc_49EE8:              ; CODE XREF: sub_49EBE+25j
         jz  short loc_49EF4
         sub ax, 58h ; 'X'
         jmp short loc_49EF7
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49EF4:              ; CODE XREF: sub_49EBE+2Fj
         sub ax, 64h ; 'd'
@@ -7553,7 +7736,7 @@ loc_49EFE:              ; CODE XREF: sub_49EBE+3Cj
 
 loc_49F0D:              ; CODE XREF: sub_49EBE+4Aj
         jmp short loc_49F17
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49F0F:              ; CODE XREF: sub_49EBE+45j
         cmp ax, 0A8h ; '?'
@@ -7571,7 +7754,7 @@ loc_49F25:              ; CODE XREF: sub_49EBE+5Ej
         mov word_59B88, bx
         mov word_59B8A, ax
         jmp short loc_49FA9
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49F2E:              ; CODE XREF: sub_49EBE+65j
         mov bx, word_59B88
@@ -7584,13 +7767,13 @@ loc_49F2E:              ; CODE XREF: sub_49EBE+65j
         jnz short loc_49F4C
         mov bx, 8
         jmp short loc_49F66
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49F4C:              ; CODE XREF: sub_49EBE+87j
         add bx, 3D0h
         dec word_51965
         jmp short loc_49F66
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49F56:              ; CODE XREF: sub_49EBE+80j
         cmp byte_59B6C, 0
@@ -7614,7 +7797,7 @@ loc_49F6E:              ; CODE XREF: sub_49EBE+9Dj
         jnz short loc_49FA9
         xor ax, ax
         jmp short loc_49FA1
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49F81:              ; CODE XREF: sub_49EBE+B6j
         cmp byte_59B6C, 0
@@ -7625,7 +7808,7 @@ loc_49F81:              ; CODE XREF: sub_49EBE+B6j
         jbe short loc_49FA9
         mov ax, 0C0h ; '?'
         jmp short loc_49FA1
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49F99:              ; CODE XREF: sub_49EBE+CFj
         cmp ax, 0A8h ; '?'
@@ -7679,13 +7862,13 @@ sub_49EBE   endp
 
 sub_49FED   proc near       ; CODE XREF: sub_48E59+2Cp
                     ; sub_48E59+67p ...
-        mov al, byte_50940
+        al = byte_50940
         cmp al, 0
         jnz short loc_49FF8
         xor ax, ax
         stc
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_49FF8:              ; CODE XREF: sub_49FED+5j
         mov dx, 201h
@@ -7711,7 +7894,7 @@ loc_49FFF:              ; CODE XREF: sub_49FED+21j
         loop    loc_49FFF
         stc
         jmp short loc_4A03B
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A013:              ; CODE XREF: sub_49FED+1Fj
         out dx, al      ; Game I/O port
@@ -7749,7 +7932,7 @@ loc_4A021:              ; CODE XREF: sub_49FED+44j
         loop    loc_4A021
         stc
         jmp short loc_4A03B
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A036:              ; CODE XREF: sub_49FED+42j
         neg cx
@@ -7770,7 +7953,7 @@ movefun7  proc near       ; DATA XREF: data:163Co
         cmp byte ptr leveldata[si], 19h
         jz  short loc_4A045
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A045:              ; CODE XREF: movefun7+5j
         mov ax, word_5195D
@@ -7778,7 +7961,7 @@ loc_4A045:              ; CODE XREF: movefun7+5j
         cmp ax, 0
         jz  short loc_4A051
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A051:              ; CODE XREF: movefun7+11j
         mov bl, [si+1835h]
@@ -7796,7 +7979,7 @@ loc_4A067:              ; CODE XREF: movefun7+1Dj
         cmp bl, 0
         jge short loc_4A071
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A071:              ; CODE XREF: movefun7+31j
         cmp byte ptr [si+17BAh], 3
@@ -7816,7 +7999,7 @@ loc_4A071:              ; CODE XREF: movefun7+31j
         cmp byte ptr [si+18AEh], 3
         jz  short loc_4A0AB
         jmp short loc_4A0AE
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A0AB:              ; CODE XREF: movefun7+39j
                     ; movefun7+40j ...
@@ -7852,7 +8035,7 @@ movefun5  proc near       ; DATA XREF: data:1630o
         cmp byte ptr leveldata[si], 13h
         jz  short loc_4A0DA
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A0DA:              ; CODE XREF: movefun5+5j
         mov bl, [si+1835h]
@@ -7861,7 +8044,7 @@ loc_4A0DA:              ; CODE XREF: movefun5+5j
         jg  short loc_4A0EA
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A0EA:              ; CODE XREF: movefun5+11j
         call    sub_4A1AE
@@ -7877,7 +8060,7 @@ loc_4A0EA:              ; CODE XREF: movefun5+11j
         mov ax, es
         mov ds, ax
         push    si
-        push    di
+        push(di);
         movsb
         add di, 0FC2Fh
         add si, 79h ; 'y'
@@ -7908,7 +8091,7 @@ loc_4A0EA:              ; CODE XREF: movefun5+11j
         movsb
         add di, 79h ; 'y'
         add si, 79h ; 'y'
-        pop di
+        pop(di);
         pop si
         inc si
         inc di
@@ -8038,7 +8221,7 @@ loc_4A22A:              ; CODE XREF: sub_4A1BF+5Bj
         jnz short loc_4A236
         add byte_50941, 4
         jmp short locret_4A23B
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A236:              ; CODE XREF: sub_4A1BF+6Ej
         mov byte_50941, 9
@@ -8058,7 +8241,7 @@ sub_4A23C   proc near       ; CODE XREF: sub_4955B+111p
         mov cx, 5A0h
 
 loc_4A242:              ; CODE XREF: sub_4A23C+1Fj
-        mov al, [si+1834h]
+        al = [si+1834h]
         cmp al, ah
         jz  short loc_4A253
         cmp ah, 11h
@@ -8133,18 +8316,18 @@ sub_4A291   proc near       ; CODE XREF: sub_4955B+686p
         and al, 7
         mov byte_510A6, al
         mov dx, 3D4h
-        mov al, 0Dh
+        al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (low)
         inc dx
-        mov al, bl
+        al = bl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 0Ch
+        al = 0Ch
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (high)
         inc dx
-        mov al, bh
+        al = bh
         out dx, al      ; Video: CRT controller internal registers
         call    videoloop
         retn
@@ -8166,7 +8349,7 @@ loc_4A2F0:              ; CODE XREF: sub_4A2E6+D1j
         jnz short loc_4A2FC
         mov byte ptr [si], 1Fh
         jmp loc_4A3B0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A2FC:              ; CODE XREF: sub_4A2E6+Ej
         cmp byte_5A33F, 1
@@ -8200,30 +8383,30 @@ loc_4A330:              ; CODE XREF: sub_4A2E6+43j
 
 loc_4A33A:              ; CODE XREF: sub_4A2E6+4Dj
         jmp short loc_4A3B0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A33C:              ; CODE XREF: sub_4A2E6+20j
         inc dx
         jmp short loc_4A3B0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A33F:              ; CODE XREF: sub_4A2E6+2Fj
                     ; sub_4A2E6+34j ...
         mov word ptr [si], 5
         jmp short loc_4A3B0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A345:              ; CODE XREF: sub_4A2E6+48j
         mov word ptr [si], 6
         jmp short loc_4A3B0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A34B:              ; CODE XREF: sub_4A2E6+25j
         cmp word ptr [si-2], 0
         jnz short loc_4A357
         mov byte ptr [si+1], 1
         jmp short loc_4A3B0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A357:              ; CODE XREF: sub_4A2E6+69j
         cmp word ptr [si-78h], 0
@@ -8231,7 +8414,7 @@ loc_4A357:              ; CODE XREF: sub_4A2E6+69j
         mov word ptr [si-78h], 1011h
         mov word ptr [si], 0FFFFh
         jmp short loc_4A3B0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A368:              ; CODE XREF: sub_4A2E6+75j
         cmp word ptr [si+2], 0
@@ -8239,14 +8422,14 @@ loc_4A368:              ; CODE XREF: sub_4A2E6+75j
         mov word ptr [si+2], 2811h
         mov word ptr [si], 0FFFFh
         jmp short loc_4A3B0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A379:              ; CODE XREF: sub_4A2E6+2Aj
         cmp word ptr [si-2], 0
         jnz short loc_4A385
         mov byte ptr [si+1], 1
         jmp short loc_4A3B0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A385:              ; CODE XREF: sub_4A2E6+97j
         cmp word ptr [si-78h], 0
@@ -8254,7 +8437,7 @@ loc_4A385:              ; CODE XREF: sub_4A2E6+97j
         mov word ptr [si-78h], 1018h
         mov word ptr [si], 0FFFFh
         jmp short loc_4A3B0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A396:              ; CODE XREF: sub_4A2E6+A3j
         cmp word ptr [si+2], 0
@@ -8262,13 +8445,13 @@ loc_4A396:              ; CODE XREF: sub_4A2E6+A3j
         mov word ptr [si+2], 2818h
         mov word ptr [si], 0FFFFh
         jmp short loc_4A3B0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A3A7:              ; CODE XREF: sub_4A2E6+52j
         sub byte ptr [si], 4
         mov byte ptr [si+1], 1
         jmp short $+2
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A3B0:              ; CODE XREF: sub_4A2E6+13j
                     ; sub_4A2E6:loc_4A33Aj ...
@@ -8277,7 +8460,7 @@ loc_4A3B0:              ; CODE XREF: sub_4A2E6+13j
         dec cx
         jz  short locret_4A3BA
         jmp loc_4A2F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_4A3BA:               ; CODE XREF: sub_4A2E6+CFj
         retn
@@ -8391,7 +8574,7 @@ movefun3  proc near       ; DATA XREF: data:161Ao
         cmp byte ptr leveldata[si], 8
         jz  short loc_4A491
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A491:              ; CODE XREF: movefun3+5j
         mov ax, [si+1834h]
@@ -8403,20 +8586,20 @@ loc_4A491:              ; CODE XREF: movefun3+5j
         cmp ax, 0
         jz  short loc_4A4A9
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A4A9:              ; CODE XREF: movefun3+1Dj
         mov byte ptr [si+1835h], 20h ; ' '
         mov byte ptr [si+18ADh], 8
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A4B4:              ; CODE XREF: movefun3+14j
         cmp word ptr [si+18ACh], 0
         jnz short loc_4A4C2
         mov word ptr leveldata[si], 8
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A4C2:              ; CODE XREF: movefun3+30j
         mov bl, [si+1835h]
@@ -8428,13 +8611,13 @@ loc_4A4C2:              ; CODE XREF: movefun3+30j
 loc_4A4CF:              ; CODE XREF: movefun3+42j
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A4D4:              ; CODE XREF: movefun3+Fj
         push    si
         mov bl, [si+1835h]
         xor bh, bh
-        mov al, bl
+        al = bl
         shl bx, 1
         ;and bx, byte ptr 0Fh
         db 83h, 0E3h, 0Fh
@@ -8458,12 +8641,12 @@ loc_4A4F9:              ; CODE XREF: movefun3+78j
         pop si
         mov bl, [si+1835h]
         inc bl
-        mov al, bl
+        al = bl
         and al, 7
         jz  short loc_4A516
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A516:              ; CODE XREF: movefun3+86j
         mov word ptr leveldata[si], 0
@@ -8474,26 +8657,26 @@ loc_4A516:              ; CODE XREF: movefun3+86j
         mov byte ptr [si+1835h], 30h ; '0'
         mov byte ptr [si+18ADh], 8
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A537:              ; CODE XREF: movefun3+A1j
         cmp byte ptr [si+18ACh], 1Fh
         jnz short loc_4A53F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A53F:              ; CODE XREF: movefun3+B3j
         call    sub_4A61F
         retn
 movefun3  endp
 
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A543:              ; DATA XREF: data:1648o
         cmp byte ptr leveldata[si], 1Fh
         jz  short loc_4A54B
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A54B:              ; CODE XREF: code:3928j
         mov ax, word_5195D
@@ -8501,7 +8684,7 @@ loc_4A54B:              ; CODE XREF: code:3928j
         cmp ax, 0
         jz  short loc_4A557
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A557:              ; CODE XREF: code:3934j
         mov bl, [si+1835h]
@@ -8539,7 +8722,7 @@ loc_4A582:              ; CODE XREF: code:396Aj
 
 locret_4A59F:               ; CODE XREF: code:3972j
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A5A0:              ; CODE XREF: code:393Ej
         inc bl
@@ -8548,7 +8731,7 @@ loc_4A5A0:              ; CODE XREF: code:393Ej
         mov word ptr leveldata[si], 4
         mov byte_510C0, 0
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A5B3:              ; CODE XREF: code:3985j
         mov [si+1835h], bl
@@ -8589,11 +8772,11 @@ loc_4A5E9:              ; CODE XREF: sub_4A5E0+25j
         dec byte ptr [bx+2434h]
         jnz short loc_4A601
         push    si
-        push    cx
+        push(cx);
         push    bx
         call    sub_4A61F
         pop bx
-        pop cx
+        pop(cx);
         pop si
 
 loc_4A601:              ; CODE XREF: sub_4A5E0+Ej
@@ -8602,18 +8785,18 @@ loc_4A601:              ; CODE XREF: sub_4A5E0+Ej
         inc bx
         loop    loc_4A5E9
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A608:              ; CODE XREF: sub_4A5E0+10j
         inc byte ptr [bx+2434h]
         jnz short loc_4A601
         push    si
-        push    cx
+        push(cx);
         push    bx
         mov word ptr leveldata[si], 0FF18h
         call    sub_4A61F
         pop bx
-        pop cx
+        pop(cx);
         pop si
         jmp short loc_4A601
 sub_4A5E0   endp
@@ -8627,7 +8810,7 @@ sub_4A61F   proc near       ; CODE XREF: movefun+271p
         cmp byte ptr leveldata[si], 6
         jnz short loc_4A627
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A627:              ; CODE XREF: sub_4A61F+5j
         mov byte_510C0, 1
@@ -8641,7 +8824,7 @@ loc_4A639:              ; CODE XREF: sub_4A61F+12j
         mov cx, 801Fh
         mov dl, 0F3h ; '?'
         jmp short loc_4A64C
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A647:              ; CODE XREF: sub_4A61F+1Fj
         mov cx, 1Fh
@@ -8651,7 +8834,7 @@ loc_4A64C:              ; CODE XREF: sub_4A61F+26j
         mov bx, si
         shr bx, 1
         mov dh, dl
-        push    cx
+        push(cx);
         mov ax, leveldata[si-78h-2h]
         cmp al, 8
         jz  short loc_4A680
@@ -8668,7 +8851,7 @@ loc_4A64C:              ; CODE XREF: sub_4A61F+26j
         neg dh
         mov cx, 801Fh
         jmp short loc_4A680
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A676:              ; CODE XREF: sub_4A61F+4Ej
         cmp al, 3
@@ -8689,7 +8872,7 @@ loc_4A688:              ; CODE XREF: sub_4A61F+59j
 
 loc_4A690:              ; CODE XREF: sub_4A61F+6Bj
         jmp short loc_4A6A6
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A692:              ; CODE XREF: sub_4A61F+4Aj
         push    si
@@ -8697,7 +8880,7 @@ loc_4A692:              ; CODE XREF: sub_4A61F+4Aj
         call    sub_4AA34
         pop si
         jmp short loc_4A6A6
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A69C:              ; CODE XREF: sub_4A61F+46j
         push    si
@@ -8705,13 +8888,13 @@ loc_4A69C:              ; CODE XREF: sub_4A61F+46j
         call    sub_4A9C4
         pop si
         jmp short $+2
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A6A6:              ; CODE XREF: sub_4A61F:loc_4A690j
                     ; sub_4A61F+7Bj ...
-        pop cx
+        pop(cx);
         mov dh, dl
-        push    cx
+        push(cx);
         mov ax, [si+17BCh]
         cmp al, 8
         jz  short loc_4A6D7
@@ -8728,7 +8911,7 @@ loc_4A6A6:              ; CODE XREF: sub_4A61F:loc_4A690j
         neg dh
         mov cx, 801Fh
         jmp short loc_4A6D7
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A6CD:              ; CODE XREF: sub_4A61F+A5j
         cmp al, 3
@@ -8749,7 +8932,7 @@ loc_4A6DF:              ; CODE XREF: sub_4A61F+B0j
 
 loc_4A6E7:              ; CODE XREF: sub_4A61F+C2j
         jmp short loc_4A6FD
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A6E9:              ; CODE XREF: sub_4A61F+A1j
         push    si
@@ -8757,7 +8940,7 @@ loc_4A6E9:              ; CODE XREF: sub_4A61F+A1j
         call    sub_4AA34
         pop si
         jmp short loc_4A6FD
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A6F3:              ; CODE XREF: sub_4A61F+9Dj
         push    si
@@ -8765,13 +8948,13 @@ loc_4A6F3:              ; CODE XREF: sub_4A61F+9Dj
         call    sub_4A9C4
         pop si
         jmp short $+2
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A6FD:              ; CODE XREF: sub_4A61F:loc_4A6E7j
                     ; sub_4A61F+D2j ...
-        pop cx
+        pop(cx);
         mov dh, dl
-        push    cx
+        push(cx);
         mov ax, [si+17BEh]
         cmp al, 8
         jz  short loc_4A72E
@@ -8788,7 +8971,7 @@ loc_4A6FD:              ; CODE XREF: sub_4A61F:loc_4A6E7j
         neg dh
         mov cx, 801Fh
         jmp short loc_4A72E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A724:              ; CODE XREF: sub_4A61F+FCj
         cmp al, 3
@@ -8809,7 +8992,7 @@ loc_4A736:              ; CODE XREF: sub_4A61F+107j
 
 loc_4A73E:              ; CODE XREF: sub_4A61F+119j
         jmp short loc_4A754
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A740:              ; CODE XREF: sub_4A61F+F8j
         push    si
@@ -8817,7 +9000,7 @@ loc_4A740:              ; CODE XREF: sub_4A61F+F8j
         call    sub_4AA34
         pop si
         jmp short loc_4A754
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A74A:              ; CODE XREF: sub_4A61F+F4j
         push    si
@@ -8825,13 +9008,13 @@ loc_4A74A:              ; CODE XREF: sub_4A61F+F4j
         call    sub_4A9C4
         pop si
         jmp short $+2
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A754:              ; CODE XREF: sub_4A61F:loc_4A73Ej
                     ; sub_4A61F+129j ...
-        pop cx
+        pop(cx);
         mov dh, dl
-        push    cx
+        push(cx);
         mov ax, [si+1832h]
         cmp al, 8
         jz  short loc_4A785
@@ -8848,7 +9031,7 @@ loc_4A754:              ; CODE XREF: sub_4A61F:loc_4A73Ej
         neg dh
         mov cx, 801Fh
         jmp short loc_4A785
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A77B:              ; CODE XREF: sub_4A61F+153j
         cmp al, 3
@@ -8869,7 +9052,7 @@ loc_4A78D:              ; CODE XREF: sub_4A61F+15Ej
 
 loc_4A795:              ; CODE XREF: sub_4A61F+170j
         jmp short loc_4A7AB
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A797:              ; CODE XREF: sub_4A61F+14Fj
         push    si
@@ -8877,7 +9060,7 @@ loc_4A797:              ; CODE XREF: sub_4A61F+14Fj
         call    sub_4AA34
         pop si
         jmp short loc_4A7AB
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A7A1:              ; CODE XREF: sub_4A61F+14Bj
         push    si
@@ -8885,14 +9068,14 @@ loc_4A7A1:              ; CODE XREF: sub_4A61F+14Bj
         call    sub_4A9C4
         pop si
         jmp short $+2
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A7AB:              ; CODE XREF: sub_4A61F:loc_4A795j
                     ; sub_4A61F+180j ...
-        pop cx
+        pop(cx);
         mov [si+1834h], cx
         mov dh, dl
-        push    cx
+        push(cx);
         mov ax, [si+1836h]
         cmp al, 8
         jz  short loc_4A7E0
@@ -8909,7 +9092,7 @@ loc_4A7AB:              ; CODE XREF: sub_4A61F:loc_4A795j
         neg dh
         mov cx, 801Fh
         jmp short loc_4A7E0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A7D6:              ; CODE XREF: sub_4A61F+1AEj
         cmp al, 3
@@ -8930,7 +9113,7 @@ loc_4A7E8:              ; CODE XREF: sub_4A61F+1B9j
 
 loc_4A7F0:              ; CODE XREF: sub_4A61F+1CBj
         jmp short loc_4A806
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A7F2:              ; CODE XREF: sub_4A61F+1AAj
         push    si
@@ -8938,7 +9121,7 @@ loc_4A7F2:              ; CODE XREF: sub_4A61F+1AAj
         call    sub_4AA34
         pop si
         jmp short loc_4A806
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A7FC:              ; CODE XREF: sub_4A61F+1A6j
         push    si
@@ -8946,13 +9129,13 @@ loc_4A7FC:              ; CODE XREF: sub_4A61F+1A6j
         call    sub_4A9C4
         pop si
         jmp short $+2
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A806:              ; CODE XREF: sub_4A61F:loc_4A7F0j
                     ; sub_4A61F+1DBj ...
-        pop cx
+        pop(cx);
         mov dh, dl
-        push    cx
+        push(cx);
         mov ax, [si+18AAh]
         cmp al, 8
         jz  short loc_4A837
@@ -8969,7 +9152,7 @@ loc_4A806:              ; CODE XREF: sub_4A61F:loc_4A7F0j
         neg dh
         mov cx, 801Fh
         jmp short loc_4A837
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A82D:              ; CODE XREF: sub_4A61F+205j
         cmp al, 3
@@ -8990,7 +9173,7 @@ loc_4A83F:              ; CODE XREF: sub_4A61F+210j
 
 loc_4A847:              ; CODE XREF: sub_4A61F+222j
         jmp short loc_4A85D
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A849:              ; CODE XREF: sub_4A61F+201j
         push    si
@@ -8998,7 +9181,7 @@ loc_4A849:              ; CODE XREF: sub_4A61F+201j
         call    sub_4AA34
         pop si
         jmp short loc_4A85D
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A853:              ; CODE XREF: sub_4A61F+1FDj
         push    si
@@ -9006,13 +9189,13 @@ loc_4A853:              ; CODE XREF: sub_4A61F+1FDj
         call    sub_4A9C4
         pop si
         jmp short $+2
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A85D:              ; CODE XREF: sub_4A61F:loc_4A847j
                     ; sub_4A61F+232j ...
-        pop cx
+        pop(cx);
         mov dh, dl
-        push    cx
+        push(cx);
         mov ax, [si+18ACh]
         cmp al, 8
         jz  short loc_4A88E
@@ -9029,7 +9212,7 @@ loc_4A85D:              ; CODE XREF: sub_4A61F:loc_4A847j
         neg dh
         mov cx, 801Fh
         jmp short loc_4A88E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A884:              ; CODE XREF: sub_4A61F+25Cj
         cmp al, 3
@@ -9050,7 +9233,7 @@ loc_4A896:              ; CODE XREF: sub_4A61F+267j
 
 loc_4A89E:              ; CODE XREF: sub_4A61F+279j
         jmp short loc_4A8B4
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A8A0:              ; CODE XREF: sub_4A61F+258j
         push    si
@@ -9058,7 +9241,7 @@ loc_4A8A0:              ; CODE XREF: sub_4A61F+258j
         call    sub_4AA34
         pop si
         jmp short loc_4A8B4
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A8AA:              ; CODE XREF: sub_4A61F+254j
         push    si
@@ -9066,13 +9249,13 @@ loc_4A8AA:              ; CODE XREF: sub_4A61F+254j
         call    sub_4A9C4
         pop si
         jmp short $+2
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A8B4:              ; CODE XREF: sub_4A61F:loc_4A89Ej
                     ; sub_4A61F+289j ...
-        pop cx
+        pop(cx);
         mov dh, dl
-        push    cx
+        push(cx);
         mov ax, [si+18AEh]
         cmp al, 8
         jz  short loc_4A8E5
@@ -9089,7 +9272,7 @@ loc_4A8B4:              ; CODE XREF: sub_4A61F:loc_4A89Ej
         neg dh
         mov cx, 801Fh
         jmp short loc_4A8E5
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A8DB:              ; CODE XREF: sub_4A61F+2B3j
         cmp al, 3
@@ -9110,7 +9293,7 @@ loc_4A8ED:              ; CODE XREF: sub_4A61F+2BEj
 
 loc_4A8F5:              ; CODE XREF: sub_4A61F+2D0j
         jmp short loc_4A90B
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A8F7:              ; CODE XREF: sub_4A61F+2AFj
         push    si
@@ -9118,7 +9301,7 @@ loc_4A8F7:              ; CODE XREF: sub_4A61F+2AFj
         call    sub_4AA34
         pop si
         jmp short loc_4A90B
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A901:              ; CODE XREF: sub_4A61F+2ABj
         push    si
@@ -9126,11 +9309,11 @@ loc_4A901:              ; CODE XREF: sub_4A61F+2ABj
         call    sub_4A9C4
         pop si
         jmp short $+2
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A90B:              ; CODE XREF: sub_4A61F:loc_4A8F5j
                     ; sub_4A61F+2E0j ...
-        pop cx
+        pop(cx);
         call    sound?4
         retn
 sub_4A61F   endp
@@ -9141,7 +9324,7 @@ sub_4A61F   endp
 
 sub_4A910   proc near       ; CODE XREF: runLevel:noFlashing3p
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -9150,9 +9333,9 @@ sub_4A910   proc near       ; CODE XREF: runLevel:noFlashing3p
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 1
+        al = 1
         out dx, al      ; EGA port: graphics controller data register
-        mov al, byte_510DB
+        al = byte_510DB
         cmp al, 1
         jle short loc_4A954
         mov si, word_510DC
@@ -9174,7 +9357,7 @@ loc_4A932:              ; CODE XREF: sub_4A910+1Aj
 loc_4A954:              ; CODE XREF: sub_4A910+Fj
                     ; sub_4A910+36j
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -9183,7 +9366,7 @@ loc_4A954:              ; CODE XREF: sub_4A910+Fj
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 1
+        al = 1
         out dx, al      ; EGA port: graphics controller data register
         retn
 sub_4A910   endp
@@ -9194,11 +9377,11 @@ sub_4A910   endp
 
 sub_4A95F   proc near       ; CODE XREF: runLevel+372p
                     ; sub_4A3E9+7p ...
-        mov al, byte_510B0
+        al = byte_510B0
         mov byte_510B4, al
-        mov al, byte_510B1
+        al = byte_510B1
         mov byte_510B5, al
-        mov al, byte_510B2
+        al = byte_510B2
         mov byte_510B6, al
         cmp byte_510DE, 0
         jnz short locret_4A97F
@@ -9207,7 +9390,7 @@ sub_4A95F   proc near       ; CODE XREF: runLevel+372p
 
 locret_4A97F:               ; CODE XREF: sub_4A95F+17j
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A980:              ; CODE XREF: sub_4A95F+1Ej
         mov bh, byte_5981F
@@ -9215,7 +9398,7 @@ loc_4A980:              ; CODE XREF: sub_4A95F+1Ej
         shr bx, 1
         mov si, bx
         add si, 8A9Ch
-        mov al, byte_510B4
+        al = byte_510B4
         add al, [si+0Bh]
 
 loc_4A994:              ; CODE XREF: sub_4A95F+3Ej
@@ -9224,11 +9407,11 @@ loc_4A994:              ; CODE XREF: sub_4A95F+3Ej
         sub al, 3Ch ; '<'
         inc byte ptr [si+0Ah]
         jmp short loc_4A994
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A99F:              ; CODE XREF: sub_4A95F+37j
         mov [si+0Bh], al
-        mov al, byte_510B5
+        al = byte_510B5
         add al, [si+0Ah]
 
 loc_4A9A8:              ; CODE XREF: sub_4A95F+52j
@@ -9237,14 +9420,14 @@ loc_4A9A8:              ; CODE XREF: sub_4A95F+52j
         sub al, 3Ch ; '<'
         inc byte ptr [si+9]
         jmp short loc_4A9A8
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A9B3:              ; CODE XREF: sub_4A95F+4Bj
         mov [si+0Ah], al
-        mov al, byte_510B6
+        al = byte_510B6
         add al, [si+9]
         jnb short loc_4A9C0
-        mov al, 0FFh
+        al = 0FFh
 
 loc_4A9C0:              ; CODE XREF: sub_4A95F+5Dj
         mov [si+9], al
@@ -9274,7 +9457,7 @@ sub_4A9C4   proc near       ; CODE XREF: sub_4A61F+81p
         cmp ah, 70h ; 'p'
         jz  short loc_4AA2D
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4A9EF:              ; CODE XREF: sub_4A9C4+Aj sub_4A9C4+Fj
         sub si, 78h ; 'x'
@@ -9286,7 +9469,7 @@ loc_4A9EF:              ; CODE XREF: sub_4A9C4+Aj sub_4A9C4+Fj
 
 locret_4AA04:               ; CODE XREF: sub_4A9C4+3Bj
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4AA05:              ; CODE XREF: sub_4A9C4+14j
         add si, 2
@@ -9294,7 +9477,7 @@ loc_4AA05:              ; CODE XREF: sub_4A9C4+14j
         add si, 76h ; 'v'
         call    sub_4AAB4
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4AA12:              ; CODE XREF: sub_4A9C4+19j
         sub si, 2
@@ -9302,19 +9485,19 @@ loc_4AA12:              ; CODE XREF: sub_4A9C4+19j
         add si, 7Ah ; 'z'
         call    sub_4AAB4
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4AA1F:              ; CODE XREF: sub_4A9C4+1Ej
         sub si, 2
         call    sub_4AAB4
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4AA26:              ; CODE XREF: sub_4A9C4+23j
         add si, 2
         call    sub_4AAB4
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4AA2D:              ; CODE XREF: sub_4A9C4+28j
         add si, 78h ; 'x'
@@ -9345,7 +9528,7 @@ sub_4AA34   proc near       ; CODE XREF: sub_4A61F+77p
         cmp ah, 70h ; 'p'
         jz  short loc_4AAAD
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4AA5F:              ; CODE XREF: sub_4AA34+Aj sub_4AA34+Fj
         sub si, 78h ; 'x'
@@ -9357,7 +9540,7 @@ loc_4AA5F:              ; CODE XREF: sub_4AA34+Aj sub_4AA34+Fj
 
 locret_4AA74:               ; CODE XREF: sub_4AA34+3Bj
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4AA75:              ; CODE XREF: sub_4AA34+14j
         add si, 2
@@ -9369,7 +9552,7 @@ loc_4AA75:              ; CODE XREF: sub_4AA34+14j
 
 locret_4AA89:               ; CODE XREF: sub_4AA34+50j
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4AA8A:              ; CODE XREF: sub_4AA34+19j
         sub si, 2
@@ -9381,19 +9564,19 @@ loc_4AA8A:              ; CODE XREF: sub_4AA34+19j
 
 locret_4AA9E:               ; CODE XREF: sub_4AA34+65j
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4AA9F:              ; CODE XREF: sub_4AA34+1Ej
         sub si, 2
         call    sub_4AAB4
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4AAA6:              ; CODE XREF: sub_4AA34+23j
         add si, 2
         call    sub_4AAB4
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4AAAD:              ; CODE XREF: sub_4AA34+28j
         add si, 78h ; 'x'
@@ -9410,7 +9593,7 @@ sub_4AAB4   proc near       ; CODE XREF: sub_4A9C4+2Ep
         cmp byte ptr leveldata[si], 1Fh
         jnz short loc_4AABC
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4AABC:              ; CODE XREF: sub_4AAB4+5j
         mov word ptr leveldata[si], 0
@@ -9446,7 +9629,7 @@ readMenuDat proc near       ; CODE XREF: readEverything+9p
                     ; 0 - read
         jnb short loc_4AAED
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4AAED:              ; CODE XREF: readMenuDat+8j
         mov lastFileHandle, ax
@@ -9465,7 +9648,7 @@ loc_4AAED:              ; CODE XREF: readMenuDat+8j
         pop ds
         assume ds:data
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4AB0B:              ; CODE XREF: readMenuDat+25j
         pop ds
@@ -9475,7 +9658,7 @@ loc_4AB0B:              ; CODE XREF: readMenuDat+25j
                     ; BX = file handle
         jnb short locret_4AB1A
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_4AB1A:               ; CODE XREF: readMenuDat+35j
         retn
@@ -9504,7 +9687,7 @@ loc_4AB2D:              ; CODE XREF: sub_4AB1B+2Dj
         cmp [si+6], ax
         jnz short loc_4AB42
         jmp short loc_4AB56
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4AB42:              ; CODE XREF: sub_4AB1B+14j
                     ; sub_4AB1B+19j ...
@@ -9518,7 +9701,7 @@ loc_4AB4A:              ; CODE XREF: sub_4AB1B+5j
         mov ah, 6
         call    sub_4BA5F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4AB56:              ; CODE XREF: sub_4AB1B+25j
         mov byte_59820, bl
@@ -9545,13 +9728,13 @@ noKeyPressed:               ; CODE XREF: sub_4AB1B+79j
         call    getMouseStatus
         cmp bx, 0
         jnz short loc_4ABEB
-        mov al, keyPressed
+        al = keyPressed
         cmp al, 0
         jz  short noKeyPressed
         mov keyPressed, 0
         mov bl, al
         xor bh, bh
-        mov al, [bx+16FAh]
+        al = [bx+16FAh]
         cmp al, 0
         jz  short noKeyPressed
         cmp al, 0Ah
@@ -9569,7 +9752,7 @@ noKeyPressed:               ; CODE XREF: sub_4AB1B+79j
         mov ah, 6
         call    sub_4BA5F
         jmp short noKeyPressed
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4ABCC:              ; CODE XREF: sub_4AB1B+92j
         mov bx, word_58475
@@ -9577,14 +9760,14 @@ loc_4ABCC:              ; CODE XREF: sub_4AB1B+92j
         jz  short noKeyPressed
         dec bx
         mov si, 820Bh
-        mov al, 20h ; ' '
+        al = 20h ; ' '
         mov [bx+si], al
         mov word_58475, bx
         mov di, 89FFh
         mov ah, 6
         call    sub_4BA5F
         jmp short noKeyPressed
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4ABEB:              ; CODE XREF: sub_4AB1B+72j
                     ; sub_4AB1B+8Ej ...
@@ -9608,7 +9791,7 @@ loc_4ABEB:              ; CODE XREF: sub_4AB1B+72j
         call    sub_4B85C
         call    sub_4B8BE
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4AC1E:              ; CODE XREF: sub_4AB1B+E0j
                     ; sub_4AB1B+E5j ...
@@ -9628,7 +9811,7 @@ loc_4AC1E:              ; CODE XREF: sub_4AB1B+E0j
         call    sub_4B85C
         call    sub_4B8BE
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4AC46:              ; CODE XREF: sub_4AB1B+108j
                     ; sub_4AB1B+10Dj ...
@@ -9651,7 +9834,7 @@ loc_4AC4B:              ; CODE XREF: sub_4AB1B+14Cj
         mov si, 820Bh
         mov byte ptr [si], 20h ; ' '
         jmp short loc_4AC4B
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4AC69:              ; CODE XREF: sub_4AB1B+137j
         pop es
@@ -9680,7 +9863,7 @@ loc_4AC73:              ; CODE XREF: sub_4AB1B+18Cj
         call    sub_4B85C
         call    sub_4B8BE
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4ACA3:              ; CODE XREF: sub_4AB1B+15Cj
                     ; sub_4AB1B+164j ...
@@ -9754,7 +9937,7 @@ loc_4AD3C:              ; CODE XREF: sub_4AD0E+5j
         mov ah, 8
         call    sub_4BA5F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4AD48:              ; CODE XREF: sub_4AD0E+1Dj
                     ; sub_4AD0E+22j ...
@@ -9806,9 +9989,9 @@ loc_4AD74:              ; CODE XREF: sub_4AD0E+88j
         mov es, ax
         assume es:data
         mov cx, 8
-        mov al, 2Dh ; '-'
+        al = 2Dh ; '-'
         rep stosb
-        mov al, 0
+        al = 0
         mov cx, 78h ; 'x'
         rep stosb
         pop es
@@ -9861,13 +10044,13 @@ sub_4ADFF   proc near
         mov ah, 8
         call    sub_4BA5F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4AE2E:              ; CODE XREF: sub_4ADFF+12j
                     ; sub_4ADFF+17j ...
         add si, 0Ch
         mov cx, 6Fh ; 'o'
-        mov al, 2
+        al = 2
         mov bl, 0
 
 loc_4AE38:              ; CODE XREF: sub_4ADFF+40j
@@ -9881,7 +10064,7 @@ loc_4AE3E:              ; CODE XREF: sub_4ADFF+3Bj
         cmp word_51970, 0
         jz  short loc_4AE4A
         jmp short loc_4AE5B
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4AE4A:              ; CODE XREF: sub_4ADFF+47j
         cmp bl, 3
@@ -9891,7 +10074,7 @@ loc_4AE4A:              ; CODE XREF: sub_4ADFF+47j
         mov ah, 6
         call    sub_4BA5F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4AE5B:              ; CODE XREF: sub_4ADFF+49j
                     ; sub_4ADFF+4Ej
@@ -9906,7 +10089,7 @@ loc_4AE5B:              ; CODE XREF: sub_4ADFF+49j
         mov ah, 4
         call    sub_4BA5F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4AE75:              ; CODE XREF: sub_4ADFF+68j
         mov si, 82A9h
@@ -9996,7 +10179,7 @@ sub_4AF0C   proc near
         mov ah, 8
         call    sub_4BA5F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4AF3E:              ; CODE XREF: sub_4AF0C+15j
                     ; sub_4AF0C+1Aj ...
@@ -10013,7 +10196,7 @@ loc_4AF3E:              ; CODE XREF: sub_4AF0C+15j
         mov word_58714, ax
         cmp word_51970, 0
         jz  short loc_4AFE3
-        mov al, 0Ah
+        al = 0Ah
         sub al, gameSpeed
         aam
         or  ax, 3030h
@@ -10040,15 +10223,15 @@ loc_4AFB6:              ; CODE XREF: sub_4AF0C+B9j
         inc byte_59B94
         cmp byte_59B96, 32h ; '2'
         jb  short loc_4AFB6
-        mov al, byte_59B94
+        al = byte_59B94
         xor ah, ah
-        push    cx
+        push(cx);
         mov cl, 64h ; 'd'
         div cl
-        pop cx
+        pop(cx);
         or  al, 30h
         mov byte_5870F, al
-        mov al, ah
+        al = ah
         aam
         or  ax, 3030h
         xchg    al, ah
@@ -10080,7 +10263,7 @@ loc_4AFE3:              ; CODE XREF: sub_4AF0C+58j
         mov cx, 8
 
 loc_4B025:              ; CODE XREF: sub_4AF0C+11Fj
-        mov al, [si]
+        al = [si]
         mov [di], al
         inc si
         inc di
@@ -10090,7 +10273,7 @@ loc_4B025:              ; CODE XREF: sub_4AF0C+11Fj
         mov ah, 0Fh
         call    sub_4BDF0
         mov si, bp
-        mov al, [si+7Eh]
+        al = [si+7Eh]
         cmp al, 71h ; 'q'
         jnz short loc_4B046
         mov byte_5091A, 1
@@ -10103,16 +10286,16 @@ loc_4B046:              ; CODE XREF: sub_4AF0C+133j
         mov ah, 0Fh
         call    sub_4BDF0
         mov di, bp
-        mov al, [di+0Bh]
+        al = [di+0Bh]
         mov si, 8479h
         call    sub_4BF4D
         mov si, 8476h
         mov byte ptr [si+3], 3Ah ; ':'
-        mov al, [di+0Ah]
+        al = [di+0Ah]
         call    sub_4BF4D
         mov si, 8473h
         mov byte ptr [si+3], 3Ah ; ':'
-        mov al, [di+9]
+        al = [di+9]
         mov ah, 20h ; ' '
         call    sub_4BF4F
         mov si, 8462h
@@ -10120,7 +10303,7 @@ loc_4B046:              ; CODE XREF: sub_4AF0C+133j
         mov ah, 0Fh
         call    sub_4BDF0
         mov di, bp
-        mov al, [di+9]
+        al = [di+9]
         mov bl, 3Ch ; '<'
         mul bl
         add al, [di+0Ah]
@@ -10134,7 +10317,7 @@ loc_4B0A1:              ; CODE XREF: sub_4AF0C+192j
         mov bl, [di+7Eh]
         div bl
         push    ax
-        mov al, ah
+        al = ah
         mov bl, 0Ah
         mul bl
         mov bl, [di+7Eh]
@@ -10158,7 +10341,7 @@ loc_4B0C2:              ; CODE XREF: sub_4AF0C+1AFj
         mov ah, 0Fh
         call    sub_4BDF0
         jmp short loc_4B105
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B0E2:              ; CODE XREF: sub_4AF0C+1C7j
         cmp byte_5091A, 2
@@ -10168,7 +10351,7 @@ loc_4B0E2:              ; CODE XREF: sub_4AF0C+1C7j
         mov ah, 0Fh
         call    sub_4BDF0
         jmp short loc_4B105
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B0F6:              ; CODE XREF: sub_4AF0C+1DBj
         mov si, 847Dh
@@ -10181,18 +10364,18 @@ loc_4B105:              ; CODE XREF: sub_4AF0C+1D4j
                     ; sub_4AF0C+1E8j
         mov bx, 4D84h
         mov dx, 3D4h
-        mov al, 0Dh
+        al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (low)
         inc dx
-        mov al, bl
+        al = bl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 0Ch
+        al = 0Ch
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (high)
         inc dx
-        mov al, bh
+        al = bh
         out dx, al      ; Video: CRT controller internal registers
         mov si, 5FD5h
         call    fade
@@ -10201,18 +10384,18 @@ loc_4B105:              ; CODE XREF: sub_4AF0C+1D4j
         call    fade
         mov bx, 4D5Ch
         mov dx, 3D4h
-        mov al, 0Dh
+        al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (low)
         inc dx
-        mov al, bl
+        al = bl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 0Ch
+        al = 0Ch
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (high)
         inc dx
-        mov al, bh
+        al = bh
         out dx, al      ; Video: CRT controller internal registers
         mov si, 6015h
         call    fade
@@ -10241,7 +10424,7 @@ sub_4B159   proc near       ; CODE XREF: runMainMenu+6Fp
         or  cx, cx
         jnz short loc_4B163
         jmp locret_4B1F1
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B163:              ; CODE XREF: sub_4B159+5j
         mov word_5196C, 1
@@ -10260,14 +10443,14 @@ loc_4B17A:              ; CODE XREF: sub_4B159+2Dj
         jz  short loc_4B188
         inc cx
         jmp short loc_4B17A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B188:              ; CODE XREF: sub_4B159+2Aj
-        push    cx
+        push(cx);
         call    getTime
         call    sub_4A1AE
         xor dx, dx
-        pop cx
+        pop(cx);
         div cx
         mov bx, 0
         shl dx, 1
@@ -10279,7 +10462,7 @@ loc_4B188:              ; CODE XREF: sub_4B159+2Aj
         mov byte_510DE, 0
 
 loc_4B1AE:              ; CODE XREF: sub_4B159+48j
-        mov al, es:[bx]
+        al = es:[bx]
         xor ah, ah
         push    bx
         mov bx, dx
@@ -10295,7 +10478,7 @@ loc_4B1AE:              ; CODE XREF: sub_4B159+48j
 
 loc_4B1CF:              ; CODE XREF: sub_4B159+6Bj
                     ; sub_4B159+6Fj
-        mov al, dl
+        al = dl
         mov bx, [bx-67CAh]
         mov timeOfDay, bx
         pop bx
@@ -10350,7 +10533,7 @@ loc_4B22F:              ; CODE XREF: demoSomething?+30j
         ja  short loc_4B248
         or  ah, ah
         jz  short loc_4B248
-        mov al, ah
+        al = ah
         mov byte ptr word_599D8, al
 
 loc_4B248:              ; CODE XREF: demoSomething?+4Bj
@@ -10367,7 +10550,7 @@ loc_4B248:              ; CODE XREF: demoSomething?+4Bj
         retn
 demoSomething?  endp
 
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 loc_4B262:
         mov byte_50915, 1
         mov byte_50913, 0
@@ -10377,7 +10560,7 @@ loc_4B262:
         cmp ax, word_58473
         jnb short loc_4B27F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B27F:              ; CODE XREF: code:465Cj
         call    sub_4B899
@@ -10399,7 +10582,7 @@ loc_4B2A5:              ; CODE XREF: code:4678j code:467Fj
         call    sub_4B85C
         call    sub_4B8BE
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 loc_4B2AF:
         mov byte_50915, 1
         mov byte_50913, 1
@@ -10409,7 +10592,7 @@ loc_4B2AF:
         cmp ax, word_58473
         jnb short loc_4B2CC
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B2CC:              ; CODE XREF: code:46A9j
         call    sub_4B899
@@ -10457,18 +10640,18 @@ sub_4B2FC   proc near       ; CODE XREF: sub_4B375+56p
         call    sub_4BDF0
         mov bx, 4D84h
         mov dx, 3D4h
-        mov al, 0Dh
+        al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (low)
         inc dx
-        mov al, bl
+        al = bl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 0Ch
+        al = 0Ch
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (high)
         inc dx
-        mov al, bh
+        al = bh
         out dx, al      ; Video: CRT controller internal registers
         mov si, 5FD5h
         call    fade
@@ -10477,18 +10660,18 @@ sub_4B2FC   proc near       ; CODE XREF: sub_4B375+56p
         call    fade
         mov bx, 4D5Ch
         mov dx, 3D4h
-        mov al, 0Dh
+        al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (low)
         inc dx
-        mov al, bl
+        al = bl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 0Ch
+        al = 0Ch
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (high)
         inc dx
-        mov al, bh
+        al = bh
         out dx, al      ; Video: CRT controller internal registers
         mov si, 6015h
         call    fade
@@ -10519,7 +10702,7 @@ sub_4B375   proc near       ; CODE XREF: runMainMenu+11Ep
         mov ah, 8
         call    sub_4BA5F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B3A4:              ; CODE XREF: sub_4B375+12j
                     ; sub_4B375+17j ...
@@ -10529,7 +10712,7 @@ loc_4B3A4:              ; CODE XREF: sub_4B375+12j
         cmp word_51ABC, 70h ; 'p'
         jnz short loc_4B3B4
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B3B4:              ; CODE XREF: sub_4B375+3Cj
         add si, 0Ch
@@ -10548,7 +10731,7 @@ loc_4B3C3:              ; CODE XREF: sub_4B375+4Aj
         jnz short loc_4B3CF
         call    sub_4B2FC
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B3CF:              ; CODE XREF: sub_4B375+54j
         mov si, 82CEh
@@ -10556,13 +10739,13 @@ loc_4B3CF:              ; CODE XREF: sub_4B375+54j
         mov ah, 2
         call    sub_4BA5F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B3DB:              ; CODE XREF: sub_4B375+35j
         dec ax
         mov si, 949Eh
         add si, ax
-        mov al, [si]
+        al = [si]
         cmp al, 6
         jz  short loc_4B404
         mov word_5196C, 1
@@ -10571,12 +10754,12 @@ loc_4B3DB:              ; CODE XREF: sub_4B375+35j
         jnz short loc_4B3FD
         mov byte_510B3, 0
         jmp short loc_4B40F
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B3FD:              ; CODE XREF: sub_4B375+7Fj
         mov byte_510B3, 1
         jmp short loc_4B40F
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B404:              ; CODE XREF: sub_4B375+70j
         mov si, 82CEh
@@ -10608,10 +10791,10 @@ loc_4B423:              ; CODE XREF: sub_4B419+6j
         not al
 
 loc_4B42C:              ; CODE XREF: sub_4B419+Fj
-        inc al
+        al++;
         jnz short loc_4B433
         jmp loc_4B583
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B433:              ; CODE XREF: sub_4B419+15j
         mov ax, word_5195D
@@ -10619,7 +10802,7 @@ loc_4B433:              ; CODE XREF: sub_4B419+15j
         cmp ax, word_59B8E
         jnb short loc_4B443
         jmp locret_4B582
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B443:              ; CODE XREF: sub_4B419+25j
         mov ax, word_5195D
@@ -10638,37 +10821,37 @@ loc_4B454:              ; CODE XREF: sub_4B419+35j
         jnz short loc_4B46B
         mov ax, 3030h
         jmp short loc_4B4A3
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B46B:              ; CODE XREF: sub_4B419+4Bj
         cmp ax, 3939h
         jnz short loc_4B475
         mov ax, 5441h
         jmp short loc_4B4A3
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B475:              ; CODE XREF: sub_4B419+55j
         inc ah
         cmp ah, 39h ; '9'
         jbe short loc_4B4A3
         mov ah, 30h ; '0'
-        inc al
+        al++;
         jmp short loc_4B4A3
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B482:              ; CODE XREF: sub_4B419+46j
         cmp ax, 5441h
         jnz short loc_4B48C
         mov ax, 3939h
         jmp short loc_4B4A3
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B48C:              ; CODE XREF: sub_4B419+6Cj
         cmp ax, 3030h
         jnz short loc_4B496
         mov ax, 5441h
         jmp short loc_4B4A3
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B496:              ; CODE XREF: sub_4B419+76j
         dec ah
@@ -10677,7 +10860,7 @@ loc_4B496:              ; CODE XREF: sub_4B419+76j
         mov ah, 39h ; '9'
         dec al
         jmp short $+2
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B4A3:              ; CODE XREF: sub_4B419+50j
                     ; sub_4B419+5Aj ...
@@ -10692,7 +10875,7 @@ loc_4B4A3:              ; CODE XREF: sub_4B419+50j
         cmp ax, 2
         jz  short loc_4B454
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B4B8:              ; CODE XREF: sub_4B419+95j
         mov ax, 3E00h
@@ -10701,14 +10884,14 @@ loc_4B4B8:              ; CODE XREF: sub_4B419+95j
                     ; BX = file handle
         jnb short loc_4B4C6
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B4C6:              ; CODE XREF: sub_4B419+A8j
         mov ax, word ptr aLevels_dat_0+8 ; "AT"
         mov word ptr aLevelSet??+0Fh, ax ; "??  "
         cmp ah, 54h ; 'T'
         jnz short loc_4B4D3
-        mov al, 53h ; 'S'
+        al = 53h ; 'S'
 
 loc_4B4D3:              ; CODE XREF: sub_4B419+B6j
         mov word ptr aLevel_lst+7, ax ; "ST"
@@ -10749,39 +10932,39 @@ loc_4B504:              ; CODE XREF: sub_4B419+E6j
         jz  short loc_4B52A
         lea di, byte_58DB4+4
         mov cx, 6Fh ; 'o'
-        mov al, 2
+        al = 2
         rep stosb
         pop es
         assume es:nothing
         jmp short loc_4B565
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B52A:              ; CODE XREF: sub_4B419+101j
         lea di, word_58DAC
         mov cx, 14h
 
 loc_4B531:              ; CODE XREF: sub_4B419+129j
-        push    cx
+        push(cx);
         mov ax, 2D2Dh
         mov cx, 4
         rep stosw
         xor ax, ax
         mov cx, 3Ch ; '<'
         rep stosw
-        pop cx
+        pop(cx);
         loop    loc_4B531
         lea di, asc_59824   ; "    "
         mov cx, 3
 
 loc_4B54B:              ; CODE XREF: sub_4B419+143j
-        push    cx
+        push(cx);
         mov ax, 2020h
         mov cx, 4
         rep stosw
         xor ax, ax
         mov cx, 2
         rep stosw
-        pop cx
+        pop(cx);
         loop    loc_4B54B
         pop es
         call    readHallfameLst
@@ -10800,7 +10983,7 @@ loc_4B565:              ; CODE XREF: sub_4B419+10Fj
 
 locret_4B582:               ; CODE XREF: sub_4B419+27j
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B583:              ; CODE XREF: sub_4B419+17j
         mov si, 60D5h
@@ -10822,7 +11005,7 @@ loc_4B583:              ; CODE XREF: sub_4B419+17j
         mov ah, 0Fh
         call    sub_4BDF0
         jmp short loc_4B5BE
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B5B3:              ; CODE XREF: sub_4B419+187j
                     ; sub_4B419+18Bj
@@ -10838,18 +11021,18 @@ loc_4B5BE:              ; CODE XREF: sub_4B419+198j
         call    sub_4BDF0
         mov bx, 4D84h
         mov dx, 3D4h
-        mov al, 0Dh
+        al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (low)
         inc dx
-        mov al, bl
+        al = bl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 0Ch
+        al = 0Ch
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (high)
         inc dx
-        mov al, bh
+        al = bh
         out dx, al      ; Video: CRT controller internal registers
         mov si, 5FD5h
         call    fade
@@ -10862,7 +11045,7 @@ loc_4B5E6:              ; CODE XREF: sub_4B419+1D3j
 loc_4B5EE:              ; CODE XREF: sub_4B419+20Fj
         cmp word_5197A, 1
         jz  short loc_4B63D
-        mov al, keyPressed
+        al = keyPressed
         xor dl, dl
         cmp al, 1Eh     ; A
         jz  short loc_4B62A
@@ -10887,7 +11070,7 @@ loc_4B5EE:              ; CODE XREF: sub_4B419+20Fj
         cmp al, 1       ; Esc
         jz  short loc_4B63D
         jmp short loc_4B5EE
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B62A:              ; CODE XREF: sub_4B419+1E3j
                     ; sub_4B419+1E9j ...
@@ -10908,7 +11091,7 @@ loc_4B63D:              ; CODE XREF: sub_4B419+1DAj
                     ; DL = new default drive number (0 = A, 1 = B, etc.)
                     ; Return: AL = number of logical drives
         jmp short loc_4B64D
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B647:              ; CODE XREF: sub_4B419+222j
         call    readEverything
@@ -10919,18 +11102,18 @@ loc_4B64D:              ; CODE XREF: sub_4B419+22Cj
         call    fade
         mov bx, 4D5Ch
         mov dx, 3D4h
-        mov al, 0Dh
+        al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (low)
         inc dx
-        mov al, bl
+        al = bl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 0Ch
+        al = 0Ch
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (high)
         inc dx
-        mov al, bh
+        al = bh
         out dx, al      ; Video: CRT controller internal registers
         mov si, 6015h
         call    fade
@@ -10950,7 +11133,7 @@ sub_4B671   proc near
         cmp ax, word_5846F
         jnb short loc_4B68E
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B68E:              ; CODE XREF: sub_4B671+1Aj
         mov ax, word_5195D
@@ -10991,7 +11174,7 @@ sub_4B6C9   proc near
         cmp ax, word_5846F
         jnb short loc_4B6E6
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B6E6:              ; CODE XREF: sub_4B6C9+1Aj
         mov ax, word_5195D
@@ -11024,7 +11207,7 @@ sub_4B6C9   endp
 
 
 sub_4B721   proc near
-        mov al, byte_58D47
+        al = byte_58D47
         mov byte_58D46, al
         call    sub_4C0DD
         retn
@@ -11043,7 +11226,7 @@ sub_4B72B   proc near
         cmp ax, word_5846B
         jnb short loc_4B748
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B748:              ; CODE XREF: sub_4B72B+1Aj
         mov ax, word_5195D
@@ -11078,7 +11261,7 @@ sub_4B771   proc near
         cmp ax, word_5846B
         jnb short loc_4B78E
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4B78E:              ; CODE XREF: sub_4B771+1Aj
         mov ax, word_5195D
@@ -11109,18 +11292,18 @@ sub_4B7B7   proc near
         call    fade
         mov bx, 4D84h
         mov dx, 3D4h
-        mov al, 0Dh
+        al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (low)
         inc dx
-        mov al, bl
+        al = bl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 0Ch
+        al = 0Ch
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (high)
         inc dx
-        mov al, bh
+        al = bh
         out dx, al      ; Video: CRT controller internal registers
         call    vgaloadbackseg
         mov si, 861Dh
@@ -11162,18 +11345,18 @@ sub_4B7B7   proc near
         call    fade
         mov bx, 4D5Ch
         mov dx, 3D4h
-        mov al, 0Dh
+        al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (low)
         inc dx
-        mov al, bl
+        al = bl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 0Ch
+        al = 0Ch
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (high)
         inc dx
-        mov al, bh
+        al = bh
         out dx, al      ; Video: CRT controller internal registers
         mov si, 6015h
         call    fade
@@ -11187,7 +11370,7 @@ sub_4B7B7   endp
 sub_4B85C   proc near       ; CODE XREF: sub_4AB1B+FCp
                     ; sub_4AB1B+124p ...
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -11196,7 +11379,7 @@ sub_4B85C   proc near       ; CODE XREF: sub_4AB1B+FCp
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 1
+        al = 1
         out dx, al      ; EGA port: graphics controller data register
         mov ax, mousey
         mov bx, 7Ah ; 'z'
@@ -11231,7 +11414,7 @@ sub_4B85C   endp
 
 sub_4B899   proc near       ; CODE XREF: start+417p sub_4AB1B+3Fp ...
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -11240,7 +11423,7 @@ sub_4B899   proc near       ; CODE XREF: start+417p sub_4AB1B+3Fp ...
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 1
+        al = 1
         out dx, al      ; EGA port: graphics controller data register
         mov si, 4D34h
         mov di, word_5847B
@@ -11266,7 +11449,7 @@ sub_4B899   endp
 sub_4B8BE   proc near       ; CODE XREF: sub_4AB1B+FFp
                     ; sub_4AB1B+127p ...
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -11275,38 +11458,38 @@ sub_4B8BE   proc near       ; CODE XREF: sub_4AB1B+FFp
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 8
+        al = 8
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 2
+        al = 2
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; color compare.
                     ; Data bits 0-3 select color for read mode 01
         inc dx
-        mov al, 1
+        al = 1
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 7
+        al = 7
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; color masking disable
                     ; bits 0-3 disable planes from compare logic in read mode 01
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, 1
+        al = 1
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 1
+        al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
         mov si, 1520h
         mov bx, word_5195D
@@ -11322,231 +11505,231 @@ sub_4B8BE   proc near       ; CODE XREF: sub_4AB1B+FFp
         sub bh, bl
         mov cx, 8
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
         push    ds
         mov ax, es
         mov ds, ax
         push    si
-        push    di
+        push(di);
         mov cx, 8
 
 loc_4B926:              ; CODE XREF: sub_4B8BE+85j
-        push    cx
-        mov al, [si]
+        push(cx);
+        al = [si]
         mov ah, al
         mov cl, bl
         shr al, cl
         out dx, al      ; EGA port: graphics controller data register
         xor [di], al
-        mov al, ah
+        al = ah
         mov cl, bh
         shl al, cl
         out dx, al      ; EGA port: graphics controller data register
         xor [di+1], al
         add si, 7Ah ; 'z'
         add di, 7Ah ; 'z'
-        pop cx
+        pop(cx);
         loop    loc_4B926
         mov dx, 3CEh
-        mov al, 2
+        al = 2
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; color compare.
                     ; Data bits 0-3 select color for read mode 01
         inc dx
-        mov al, 5
+        al = 5
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, 5
+        al = 5
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
-        pop di
+        pop(di);
         pop si
         push    si
-        push    di
+        push(di);
         mov cx, 8
 
 loc_4B96A:              ; CODE XREF: sub_4B8BE+C9j
-        push    cx
-        mov al, [si]
+        push(cx);
+        al = [si]
         mov ah, al
         mov cl, bl
         shr al, cl
         out dx, al      ; EGA port: graphics controller data register
         xor [di], al
-        mov al, ah
+        al = ah
         mov cl, bh
         shl al, cl
         out dx, al      ; EGA port: graphics controller data register
         xor [di+1], al
         add si, 7Ah ; 'z'
         add di, 7Ah ; 'z'
-        pop cx
+        pop(cx);
         loop    loc_4B96A
         mov dx, 3CEh
-        mov al, 2
+        al = 2
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; color compare.
                     ; Data bits 0-3 select color for read mode 01
         inc dx
-        mov al, 8
+        al = 8
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, 8
+        al = 8
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
-        pop di
+        pop(di);
         pop si
         push    si
-        push    di
+        push(di);
         mov cx, 8
 
 loc_4B9AE:              ; CODE XREF: sub_4B8BE+10Dj
-        push    cx
-        mov al, [si]
+        push(cx);
+        al = [si]
         mov ah, al
         mov cl, bl
         shr al, cl
         out dx, al      ; EGA port: graphics controller data register
         xor [di], al
-        mov al, ah
+        al = ah
         mov cl, bh
         shl al, cl
         out dx, al      ; EGA port: graphics controller data register
         xor [di+1], al
         add si, 7Ah ; 'z'
         add di, 7Ah ; 'z'
-        pop cx
+        pop(cx);
         loop    loc_4B9AE
         mov dx, 3CEh
-        mov al, 2
+        al = 2
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; color compare.
                     ; Data bits 0-3 select color for read mode 01
         inc dx
-        mov al, 9
+        al = 9
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, 9
+        al = 9
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
-        pop di
+        pop(di);
         pop si
         push    si
-        push    di
+        push(di);
         mov cx, 8
 
 loc_4B9F2:              ; CODE XREF: sub_4B8BE+151j
-        push    cx
-        mov al, [si]
+        push(cx);
+        al = [si]
         mov ah, al
         mov cl, bl
         shr al, cl
         out dx, al      ; EGA port: graphics controller data register
         xor [di], al
-        mov al, ah
+        al = ah
         mov cl, bh
         shl al, cl
         out dx, al      ; EGA port: graphics controller data register
         xor [di+1], al
         add si, 7Ah ; 'z'
         add di, 7Ah ; 'z'
-        pop cx
+        pop(cx);
         loop    loc_4B9F2
         mov dx, 3CEh
-        mov al, 2
+        al = 2
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; color compare.
                     ; Data bits 0-3 select color for read mode 01
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
-        pop di
+        pop(di);
         pop si
         mov cx, 8
 
 loc_4BA34:              ; CODE XREF: sub_4B8BE+193j
-        push    cx
-        mov al, [si]
+        push(cx);
+        al = [si]
         mov ah, al
         mov cl, bl
         shr al, cl
         out dx, al      ; EGA port: graphics controller data register
         xor [di], al
-        mov al, ah
+        al = ah
         mov cl, bh
         shl al, cl
         out dx, al      ; EGA port: graphics controller data register
         xor [di+1], al
         add si, 7Ah ; 'z'
         add di, 7Ah ; 'z'
-        pop cx
+        pop(cx);
         loop    loc_4BA34
         pop ds
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
         retn
 sub_4B8BE   endp
@@ -11560,12 +11743,12 @@ sub_4BA5F   proc near       ; CODE XREF: sub_4AB1B+37p
         cmp byte_5A33F, 1
         jnz short loc_4BA69
         jmp locret_4BDEF
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4BA69:              ; CODE XREF: sub_4BA5F+5j
         mov byte_51969, ah
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -11574,22 +11757,22 @@ loc_4BA69:              ; CODE XREF: sub_4BA5F+5j
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 1
+        al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
         mov cl, 0
 
@@ -11598,13 +11781,13 @@ loc_4BA8D:              ; CODE XREF: sub_4BA5F:loc_4BDECj
         cmp bl, 0
         jnz short loc_4BA97
         jmp locret_4BDEF
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4BA97:              ; CODE XREF: sub_4BA5F+33j
         cmp bl, 0Ah
         jnz short loc_4BA9F
         jmp locret_4BDEF
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4BA9F:              ; CODE XREF: sub_4BA5F+3Bj
         inc si
@@ -11612,505 +11795,505 @@ loc_4BA9F:              ; CODE XREF: sub_4BA5F+3Bj
         xor bh, bh
         add bx, 5B15h
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov ah, 0FCh ; '?'
         shr ah, cl
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
         mov ah, 0FCh ; '?'
         mov ch, cl
-        mov al, 8
+        al = 8
         sub al, cl
         mov cl, al
         shl ah, cl
         mov cl, ch
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di+1], al
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, byte_51969
+        al = byte_51969
         out dx, al      ; EGA port: graphics controller data register
         mov ah, [bx]
         shr ah, cl
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
         mov ah, [bx]
         mov ch, cl
-        mov al, 8
+        al = 8
         sub al, cl
         mov cl, al
         shl ah, cl
         mov cl, ch
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di+1], al
-        add di, 7Ah ; 'z'
-        add bx, 40h ; '@'
-        mov dx, 3CEh
-        mov al, 0
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; set/reset.
-                    ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        mov al, 0
-        out dx, al      ; EGA port: graphics controller data register
-        mov ah, 0FCh ; '?'
-        shr ah, cl
-        mov dx, 3CEh
-        mov al, 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        mov al, ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
-        mov ah, 0FCh ; '?'
-        mov ch, cl
-        mov al, 8
-        sub al, cl
-        mov cl, al
-        shl ah, cl
-        mov cl, ch
-        mov dx, 3CEh
-        mov al, 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        mov al, ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di+1], al
-        mov dx, 3CEh
-        mov al, 0
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; set/reset.
-                    ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        mov al, byte_51969
-        out dx, al      ; EGA port: graphics controller data register
-        mov ah, [bx]
-        shr ah, cl
-        mov dx, 3CEh
-        mov al, 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        mov al, ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
-        mov ah, [bx]
-        mov ch, cl
-        mov al, 8
-        sub al, cl
-        mov cl, al
-        shl ah, cl
-        mov cl, ch
-        mov dx, 3CEh
-        mov al, 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di+1], al
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov ah, 0FCh ; '?'
         shr ah, cl
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
         mov ah, 0FCh ; '?'
         mov ch, cl
-        mov al, 8
+        al = 8
         sub al, cl
         mov cl, al
         shl ah, cl
         mov cl, ch
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di+1], al
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, byte_51969
+        al = byte_51969
         out dx, al      ; EGA port: graphics controller data register
         mov ah, [bx]
         shr ah, cl
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
         mov ah, [bx]
         mov ch, cl
-        mov al, 8
+        al = 8
         sub al, cl
         mov cl, al
         shl ah, cl
         mov cl, ch
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di+1], al
-        add di, 7Ah ; 'z'
-        add bx, 40h ; '@'
-        mov dx, 3CEh
-        mov al, 0
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; set/reset.
-                    ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        mov al, 0
-        out dx, al      ; EGA port: graphics controller data register
-        mov ah, 0FCh ; '?'
-        shr ah, cl
-        mov dx, 3CEh
-        mov al, 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        mov al, ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
-        mov ah, 0FCh ; '?'
-        mov ch, cl
-        mov al, 8
-        sub al, cl
-        mov cl, al
-        shl ah, cl
-        mov cl, ch
-        mov dx, 3CEh
-        mov al, 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        mov al, ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di+1], al
-        mov dx, 3CEh
-        mov al, 0
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; set/reset.
-                    ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        mov al, byte_51969
-        out dx, al      ; EGA port: graphics controller data register
-        mov ah, [bx]
-        shr ah, cl
-        mov dx, 3CEh
-        mov al, 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        mov al, ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
-        mov ah, [bx]
-        mov ch, cl
-        mov al, 8
-        sub al, cl
-        mov cl, al
-        shl ah, cl
-        mov cl, ch
-        mov dx, 3CEh
-        mov al, 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di+1], al
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov ah, 0FCh ; '?'
         shr ah, cl
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
         mov ah, 0FCh ; '?'
         mov ch, cl
-        mov al, 8
+        al = 8
         sub al, cl
         mov cl, al
         shl ah, cl
         mov cl, ch
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di+1], al
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, byte_51969
+        al = byte_51969
         out dx, al      ; EGA port: graphics controller data register
         mov ah, [bx]
         shr ah, cl
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
         mov ah, [bx]
         mov ch, cl
-        mov al, 8
+        al = 8
         sub al, cl
         mov cl, al
         shl ah, cl
         mov cl, ch
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di+1], al
-        add di, 7Ah ; 'z'
-        add bx, 40h ; '@'
-        mov dx, 3CEh
-        mov al, 0
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; set/reset.
-                    ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        mov al, 0
-        out dx, al      ; EGA port: graphics controller data register
-        mov ah, 0FCh ; '?'
-        shr ah, cl
-        mov dx, 3CEh
-        mov al, 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        mov al, ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
-        mov ah, 0FCh ; '?'
-        mov ch, cl
-        mov al, 8
-        sub al, cl
-        mov cl, al
-        shl ah, cl
-        mov cl, ch
-        mov dx, 3CEh
-        mov al, 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        mov al, ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di+1], al
-        mov dx, 3CEh
-        mov al, 0
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; set/reset.
-                    ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        mov al, byte_51969
-        out dx, al      ; EGA port: graphics controller data register
-        mov ah, [bx]
-        shr ah, cl
-        mov dx, 3CEh
-        mov al, 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        mov al, ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
-        mov ah, [bx]
-        mov ch, cl
-        mov al, 8
-        sub al, cl
-        mov cl, al
-        shl ah, cl
-        mov cl, ch
-        mov dx, 3CEh
-        mov al, 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di+1], al
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov ah, 0FCh ; '?'
         shr ah, cl
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
         mov ah, 0FCh ; '?'
         mov ch, cl
-        mov al, 8
+        al = 8
         sub al, cl
         mov cl, al
         shl ah, cl
         mov cl, ch
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di+1], al
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, byte_51969
+        al = byte_51969
         out dx, al      ; EGA port: graphics controller data register
         mov ah, [bx]
         shr ah, cl
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
         mov ah, [bx]
         mov ch, cl
-        mov al, 8
+        al = 8
         sub al, cl
         mov cl, al
         shl ah, cl
         mov cl, ch
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
+        al = ah
+        out dx, al      ; EGA port: graphics controller data register
+        or  es:[di+1], al
+        add di, 7Ah ; 'z'
+        add bx, 40h ; '@'
+        mov dx, 3CEh
+        al = 0
+        out dx, al      ; EGA: graph 1 and 2 addr reg:
+                    ; set/reset.
+                    ; Data bits 0-3 select planes for write mode 00
+        inc dx
+        al = 0
+        out dx, al      ; EGA port: graphics controller data register
+        mov ah, 0FCh ; '?'
+        shr ah, cl
+        mov dx, 3CEh
+        al = 8
+        out dx, al      ; EGA: graph 1 and 2 addr reg:
+                    ; bit mask
+                    ; Bits 0-7 select bits to be masked in all planes
+        inc dx
+        al = ah
+        out dx, al      ; EGA port: graphics controller data register
+        or  es:[di], al
+        mov ah, 0FCh ; '?'
+        mov ch, cl
+        al = 8
+        sub al, cl
+        mov cl, al
+        shl ah, cl
+        mov cl, ch
+        mov dx, 3CEh
+        al = 8
+        out dx, al      ; EGA: graph 1 and 2 addr reg:
+                    ; bit mask
+                    ; Bits 0-7 select bits to be masked in all planes
+        inc dx
+        al = ah
+        out dx, al      ; EGA port: graphics controller data register
+        or  es:[di+1], al
+        mov dx, 3CEh
+        al = 0
+        out dx, al      ; EGA: graph 1 and 2 addr reg:
+                    ; set/reset.
+                    ; Data bits 0-3 select planes for write mode 00
+        inc dx
+        al = byte_51969
+        out dx, al      ; EGA port: graphics controller data register
+        mov ah, [bx]
+        shr ah, cl
+        mov dx, 3CEh
+        al = 8
+        out dx, al      ; EGA: graph 1 and 2 addr reg:
+                    ; bit mask
+                    ; Bits 0-7 select bits to be masked in all planes
+        inc dx
+        al = ah
+        out dx, al      ; EGA port: graphics controller data register
+        or  es:[di], al
+        mov ah, [bx]
+        mov ch, cl
+        al = 8
+        sub al, cl
+        mov cl, al
+        shl ah, cl
+        mov cl, ch
+        mov dx, 3CEh
+        al = 8
+        out dx, al      ; EGA: graph 1 and 2 addr reg:
+                    ; bit mask
+                    ; Bits 0-7 select bits to be masked in all planes
+        inc dx
+        al = ah
+        out dx, al      ; EGA port: graphics controller data register
+        or  es:[di+1], al
+        add di, 7Ah ; 'z'
+        add bx, 40h ; '@'
+        mov dx, 3CEh
+        al = 0
+        out dx, al      ; EGA: graph 1 and 2 addr reg:
+                    ; set/reset.
+                    ; Data bits 0-3 select planes for write mode 00
+        inc dx
+        al = 0
+        out dx, al      ; EGA port: graphics controller data register
+        mov ah, 0FCh ; '?'
+        shr ah, cl
+        mov dx, 3CEh
+        al = 8
+        out dx, al      ; EGA: graph 1 and 2 addr reg:
+                    ; bit mask
+                    ; Bits 0-7 select bits to be masked in all planes
+        inc dx
+        al = ah
+        out dx, al      ; EGA port: graphics controller data register
+        or  es:[di], al
+        mov ah, 0FCh ; '?'
+        mov ch, cl
+        al = 8
+        sub al, cl
+        mov cl, al
+        shl ah, cl
+        mov cl, ch
+        mov dx, 3CEh
+        al = 8
+        out dx, al      ; EGA: graph 1 and 2 addr reg:
+                    ; bit mask
+                    ; Bits 0-7 select bits to be masked in all planes
+        inc dx
+        al = ah
+        out dx, al      ; EGA port: graphics controller data register
+        or  es:[di+1], al
+        mov dx, 3CEh
+        al = 0
+        out dx, al      ; EGA: graph 1 and 2 addr reg:
+                    ; set/reset.
+                    ; Data bits 0-3 select planes for write mode 00
+        inc dx
+        al = byte_51969
+        out dx, al      ; EGA port: graphics controller data register
+        mov ah, [bx]
+        shr ah, cl
+        mov dx, 3CEh
+        al = 8
+        out dx, al      ; EGA: graph 1 and 2 addr reg:
+                    ; bit mask
+                    ; Bits 0-7 select bits to be masked in all planes
+        inc dx
+        al = ah
+        out dx, al      ; EGA port: graphics controller data register
+        or  es:[di], al
+        mov ah, [bx]
+        mov ch, cl
+        al = 8
+        sub al, cl
+        mov cl, al
+        shl ah, cl
+        mov cl, ch
+        mov dx, 3CEh
+        al = 8
+        out dx, al      ; EGA: graph 1 and 2 addr reg:
+                    ; bit mask
+                    ; Bits 0-7 select bits to be masked in all planes
+        inc dx
+        al = ah
+        out dx, al      ; EGA port: graphics controller data register
+        or  es:[di+1], al
+        add di, 7Ah ; 'z'
+        add bx, 40h ; '@'
+        mov dx, 3CEh
+        al = 0
+        out dx, al      ; EGA: graph 1 and 2 addr reg:
+                    ; set/reset.
+                    ; Data bits 0-3 select planes for write mode 00
+        inc dx
+        al = 0
+        out dx, al      ; EGA port: graphics controller data register
+        mov ah, 0FCh ; '?'
+        shr ah, cl
+        mov dx, 3CEh
+        al = 8
+        out dx, al      ; EGA: graph 1 and 2 addr reg:
+                    ; bit mask
+                    ; Bits 0-7 select bits to be masked in all planes
+        inc dx
+        al = ah
+        out dx, al      ; EGA port: graphics controller data register
+        or  es:[di], al
+        mov ah, 0FCh ; '?'
+        mov ch, cl
+        al = 8
+        sub al, cl
+        mov cl, al
+        shl ah, cl
+        mov cl, ch
+        mov dx, 3CEh
+        al = 8
+        out dx, al      ; EGA: graph 1 and 2 addr reg:
+                    ; bit mask
+                    ; Bits 0-7 select bits to be masked in all planes
+        inc dx
+        al = ah
+        out dx, al      ; EGA port: graphics controller data register
+        or  es:[di+1], al
+        mov dx, 3CEh
+        al = 0
+        out dx, al      ; EGA: graph 1 and 2 addr reg:
+                    ; set/reset.
+                    ; Data bits 0-3 select planes for write mode 00
+        inc dx
+        al = byte_51969
+        out dx, al      ; EGA port: graphics controller data register
+        mov ah, [bx]
+        shr ah, cl
+        mov dx, 3CEh
+        al = 8
+        out dx, al      ; EGA: graph 1 and 2 addr reg:
+                    ; bit mask
+                    ; Bits 0-7 select bits to be masked in all planes
+        inc dx
+        al = ah
+        out dx, al      ; EGA port: graphics controller data register
+        or  es:[di], al
+        mov ah, [bx]
+        mov ch, cl
+        al = 8
+        sub al, cl
+        mov cl, al
+        shl ah, cl
+        mov cl, ch
+        mov dx, 3CEh
+        al = 8
+        out dx, al      ; EGA: graph 1 and 2 addr reg:
+                    ; bit mask
+                    ; Bits 0-7 select bits to be masked in all planes
+        inc dx
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di+1], al
         add di, 7Ah ; 'z'
@@ -12124,7 +12307,7 @@ loc_4BA9F:              ; CODE XREF: sub_4BA5F+3Bj
 
 loc_4BDEC:              ; CODE XREF: sub_4BA5F+387j
         jmp loc_4BA8D
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_4BDEF:               ; CODE XREF: sub_4BA5F+7j
                     ; sub_4BA5F+35j ...
@@ -12140,12 +12323,12 @@ sub_4BDF0   proc near       ; CODE XREF: sub_47F39+2Ap
         cmp byte_5A33F, 1
         jnz short loc_4BDFA
         jmp locret_4BF49
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4BDFA:              ; CODE XREF: sub_4BDF0+5j
         mov byte_51969, ah
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -12154,22 +12337,22 @@ loc_4BDFA:              ; CODE XREF: sub_4BDF0+5j
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 1
+        al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
         mov cl, 0
 
@@ -12178,13 +12361,13 @@ loc_4BE1E:              ; CODE XREF: sub_4BDF0:loc_4BF46j
         cmp bl, 0
         jnz short loc_4BE28
         jmp locret_4BF49
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4BE28:              ; CODE XREF: sub_4BDF0+33j
         cmp bl, 0Ah
         jnz short loc_4BE30
         jmp locret_4BF49
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4BE30:              ; CODE XREF: sub_4BDF0+3Bj
         inc si
@@ -12192,26 +12375,26 @@ loc_4BE30:              ; CODE XREF: sub_4BDF0+3Bj
         xor bh, bh
         add bx, 5B15h
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, byte_51969
+        al = byte_51969
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
-        mov al, [bx]
+        al = [bx]
         shr al, cl
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
-        mov al, [bx]
+        al = [bx]
         mov ch, cl
         mov ah, 8
         sub ah, cl
@@ -12222,11 +12405,11 @@ loc_4BE30:              ; CODE XREF: sub_4BDF0+3Bj
         or  es:[di+1], al
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
-        mov al, [bx]
+        al = [bx]
         shr al, cl
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
-        mov al, [bx]
+        al = [bx]
         mov ch, cl
         mov ah, 8
         sub ah, cl
@@ -12237,11 +12420,11 @@ loc_4BE30:              ; CODE XREF: sub_4BDF0+3Bj
         or  es:[di+1], al
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
-        mov al, [bx]
+        al = [bx]
         shr al, cl
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
-        mov al, [bx]
+        al = [bx]
         mov ch, cl
         mov ah, 8
         sub ah, cl
@@ -12252,11 +12435,11 @@ loc_4BE30:              ; CODE XREF: sub_4BDF0+3Bj
         or  es:[di+1], al
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
-        mov al, [bx]
+        al = [bx]
         shr al, cl
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
-        mov al, [bx]
+        al = [bx]
         mov ch, cl
         mov ah, 8
         sub ah, cl
@@ -12267,11 +12450,11 @@ loc_4BE30:              ; CODE XREF: sub_4BDF0+3Bj
         or  es:[di+1], al
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
-        mov al, [bx]
+        al = [bx]
         shr al, cl
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
-        mov al, [bx]
+        al = [bx]
         mov ch, cl
         mov ah, 8
         sub ah, cl
@@ -12282,11 +12465,11 @@ loc_4BE30:              ; CODE XREF: sub_4BDF0+3Bj
         or  es:[di+1], al
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
-        mov al, [bx]
+        al = [bx]
         shr al, cl
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
-        mov al, [bx]
+        al = [bx]
         mov ch, cl
         mov ah, 8
         sub ah, cl
@@ -12297,11 +12480,11 @@ loc_4BE30:              ; CODE XREF: sub_4BDF0+3Bj
         or  es:[di+1], al
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
-        mov al, [bx]
+        al = [bx]
         shr al, cl
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
-        mov al, [bx]
+        al = [bx]
         mov ch, cl
         mov ah, 8
         sub ah, cl
@@ -12321,7 +12504,7 @@ loc_4BE30:              ; CODE XREF: sub_4BDF0+3Bj
 
 loc_4BF46:              ; CODE XREF: sub_4BDF0+150j
         jmp loc_4BE1E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_4BF49:               ; CODE XREF: sub_4BDF0+7j
                     ; sub_4BDF0+35j ...
@@ -12362,7 +12545,7 @@ loc_4BF5A:              ; CODE XREF: sub_4BF4F+11j
         jb  short loc_4BF62
         inc byte ptr [si]
         jmp short loc_4BF5A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4BF62:              ; CODE XREF: sub_4BF4F+Dj
         inc si
@@ -12373,7 +12556,7 @@ loc_4BF65:              ; CODE XREF: sub_4BF4F+1Cj
         jb  short loc_4BF6D
         inc byte ptr [si]
         jmp short loc_4BF65
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4BF6D:              ; CODE XREF: sub_4BF4F+18j
         inc si
@@ -12408,7 +12591,7 @@ sub_4BF8D   proc near       ; CODE XREF: sub_4C0DDp
         cmp byte_59B85, 0
         jz  short loc_4BF97
         jmp locret_4C0DC
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4BF97:              ; CODE XREF: sub_4BF8D+5j
         mov cx, 14h
@@ -12418,13 +12601,13 @@ loc_4BF97:              ; CODE XREF: sub_4BF8D+5j
 
 loc_4BFA2:              ; CODE XREF: sub_4BF8D+38j
         mov [di], dl
-        mov al, [si+7Eh]
+        al = [si+7Eh]
         mov [di+1], al
-        mov al, [si+9]
+        al = [si+9]
         mov [di+2], al
-        mov al, [si+0Ah]
+        al = [si+0Ah]
         mov [di+3], al
-        mov al, [si+0Bh]
+        al = [si+0Bh]
         mov [di+4], al
         inc dl
         add si, 80h ; '?'
@@ -12438,44 +12621,44 @@ loc_4BFC7:              ; CODE XREF: sub_4BF8D+B4j
         mov di, 8A3Dh
 
 loc_4BFD3:              ; CODE XREF: sub_4BF8D+AFj
-        mov al, [si+1]
+        al = [si+1]
         cmp [di+1], al
         jl  short loc_4C036
         jg  short loc_4BFFD
-        mov al, [si+2]
+        al = [si+2]
         cmp [di+2], al
         jg  short loc_4C036
         jl  short loc_4BFFD
-        mov al, [si+3]
+        al = [si+3]
         cmp [di+3], al
         jg  short loc_4C036
         jl  short loc_4BFFD
-        mov al, [si+4]
+        al = [si+4]
         cmp [di+4], al
         jg  short loc_4C036
         jl  short loc_4BFFD
         jmp short loc_4C036
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4BFFD:              ; CODE XREF: sub_4BF8D+4Ej
                     ; sub_4BF8D+58j ...
-        mov al, [si]
+        al = [si]
         mov ah, [di]
         mov [si], ah
         mov [di], al
-        mov al, [si+1]
+        al = [si+1]
         mov ah, [di+1]
         mov [si+1], ah
         mov [di+1], al
-        mov al, [si+2]
+        al = [si+2]
         mov ah, [di+2]
         mov [si+2], ah
         mov [di+2], al
-        mov al, [si+3]
+        al = [si+3]
         mov ah, [di+3]
         mov [si+3], ah
         mov [di+3], al
-        mov al, [si+4]
+        al = [si+4]
         mov ah, [di+4]
         mov [si+4], ah
         mov [di+4], al
@@ -12493,7 +12676,7 @@ loc_4C036:              ; CODE XREF: sub_4BF8D+4Cj
         mov si, 8A38h
 
 loc_4C04B:              ; CODE XREF: sub_4BF8D+CFj
-        mov al, [si]
+        al = [si]
         cmp al, byte_5981F
         jnz short loc_4C057
         mov byte_58D47, dl
@@ -12509,7 +12692,7 @@ loc_4C061:
         mov di, 883Ch
 
 loc_4C067:              ; CODE XREF: sub_4BF8D+14Dj
-        mov al, [si+1]
+        al = [si+1]
         cmp al, 71h ; 'q'
         jnz short loc_4C078
         mov word ptr [di], 3939h
@@ -12517,7 +12700,7 @@ loc_4C067:              ; CODE XREF: sub_4BF8D+14Dj
 loc_4C072:
         mov byte ptr [di+2], 39h ; '9'
         jmp short loc_4C07F
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C078:              ; CODE XREF: sub_4BF8D+DFj
         push    si
@@ -12536,16 +12719,16 @@ loc_4C07F:              ; CODE XREF: sub_4BF8D+E9j
         mov bx, 8
 
 loc_4C091:              ; CODE XREF: sub_4BF8D+10Bj
-        mov al, [si]
+        al = [si]
         mov [di], al
         inc si
         inc di
         dec bx
         jnz short loc_4C091
         pop si
-        push    di
+        push(di);
         push    si
-        mov al, [si+4]
+        al = [si+4]
         mov si, di
         add si, 7
         call    sub_4BF4D
@@ -12554,7 +12737,7 @@ loc_4C091:              ; CODE XREF: sub_4BF8D+10Bj
         mov byte ptr [si], 3Ah ; ':'
         pop si
         push    si
-        mov al, [si+3]
+        al = [si+3]
         mov si, di
         add si, 4
         call    sub_4BF4D
@@ -12563,12 +12746,12 @@ loc_4C091:              ; CODE XREF: sub_4BF8D+10Bj
         mov byte ptr [si], 3Ah ; ':'
         pop si
         push    si
-        mov al, [si+2]
+        al = [si+2]
         mov si, di
         add si, 1
         call    sub_4BF4D
         pop si
-        pop di
+        pop(di);
         add di, 0Bh
         add si, 5
         loop    loc_4C067
@@ -12585,7 +12768,7 @@ sub_4C0DD   proc near       ; CODE XREF: sub_4AB1B+1E9p
                     ; sub_4AD0E+E2p ...
         call    sub_4BF8D
         mov si, 880Eh
-        mov al, byte_58D46
+        al = byte_58D46
         xor ah, ah
         mov bl, 17h
         mul bl
@@ -12618,8 +12801,8 @@ sub_4C0DD   proc near       ; CODE XREF: sub_4AB1B+1E9p
         mov di, 8A5Dh
         call    sub_4BA5F
         mov si, 8359h
-        mov al, byte_58D46
-        inc al
+        al = byte_58D46
+        al++;
         call    sub_4BF4D
         mov si, 835Ah
         mov di, 81DAh
@@ -12637,11 +12820,11 @@ sub_4C141   proc near       ; CODE XREF: start+41Ap sub_4955B+39Bp ...
         mov bx, word_51ABC
         sub bx, 2
         add si, bx
-        mov al, [si]
+        al = [si]
         mov byte_59821, al
-        mov al, [si+1]
+        al = [si+1]
         mov byte_59822, al
-        mov al, [si+2]
+        al = [si+2]
         mov byte_59823, al
         mov ax, word_51ABC
         dec ax
@@ -12694,9 +12877,9 @@ sub_4C1A9   proc near       ; CODE XREF: sub_4B419+15Ap
         mov cx, 3
 
 loc_4C1B7:              ; CODE XREF: sub_4C1A9+56j
-        push    cx
+        push(cx);
         push    si
-        mov al, [si+0Bh]
+        al = [si+0Bh]
         mov si, di
         add si, 0Fh
         call    sub_4BF4D
@@ -12705,7 +12888,7 @@ loc_4C1B7:              ; CODE XREF: sub_4C1A9+56j
         mov byte ptr [si], 3Ah ; ':'
         pop si
         push    si
-        mov al, [si+0Ah]
+        al = [si+0Ah]
         mov si, di
         add si, 0Ch
         call    sub_4BF4D
@@ -12714,7 +12897,7 @@ loc_4C1B7:              ; CODE XREF: sub_4C1A9+56j
         mov byte ptr [si], 3Ah ; ':'
         pop si
         push    si
-        mov al, [si+9]
+        al = [si+9]
         mov si, di
         add si, 9
         mov ah, 20h ; ' '
@@ -12726,7 +12909,7 @@ loc_4C1B7:              ; CODE XREF: sub_4C1A9+56j
         pop si
         add si, 0Ch
         add di, 0Bh
-        pop cx
+        pop(cx);
         loop    loc_4C1B7
         pop es
         assume es:nothing
@@ -12761,21 +12944,21 @@ sub_4C224   proc near       ; CODE XREF: sub_4C293+5Bp
         call    sub_4BA5F
         mov di, bp
         xor ah, ah
-        mov al, [di+0Bh]
+        al = [di+0Bh]
         mov si, 8363h
         call    sub_4BF4D
         mov si, 8363h
         mov byte ptr [si], 3Ah ; ':'
         mov di, bp
         xor ah, ah
-        mov al, [di+0Ah]
+        al = [di+0Ah]
         sub si, 3
         call    sub_4BF4D
         mov si, 8360h
         mov byte ptr [si], 3Ah ; ':'
         mov di, bp
         xor ah, ah
-        mov al, [di+9]
+        al = [di+9]
         sub si, 3
         call    sub_4BF4D
         mov si, 835Dh
@@ -12784,7 +12967,7 @@ sub_4C224   proc near       ; CODE XREF: sub_4C293+5Bp
         call    sub_4BA5F
         mov di, bp
         xor ah, ah
-        mov al, [di+7Eh]
+        al = [di+7Eh]
         mov si, 8367h
         call    sub_4BF4D
         mov si, 8367h
@@ -12824,7 +13007,7 @@ sub_4C293   proc near       ; CODE XREF: start+32Cp start+407p ...
         jbe short loc_4C2CA
         sub si, 80h ; '?'
         jmp short loc_4C2CD
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C2CA:              ; CODE XREF: sub_4C293+2Fj
         mov si, 821Dh
@@ -12838,7 +13021,7 @@ loc_4C2CD:              ; CODE XREF: sub_4C293+35j
         jnb short loc_4C2E3
         add si, 80h ; '?'
         jmp short loc_4C2E6
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C2E3:              ; CODE XREF: sub_4C293+48j
         mov si, 821Dh
@@ -12874,19 +13057,19 @@ sub_4C2F2   proc near       ; CODE XREF: sub_4B149+Cp
         jz  short loc_4C328
         mov si, 9E8Dh
         jmp short loc_4C33C
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C328:              ; CODE XREF: sub_4C2F2+2Fj
         mov si, 9EBDh
         jmp short loc_4C33C
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C32D:              ; CODE XREF: sub_4C2F2+28j
         cmp byte_5A19C, 0
         jz  short loc_4C339
         mov si, 9EA5h
         jmp short loc_4C33C
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C339:              ; CODE XREF: sub_4C2F2+40j
         mov si, 9ED5h
@@ -12914,17 +13097,17 @@ sub_4C34A   proc near       ; CODE XREF: start+404p sub_4AB1B+1E0p ...
         add si, bx
         mov di, 8A9Ch
         add di, bx
-        push    di
+        push(di);
         mov di, 949Eh
         mov cx, 6Fh ; 'o'
-        mov al, 6
+        al = 6
 
 loc_4C365:              ; CODE XREF: sub_4C34A+1Ej
         mov [di], al
         inc di
         loop    loc_4C365
         push    si
-        mov al, 1
+        al = 1
         mov cx, 6Fh ; 'o'
         mov di, 949Eh
 
@@ -12934,14 +13117,14 @@ loc_4C373:              ; CODE XREF: sub_4C34A+53j
         jnz short loc_4C37F
         mov byte ptr [di], 8
         jmp short loc_4C39B
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C37F:              ; CODE XREF: sub_4C34A+2Ej
         cmp ah, 1
         jnz short loc_4C389
         mov byte ptr [di], 4
         jmp short loc_4C39B
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C389:              ; CODE XREF: sub_4C34A+38j
         or  ah, ah
@@ -12950,13 +13133,13 @@ loc_4C389:              ; CODE XREF: sub_4C34A+38j
         jnz short loc_4C396
         mov byte ptr [di], 2
         jmp short loc_4C399
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C396:              ; CODE XREF: sub_4C34A+45j
         mov byte ptr [di], 6
 
 loc_4C399:              ; CODE XREF: sub_4C34A+4Aj
-        mov al, ah
+        al = ah
 
 loc_4C39B:              ; CODE XREF: sub_4C34A+33j
                     ; sub_4C34A+3Dj ...
@@ -12964,12 +13147,12 @@ loc_4C39B:              ; CODE XREF: sub_4C34A+33j
         inc di
         loop    loc_4C373
         pop si
-        pop di
+        pop(di);
         mov cx, 6Fh ; 'o'
         mov bx, 1
 
 loc_4C3A7:              ; CODE XREF: sub_4C34A+65j
-        mov al, [si]
+        al = [si]
         cmp al, 0
         jz  short loc_4C3D6
         inc si
@@ -12980,7 +13163,7 @@ loc_4C3A7:              ; CODE XREF: sub_4C34A+65j
         mov cx, 6Fh ; 'o'
 
 loc_4C3BA:              ; CODE XREF: sub_4C34A+78j
-        mov al, [si]
+        al = [si]
         cmp al, 2
         jz  short loc_4C3D6
         inc si
@@ -12993,7 +13176,7 @@ loc_4C3BA:              ; CODE XREF: sub_4C34A+78j
 loc_4C3D1:              ; CODE XREF: sub_4C34A+7Fj
         mov byte ptr [di+7Eh], 71h ; 'q'
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C3D6:              ; CODE XREF: sub_4C34A+61j
                     ; sub_4C34A+74j
@@ -13037,11 +13220,11 @@ sub_4C407   proc near       ; CODE XREF: runMainMenu+5Dp
         mov si, 6015h
         call    fade
         jmp short loc_4C499
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C431:              ; CODE XREF: sub_4C407+Aj
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -13050,7 +13233,7 @@ loc_4C431:              ; CODE XREF: sub_4C407+Aj
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 1
+        al = 1
         out dx, al      ; EGA port: graphics controller data register
         cmp word_5195F, 140h
         jb  short loc_4C449
@@ -13073,18 +13256,18 @@ loc_4C44F:              ; CODE XREF: sub_4B149+9p
 
 loc_4C466:              ; CODE XREF: sub_4C407+90j
         mov dx, 3D4h
-        mov al, 0Dh
+        al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (low)
         inc dx
-        mov al, bl
+        al = bl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 0Ch
+        al = 0Ch
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (high)
         inc dx
-        mov al, bh
+        al = bh
         out dx, al      ; Video: CRT controller internal registers
         mov byte_510A6, 7
         call    videoloop
@@ -13100,18 +13283,18 @@ loc_4C499:              ; CODE XREF: sub_4C407+28j
         mov bx, 4D5Ch
         mov word_51967, bx
         mov dx, 3D4h
-        mov al, 0Dh
+        al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (low)
         inc dx
-        mov al, bl
+        al = bl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 0Ch
+        al = 0Ch
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (high)
         inc dx
-        mov al, bh
+        al = bh
         out dx, al      ; Video: CRT controller internal registers
         mov byte_510A6, 0
         call    videoloop
@@ -13141,18 +13324,18 @@ loc_4C4CF:              ; CODE XREF: sub_4C4BD+1Ej
         jnz short loc_4C4CF
         pop ds
         mov dx, 3D4h
-        mov al, 0Dh
+        al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (low)
         inc dx
-        mov al, bl
+        al = bl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 0Ch
+        al = 0Ch
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (high)
         inc dx
-        mov al, bh
+        al = bh
         out dx, al      ; Video: CRT controller internal registers
         call    videoloop
         call    sub_4D457
@@ -13182,16 +13365,16 @@ sub_4C4F9   proc near       ; CODE XREF: sub_4C407+11p
         mov ah, 0Fh
         call    sub_4BDF0
         jmp short loc_4C55C
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C52C:              ; CODE XREF: sub_4C4F9+19j
         mov si, 85DCh
-        mov al, byte_5195B
+        al = byte_5195B
         sub al, byte_5195A
         mov ah, 20h ; ' '
         call    sub_4BF4F
         mov si, 85EBh
-        mov al, byte_5195B
+        al = byte_5195B
         mov ah, 20h ; ' '
         call    sub_4BF4F
         mov si, 85C9h
@@ -13210,18 +13393,18 @@ loc_4C55C:              ; CODE XREF: sub_4C4F9+31j
         call    sub_4BDF0
         mov bx, 4D84h
         mov dx, 3D4h
-        mov al, 0Dh
+        al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (low)
         inc dx
-        mov al, bl
+        al = bl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 0Ch
+        al = 0Ch
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (high)
         inc dx
-        mov al, bh
+        al = bh
         out dx, al      ; Video: CRT controller internal registers
         call    videoloop
         mov si, 5FD5h
@@ -13235,18 +13418,18 @@ loc_4C591:              ; CODE XREF: sub_4C4F9+93j
         call    sub_4D836
         mov bx, 4D5Ch
         mov dx, 3D4h
-        mov al, 0Dh
+        al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (low)
         inc dx
-        mov al, bl
+        al = bl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 0Ch
+        al = 0Ch
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (high)
         inc dx
-        mov al, bh
+        al = bh
         out dx, al      ; Video: CRT controller internal registers
         retn
 sub_4C4F9   endp
@@ -13262,18 +13445,18 @@ sub_4C5AF   proc near       ; CODE XREF: sub_4B149+3p
 
 loc_4C5BA:              ; CODE XREF: sub_4C5AF+3Cj
         mov dx, 3D4h
-        mov al, 0Dh
+        al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (low)
         inc dx
-        mov al, bl
+        al = bl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 0Ch
+        al = 0Ch
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (high)
         inc dx
-        mov al, bh
+        al = bh
         out dx, al      ; Video: CRT controller internal registers
         mov byte_510A6, 1
         call    videoloop
@@ -13287,18 +13470,18 @@ loc_4C5BA:              ; CODE XREF: sub_4C5AF+3Cj
         mov bx, 4D84h
         mov word_51967, bx
         mov dx, 3D4h
-        mov al, 0Dh
+        al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (low)
         inc dx
-        mov al, bl
+        al = bl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 0Ch
+        al = 0Ch
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (high)
         inc dx
-        mov al, bh
+        al = bh
         out dx, al      ; Video: CRT controller internal registers
         mov byte_510A6, 0
         call    videoloop
@@ -13318,7 +13501,7 @@ sub_4C611   proc near       ; CODE XREF: sub_4C407+14p
         mov si, 0
         mov di, 4D5Ch
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -13327,36 +13510,36 @@ sub_4C611   proc near       ; CODE XREF: sub_4C407+14p
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 1
+        al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
         mov cx, 0C8h ; '?'
 
 loc_4C63E:              ; CODE XREF: sub_4C611+4Dj
-        push    cx
+        push(cx);
         mov ah, 1
 
 loc_4C641:              ; CODE XREF: sub_4C611+47j
         mov dx, 3C4h
-        mov al, 2
+        al = 2
         out dx, al      ; EGA: sequencer address reg
                     ; map mask: data bits 0-3 enable writes to bit planes 0-3
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: sequencer data register
         mov cx, 28h ; '('
         rep movsb
@@ -13365,29 +13548,29 @@ loc_4C641:              ; CODE XREF: sub_4C611+47j
         test    ah, 0Fh
         jnz short loc_4C641
         add di, 7Ah ; 'z'
-        pop cx
+        pop(cx);
         loop    loc_4C63E
         mov dx, 3C4h
-        mov al, 2
+        al = 2
         out dx, al      ; EGA: sequencer address reg
                     ; map mask: data bits 0-3 enable writes to bit planes 0-3
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: sequencer data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 1
+        al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
         pop ds
         assume ds:data
@@ -13410,7 +13593,7 @@ vgaloadseginax:              ; CODE XREF: vgaloadbackseg+4j code:5AD9j
         mov si, 0
         mov di, 4D84h
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -13419,36 +13602,36 @@ vgaloadseginax:              ; CODE XREF: vgaloadbackseg+4j code:5AD9j
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 1
+        al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
         mov cx, 0C8h ; '?'
 
 loc_4C6AD:              ; CODE XREF: vgaloadbackseg-22j
-        push    cx
+        push(cx);
         mov ah, 1
 
 loc_4C6B0:              ; CODE XREF: vgaloadbackseg-28j
         mov dx, 3C4h
-        mov al, 2
+        al = 2
         out dx, al      ; EGA: sequencer address reg
                     ; map mask: data bits 0-3 enable writes to bit planes 0-3
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: sequencer data register
         mov cx, 28h ; '('
         rep movsb
@@ -13457,29 +13640,29 @@ loc_4C6B0:              ; CODE XREF: vgaloadbackseg-28j
         test    ah, 0Fh
         jnz short loc_4C6B0
         add di, 7Ah ; 'z'
-        pop cx
+        pop(cx);
         loop    loc_4C6AD
         mov dx, 3C4h
-        mov al, 2
+        al = 2
         out dx, al      ; EGA: sequencer address reg
                     ; map mask: data bits 0-3 enable writes to bit planes 0-3
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: sequencer data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 1
+        al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
         pop ds
         assume ds:data
@@ -13494,12 +13677,12 @@ vgaloadbackseg:
         mov ax, backseg
         jmp short vgaloadseginax
 
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 vgaloadcontrolsseg:
         push ds
         mov ax, controlsseg
         jmp short vgaloadseginax
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 loc_4C6FB:
         call    sub_4C705
         call    sound?4
@@ -13581,7 +13764,7 @@ sub_4C741   proc near
         call    sound?3
         mov byte_59886, 0
         jmp short loc_4C75A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C752:              ; CODE XREF: sub_4C741+5j
         mov byte_59886, 1
@@ -13592,13 +13775,13 @@ loc_4C75A:              ; CODE XREF: sub_4C741+Fj
         retn
 sub_4C741   endp
 
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 loc_4C75E:
         cmp byte_59885, 1
         jnz short loc_4C76C
         mov byte_59885, 0
         jmp short loc_4C774
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C76C:              ; CODE XREF: code:5B43j
         mov byte_59885, 1
@@ -13607,18 +13790,18 @@ loc_4C76C:              ; CODE XREF: code:5B43j
 loc_4C774:              ; CODE XREF: code:5B4Aj
         call    sub_4CC7C
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 loc_4C778:
         mov byte_50940, 0
         call    sub_4CCDF
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 loc_4C781:
         mov byte_50940, 1
         call    sub_4921B
         call    sub_4CCDF
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 loc_4C78D:
         mov word_58463, 1
         retn
@@ -13639,18 +13822,18 @@ runMainMenu proc near       ; CODE XREF: start+43Ap
         call    sub_4C2F2
         mov bx, 4D5Ch
         mov dx, 3D4h
-        mov al, 0Dh
+        al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (low)
         inc dx
-        mov al, bl
+        al = bl
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 0Ch
+        al = 0Ch
         out dx, al      ; Video: CRT cntrlr addr
                     ; regen start address (high)
         inc dx
-        mov al, bh
+        al = bh
         out dx, al      ; Video: CRT controller internal registers
         mov byte_510A6, 0
         call    videoloop
@@ -13658,7 +13841,7 @@ runMainMenu proc near       ; CODE XREF: start+43Ap
         call    fade
         mov word_58467, 0
         jmp short loc_4C7F4
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C7EC:              ; CODE XREF: runMainMenu+1Bj
         mov byte_59B83, 1
@@ -13682,7 +13865,7 @@ loc_4C806:              ; CODE XREF: runMainMenu+6Dj
         call    sub_4CFB2
         call    sub_4CFDB
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C81A:              ; CODE XREF: runMainMenu+77j
         call    videoloop
@@ -13743,7 +13926,7 @@ loc_4C8A1:              ; CODE XREF: runMainMenu+106j
         jle short loc_4C8B8
         call    sub_4B375
         jmp loc_4C7FD
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C8B8:              ; CODE XREF: runMainMenu+11Cj
         cmp byte_519B8, 1
@@ -13751,7 +13934,7 @@ loc_4C8B8:              ; CODE XREF: runMainMenu+11Cj
         mov ax, 0
         call    demoSomething?
         jmp loc_4C9B0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C8C8:              ; CODE XREF: runMainMenu+129j
         cmp byte_519B9, 1
@@ -13759,7 +13942,7 @@ loc_4C8C8:              ; CODE XREF: runMainMenu+129j
         mov ax, 1
         call    demoSomething?
         jmp loc_4C9B0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C8D8:              ; CODE XREF: runMainMenu+139j
         cmp byte_519BA, 1
@@ -13767,7 +13950,7 @@ loc_4C8D8:              ; CODE XREF: runMainMenu+139j
         mov ax, 2
         call    demoSomething?
         jmp loc_4C9B0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C8E8:              ; CODE XREF: runMainMenu+149j
         cmp byte_519BB, 1
@@ -13775,7 +13958,7 @@ loc_4C8E8:              ; CODE XREF: runMainMenu+149j
         mov ax, 3
         call    demoSomething?
         jmp loc_4C9B0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C8F8:              ; CODE XREF: runMainMenu+159j
         cmp byte_519BC, 1
@@ -13783,7 +13966,7 @@ loc_4C8F8:              ; CODE XREF: runMainMenu+159j
         mov ax, 4
         call    demoSomething?
         jmp loc_4C9B0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C908:              ; CODE XREF: runMainMenu+169j
         cmp byte_519BD, 1
@@ -13791,7 +13974,7 @@ loc_4C908:              ; CODE XREF: runMainMenu+169j
         mov ax, 5
         call    demoSomething?
         jmp loc_4C9B0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C918:              ; CODE XREF: runMainMenu+179j
         cmp byte_519BE, 1
@@ -13799,7 +13982,7 @@ loc_4C918:              ; CODE XREF: runMainMenu+179j
         mov ax, 6
         call    demoSomething?
         jmp loc_4C9B0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C928:              ; CODE XREF: runMainMenu+189j
         cmp byte_519BF, 1
@@ -13807,7 +13990,7 @@ loc_4C928:              ; CODE XREF: runMainMenu+189j
         mov ax, 7
         call    demoSomething?
         jmp short loc_4C9B0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C937:              ; CODE XREF: runMainMenu+199j
         cmp byte_519C0, 1
@@ -13815,7 +13998,7 @@ loc_4C937:              ; CODE XREF: runMainMenu+199j
         mov ax, 8
         call    demoSomething?
         jmp short loc_4C9B0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C946:              ; CODE XREF: runMainMenu+1A8j
         cmp byte_519C1, 1
@@ -13823,7 +14006,7 @@ loc_4C946:              ; CODE XREF: runMainMenu+1A8j
         mov ax, 9
         call    demoSomething?
         jmp short loc_4C9B0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C955:              ; CODE XREF: runMainMenu+1B7j
         cmp byte_519D4, 1
@@ -13836,7 +14019,7 @@ loc_4C955:              ; CODE XREF: runMainMenu+1B7j
         mov ax, 0
         call    demoSomething?
         jmp short loc_4C9B0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C977:              ; CODE XREF: runMainMenu+1C6j
                     ; runMainMenu+1CDj ...
@@ -13853,7 +14036,7 @@ loc_4C977:              ; CODE XREF: runMainMenu+1C6j
         mov byte ptr a00s0010_sp+3, 2Dh ; '-' ; "001$0.SP"
         mov word ptr a00s0010_sp+4, 2D2Dh ; "01$0.SP"
         jmp loc_4C7FD
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C9B0:              ; CODE XREF: runMainMenu+131j
                     ; runMainMenu+141j ...
@@ -13875,7 +14058,7 @@ loc_4C9B0:              ; CODE XREF: runMainMenu+131j
         mov word_59B8C, 10h
         mov word_59B8E, 0
         jmp loc_4C7FD
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4C9FF:              ; CODE XREF: runMainMenu+236j
         mov word_58465, 0EF98h
@@ -13894,7 +14077,7 @@ checkmousecoords:              ; CODE XREF: runMainMenu+29Bj
         jl  short nomousehit
         call [si+8]
         jmp loc_4C7FD
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 nomousehit:              ; CODE XREF: runMainMenu+27Ej
                     ; runMainMenu+283j ...
@@ -13902,7 +14085,7 @@ nomousehit:              ; CODE XREF: runMainMenu+27Ej
         cmp word ptr [si], 0FFFFh
         jnz short checkmousecoords
         jmp loc_4C7FD
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4CA34:              ; CODE XREF: runMainMenu+223j
                     ; runMainMenu+22Aj ...
@@ -13912,7 +14095,7 @@ loc_4CA34:              ; CODE XREF: runMainMenu+223j
         retn
 runMainMenu endp
 
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 showControls:                              ; DATA XREF: data:0044o
                 mov     byte_50919, 0FFh
@@ -13950,7 +14133,7 @@ loc_4CA67:                              ; CODE XREF: code:5E89j
                 cmp     bx, 1
                 jz      short loc_4CAAB
                 jmp     short loc_4CA67
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4CAAB:                              ; CODE XREF: code:5E87j
                 mov     cx, mousex
@@ -13976,7 +14159,7 @@ loc_4CAD0:                              ; CODE XREF: code:5EBDj
                 cmp     bx, 0
                 jnz     short loc_4CAD0
                 jmp     short loc_4CA67
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4CAE1:                              ; CODE XREF: code:5E9Cj
                                         ; code:5EA1j ...
@@ -13984,7 +14167,7 @@ loc_4CAE1:                              ; CODE XREF: code:5E9Cj
                 cmp     word ptr [si], 0FFFFh
                 jnz     short loc_4CABA
                 jmp     loc_4CA67
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4CAEC:                              ; CODE XREF: code:5E74j
                                         ; code:5E7Bj ...
@@ -14070,7 +14253,7 @@ sub_4CAFC   proc near       ; CODE XREF: code:5AE1p sub_4C705+6p ...
         mov si, 161h
         call    sub_4CF13
         jmp locret_4CC7B
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4CBC6:              ; CODE XREF: sub_4CAFC+A9j
         cmp sndType, 4
@@ -14088,7 +14271,7 @@ loc_4CBC6:              ; CODE XREF: sub_4CAFC+A9j
         mov si, 1A7h
         call    sub_4CF13
         jmp locret_4CC7B
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4CBF3:              ; CODE XREF: sub_4CAFC+DEj
         mov si, 8B01h
@@ -14102,7 +14285,7 @@ loc_4CBF3:              ; CODE XREF: sub_4CAFC+DEj
         mov si, 28Eh
         call    sub_4CF13
         jmp short locret_4CC7B
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4CC11:              ; CODE XREF: sub_4CAFC+CFj
         cmp sndType, 5
@@ -14118,7 +14301,7 @@ loc_4CC11:              ; CODE XREF: sub_4CAFC+CFj
         mov si, 225h
         call    sub_4CF13
         jmp short locret_4CC7B
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4CC36:              ; CODE XREF: sub_4CAFC+11Aj
         mov si, 5629h
@@ -14138,7 +14321,7 @@ loc_4CC36:              ; CODE XREF: sub_4CAFC+11Aj
         mov si, 328h
         call    sub_4CF13
         jmp short locret_4CC7B
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4CC67:              ; CODE XREF: sub_4CAFC+153j
         mov si, 6386h
@@ -14170,7 +14353,7 @@ sub_4CC7C   proc near       ; CODE XREF: sub_4C741:loc_4C75Ap
         mov si, 3B4h
         call    sub_4CF13
         jmp short loc_4CCAD
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4CC99:              ; CODE XREF: sub_4CC7C+5j
         mov si, 7CC3h
@@ -14192,7 +14375,7 @@ loc_4CCAD:              ; CODE XREF: sub_4CC7C+1Bj
         mov si, 3DEh
         call    sub_4CF13
         jmp short locret_4CCDE
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4CCCA:              ; CODE XREF: sub_4CC7C+36j
         mov si, 8F59h
@@ -14229,7 +14412,7 @@ sub_4CCDF   proc near       ; CODE XREF: code:5B5Dp code:5B69p
         mov si, 4E1h
         call    sub_4CF13
         jmp short loc_4CD38
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4CD10:              ; CODE XREF: sub_4CCDF+5j
         mov si, 7714h
@@ -14263,7 +14446,7 @@ sub_4CD3C   proc near       ; CODE XREF: sub_4CCDF:loc_4CD38p
         cmp bl, byte_50919
         jnz short loc_4CD4D
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4CD4D:              ; CODE XREF: sub_4CD3C+Ej
         mov byte_50919, bl
@@ -14276,7 +14459,7 @@ loc_4CD4D:              ; CODE XREF: sub_4CD3C+Ej
         mov si, 46Ah
         call    sub_4CF13
         jmp short loc_4CDAE
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4CD6A:              ; CODE XREF: sub_4CD3C+1Aj
         cmp byte_50941, 4
@@ -14291,7 +14474,7 @@ loc_4CD6A:              ; CODE XREF: sub_4CD3C+1Aj
         mov si, 424h
         call    sub_4CF13
         jmp short loc_4CDAE
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4CD8F:              ; CODE XREF: sub_4CD3C+42j
         sub byte_50941, 4
@@ -14299,7 +14482,7 @@ loc_4CD8F:              ; CODE XREF: sub_4CD3C+42j
         mov si, 424h
         call    sub_4CF13
         jmp short loc_4CDAE
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4CD9E:              ; CODE XREF: sub_4CD3C+33j
         mov ah, 4
@@ -14329,7 +14512,7 @@ loc_4CDAE:              ; CODE XREF: sub_4CD3C+2Cj
         mov si, 432h
         call    sub_4CF13
         jmp short locret_4CE10
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4CDDF:              ; CODE XREF: sub_4CD3C+97j
         cmp byte_50941, 2
@@ -14338,7 +14521,7 @@ loc_4CDDF:              ; CODE XREF: sub_4CD3C+97j
         mov si, 440h
         call    sub_4CF13
         jmp short locret_4CE10
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4CDF0:              ; CODE XREF: sub_4CD3C+A8j
         cmp byte_50941, 3
@@ -14347,7 +14530,7 @@ loc_4CDF0:              ; CODE XREF: sub_4CD3C+A8j
         mov si, 44Eh
         call    sub_4CF13
         jmp short locret_4CE10
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4CE01:              ; CODE XREF: sub_4CD3C+B9j
         cmp byte_50941, 4
@@ -14375,15 +14558,15 @@ var_2       = word ptr -2
         mov bp, sp
         add sp, 0FFFEh
         push    si
-        push    cx
+        push(cx);
         push    dx
         call    sub_4B899
         pop dx
-        pop cx
+        pop(cx);
         pop si
         mov bx, dx
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -14392,38 +14575,38 @@ var_2       = word ptr -2
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 8
+        al = 8
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 2
+        al = 2
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; color compare.
                     ; Data bits 0-3 select color for read mode 01
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 7
+        al = 7
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; color masking disable
                     ; bits 0-3 disable planes from compare logic in read mode 01
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, 1
+        al = 1
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 1
+        al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
         mov di, si
         push    ds
@@ -14431,12 +14614,12 @@ var_2       = word ptr -2
         mov ds, ax
         mov [bp+var_2], cx
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
 
 loc_4CE68:              ; CODE XREF: sub_4CE11+5Aj
@@ -14454,15 +14637,15 @@ loc_4CE68:              ; CODE XREF: sub_4CE11+5Aj
         jnz short loc_4CE68
         pop ds
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -14471,7 +14654,7 @@ loc_4CE68:              ; CODE XREF: sub_4CE11+5Aj
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 1
+        al = 1
         out dx, al      ; EGA port: graphics controller data register
         call    sub_4B85C
         call    sub_4B8BE
@@ -14494,15 +14677,15 @@ var_2       = word ptr -2
         mov bp, sp
         add sp, 0FFFEh
         push    si
-        push    cx
+        push(cx);
         push    dx
         call    sub_4B899
         pop dx
-        pop cx
+        pop(cx);
         pop si
         mov bx, dx
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -14511,38 +14694,38 @@ var_2       = word ptr -2
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 8
+        al = 8
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 2
+        al = 2
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; color compare.
                     ; Data bits 0-3 select color for read mode 01
         inc dx
-        mov al, 1
+        al = 1
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 7
+        al = 7
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; color masking disable
                     ; bits 0-3 disable planes from compare logic in read mode 01
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 1
+        al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
         mov di, si
         push    ds
@@ -14550,12 +14733,12 @@ var_2       = word ptr -2
         mov ds, ax
         mov [bp+var_2], cx
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
 
 loc_4CEF3:              ; CODE XREF: sub_4CE9C+5Aj
@@ -14591,7 +14774,7 @@ sub_4CF13   proc near       ; CODE XREF: sub_4CAFC+11p
         pop ax
         pop si
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -14600,22 +14783,22 @@ sub_4CF13   proc near       ; CODE XREF: sub_4CAFC+11p
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 1
+        al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
 
 loc_4CF38:              ; CODE XREF: sub_4CF13+96j
@@ -14638,14 +14821,14 @@ loc_4CF38:              ; CODE XREF: sub_4CF13+96j
         shr ah, cl
         mov cx, [si+5]
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
-        mov al, ah
+        al = ah
 
 loc_4CF6F:              ; CODE XREF: sub_4CF13:loc_4CFA4j
         out dx, al      ; EGA port: graphics controller data register
@@ -14658,14 +14841,14 @@ loc_4CF6F:              ; CODE XREF: sub_4CF13:loc_4CFA4j
 
 loc_4CF7C:              ; CODE XREF: sub_4CF13+66j
         jmp short loc_4CFA4
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4CF7E:              ; CODE XREF: sub_4CF13+62j
         cmp bl, 1
         jnz short loc_4CF88
         sub di, 7Ah ; 'z'
         jmp short loc_4CFA4
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4CF88:              ; CODE XREF: sub_4CF13+6Ej
         cmp bl, 2
@@ -14677,7 +14860,7 @@ loc_4CF88:              ; CODE XREF: sub_4CF13+6Ej
 
 loc_4CF95:              ; CODE XREF: sub_4CF13+7Fj
         jmp short loc_4CFA4
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4CF97:              ; CODE XREF: sub_4CF13+78j
         cmp bl, 3
@@ -14692,7 +14875,7 @@ loc_4CFA4:              ; CODE XREF: sub_4CF13:loc_4CF7Cj
         loop    loc_4CF6F
         add si, 7
         jmp short loc_4CF38
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4CFAB:              ; CODE XREF: sub_4CF13+2Aj
         call    sub_4B85C
@@ -14774,7 +14957,7 @@ sub_4D004   proc near       ; CODE XREF: sub_4D0AD+17p
         pop ax
         pop si
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -14783,22 +14966,22 @@ sub_4D004   proc near       ; CODE XREF: sub_4D0AD+17p
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 1
+        al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
 
 loc_4D029:              ; CODE XREF: sub_4D004+96j
@@ -14821,14 +15004,14 @@ loc_4D029:              ; CODE XREF: sub_4D004+96j
         shr ah, cl
         mov cx, [si+5]
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
-        mov al, ah
+        al = ah
 
 loc_4D060:              ; CODE XREF: sub_4D004:loc_4D095j
         out dx, al      ; EGA port: graphics controller data register
@@ -14841,14 +15024,14 @@ loc_4D060:              ; CODE XREF: sub_4D004:loc_4D095j
 
 loc_4D06D:              ; CODE XREF: sub_4D004+66j
         jmp short loc_4D095
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D06F:              ; CODE XREF: sub_4D004+62j
         cmp bl, 1
         jnz short loc_4D079
         sub di, 7Ah ; 'z'
         jmp short loc_4D095
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D079:              ; CODE XREF: sub_4D004+6Ej
         cmp bl, 2
@@ -14860,7 +15043,7 @@ loc_4D079:              ; CODE XREF: sub_4D004+6Ej
 
 loc_4D086:              ; CODE XREF: sub_4D004+7Fj
         jmp short loc_4D095
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D088:              ; CODE XREF: sub_4D004+78j
         cmp bl, 3
@@ -14875,11 +15058,11 @@ loc_4D095:              ; CODE XREF: sub_4D004:loc_4D06Dj
         loop    loc_4D060
         add si, 7
         jmp short loc_4D029
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D09C:              ; CODE XREF: sub_4D004+2Aj
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -14888,7 +15071,7 @@ loc_4D09C:              ; CODE XREF: sub_4D004+2Aj
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 1
+        al = 1
         out dx, al      ; EGA port: graphics controller data register
         call    sub_4B85C
         call    sub_4B8BE
@@ -14906,7 +15089,7 @@ sub_4D0AD   proc near       ; CODE XREF: runMainMenu+B7p
         jz  short loc_4D0BF
         mov ah, 0Dh
         jmp short loc_4D0C1
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D0BF:              ; CODE XREF: sub_4D0AD+Cj
         mov ah, 7
@@ -14918,7 +15101,7 @@ loc_4D0C1:              ; CODE XREF: sub_4D0AD+10j
         jz  short loc_4D0D2
         mov ah, 7
         jmp short loc_4D0D4
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D0D2:              ; CODE XREF: sub_4D0AD+1Fj
         mov ah, 0Dh
@@ -14930,7 +15113,7 @@ loc_4D0D4:              ; CODE XREF: sub_4D0AD+23j
         jz  short loc_4D0E5
         mov ah, 0Dh
         jmp short loc_4D0E7
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D0E5:              ; CODE XREF: sub_4D0AD+32j
         mov ah, 7
@@ -14942,7 +15125,7 @@ loc_4D0E7:              ; CODE XREF: sub_4D0AD+36j
         jz  short loc_4D0F8
         mov ah, 7
         jmp short loc_4D0FA
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D0F8:              ; CODE XREF: sub_4D0AD+45j
         mov ah, 0Dh
@@ -14959,7 +15142,7 @@ loc_4D105:              ; CODE XREF: sub_4D0AD+5j
         jz  short loc_4D117
         mov ah, 0Dh
         jmp short loc_4D119
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D117:              ; CODE XREF: sub_4D0AD+64j
         mov ah, 7
@@ -14971,7 +15154,7 @@ loc_4D119:              ; CODE XREF: sub_4D0AD+68j
         jz  short loc_4D12A
         mov ah, 7
         jmp short loc_4D12C
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D12A:              ; CODE XREF: sub_4D0AD+77j
         mov ah, 0Dh
@@ -14983,7 +15166,7 @@ loc_4D12C:              ; CODE XREF: sub_4D0AD+7Bj
         jz  short loc_4D13D
         mov ah, 0Dh
         jmp short loc_4D13F
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D13D:              ; CODE XREF: sub_4D0AD+8Aj
         mov ah, 7
@@ -14995,7 +15178,7 @@ loc_4D13F:              ; CODE XREF: sub_4D0AD+8Ej
         jz  short loc_4D150
         mov ah, 7
         jmp short loc_4D152
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D150:              ; CODE XREF: sub_4D0AD+9Dj
         mov ah, 0Dh
@@ -15012,7 +15195,7 @@ loc_4D15D:              ; CODE XREF: sub_4D0AD+5Dj
         jz  short loc_4D16F
         mov ah, 0Dh
         jmp short loc_4D171
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D16F:              ; CODE XREF: sub_4D0AD+BCj
         mov ah, 7
@@ -15024,7 +15207,7 @@ loc_4D171:              ; CODE XREF: sub_4D0AD+C0j
         jz  short loc_4D182
         mov ah, 7
         jmp short loc_4D184
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D182:              ; CODE XREF: sub_4D0AD+CFj
         mov ah, 0Dh
@@ -15036,7 +15219,7 @@ loc_4D184:              ; CODE XREF: sub_4D0AD+D3j
         jz  short loc_4D195
         mov ah, 0Dh
         jmp short loc_4D197
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D195:              ; CODE XREF: sub_4D0AD+E2j
         mov ah, 7
@@ -15048,7 +15231,7 @@ loc_4D197:              ; CODE XREF: sub_4D0AD+E6j
         jz  short loc_4D1A8
         mov ah, 7
         jmp short loc_4D1AA
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D1A8:              ; CODE XREF: sub_4D0AD+F5j
         mov ah, 0Dh
@@ -15070,7 +15253,7 @@ sub_4D1B6   proc near       ; CODE XREF: sub_4D24D+2Ep
         cmp byte_510DE, 0
         jz  short loc_4D1BE
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D1BE:              ; CODE XREF: sub_4D1B6+5j
         mov bh, byte_5981F
@@ -15081,7 +15264,7 @@ loc_4D1BE:              ; CODE XREF: sub_4D1B6+5j
         cmp byte ptr [si+7Fh], 0
         jz  short loc_4D1D2
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D1D2:              ; CODE XREF: sub_4D1B6+19j
         push    es
@@ -15115,19 +15298,19 @@ loc_4D1FA:              ; CODE XREF: sub_4D1B6+78j
         cmp byte ptr [di+0Bh], 0
         jnz short loc_4D20E
         jmp short loc_4D232
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D20E:              ; CODE XREF: sub_4D1B6+48j
                     ; sub_4D1B6+4Ej ...
-        mov al, [si+9]
+        al = [si+9]
         cmp al, [di+9]
         jl  short loc_4D232
         jnz short loc_4D22A
-        mov al, [si+0Ah]
+        al = [si+0Ah]
         cmp al, [di+0Ah]
         jl  short loc_4D232
         jnz short loc_4D22A
-        mov al, [si+0Bh]
+        al = [si+0Bh]
         cmp al, [di+0Bh]
         jl  short loc_4D232
 
@@ -15137,7 +15320,7 @@ loc_4D22A:              ; CODE XREF: sub_4D1B6+60j
         dec cx
         jnz short loc_4D1FA
         jmp short loc_4D24B
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D232:              ; CODE XREF: sub_4D1B6+56j
                     ; sub_4D1B6+5Ej ...
@@ -15171,7 +15354,7 @@ sub_4D24D   proc near       ; CODE XREF: sub_4ADFF+D9p
         jnz short locret_4D27E
         cmp byte_5A2F9, 0
         jnz short locret_4D27E
-        mov al, byte_510BB
+        al = byte_510BB
         mov byte_510BB, 0
         mov bh, byte_5981F
         xor bl, bl
@@ -15188,7 +15371,7 @@ locret_4D27E:               ; CODE XREF: sub_4D24D+5j sub_4D24D+Cj
         retn
 sub_4D24D   endp
 
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
         nop
 
 ; =============== S U B R O U T I N E =======================================
@@ -15209,12 +15392,12 @@ checkVideo  proc near       ; CODE XREF: start+282p
 
 videoCheckStart:            ; CODE XREF: checkVideo:checkAgainj
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, cl
+        al = cl
         out dx, al      ; EGA port: graphics controller data register
         nop
         nop
@@ -15237,7 +15420,7 @@ checkAgain:             ; CODE XREF: checkVideo+29j
         jnz short setStatusBit2
         mov videoStatusUnk, 1
         jmp short returnout
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 setStatusBit2:              ; CODE XREF: checkVideo+30j
         mov videoStatusUnk, 2
@@ -15256,7 +15439,7 @@ sub_4D2BF   proc near       ; CODE XREF: start+296p
         mov cx, 10h
 
 loc_4D2C9:              ; CODE XREF: sub_4D2BF+17j
-        push    cx
+        push(cx);
         mov ax, 1000h
         mov bl, cl
         dec bl
@@ -15264,10 +15447,10 @@ loc_4D2C9:              ; CODE XREF: sub_4D2BF+17j
         int 10h     ; - VIDEO - SET PALETTE REGISTER (Jr, PS, TANDY 1000, EGA, VGA)
                     ; BL = palette register to set
                     ; BH = color value to store
-        pop cx
+        pop(cx);
         loop    loc_4D2C9
         jmp short $+2
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D2DA:              ; CODE XREF: sub_4D2BF+5j
                     ; sub_4D2BF+19j
@@ -15283,7 +15466,7 @@ sub_4D2BF   endp
 sub_4D2E1   proc near       ; CODE XREF: start+450p
                     ; loadScreen2-7D7p
         mov ah, 0
-        mov al, currVideoMode
+        al = currVideoMode
         int 10h     ; - VIDEO - SET VIDEO MODE
                     ; AL = mode
         retn
@@ -15297,7 +15480,7 @@ sub_4D2E9   proc near       ; CODE XREF: start+299p
         mov byte_58487, 0
         push    es
         mov ah, 35h ; '5'
-        mov al, 33h ; '3'
+        al = 33h ; '3'
         int 21h     ; DOS - 2+ - GET INTERRUPT VECTOR
                     ; AL = interrupt number
                     ; Return: ES:BX = value of interrupt vector
@@ -15358,7 +15541,7 @@ getMouseStatus   proc near       ; CODE XREF: sub_47E98:mouseIsClickedp
                     ; Return: BX = button status, CX = column, DX = row
         shr cx, 1
         jmp locret_4D40E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D360:              ; CODE XREF: getMouseStatus+5j
         xor bx, bx
@@ -15406,7 +15589,7 @@ loc_4D3B7:              ; CODE XREF: getMouseStatus+60j
         jnz short loc_4D3C1
         inc word ptr dword_58488
         jmp short loc_4D3C7
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D3C1:              ; CODE XREF: getMouseStatus+6Aj
         mov word ptr dword_58488, 1
@@ -15465,11 +15648,11 @@ videoloop   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
                     ; 3: 1=vertical sync pulse is occurring.
         mov ah, al
         mov dx, 3C0h
-        mov al, 33h ; '3'
+        al = 33h ; '3'
         out dx, al      ; EGA: horizontal pixel panning:
                     ; Number of dots to shift data left.
                     ; Bits 0-3 valid (0-0fH)
-        mov al, byte_510A6
+        al = byte_510A6
         out dx, al      ; EGA: palette register: select colors for attribute AL:
                     ; 0: RED
                     ; 1: GREEN
@@ -15505,11 +15688,11 @@ waitForVsync:              ; CODE XREF: videoloop+7j
         cmp byte ptr dword_59B67, 0
         jz  short loc_4D453
         mov dx, 3C0h
-        mov al, 33h ; '3'
+        al = 33h ; '3'
         out dx, al      ; EGA: horizontal pixel panning:
                     ; Number of dots to shift data left.
                     ; Bits 0-3 valid (0-0fH)
-        mov al, byte_510A6
+        al = byte_510A6
         out dx, al      ; EGA: palette register: select colors for attribute AL:
                     ; 0: RED
                     ; 1: GREEN
@@ -15554,14 +15737,14 @@ sub_4D457   endp
 
 sub_4D464   proc near       ; CODE XREF: start+332p sub_4A463+3p
         mov dx, 3CEh
-        mov al, 1
+        al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -15570,41 +15753,41 @@ sub_4D464   proc near       ; CODE XREF: start+332p sub_4A463+3p
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 1
+        al = 1
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3C4h
-        mov al, 2
+        al = 2
         out dx, al      ; EGA: sequencer address reg
                     ; map mask: data bits 0-3 enable writes to bit planes 0-3
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: sequencer data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3D4h
-        mov al, 13h
+        al = 13h
         out dx, al      ; Video: CRT cntrlr addr
                     ; vertical displayed adjustment
         inc dx
-        mov al, 3Dh ; '='
+        al = 3Dh ; '='
         out dx, al      ; Video: CRT controller internal registers
         cmp videoStatusUnk, 1
         jnz short loc_4D4CF
         mov dx, 3D4h
-        mov al, 18h
+        al = 18h
         out dx, al      ; Video: CRT cntrlr addr
                     ; line compare (scan line). Used for split screen operations.
         inc dx
-        mov al, 5Fh ; '_'
+        al = 5Fh ; '_'
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 7
+        al = 7
         out dx, al      ; Video: CRT cntrlr addr
                     ; bit 8 for certain CRTC regs. Data bits:
                     ; 0: vertical total (Reg 06)
@@ -15614,14 +15797,14 @@ sub_4D464   proc near       ; CODE XREF: start+332p sub_4A463+3p
                     ; 4: line compare (Reg 18H)
                     ; 5: cursor location (Reg 0aH)
         inc dx
-        mov al, 3Fh ; '?'
+        al = 3Fh ; '?'
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 9
+        al = 9
         out dx, al      ; Video: CRT cntrlr addr
                     ; maximum scan line
         inc dx
-        mov al, 80h ; '?'
+        al = 80h ; '?'
         out dx, al      ; Video: CRT controller internal registers
         call    videoloop
         mov dx, 3DAh
@@ -15632,14 +15815,14 @@ sub_4D464   proc near       ; CODE XREF: start+332p sub_4A463+3p
                     ; 2: 1=light pen switch is open; 0=closed
                     ; 3: 1=vertical sync pulse is occurring.
         mov dx, 3C0h
-        mov al, 30h ; '0'
+        al = 30h ; '0'
         out dx, al      ; EGA: mode control bits:
                     ; 0: 1=graph modes, 0=text
                     ; 1: 1=MDA
                     ; 2: 1=9th dot=8th dot for line/box chars
                     ;    0=use bkgd colr as 9th dot of char
                     ; 3: 1=enable blink, 0=allow 4-bit bkgd
-        mov al, 21h ; '!'
+        al = 21h ; '!'
         out dx, al      ; EGA: palette register: select colors for attribute AL:
                     ; 0: RED
                     ; 1: GREEN
@@ -15649,18 +15832,18 @@ sub_4D464   proc near       ; CODE XREF: start+332p sub_4A463+3p
                     ; 5: red
         sti
         jmp short locret_4D4E3
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D4CF:              ; CODE XREF: sub_4D464+37j
         mov dx, 3D4h
-        mov al, 18h
+        al = 18h
         out dx, al      ; Video: CRT cntrlr addr
                     ; line compare (scan line). Used for split screen operations.
         inc dx
-        mov al, 0B0h ; '?'
+        al = 0B0h ; '?'
         out dx, al      ; Video: CRT controller internal registers
         mov dx, 3D4h
-        mov al, 7
+        al = 7
         out dx, al      ; Video: CRT cntrlr addr
                     ; bit 8 for certain CRTC regs. Data bits:
                     ; 0: vertical total (Reg 06)
@@ -15670,7 +15853,7 @@ loc_4D4CF:              ; CODE XREF: sub_4D464+37j
                     ; 4: line compare (Reg 18H)
                     ; 5: cursor location (Reg 0aH)
         inc dx
-        mov al, 1
+        al = 1
         out dx, al      ; Video: CRT controller internal registers
 
 locret_4D4E3:               ; CODE XREF: sub_4D464+69j
@@ -15683,14 +15866,14 @@ sub_4D464   endp
 
 sub_4D4E4   proc near       ; CODE XREF: start+2B2p start+2C7p
         mov dx, 3CEh
-        mov al, 1
+        al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -15699,29 +15882,29 @@ sub_4D4E4   proc near       ; CODE XREF: start+2B2p start+2C7p
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 1
+        al = 1
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3C4h
-        mov al, 2
+        al = 2
         out dx, al      ; EGA: sequencer address reg
                     ; map mask: data bits 0-3 enable writes to bit planes 0-3
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: sequencer data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3D4h
-        mov al, 13h
+        al = 13h
         out dx, al      ; Video: CRT cntrlr addr
                     ; vertical displayed adjustment
         inc dx
-        mov al, 3Dh ; '='
+        al = 3Dh ; '='
         out dx, al      ; Video: CRT controller internal registers
         retn
 sub_4D4E4   endp
@@ -15732,7 +15915,7 @@ sub_4D4E4   endp
 
 sub_4D517   proc near       ; CODE XREF: start+2AFp
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -15741,30 +15924,30 @@ sub_4D517   proc near       ; CODE XREF: start+2AFp
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 1
+        al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
         mov cx, 0FFFFh
         mov di, 0
@@ -15817,12 +16000,12 @@ readLevels  proc near       ; CODE XREF: start:loc_46F3Ep
         pop es
         assume es:nothing
         jmp loc_4D64B
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D599:              ; CODE XREF: readLevels+Cj
         lea dx, aLevels_dat ; "LEVELS.DAT"
         jmp short loc_4D5A3
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D59F:              ; CODE XREF: readLevels+5j
                     ; readLevels+13j
@@ -15845,7 +16028,7 @@ loc_4D5BB:              ; CODE XREF: readLevels+63j
                     ; 0 - read
         jnb short loc_4D5C2
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D5C2:              ; CODE XREF: readLevels+75j
         mov lastFileHandle, ax
@@ -15853,7 +16036,7 @@ loc_4D5C2:              ; CODE XREF: readLevels+75j
         jz  short loc_4D5D1
         mov ax, word_510E6
         jmp short loc_4D5D4
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D5D1:              ; CODE XREF: readLevels+82j
         mov ax, word_51ABC
@@ -15884,7 +16067,7 @@ loc_4D5E3:              ; CODE XREF: readLevels+91j
                     ; AL = method: offset from beginning of file
         jnb short loc_4D604
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D604:              ; CODE XREF: readLevels+B7j
         mov ax, 3F00h
@@ -15896,7 +16079,7 @@ loc_4D604:              ; CODE XREF: readLevels+B7j
                     ; DS:DX -> buffer
         jnb short loc_4D618
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D618:              ; CODE XREF: readLevels+CBj
         cmp byte ptr word_599D8, 0
@@ -15930,7 +16113,7 @@ loc_4D64B:              ; CODE XREF: readLevels+4Ej
         mov timeOfDay, ax
         mov di, 87DAh
         jmp short loc_4D660
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D65D:              ; CODE XREF: readLevels+108j
         mov di, 87A8h
@@ -15953,7 +16136,7 @@ loc_4D679:              ; CODE XREF: readLevels+121j
         stosw
         mov ax, 4Eh ; 'N'
         jmp short loc_4D689
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D682:              ; CODE XREF: readLevels+12Fj
         mov ax, 532Eh
@@ -15963,7 +16146,7 @@ loc_4D682:              ; CODE XREF: readLevels+12Fj
 loc_4D689:              ; CODE XREF: readLevels+138j
         stosw
         jmp short loc_4D68F
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D68C:              ; CODE XREF: readLevels+128j
         add di, 4
@@ -16019,7 +16202,7 @@ loc_4D6DC:              ; CODE XREF: readLevels+184j
                     ; BX = file handle
         jnb short loc_4D6EA
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D6EA:              ; CODE XREF: readLevels+192j
                     ; readLevels+19Dj
@@ -16028,11 +16211,12 @@ loc_4D6EA:              ; CODE XREF: readLevels+192j
 readLevels  endp
 
 
-; =============== S U B R O U T I N E =======================================
+// ; =============== S U B R O U T I N E =======================================
 
-; Attributes: bp-based frame
+// ; Attributes: bp-based frame
 
-fade        proc near       ; CODE XREF: start+2C1p start+312p ...
+void fade() //        proc near       ; CODE XREF: start+2C1p start+312p ...
+{
 
 var_8       = word ptr -8
 var_6       = word ptr -6
@@ -16050,7 +16234,7 @@ var_2       = word ptr -2
         mov sp, bp
         pop bp
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D706:              ; CODE XREF: fade+Cj
         push    si
@@ -16070,7 +16254,7 @@ loc_4D71D:              ; CODE XREF: fade+33j
         stosb
         loop    loc_4D71D
         mov dx, 3C7h
-        mov al, 0
+        al = 0
         out dx, al
         mov dx, 3C9h
         mov di, 6115h
@@ -16095,14 +16279,14 @@ loc_4D734:              ; CODE XREF: fade+51j
 
 loc_4D74F:              ; CODE XREF: fade+134j
         mov dx, 3C8h
-        mov al, 0
+        al = 0
         out dx, al
         mov cx, 10h
         mov si, offset fileLevelData
         mov di, 6115h
 
 loc_4D75E:              ; CODE XREF: fade+115j
-        mov al, [si]
+        al = [si]
         xor ah, ah
         mov bx, [bp+var_2]
         mul bx
@@ -16113,7 +16297,7 @@ loc_4D75E:              ; CODE XREF: fade+115j
         shr ax, 1
         shr ax, 1
         mov [bp+var_6], ax
-        mov al, [di]
+        al = [di]
         xor ah, ah
         mov bx, [bp+var_4]
         mul bx
@@ -16128,7 +16312,7 @@ loc_4D75E:              ; CODE XREF: fade+115j
         inc si
         mov dx, 3C9h
         out dx, al
-        mov al, [si]
+        al = [si]
         xor ah, ah
         mov bx, [bp+var_2]
         mul bx
@@ -16139,7 +16323,7 @@ loc_4D75E:              ; CODE XREF: fade+115j
         shr ax, 1
         shr ax, 1
         mov [bp+var_6], ax
-        mov al, [di]
+        al = [di]
         xor ah, ah
         mov bx, [bp+var_4]
         mul bx
@@ -16154,7 +16338,7 @@ loc_4D75E:              ; CODE XREF: fade+115j
         inc si
         mov dx, 3C9h
         out dx, al
-        mov al, [si]
+        al = [si]
         xor ah, ah
         mov bx, [bp+var_2]
         mul bx
@@ -16165,7 +16349,7 @@ loc_4D75E:              ; CODE XREF: fade+115j
         shr ax, 1
         shr ax, 1
         mov [bp+var_6], ax
-        mov al, [di]
+        al = [di]
         xor ah, ah
         mov bx, [bp+var_4]
         mul bx
@@ -16185,7 +16369,7 @@ loc_4D75E:              ; CODE XREF: fade+115j
         dec cx
         jz  short loc_4D808
         jmp loc_4D75E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D808:              ; CODE XREF: fade+113j
         cmp fastMode, 1
@@ -16201,7 +16385,7 @@ isFastMode4:              ; CODE XREF: fade+11Dj
         cmp ax, 3Fh ; '?'
         jg  short loc_4D827
         jmp loc_4D74F
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D827:              ; CODE XREF: fade+132j
         pop si
@@ -16213,7 +16397,7 @@ loc_4D827:              ; CODE XREF: fade+132j
         mov sp, bp
         pop bp
         retn
-fade        endp
+}
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -16235,7 +16419,7 @@ var_2       = word ptr -2
         jnz short loc_4D872
         mov cx, 10h
         mov dx, 3C8h
-        mov al, 0
+        al = 0
         out dx, al
         mov dx, 3C9h
 
@@ -16255,7 +16439,7 @@ loc_4D85B:              ; CODE XREF: sub_4D836+38j
         lodsb
         loop    loc_4D85B
         jmp short loc_4D89E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4D872:              ; CODE XREF: sub_4D836+17j
         mov cx, 10h
@@ -16295,7 +16479,7 @@ loc_4D89E:              ; CODE XREF: sub_4D836+3Aj
         retn
 sub_4D836   endp
 
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
         db  2Eh ; .
         db  8Bh ; ?
         db 0C0h ; +
@@ -16341,7 +16525,7 @@ soundShutdown?  proc near       ; CODE XREF: start+48Ep
         retn
 soundShutdown?  endp
 
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
         call    sound?1
         mov musType, 0
         mov sndType, 0
@@ -16489,7 +16673,7 @@ readSound   proc near       ; CODE XREF: loadBeep+9p loadBeep2+9p ...
                     ; 0 - read
         jnb short loc_4DA51
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DA51:              ; CODE XREF: readSound+5j
         mov lastFileHandle, ax
@@ -16507,7 +16691,7 @@ loc_4DA51:              ; CODE XREF: readSound+5j
         pop ds
         assume ds:data
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DA6C:              ; CODE XREF: readSound+1Fj
         pop ds
@@ -16517,7 +16701,7 @@ loc_4DA6C:              ; CODE XREF: readSound+1Fj
                     ; BX = file handle
         jnb short locret_4DA7B
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_4DA7B:               ; CODE XREF: readSound+2Fj
         retn
@@ -16536,7 +16720,7 @@ readSound2  proc near       ; CODE XREF: loadBeep2+12p
                     ; 0 - read
         jnb short loc_4DA86
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DA86:              ; CODE XREF: readSound2+5j
         mov lastFileHandle, ax
@@ -16554,7 +16738,7 @@ loc_4DA86:              ; CODE XREF: readSound2+5j
         pop ds
         assume ds:data
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DAA1:              ; CODE XREF: readSound2+1Fj
         pop ds
@@ -16564,7 +16748,7 @@ loc_4DAA1:              ; CODE XREF: readSound2+1Fj
                     ; BX = file handle
         jnb short locret_4DAB0
         jmp exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_4DAB0:               ; CODE XREF: readSound2+2Fj
         retn
@@ -16599,7 +16783,7 @@ sound?1     proc near       ; CODE XREF: soundShutdown?+5p
                     ; 6: 0=hold keyboard clock low
                     ; 7: 0=enable kbrd
         jmp short loc_4DAE8
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DAC9:              ; CODE XREF: sound?1+Aj
         cmp musType, 3
@@ -16608,7 +16792,7 @@ loc_4DAC9:              ; CODE XREF: sound?1+Aj
         mov ah, 2
         int 80h     ; LINUX -
         jmp short loc_4DAE8
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DAD9:              ; CODE XREF: sound?1+1Dj
         cmp musType, 5
@@ -16625,7 +16809,7 @@ loc_4DAE8:              ; CODE XREF: sound?1+16j sound?1+26j ...
         mov ah, 1
         int 81h
         jmp short loc_4DB05
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DAFA:              ; CODE XREF: sound?1+41j
         cmp sndType, 4
@@ -16646,7 +16830,7 @@ sound?2     proc near       ; CODE XREF: start+39Bp start+410p ...
         cmp byte_59886, 1
         jz  short loc_4DB13
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DB13:              ; CODE XREF: sound?2+5j
         cmp musType, 1
@@ -16655,7 +16839,7 @@ loc_4DB13:              ; CODE XREF: sound?2+5j
         int 80h     ; LINUX - old_setup_syscall
         mov soundEnabled?, 1
         jmp short locret_4DB4D
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DB26:              ; CODE XREF: sound?2+Dj
         cmp musType, 3
@@ -16665,7 +16849,7 @@ loc_4DB26:              ; CODE XREF: sound?2+Dj
         int 80h     ; LINUX - old_setup_syscall
         mov soundEnabled?, 1
         jmp short locret_4DB4D
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DB3C:              ; CODE XREF: sound?2+20j
         cmp musType, 5
@@ -16688,7 +16872,7 @@ sound?3     proc near       ; CODE XREF: start+354p runLevel+41p ...
         mov ah, 2
         int 80h     ; LINUX -
         jmp short locret_4DB76
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DB5B:              ; CODE XREF: sound?3+5j
         cmp musType, 3
@@ -16697,7 +16881,7 @@ loc_4DB5B:              ; CODE XREF: sound?3+5j
         mov ah, 2
         int 80h     ; LINUX -
         jmp short locret_4DB76
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DB6B:              ; CODE XREF: sound?3+12j
         cmp musType, 5
@@ -16717,13 +16901,13 @@ sound?4     proc near       ; CODE XREF: sub_4A61F+2EDp code:5ADEp ...
         cmp byte_59885, 1
         jz  short loc_4DB7F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DB7F:              ; CODE XREF: sound?4+5j
         cmp byte_59889, 5
         jl  short loc_4DB87
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DB87:              ; CODE XREF: sound?4+Dj
         mov byte_5988B, 0Fh
@@ -16733,7 +16917,7 @@ loc_4DB87:              ; CODE XREF: sound?4+Dj
         mov ax, 400h
         int 80h     ; LINUX -
         jmp short locret_4DBDF
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DB9F:              ; CODE XREF: sound?4+1Fj
         cmp sndType, 2
@@ -16744,7 +16928,7 @@ loc_4DB9F:              ; CODE XREF: sound?4+1Fj
         mov ax, 0
         int 81h
         jmp short locret_4DBDF
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DBB4:              ; CODE XREF: sound?4+2Dj
         cmp sndType, 3
@@ -16753,7 +16937,7 @@ loc_4DBB4:              ; CODE XREF: sound?4+2Dj
         mov dx, 388h
         int 80h     ; LINUX -
         jmp short locret_4DBDF
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DBC5:              ; CODE XREF: sound?4+42j
         cmp sndType, 4
@@ -16761,7 +16945,7 @@ loc_4DBC5:              ; CODE XREF: sound?4+42j
         mov ax, 0
         int 81h
         jmp short locret_4DBDF
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DBD3:              ; CODE XREF: sound?4+53j
         cmp sndType, 5
@@ -16782,13 +16966,13 @@ sound?5     proc near       ; CODE XREF: update?:loc_4E55Cp
         cmp byte_59885, 1
         jz  short loc_4DBE8
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DBE8:              ; CODE XREF: sound?5+5j
         cmp byte_59889, 5
         jl  short loc_4DBF0
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DBF0:              ; CODE XREF: sound?5+Dj
         mov byte_5988B, 0Fh
@@ -16798,7 +16982,7 @@ loc_4DBF0:              ; CODE XREF: sound?5+Dj
         mov ax, 401h
         int 80h     ; LINUX -
         jmp short locret_4DC48
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DC08:              ; CODE XREF: sound?5+1Fj
         cmp sndType, 2
@@ -16809,7 +16993,7 @@ loc_4DC08:              ; CODE XREF: sound?5+1Fj
         mov ax, 1
         int 81h
         jmp short locret_4DC48
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DC1D:              ; CODE XREF: sound?5+2Dj
         cmp sndType, 3
@@ -16818,7 +17002,7 @@ loc_4DC1D:              ; CODE XREF: sound?5+2Dj
         mov dx, 388h
         int 80h     ; LINUX -
         jmp short locret_4DC48
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DC2E:              ; CODE XREF: sound?5+42j
         cmp sndType, 4
@@ -16826,7 +17010,7 @@ loc_4DC2E:              ; CODE XREF: sound?5+42j
         mov ax, 1
         int 81h
         jmp short locret_4DC48
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DC3C:              ; CODE XREF: sound?5+53j
         cmp sndType, 5
@@ -16847,13 +17031,13 @@ sound?6     proc near       ; CODE XREF: update?+B8Bp
         cmp byte_59885, 1
         jz  short loc_4DC51
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DC51:              ; CODE XREF: sound?6+5j
         cmp byte_59889, 2
         jl  short loc_4DC59
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DC59:              ; CODE XREF: sound?6+Dj
         mov byte_5988B, 7
@@ -16863,7 +17047,7 @@ loc_4DC59:              ; CODE XREF: sound?6+Dj
         mov ax, 402h
         int 80h     ; LINUX -
         jmp short locret_4DCB1
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DC71:              ; CODE XREF: sound?6+1Fj
         cmp sndType, 2
@@ -16874,7 +17058,7 @@ loc_4DC71:              ; CODE XREF: sound?6+1Fj
         mov ax, 2
         int 81h
         jmp short locret_4DCB1
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DC86:              ; CODE XREF: sound?6+2Dj
         cmp sndType, 3
@@ -16883,7 +17067,7 @@ loc_4DC86:              ; CODE XREF: sound?6+2Dj
         mov dx, 388h
         int 80h     ; LINUX -
         jmp short locret_4DCB1
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DC97:              ; CODE XREF: sound?6+42j
         cmp sndType, 4
@@ -16891,7 +17075,7 @@ loc_4DC97:              ; CODE XREF: sound?6+42j
         mov ax, 2
         int 81h
         jmp short locret_4DCB1
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DCA5:              ; CODE XREF: sound?6+53j
         cmp sndType, 5
@@ -16912,13 +17096,13 @@ sound?7     proc near       ; CODE XREF: movefun:loc_48125p
         cmp byte_59885, 1
         jz  short loc_4DCBA
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DCBA:              ; CODE XREF: sound?7+5j
         cmp byte_59889, 2
         jl  short loc_4DCC2
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DCC2:              ; CODE XREF: sound?7+Dj
         mov byte_5988B, 7
@@ -16928,7 +17112,7 @@ loc_4DCC2:              ; CODE XREF: sound?7+Dj
         mov ax, 403h
         int 80h     ; LINUX -
         jmp short locret_4DD1A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DCDA:              ; CODE XREF: sound?7+1Fj
         cmp sndType, 2
@@ -16939,7 +17123,7 @@ loc_4DCDA:              ; CODE XREF: sound?7+1Fj
         mov ax, 3
         int 81h
         jmp short locret_4DD1A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DCEF:              ; CODE XREF: sound?7+2Dj
         cmp sndType, 3
@@ -16948,7 +17132,7 @@ loc_4DCEF:              ; CODE XREF: sound?7+2Dj
         mov dx, 388h
         int 80h     ; LINUX -
         jmp short locret_4DD1A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DD00:              ; CODE XREF: sound?7+42j
         cmp sndType, 4
@@ -16956,7 +17140,7 @@ loc_4DD00:              ; CODE XREF: sound?7+42j
         mov ax, 3
         int 81h
         jmp short locret_4DD1A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DD0E:              ; CODE XREF: sound?7+53j
         cmp sndType, 5
@@ -16976,13 +17160,13 @@ sound?8     proc near       ; CODE XREF: movefun7:loc_4A0ABp
         cmp byte_59885, 1
         jz  short loc_4DD23
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DD23:              ; CODE XREF: sound?8+5j
         cmp byte_59889, 3
         jl  short loc_4DD2B
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DD2B:              ; CODE XREF: sound?8+Dj
         mov byte_5988B, 3
@@ -16992,7 +17176,7 @@ loc_4DD2B:              ; CODE XREF: sound?8+Dj
         mov ax, 404h
         int 80h     ; LINUX -
         jmp short locret_4DD83
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DD43:              ; CODE XREF: sound?8+1Fj
         cmp sndType, 2
@@ -17003,7 +17187,7 @@ loc_4DD43:              ; CODE XREF: sound?8+1Fj
         mov ax, 4
         int 81h
         jmp short locret_4DD83
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DD58:              ; CODE XREF: sound?8+2Dj
         cmp sndType, 3
@@ -17012,7 +17196,7 @@ loc_4DD58:              ; CODE XREF: sound?8+2Dj
         mov dx, 388h
         int 80h     ; LINUX -
         jmp short locret_4DD83
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DD69:              ; CODE XREF: sound?8+42j
         cmp sndType, 4
@@ -17020,7 +17204,7 @@ loc_4DD69:              ; CODE XREF: sound?8+42j
         mov ax, 4
         int 81h
         jmp short locret_4DD83
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DD77:              ; CODE XREF: sound?8+53j
         cmp sndType, 5
@@ -17041,13 +17225,13 @@ sound?9     proc near       ; CODE XREF: runLevel+2F4p
         cmp byte_59885, 1
         jz  short xxxxxxxxdcdc
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 xxxxxxxxdcdc:               ; CODE XREF: sound?9+5j
         cmp byte_59889, 1
         jl  short loc_4DD94
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DD94:              ; CODE XREF: sound?9+Dj
         mov byte_5988B, 3
@@ -17057,7 +17241,7 @@ loc_4DD94:              ; CODE XREF: sound?9+Dj
         mov ax, 405h
         int 80h     ; LINUX -
         jmp short locret_4DDEC
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DDAC:              ; CODE XREF: sound?9+1Fj
         cmp sndType, 2
@@ -17068,7 +17252,7 @@ loc_4DDAC:              ; CODE XREF: sound?9+1Fj
         mov ax, 5
         int 81h
         jmp short locret_4DDEC
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DDC1:              ; CODE XREF: sound?9+2Dj
         cmp sndType, 3
@@ -17077,7 +17261,7 @@ loc_4DDC1:              ; CODE XREF: sound?9+2Dj
         mov dx, 388h
         int 80h     ; LINUX -
         jmp short locret_4DDEC
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DDD2:              ; CODE XREF: sound?9+42j
         cmp sndType, 4
@@ -17085,7 +17269,7 @@ loc_4DDD2:              ; CODE XREF: sound?9+42j
         mov ax, 5
         int 81h
         jmp short locret_4DDEC
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DDE0:              ; CODE XREF: sound?9+53j
         cmp sndType, 5
@@ -17105,7 +17289,7 @@ sound?10    proc near       ; CODE XREF: update?+7EBp
         cmp byte_59885, 1
         jz  short loc_4DDF5
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DDF5:              ; CODE XREF: sound?10+5j
         mov byte_5988B, 0FAh ; '?'
@@ -17115,9 +17299,9 @@ loc_4DDF5:              ; CODE XREF: sound?10+5j
         jnz short loc_4DE10
         mov ax, 1
         int 80h     ; LINUX - sys_exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
         jmp short locret_4DE5E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DE10:              ; CODE XREF: sound?10+1Aj
         cmp sndType, 2
@@ -17128,7 +17312,7 @@ loc_4DE10:              ; CODE XREF: sound?10+1Aj
         mov ax, 6
         int 81h
         jmp short locret_4DE5E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DE25:              ; CODE XREF: sound?10+28j
         cmp sndType, 3
@@ -17136,9 +17320,9 @@ loc_4DE25:              ; CODE XREF: sound?10+28j
         mov ax, 1
         mov dx, 388h
         int 80h     ; LINUX - sys_exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
         jmp short locret_4DE5E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DE36:              ; CODE XREF: sound?10+3Dj
         cmp sndType, 4
@@ -17147,22 +17331,22 @@ loc_4DE36:              ; CODE XREF: sound?10+3Dj
         jnz short loc_4DE4B
         mov ax, 1
         int 80h     ; LINUX - sys_exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
         jmp short locret_4DE5E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DE4B:              ; CODE XREF: sound?10+55j
         mov ax, 6
         int 81h
         jmp short locret_4DE5E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DE52:              ; CODE XREF: sound?10+4Ej
         cmp sndType, 5
         jnz short locret_4DE5E
         mov ax, 1
         int 80h     ; LINUX - sys_exit
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_4DE5E:               ; CODE XREF: sound?10+21j sound?10+36j ...
         retn
@@ -17178,7 +17362,7 @@ sound?11    proc near       ; CODE XREF: int8handler+51p
         mov ah, 1
         int 80h     ; LINUX -
         jmp short locret_4DE87
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DE6C:              ; CODE XREF: sound?11+5j
         cmp musType, 3
@@ -17187,7 +17371,7 @@ loc_4DE6C:              ; CODE XREF: sound?11+5j
         mov ah, 1
         int 80h     ; LINUX -
         jmp short locret_4DE87
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DE7C:              ; CODE XREF: sound?11+12j
         cmp musType, 5
@@ -17199,7 +17383,7 @@ locret_4DE87:               ; CODE XREF: sound?11+Bj sound?11+1Bj ...
         retn
 sound?11    endp
 
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
         db  2Eh ; .
         db  8Bh ; ?
         db 0C0h ; +
@@ -17218,7 +17402,7 @@ update?     proc near       ; CODE XREF: gameloop?+Ep
         jz  short hasValidMurphy
         mov word_510CF, 0
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 hasValidMurphy:              ; CODE XREF: update?+5j
         mov word_510CF, 1
@@ -17227,7 +17411,7 @@ hasValidMurphy:              ; CODE XREF: update?+5j
         cmp ax, 3
         jz  short loc_4DEB4
         jmp loc_4EA07
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DEB4:              ; CODE XREF: update?+1Fj
         mov byte_510D8, 0
@@ -17248,21 +17432,21 @@ loc_4DEE1:              ; CODE XREF: update?+2Ej update?+35j ...
         cmp bl, 0
         jz  short loc_4DEED
         jmp loc_4E001
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DEED:              ; CODE XREF: update?+58j
         mov byte_510D3, 1
         cmp byte_510D8, 0
         jz  short loc_4DEFC
         jmp loc_4E38A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DEFC:              ; CODE XREF: update?+67j
         mov ax, word_5195D
         and ax, 3
         jz  short loc_4DF05
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DF05:              ; CODE XREF: update?+72j
         inc word_510CD
@@ -17274,13 +17458,13 @@ loc_4DF05:              ; CODE XREF: update?+72j
         call    sub_4F200
         pop si
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DF1E:              ; CODE XREF: update?+7Ej
         cmp word_510CD, 1F4h
         jg  short loc_4DF27
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DF27:              ; CODE XREF: update?+94j
         cmp word_510CD, 20Ah
@@ -17296,13 +17480,13 @@ loc_4DF27:              ; CODE XREF: update?+94j
         call    sub_4F200
         pop si
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DF4A:              ; CODE XREF: update?+9Dj
         cmp word_510CD, 3E8h
         jg  short loc_4DF53
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DF53:              ; CODE XREF: update?+C0j
         cmp word_510CD, 3FEh
@@ -17318,13 +17502,13 @@ loc_4DF53:              ; CODE XREF: update?+C0j
         call    sub_4F200
         pop si
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DF76:              ; CODE XREF: update?+C9j
         cmp word_510CD, 640h
         jg  short loc_4DF7F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DF7F:              ; CODE XREF: update?+ECj
         cmp word_510CD, 656h
@@ -17340,7 +17524,7 @@ loc_4DF7F:              ; CODE XREF: update?+ECj
         call    sub_4F200
         pop si
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DFA2:              ; CODE XREF: update?+F5j
         cmp word_510CD, 676h
@@ -17353,7 +17537,7 @@ loc_4DFA2:              ; CODE XREF: update?+F5j
 
 locret_4DFBE:               ; CODE XREF: update?+118j
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DFBF:              ; CODE XREF: update?+11Fj
         push    si
@@ -17370,7 +17554,7 @@ loc_4DFBF:              ; CODE XREF: update?+11Fj
         call    sub_4F200
         pop si
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4DFE0:              ; CODE XREF: update?+126j
         push    si
@@ -17387,7 +17571,7 @@ loc_4DFE0:              ; CODE XREF: update?+126j
         call    sub_4F200
         pop si
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E001:              ; CODE XREF: update?+5Aj
         cmp byte_510D8, 0
@@ -17419,134 +17603,134 @@ loc_4E035:              ; CODE XREF: update?+176j update?+17Dj ...
         jnz short loc_4E041
         mov byte_510D3, 0
         jmp short loc_4E0AA
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E041:              ; CODE XREF: update?+1A8j
         cmp bl, 2
         jnz short loc_4E04E
         mov byte_510D3, 0
         jmp loc_4E10C
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E04E:              ; CODE XREF: update?+1B4j
         cmp bl, 3
         jnz short loc_4E05B
         mov byte_510D3, 0
         jmp loc_4E186
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E05B:              ; CODE XREF: update?+1C1j
         cmp bl, 4
         jnz short loc_4E068
         mov byte_510D3, 0
         jmp loc_4E1E8
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E068:              ; CODE XREF: update?+1CEj
         cmp bl, 5
         jnz short loc_4E075
         mov byte_510D3, 0
         jmp loc_4E260
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E075:              ; CODE XREF: update?+1DBj
         cmp bl, 6
         jnz short loc_4E082
         mov byte_510D3, 0
         jmp loc_4E28A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E082:              ; CODE XREF: update?+1E8j
         cmp bl, 7
         jnz short loc_4E08F
         mov byte_510D3, 0
         jmp loc_4E2BA
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E08F:              ; CODE XREF: update?+1F5j
         cmp bl, 8
         jnz short loc_4E09C
         mov byte_510D3, 0
         jmp loc_4E2E4
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E09C:              ; CODE XREF: update?+202j
         cmp bl, 9
         jnz short loc_4E0A4
         jmp loc_4E314
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E0A4:              ; CODE XREF: update?+20Fj
         mov byte_510D3, 0
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E0AA:              ; CODE XREF: update?+1AFj update?+279j
         mov ax, [si+17BCh]
         cmp ax, 0
         jnz short loc_4E0B6
         jmp loc_4E344
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E0B6:              ; CODE XREF: update?+221j
         cmp ax, 2
         jnz short loc_4E0BE
         jmp loc_4E3E1
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E0BE:              ; CODE XREF: update?+229j
         cmp al, 19h
         jnz short loc_4E0C5
         jmp loc_4E3D0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E0C5:              ; CODE XREF: update?+230j
         cmp ax, 4
         jnz short loc_4E0CD
         jmp loc_4E55C
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E0CD:              ; CODE XREF: update?+238j
         cmp ax, 7
         jnz short loc_4E0D5
         jmp loc_4E674
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E0D5:              ; CODE XREF: update?+240j
         cmp al, 13h
         jnz short loc_4E0DC
         jmp loc_4E712
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E0DC:              ; CODE XREF: update?+247j
         cmp al, 0Ch
         jnz short loc_4E0E3
         jmp loc_4E7DE
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E0E3:              ; CODE XREF: update?+24Ej
         cmp al, 15h
         jnz short loc_4E0EA
         jmp loc_4E7DE
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E0EA:              ; CODE XREF: update?+255j
         cmp al, 17h
         jnz short loc_4E0F1
         jmp loc_4E7DE
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E0F1:              ; CODE XREF: update?+25Cj
         cmp al, 14h
         jnz short loc_4E0F8
         jmp loc_4E847
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E0F8:              ; CODE XREF: update?+263j
         cmp al, 12h
         jnz short loc_4E0FF
         jmp loc_4E8F9
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E0FF:              ; CODE XREF: update?+26Aj
         push    si
@@ -17555,11 +17739,11 @@ loc_4E0FF:              ; CODE XREF: update?+26Aj
         pop si
         jb  short locret_4E10B
         jmp short loc_4E0AA
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_4E10B:               ; CODE XREF: update?+277j
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E10C:              ; CODE XREF: update?+1BBj update?+2F3j
         mov word_510CB, 1
@@ -17567,79 +17751,79 @@ loc_4E10C:              ; CODE XREF: update?+1BBj update?+2F3j
         cmp ax, 0
         jnz short loc_4E11E
         jmp loc_4E36D
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E11E:              ; CODE XREF: update?+289j
         cmp ax, 2
         jnz short loc_4E126
         jmp loc_4E41E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E126:              ; CODE XREF: update?+291j
         cmp al, 19h
         jnz short loc_4E12D
         jmp loc_4E40D
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E12D:              ; CODE XREF: update?+298j
         cmp ax, 4
         jnz short loc_4E135
         jmp loc_4E588
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E135:              ; CODE XREF: update?+2A0j
         cmp ax, 7
         jnz short loc_4E13D
         jmp loc_4E674
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E13D:              ; CODE XREF: update?+2A8j
         cmp ax, 1
         jnz short loc_4E145
         jmp loc_4E6BA
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E145:              ; CODE XREF: update?+2B0j
         cmp al, 13h
         jnz short loc_4E14C
         jmp loc_4E73C
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E14C:              ; CODE XREF: update?+2B7j
         cmp al, 0Bh
         jnz short loc_4E153
         jmp loc_4E7F5
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E153:              ; CODE XREF: update?+2BEj
         cmp al, 16h
         jnz short loc_4E15A
         jmp loc_4E7F5
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E15A:              ; CODE XREF: update?+2C5j
         cmp al, 17h
         jnz short loc_4E161
         jmp loc_4E7F5
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E161:              ; CODE XREF: update?+2CCj
         cmp ax, 14h
         jnz short loc_4E169
         jmp loc_4E863
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E169:              ; CODE XREF: update?+2D4j
         cmp ax, 12h
         jnz short loc_4E171
         jmp loc_4E920
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E171:              ; CODE XREF: update?+2DCj
         cmp ax, 8
         jnz short loc_4E179
         jmp loc_4E993
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E179:              ; CODE XREF: update?+2E4j
         push    si
@@ -17648,78 +17832,78 @@ loc_4E179:              ; CODE XREF: update?+2E4j
         pop si
         jb  short locret_4E185
         jmp short loc_4E10C
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_4E185:               ; CODE XREF: update?+2F1j
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E186:              ; CODE XREF: update?+1C8j update?+355j
         mov ax, leveldata[si+78h]
         cmp ax, 0
         jnz short loc_4E192
         jmp loc_4E38A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E192:              ; CODE XREF: update?+2FDj
         cmp ax, 2
         jnz short loc_4E19A
         jmp loc_4E44F
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E19A:              ; CODE XREF: update?+305j
         cmp al, 19h
         jnz short loc_4E1A1
         jmp loc_4E43E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E1A1:              ; CODE XREF: update?+30Cj
         cmp ax, 4
         jnz short loc_4E1A9
         jmp loc_4E5A8
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E1A9:              ; CODE XREF: update?+314j
         cmp ax, 7
         jnz short loc_4E1B1
         jmp loc_4E674
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E1B1:              ; CODE XREF: update?+31Cj
         cmp al, 13h
         jnz short loc_4E1B8
         jmp loc_4E766
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E1B8:              ; CODE XREF: update?+323j
         cmp al, 0Ah
         jnz short loc_4E1BF
         jmp loc_4E80C
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E1BF:              ; CODE XREF: update?+32Aj
         cmp al, 15h
         jnz short loc_4E1C6
         jmp loc_4E80C
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E1C6:              ; CODE XREF: update?+331j
         cmp al, 17h
         jnz short loc_4E1CD
         jmp loc_4E80C
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E1CD:              ; CODE XREF: update?+338j
         cmp al, 14h
         jnz short loc_4E1D4
         jmp loc_4E87F
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E1D4:              ; CODE XREF: update?+33Fj
         cmp al, 12h
         jnz short loc_4E1DB
         jmp loc_4E947
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E1DB:              ; CODE XREF: update?+346j
         push    si
@@ -17728,11 +17912,11 @@ loc_4E1DB:              ; CODE XREF: update?+346j
         pop si
         jb  short locret_4E1E7
         jmp short loc_4E186
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_4E1E7:               ; CODE XREF: update?+353j
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E1E8:              ; CODE XREF: update?+1D5j update?+3CDj
         mov word_510CB, 0
@@ -17740,79 +17924,79 @@ loc_4E1E8:              ; CODE XREF: update?+1D5j update?+3CDj
         cmp ax, 0
         jnz short loc_4E1FA
         jmp loc_4E3B3
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E1FA:              ; CODE XREF: update?+365j
         cmp ax, 2
         jnz short loc_4E202
         jmp loc_4E48C
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E202:              ; CODE XREF: update?+36Dj
         cmp al, 19h
         jnz short loc_4E209
         jmp loc_4E47B
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E209:              ; CODE XREF: update?+374j
         cmp ax, 4
         jnz short loc_4E211
         jmp loc_4E5D4
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E211:              ; CODE XREF: update?+37Cj
         cmp ax, 7
         jnz short loc_4E219
         jmp loc_4E674
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E219:              ; CODE XREF: update?+384j
         cmp ax, 1
         jnz short loc_4E221
         jmp loc_4E6E1
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E221:              ; CODE XREF: update?+38Cj
         cmp al, 13h
         jnz short loc_4E228
         jmp loc_4E790
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E228:              ; CODE XREF: update?+393j
         cmp al, 9
         jnz short loc_4E22F
         jmp loc_4E823
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E22F:              ; CODE XREF: update?+39Aj
         cmp al, 16h
         jnz short loc_4E236
         jmp loc_4E823
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E236:              ; CODE XREF: update?+3A1j
         cmp al, 17h
         jnz short loc_4E23D
         jmp loc_4E823
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E23D:              ; CODE XREF: update?+3A8j
         cmp al, 14h
         jnz short loc_4E244
         jmp loc_4E89A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E244:              ; CODE XREF: update?+3AFj
         cmp al, 12h
         jnz short loc_4E24B
         jmp loc_4E96D
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E24B:              ; CODE XREF: update?+3B6j
         cmp ax, 8
         jnz short loc_4E253
         jmp loc_4E9B9
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E253:              ; CODE XREF: update?+3BEj
         push    si
@@ -17821,46 +18005,46 @@ loc_4E253:              ; CODE XREF: update?+3BEj
         pop si
         jb  short locret_4E25F
         jmp short loc_4E1E8
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_4E25F:               ; CODE XREF: update?+3CBj
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E260:              ; CODE XREF: update?+1E2j
         mov ax, leveldata[si-78h]
         cmp ax, 2
         jnz short loc_4E26C
         jmp loc_4E4BD
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E26C:              ; CODE XREF: update?+3D7j
         cmp al, 19h
         jnz short loc_4E273
         jmp loc_4E4AC
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E273:              ; CODE XREF: update?+3DEj
         cmp ax, 4
         jnz short loc_4E27B
         jmp loc_4E5F4
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E27B:              ; CODE XREF: update?+3E6j
         cmp al, 13h
         jnz short loc_4E282
         jmp loc_4E712
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E282:              ; CODE XREF: update?+3EDj
         cmp al, 14h
         jnz short locret_4E289
         jmp loc_4E8B6
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_4E289:               ; CODE XREF: update?+3F4j
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E28A:              ; CODE XREF: update?+1EFj
         mov word_510CB, 1
@@ -17868,70 +18052,70 @@ loc_4E28A:              ; CODE XREF: update?+1EFj
         cmp ax, 2
         jnz short loc_4E29C
         jmp loc_4E4E9
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E29C:              ; CODE XREF: update?+407j
         cmp al, 19h
         jnz short loc_4E2A3
         jmp loc_4E4D8
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E2A3:              ; CODE XREF: update?+40Ej
         cmp ax, 4
         jnz short loc_4E2AB
         jmp loc_4E614
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E2AB:              ; CODE XREF: update?+416j
         cmp al, 13h
         jnz short loc_4E2B2
         jmp loc_4E73C
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E2B2:              ; CODE XREF: update?+41Dj
         cmp al, 14h
         jnz short locret_4E2B9
         jmp loc_4E8C5
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_4E2B9:               ; CODE XREF: update?+424j
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E2BA:              ; CODE XREF: update?+1FCj
         mov ax, [si+18ACh]
         cmp ax, 2
         jnz short loc_4E2C6
         jmp loc_4E515
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E2C6:              ; CODE XREF: update?+431j
         cmp al, 19h
         jnz short loc_4E2CD
         jmp loc_4E504
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E2CD:              ; CODE XREF: update?+438j
         cmp ax, 4
         jnz short loc_4E2D5
         jmp loc_4E634
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E2D5:              ; CODE XREF: update?+440j
         cmp al, 13h
         jnz short loc_4E2DC
         jmp loc_4E766
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E2DC:              ; CODE XREF: update?+447j
         cmp al, 14h
         jnz short locret_4E2E3
         jmp loc_4E8D4
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_4E2E3:               ; CODE XREF: update?+44Ej
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E2E4:              ; CODE XREF: update?+209j
         mov word_510CB, 0
@@ -17939,35 +18123,35 @@ loc_4E2E4:              ; CODE XREF: update?+209j
         cmp ax, 2
         jnz short loc_4E2F6
         jmp loc_4E541
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E2F6:              ; CODE XREF: update?+461j
         cmp al, 19h
         jnz short loc_4E2FD
         jmp loc_4E530
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E2FD:              ; CODE XREF: update?+468j
         cmp ax, 4
         jnz short loc_4E305
         jmp loc_4E654
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E305:              ; CODE XREF: update?+470j
         cmp al, 13h
         jnz short loc_4E30C
         jmp loc_4E790
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E30C:              ; CODE XREF: update?+477j
         cmp al, 14h
         jnz short locret_4E313
         jmp loc_4E8E3
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_4E313:               ; CODE XREF: update?+47Ej
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E314:              ; CODE XREF: update?+211j
         cmp byte_5195C, 0
@@ -17982,18 +18166,18 @@ loc_4E314:              ; CODE XREF: update?+211j
         mov byte_510DB, 1
         mov word_510DC, si
         jmp loc_4E9F3
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_4E343:               ; CODE XREF: update?+489j update?+490j ...
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E344:              ; CODE XREF: update?+223j
         cmp word_510CB, 0
         jz  short loc_4E350
         mov dx, 0DFEh
         jmp short loc_4E353
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E350:              ; CODE XREF: update?+4B9j
         mov dx, 0E0Eh
@@ -18005,7 +18189,7 @@ loc_4E353:              ; CODE XREF: update?+4BEj
         mov byte ptr leveldata[si], 0
         sub si, 78h ; 'x'
         jmp loc_4E8F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E36D:              ; CODE XREF: update?+28Bj
         mov dx, 0E1Eh
@@ -18015,14 +18199,14 @@ loc_4E36D:              ; CODE XREF: update?+28Bj
         mov byte ptr leveldata[si], 0
         sub si, 2
         jmp loc_4E8F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E38A:              ; CODE XREF: update?+69j update?+2FFj
         cmp word_510CB, 0
         jz  short loc_4E396
         mov dx, 0E2Eh
         jmp short loc_4E399
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E396:              ; CODE XREF: update?+4FFj
         mov dx, 0E3Eh
@@ -18034,7 +18218,7 @@ loc_4E399:              ; CODE XREF: update?+504j
         mov byte ptr leveldata[si], 0
         add si, 78h ; 'x'
         jmp loc_4E8F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E3B3:              ; CODE XREF: update?+367j
         mov dx, 0E4Eh
@@ -18044,14 +18228,14 @@ loc_4E3B3:              ; CODE XREF: update?+367j
         mov byte ptr leveldata[si], 0
         add si, 2
         jmp loc_4E8F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E3D0:              ; CODE XREF: update?+232j
         cmp byte ptr [si+17BDh], 0
         jl  short loc_4E3DB
         call    sub_4A61F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E3DB:              ; CODE XREF: update?+545j
         mov word ptr [si+17BCh], 2
@@ -18062,7 +18246,7 @@ loc_4E3E1:              ; CODE XREF: update?+22Bj
         jz  short loc_4E3F0
         mov dx, 0E6Eh
         jmp short loc_4E3F3
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E3F0:              ; CODE XREF: update?+559j
         mov dx, 0E7Eh
@@ -18074,14 +18258,14 @@ loc_4E3F3:              ; CODE XREF: update?+55Ej
         mov byte ptr leveldata[si], 0
         sub si, 78h ; 'x'
         jmp loc_4E8F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E40D:              ; CODE XREF: update?+29Aj
         cmp byte ptr [si+1833h], 0
         jl  short loc_4E418
         call    sub_4A61F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E418:              ; CODE XREF: update?+582j
         mov word ptr [si+1832h], 2
@@ -18095,14 +18279,14 @@ loc_4E41E:              ; CODE XREF: update?+293j
         mov byte ptr leveldata[si], 0
         sub si, 2
         jmp loc_4E8F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E43E:              ; CODE XREF: update?+30Ej
         cmp byte ptr [si+18ADh], 0
         jl  short loc_4E449
         call    sub_4A61F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E449:              ; CODE XREF: update?+5B3j
         mov word ptr [si+18ACh], 2
@@ -18113,7 +18297,7 @@ loc_4E44F:              ; CODE XREF: update?+307j
         jz  short loc_4E45E
         mov dx, 0E9Eh
         jmp short loc_4E461
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E45E:              ; CODE XREF: update?+5C7j
         mov dx, 0EAEh
@@ -18125,14 +18309,14 @@ loc_4E461:              ; CODE XREF: update?+5CCj
         mov byte ptr leveldata[si], 0
         add si, 78h ; 'x'
         jmp loc_4E8F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E47B:              ; CODE XREF: update?+376j
         cmp byte ptr [si+1837h], 0
         jl  short loc_4E486
         call    sub_4A61F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E486:              ; CODE XREF: update?+5F0j
         mov word ptr [si+1836h], 2
@@ -18146,14 +18330,14 @@ loc_4E48C:              ; CODE XREF: update?+36Fj
         mov byte ptr leveldata[si], 0
         add si, 2
         jmp loc_4E8F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E4AC:              ; CODE XREF: update?+3E0j
         cmp byte ptr [si+17BDh], 0
         jl  short loc_4E4B7
         call    sub_4A61F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E4B7:              ; CODE XREF: update?+621j
         mov word ptr [si+17BCh], 2
@@ -18168,14 +18352,14 @@ loc_4E4BD:              ; CODE XREF: update?+3D9j
         mov dx, 0ECEh
         mov byte ptr [si+1835h], 10h
         jmp loc_4E8F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E4D8:              ; CODE XREF: update?+410j
         cmp byte ptr [si+1833h], 0
         jl  short loc_4E4E3
         call    sub_4A61F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E4E3:              ; CODE XREF: update?+64Dj
         mov word ptr [si+1832h], 2
@@ -18190,14 +18374,14 @@ loc_4E4E9:              ; CODE XREF: update?+409j
         mov dx, 0EDEh
         mov byte ptr [si+1835h], 11h
         jmp loc_4E8F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E504:              ; CODE XREF: update?+43Aj
         cmp byte ptr [si+18ADh], 0
         jl  short loc_4E50F
         call    sub_4A61F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E50F:              ; CODE XREF: update?+679j
         mov word ptr [si+18ACh], 2
@@ -18212,14 +18396,14 @@ loc_4E515:              ; CODE XREF: update?+433j
         mov dx, 0EEEh
         mov byte ptr [si+1835h], 12h
         jmp loc_4E8F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E530:              ; CODE XREF: update?+46Aj
         cmp byte ptr [si+1837h], 0
         jl  short loc_4E53B
         call    sub_4A61F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E53B:              ; CODE XREF: update?+6A5j
         mov word ptr [si+1836h], 2
@@ -18234,7 +18418,7 @@ loc_4E541:              ; CODE XREF: update?+463j
         mov dx, 0EFEh
         mov byte ptr [si+1835h], 13h
         jmp loc_4E8F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E55C:              ; CODE XREF: update?+23Aj
         call    sound?5
@@ -18242,7 +18426,7 @@ loc_4E55C:              ; CODE XREF: update?+23Aj
         jz  short loc_4E56B
         mov dx, 0F0Eh
         jmp short loc_4E56E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E56B:              ; CODE XREF: update?+6D4j
         mov dx, 0F1Eh
@@ -18254,7 +18438,7 @@ loc_4E56E:              ; CODE XREF: update?+6D9j
         mov byte ptr leveldata[si], 0
         sub si, 78h ; 'x'
         jmp loc_4E8F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E588:              ; CODE XREF: update?+2A2j
         call    sound?5
@@ -18265,7 +18449,7 @@ loc_4E588:              ; CODE XREF: update?+2A2j
         mov byte ptr leveldata[si], 0
         sub si, 2
         jmp loc_4E8F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E5A8:              ; CODE XREF: update?+316j
         call    sound?5
@@ -18273,7 +18457,7 @@ loc_4E5A8:              ; CODE XREF: update?+316j
         jz  short loc_4E5B7
         mov dx, 0F3Eh
         jmp short loc_4E5BA
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E5B7:              ; CODE XREF: update?+720j
         mov dx, 0F4Eh
@@ -18285,7 +18469,7 @@ loc_4E5BA:              ; CODE XREF: update?+725j
         mov byte ptr leveldata[si], 0
         add si, 78h ; 'x'
         jmp loc_4E8F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E5D4:              ; CODE XREF: update?+37Ej
         call    sound?5
@@ -18296,7 +18480,7 @@ loc_4E5D4:              ; CODE XREF: update?+37Ej
         mov byte ptr leveldata[si], 0
         add si, 2
         jmp loc_4E8F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E5F4:              ; CODE XREF: update?+3E8j
         push    si
@@ -18309,7 +18493,7 @@ loc_4E5F4:              ; CODE XREF: update?+3E8j
         mov byte ptr [si+1835h], 14h
         mov byte ptr [si+17BDh], 0FFh
         jmp loc_4E8F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E614:              ; CODE XREF: update?+418j
         push    si
@@ -18322,7 +18506,7 @@ loc_4E614:              ; CODE XREF: update?+418j
         mov byte ptr [si+1835h], 15h
         mov byte ptr [si+1833h], 0FFh
         jmp loc_4E8F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E634:              ; CODE XREF: update?+442j
         push    si
@@ -18335,7 +18519,7 @@ loc_4E634:              ; CODE XREF: update?+442j
         mov byte ptr [si+1835h], 16h
         mov byte ptr [si+18ADh], 0FFh
         jmp loc_4E8F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E654:              ; CODE XREF: update?+472j
         push    si
@@ -18348,7 +18532,7 @@ loc_4E654:              ; CODE XREF: update?+472j
         mov byte ptr [si+1835h], 17h
         mov byte ptr [si+1837h], 0FFh
         jmp loc_4E8F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E674:              ; CODE XREF: update?+242j update?+2AAj ...
         cmp byte_5195A, 0
@@ -18372,18 +18556,18 @@ loc_4E6A4:              ; CODE XREF: update?+803j update?+80Aj
         mov dx, 0E5Eh
         mov byte ptr [si+1835h], 0Dh
         jmp loc_4E8F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_4E6B9:               ; CODE XREF: update?+7E9j
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E6BA:              ; CODE XREF: update?+2B2j
         mov ax, [si+1830h]
         cmp ax, 0
         jz  short loc_4E6C4
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E6C4:              ; CODE XREF: update?+831j
         mov byte ptr [si+1831h], 1
@@ -18395,21 +18579,21 @@ loc_4E6C4:              ; CODE XREF: update?+831j
         mov dx, 0FAEh
         mov byte ptr [si+1835h], 0Eh
         jmp loc_4E9E7
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E6E1:              ; CODE XREF: update?+38Ej
         mov ax, [si+1838h]
         cmp ax, 0
         jz  short loc_4E6EB
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E6EB:              ; CODE XREF: update?+858j
         mov ax, [si+18AEh]
         cmp ax, 0
         jnz short loc_4E6F5
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E6F5:              ; CODE XREF: update?+862j
         mov byte ptr [si+1839h], 1
@@ -18421,7 +18605,7 @@ loc_4E6F5:              ; CODE XREF: update?+862j
         mov dx, 0FBEh
         mov byte ptr [si+1835h], 0Fh
         jmp loc_4E9E7
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E712:              ; CODE XREF: update?+249j update?+3EFj
         push    si
@@ -18433,7 +18617,7 @@ loc_4E712:              ; CODE XREF: update?+249j update?+3EFj
         jz  short loc_4E72D
         mov word_510CD, 0Ah
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E72D:              ; CODE XREF: update?+894j
         push    si
@@ -18442,7 +18626,7 @@ loc_4E72D:              ; CODE XREF: update?+894j
         call    sub_4F200
         pop si
         jmp short loc_4E7B8
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E73C:              ; CODE XREF: update?+2B9j update?+41Fj
         push    si
@@ -18454,7 +18638,7 @@ loc_4E73C:              ; CODE XREF: update?+2B9j update?+41Fj
         jz  short loc_4E757
         mov word_510CD, 0Ah
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E757:              ; CODE XREF: update?+8BEj
         push    si
@@ -18463,7 +18647,7 @@ loc_4E757:              ; CODE XREF: update?+8BEj
         call    sub_4F200
         pop si
         jmp short loc_4E7B8
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E766:              ; CODE XREF: update?+325j update?+449j
         push    si
@@ -18475,7 +18659,7 @@ loc_4E766:              ; CODE XREF: update?+325j update?+449j
         jz  short loc_4E781
         mov word_510CD, 0Ah
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E781:              ; CODE XREF: update?+8E8j
         push    si
@@ -18484,7 +18668,7 @@ loc_4E781:              ; CODE XREF: update?+8E8j
         call    sub_4F200
         pop si
         jmp short loc_4E7B8
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E790:              ; CODE XREF: update?+395j update?+479j
         push    si
@@ -18496,7 +18680,7 @@ loc_4E790:              ; CODE XREF: update?+395j update?+479j
         jz  short loc_4E7AB
         mov word_510CD, 0Ah
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E7AB:              ; CODE XREF: update?+912j
         push    si
@@ -18515,63 +18699,63 @@ loc_4E7B8:              ; CODE XREF: update?+8AAj update?+8D4j ...
 loc_4E7C9:              ; CODE XREF: update?+94Aj
         cmp word ptr leveldata[si], 12h
         jnz short loc_4E7D7
-        push    cx
+        push(cx);
         push    si
         call    sub_4A61F
         pop si
-        pop cx
+        pop(cx);
 
 loc_4E7D7:              ; CODE XREF: update?+93Ej
         add si, 2
         loop    loc_4E7C9
         pop si
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E7DE:              ; CODE XREF: update?+250j update?+257j ...
         cmp word ptr [si+1744h], 0
         jz  short loc_4E7E6
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E7E6:              ; CODE XREF: update?+953j
         mov dx, 0FCEh
         mov byte ptr [si+1835h], 18h
         mov byte ptr [si+1745h], 3
         jmp short loc_4E838
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E7F5:              ; CODE XREF: update?+2C0j update?+2C7j ...
         cmp word ptr [si+1830h], 0
         jz  short loc_4E7FD
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E7FD:              ; CODE XREF: update?+96Aj
         mov dx, 0FDEh
         mov byte ptr [si+1835h], 19h
         mov byte ptr [si+1831h], 3
         jmp short loc_4E838
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E80C:              ; CODE XREF: update?+32Cj update?+333j ...
         cmp word ptr [si+1924h], 0
         jz  short loc_4E814
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E814:              ; CODE XREF: update?+981j
         mov dx, 0FEEh
         mov byte ptr [si+1835h], 1Ah
         mov byte ptr [si+1925h], 3
         jmp short loc_4E838
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E823:              ; CODE XREF: update?+39Cj update?+3A3j ...
         cmp word ptr [si+1838h], 0
         jz  short loc_4E82B
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E82B:              ; CODE XREF: update?+998j
         mov dx, 0FFEh
@@ -18582,14 +18766,14 @@ loc_4E838:              ; CODE XREF: update?+963j update?+97Aj ...
         mov word_510EE, 0
         mov word_510D9, 1
         jmp loc_4E9F3
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E847:              ; CODE XREF: update?+265j
         cmp word_510CB, 0
         jz  short loc_4E853
         mov dx, 100Eh
         jmp short loc_4E856
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E853:              ; CODE XREF: update?+9BCj
         mov dx, 101Eh
@@ -18598,7 +18782,7 @@ loc_4E856:              ; CODE XREF: update?+9C1j
         mov byte ptr [si+1835h], 1Ch
         mov byte ptr [si+17BDh], 3
         jmp loc_4E8F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E863:              ; CODE XREF: update?+2D6j
         mov dx, 102Eh
@@ -18608,14 +18792,14 @@ loc_4E863:              ; CODE XREF: update?+2D6j
         mov byte ptr leveldata[si], 0
         sub si, 2
         jmp short loc_4E8F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E87F:              ; CODE XREF: update?+341j
         cmp word_510CB, 0
         jz  short loc_4E88B
         mov dx, 103Eh
         jmp short loc_4E88E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E88B:              ; CODE XREF: update?+9F4j
         mov dx, 104Eh
@@ -18624,7 +18808,7 @@ loc_4E88E:              ; CODE XREF: update?+9F9j
         mov byte ptr [si+1835h], 1Eh
         mov byte ptr [si+18ADh], 3
         jmp short loc_4E8F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E89A:              ; CODE XREF: update?+3B1j
         mov dx, 105Eh
@@ -18634,28 +18818,28 @@ loc_4E89A:              ; CODE XREF: update?+3B1j
         mov byte ptr leveldata[si], 0
         add si, 2
         jmp short loc_4E8F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E8B6:              ; CODE XREF: update?+3F6j
         mov dx, 106Eh
         mov byte ptr [si+1835h], 20h ; ' '
         mov byte ptr [si+17BDh], 3
         jmp short loc_4E8F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E8C5:              ; CODE XREF: update?+426j
         mov dx, 107Eh
         mov byte ptr [si+1835h], 21h ; '!'
         mov byte ptr [si+1833h], 3
         jmp short loc_4E8F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E8D4:              ; CODE XREF: update?+450j
         mov dx, 108Eh
         mov byte ptr [si+1835h], 22h ; '"'
         mov byte ptr [si+18ADh], 3
         jmp short loc_4E8F0
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E8E3:              ; CODE XREF: update?+480j
         mov dx, 109Eh
@@ -18665,14 +18849,14 @@ loc_4E8E3:              ; CODE XREF: update?+480j
 loc_4E8F0:              ; CODE XREF: update?+4DAj update?+4F7j ...
         mov word_510EE, 0
         jmp loc_4E9ED
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E8F9:              ; CODE XREF: update?+26Cj
         mov ax, [si+1744h]
         cmp ax, 0
         jz  short loc_4E903
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E903:              ; CODE XREF: update?+A70j
         mov byte ptr [si+1745h], 12h
@@ -18684,14 +18868,14 @@ loc_4E903:              ; CODE XREF: update?+A70j
         mov dx, 10AEh
         mov byte ptr [si+1835h], 24h ; '$'
         jmp loc_4E9E7
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E920:              ; CODE XREF: update?+2DEj
         mov ax, [si+1830h]
         cmp ax, 0
         jz  short loc_4E92A
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E92A:              ; CODE XREF: update?+A97j
         mov byte ptr [si+1831h], 12h
@@ -18703,14 +18887,14 @@ loc_4E92A:              ; CODE XREF: update?+A97j
         mov dx, 10BEh
         mov byte ptr [si+1835h], 25h ; '%'
         jmp loc_4E9E7
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E947:              ; CODE XREF: update?+348j
         mov ax, [si+1924h]
         cmp ax, 0
         jz  short loc_4E951
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E951:              ; CODE XREF: update?+ABEj
         mov byte ptr [si+1925h], 12h
@@ -18722,14 +18906,14 @@ loc_4E951:              ; CODE XREF: update?+ABEj
         mov dx, 10CEh
         mov byte ptr [si+1835h], 27h ; '''
         jmp short loc_4E9E7
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E96D:              ; CODE XREF: update?+3B8j
         mov ax, [si+1838h]
         cmp ax, 0
         jz  short loc_4E977
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E977:              ; CODE XREF: update?+AE4j
         mov byte ptr [si+1839h], 12h
@@ -18741,14 +18925,14 @@ loc_4E977:              ; CODE XREF: update?+AE4j
         mov dx, 10DEh
         mov byte ptr [si+1835h], 26h ; '&'
         jmp short loc_4E9E7
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E993:              ; CODE XREF: update?+2E6j
         mov ax, [si+1830h]
         cmp ax, 0
         jz  short loc_4E99D
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E99D:              ; CODE XREF: update?+B0Aj
         mov byte ptr [si+1831h], 8
@@ -18760,21 +18944,21 @@ loc_4E99D:              ; CODE XREF: update?+B0Aj
         mov dx, 10EEh
         mov byte ptr [si+1835h], 28h ; '('
         jmp short loc_4E9E7
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E9B9:              ; CODE XREF: update?+3C0j
         mov ax, [si+1838h]
         cmp ax, 0
         jz  short loc_4E9C3
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E9C3:              ; CODE XREF: update?+B30j
         mov ax, [si+18AEh]
         cmp ax, 0
         jnz short loc_4E9CD
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4E9CD:              ; CODE XREF: update?+B3Aj
         mov byte ptr [si+1839h], 1
@@ -18794,7 +18978,7 @@ loc_4E9ED:              ; CODE XREF: update?+A66j
 
 loc_4E9F3:              ; CODE XREF: update?+4B0j update?+9B4j
         push    si
-        push    di
+        push(di);
         push    es
         mov si, dx
         mov di, 0DE0h
@@ -18805,7 +18989,7 @@ loc_4E9F3:              ; CODE XREF: update?+4B0j update?+9B4j
         rep movsw
         pop es
         assume es:nothing
-        pop di
+        pop(di);
         pop si
 
 loc_4EA07:              ; CODE XREF: update?+21j
@@ -18823,63 +19007,63 @@ loc_4EA1E:              ; CODE XREF: update?+B89j
         cmp bl, 0Eh
         jnz short loc_4EA2A
         jmp loc_4ED49
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EA2A:              ; CODE XREF: update?+B95j
         cmp bl, 0Fh
         jnz short loc_4EA32
         jmp loc_4ED81
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EA32:              ; CODE XREF: update?+B9Dj
         cmp bl, 28h ; '('
         jnz short loc_4EA3A
         jmp loc_4EDB9
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EA3A:              ; CODE XREF: update?+BA5j
         cmp bl, 29h ; ')'
         jnz short loc_4EA42
         jmp loc_4EDF1
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EA42:              ; CODE XREF: update?+BADj
         cmp bl, 24h ; '$'
         jnz short loc_4EA4A
         jmp loc_4EE29
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EA4A:              ; CODE XREF: update?+BB5j
         cmp bl, 25h ; '%'
         jnz short loc_4EA52
         jmp loc_4EE61
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EA52:              ; CODE XREF: update?+BBDj
         cmp bl, 27h ; '''
         jnz short loc_4EA5A
         jmp loc_4EE99
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EA5A:              ; CODE XREF: update?+BC5j
         cmp bl, 26h ; '&'
         jnz short loc_4EA62
         jmp loc_4EED1
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EA62:              ; CODE XREF: update?+BCDj
         cmp bl, 2Ah ; '*'
         jnz short locret_4EA6A
         jmp loc_4EF09
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_4EA6A:               ; CODE XREF: update?+BD5j
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EA6B:              ; CODE XREF: update?+B83j
         push    si
-        push    di
+        push(di);
         mov ax, word_510FA
         add word_510E8, ax
         mov ax, word_510FC
@@ -18940,7 +19124,7 @@ loc_4EAF4:              ; CODE XREF: update?+C5Ej
         jnz short loc_4EADC
         pop ds
         jmp short loc_4EB04
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EAFA:              ; CODE XREF: update?+C32j
         mov ax, word_510F0
@@ -18951,13 +19135,13 @@ loc_4EB04:              ; CODE XREF: update?+C68j
         mov si, word_510F8
         cmp word ptr [si], 0FFFFh
         jz  short loc_4EB10
-        pop di
+        pop(di);
         pop si
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EB10:              ; CODE XREF: update?+C7Bj
-        pop di
+        pop(di);
         pop si
         mov ax, word_510FA
         shr ax, 1
@@ -18970,258 +19154,258 @@ loc_4EB10:              ; CODE XREF: update?+C7Bj
         cmp bl, 1
         jnz short loc_4EB36
         jmp loc_4EC93
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EB36:              ; CODE XREF: update?+CA1j
         cmp bl, 2
         jnz short loc_4EB3E
         jmp loc_4ECB1
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EB3E:              ; CODE XREF: update?+CA9j
         cmp bl, 3
         jnz short loc_4EB46
         jmp loc_4ECCF
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EB46:              ; CODE XREF: update?+CB1j
         cmp bl, 4
         jnz short loc_4EB4E
         jmp loc_4EF53
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EB4E:              ; CODE XREF: update?+CB9j
         cmp bl, 5
         jnz short loc_4EB56
         jmp loc_4EC93
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EB56:              ; CODE XREF: update?+CC1j
         cmp bl, 6
         jnz short loc_4EB5E
         jmp loc_4ECB1
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EB5E:              ; CODE XREF: update?+CC9j
         cmp bl, 7
         jnz short loc_4EB66
         jmp loc_4ECCF
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EB66:              ; CODE XREF: update?+CD1j
         cmp bl, 8
         jnz short loc_4EB6E
         jmp loc_4EF53
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EB6E:              ; CODE XREF: update?+CD9j
         cmp bl, 9
         jnz short loc_4EB76
         jmp loc_4EC85
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EB76:              ; CODE XREF: update?+CE1j
         cmp bl, 0Ah
         jnz short loc_4EB7E
         jmp loc_4ECA3
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EB7E:              ; CODE XREF: update?+CE9j
         cmp bl, 0Bh
         jnz short loc_4EB86
         jmp loc_4ECC1
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EB86:              ; CODE XREF: update?+CF1j
         cmp bl, 0Ch
         jnz short loc_4EB8E
         jmp loc_4EF45
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EB8E:              ; CODE XREF: update?+CF9j
         cmp bl, 0Eh
         jnz short loc_4EB96
         jmp loc_4ECE3
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EB96:              ; CODE XREF: update?+D01j
         cmp bl, 0Fh
         jnz short loc_4EB9E
         jmp loc_4ED06
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EB9E:              ; CODE XREF: update?+D09j
         cmp bl, 10h
         jnz short loc_4EBA6
         jmp loc_4EF71
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EBA6:              ; CODE XREF: update?+D11j
         cmp bl, 11h
         jnz short loc_4EBAE
         jmp loc_4EF8D
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EBAE:              ; CODE XREF: update?+D19j
         cmp bl, 13h
         jnz short loc_4EBB6
         jmp loc_4EFC5
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EBB6:              ; CODE XREF: update?+D21j
         cmp bl, 12h
         jnz short loc_4EBBE
         jmp loc_4EFA9
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EBBE:              ; CODE XREF: update?+D29j
         cmp bl, 14h
         jnz short loc_4EBC6
         jmp loc_4EF63
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EBC6:              ; CODE XREF: update?+D31j
         cmp bl, 15h
         jnz short loc_4EBCE
         jmp loc_4EF7F
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EBCE:              ; CODE XREF: update?+D39j
         cmp bl, 17h
         jnz short loc_4EBD6
         jmp loc_4EFB7
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EBD6:              ; CODE XREF: update?+D41j
         cmp bl, 16h
         jnz short loc_4EBDE
         jmp loc_4EF9B
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EBDE:              ; CODE XREF: update?+D49j
         cmp bl, 0Dh
         jnz short loc_4EBE6
         jmp loc_4ED42
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EBE6:              ; CODE XREF: update?+D51j
         cmp bl, 18h
         jnz short loc_4EBEE
         jmp loc_4EFD3
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EBEE:              ; CODE XREF: update?+D59j
         cmp bl, 19h
         jnz short loc_4EBF6
         jmp loc_4F001
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EBF6:              ; CODE XREF: update?+D61j
         cmp bl, 1Ah
         jnz short loc_4EBFE
         jmp loc_4F02E
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EBFE:              ; CODE XREF: update?+D69j
         cmp bl, 1Bh
         jnz short loc_4EC06
         jmp loc_4F05C
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EC06:              ; CODE XREF: update?+D71j
         cmp bl, 1Ch
         jnz short loc_4EC0E
         jmp loc_4F089
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EC0E:              ; CODE XREF: update?+D79j
         cmp bl, 1Dh
         jnz short loc_4EC16
         jmp loc_4F09C
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EC16:              ; CODE XREF: update?+D81j
         cmp bl, 1Eh
         jnz short loc_4EC1E
         jmp loc_4F0AC
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EC1E:              ; CODE XREF: update?+D89j
         cmp bl, 1Fh
         jnz short loc_4EC26
         jmp loc_4F0BF
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EC26:              ; CODE XREF: update?+D91j
         cmp bl, 20h ; ' '
         jnz short loc_4EC2E
         jmp loc_4F0CF
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EC2E:              ; CODE XREF: update?+D99j
         cmp bl, 21h ; '!'
         jnz short loc_4EC36
         jmp loc_4F0E6
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EC36:              ; CODE XREF: update?+DA1j
         cmp bl, 22h ; '"'
         jnz short loc_4EC3E
         jmp loc_4F0FD
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EC3E:              ; CODE XREF: update?+DA9j
         cmp bl, 23h ; '#'
         jnz short loc_4EC46
         jmp loc_4F114
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EC46:              ; CODE XREF: update?+DB1j
         cmp bl, 24h ; '$'
         jnz short loc_4EC4E
         jmp loc_4F12B
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EC4E:              ; CODE XREF: update?+DB9j
         cmp bl, 25h ; '%'
         jnz short loc_4EC56
         jmp loc_4F148
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EC56:              ; CODE XREF: update?+DC1j
         cmp bl, 27h ; '''
         jnz short loc_4EC5E
         jmp loc_4F165
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EC5E:              ; CODE XREF: update?+DC9j
         cmp bl, 26h ; '&'
         jnz short loc_4EC66
         jmp loc_4F182
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EC66:              ; CODE XREF: update?+DD1j
         cmp bl, 28h ; '('
         jnz short loc_4EC6E
         jmp loc_4F19F
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EC6E:              ; CODE XREF: update?+DD9j
         cmp bl, 29h ; ')'
         jnz short loc_4EC76
         jmp loc_4F1BC
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EC76:              ; CODE XREF: update?+DE1j
         cmp bl, 2Ah ; '*'
         jnz short loc_4EC7E
         jmp loc_4F1EA
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EC7E:              ; CODE XREF: update?+DE9j
         mov word_51974, 1
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EC85:              ; CODE XREF: update?+CE3j
         cmp byte_5195A, 0
@@ -19237,7 +19421,7 @@ loc_4EC93:              ; CODE XREF: update?+CA3j update?+CC3j
         call    sub_487FE
         sub si, 78h ; 'x'
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4ECA3:              ; CODE XREF: update?+CEBj
         cmp byte_5195A, 0
@@ -19253,7 +19437,7 @@ loc_4ECB1:              ; CODE XREF: update?+CABj update?+CCBj
         call    sub_487FE
         sub si, 2
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4ECC1:              ; CODE XREF: update?+CF3j
         cmp byte_5195A, 0
@@ -19271,7 +19455,7 @@ loc_4ECCF:              ; CODE XREF: update?+CB3j update?+CD3j
 loc_4ECDC:              ; CODE XREF: update?+E44j
         mov word ptr leveldata[si], 3
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4ECE3:              ; CODE XREF: update?+D03j
         cmp byte ptr leveldata[si], 1Fh
@@ -19285,7 +19469,7 @@ loc_4ECF0:              ; CODE XREF: update?+E58j
         call    sub_4ED29
         add si, 2
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4ED06:              ; CODE XREF: update?+D0Bj
         cmp byte ptr leveldata[si], 1Fh
@@ -19311,7 +19495,7 @@ sub_4ED29   proc near       ; CODE XREF: update?+E6Fp update?+E92p
         cmp byte ptr [si+18ACh], 0BBh ; '?'
         jz  short loc_4ED38
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4ED38:              ; CODE XREF: sub_4ED29+5j sub_4ED29+Cj
         add si, 78h ; 'x'
@@ -19320,13 +19504,13 @@ loc_4ED38:              ; CODE XREF: sub_4ED29+5j sub_4ED29+Cj
         retn
 sub_4ED29   endp
 
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 ; START OF FUNCTION CHUNK FOR update?
 
 loc_4ED42:              ; CODE XREF: update?+D53j
         mov word_51974, 1
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4ED49:              ; CODE XREF: update?+B97j
         mov bl, byte_50941
@@ -19335,7 +19519,7 @@ loc_4ED49:              ; CODE XREF: update?+B97j
         cmp word ptr [si+1832h], 1
         jnz short loc_4ED5A
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4ED5A:              ; CODE XREF: update?+EC0j update?+EC7j
         mov word ptr leveldata[si], 3
@@ -19351,7 +19535,7 @@ loc_4ED73:              ; CODE XREF: update?+EDBj
         call    sub_4F200
         pop si
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4ED81:              ; CODE XREF: update?+B9Fj
         mov bl, byte_50941
@@ -19360,7 +19544,7 @@ loc_4ED81:              ; CODE XREF: update?+B9Fj
         cmp word ptr [si+1836h], 1
         jnz short loc_4ED92
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4ED92:              ; CODE XREF: update?+EF8j update?+EFFj
         mov word ptr leveldata[si], 3
@@ -19376,7 +19560,7 @@ loc_4EDAB:              ; CODE XREF: update?+F13j
         call    sub_4F200
         pop si
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EDB9:              ; CODE XREF: update?+BA7j
         mov bl, byte_50941
@@ -19385,7 +19569,7 @@ loc_4EDB9:              ; CODE XREF: update?+BA7j
         cmp word ptr [si+1832h], 8
         jnz short loc_4EDCA
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EDCA:              ; CODE XREF: update?+F30j update?+F37j
         mov word ptr leveldata[si], 3
@@ -19401,7 +19585,7 @@ loc_4EDE3:              ; CODE XREF: update?+F4Bj
         call    sub_4F200
         pop si
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EDF1:              ; CODE XREF: update?+BAFj
         mov bl, byte_50941
@@ -19410,7 +19594,7 @@ loc_4EDF1:              ; CODE XREF: update?+BAFj
         cmp word ptr [si+1836h], 8
         jnz short loc_4EE02
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EE02:              ; CODE XREF: update?+F68j update?+F6Fj
         mov word ptr leveldata[si], 3
@@ -19426,7 +19610,7 @@ loc_4EE1B:              ; CODE XREF: update?+F83j
         call    sub_4F200
         pop si
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EE29:              ; CODE XREF: update?+BB7j
         mov bl, byte_50941
@@ -19435,7 +19619,7 @@ loc_4EE29:              ; CODE XREF: update?+BB7j
         cmp word ptr [si+17BCh], 12h
         jnz short loc_4EE3A
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EE3A:              ; CODE XREF: update?+FA0j update?+FA7j
         mov word ptr leveldata[si], 3
@@ -19451,7 +19635,7 @@ loc_4EE53:              ; CODE XREF: update?+FBBj
         call    sub_4F200
         pop si
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EE61:              ; CODE XREF: update?+BBFj
         mov bl, byte_50941
@@ -19460,7 +19644,7 @@ loc_4EE61:              ; CODE XREF: update?+BBFj
         cmp word ptr [si+1832h], 12h
         jnz short loc_4EE72
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EE72:              ; CODE XREF: update?+FD8j update?+FDFj
         mov word ptr leveldata[si], 3
@@ -19476,7 +19660,7 @@ loc_4EE8B:              ; CODE XREF: update?+FF3j
         call    sub_4F200
         pop si
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EE99:              ; CODE XREF: update?+BC7j
         mov bl, byte_50941
@@ -19485,7 +19669,7 @@ loc_4EE99:              ; CODE XREF: update?+BC7j
         cmp word ptr [si+18ACh], 12h
         jnz short loc_4EEAA
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EEAA:              ; CODE XREF: update?+1010j
                     ; update?+1017j
@@ -19502,7 +19686,7 @@ loc_4EEC3:              ; CODE XREF: update?+102Bj
         call    sub_4F200
         pop si
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EED1:              ; CODE XREF: update?+BCFj
         mov bl, byte_50941
@@ -19511,7 +19695,7 @@ loc_4EED1:              ; CODE XREF: update?+BCFj
         cmp word ptr [si+1836h], 12h
         jnz short loc_4EEE2
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EEE2:              ; CODE XREF: update?+1048j
                     ; update?+104Fj
@@ -19528,7 +19712,7 @@ loc_4EEFB:              ; CODE XREF: update?+1063j
         call    sub_4F200
         pop si
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EF09:              ; CODE XREF: update?+BD7j
         mov bl, byte_50941
@@ -19545,7 +19729,7 @@ loc_4EF09:              ; CODE XREF: update?+BD7j
 
 locret_4EF2B:               ; CODE XREF: update?+1087j
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EF2C:              ; CODE XREF: update?+1080j
         push    si
@@ -19556,7 +19740,7 @@ loc_4EF2C:              ; CODE XREF: update?+1080j
         mov byte_510DB, 0
         pop si
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EF45:              ; CODE XREF: update?+CFBj
         cmp byte_5195A, 0
@@ -19572,7 +19756,7 @@ loc_4EF53:              ; CODE XREF: update?+CBBj update?+CDBj
         add si, 2
         mov word ptr leveldata[si], 3
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EF63:              ; CODE XREF: update?+D33j
         cmp byte_5195A, 0
@@ -19589,7 +19773,7 @@ loc_4EF71:              ; CODE XREF: update?+D13j
 
 locret_4EF7E:               ; CODE XREF: update?+10E6j
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EF7F:              ; CODE XREF: update?+D3Bj
         cmp byte_5195A, 0
@@ -19606,7 +19790,7 @@ loc_4EF8D:              ; CODE XREF: update?+D1Bj
 
 locret_4EF9A:               ; CODE XREF: update?+1102j
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EF9B:              ; CODE XREF: update?+D4Bj
         cmp byte_5195A, 0
@@ -19623,7 +19807,7 @@ loc_4EFA9:              ; CODE XREF: update?+D2Bj
 
 locret_4EFB6:               ; CODE XREF: update?+111Ej
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EFB7:              ; CODE XREF: update?+D43j
         cmp byte_5195A, 0
@@ -19640,7 +19824,7 @@ loc_4EFC5:              ; CODE XREF: update?+D23j
 
 locret_4EFD2:               ; CODE XREF: update?+113Aj
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4EFD3:              ; CODE XREF: update?+D5Bj
         cmp byte ptr leveldata[si], 1Fh
@@ -19659,7 +19843,7 @@ loc_4EFE0:              ; CODE XREF: update?+1148j
 
 locret_4F000:               ; CODE XREF: update?+1165j
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F001:              ; CODE XREF: update?+D63j
         cmp byte ptr leveldata[si], 1Fh
@@ -19678,7 +19862,7 @@ loc_4F00E:              ; CODE XREF: update?+1176j
 
 locret_4F02D:               ; CODE XREF: update?+1192j
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F02E:              ; CODE XREF: update?+D6Bj
         cmp byte ptr leveldata[si], 1Fh
@@ -19697,7 +19881,7 @@ loc_4F03B:              ; CODE XREF: update?+11A3j
 
 locret_4F05B:               ; CODE XREF: update?+11C0j
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F05C:              ; CODE XREF: update?+D73j
         cmp byte ptr leveldata[si], 1Fh
@@ -19716,7 +19900,7 @@ loc_4F069:              ; CODE XREF: update?+11D1j
 
 locret_4F088:               ; CODE XREF: update?+11EDj
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F089:              ; CODE XREF: update?+D7Bj
         cmp byte ptr leveldata[si], 1Fh
@@ -19726,7 +19910,7 @@ loc_4F089:              ; CODE XREF: update?+D7Bj
 loc_4F096:              ; CODE XREF: update?+11FEj
         sub si, 78h ; 'x'
         jmp loc_4FDAF
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F09C:              ; CODE XREF: update?+D83j
         cmp byte ptr [si+1836h], 1Fh
@@ -19735,7 +19919,7 @@ loc_4F09C:              ; CODE XREF: update?+D83j
 
 loc_4F0A9:              ; CODE XREF: update?+1211j
         jmp loc_4FDAF
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F0AC:              ; CODE XREF: update?+D8Bj
         cmp byte ptr leveldata[si], 1Fh
@@ -19745,7 +19929,7 @@ loc_4F0AC:              ; CODE XREF: update?+D8Bj
 loc_4F0B9:              ; CODE XREF: update?+1221j
         add si, 78h ; 'x'
         jmp loc_4FDAF
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F0BF:              ; CODE XREF: update?+D93j
         cmp byte ptr [si+1832h], 1Fh
@@ -19754,7 +19938,7 @@ loc_4F0BF:              ; CODE XREF: update?+D93j
 
 loc_4F0CC:              ; CODE XREF: update?+1234j
         jmp loc_4FDAF
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F0CF:              ; CODE XREF: update?+D9Bj
         cmp byte ptr [si+17BCh], 1Fh
@@ -19766,7 +19950,7 @@ loc_4F0DC:              ; CODE XREF: update?+1244j
         call    sub_4FDB5
         add si, 78h ; 'x'
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F0E6:              ; CODE XREF: update?+DA3j
         cmp byte ptr [si+1832h], 1Fh
@@ -19778,7 +19962,7 @@ loc_4F0F3:              ; CODE XREF: update?+125Bj
         call    sub_4FDB5
         add si, 2
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F0FD:              ; CODE XREF: update?+DABj
         cmp byte ptr [si+18ACh], 1Fh
@@ -19790,7 +19974,7 @@ loc_4F10A:              ; CODE XREF: update?+1272j
         call    sub_4FDB5
         sub si, 78h ; 'x'
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F114:              ; CODE XREF: update?+DB3j
         cmp byte ptr [si+1836h], 1Fh
@@ -19802,7 +19986,7 @@ loc_4F121:              ; CODE XREF: update?+1289j
         call    sub_4FDB5
         sub si, 2
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F12B:              ; CODE XREF: update?+DBBj
         cmp byte ptr leveldata[si], 1Fh
@@ -19814,7 +19998,7 @@ loc_4F138:              ; CODE XREF: update?+12A0j
         mov word ptr [si+1744h], 12h
         sub si, 78h ; 'x'
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F148:              ; CODE XREF: update?+DC3j
         cmp byte ptr leveldata[si], 1Fh
@@ -19826,7 +20010,7 @@ loc_4F155:              ; CODE XREF: update?+12BDj
         mov word ptr [si+1830h], 12h
         sub si, 2
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F165:              ; CODE XREF: update?+DCBj
         cmp byte ptr leveldata[si], 1Fh
@@ -19838,7 +20022,7 @@ loc_4F172:              ; CODE XREF: update?+12DAj
         mov word ptr [si+1924h], 12h
         add si, 78h ; 'x'
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F182:              ; CODE XREF: update?+DD3j
         cmp byte ptr leveldata[si], 1Fh
@@ -19850,7 +20034,7 @@ loc_4F18F:              ; CODE XREF: update?+12F7j
         mov word ptr [si+1838h], 12h
         add si, 2
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F19F:              ; CODE XREF: update?+DDBj
         cmp byte ptr leveldata[si], 1Fh
@@ -19862,7 +20046,7 @@ loc_4F1AC:              ; CODE XREF: update?+1314j
         mov word ptr [si+1830h], 8
         sub si, 2
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F1BC:              ; CODE XREF: update?+DE3j
         cmp byte ptr leveldata[si], 1Fh
@@ -19880,7 +20064,7 @@ loc_4F1C9:              ; CODE XREF: update?+1331j
 loc_4F1E6:              ; CODE XREF: update?+134Aj
         add si, 2
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F1EA:              ; CODE XREF: update?+DEBj
         mov word ptr leveldata[si], 3
@@ -19945,7 +20129,7 @@ sub_4F21F   proc near       ; CODE XREF: update?+273p update?+2EDp ...
         call    sub_4A61F
         stc
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F24F:              ; CODE XREF: sub_4F21F+11j
         cmp bl, 2
@@ -19955,7 +20139,7 @@ loc_4F24F:              ; CODE XREF: sub_4F21F+11j
         call    sub_4A61F
         stc
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F25E:              ; CODE XREF: sub_4F21F+33j
         and ah, 0F0h
@@ -19973,7 +20157,7 @@ loc_4F278:              ; CODE XREF: sub_4F21F+45j
                     ; sub_4F21F+4Aj ...
         stc
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F27A:              ; CODE XREF: sub_4F21F+38j
         and ah, 0F0h
@@ -19991,12 +20175,12 @@ loc_4F294:              ; CODE XREF: sub_4F21F+61j
                     ; sub_4F21F+66j ...
         stc
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F296:              ; CODE XREF: sub_4F21F+3j sub_4F21F+8j ...
         stc
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F298:              ; CODE XREF: sub_4F21F+15j
         test    ah, 80h
@@ -20008,7 +20192,7 @@ loc_4F2A2:              ; CODE XREF: sub_4F21F+7Cj
         call    sub_4A61F
         stc
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F2A7:              ; CODE XREF: sub_4F21F+81j
         mov leveldata[si], 0
@@ -20038,14 +20222,14 @@ loc_4F2BD:              ; CODE XREF: sub_4F2AF+19j
 
 locret_4F2CA:               ; CODE XREF: sub_4F2AF+9j
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F2CB:              ; CODE XREF: sub_4F2AF+14j
-        mov al, [di+2]
+        al = [di+2]
         mov byte_5101C, al
-        mov al, [di+3]
+        al = [di+3]
         mov byte_51035, al
-        mov al, [di+4]
+        al = [di+4]
         mov byte_510D7, al
         mov ax, word_510AC
         xor ax, timeOfDay
@@ -20053,7 +20237,7 @@ loc_4F2CB:              ; CODE XREF: sub_4F2AF+14j
         retn
 sub_4F2AF   endp
 
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
         db  2Eh ; .
         db  8Bh ; ?
         db 0C0h ; +
@@ -20095,7 +20279,7 @@ sub_4F312   proc near       ; DATA XREF: data:movingFunctions3o
         cmp ax, 3
         jz  short loc_4F362
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F320:              ; CODE XREF: sub_4F312+6j
         push    ds
@@ -20121,7 +20305,7 @@ loc_4F332:              ; CODE XREF: sub_4F312+28j
         db  83h, 0E3h, 07h ;and bx, 7
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F34A:              ; CODE XREF: sub_4F312+79j
                     ; sub_4F312+9Cj ...
@@ -20138,7 +20322,7 @@ loc_4F34A:              ; CODE XREF: sub_4F312+79j
 locret_4F361:               ; CODE XREF: sub_4F312+3Bj
                     ; sub_4F312+40j ...
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F362:              ; CODE XREF: sub_4F312+Bj
         mov bl, [si+1835h]
@@ -20151,7 +20335,7 @@ loc_4F362:              ; CODE XREF: sub_4F312+Bj
         cmp bl, 6
         jz  short loc_4F3E7
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F37B:              ; CODE XREF: sub_4F312+57j
         cmp word ptr [si+17BCh], 0
@@ -20160,14 +20344,14 @@ loc_4F37B:              ; CODE XREF: sub_4F312+57j
         cmp byte ptr [si+17BCh], 3
         jz  short loc_4F34A
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F38E:              ; CODE XREF: sub_4F312+6Ej
         mov word ptr leveldata[si], 1BBh
         sub si, 78h ; 'x'
         mov word ptr leveldata[si], 1011h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F39E:              ; CODE XREF: sub_4F312+5Cj
         cmp word ptr [si+1832h], 0
@@ -20176,14 +20360,14 @@ loc_4F39E:              ; CODE XREF: sub_4F312+5Cj
         cmp byte ptr [si+1832h], 3
         jz  short loc_4F34A
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F3B1:              ; CODE XREF: sub_4F312+91j
         mov word ptr leveldata[si], 2BBh
         sub si, 2
         mov word ptr leveldata[si], 1811h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F3C1:              ; CODE XREF: sub_4F312+61j
         cmp word ptr [si+18ACh], 0
@@ -20192,18 +20376,18 @@ loc_4F3C1:              ; CODE XREF: sub_4F312+61j
         cmp byte ptr [si+18ACh], 3
         jnz short locret_4F3D6
         jmp loc_4F34A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_4F3D6:               ; CODE XREF: sub_4F312+BFj
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F3D7:              ; CODE XREF: sub_4F312+B4j
         mov word ptr leveldata[si], 3BBh
         add si, 78h ; 'x'
         mov word ptr leveldata[si], 2011h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F3E7:              ; CODE XREF: sub_4F312+66j
         cmp word ptr [si+1836h], 0
@@ -20212,11 +20396,11 @@ loc_4F3E7:              ; CODE XREF: sub_4F312+66j
         cmp byte ptr [si+1836h], 3
         jnz short locret_4F3FC
         jmp loc_4F34A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_4F3FC:               ; CODE XREF: sub_4F312+E5j
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F3FD:              ; CODE XREF: sub_4F312+DAj
         mov word ptr leveldata[si], 4BBh
@@ -20236,7 +20420,7 @@ sub_4F40D   proc near       ; DATA XREF: data:155Ao
         cmp ax, 3
         jz  short loc_4F45F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F41B:              ; CODE XREF: sub_4F40D+6j
         push    ds
@@ -20261,7 +20445,7 @@ loc_4F42C:              ; CODE XREF: sub_4F40D+27j
         or  bl, 8
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F447:              ; CODE XREF: sub_4F40D+7Bj
                     ; sub_4F40D+9Ej ...
@@ -20278,7 +20462,7 @@ loc_4F447:              ; CODE XREF: sub_4F40D+7Bj
 locret_4F45E:               ; CODE XREF: sub_4F40D+3Dj
                     ; sub_4F40D+42j ...
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F45F:              ; CODE XREF: sub_4F40D+Bj
         mov bl, [si+1835h]
@@ -20291,7 +20475,7 @@ loc_4F45F:              ; CODE XREF: sub_4F40D+Bj
         cmp bl, 0Eh
         jz  short loc_4F49B
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F478:              ; CODE XREF: sub_4F40D+59j
         cmp word ptr [si+17BCh], 0
@@ -20300,14 +20484,14 @@ loc_4F478:              ; CODE XREF: sub_4F40D+59j
         cmp byte ptr [si+17BCh], 3
         jz  short loc_4F447
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F48B:              ; CODE XREF: sub_4F40D+70j
         mov word ptr leveldata[si], 1BBh
         sub si, 78h ; 'x'
         mov word ptr leveldata[si], 1011h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F49B:              ; CODE XREF: sub_4F40D+68j
         cmp word ptr [si+1832h], 0
@@ -20316,14 +20500,14 @@ loc_4F49B:              ; CODE XREF: sub_4F40D+68j
         cmp byte ptr [si+1832h], 3
         jz  short loc_4F447
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F4AE:              ; CODE XREF: sub_4F40D+93j
         mov word ptr leveldata[si], 2BBh
         sub si, 2
         mov word ptr leveldata[si], 1811h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F4BE:              ; CODE XREF: sub_4F40D+63j
         cmp word ptr [si+18ACh], 0
@@ -20332,18 +20516,18 @@ loc_4F4BE:              ; CODE XREF: sub_4F40D+63j
         cmp byte ptr [si+18ACh], 3
         jnz short locret_4F4D3
         jmp loc_4F447
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_4F4D3:               ; CODE XREF: sub_4F40D+C1j
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F4D4:              ; CODE XREF: sub_4F40D+B6j
         mov word ptr leveldata[si], 3BBh
         add si, 78h ; 'x'
         mov word ptr leveldata[si], 2011h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F4E4:              ; CODE XREF: sub_4F40D+5Ej
         cmp word ptr [si+1836h], 0
@@ -20352,11 +20536,11 @@ loc_4F4E4:              ; CODE XREF: sub_4F40D+5Ej
         cmp byte ptr [si+1836h], 3
         jnz short locret_4F4F9
         jmp loc_4F447
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_4F4F9:               ; CODE XREF: sub_4F40D+E7j
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F4FA:              ; CODE XREF: sub_4F40D+DCj
         mov word ptr leveldata[si], 4BBh
@@ -20403,7 +20587,7 @@ loc_4F546:              ; CODE XREF: sub_4F50A+2Dj
         add bl, 10h
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F553:              ; CODE XREF: sub_4F50A+3Fj
         mov word ptr leveldata[si], 11h
@@ -20411,14 +20595,14 @@ loc_4F553:              ; CODE XREF: sub_4F50A+3Fj
         jnz short loc_4F566
         mov byte ptr [si+1835h], 1
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F566:              ; CODE XREF: sub_4F50A+54j
         cmp byte ptr [si+1832h], 3
         jnz short loc_4F573
         mov byte ptr [si+1835h], 1
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F573:              ; CODE XREF: sub_4F50A+61j
         cmp word ptr [si+17BCh], 0
@@ -20427,28 +20611,28 @@ loc_4F573:              ; CODE XREF: sub_4F50A+61j
         sub si, 78h ; 'x'
         mov word ptr leveldata[si], 1011h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F58A:              ; CODE XREF: sub_4F50A+6Ej
         cmp byte ptr [si+17BCh], 3
         jnz short loc_4F595
         call    sub_4A61F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F595:              ; CODE XREF: sub_4F50A+85j
         cmp word ptr [si+1836h], 0
         jnz short loc_4F5A2
         mov byte ptr [si+1835h], 9
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F5A2:              ; CODE XREF: sub_4F50A+90j
         cmp byte ptr [si+1836h], 3
         jnz short loc_4F5AF
         mov byte ptr [si+1835h], 9
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F5AF:              ; CODE XREF: sub_4F50A+9Dj
         mov byte ptr [si+1835h], 1
@@ -20494,7 +20678,7 @@ loc_4F5EC:              ; CODE XREF: sub_4F5B5+28j
         add bl, 18h
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F5F9:              ; CODE XREF: sub_4F5B5+3Aj
         mov word ptr leveldata[si], 11h
@@ -20502,14 +20686,14 @@ loc_4F5F9:              ; CODE XREF: sub_4F5B5+3Aj
         jnz short loc_4F60C
         mov byte ptr [si+1835h], 3
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F60C:              ; CODE XREF: sub_4F5B5+4Fj
         cmp byte ptr [si+18ACh], 3
         jnz short loc_4F619
         mov byte ptr [si+1835h], 3
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F619:              ; CODE XREF: sub_4F5B5+5Cj
         cmp word ptr [si+1832h], 0
@@ -20518,28 +20702,28 @@ loc_4F619:              ; CODE XREF: sub_4F5B5+5Cj
         sub si, 2
         mov word ptr leveldata[si], 1811h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F630:              ; CODE XREF: sub_4F5B5+69j
         cmp byte ptr [si+1832h], 3
         jnz short loc_4F63B
         call    sub_4A61F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F63B:              ; CODE XREF: sub_4F5B5+80j
         cmp word ptr [si+17BCh], 0
         jnz short loc_4F648
         mov byte ptr [si+1835h], 0Fh
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F648:              ; CODE XREF: sub_4F5B5+8Bj
         cmp byte ptr [si+17BCh], 3
         jnz short loc_4F655
         mov byte ptr [si+1835h], 0Fh
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F655:              ; CODE XREF: sub_4F5B5+98j
         mov byte ptr [si+1835h], 3
@@ -20592,7 +20776,7 @@ loc_4F699:              ; CODE XREF: sub_4F66B+1Fj
         add bl, 20h ; ' '
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F6A6:              ; CODE XREF: sub_4F66B+31j
         mov word ptr leveldata[si], 11h
@@ -20600,14 +20784,14 @@ loc_4F6A6:              ; CODE XREF: sub_4F66B+31j
         jnz short loc_4F6B9
         mov byte ptr [si+1835h], 5
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F6B9:              ; CODE XREF: sub_4F66B+46j
         cmp byte ptr [si+1836h], 3
         jnz short loc_4F6C6
         mov byte ptr [si+1835h], 5
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F6C6:              ; CODE XREF: sub_4F66B+53j
         cmp word ptr [si+18ACh], 0
@@ -20616,28 +20800,28 @@ loc_4F6C6:              ; CODE XREF: sub_4F66B+53j
         add si, 78h ; 'x'
         mov word ptr leveldata[si], 2011h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F6DD:              ; CODE XREF: sub_4F66B+60j
         cmp byte ptr [si+18ACh], 3
         jnz short loc_4F6E8
         call    sub_4A61F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F6E8:              ; CODE XREF: sub_4F66B+77j
         cmp word ptr [si+1832h], 0
         jnz short loc_4F6F5
         mov byte ptr [si+1835h], 0Dh
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F6F5:              ; CODE XREF: sub_4F66B+82j
         cmp byte ptr [si+1832h], 3
         jnz short loc_4F702
         mov byte ptr [si+1835h], 0Dh
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F702:              ; CODE XREF: sub_4F66B+8Fj
         mov byte ptr [si+1835h], 5
@@ -20683,7 +20867,7 @@ loc_4F740:              ; CODE XREF: sub_4F708+29j
         add bl, 28h ; '('
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F74D:              ; CODE XREF: sub_4F708+3Bj
         mov word ptr leveldata[si], 11h
@@ -20691,14 +20875,14 @@ loc_4F74D:              ; CODE XREF: sub_4F708+3Bj
         jnz short loc_4F760
         mov byte ptr [si+1835h], 7
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F760:              ; CODE XREF: sub_4F708+50j
         cmp byte ptr [si+17BCh], 3
         jnz short loc_4F76D
         mov byte ptr [si+1835h], 7
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F76D:              ; CODE XREF: sub_4F708+5Dj
         cmp word ptr [si+1836h], 0
@@ -20707,28 +20891,28 @@ loc_4F76D:              ; CODE XREF: sub_4F708+5Dj
         add si, 2
         mov word ptr leveldata[si], 2811h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F784:              ; CODE XREF: sub_4F708+6Aj
         cmp byte ptr [si+1836h], 3
         jnz short loc_4F78F
         call    sub_4A61F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F78F:              ; CODE XREF: sub_4F708+81j
         cmp word ptr [si+18ACh], 0
         jnz short loc_4F79C
         mov byte ptr [si+1835h], 0Bh
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F79C:              ; CODE XREF: sub_4F708+8Cj
         cmp byte ptr [si+18ACh], 3
         jnz short loc_4F7A9
         mov byte ptr [si+1835h], 0Bh
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F7A9:              ; CODE XREF: sub_4F708+99j
         mov byte ptr [si+1835h], 7
@@ -20768,7 +20952,7 @@ sub_4F7D1   proc near       ; DATA XREF: data:movingFunctions2o
         cmp ax, 3
         jz  short loc_4F80D
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F7DF:              ; CODE XREF: sub_4F7D1+6j
         push    ds
@@ -20794,13 +20978,13 @@ loc_4F7F1:              ; CODE XREF: sub_4F7D1+28j
         db  83h, 0E3h, 07h ;and bx, 7
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F809:              ; CODE XREF: sub_4F7D1+61j
                     ; sub_4F7D1+80j ...
         call    sub_4A61F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F80D:              ; CODE XREF: sub_4F7D1+Bj
         mov bl, [si+1835h]
@@ -20813,7 +20997,7 @@ loc_4F80D:              ; CODE XREF: sub_4F7D1+Bj
         cmp bl, 6
         jz  short loc_4F883
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F826:              ; CODE XREF: sub_4F7D1+43j
         cmp word ptr [si+17BCh], 0
@@ -20821,14 +21005,14 @@ loc_4F826:              ; CODE XREF: sub_4F7D1+43j
         cmp byte ptr [si+17BCh], 3
         jz  short loc_4F809
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F835:              ; CODE XREF: sub_4F7D1+5Aj
         mov word ptr leveldata[si], 1BBh
         sub si, 78h ; 'x'
         mov word ptr leveldata[si], 1018h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F845:              ; CODE XREF: sub_4F7D1+48j
         cmp word ptr [si+1832h], 0
@@ -20836,14 +21020,14 @@ loc_4F845:              ; CODE XREF: sub_4F7D1+48j
         cmp byte ptr [si+1832h], 3
         jz  short loc_4F809
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F854:              ; CODE XREF: sub_4F7D1+79j
         mov word ptr leveldata[si], 2BBh
         sub si, 2
         mov word ptr leveldata[si], 1818h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F864:              ; CODE XREF: sub_4F7D1+4Dj
         cmp word ptr [si+18ACh], 0
@@ -20851,14 +21035,14 @@ loc_4F864:              ; CODE XREF: sub_4F7D1+4Dj
         cmp byte ptr [si+18ACh], 3
         jz  short loc_4F809
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F873:              ; CODE XREF: sub_4F7D1+98j
         mov word ptr leveldata[si], 3BBh
         add si, 78h ; 'x'
         mov word ptr leveldata[si], 2018h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F883:              ; CODE XREF: sub_4F7D1+52j
         cmp word ptr [si+1836h], 0
@@ -20866,11 +21050,11 @@ loc_4F883:              ; CODE XREF: sub_4F7D1+52j
         cmp byte ptr [si+1836h], 3
         jnz short locret_4F894
         jmp loc_4F809
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_4F894:               ; CODE XREF: sub_4F7D1+BEj
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F895:              ; CODE XREF: sub_4F7D1+B7j
         mov word ptr leveldata[si], 4BBh
@@ -20890,7 +21074,7 @@ sub_4F8A5   proc near       ; DATA XREF: data:15BAo
         cmp ax, 3
         jz  short loc_4F8E3
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F8B3:              ; CODE XREF: sub_4F8A5+6j
         push    ds
@@ -20915,13 +21099,13 @@ loc_4F8C4:              ; CODE XREF: sub_4F8A5+27j
         or  bl, 8
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F8DF:              ; CODE XREF: sub_4F8A5+63j
                     ; sub_4F8A5+82j ...
         call    sub_4A61F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F8E3:              ; CODE XREF: sub_4F8A5+Bj
         mov bl, [si+1835h]
@@ -20934,7 +21118,7 @@ loc_4F8E3:              ; CODE XREF: sub_4F8A5+Bj
         cmp bl, 0Eh
         jz  short loc_4F91B
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F8FC:              ; CODE XREF: sub_4F8A5+45j
         cmp word ptr [si+17BCh], 0
@@ -20942,14 +21126,14 @@ loc_4F8FC:              ; CODE XREF: sub_4F8A5+45j
         cmp byte ptr [si+17BCh], 3
         jz  short loc_4F8DF
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F90B:              ; CODE XREF: sub_4F8A5+5Cj
         mov word ptr leveldata[si], 1BBh
         sub si, 78h ; 'x'
         mov word ptr leveldata[si], 1018h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F91B:              ; CODE XREF: sub_4F8A5+54j
         cmp word ptr [si+1832h], 0
@@ -20957,14 +21141,14 @@ loc_4F91B:              ; CODE XREF: sub_4F8A5+54j
         cmp byte ptr [si+1832h], 3
         jz  short loc_4F8DF
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F92A:              ; CODE XREF: sub_4F8A5+7Bj
         mov word ptr leveldata[si], 2BBh
         sub si, 2
         mov word ptr leveldata[si], 1818h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F93A:              ; CODE XREF: sub_4F8A5+4Fj
         cmp word ptr [si+18ACh], 0
@@ -20972,14 +21156,14 @@ loc_4F93A:              ; CODE XREF: sub_4F8A5+4Fj
         cmp byte ptr [si+18ACh], 3
         jz  short loc_4F8DF
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F949:              ; CODE XREF: sub_4F8A5+9Aj
         mov word ptr leveldata[si], 3BBh
         add si, 78h ; 'x'
         mov word ptr leveldata[si], 2018h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F959:              ; CODE XREF: sub_4F8A5+4Aj
         cmp word ptr [si+1836h], 0
@@ -20987,11 +21171,11 @@ loc_4F959:              ; CODE XREF: sub_4F8A5+4Aj
         cmp byte ptr [si+1836h], 3
         jnz short locret_4F96A
         jmp loc_4F8DF
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 locret_4F96A:               ; CODE XREF: sub_4F8A5+C0j
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F96B:              ; CODE XREF: sub_4F8A5+B9j
         mov word ptr leveldata[si], 4BBh
@@ -21038,7 +21222,7 @@ loc_4F9B7:              ; CODE XREF: sub_4F97B+2Dj
         add bl, 10h
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F9C4:              ; CODE XREF: sub_4F97B+3Fj
         mov word ptr leveldata[si], 18h
@@ -21046,14 +21230,14 @@ loc_4F9C4:              ; CODE XREF: sub_4F97B+3Fj
         jnz short loc_4F9D7
         mov byte ptr [si+1835h], 1
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F9D7:              ; CODE XREF: sub_4F97B+54j
         cmp byte ptr [si+1832h], 3
         jnz short loc_4F9E4
         mov byte ptr [si+1835h], 1
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F9E4:              ; CODE XREF: sub_4F97B+61j
         cmp word ptr [si+17BCh], 0
@@ -21062,28 +21246,28 @@ loc_4F9E4:              ; CODE XREF: sub_4F97B+61j
         sub si, 78h ; 'x'
         mov word ptr leveldata[si], 1018h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4F9FB:              ; CODE XREF: sub_4F97B+6Ej
         cmp byte ptr [si+17BCh], 3
         jnz short loc_4FA06
         call    sub_4A61F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FA06:              ; CODE XREF: sub_4F97B+85j
         cmp word ptr [si+1836h], 0
         jnz short loc_4FA13
         mov byte ptr [si+1835h], 9
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FA13:              ; CODE XREF: sub_4F97B+90j
         cmp byte ptr [si+1836h], 3
         jnz short loc_4FA20
         mov byte ptr [si+1835h], 9
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FA20:              ; CODE XREF: sub_4F97B+9Dj
         mov byte ptr [si+1835h], 1
@@ -21129,7 +21313,7 @@ loc_4FA5D:              ; CODE XREF: sub_4FA26+28j
         add bl, 18h
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FA6A:              ; CODE XREF: sub_4FA26+3Aj
         mov word ptr leveldata[si], 18h
@@ -21137,14 +21321,14 @@ loc_4FA6A:              ; CODE XREF: sub_4FA26+3Aj
         jnz short loc_4FA7D
         mov byte ptr [si+1835h], 3
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FA7D:              ; CODE XREF: sub_4FA26+4Fj
         cmp byte ptr [si+18ACh], 3
         jnz short loc_4FA8A
         mov byte ptr [si+1835h], 3
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FA8A:              ; CODE XREF: sub_4FA26+5Cj
         cmp word ptr [si+1832h], 0
@@ -21153,28 +21337,28 @@ loc_4FA8A:              ; CODE XREF: sub_4FA26+5Cj
         sub si, 2
         mov word ptr leveldata[si], 1818h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FAA1:              ; CODE XREF: sub_4FA26+69j
         cmp byte ptr [si+1832h], 3
         jnz short loc_4FAAC
         call    sub_4A61F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FAAC:              ; CODE XREF: sub_4FA26+80j
         cmp word ptr [si+17BCh], 0
         jnz short loc_4FAB9
         mov byte ptr [si+1835h], 0Fh
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FAB9:              ; CODE XREF: sub_4FA26+8Bj
         cmp byte ptr [si+17BCh], 3
         jnz short loc_4FAC6
         mov byte ptr [si+1835h], 0Fh
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FAC6:              ; CODE XREF: sub_4FA26+98j
         mov byte ptr [si+1835h], 3
@@ -21220,7 +21404,7 @@ loc_4FB0A:              ; CODE XREF: sub_4FACC+2Fj
         add bl, 20h ; ' '
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FB17:              ; CODE XREF: sub_4FACC+41j
         mov word ptr leveldata[si], 18h
@@ -21228,14 +21412,14 @@ loc_4FB17:              ; CODE XREF: sub_4FACC+41j
         jnz short loc_4FB2A
         mov byte ptr [si+1835h], 5
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FB2A:              ; CODE XREF: sub_4FACC+56j
         cmp byte ptr [si+1836h], 3
         jnz short loc_4FB37
         mov byte ptr [si+1835h], 5
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FB37:              ; CODE XREF: sub_4FACC+63j
         cmp word ptr [si+18ACh], 0
@@ -21244,28 +21428,28 @@ loc_4FB37:              ; CODE XREF: sub_4FACC+63j
         add si, 78h ; 'x'
         mov word ptr leveldata[si], 2018h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FB4E:              ; CODE XREF: sub_4FACC+70j
         cmp byte ptr [si+18ACh], 3
         jnz short loc_4FB59
         call    sub_4A61F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FB59:              ; CODE XREF: sub_4FACC+87j
         cmp word ptr [si+1832h], 0
         jnz short loc_4FB66
         mov byte ptr [si+1835h], 0Dh
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FB66:              ; CODE XREF: sub_4FACC+92j
         cmp byte ptr [si+1832h], 3
         jnz short loc_4FB73
         mov byte ptr [si+1835h], 0Dh
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FB73:              ; CODE XREF: sub_4FACC+9Fj
         mov byte ptr [si+1835h], 5
@@ -21311,7 +21495,7 @@ loc_4FBB1:              ; CODE XREF: sub_4FB79+29j
         add bl, 28h ; '('
         mov [si+1835h], bl
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FBBE:              ; CODE XREF: sub_4FB79+3Bj
         mov word ptr leveldata[si], 18h
@@ -21319,14 +21503,14 @@ loc_4FBBE:              ; CODE XREF: sub_4FB79+3Bj
         jnz short loc_4FBD1
         mov byte ptr [si+1835h], 7
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FBD1:              ; CODE XREF: sub_4FB79+50j
         cmp byte ptr [si+17BCh], 3
         jnz short loc_4FBDE
         mov byte ptr [si+1835h], 7
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FBDE:              ; CODE XREF: sub_4FB79+5Dj
         cmp word ptr [si+1836h], 0
@@ -21335,28 +21519,28 @@ loc_4FBDE:              ; CODE XREF: sub_4FB79+5Dj
         add si, 2
         mov word ptr leveldata[si], 2818h
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FBF5:              ; CODE XREF: sub_4FB79+6Aj
         cmp byte ptr [si+1836h], 3
         jnz short loc_4FC00
         call    sub_4A61F
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FC00:              ; CODE XREF: sub_4FB79+81j
         cmp word ptr [si+18ACh], 0
         jnz short loc_4FC0D
         mov byte ptr [si+1835h], 0Bh
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FC0D:              ; CODE XREF: sub_4FB79+8Cj
         cmp byte ptr [si+18ACh], 3
         jnz short loc_4FC1A
         mov byte ptr [si+1835h], 0Bh
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FC1A:              ; CODE XREF: sub_4FB79+99j
         mov byte ptr [si+1835h], 7
@@ -21375,7 +21559,7 @@ sub_4FC20   proc near       ; CODE XREF: somethingspsig:loc_4944Fp
         jnz short loc_4FC33
         mov di, 177h
         jmp short loc_4FC36
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FC33:              ; CODE XREF: sub_4FC20+Cj
         mov di, 201h
@@ -21388,7 +21572,7 @@ loc_4FC36:              ; CODE XREF: sub_4FC20+11j
         jnz short loc_4FC4A
         mov di, 6AEh
         jmp short loc_4FC4D
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FC4A:              ; CODE XREF: sub_4FC20+23j
         mov di, 932h
@@ -21401,7 +21585,7 @@ loc_4FC4D:              ; CODE XREF: sub_4FC20+28j
         jnz short loc_4FC61
         mov di, 6B4h
         jmp short loc_4FC64
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FC61:              ; CODE XREF: sub_4FC20+3Aj
         mov di, 938h
@@ -21411,7 +21595,7 @@ loc_4FC64:              ; CODE XREF: sub_4FC20+3Fj
         mov ah, 8
         call    sub_500F3
         jmp loc_4FD1A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FC6F:              ; CODE XREF: sub_4FC20+5j
         cmp byte_510DE, 0
@@ -21420,7 +21604,7 @@ loc_4FC6F:              ; CODE XREF: sub_4FC20+5j
         jnz short loc_4FC82
         mov di, 177h
         jmp short loc_4FC85
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FC82:              ; CODE XREF: sub_4FC20+5Bj
         mov di, 201h
@@ -21433,7 +21617,7 @@ loc_4FC85:              ; CODE XREF: sub_4FC20+60j
         jnz short loc_4FC99
         mov di, 6AEh
         jmp short loc_4FC9C
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FC99:              ; CODE XREF: sub_4FC20+72j
         mov di, 932h
@@ -21446,7 +21630,7 @@ loc_4FC9C:              ; CODE XREF: sub_4FC20+77j
         jnz short loc_4FCB0
         mov di, 6B4h
         jmp short loc_4FCB3
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FCB0:              ; CODE XREF: sub_4FC20+89j
         mov di, 938h
@@ -21459,14 +21643,14 @@ loc_4FCB3:              ; CODE XREF: sub_4FC20+8Ej
         jnz short loc_4FD1A
         call    sub_50199
         jmp short loc_4FD1A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FCC7:              ; CODE XREF: sub_4FC20+54j
         cmp videoStatusUnk, 1
         jnz short loc_4FCD3
         mov di, 177h
         jmp short loc_4FCD6
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FCD3:              ; CODE XREF: sub_4FC20+ACj
         mov di, 201h
@@ -21479,7 +21663,7 @@ loc_4FCD6:              ; CODE XREF: sub_4FC20+B1j
         jnz short loc_4FCEA
         mov di, 6AEh
         jmp short loc_4FCED
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FCEA:              ; CODE XREF: sub_4FC20+C3j
         mov di, 932h
@@ -21493,7 +21677,7 @@ loc_4FCED:              ; CODE XREF: sub_4FC20+C8j
         jnz short loc_4FD05
         mov di, 6B4h
         jmp short loc_4FD08
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FD05:              ; CODE XREF: sub_4FC20+DEj
         mov di, 938h
@@ -21525,14 +21709,14 @@ sub_4FD21   proc near       ; CODE XREF: sub_4A3BB+13p
         mov byte_5195A, 0
 
 loc_4FD2E:              ; CODE XREF: sub_4FD21+6j
-        mov al, byte_5195A
+        al = byte_5195A
         mov si, 87C5h
         call    sub_4BF4D
         cmp videoStatusUnk, 1
         jnz short loc_4FD43
         mov di, 6CEh
         jmp short loc_4FD46
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FD43:              ; CODE XREF: sub_4FD21+1Bj
         mov di, 952h
@@ -21543,7 +21727,7 @@ loc_4FD46:              ; CODE XREF: sub_4FD21+20j
         jnz short loc_4FD54
         mov ah, 6
         jmp short loc_4FD56
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FD54:              ; CODE XREF: sub_4FD21+2Dj
         mov ah, 8
@@ -21567,26 +21751,26 @@ sub_4FD65   proc near       ; CODE XREF: runLevel+E9p
         cmp videoStatusUnk, 1
         jz  short loc_4FD6D
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FD6D:              ; CODE XREF: sub_4FD65+5j
-        mov al, byte_5197C
+        al = byte_5197C
         cmp al, 0
         jnz short loc_4FD75
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FD75:              ; CODE XREF: sub_4FD65+Dj
         dec al
         jz  short loc_4FD7D
         mov byte_5197C, al
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FD7D:              ; CODE XREF: sub_4FD65+12j
         mov byte_5197C, al
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -21595,7 +21779,7 @@ loc_4FD7D:              ; CODE XREF: sub_4FD65+12j
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 1
+        al = 1
         out dx, al      ; EGA port: graphics controller data register
         push    ds
         mov si, word_5182E
@@ -21612,7 +21796,7 @@ loc_4FD99:              ; CODE XREF: sub_4FD65+3Cj
         loop    loc_4FD99
         pop ds
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -21621,12 +21805,12 @@ loc_4FD99:              ; CODE XREF: sub_4FD65+3Cj
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         retn
 sub_4FD65   endp
 
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 ; START OF FUNCTION CHUNK FOR update?
 
 loc_4FDAF:              ; CODE XREF: update?+1209j
@@ -21646,7 +21830,7 @@ sub_4FDB5   proc near       ; CODE XREF: update?+124Fp
         cmp word_510DC, si
         jnz short loc_4FDCA
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FDCA:              ; CODE XREF: sub_4FDB5+5j sub_4FDB5+Cj ...
         inc byte_5195C
@@ -21661,11 +21845,11 @@ sub_4FDCE   proc near       ; CODE XREF: sub_4955B+7F4p
         cmp videoStatusUnk, 1
         jz  short loc_4FDD6
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FDD6:              ; CODE XREF: sub_4FDCE+5j
         push    si
-        mov al, byte_5195C
+        al = byte_5195C
         mov si, 87C9h
         call    sub_4BF4D
         mov di, 6D2h
@@ -21674,7 +21858,7 @@ loc_4FDD6:              ; CODE XREF: sub_4FDCE+5j
         jnz short loc_4FDF1
         mov ah, 8
         jmp short loc_4FDF3
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FDF1:              ; CODE XREF: sub_4FDCE+1Dj
         mov ah, 6
@@ -21700,7 +21884,7 @@ var_2       = word ptr -2
         mov bp, sp
         add sp, 0FFFEh
         mov [bp+var_2], 0
-        mov al, byte_510B0
+        al = byte_510B0
         cmp byte ptr word_510B7, al
         jz  short loc_4FE36
         mov byte ptr word_510B7, al
@@ -21711,7 +21895,7 @@ var_2       = word ptr -2
         jnz short loc_4FE29
         mov di, 188h
         jmp short loc_4FE2C
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FE29:              ; CODE XREF: sub_4FDFD+25j
         mov di, 212h
@@ -21722,7 +21906,7 @@ loc_4FE2C:              ; CODE XREF: sub_4FDFD+2Aj
         mov [bp+var_2], 1
 
 loc_4FE36:              ; CODE XREF: sub_4FDFD+12j
-        mov al, byte_510B1
+        al = byte_510B1
         cmp byte ptr word_510B7+1, al
         jz  short loc_4FE5F
         mov byte ptr word_510B7+1, al
@@ -21733,7 +21917,7 @@ loc_4FE36:              ; CODE XREF: sub_4FDFD+12j
         jnz short loc_4FE57
         mov di, 185h
         jmp short loc_4FE5A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FE57:              ; CODE XREF: sub_4FDFD+53j
         mov di, 20Fh
@@ -21743,7 +21927,7 @@ loc_4FE5A:              ; CODE XREF: sub_4FDFD+58j
         call    sub_500F3
 
 loc_4FE5F:              ; CODE XREF: sub_4FDFD+40j
-        mov al, byte_510B2
+        al = byte_510B2
         cmp byte_510B9, al
         jz  short loc_4FE88
         mov byte_510B9, al
@@ -21754,7 +21938,7 @@ loc_4FE5F:              ; CODE XREF: sub_4FDFD+40j
         jnz short loc_4FE80
         mov di, 182h
         jmp short loc_4FE83
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FE80:              ; CODE XREF: sub_4FDFD+7Cj
         mov di, 20Ch
@@ -21784,7 +21968,7 @@ sub_4FDFD   endp
 sub_4FE9C   proc near       ; CODE XREF: sub_500F3+7p
         mov byte_51969, ah
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -21793,22 +21977,22 @@ sub_4FE9C   proc near       ; CODE XREF: sub_500F3+7p
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 1
+        al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
 
 loc_4FEBE:              ; CODE XREF: sub_4FE9C+1C3j
@@ -21816,13 +22000,13 @@ loc_4FEBE:              ; CODE XREF: sub_4FE9C+1C3j
         cmp bl, 0
         jnz short loc_4FEC8
         jmp loc_50062
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FEC8:              ; CODE XREF: sub_4FE9C+27j
         cmp bl, 0Ah
         jnz short loc_4FED0
         jmp loc_50062
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_4FED0:              ; CODE XREF: sub_4FE9C+2Fj
         inc si
@@ -21830,272 +22014,272 @@ loc_4FED0:              ; CODE XREF: sub_4FE9C+2Fj
         xor bh, bh
         add bx, 5D15h
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, byte_51969
+        al = byte_51969
         out dx, al      ; EGA port: graphics controller data register
         mov ah, [bx]
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, byte_51969
+        al = byte_51969
         out dx, al      ; EGA port: graphics controller data register
         mov ah, [bx]
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, byte_51969
+        al = byte_51969
         out dx, al      ; EGA port: graphics controller data register
         mov ah, [bx]
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, byte_51969
+        al = byte_51969
         out dx, al      ; EGA port: graphics controller data register
         mov ah, [bx]
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, byte_51969
+        al = byte_51969
         out dx, al      ; EGA port: graphics controller data register
         mov ah, [bx]
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, byte_51969
+        al = byte_51969
         out dx, al      ; EGA port: graphics controller data register
         mov ah, [bx]
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
         mov dx, 3CEh
-        mov al, 0
+        al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
         inc dx
-        mov al, byte_51969
+        al = byte_51969
         out dx, al      ; EGA port: graphics controller data register
         mov ah, [bx]
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: graphics controller data register
         or  es:[di], al
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
         sub di, 355h
         jmp loc_4FEBE
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_50062:              ; CODE XREF: sub_4FE9C+29j
                     ; sub_4FE9C+31j
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -22104,15 +22288,15 @@ loc_50062:              ; CODE XREF: sub_4FE9C+29j
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 1
+        al = 1
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
         retn
 sub_4FE9C   endp
@@ -22132,13 +22316,13 @@ loc_5007D:              ; CODE XREF: sub_50077+78j
         cmp bl, 0
         jnz short loc_50086
         jmp short loc_500F1
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_50086:              ; CODE XREF: sub_50077+Bj
         cmp bl, 0Ah
         jnz short loc_5008D
         jmp short loc_500F1
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_5008D:              ; CODE XREF: sub_50077+12j
         inc si
@@ -22175,7 +22359,7 @@ loc_5008D:              ; CODE XREF: sub_50077+12j
         add bx, 40h ; '@'
         sub di, 497h
         jmp short loc_5007D
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_500F1:              ; CODE XREF: sub_50077+Dj
                     ; sub_50077+14j
@@ -22194,7 +22378,7 @@ sub_500F3   proc near       ; CODE XREF: sub_4955B+446p
         jnz short loc_500FF
         call    sub_4FE9C
         jmp short locret_50102
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_500FF:              ; CODE XREF: sub_500F3+5j
         call    sub_50077
@@ -22385,13 +22569,13 @@ loc_501D6:              ; CODE XREF: sub_501C0+1Fj
         call    sub_4FC20
         call    sub_5024B
         jmp short locret_5024A
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_501EA:              ; CODE XREF: sub_501C0+5j
         mov si, 4C15h
         mov di, 0
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -22400,36 +22584,36 @@ loc_501EA:              ; CODE XREF: sub_501C0+5j
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 1
+        al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
         mov cx, 18h
 
 loc_50211:              ; CODE XREF: sub_501C0+71j
-        push    cx
+        push(cx);
         mov ah, 1
 
 loc_50214:              ; CODE XREF: sub_501C0+6Bj
         mov dx, 3C4h
-        mov al, 2
+        al = 2
         out dx, al      ; EGA: sequencer address reg
                     ; map mask: data bits 0-3 enable writes to bit planes 0-3
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: sequencer data register
         mov cx, 28h ; '('
         rep movsb
@@ -22438,21 +22622,21 @@ loc_50214:              ; CODE XREF: sub_501C0+6Bj
         test    ah, 0Fh
         jnz short loc_50214
         add di, 7Ah ; 'z'
-        pop cx
+        pop(cx);
         loop    loc_50211
         mov dx, 3C4h
-        mov al, 2
+        al = 2
         out dx, al      ; EGA: sequencer address reg
                     ; map mask: data bits 0-3 enable writes to bit planes 0-3
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: sequencer data register
         mov dx, 3CEh
-        mov al, 1
+        al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
         call    sub_4FC20
 
@@ -22469,7 +22653,7 @@ sub_5024B   proc near       ; CODE XREF: gameloop?+31p
         cmp videoStatusUnk, 1
         jnz short loc_50253
         retn
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 
 loc_50253:              ; CODE XREF: sub_5024B+5j
         mov si, 0
@@ -22484,7 +22668,7 @@ loc_50253:              ; CODE XREF: sub_5024B+5j
         assume ds:zeg000
         mov di, 0
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -22493,36 +22677,36 @@ loc_50253:              ; CODE XREF: sub_5024B+5j
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 1
+        al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
         inc dx
-        mov al, 0
+        al = 0
         out dx, al      ; EGA port: graphics controller data register
         mov dx, 3CEh
-        mov al, 8
+        al = 8
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; bit mask
                     ; Bits 0-7 select bits to be masked in all planes
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
         mov cx, 18h
 
 loc_5028D:              ; CODE XREF: sub_5024B+62j
-        push    cx
+        push(cx);
         mov ah, 1
 
 loc_50290:              ; CODE XREF: sub_5024B+5Cj
         mov dx, 3C4h
-        mov al, 2
+        al = 2
         out dx, al      ; EGA: sequencer address reg
                     ; map mask: data bits 0-3 enable writes to bit planes 0-3
         inc dx
-        mov al, ah
+        al = ah
         out dx, al      ; EGA port: sequencer data register
         mov cx, 2Ah ; '*'
         rep movsb
@@ -22531,26 +22715,26 @@ loc_50290:              ; CODE XREF: sub_5024B+5Cj
         test    ah, 0Fh
         jnz short loc_50290
         add di, 7Ah ; 'z'
-        pop cx
+        pop(cx);
         loop    loc_5028D
         mov dx, 3C4h
-        mov al, 2
+        al = 2
         out dx, al      ; EGA: sequencer address reg
                     ; map mask: data bits 0-3 enable writes to bit planes 0-3
         inc dx
-        mov al, 0FFh
+        al = 0FFh
         out dx, al      ; EGA port: sequencer data register
         mov dx, 3CEh
-        mov al, 1
+        al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
         inc dx
-        mov al, 0Fh
+        al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
         pop ds
         assume ds:data
         mov dx, 3CEh
-        mov al, 5
+        al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; mode register.Data bits:
                     ; 0-1: Write mode 0-2
@@ -22559,7 +22743,7 @@ loc_50290:              ; CODE XREF: sub_5024B+5Cj
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
         inc dx
-        mov al, 1
+        al = 1
         out dx, al      ; EGA port: graphics controller data register
         retn
 sub_5024B   endp
@@ -22591,7 +22775,7 @@ showNewCredits  proc near       ; CODE XREF: start+2ECp
         call    sub_4BA5F
 
 loc_502F1:              ; CODE XREF: showNewCredits+28j
-        mov al, keyPressed
+        al = keyPressed
         cmp byte_519C3, 1
         jnz short loc_50301
         mov word_51970, 1
@@ -22603,7 +22787,7 @@ loc_50301:              ; CODE XREF: showNewCredits+1Ej
         retn
 showNewCredits  endp
 
-; ---------------------------------------------------------------------------
+// ; ---------------------------------------------------------------------------
 code        ends
 
 
