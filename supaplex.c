@@ -8,19 +8,21 @@
 
 // ; Attributes: noreturn
 
+const int levelDataLength = 1536;
+
 //         public start
-void main(void)
+void main(int argc, char **argv)
 {
 //; FUNCTION CHUNK AT 027F SIZE 00000217 BYTES
 
-        mov dx, seg data
-        mov ds, dx
-        assume ds:data
+        // mov dx, seg data
+        // mov ds, dx
+        // assume ds:data
 
-programStart:               ; CODE XREF: runMainMenu+28Fp
-                    ; DATA XREF: data:000Ao
-        ;db 26h, 8Ah, 0Eh, 80h, 00h
-        cl = *(es:80h);
+programStart:               //; CODE XREF: runMainMenu+28Fp
+                    //; DATA XREF: data:000Ao
+        //;db 26h, 8Ah, 0Eh, 80h, 00h
+        cl = *(es:80h); // 0x80 -> Number of bytes on command-line (https://en.wikipedia.org/wiki/Program_Segment_Prefix)
         cbCommandLine = cl
         if (cl >= 2)
         {
@@ -31,14 +33,15 @@ programStart:               ; CODE XREF: runMainMenu+28Fp
 
 hasCommandLine:             //; CODE XREF: start+11j
         //cld
-        ch = 0; // cx = nr command line bytes
-        di = 0x81; // '?' start of command line args in PSP
+        ch = 0; // cx = number of command line bytes, this cleans cx MSBs
+        di = 0x81; // '?' start of command line args in PSP (https://en.wikipedia.org/wiki/Program_Segment_Prefix)
         push(di);
         push(cx);
 
 readAndProcessCommandLine:
         si = &commandLine
 
+// Copy char by char the command line into commandLine
 copyNextCmdLineByte:            //; CODE XREF: start+28j
         al = es:[di];
         *si = al;
@@ -49,14 +52,14 @@ copyNextCmdLineByte:            //; CODE XREF: start+28j
         {
             goto copyNextCmdLineByte
         }
-        pop(cx)
+        pop(cx) // recovers original value (number of command line bytes)
         pop(di)
         di = ds
         es = di
         // assume es:data
         di = &commandLine
         push(di)
-        push(cx)
+        push(cx) // saves number of cmd line bytes again
 
 processCommandLine:         //; CODE XREF: start+F7j
         if (strchr(commandLine, ':') == NULL)
@@ -73,17 +76,18 @@ hascolon:                //; CODE XREF: start+39j
         al = 0x20; // ' ' (space)
         si = &demoFileName;
 
+// This copies the argument to demoFileName, stops when it finds a space or the end of the command line
 copyArgument:              //; CODE XREF: start+52j
-        if (cx == 0)
+        if (cx == 0) // check if the : was found in the last byte of the command line (cx was used to iterate through it)
         {
-            goto loc_46C74;
+            goto finishArgumentCopy;
         }
         ah = es:[di];
         if (ah == al)
         {
-            goto loc_46C74;
+            goto finishArgumentCopy;
         }
-        ah = *si;
+        *si = ah;
         si++;
         di++;
         cx--;
@@ -92,32 +96,33 @@ copyArgument:              //; CODE XREF: start+52j
             goto copyArgument;
         }
 
-loc_46C74:              //; CODE XREF: start+45j start+4Cj
+finishArgumentCopy:              //; CODE XREF: start+45j start+4Cj
         al = 0;
         *si = al; // Adds \0 at the end?
-        pop(cx);
-        pop(di);
-        push(di);
-        push(cx);
+        pop(cx); // recover number of cmd line bytes
+        pop(di); // recover command line string
+        push(di); // save command line string
+        push(cx); // save number of cmd line bytes
         al = 0x3A; // ':'
-        di = strchr(some_string, ':'); //repne scasb
+        di = strchr(di, ':'); //repne scasb
         di--;
         cx++;
         al = 0x20; // ' ' (espacio)
 
-loc_46C84:              //; CODE XREF: start+6Aj
+// No idea why (yet) but this replaces the argument that was just copied with spaces :shrug:
+removeArgumentByteFromCommandLine:              //; CODE XREF: start+6Aj
         if (es:[di] == al)
         {
-            goto loc_46C8C;
+            goto openDemoFile;
         }
         es:[di] = al; // stosb
         cx--;
         if (cx > 0)
         {
-            goto loc_46C84;
+            goto removeArgumentByteFromCommandLine;
         }
 
-loc_46C8C:              //; CODE XREF: start+67j
+openDemoFile:              //; CODE XREF: start+67j
         ax = 0x3D00;
         dx = &demoFileName;
         FILE *file = fopen(demoFileName, 'r');
@@ -127,9 +132,9 @@ loc_46C8C:              //; CODE XREF: start+67j
         //             ; AL = access mode -> 0 - read
         if (file == NULL)
         {
-            goto loc_46D09;
+            goto errorReadingDemoFile;
         }
-        bx = ax;
+        bx = file;
         push(bx);
 
 loc_46C99:
@@ -139,16 +144,17 @@ loc_46C99:
         int result = fseek(file, 0, SEEK_END);
         // int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
         //             ; AL = method: 0x02 -> offset from end of file
+        //             ; dx:ax is the new seek position
         pop(bx);
         pushf();
-        if (result < 0) // jb  short loc_46CAF
+        if (result < 0) // jb  short errorSeekingDemoFile
         {
-            goto loc_46CAF
+            goto errorSeekingDemoFile
         }
         
         if (dx != 0)
         {
-            goto loc_46CAF
+            goto errorSeekingDemoFile
         }
 
 loc_46CAA:
@@ -159,7 +165,7 @@ loc_46CAD:
             goto loc_46CB7;
         }
 
-loc_46CAF:              //; CODE XREF: start+84j start+88j
+errorSeekingDemoFile:              //; CODE XREF: start+84j start+88j
         push(ax);
         push(dx);
         ah = 0x3E;
@@ -176,7 +182,7 @@ loc_46CB7:              //; CODE XREF: start:loc_46CADj
         word_599DA = 0
         popf();
         
-        jb  short loc_46D09
+        jb  short errorReadingDemoFile
         if (dx > 0)
         {
             goto loc_46CE4;
@@ -210,7 +216,7 @@ loc_46CE4:              //; CODE XREF: start+A6j start+ABj
         al = 0x40; // '@'
         if (strchr(some_string, '@') == NULL)
         {
-            goto loc_46D09;
+            goto errorReadingDemoFile;
         }
         
         conprintln();
@@ -229,14 +235,14 @@ loc_46CF6:              //; CODE XREF: start+C2j
 loc_46CFB:              //; CODE XREF: start:loc_46CF4j
         if (demoFileName == 0)
         {
-            goto loc_46D09;
+            goto errorReadingDemoFile;
         }
         
         byte_599D4 = 2;
         goto loc_46D13;
 // ; ---------------------------------------------------------------------------
 
-loc_46D09:              //; CODE XREF: start+74j start+A2j ...
+errorReadingDemoFile:              //; CODE XREF: start+74j start+A2j ...
         demoFileName = 0;
         byte_599D4 = 0;
 
@@ -15374,60 +15380,63 @@ sub_4D24D   endp
 // ; ---------------------------------------------------------------------------
         nop
 
-; =============== S U B R O U T I N E =======================================
+// ; =============== S U B R O U T I N E =======================================
 
 
-checkVideo  proc near       ; CODE XREF: start+282p
-        mov ah, 0Fh
-        int 10h     ; - VIDEO - GET CURRENT VIDEO MODE
-                    ; Return: AH = number of columns on screen
-                    ; AL = current video mode
-                    ; BH = current active display page
-        mov currVideoMode, al
-        mov ax, 0Dh
-        int 10h     ; - VIDEO - SET VIDEO MODE
-                    ; AL = mode
-        mov bx, 0
-        mov cx, 100h
+void checkVideo() //  proc near       ; CODE XREF: start+282p
+{
+    ah = 0x0F;
+        // mov ah, 0Fh
+        // int 10h     ; - VIDEO - GET CURRENT VIDEO MODE
+        //             ; Return: AH = number of columns on screen
+        //             ; AL = current video mode
+        //             ; BH = current active display page
+    currVideoMode = al;
+    ax = 0x0D;
+        // int 10h     ; - VIDEO - SET VIDEO MODE
+        //             ; AL = mode
+    bx = 0;
+    cx = 0x100;
 
-videoCheckStart:            ; CODE XREF: checkVideo:checkAgainj
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = cl
-        out dx, al      ; EGA port: graphics controller data register
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        in  al, dx      ; EGA port: graphics controller data register
-        cmp al, cl
-        jz  short checkAgain
-        inc bx
+videoCheckStart:            // ; CODE XREF: checkVideo:checkAgainj
+    dx = 0x3CE;
+    al = 8;
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+    dx++;
+    al = cl;
+        // out dx, al      ; EGA port: graphics controller data register
+        // in  al, dx      ; EGA port: graphics controller data register
+    if (al == cl)
+    {
+        goto checkAgain;
+    }
+    bx++;
 
-checkAgain:             ; CODE XREF: checkVideo+29j
-        loop    videoCheckStart
-        or  bx, bx
-        jnz short setStatusBit2
-        mov videoStatusUnk, 1
-        jmp short returnout
+checkAgain:             //; CODE XREF: checkVideo+29j
+    cx--;
+    if (cx > 0)
+    {
+        goto videoCheckStart;
+    }
+    
+    if (bx != 0)
+    {
+        goto setStatusBit2;
+    }
+    
+    videoStatusUnk = 1;
+    goto returnout;
 // ; ---------------------------------------------------------------------------
 
-setStatusBit2:              ; CODE XREF: checkVideo+30j
-        mov videoStatusUnk, 2
+setStatusBit2:              // ; CODE XREF: checkVideo+30j
+    videoStatusUnk = 2;
 
-returnout:                  ; CODE XREF: checkVideo+37j
-        retn
-checkVideo  endp
+returnout:                  // ; CODE XREF: checkVideo+37j
+        //retn
+// checkVideo  endp
+}
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -16223,90 +16232,127 @@ var_6       = word ptr -6
 var_4       = word ptr -4
 var_2       = word ptr -2
 
-        push    bp
-        mov bp, sp
-        add sp, 0FFF8h
-        push    es
-        cmp videoStatusUnk, 2
-        jnz short loc_4D706
-        call    sub_4D836
-        pop es
-        mov sp, bp
-        pop bp
-        retn
+        push(bp);
+        bp = sp;
+        sp += 0x0FFF8;
+        push(es);
+        if (videoStatusUnk != 2)
+        {
+            goto loc_4D706;
+        }
+        
+        sub_4D836();
+        pop(es);
+        sp = bp;
+        pop(bp);
+        return;
 // ; ---------------------------------------------------------------------------
 
-loc_4D706:              ; CODE XREF: fade+Cj
-        push    si
-        mov ax, ds
-        mov es, ax
-        assume es:data
-        mov ax, word_510A2
-        mov [bp+var_8], ax
-        mov word_510A2, 0
-        mov cx, 40h ; '@'
-        mov di, offset fileLevelData
+loc_4D706:              //; CODE XREF: fade+Cj
+        push(si);
+        ax = ds;
+        es = ax;
+        // assume es:data
+        ax = word_510A2;
+        [bp+var_8] = ax;
+        word_510A2 = 0;
+        cx = 0x40; // '@'
+        di = &fileLevelData;
 
-loc_4D71D:              ; CODE XREF: fade+33j
+loc_4D71D:              //; CODE XREF: fade+33j
         lodsb
-        shl al, 1
-        shl al, 1
+        al = al << 1;
+        al = al << 1;
         stosb
-        loop    loc_4D71D
-        mov dx, 3C7h
-        al = 0
-        out dx, al
-        mov dx, 3C9h
-        mov di, 6115h
-        mov cx, 10h
+        cx--;
+        if (cx > 0)
+        {
+            goto loc_4D71D;
+        }
+        dx = 0x3C7;
+        al = 0;
+        // out dx, al
+        dx = 0x3C9;
+        di = 0x6115;
+        cx = 0x10;
 
-loc_4D734:              ; CODE XREF: fade+51j
-        in  al, dx
-        mov [di], al
-        inc di
-        in  al, dx
-        mov [di], al
-        inc di
-        in  al, dx
-        mov [di], al
-        inc di
-        inc di
-        loop    loc_4D734
-        mov ax, 0
-        mov [bp+var_2], ax
-        mov ax, 3Fh ; '?'
-        mov [bp+var_4], ax
+loc_4D734:              // ; CODE XREF: fade+51j
+        // in  al, dx
+        *di = al;
+        di++;
+        // in  al, dx
+        *di = al;
+        di++;
+        // in  al, dx
+        *di = al;
+        di++;
+        di++;
+        cx--;
+        if (cx > 0)
+        {
+            goto loc_4D734;
+        }
+        ax = 0;
+        [bp+var_2] = ax;
+        ax = 0x3F; // '?'
+        [bp+var_4] = ax;
 
-loc_4D74F:              ; CODE XREF: fade+134j
-        mov dx, 3C8h
-        al = 0
-        out dx, al
-        mov cx, 10h
-        mov si, offset fileLevelData
-        mov di, 6115h
+loc_4D74F:              //; CODE XREF: fade+134j
+        dx = 0x3C8;
+        al = 0;
+        // out dx, al
+        cx = 0x10;
+        si = &fileLevelData;
+        di = 0x6115;
 
-loc_4D75E:              ; CODE XREF: fade+115j
-        al = [si]
-        xor ah, ah
-        mov bx, [bp+var_2]
-        mul bx
-        shr ax, 1
-        shr ax, 1
-        shr ax, 1
-        shr ax, 1
-        shr ax, 1
-        shr ax, 1
+loc_4D75E:              //; CODE XREF: fade+115j
+        al = [si];
+        ah = 0;
+        bx = [bp+var_2];
+        ax = ax * bx;
+        ax = ax >> 1;
+        ax = ax >> 1;
+        ax = ax >> 1;
+        ax = ax >> 1;
+        ax = ax >> 1;
+        ax = ax >> 1;
         mov [bp+var_6], ax
         al = [di]
-        xor ah, ah
-        mov bx, [bp+var_4]
-        mul bx
-        shr ax, 1
-        shr ax, 1
-        shr ax, 1
-        shr ax, 1
-        shr ax, 1
-        shr ax, 1
+        ah = 0;
+        bx = [bp+var_4];
+        ax = ax * bx;
+        ax = ax >> 1;
+        ax = ax >> 1;
+        ax = ax >> 1;
+        ax = ax >> 1;
+        ax = ax >> 1;
+        ax = ax >> 1;
+        ax += [bp+var_6];
+        di++;
+        si++;
+        dx = 0x3C9;
+        // out dx, al
+        al = [si];
+        ah = 0;
+        bx = [bp+var_2];
+        ax = ax * bx;
+        ax = ax >> 1;
+        ax = ax >> 1;
+        ax = ax >> 1;
+        ax = ax >> 1;
+        ax = ax >> 1;
+        ax = ax >> 1;
+        [bp+var_6] = ax;
+        al = [di];
+        ah = 0;
+        bx = [bp+var_4];
+        ax = ax * bx;
+        ax = ax >> 1;
+        ax = ax >> 1;
+        ax = ax >> 1;
+        ax = ax >> 1;
+        ax = ax >> 1;
+        ax = ax >> 1;
         add ax, [bp+var_6]
         inc di
         inc si
@@ -16315,88 +16361,69 @@ loc_4D75E:              ; CODE XREF: fade+115j
         al = [si]
         xor ah, ah
         mov bx, [bp+var_2]
-        mul bx
-        shr ax, 1
-        shr ax, 1
-        shr ax, 1
-        shr ax, 1
-        shr ax, 1
-        shr ax, 1
+        ax = ax * bx;
+        ax = ax >> 1;
+        ax = ax >> 1;
+        ax = ax >> 1;
+        ax = ax >> 1;
+        ax = ax >> 1;
+        ax = ax >> 1;
         mov [bp+var_6], ax
         al = [di]
         xor ah, ah
         mov bx, [bp+var_4]
-        mul bx
-        shr ax, 1
-        shr ax, 1
-        shr ax, 1
-        shr ax, 1
-        shr ax, 1
-        shr ax, 1
-        add ax, [bp+var_6]
-        inc di
-        inc si
-        mov dx, 3C9h
-        out dx, al
-        al = [si]
-        xor ah, ah
-        mov bx, [bp+var_2]
-        mul bx
-        shr ax, 1
-        shr ax, 1
-        shr ax, 1
-        shr ax, 1
-        shr ax, 1
-        shr ax, 1
-        mov [bp+var_6], ax
-        al = [di]
-        xor ah, ah
-        mov bx, [bp+var_4]
-        mul bx
-        shr ax, 1
-        shr ax, 1
-        shr ax, 1
-        shr ax, 1
-        shr ax, 1
-        shr ax, 1
-        add ax, [bp+var_6]
-        inc di
-        inc si
-        mov dx, 3C9h
-        out dx, al
-        inc si
-        inc di
-        dec cx
-        jz  short loc_4D808
-        jmp loc_4D75E
+        ax = ax * bx;
+        ax = ax >> 1;
+        ax = ax >> 1;
+        ax = ax >> 1;
+        ax = ax >> 1;
+        ax = ax >> 1;
+        ax = ax >> 1;
+        ax += [bp+var_6];
+        di++;
+        si++;
+        dx = 0x3C9;
+        // out dx, al
+        si++;
+        di++;
+        cx--;
+        if (cx == 0)
+        {
+            goto loc_4D808;
+        }
+        goto loc_4D75E;
 // ; ---------------------------------------------------------------------------
 
-loc_4D808:              ; CODE XREF: fade+113j
-        cmp fastMode, 1
-        jz  short isFastMode4
-        call    videoloop
-        call    sub_4D457
+loc_4D808:              //; CODE XREF: fade+113j
+        if (fastMode == 1)
+        {
+            goto isFastMode4;
+        }
+        videoloop();
+        sub_4D457();
 
-isFastMode4:              ; CODE XREF: fade+11Dj
-        dec [bp+var_4]
-        mov ax, [bp+var_2]
-        inc ax
-        mov [bp+var_2], ax
-        cmp ax, 3Fh ; '?'
-        jg  short loc_4D827
-        jmp loc_4D74F
+isFastMode4:              //; CODE XREF: fade+11Dj
+        [bp+var_4]--;
+        ax = [bp+var_2];
+        ax++;
+        [bp+var_2] = ax;
+        if (ax > 0x3F) // '?'
+        {
+            goto loc_4D827;
+        }
+        goto loc_4D74F;
 // ; ---------------------------------------------------------------------------
 
-loc_4D827:              ; CODE XREF: fade+132j
-        pop si
-        call    sub_4D836
-        mov ax, [bp+var_8]
-        mov word_510A2, ax
-        pop es
-        assume es:nothing
-        mov sp, bp
-        pop bp
-        retn
+loc_4D827:              //; CODE XREF: fade+132j
+        pop(si);
+        sub_4D836();
+        ax = [bp+var_8];
+        word_510A2 = ax;
+        pop(es);
+        // assume es:nothing
+        sp = bp;
+        pop(bp);
+        // retn
 }
 
 
