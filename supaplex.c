@@ -849,7 +849,7 @@ exitnow:                //; CODE XREF: loadScreen2-7C9j
 
 
 // Return value: carry flag = 0 on success, 1 on error
-void fileReadUnk1(FILE *file, long fileLength) //    proc near       ; CODE XREF: start+B6p readDemo+81p
+void fileReadUnk1(FILE *file, long fileLength) //    proc near       ; CODE XREF: start+B6p readDemoFiles+81p
 {
         push(bx);
         bx = word_599DC; // load array from word_599DC
@@ -1751,289 +1751,365 @@ enableFloppy?   proc near       ; CODE XREF: start+341p
 enableFloppy?   endp
 
 
+//; =============== S U B R O U T I N E =======================================
+
+
+void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
+                  //  ; sub_4B159p ...
+{
+        push(es);
+        ax = seg demoseg;
+        es = ax;
+        // assume es:demoseg
+        word_510DF = 22;
+        word_5A33C = 22;
+        // ax = 0xFFFF;
+        // di = 0;
+        // cx = 0xB; // 11
+        // cld(); // clear direction flag
+        memset(di, 0xFF, 22); // rep stosw // fills 11 words (22 bytes) with 0xFFFF
+        di += 22;
+        cx = 0;
+
+loc_47629:              //; CODE XREF: readDemoFiles+175j
+        push(cx);
+        word_599D8 = 0;
+        if (byte_599D4 != 1)
+        {
+            goto loc_4763C;
+        }
+        dx = &demoFileName;
+        goto loc_47647;
+// ; ---------------------------------------------------------------------------
+
+loc_4763C:             // ; CODE XREF: readDemoFiles+2Cj
+        bx = &aDemo0_bin; // "DEMO0.BIN"
+        cl += 0x30; // adds '0'. I assume at this point cl will take a value between 0 and 9,
+                    // and then by adding 0x30 that number will be converted to its character in ascii
+        *(bx + 4) = cl; // replaces the 0 in DEMO 0 with the value of cl 
+        dx = bx;
+
+loc_47647:             // ; CODE XREF: readDemoFiles+31j
+        // mov ax, 3D00h
+        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
+        //             ; DS:DX -> ASCIZ filename
+        //             ; AL = access mode
+        //             ; 0 - read
+        FILE *file = fopen(bx, "r"); // bx will store the name of the demo file after changing the number (DEMOx.BIN)
+        if (file != NULL)
+        { 
+            goto loc_47651;
+        }
+        goto loc_47783;
+// ; ---------------------------------------------------------------------------
+
+loc_47651:              //; CODE XREF: readDemoFiles+43j
+        lastFileHandle = ax;
+        bx = ax;
+        if (byte_599D4 != 1)
+        {
+            goto loc_47674;
+        }
+        if (word_599DA != 0)
+        {
+            goto loc_476DB;
+        }
+        // mov ax, 4200h
+        // cx = 0;
+        // mov dx, levelDataLength
+        // int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
+        //             ; AL = method: offset from beginning of file
+        fseek(lastFileHandle, levelDataLength, SEEK_SET);
+        bx = lastFileHandle;
+        goto loc_476DB;
+// ; ---------------------------------------------------------------------------
+
+loc_47674:             // ; CODE XREF: readDemoFiles+52j
+        push(bx);
+        // ax = 0x4202;
+        // cx = 0;
+        // dx = cx;
+        // int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
+        //             ; AL = method: offset from end of file
+        int result = fseek(lastFileHandle, 0, SEEK_END);
+        // value returned in dx:ax
+        pop(bx);
+        if (result != 0)
+        {
+            goto loc_47690;
+        }
+        if (dx != 0) // the file size shouldn't be more than 0xFFFF, so DX should be 0x0
+        {
+            goto loc_47690;
+        }
+        if (ax >= levelDataLength)
+        {
+            goto loc_47690;
+        }
+        fileReadUnk1();
+        word_599D8 = ax;
+
+loc_47690:             // ; CODE XREF: readDemoFiles+76j readDemoFiles+7Aj ...
+        // mov ax, 4200h
+        // xor cx, cx
+        // mov dx, cx
+        // int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
+        //             ; AL = method: offset from beginning of file
+        fseek(lastFileHandle, 0, SEEK_SET);
+        if (word_599D8 != 0)
+        {
+            goto loc_476DB;
+        }
+        ax = 0x3F00;
+        bx = lastFileHandle;
+        pop(cx);
+        push(cx);
+        dx = cx; 
+        cx = cx << 1;
+        dx += cx;
+        cl = 9;
+        dx = dx << cl;
+        dx += 0xBE20;
+        cx = levelDataLength;
+        push(ds);
+        push(dx);
+        push(es);
+        pop(ds);
+        // assume ds:demoseg
+        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+        //             ; BX = file handle, CX = number of bytes to read
+        //             ; DS:DX -> buffer
+        int bytes = fread(&some_buffer_in_demoseg, 1, levelDataLength, lastFileHandle);
+        pop(bx);
+        dx = *(bx + 0x5FE); // position 1534, so levelDataLength - 2, and it's copying a word... so it's copying the last 2 bytes into dx
+        pop(ds);
+        // assume ds:data
+        if (bytes > 0)
+        {
+            goto loc_476CB;
+        }
+        goto loc_47783;
+// ; ---------------------------------------------------------------------------
+
+loc_476CB:             // ; CODE XREF: readDemoFiles+BDj
+        if (bytes == levelDataLength)
+        {
+            goto loc_476D3;
+        }
+        goto loc_47783;
+// ; ---------------------------------------------------------------------------
+
+loc_476D3:           //   ; CODE XREF: readDemoFiles+C5j
+        pop(bx);
+        push(bx);
+        bx = bx << 1;
+        *(bx - 0x67CA) = dx; // 26570 wtf??? dx still has the last 2 bytes of the level data
+
+loc_476DB:             // ; CODE XREF: readDemoFiles+59j readDemoFiles+69j ...
+        cx = 0xBE09; // 48649
+        cx -= word_510DF;
+        if (cx <= 0xBE09h) // weird way of checking if word_510DF > 0 ????
+        {
+            goto loc_476EA;
+        }
+        cx = 0;
+
+loc_476EA:             // ; CODE XREF: readDemoFiles+DDj
+        if (cx != 0)
+        {
+            goto loc_476F3;
+        }
+        ax = 0;
+        goto loc_4771A;
+// ; ---------------------------------------------------------------------------
+
+loc_476F3:              // ; CODE XREF: readDemoFiles+E4j
+        dx = word_510DF;
+        bx = lastFileHandle;
+        push(ds);
+        ax = es;
+        ds = ax;
+        // assume ds:nothing
+        // mov ax, 3F00h
+        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+        //             ; BX = file handle, CX = number of bytes to read
+        //             ; DS:DX -> buffer
+        int bytes = fread(word_510DF, 1, cx, lastFileHandle);
+        if (bytes > 0)
+        {
+            goto loc_47719;
+        }
+        pop(ds);
+        // assume ds:data
+        // mov ax, 3E00h
+        // mov bx, lastFileHandle
+        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
+        //             ; BX = file handle
+        ax = 0;
+        if (fclose(lastFileHandle) == 0)
+        {
+            // mov ax, 0
+            goto loc_47783
+        }
+        // mov ax, 0
+        goto exit;
+// ; ---------------------------------------------------------------------------
+
+loc_47719:             // ; CODE XREF: readDemoFiles+FCj
+        pop(ds);
+
+loc_4771A:             // ; CODE XREF: readDemoFiles+E8j
+        push(ax);
+        // mov ax, 3E00h
+        // mov bx, lastFileHandle
+        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
+        //             ; BX = file handle
+        if (fclose(lastFileHandle) == 0)
+        {
+            goto loc_47729;
+        }
+        goto exit;
+// ; ---------------------------------------------------------------------------
+
+loc_47729:              ; CODE XREF: readDemoFiles+11Bj
+        pop(ax)
+        bx = word_510DF;
+        *bx = *bx & 0x7F; //and byte ptr es:[bx], 7Fh
+        int isNotZero = (word_599D8 != 0);
+        word_599D8 = 0;
+        if (isNotZero)
+        {
+            goto loc_47743;
+        }
+        *bx = *bx | 0x80;
+
+loc_47743:             // ; CODE XREF: readDemoFiles+134j
+        cx = bx;
+        bx += ax;
+        push(ds);
+        push(es);
+        pop(ds);
+        // assume ds:nothing
+        bx--;
+        if (bx == 0xFFFF)
+        {
+            goto loc_4775A;
+        }
+        if (ax <= 1)
+        {
+            goto loc_4775A;
+        }
+        if (*bx == 0xFF)
+        {
+            goto loc_47765;
+        }
+
+loc_4775A:             // ; CODE XREF: readDemoFiles+145j
+                   // ; readDemoFiles+14Aj
+        if (bx >= maxdemolength)
+        {
+            goto loc_47765;
+        }
+        bx++;
+        ax++;
+        *bx = 0xFF;
+
+loc_47765:             // ; CODE XREF: readDemoFiles+14Fj
+                   // ; readDemoFiles+155j
+        pop(ds);
+        // assume ds:data
+        pop(cx);
+        bx = cx;
+        bx = bx << 1;
+        dx = word_510DF;
+        *bx = dx;  // db 26h, 89h, 97h, 00h, 00h; mov es:[bx+0], dx
+        word_510DF += ax;
+        cx++;
+        if (cx == 10)
+        {
+            goto loc_47781;
+        }
+        goto loc_47629;
+// ; ---------------------------------------------------------------------------
+
+loc_47781:             // ; CODE XREF: readDemoFiles+173j
+        pop(es);
+        // assume es:nothing
+        return;
+// ; ---------------------------------------------------------------------------
+
+loc_47783:              //; CODE XREF: readDemoFiles+45j readDemoFiles+BFj ...
+        pop(cx);
+        pop(es);
+        // retn
+// readDemoFiles    endp
+}
+
+
 ; =============== S U B R O U T I N E =======================================
 
 
-readDemo    proc near       ; CODE XREF: readEverything+12p
-                    ; sub_4B159p ...
-        push    es
-        mov ax, seg demoseg
-        mov es, ax
-        assume es:demoseg
-        mov bx, 16h
-        mov word_510DF, bx
-        mov word_5A33C, bx
-        mov ax, 0FFFFh
-        mov di, 0
-        mov cx, 0Bh
-        cld
-        rep stosw
-        mov cx, 0
-
-loc_47629:              ; CODE XREF: readDemo+175j
-        push(cx);
-        mov word_599D8, 0
-        cmp byte_599D4, 1
-        jnz short loc_4763C
-        mov dx, offset demoFileName
-        jmp short loc_47647
-// ; ---------------------------------------------------------------------------
-
-loc_4763C:              ; CODE XREF: readDemo+2Cj
-        mov bx, offset aDemo0_bin ; "DEMO0.BIN"
-        add cl, 30h ; '0'
-        mov [bx+4], cl
-        mov dx, bx
-
-loc_47647:              ; CODE XREF: readDemo+31j
-        mov ax, 3D00h
-        int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-                    ; DS:DX -> ASCIZ filename
-                    ; AL = access mode
-                    ; 0 - read
-        jnb short loc_47651
-        jmp loc_47783
-// ; ---------------------------------------------------------------------------
-
-loc_47651:              ; CODE XREF: readDemo+43j
-        mov lastFileHandle, ax
-        mov bx, ax
-        cmp byte_599D4, 1
-        jnz short loc_47674
-        cmp word_599DA, 0
-        jnz short loc_476DB
-        mov ax, 4200h
-        xor cx, cx
-        mov dx, levelDataLength
-        int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
-                    ; AL = method: offset from beginning of file
-        mov bx, lastFileHandle
-        jmp short loc_476DB
-// ; ---------------------------------------------------------------------------
-
-loc_47674:              ; CODE XREF: readDemo+52j
-        push    bx
-        mov ax, 4202h
-        xor cx, cx
-        mov dx, cx
-        int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
-                    ; AL = method: offset from end of file
-        pop bx
-        jb  short loc_47690
-        or  dx, dx
-        jnz short loc_47690
-        cmp ax, levelDataLength
-        jnb short loc_47690
-        call    fileReadUnk1
-        mov word_599D8, ax
-
-loc_47690:              ; CODE XREF: readDemo+76j readDemo+7Aj ...
-        mov ax, 4200h
-        xor cx, cx
-        mov dx, cx
-        int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
-                    ; AL = method: offset from beginning of file
-        cmp word_599D8, 0
-        jnz short loc_476DB
-        mov ax, 3F00h
-        mov bx, lastFileHandle
-        pop(cx);
-        push(cx);
-        mov dx, cx
-        shl cx, 1
-        add dx, cx
-        mov cl, 9
-        shl dx, cl
-        add dx, 0BE20h
-        mov cx, levelDataLength
-        push    ds
-        push    dx
-        push    es
-        pop ds
-        assume ds:demoseg
-        int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to read
-                    ; DS:DX -> buffer
-        pop bx
-        mov dx, [bx+5FEh]
-        pop ds
-        assume ds:data
-        jnb short loc_476CB
-        jmp loc_47783
-// ; ---------------------------------------------------------------------------
-
-loc_476CB:              ; CODE XREF: readDemo+BDj
-        cmp ax, levelDataLength
-        jz  short loc_476D3
-        jmp loc_47783
-// ; ---------------------------------------------------------------------------
-
-loc_476D3:              ; CODE XREF: readDemo+C5j
-        pop bx
-        push    bx
-        shl bx, 1
-        mov [bx-67CAh], dx
-
-loc_476DB:              ; CODE XREF: readDemo+59j readDemo+69j ...
-        mov cx, 0BE09h
-        sub cx, word_510DF
-        cmp cx, 0BE09h
-        jbe short loc_476EA
-        xor cx, cx
-
-loc_476EA:              ; CODE XREF: readDemo+DDj
-        cmp cx, 0
-        jnz short loc_476F3
-        xor ax, ax
-        jmp short loc_4771A
-// ; ---------------------------------------------------------------------------
-
-loc_476F3:              ; CODE XREF: readDemo+E4j
-        mov dx, word_510DF
-        mov bx, lastFileHandle
-        push    ds
-        mov ax, es
-        mov ds, ax
-        assume ds:nothing
-        mov ax, 3F00h
-        int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to read
-                    ; DS:DX -> buffer
-        jnb short loc_47719
-        pop ds
-        assume ds:data
-        mov ax, 3E00h
-        mov bx, lastFileHandle
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-        mov ax, 0
-        jnb short loc_47783
-        jmp exit
-// ; ---------------------------------------------------------------------------
-
-loc_47719:              ; CODE XREF: readDemo+FCj
-        pop ds
-
-loc_4771A:              ; CODE XREF: readDemo+E8j
-        push    ax
-        mov ax, 3E00h
-        mov bx, lastFileHandle
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-        jnb short loc_47729
-        jmp exit
-// ; ---------------------------------------------------------------------------
-
-loc_47729:              ; CODE XREF: readDemo+11Bj
-        pop ax
-        mov bx, word_510DF
-        and byte ptr es:[bx], 7Fh
-        cmp word_599D8, 0
-        mov word_599D8, 0
-        jnz short loc_47743
-        or  byte ptr es:[bx], 80h
-
-loc_47743:              ; CODE XREF: readDemo+134j
-        mov cx, bx
-        add bx, ax
-        push    ds
-        push    es
-        pop ds
-        assume ds:nothing
-        dec bx
-        cmp bx, 0FFFFh
-        jz  short loc_4775A
-        cmp ax, 1
-        jbe short loc_4775A
-        cmp byte ptr [bx], 0FFh
-        jz  short loc_47765
-
-loc_4775A:              ; CODE XREF: readDemo+145j
-                    ; readDemo+14Aj
-        cmp bx, maxdemolength
-        jnb short loc_47765
-        inc bx
-        inc ax
-        mov byte ptr [bx], 0FFh
-
-loc_47765:              ; CODE XREF: readDemo+14Fj
-                    ; readDemo+155j
-        pop ds
-        assume ds:data
-        pop(cx);
-        mov bx, cx
-        shl bx, 1
-        mov dx, word_510DF
-        db 26h, 89h, 97h, 00h, 00h; mov es:[bx+0], dx
-        add word_510DF, ax
-        inc cx
-        cmp cx, 0Ah
-        jz  short loc_47781
-        jmp loc_47629
-// ; ---------------------------------------------------------------------------
-
-loc_47781:              ; CODE XREF: readDemo+173j
-        pop es
-        assume es:nothing
-        retn
-// ; ---------------------------------------------------------------------------
-
-loc_47783:              ; CODE XREF: readDemo+45j readDemo+BFj ...
-        pop(cx);
-        pop es
-        retn
-readDemo    endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-readPallettes   proc near       ; CODE XREF: readEverythingp
+void readPalettes()  // proc near       ; CODE XREF: readEverythingp
+{
         mov ax, 3D00h
         mov dx, offset aPalettes_dat ; "PALETTES.DAT"
         int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
                     ; DS:DX -> ASCIZ filename
                     ; AL = access mode
                     ; 0 - read
-        jnb short loc_4779F
-        cmp ax, 2
-        jnz short loc_4779C
-        call    sub_47F39
+        FILE *file = fopen("PALETTES.DAT", "r");
+        if (file != NULL)
+        {
+            goto loc_4779F;
+        }
+        if (errno != 2) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
+        {
+            goto loc_4779C;
+        }
+        sub_47F39();
         jb  short loc_4779C
-        jmp short loc_4779F
+        goto short loc_4779F;
 // ; ---------------------------------------------------------------------------
 
-loc_4779C:              ; CODE XREF: readPallettes+Dj
-                    ; readPallettes+12j
-        jmp exit
+loc_4779C:             // ; CODE XREF: readPalettes+Dj
+                    // ; readPalettes+12j
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_4779F:              ; CODE XREF: readPallettes+8j
-                    ; readPallettes+14j
-        mov lastFileHandle, ax
-        mov bx, lastFileHandle
-        mov ax, 3F00h
-        mov cx, 100h
-        mov dx, 5FD5h
-        int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to read
-                    ; DS:DX -> buffer
-        jnb short loc_477B6
-        jmp exit
+loc_4779F:              // ; CODE XREF: readPalettes+8j
+                     // ; readPalettes+14j
+        ax = lastFileHandle;
+        // mov bx, lastFileHandle
+        // mov ax, 3F00h
+        // mov cx, 100h // 256 bytes
+        // mov dx, palettesDataBuffer
+        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+        //             ; BX = file handle, CX = number of bytes to read
+                    // ; DS:DX -> buffer
+        int bytes = fread(&palettesDataBuffer, 1, 256, lastFileHandle);
+        if (bytes > 0)
+        {
+            goto loc_477B6;
+        }
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_477B6:              ; CODE XREF: readPallettes+2Bj
-        mov ax, 3E00h
-        mov bx, lastFileHandle
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-        jnb short locret_477C4
-        jmp exit
+loc_477B6:              //; CODE XREF: readPalettes+2Bj
+        // mov ax, 3E00h
+        // mov bx, lastFileHandle
+        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
+        //             ; BX = file handle
+        if (fclose(lastFileHandle) == 0)
+        {
+            goto locret_477C4;
+        }
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-locret_477C4:               ; CODE XREF: readPallettes+39j
-        retn
-readPallettes   endp
+locret_477C4:             //  ; CODE XREF: readPalettes+39j
+        // retn
+// readPalettes   endp
+}
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -2171,7 +2247,7 @@ loc_47884:              ; CODE XREF: openCreditsBlock+C7j
         call    loopForVSync
         pop(cx);
         loop    loc_47884
-        mov bx, 4DD4h
+        mov bx, title2DataBuffer
         mov word_51967, bx
         mov dx, 3D4h
         al = 0Dh
@@ -2201,210 +2277,264 @@ openCreditsBlock endp
 void loadScreen2() // proc near       ; CODE XREF: start:loc_46F00p
 {
 
-; FUNCTION CHUNK AT 04B2 SIZE 00000020 BYTES
+// ; FUNCTION CHUNK AT 04B2 SIZE 00000020 BYTES
 
-        mov ax, 3D00h
-        mov dx, aTitle1_dat // points to "TITLE1.DAT"
-        int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-                    ; DS:DX -> ASCIZ filename
-                    ; AL = access mode
-                    ; 0 - read
-        jnb short loc_478C0
-        jmp exit
+        // mov ax, 3D00h
+        // mov dx, aTitle1_dat // points to "TITLE1.DAT"
+        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
+        //             ; DS:DX -> ASCIZ filename
+        //             ; AL = access mode
+        //             ; 0 - read
+        FILE *file = fopen("TITLE1.DAT");
+        if (file != NULL)
+        {
+            goto loc_478C0;
+        }
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_478C0:              ; CODE XREF: loadScreen2+8j
-        mov lastFileHandle, ax
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
+loc_478C0:              // ; CODE XREF: loadScreen2+8j
+        lastFileHandle = file;
+        // mov lastFileHandle, ax
+        // mov dx, 3CEh
+        // al = 5
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; mode register.Data bits:
+        //             ; 0-1: Write mode 0-2
+        //             ; 2: test condition
+        //             ; 3: read mode: 1=color compare, 0=direct
+        //             ; 4: 1=use odd/even RAM addressing
+        //             ; 5: 1=use CGA mid-res map (2-bits/pixel)
+        ports[0x3CE] = 5;
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
 
 loc_478CD:
-        mov dx, 3CEh
-        al = 1
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; enable set/reset
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = 0FFh
-        out dx, al      ; EGA port: graphics controller data register
-        mov cx, 0C8h ; '?'
-        mov di, 4DACh
+        // mov dx, 3CEh
+        // al = 1
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; enable set/reset
+        ports[0x3CE] = 1;
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = 0FFh
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0xFF;
+        cx = 0xC8; // 200
+        di = title1DataBuffer;
 
-loc_478E7:              ; CODE XREF: loadScreen2+6Bj
+loc_478E7:              //; CODE XREF: loadScreen2+6Bj
         push(cx);
-        mov ax, 3F00h
-        mov bx, lastFileHandle
-        mov cx, 0A0h ; '?' // read 160 bytes
-        mov dx, offset fileLevelData
-        int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to read
-                    ; DS:DX -> buffer
-        jnb short loc_478FC
-        jmp exit
+        // mov ax, 3F00h
+        // mov bx, lastFileHandle
+        // mov cx, 0A0h ; '?' // read 160 bytes
+        // mov dx, offset fileLevelData
+        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+        //             ; BX = file handle, CX = number of bytes to read
+        //             ; DS:DX -> buffer
+        int bytes = fread(&fileLevelData, 1, 160, lastFileHandle);
+        if (bytes > 0)
+        {
+            goto loc_478FC;
+        }
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_478FC:              ; CODE XREF: loadScreen2+44j
-        mov si, offset fileLevelData
-        mov ah, 1
+loc_478FC:              // ; CODE XREF: loadScreen2+44j
+        si = &fileLevelData;
+        ah = 1;
 
-loc_47901:              ; CODE XREF: loadScreen2+65j
-        mov dx, 3C4h
-        al = 2
-        out dx, al      ; EGA: sequencer address reg
-                    ; map mask: data bits 0-3 enable writes to bit planes 0-3
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: sequencer data register
-        mov cx, 28h ; '('
-        rep movsb
-        sub di, 28h ; '('
-        shl ah, 1
-        test    ah, 0Fh
-        jnz short loc_47901
-        add di, 7Ah ; 'z'
+loc_47901:              // ; CODE XREF: loadScreen2+65j
+        // mov dx, 3C4h
+        // al = 2
+        // out dx, al      ; EGA: sequencer address reg
+        //             ; map mask: data bits 0-3 enable writes to bit planes 0-3
+        ports[0x3C4] = 2;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: sequencer data register
+        ports[0x3C5] = ah;
+        cx = 0x28; // 40
+        memcpy(di, si, 40); // rep movsb
+        si += 40;        
+        // sub di, 28h ; '('
+        ah = ah << 1;
+        
+        if (ah <= 0xF)
+        {
+            goto loc_47901;
+        }
+        
+        di += 122;
         pop(cx);
-        loop    loc_478E7
-        mov ax, 3E00h
-        mov bx, lastFileHandle
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-        jnb short loc_4792E
-        jmp exit
+        cx--;
+        if (cx > 0)
+        {
+            goto loc_478E7;
+        }
+        if (fclose(lastFileHandle) == 0)
+        {
+            goto loc_4792E;
+        }
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_4792E:              ; CODE XREF: loadScreen2+76j
-        mov dx, 3C4h
-        al = 2
-        out dx, al      ; EGA: sequencer address reg
-                    ; map mask: data bits 0-3 enable writes to bit planes 0-3
-        inc dx
-        al = 0Fh
-        out dx, al      ; EGA port: sequencer data register
-        mov dx, 3CEh
-        al = 1
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; enable set/reset
-        inc dx
-        al = 0Fh
-        out dx, al      ; EGA port: graphics controller data register
-        mov bx, 4DACh
-        mov word_51967, bx
-        mov dx, 3D4h
-        al = 0Dh
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (low)
-        inc dx
-        al = bl
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 0Ch
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (high)
-        inc dx
-        al = bh
-        out dx, al      ; Video: CRT controller internal registers
-        call    videoloop
-        mov byte_510A6, 0
-        mov si, 5F95h
-        call    fade2
-        mov ax, 3D00h
-        mov dx, aTitle2_dat // "TITLE2.DAT"
-        int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-                    ; DS:DX -> ASCIZ filename
-                    ; AL = access mode
-                    ; 0 - read
-        jnb short loc_47978
-        jmp exit
+loc_4792E:              //; CODE XREF: loadScreen2+76j
+        // mov dx, 3C4h
+        // al = 2
+        // out dx, al      ; EGA: sequencer address reg
+        //             ; map mask: data bits 0-3 enable writes to bit planes 0-3
+        ports[0x3C4] = 2;
+        // inc dx
+        // al = 0Fh
+        // out dx, al      ; EGA port: sequencer data register
+        ports[0x3C5] = 0xF;
+        // mov dx, 3CEh
+        // al = 1
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; enable set/reset
+        ports[0x3CE] = 1;
+        // inc dx
+        // al = 0Fh
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0xF;
+        bx = title1DataBuffer;
+        word_51967 =  bx;
+        // mov dx, 3D4h
+        // al = 0Dh
+        // out dx, al      ; Video: CRT cntrlr addr
+        //             ; regen start address (low)
+        ports[0x3D4] = 0xD;
+        // inc dx
+        // al = bl
+        // out dx, al      ; Video: CRT controller internal registers
+        ports[0x3D5] = bl;
+        // mov dx, 3D4h
+        // al = 0Ch
+        // out dx, al      ; Video: CRT cntrlr addr
+        //             ; regen start address (high)
+        ports[0x3D4] = 0xC;
+        // inc dx
+        // al = bh
+        // out dx, al      ; Video: CRT controller internal registers
+        ports[0x3D5] = bh;
+        videoloop();
+        byte_510A6 = 0;
+        si = 0x5F95;
+        fade2();
+        // mov ax, 3D00h
+        // mov dx, aTitle2_dat // "TITLE2.DAT"
+        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
+        //             ; DS:DX -> ASCIZ filename
+        //             ; AL = access mode
+        //             ; 0 - read
+        FILE *file = fopen("TITLE2.DAT", "r");
+        if (file != NULL)
+        {
+            goto loc_47978;
+        }
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_47978:              ; CODE XREF: loadScreen2+C0j
-        mov lastFileHandle, ax
-        mov dx, 3CEh
-        al = 1
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; enable set/reset
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = 0FFh
-        out dx, al      ; EGA port: graphics controller data register
-        mov cx, 0C8h ; '?'
-        mov di, 4DD4h
+loc_47978:              //; CODE XREF: loadScreen2+C0j
+        lastFileHandle = ax;
+        // mov dx, 3CEh
+        // al = 1
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; enable set/reset
+        ports[0x3CE] = 1;
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = 0FFh
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0xFF;
+        cx = 200;
+        di = title2DataBuffer;
 
-loc_47995:              ; CODE XREF: loadScreen2+119j
+loc_47995:              //; CODE XREF: loadScreen2+119j
         push(cx);
-        mov ax, 3F00h
-        mov bx, lastFileHandle
-        mov cx, 0A0h ; '?' // read 160 bytes
-        mov dx, offset fileLevelData
-        int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to read
-                    ; DS:DX -> buffer
-        jnb short loc_479AA
-        jmp exit
+        // mov ax, 3F00h
+        // mov bx, lastFileHandle
+        // mov cx, 0A0h ; '?' // read 160 bytes
+        // mov dx, offset fileLevelData
+        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+        //             ; BX = file handle, CX = number of bytes to read
+        //             ; DS:DX -> buffer
+        int bytes = fread(&fileLevelData, 1, 160, lastFileHandle);
+        if (bytes > 0)
+        {
+            goto loc_479AA;
+        }
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_479AA:              ; CODE XREF: loadScreen2+F2j
-        mov si, offset fileLevelData
-        mov ah, 1
+loc_479AA:              //; CODE XREF: loadScreen2+F2j
+        si = &fileLevelData;
+        ah = 1;
 
 loc_479AF:              ; CODE XREF: loadScreen2+113j
-        mov dx, 3C4h
-        al = 2
-        out dx, al      ; EGA: sequencer address reg
-                    ; map mask: data bits 0-3 enable writes to bit planes 0-3
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: sequencer data register
-        mov cx, 28h ; '('
-        rep movsb
-        sub di, 28h ; '('
-        shl ah, 1
-        test    ah, 0Fh
-        jnz short loc_479AF
-        add di, 7Ah ; 'z'
+        // mov dx, 3C4h
+        // al = 2
+        // out dx, al      ; EGA: sequencer address reg
+        //             ; map mask: data bits 0-3 enable writes to bit planes 0-3
+        ports[0x3C4] = 2;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: sequencer data register
+        ports[0x3C5] = ah;
+        cx = 40;
+        memcpy(di, si, 40); // rep movsb
+        si += 40;
+        // sub di, 28h ; '('
+        ah = ah << 1;
+        if (ah <= 0xF)
+        {
+            goto loc_479AF;
+        }
+        di += 122;
         pop(cx);
-        loop    loc_47995
-        mov ax, 3E00h
-        mov bx, lastFileHandle
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-        jnb short loc_479DC
-        jmp exit
+        cx--;
+        if (cx > 0)
+        {
+            goto loc_47995;
+        }
+        if (fclose(lastFileHandle) == 0)
+        {
+            goto loc_479DC;
+        }
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_479DC:              ; CODE XREF: loadScreen2+124j
-        mov dx, 3C4h
-        al = 2
-        out dx, al      ; EGA: sequencer address reg
-                    ; map mask: data bits 0-3 enable writes to bit planes 0-3
-        inc dx
-        al = 0Fh
-        out dx, al      ; EGA port: sequencer data register
-        retn
+loc_479DC:             // ; CODE XREF: loadScreen2+124j
+        // mov dx, 3C4h
+        // al = 2
+        // out dx, al      ; EGA: sequencer address reg
+        //             ; map mask: data bits 0-3 enable writes to bit planes 0-3
+        ports[0x3C4] = 2;
+        // inc dx
+        // al = 0Fh
+        // out dx, al      ; EGA port: sequencer data register
+        ports[0x3C5] = 0xF;
 // loadScreen2 endp ; sp-analysis failed
 }
 
@@ -2646,59 +2776,76 @@ loc_47AE3:              //; CODE XREF: loadMurphySprites+21j
 // ; =============== S U B R O U T I N E =======================================
 
 
-readPanelDat    proc near       ; CODE XREF: readPanelDat+14j
-                    ; readEverything+6p
-        mov ax, 3D00h
-        mov dx, offset aPanel_dat ; "PANEL.DAT"
-        int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-                    ; DS:DX -> ASCIZ filename
-                    ; AL = access mode
-                    ; 0 - read
-        jnb short loc_47B0A
-        cmp ax, 2
-        jnz short loc_47B07
-        call    sub_47F39
-        jb  short loc_47B07
-        jmp short readPanelDat
+void readPanelDat() //    proc near       ; CODE XREF: readPanelDat+14j
+                    // ; readEverything+6p
+{
+        // mov ax, 3D00h
+        // mov dx, offset aPanel_dat ; "PANEL.DAT"
+        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
+        //             ; DS:DX -> ASCIZ filename
+        //             ; AL = access mode
+        //             ; 0 - read
+        FILE *file = fopen("PANEL.DAT", "r");
+        if (file != NULL)
+        {
+            goto loc_47B0A;
+        }
+        if (errno != 2) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
+        {
+            goto loc_47B07;
+        }
+        // sub_47F39();
+        // jb  short loc_47B07
+        goto readPanelDat;
 // ; ---------------------------------------------------------------------------
 
-loc_47B07:              ; CODE XREF: readPanelDat+Dj
-                    ; readPanelDat+12j
-        jmp exit
+loc_47B07:             // ; CODE XREF: readPanelDat+Dj
+                    // ; readPanelDat+12j
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_47B0A:              ; CODE XREF: readPanelDat+8j
-        mov lastFileHandle, ax
-        mov ax, 3F00h
-        mov bx, lastFileHandle
-        mov cx, 0F00h
-        mov dx, 4C15h
-        int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to read
-                    ; DS:DX -> buffer
-        jnb short loc_47B21
-        jmp exit
+loc_47B0A:             // ; CODE XREF: readPanelDat+8j
+        lastFileHandle = ax;
+        // mov ax, 3F00h
+        // mov bx, lastFileHandle
+        // mov cx, 0F00h // 3840 bytes
+        // mov dx, panelDataBuffer
+        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+        //             ; BX = file handle, CX = number of bytes to read
+        //             ; DS:DX -> buffer
+        int bytes = fread(&panelDataBuffer, 1, 3840, lastFileHandle);
+        if (bytes > 0)
+        {
+            goto loc_47B21;
+        }
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_47B21:              ; CODE XREF: readPanelDat+2Bj
-        mov ax, 3E00h
-        mov bx, lastFileHandle
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-        jnb short locret_47B2F
-        jmp exit
+loc_47B21:              // ; CODE XREF: readPanelDat+2Bj
+        // mov ax, 3E00h
+        // mov bx, lastFileHandle
+        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
+        //             ; BX = file handle
+        if (fclose(lastFileHandle) == 0)
+        {
+            goto locret_47B2F;
+        }
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-locret_47B2F:               ; CODE XREF: readPanelDat+39j
-        retn
-readPanelDat    endp
+locret_47B2F:               // ; CODE XREF: readPanelDat+39j
+        // retn
+// readPanelDat    endp
+}
 
 
-; =============== S U B R O U T I N E =======================================
+// ; =============== S U B R O U T I N E =======================================
 
 
-readBackDat proc near       ; CODE XREF: readBackDat+14j
-                    ; readEverything+15p
+void readBackDat() // proc near       ; CODE XREF: readBackDat+14j
+                    // ; readEverything+15p
+{
+        // address: 01ED:0ECD
         mov ax, 3D00h
         mov dx, offset aBack_dat ; "BACK.DAT"
         int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
@@ -2748,92 +2895,118 @@ loc_47B67:              ; CODE XREF: readBackDat+31j
 // ; ---------------------------------------------------------------------------
 
 locret_47B76:               ; CODE XREF: readBackDat+41j
-        retn
-readBackDat endp
+        return
+// readBackDat endp
+}
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-readChars6Dat   proc near       ; CODE XREF: readChars6Dat+14j
-                    ; readEverything+3p
-        mov ax, 3D00h
-        mov dx, offset aChars6_dat ; "CHARS6.DAT"
-        int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-                    ; DS:DX -> ASCIZ filename
-                    ; AL = access mode
-                    ; 0 - read
-        jnb short loc_47B90
-        cmp ax, 2
-        jnz short loc_47B8D
-        call    sub_47F39
-        jb  short loc_47B8D
-        jmp short readChars6Dat
+void readCharsDats() //   proc near       ; CODE XREF: readCharsDats+14j
+                    // ; readEverything+3p
+{
+        // mov ax, 3D00h
+        // mov dx, offset aChars6_dat ; "CHARS6.DAT"
+        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
+        //             ; DS:DX -> ASCIZ filename
+        //             ; AL = access mode
+        //             ; 0 - read
+        FILE *file = fopen("CHARS6.DAT", "r");
+        if (file != NULL)
+        {
+            goto loc_47B90;
+        }
+        if (errno != 2) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
+        {
+            goto loc_47B8D;
+        }
+        // sub_47F39();
+        // jb  short loc_47B8D
+        goto readCharsDats
 // ; ---------------------------------------------------------------------------
 
-loc_47B8D:              ; CODE XREF: readChars6Dat+Dj
-                    ; readChars6Dat+12j
-        jmp exit
+loc_47B8D:             // ; CODE XREF: readCharsDats+Dj
+                    //; readCharsDats+12j
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_47B90:              ; CODE XREF: readChars6Dat+8j
-        mov lastFileHandle, ax
-        mov ax, 3F00h
-        mov bx, lastFileHandle
-        mov cx, 200h
-        mov dx, 5B15h
-        int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to read
-                    ; DS:DX -> buffer
-        jnb short loc_47BA7
-        jmp exit
+loc_47B90:              // ; CODE XREF: readCharsDats+8j
+        ax = lastFileHandle;
+        // mov ax, 3F00h
+        // mov bx, lastFileHandle
+        // mov cx, 200h // 512 bytes
+        // mov dx, chars6DataBuffer
+        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+        //             ; BX = file handle, CX = number of bytes to read
+        //             ; DS:DX -> buffer
+        int bytes = fread(&chars6DataBuffer, 1, 512, lastFileHandle);
+        if (bytes > 0)
+        {
+            goto loc_47BA7;
+        }
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_47BA7:              ; CODE XREF: readChars6Dat+2Bj
-        mov ax, 3E00h
-        mov bx, lastFileHandle
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-        jnb short loc_47BB5
-        jmp exit
+loc_47BA7:              // ; CODE XREF: readCharsDats+2Bj
+        // mov ax, 3E00h
+        // mov bx, lastFileHandle
+        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
+        //             ; BX = file handle
+        if (fclose(lastFileHandle) == 0)
+        {
+            goto loc_47BB5;
+        }
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_47BB5:              ; CODE XREF: readChars6Dat+39j
-        mov ax, 3D00h
-        mov dx, 378Eh
-        int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-                    ; DS:DX -> ASCIZ filename
-                    ; AL = access mode
-                    ; 0 - read
-        jnb short loc_47BC2
-        jmp exit
+loc_47BB5:              //; CODE XREF: readCharsDats+39j
+        // mov ax, 3D00h
+        // mov dx, offset aChars8_dat
+        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
+        //             ; DS:DX -> ASCIZ filename
+        //             ; AL = access mode
+        //             ; 0 - read
+        FILE *file = fopen("CHARS8.DAT", "r");
+        if (file != NULL)
+        {
+            goto loc_47BC2;
+        }
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_47BC2:              ; CODE XREF: readChars6Dat+46j
-        mov lastFileHandle, ax
-        mov ax, 3F00h
-        mov bx, lastFileHandle
-        mov cx, 200h
-        mov dx, 5D15h
-        int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to read
-                    ; DS:DX -> buffer
-        jnb short loc_47BD9
-        jmp exit
+loc_47BC2:              //; CODE XREF: readCharsDats+46j
+        lastFileHandle = ax;
+        // mov ax, 3F00h
+        // mov bx, lastFileHandle
+        // mov cx, 200h // 512 bytes
+        // mov dx, chars8DataBuffer
+        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+        //             ; BX = file handle, CX = number of bytes to read
+        //             ; DS:DX -> buffer
+        int bytes = fread(&chars8DataBuffer, 1, 512, lastFileHandle);
+        if (bytes > 0)
+        {
+            goto loc_47BD9;
+        }
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_47BD9:              ; CODE XREF: readChars6Dat+5Dj
-        mov ax, 3E00h
-        mov bx, lastFileHandle
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-        jnb short locret_47BE7
-        jmp exit
+loc_47BD9:             // ; CODE XREF: readCharsDats+5Dj
+        // mov ax, 3E00h
+        // mov bx, lastFileHandle
+        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
+        //             ; BX = file handle
+        if (fclose(lastFileHandle) == 0)
+        {
+            goto locret_47BE7;
+        }
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-locret_47BE7:               ; CODE XREF: readChars6Dat+6Bj
-        retn
-readChars6Dat   endp
+locret_47BE7:               //; CODE XREF: readCharsDats+6Bj
+// readCharsDats   endp
+}
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -3012,171 +3185,235 @@ loc_47C86:              //; CODE XREF: readTitleDatAndGraphics+99j
 }
 
 
-; =============== S U B R O U T I N E =======================================
+// ; =============== S U B R O U T I N E =======================================
 
 
-readLevelsLst   proc near       ; CODE XREF: readLevelsLst+CCj
-                    ; readEverything+Fp ...
-        mov ax, 3D00h
-        mov dx, offset aLevel_lst ; "LEVEL.LST"
-        int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-                    ; DS:DX -> ASCIZ filename
-                    ; AL = access mode
-                    ; 0 - read
-        jb  short loc_47CA8
-        jmp loc_47D6D
+void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
+                    // ; readEverything+Fp ...
+{
+    // address: 01ED:1038
+        // mov ax, 3D00h
+        // mov dx, offset aLevel_lst ; "LEVEL.LST"
+        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
+        //             ; DS:DX -> ASCIZ filename
+        //             ; AL = access mode
+        //             ; 0 - read
+        FILE *file = fopen("LEVEL.LST", "r");
+        if (file == NULL)
+        {
+            goto errorOpeningLevelLst;
+        }
+        goto successOpeningLevelLst
 // ; ---------------------------------------------------------------------------
 
-loc_47CA8:              ; CODE XREF: readLevelsLst+8j
-        mov ax, 3D00h
-        mov dx, 17AFh
-        int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-                    ; DS:DX -> ASCIZ filename
-                    ; AL = access mode
-                    ; 0 - read
-        jnb short loc_47CB5
-        jmp loc_47D5D
+errorOpeningLevelLst:             // ; CODE XREF: readLevelsLst+8j
+        // mov ax, 3D00h
+        // mov dx, aLevels_dat
+        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
+        //             ; DS:DX -> ASCIZ filename
+        //             ; AL = access mode
+        //             ; 0 - read
+        FILE *file = fopen("LEVELS.DAT", "r");
+        if (file != NULL)
+        {
+            goto successOpeningLevelsDat;
+        }
+        goto errorOpeningLevelsDat;
 // ; ---------------------------------------------------------------------------
 
-loc_47CB5:              ; CODE XREF: readLevelsLst+15j
-        mov lastFileHandle, ax
-        mov bx, 2A6Ch
-        mov ax, 3030h
-        mov dx, 2031h
-        mov cx, 6Fh ; 'o'
+successOpeningLevelsDat:             // ; CODE XREF: readLevelsLst+15j
+        lastFileHandle = ax;
+        bx = 0x2A6C;
+        ax = 0x3030;
+        dx = 0x2031;
+        cx = 111;
 
-loc_47CC4:              ; CODE XREF: readLevelsLst:loc_47CE4j
-        mov [bx], ax
-        mov [bx+2], dx
-        add bx, 1Ch
-        mov byte ptr [bx-1], 0Ah
-        inc dl
-        cmp dl, 39h ; '9'
-        jbe short loc_47CE4
-        mov dl, 30h ; '0'
-        inc ah
-        cmp ah, 39h ; '9'
-        jbe short loc_47CE4
-        mov ah, 30h ; '0'
+loc_47CC4:             // ; CODE XREF: readLevelsLst:loc_47CE4j
+        *bx = ax;
+        *(bx + 2) = dx;
+        bx += 28;
+        *(bx - 1) = 0xA;
+        dl++;
+        if (dl <= 0x39) // '9'
+        {
+            goto loc_47CE4;
+        }
+        dl = 0x30; // '0'
+        ah++;
+        if (ah <= 0x39) // '9'
+        {
+            goto loc_47CE4;
+        }
+        ah = 0x30; // '0'
         al++;
 
-loc_47CE4:              ; CODE XREF: readLevelsLst+3Aj
-                    ; readLevelsLst+43j
-        loop    loc_47CC4
-        mov cx, 6Fh ; 'o'
-        mov dx, 5A6h
-        xor ax, ax
-        mov bx, 2A70h
+loc_47CE4:            //  ; CODE XREF: readLevelsLst+3Aj
+                   // ; readLevelsLst+43j
+        cx--;
+        if (cx > 0)
+        {
+            goto loc_47CC4;
+        }
+        cx = 111;
+        dx = 0x5A6;
+        ax = 0;
+        bx = 0x2A70;
+        char *levelsDataBuffer = NULL; // initialize this with a malloc or something
+        // levelsDataBuffer += 0x05A6; // offset to make sure the bytes are written in the right position? no idea, this is made up, not from asm code
 
-loc_47CF1:              ; CODE XREF: readLevelsLst+83j
-        push(cx);
-        push    dx
-        push    ax
-        push    bx
-        mov cx, ax
-        mov bx, lastFileHandle
-        mov ax, 4200h
-        int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
-                    ; AL = method: offset from beginning of file
-        pop dx
-        push    dx
-        mov cx, 17h
-        mov bx, lastFileHandle
-        mov ax, 3F00h
-        int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to read
-                    ; DS:DX -> buffer
-        pop bx
-        pop ax
-        pop dx
-        pop(cx);
-        jb  short loc_47D81
-        add dx, levelDataLength
-        adc ax, 0
-        add bx, 1Ch
-        loop    loc_47CF1
-        cmp byte_59B62, 0
-        jz  short loc_47D8D
-        mov ax, 3E00h
-        mov bx, lastFileHandle
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-        jnb short loc_47D35
-        jmp exit
+        for (int i = 0; i < 111; ++i)
+        {
+// loc_47CF1:             //  ; CODE XREF: readLevelsLst+83j
+            push(cx);
+            push(dx);
+            push(ax);
+            push(bx);
+            
+            cx = ax;
+            bx = lastFileHandle;
+            int seekOffset = 0x5A6 + i * levelDataLength;
+            
+            // mov cx, ax
+            // mov bx, lastFileHandle
+            // mov ax, 4200h
+            // int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
+            //             ; AL = method: offset from beginning of file
+            fseek(lastFileHandle, seekOffset, SEEK_SET); // position 1446
+            pop(dx);
+            push(dx);
+            // mov cx, 17h // 23 bytes
+            // mov bx, lastFileHandle
+            // mov ax, 3F00h
+            // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+            //             ; BX = file handle, CX = number of bytes to read
+            //             ; DS:DX -> buffer
+            int bytes = fread(&levelsDataBuffer, 1, 23, lastFileHandle);
+            pop(bx);
+            pop(ax);
+            pop(dx);
+            pop(cx);
+            if (bytes == 0)
+            {
+                goto loc_47D81;
+            }
+            // these two operations are just adding levelDataLength to the memory address where we want to store the levels data
+            // dx += levelDataLength;
+            // ax += 0 + carry_flag;
+            levelsDataBuffer += levelDataLength;
+            bx += 28; // no idea what's this for
+            // cx--;
+            // if (cx > 0)
+            // {
+            //     goto loc_47CF1;
+            // }
+        }
+        if (byte_59B62 == 0)
+        {
+            goto loc_47D8D;
+        }
+        
+        // mov ax, 3E00h
+        // mov bx, lastFileHandle
+        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
+        //             ; BX = file handle
+        if (fclose(lastFileHandle) == 0)
+        {
+            goto loc_47D35;
+        }
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_47D35:              ; CODE XREF: readLevelsLst+95j
-        mov ax, 3C00h
-        mov cx, 0
-        mov dx, offset aLevel_lst ; "LEVEL.LST"
-        int 21h     ; DOS - 2+ - CREATE A FILE WITH HANDLE (CREAT)
-                    ; CX = attributes for file
-                    ; DS:DX -> ASCIZ filename (may include drive and path)
-        jnb short loc_47D45
-        jmp exit
+loc_47D35:             // ; CODE XREF: readLevelsLst+95j
+        // mov ax, 3C00h
+        // mov cx, 0
+        // mov dx, offset aLevel_lst ; "LEVEL.LST"
+        // int 21h     ; DOS - 2+ - CREATE A FILE WITH HANDLE (CREAT)
+        //             ; CX = attributes for file
+        //             ; DS:DX -> ASCIZ filename (may include drive and path)
+        FILE *file = fopen("LEVEL.LST", "w");
+        if (file != NULL)
+        {
+            goto writeLevelLstData;
+        }
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_47D45:              ; CODE XREF: readLevelsLst+A5j
-        mov bx, ax
-        mov lastFileHandle, bx
-        mov cx, 0C24h
-        mov dx, 2A6Ch
-        mov ax, 4000h
-        int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
-        jnb short loc_47D5B
-        jmp exit
+writeLevelLstData:             // ; CODE XREF: readLevelsLst+A5j
+        bx = ax;
+        lastFileHandle = bx;
+        // mov cx, 0C24h // 3108
+        // mov dx, 2A6Ch // levelsDataBuffer
+        // mov ax, 4000h
+        // int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
+        //             ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
+        int bytes = fwrite(&levelsDataBuffer, 1, 3108, lastFileHandle);
+        if (bytes > 0)
+        {
+            goto loc_47D5B;
+        }
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_47D5B:              ; CODE XREF: readLevelsLst+BBj
-        jmp short loc_47D8D
+loc_47D5B:             // ; CODE XREF: readLevelsLst+BBj
+        goto loc_47D8D;
 // ; ---------------------------------------------------------------------------
 
-loc_47D5D:              ; CODE XREF: readLevelsLst+17j
-        cmp ax, 2
-        jnz short loc_47D6A
-        call    sub_47F39
-        jb  short loc_47D6A
-        jmp readLevelsLst
+errorOpeningLevelsDat:             // ; CODE XREF: readLevelsLst+17j
+        if (errno != 2) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
+        {
+            goto loc_47D6A;
+        }
+        // sub_47F39();
+        // jb  short loc_47D6A
+        goto readLevelsLst; // wtf?
 // ; ---------------------------------------------------------------------------
 
-loc_47D6A:              ; CODE XREF: readLevelsLst+C5j
-                    ; readLevelsLst+CAj
-        jmp exit
+loc_47D6A:             // ; CODE XREF: readLevelsLst+C5j
+                   // ; readLevelsLst+CAj
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_47D6D:              ; CODE XREF: readLevelsLst+Aj
-        mov lastFileHandle, ax
-        mov bx, lastFileHandle
-        mov ax, 3F00h
-        mov cx, 0C24h
-        mov dx, 2A6Ch
-        int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to read
-                    ; DS:DX -> buffer
-        jnb short loc_47D8D
+successOpeningLevelLst:             // ; CODE XREF: readLevelsLst+Aj
+        lastFileHandle = ax;
+        bx = lastFileHandle;
+        // mov ax, 3F00h
+        // mov cx, 0C24h // 3108
+        // mov dx, 2A6Ch //levelsDataBuffer
+        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+        //             ; BX = file handle, CX = number of bytes to read
+        //             ; DS:DX -> buffer
+        int bytes = fread(&levelsDataBuffer, 1, 3108, lastFileHandle);
+        if (bytes > 0)
+        {
+            goto loc_47D8D;
+        }
 
-loc_47D81:              ; CODE XREF: readLevelsLst+77j
-        mov ax, 3E00h
-        mov bx, lastFileHandle
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-        jmp exit
+loc_47D81:             // ; CODE XREF: readLevelsLst+77j
+        // mov ax, 3E00h
+        // mov bx, lastFileHandle
+        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
+        //             ; BX = file handle
+        fclose(lastFileHandle);
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_47D8D:              ; CODE XREF: readLevelsLst+8Aj
-                    ; readLevelsLst:loc_47D5Bj ...
-        mov ax, 3E00h
-        mov bx, lastFileHandle
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-        jnb short locret_47D9B
-        jmp exit
+loc_47D8D:             // ; CODE XREF: readLevelsLst+8Aj
+                   // ; readLevelsLst:loc_47D5Bj ...
+        // mov ax, 3E00h
+        // mov bx, lastFileHandle
+        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
+        //             ; BX = file handle
+        if (fclose(lastFileHandle) == 0)
+        {
+            goto locret_47D9B;
+        }
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-locret_47D9B:               ; CODE XREF: readLevelsLst+FBj
-        retn
-readLevelsLst   endp
+locret_47D9B:              // ; CODE XREF: readLevelsLst+FBj
+        // retn
+// readLevelsLst   endp
+}
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -3240,59 +3477,74 @@ readGfxDat  endp
 ; =============== S U B R O U T I N E =======================================
 
 
-readControlsDat proc near       ; CODE XREF: readControlsDat+14j
-                    ; readEverything+Cp
-        mov ax, 3D00h
-        mov dx, offset aControls_dat ; "CONTROLS.DAT"
-        int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-                    ; DS:DX -> ASCIZ filename
-                    ; AL = access mode
-                    ; 0 - read
-        jnb short loc_47DFC
-        cmp ax, 2
-        jnz short loc_47DF9
-        call    sub_47F39
+void readControlsDat() // proc near       ; CODE XREF: readControlsDat+14j
+                    // ; readEverything+Cp
+{
+        // mov ax, 3D00h
+        // mov dx, offset aControls_dat ; "CONTROLS.DAT"
+        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
+        //             ; DS:DX -> ASCIZ filename
+        //             ; AL = access mode
+        //             ; 0 - read
+        FILE *file = fopen("CONTROLS.DAT", "r");
+        if (file != NULL)
+        {
+            goto loc_47DFC;
+        }
+        if (errno != 2) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
+        {
+            goto loc_47DF9;
+        }
+        sub_47F39();
         jb  short loc_47DF9
-        jmp short readControlsDat
+        goto short readControlsDat;
 // ; ---------------------------------------------------------------------------
 
-loc_47DF9:              ; CODE XREF: readControlsDat+Dj
-                    ; readControlsDat+12j
-        jmp exit
+loc_47DF9:              // ; CODE XREF: readControlsDat+Dj
+                    // ; readControlsDat+12j
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_47DFC:              ; CODE XREF: readControlsDat+8j
-        mov lastFileHandle, ax
-        mov bx, lastFileHandle
-        push    ds
-        mov ax, seg controlsseg
-        mov ds, ax
-        assume ds:controlsseg
-        mov ax, 3F00h
-        mov cx, 7D00h
-        mov dx, 0
-        int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to read
-                    ; DS:DX -> buffer
-        jnb short loc_47E1A
-        pop ds
-        assume ds:data
-        jmp exit
+loc_47DFC:             // ; CODE XREF: readControlsDat+8j
+        lastFileHandle = ax;
+        bx = lastFileHandle;
+        push(ds);
+        ax = seg controlsseg;
+        ds = ax;
+        // assume ds:controlsseg
+        // mov ax, 3F00h
+        // mov cx, 7D00h // 32000 bytes
+        // mov dx, 0
+        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+        //             ; BX = file handle, CX = number of bytes to read
+        //             ; DS:DX -> buffer
+        int bytes = fread(&controlsDataBuffer, 1, 32000, lastFileHandle);
+        if (bytes > 0)
+        {
+            goto loc_47E1A;
+        }
+        pop(ds);
+        // assume ds:data
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_47E1A:              ; CODE XREF: readControlsDat+31j
-        pop ds
-        mov ax, 3E00h
-        mov bx, lastFileHandle
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-        jnb short locret_47E29
-        jmp exit
+loc_47E1A:             // ; CODE XREF: readControlsDat+31j
+        pop(ds);
+        // mov ax, 3E00h
+        // mov bx, lastFileHandle
+        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
+        //             ; BX = file handle
+        if (fclose(lastFileHandle) == 0)
+        {
+            goto locret_47E29;
+        }
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-locret_47E29:               ; CODE XREF: readControlsDat+41j
-        retn
-readControlsDat endp
+locret_47E29:              // ; CODE XREF: readControlsDat+41j
+        // retn
+// readControlsDat endp
+}
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -3359,23 +3611,24 @@ locret_47E75:               ; CODE XREF: readHallfameLst+5j
 readHallfameLst endp
 
 
-; =============== S U B R O U T I N E =======================================
+// ; =============== S U B R O U T I N E =======================================
 
 
-readEverything  proc near       ; CODE XREF: start+2DBp start+2E3p ...
-        call    readPallettes
-        call    readChars6Dat
-        call    readPanelDat
-        call    readMenuDat
-        call    readControlsDat
-        call    readLevelsLst
-        call    readDemo
-        call    readBackDat
-        call    readHallfameLst
-        call    readPlayersLst
-        call    readGfxDat
-        retn
-readEverything  endp
+void readEverything() //  proc near       ; CODE XREF: start+2DBp start+2E3p ...
+{
+    readPalettes();
+    readCharsDats();
+    readPanelDat();
+    readMenuDat();
+    readControlsDat();
+    readLevelsLst(); // TODO: need to test & debug when LEVEL.LST is not available and it's generated from LEVELS.DAT
+    readDemoFiles(); // TODO: just crazy, needs more RE work
+    readBackDat();
+    readHallfameLst();
+    readPlayersLst();
+    readGfxDat();
+// readEverything  endp
+} 
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -3477,8 +3730,9 @@ sub_47E98   endp
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_47F39   proc near       ; CODE XREF: readPallettes+Fp
-                    ; loadMurphySprites+15p ...
+void sub_47F39() //   proc near       ; CODE XREF: readPalettes+Fp
+                   // ; loadMurphySprites+15p ...
+{
         call    enableFloppy?
         mov si, 60D5h
         call    fade2
@@ -3498,7 +3752,7 @@ loc_47F5E:              ; CODE XREF: sub_47F39+1Bj
         mov di, 7D3Bh
         mov ah, 0Fh
         call    sub_4BDF0
-        mov si, 5FD5h
+        mov si, palettesDataBuffer
         call    fade2
         mov bx, 4D84h
         mov dx, 3D4h
@@ -3521,7 +3775,8 @@ loc_47F5E:              ; CODE XREF: sub_47F39+1Bj
         call    fade2
         popf
         retn
-sub_47F39   endp
+// sub_47F39   endp
+}
 
 // ; ---------------------------------------------------------------------------
         nop
@@ -9778,49 +10033,62 @@ sub_4AAB4   endp
 ; =============== S U B R O U T I N E =======================================
 
 
-readMenuDat proc near       ; CODE XREF: readEverything+9p
-        mov ax, 3D00h
-        mov dx, offset aMenu_dat ; "MENU.DAT"
-        int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-                    ; DS:DX -> ASCIZ filename
-                    ; AL = access mode
-                    ; 0 - read
-        jnb short loc_4AAED
-        jmp exit
+void readMenuDat() // proc near       ; CODE XREF: readEverything+9p
+{
+        // mov ax, 3D00h
+        // mov dx, offset aMenu_dat ; "MENU.DAT"
+        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
+        //             ; DS:DX -> ASCIZ filename
+        //             ; AL = access mode
+        //             ; 0 - read
+        FILE *file = fopen("MENU.DAT", "r");
+        if (file != NULL)
+        {
+            goto loc_4AAED;
+        }
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_4AAED:              ; CODE XREF: readMenuDat+8j
-        mov lastFileHandle, ax
-        mov bx, lastFileHandle
-        push    ds
-        mov ax, seg menuseg
-        mov ds, ax
-        assume ds:nothing
-        mov ax, 3F00h
-        mov cx, 7D00h
-        mov dx, 0
-        int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to read
-                    ; DS:DX -> buffer
-        jnb short loc_4AB0B
-        pop ds
-        assume ds:data
-        jmp exit
+loc_4AAED:             // ; CODE XREF: readMenuDat+8j
+        lastFileHandle = ax;
+        bx = lastFileHandle;
+        push(ds);
+        ax = seg menuseg;
+        ds = ax;
+        // assume ds:nothing
+        // mov ax, 3F00h
+        // mov cx, 7D00h // 32000 bytes
+        // mov dx, 0
+        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+        //             ; BX = file handle, CX = number of bytes to read
+        //             ; DS:DX -> buffer
+        int bytes = fread(&menuDataBuffer, 1, 32000, lastFileHandle);
+        if (bytes > 0)
+        {
+            goto loc_4AB0B;
+        }
+        pop(ds);
+        // assume ds:data
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_4AB0B:              ; CODE XREF: readMenuDat+25j
-        pop ds
-        mov ax, 3E00h
-        mov bx, lastFileHandle
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-        jnb short locret_4AB1A
-        jmp exit
+loc_4AB0B:              // ; CODE XREF: readMenuDat+25j
+        pop(ds);
+        // mov ax, 3E00h
+        // mov bx, lastFileHandle
+        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
+        //             ; BX = file handle
+        if (fclose(lastFileHandle) == 0)
+        {
+            goto locret_4AB1A;
+        }
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-locret_4AB1A:               ; CODE XREF: readMenuDat+35j
-        retn
-readMenuDat endp
+locret_4AB1A:               // ; CODE XREF: readMenuDat+35j
+        // retn
+// readMenuDat endp
+}
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -10535,7 +10803,7 @@ loc_4B105:              ; CODE XREF: sub_4AF0C+1D4j
         inc dx
         al = bh
         out dx, al      ; Video: CRT controller internal registers
-        mov si, 5FD5h
+        mov si, palettesDataBuffer
         call    fade
         call    sub_47E98
         mov si, 60D5h
@@ -10578,7 +10846,7 @@ sub_4B149   endp
 
 
 sub_4B159   proc near       ; CODE XREF: runMainMenu+6Fp
-        call    readDemo
+        call    readDemoFiles
         or  cx, cx
         jnz short loc_4B163
         jmp locret_4B1F1
@@ -10660,7 +10928,7 @@ sub_4B159   endp
 demoSomething?  proc near       ; CODE XREF: start+3BAp
                     ; runMainMenu+12Ep ...
         push    ax
-        call    readDemo
+        call    readDemoFiles
         pop ax
         push    ax
         mov bx, ax
@@ -10811,7 +11079,7 @@ sub_4B2FC   proc near       ; CODE XREF: sub_4B375+56p
         inc dx
         al = bh
         out dx, al      ; Video: CRT controller internal registers
-        mov si, 5FD5h
+        mov si, palettesDataBuffer
         call    fade
         call    sub_47E98
         mov si, 60D5h
@@ -11024,7 +11292,7 @@ loc_4B4A3:              ; CODE XREF: sub_4B419+50j
                     ; sub_4B419+5Aj ...
         mov word ptr aLevels_dat_0+8, ax ; "AT"
         mov ax, 3D00h
-        mov dx, 17AFh
+        mov dx, aLevels_dat
         int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
                     ; DS:DX -> ASCIZ filename
                     ; AL = access mode
@@ -11081,7 +11349,7 @@ loc_4B504:              ; CODE XREF: sub_4B419+E6j
         mov ah, 4
         call    sub_4BA5F
         call    readLevelsLst
-        call    readDemo
+        call    readDemoFiles
         push    es
         push    ds
         pop es
@@ -11192,7 +11460,7 @@ loc_4B5BE:              ; CODE XREF: sub_4B419+198j
         inc dx
         al = bh
         out dx, al      ; Video: CRT controller internal registers
-        mov si, 5FD5h
+        mov si, palettesDataBuffer
         call    fade
 
 loc_4B5E6:              ; CODE XREF: sub_4B419+1D3j
@@ -11496,7 +11764,7 @@ sub_4B7B7   proc near
         mov di, 0A818h
         mov ah, 0Fh
         call    sub_4BDF0
-        mov si, 5FD5h
+        mov si, palettesDataBuffer
         call    fade
         call    sub_47E98
         mov si, 60D5h
@@ -11951,7 +12219,7 @@ loc_4BA9F:              ; CODE XREF: sub_4BA5F+3Bj
         inc si
         sub bl, 20h ; ' '
         xor bh, bh
-        add bx, 5B15h
+        add bx, chars6DataBuffer
         mov dx, 3CEh
         al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -12531,7 +12799,7 @@ loc_4BE30:              ; CODE XREF: sub_4BDF0+3Bj
         inc si
         sub bl, 20h ; ' '
         xor bh, bh
-        add bx, 5B15h
+        add bx, chars6DataBuffer
         mov dx, 3CEh
         al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -12989,7 +13257,7 @@ sub_4C141   proc near       ; CODE XREF: start+41Ap sub_4955B+39Bp ...
         mov bx, 1Ch
         mul bx
         mov si, ax
-        add si, 2A6Ch
+        add si, levelsDataBuffer
         sub si, 1Ch
         push    si
         mov di, 974Ch
@@ -13565,7 +13833,7 @@ loc_4C55C:              ; CODE XREF: sub_4C4F9+31j
         al = bh
         out dx, al      ; Video: CRT controller internal registers
         call    videoloop
-        mov si, 5FD5h
+        mov si, palettesDataBuffer
         call    fade2
         cmp word_5197A, 1
         jz  short loc_4C591
@@ -13653,7 +13921,7 @@ sub_4C5AF   endp
 sub_4C611   proc near       ; CODE XREF: sub_4C407+14p
                     ; sub_4C407:loc_4C44Fp ...
         push    ds
-        mov ax, seg menuseg
+        mov ax, seg menuseg // will this use menuDataBuffer ??
         mov ds, ax
         assume ds:nothing
         mov si, 0
@@ -13746,7 +14014,7 @@ vgaloadgfxseg:
 ; START OF FUNCTION CHUNK FOR vgaloadbackseg
 
 vgaloadseginax:              ; CODE XREF: vgaloadbackseg+4j code:5AD9j
-        mov ds, ax
+        mov ds, ax // yes, it will use controlsDataBuffer here
         assume ds:nothing
         mov si, 0
         mov di, 4D84h
@@ -13838,7 +14106,7 @@ vgaloadbackseg:
 // ; ---------------------------------------------------------------------------
 vgaloadcontrolsseg:
         push ds
-        mov ax, controlsseg
+        mov ax, controlsseg // will this use controlsDataBuffer ??
         jmp short vgaloadseginax
 // ; ---------------------------------------------------------------------------
 loc_4C6FB:
@@ -22266,7 +22534,7 @@ loc_4FED0:              ; CODE XREF: sub_4FE9C+2Fj
         inc si
         sub bl, 20h ; ' '
         xor bh, bh
-        add bx, 5D15h
+        add bx, chars8DataBuffer
         mov dx, 3CEh
         al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -22582,7 +22850,7 @@ loc_5008D:              ; CODE XREF: sub_50077+12j
         inc si
         sub bl, 20h ; ' '
         xor bh, bh
-        add bx, 5D15h
+        add bx, chars8DataBuffer
         mov ah, [bx]
         mov es:[di], ah
         add di, 0A8h ; '?'
@@ -22809,7 +23077,7 @@ sub_501C0   proc near       ; CODE XREF: start+338p sub_4955B+678p ...
         mov es, ax
         assume es:zeg000
         mov di, 0
-        mov si, 4C15h
+        mov si, panelDataBuffer
         mov dx, 60h ; '`'
 
 loc_501D6:              ; CODE XREF: sub_501C0+1Fj
@@ -22826,7 +23094,7 @@ loc_501D6:              ; CODE XREF: sub_501C0+1Fj
 // ; ---------------------------------------------------------------------------
 
 loc_501EA:              ; CODE XREF: sub_501C0+5j
-        mov si, 4C15h
+        mov si, panelDataBuffer
         mov di, 0
         mov dx, 3CEh
         al = 5
