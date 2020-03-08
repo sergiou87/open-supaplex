@@ -8,7 +8,13 @@
 
 // ; Attributes: noreturn
 
-const int levelDataLength = 1536;
+const int levelDataLength = 1536; // exact length of a level file, even of each level inside the LEVELS.DAT file
+
+// 30 elements...
+int word_599DC[] = { 0x00CE, 0x016A, 0x0146, 0x00CD, 0x024D, 0x012C, 0x01A7, 0x01FB, 0x01D2,
+                    0x02FD, 0xF001, 0xF1F0, 0xF003, 0xF350, 0xF007, 0xF460,
+                    0xF00B, 0xF0F0, 0xF01D, 0xF0F0, 0xF026, 0x50F0, 0xF037,
+                    0x41D0, 0x105F, 0xF3F3, 0xF068, 0x10F0, 0x106C, 0x94F4 };
 
 //         public start
 void main(int argc, char **argv)
@@ -62,7 +68,7 @@ copyNextCmdLineByte:            //; CODE XREF: start+28j
         push(cx) // saves number of cmd line bytes again
 
 processCommandLine:         //; CODE XREF: start+F7j
-        if (strchr(commandLine, ':') == NULL)
+        if ((di = strchr(di, ':')) == NULL)
         {
             goto nohascolon;
         }
@@ -110,6 +116,10 @@ finishArgumentCopy:              //; CODE XREF: start+45j start+4Cj
         al = 0x20; // ' ' (espacio)
 
 // No idea why (yet) but this replaces the argument that was just copied with spaces :shrug:
+// Ok I just learned why :joy: It's removing the entire argument because after processing it, the app will iterate
+// repeat the process in the whole command line text again, looking for `:` and so on, so this chunk of code
+// replaces the whole `:someArgument` text with spaces in the original command line text to make sure it doesn't
+// interfere parsing the rest of the arguments.
 removeArgumentByteFromCommandLine:              //; CODE XREF: start+6Aj
         if (es:[di] == al)
         {
@@ -145,27 +155,25 @@ loc_46C99:
         // int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
         //             ; AL = method: 0x02 -> offset from end of file
         //             ; dx:ax is the new seek position
+        int fileLength = ftell(file);
         pop(bx);
         pushf();
-        if (result < 0) // jb  short errorSeekingDemoFile
+        if (result < 0) // jb  short errorSeekingArgumentFile
         {
-            goto errorSeekingDemoFile
+            goto errorSeekingArgumentFile
         }
         
-        if (dx != 0)
+        if (fileLength > 0xFFFF) // checks if dx != 0 (so fileLength is > 0xFFFF);
         {
-            goto errorSeekingDemoFile
+            goto errorSeekingArgumentFile
         }
 
-loc_46CAA:
-        if (ax < levelDataLength)
+        if (fileLength < levelDataLength)
         {
-
-loc_46CAD:
             goto loc_46CB7;
         }
 
-errorSeekingDemoFile:              //; CODE XREF: start+84j start+88j
+errorSeekingArgumentFile:              //; CODE XREF: start+84j start+88j
         push(ax);
         push(dx);
         ah = 0x3E;
@@ -176,64 +184,69 @@ errorSeekingDemoFile:              //; CODE XREF: start+84j start+88j
         pop(ax);
 
 loc_46CB7:              //; CODE XREF: start:loc_46CADj
-        db 8Dh, 36h, 65h, 9Fh
-        si = **aFileDemo; //;lea si, [aFileDemo] ; "!! File >> Demo: "
+        //db 8Dh, 36h, 65h, 9Fh
+        // si = **aFileDemo; //;lea si, [aFileDemo] ; "!! File >> Demo: "
         
         word_599DA = 0
         popf();
         
-        jb  short errorReadingDemoFile
-        if (dx > 0)
+        if (result < 0) // jb  short errorReadingDemoFile
         {
-            goto loc_46CE4;
+            goto errorReadingDemoFile
         }
-        if (ax > 0xC60A)
+        if (fileLength > 0xFFFF) // checks if dx != 0 (so fileLength is > 0xFFFF);
         {
-            goto loc_46CE4;
+            goto lookForAtSignInCommandLine;
+        }
+        if (fileLength > 0xC60A) // 50968 no idea what this number is
+        {
+            goto lookForAtSignInCommandLine;
         }
         si = *aFileLevel; // lea si, aFileLevel    ; "!! File < Level: "
 
-loc_46CD1:
-        if (ax >= levelDataLength)
+        if (fileLength >= levelDataLength) // all demo files are greater than a level (1536 bytes)
         {
             goto loc_46CF4;
         }
-        fileReadUnk1();
-        word_599DA = ax;
+        int success = fileReadUnk1(file, fileLength);
+        word_599DA = fileLength;
         pushf();
         ah = 0x3E;
         fclose(file);
         // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
         //             ; BX = file handle
         popf();
-        // jnb short loc_46CF6  // where do the flags come from??
+        if (success)
+        {
+            goto loc_46CF6; // jnb short loc_46CF6  // the flag CF to check the jnb comes from the fileReadUnk1 result (CF=0 success, CF=1 error);
+        }
 
-loc_46CE4:              //; CODE XREF: start+A6j start+ABj
-        pop(cx);
-        pop(di);
-        push(di);
-        push(cx);
+lookForAtSignInCommandLine:              //; CODE XREF: start+A6j start+ABj
+        pop(cx); // recover number of cmd line bytes
+        pop(di); // recover command line string
+        push(di); // save command line string
+        push(cx); // save number of cmd line bytes
         al = 0x40; // '@'
-        if (strchr(some_string, '@') == NULL)
+        if ((di = strchr(di, '@')) == NULL) // looks for @ in the rest of the command line for some reason
         {
             goto errorReadingDemoFile;
         }
         
-        conprintln();
+        conprintln(); // print some error message?
         goto immediateexit;
 // ; ---------------------------------------------------------------------------
 
 loc_46CF4:              //; CODE XREF: start+B4j
-        if (ax == levelDataLength)
+        if (ax == levelDataLength) // all demo files are greater than a level (1536 bytes)
         {
             goto loc_46CFB;
         }
 
 loc_46CF6:              //; CODE XREF: start+C2j
-        byte_599D5 = 1;
+        fileIsDemo = 1;
 
 loc_46CFB:              //; CODE XREF: start:loc_46CF4j
-        if (demoFileName == 0)
+        if (*demoFileName == 0)
         {
             goto errorReadingDemoFile;
         }
@@ -243,26 +256,26 @@ loc_46CFB:              //; CODE XREF: start:loc_46CF4j
 // ; ---------------------------------------------------------------------------
 
 errorReadingDemoFile:              //; CODE XREF: start+74j start+A2j ...
-        demoFileName = 0;
+        *demoFileName = 0;
         byte_599D4 = 0;
 
 loc_46D13:              //; CODE XREF: start+E7j
-        pop(cx);
-        pop(di);
-        push(di);
-        push(cx);
+        pop(cx); // recover number of cmd line bytes
+        pop(di); // recover command line string
+        push(di); // save command line string
+        push(cx); // save number of cmd line bytes
         goto processCommandLine;
 // ; ---------------------------------------------------------------------------
 
 nohascolon:               ; CODE XREF: start+3Bj
-        pop(cx);
-        pop(di);
-        push(di);
-        push(cx);
+        pop(cx); // recover number of cmd line bytes
+        pop(di); // recover command line string
+        push(di); // save command line string
+        push(cx); // save number of cmd line bytes
         al = '@';
         int hasAt = strch(some_string, '@'); // repne scasb
-        pop(cx);
-        pop(di);
+        pop(cx); // recover number of cmd line bytes
+        pop(di); // recover command line string
         if (hasAt == NULL)
         {
             goto runSpFile;
@@ -278,7 +291,7 @@ nohascolon:               ; CODE XREF: start+3Bj
 // ; ---------------------------------------------------------------------------
 
 demoFileNotMissing:              //; CODE XREF: start+10Bj
-        if (byte_599D5 == 1)
+        if (fileIsDemo == 1)
         {
             goto spHasAtAndDemo;
         }
@@ -304,19 +317,24 @@ loc_46D58:              ; CODE XREF: start+14Fj
 loc_46D5A:              ; CODE XREF: start+136j
         bx = *word_59B60;
 
-loc_46D5E:              ; CODE XREF: start+14Dj start+153j
-        int result = strchr(some_string, 'a');
+// This weird loop seems to go from A to Z (finishing at "[") and then from
+// a to z (finishing at "{") looking for those characters in the command line.
+// if they're present, they're copied to the correspondent position of bx, which starts
+// at 0x59B60 per the line above. That + 26 uppercase letters + 26 lowercase letters means
+// at 0x59B60 starts an array of 52 bytes that ends at 0x59B94??? WTF
+loc_46D5E:              //; CODE XREF: start+14Dj start+153j
+        int result = strchr(di, al);
         if (result == NULL)
         {
             goto loc_46D64;
         }
-        [bx] = [bx] | al; // check if whatever is in bx is 'a'??
+        [bx] = al; // or [bx], al writes al in [bx] (if [bx] is 0...)
 
 loc_46D64:              //; CODE XREF: start+140j
-        pop(cx);
-        pop(di);
-        push(di);
-        push(cx);
+        pop(cx); // recover number of cmd line bytes
+        pop(di); // recover command line string
+        push(di); // save command line string
+        push(cx); // save number of cmd line bytes
         bx++;
         al++;
         if (al < 0x5B) // '['
@@ -333,7 +351,7 @@ loc_46D64:              //; CODE XREF: start+140j
             goto loc_46D5E;
         }
         
-        if (byte_59B63 == 0)
+        if (byte_59B63 == 0) // this location is where the D (uppercase) would go (it's &word_59B60 + 3). WTF
         {
             goto loc_46D82;
         }
@@ -341,13 +359,13 @@ loc_46D64:              //; CODE XREF: start+140j
 
 loc_46D82:              //; CODE XREF: start+15Aj
         al = 0x21; // '!'
-        int result = strchr(some_string, '!');
+        int result = strchr(di, '!');
         if (result == NULL)
         {
             goto loc_46DBF;
         }
         
-        if (cx < 1)
+        if (cx < 1) // if '!' was found in the last character?
         {
             goto loc_46DBF;
         }
@@ -529,27 +547,27 @@ leaveVideoStatus:           //; CODE XREF: start+28Aj
         ax = 0xA000;
         es = ax;
         // assume es:nothing
-        sub_4D2BF();
-        sub_4D2E9();
-        setint8();
-        setint24();
-        setint9();
-        sub_4D8B0();
+        initializeFadePalette();
+        initializeMouse();
+        setint8(); // Timer
+        setint24(); // disk??
+        setint9(); // Keyboard
+        initializeSound();
         if (fastMode != 0)
         {
             goto isFastMode;
         }
-        sub_4D517();
-        sub_4D4E4();
+        initializeVideo2();
+        initializeVideo3();
         si = 0x60D5;
-        sub_4D836();
-        readTitleDatAndGraphics?();
+        fade2();
+        readTitleDatAndGraphics();
         si = 0x5F15;
         fade();
 
 isFastMode:              //; CODE XREF: start+2ADj
         readMoving();
-        sub_4D4E4();
+        initializeVideo3();
         // Conditions to whether show 
         al = byte_59B6B;
         al |= byte_59B84;
@@ -567,8 +585,8 @@ openingSequence:
         loadScreen2();
         readEverything();
         sub_502CF();
-        openCreditsBlock();
-        showNewCredits();
+        openCreditsBlock(); // credits inside the block
+        showNewCredits();   // credits below the block (herman perk and elmer productions)
 
 afterOpeningSequence:              //; CODE XREF: start+2DEj
         readConfig();
@@ -671,7 +689,7 @@ loc_46FBE:              //; CODE XREF: start+30Cj start+31Bj ...
             goto loc_46FFF;
         }
         byte_599D4 = 1;
-        if (byte_599D5 != 1)
+        if (fileIsDemo != 1)
         {
             goto loc_46FDF;
         }
@@ -830,66 +848,84 @@ exitnow:                //; CODE XREF: loadScreen2-7C9j
 //; =============== S U B R O U T I N E =======================================
 
 
-void fileReadUnk1() //    proc near       ; CODE XREF: start+B6p readDemo+81p
+// Return value: carry flag = 0 on success, 1 on error
+void fileReadUnk1(FILE *file, long fileLength) //    proc near       ; CODE XREF: start+B6p readDemo+81p
 {
-        push    bx
-        lea bx, word_599DC
-        mov cx, 0Ah     ; cx = 10
+        push(bx);
+        bx = word_599DC; // load array from word_599DC
+        cx = 10;
 
-loop_:                  ; CODE XREF: fileReadUnk1+Fj
-        cmp [bx], ax
-        jz  short loc_47105
-        add bx, 2
-        loop    loop_
-        jmp short bail
+loop_:                  //; CODE XREF: fileReadUnk1+Fj
+        if (*bx == fileLength)
+        {
+            goto loc_47105;
+        }
+        bx += 2;
+        cx--;
+        if (cx > 0)
+        {
+            goto loop_;
+        }
+        goto bail;
 // ; ---------------------------------------------------------------------------
 
-loc_47105:              ; CODE XREF: fileReadUnk1+Aj
-        pop bx
-        push    bx
+loc_47105:              //; CODE XREF: fileReadUnk1+Aj
+        pop(bx);
+        push(bx);
         push(cx);
-        mov ax, 4200h
-        xor cx, cx
-        mov dx, cx
-        int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
-                    ; AL = method: offset from beginning of file
-        pop ax
-        jb  short bail
-        pop bx
-        push    bx
-        push    ax
-        mov cx, 4
-        lea dx, fileLevelData
-        mov ax, 3F00h
-        int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to read
-                    ; DS:DX -> buffer
-        pop bx
-        jb  short bail
-        sub bx, 0Ah
-        neg bx
-        shl bx, 1
-        shl bx, 1
-        mov si, offset fileLevelData
-        mov ax, [bx-691Eh]
-        cmp ax, word_50A7A
-        jnz short bail
-        mov ax, [bx-6920h]
-        cmp ax, fileLevelData
-        jnz short bail
-        xor ah, ah
-        clc
-        jmp short done
+        ax = 0x4200;
+        cx = 0;
+        dx = cx;
+        int result = fseek(file, 0, SEEK_SET);
+        // int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
+        //             ; AL = method: offset from beginning of file
+        pop(ax);
+        if (result < 0)
+        {
+            goto bail;
+        }
+        pop(bx);
+        push(bx);
+        push(ax);
+        cx = 4;
+        dx = *fileLevelData; // load string from fileLevelData?
+        ax = 0x3F00;
+        result = fread(fileLevelData, 1, 4, file); // Read the first 4 bytes into fileLevelData
+        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+        //             ; BX = file handle, CX = number of bytes to read
+        //             ; DS:DX -> buffer
+        pop(bx);
+        if (result == 0)
+        {
+            goto bail;
+        }
+        bx -= 10;
+        bx = -bx;
+        bx = bx << 1;
+        bx = bx << 1;
+        si = &fileLevelData;
+        ax = [bx-691Eh];
+        if (ax != word_50A7A)
+        {
+            goto bail;
+        }
+        ax = [bx-6920h];
+        if (ax != fileLevelData)
+        {
+            goto bail;
+        }
+        ah = 0;
+        clc(); // clears carry flag
+        goto done;
 // ; ---------------------------------------------------------------------------
 
-bail:                   ; CODE XREF: fileReadUnk1+11j
-                    ; fileReadUnk1+20j ...
-        xor ax, ax
-        stc
+bail:                   //; CODE XREF: fileReadUnk1+11j
+                    //; fileReadUnk1+20j ...
+        ax = 0;
+        stc(); // sets carry flag
 
-done:                   ; CODE XREF: fileReadUnk1+57j
-        pop bx
-        retn
+done:                   //; CODE XREF: fileReadUnk1+57j
+        pop(bx);
 }
 
 
@@ -1036,46 +1072,49 @@ slideDownGameDash endp
 ; =============== S U B R O U T I N E =======================================
 
 
-setint9     proc near       ; CODE XREF: start+2A2p
+void setint9()
+{
+    // waits for shift, ctrl, alt, system, and suspend to NOT be pressed
+    // then replaces the int 9 handler with our own (int9handler) and stores the original one in originalInt9Handler
+// ; waits for shift, ctrl, alt, system, and suspend to NOT be pressed
+//         push    ds
+//         mov ax, 0040h;
+//         mov ds, ax
+//         assume ds:nothing
 
-; waits for shift, ctrl, alt, system, and suspend to NOT be pressed
-        push    ds
-        mov ax, 0040h;
-        mov ds, ax
-        assume ds:nothing
+// keysstillpressed:
+//         ; test keyboard state flags at 0040:0017 (BIOS keyboard status byte: http://www.powernet.co.za/info/bios/mem/40_0017.htm)
+//         test    word ptr [ds:0017h], 0F70Fh 
+//         jnz short keysstillpressed 
 
-keysstillpressed:
-        ; test keyboard state flags at 0040:0017
-        test    word ptr [ds:0017h], 0F70Fh 
-        jnz short keysstillpressed 
-
-; keys no longer pressed, we can continue
-        pop ds
-        assume ds:data
-        push    ds
-        push    es
-        mov ah, 35h ; '5'
-        al = 9
-        int 21h     ; DOS - 2+ - GET INTERRUPT VECTOR
-                    ; AL = interrupt number
-                    ; Return: ES:BX = value of interrupt vector
-        mov int9seg, es
-        mov int9off, bx
-        mov dx, offset int9handler
-        mov ax, seg code
-        mov ds, ax
-        assume ds:code
-        mov ah, 25h ; '%'
-        al = 9
-        int 21h     ; DOS - SET INTERRUPT VECTOR
-                    ; AL = interrupt number
-                    ; DS:DX = new vector to be used for specified interrupt
-        pop es
-        assume es:nothing
-        pop ds
-        assume ds:data
-        retn
-setint9     endp
+// ; keys no longer pressed, we can continue
+//         pop ds
+//         assume ds:data
+//         push    ds
+//         push    es
+//         mov ah, 35h ; '5'
+//         al = 9
+//         int 21h     ; DOS - 2+ - GET INTERRUPT VECTOR
+//                     ; AL = interrupt number
+//                     ; Return: ES:BX = value of interrupt vector
+//         mov originalInt9Handler+2, es
+//         mov originalInt9Handler, bx
+//         mov dx, offset int9handler
+//         mov ax, seg code
+//         mov ds, ax
+//         assume ds:code
+//         mov ah, 25h ; '%'
+//         al = 9
+//         int 21h     ; DOS - SET INTERRUPT VECTOR
+//                     ; AL = interrupt number
+//                     ; DS:DX = new vector to be used for specified interrupt
+//         pop es
+//         assume es:nothing
+//         pop ds
+//         assume ds:data
+//         retn
+// setint9     endp
+}
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -1104,8 +1143,8 @@ void resetint9() //   proc near       ; CODE XREF: start:doneWithDemoPlaybackp
         jnz short resetint9
         push    ds
         push    es
-        mov dx, int9off
-        mov ax, int9seg
+        mov dx, originalInt9Handler
+        mov ax, originalInt9Handler+2
         mov ds, ax
         mov ah, 25h ; '%'
         al = 9
@@ -1313,7 +1352,7 @@ loc_47400:              ; CODE XREF: int8handler+95j
         pop ax
         pop dx
         pushf
-        call   [int8loc]
+        originalInt8Handler();
         pop ds
         iret
 // ; ---------------------------------------------------------------------------
@@ -1329,39 +1368,48 @@ loc_47414:              ; CODE XREF: int8handler+A5j
 }
 
 
-; =============== S U B R O U T I N E =======================================
+// ; =============== S U B R O U T I N E =======================================
 
 
-setint8     proc near       ; CODE XREF: start+29Cp
-        push    ds
-        push    es
-        mov ah, 35h ; '5'
-        al = 8
-        int 21h     ; DOS - 2+ - GET INTERRUPT VECTOR
-                    ; AL = interrupt number
-                    ; Return: ES:BX = value of interrupt vector
-        mov word ptr int8loc+2, es
-        mov word ptr int8loc, bx
-        mov dx, offset int8handler
-        mov ax, seg code
-        mov ds, ax
-        assume ds:code
-        mov ah, 25h ; '%'
-        al = 8
-        int 21h     ; DOS - SET INTERRUPT VECTOR
-                    ; AL = interrupt number
-                    ; DS:DX = new vector to be used for specified interrupt
+void setint8() //     proc near       ; CODE XREF: start+29Cp
+{
+    // This replaces the current int 8 handler with our own one (int8handler), saves the previous one in originalInt8Handler
+        // push    ds
+        // push    es
+        // mov ah, 35h ; '5'
+        // al = 8
+        // int 21h     ; DOS - 2+ - GET INTERRUPT VECTOR
+        //             ; AL = interrupt number
+        //             ; Return: ES:BX = value of interrupt vector
+        // mov word ptr originalInt8Handler+2, es
+        // mov word ptr originalInt8Handler, bx
+        // mov dx, offset int8handler
+        // mov ax, seg code
+        // mov ds, ax
+        // assume ds:code
+        // mov ah, 25h ; '%'
+        // al = 8
+        // int 21h     ; DOS - SET INTERRUPT VECTOR
+        //             ; AL = interrupt number
+        //             ; DS:DX = new vector to be used for specified interrupt
+    
+        // Info about these ports: https://wiki.osdev.org/PIT
+        // Port 43 is the Mode/command register. 0x36 is 00110110, which means:
+        // It selects channel 0 (which port is 0x40), access mode lobyte/hibyte, mode 3 (square wave generator), 16-bit binary
         al = 36h ; '6'
         out 43h, al     ; Timer 8253-5 (AT: 8254.2).
-        al = 38h ; '8'
-        out 40h, al     ; Timer 8253-5 (AT: 8254.2).
-        al = 5Dh ; ']'
-        out 40h, al     ; Timer 8253-5 (AT: 8254.2).
-        pop es
-        pop ds
-        assume ds:data
-        retn
-setint8     endp
+        
+        // No idea what this does exactly but seems to configure the timer
+        // al = 38h ; '8'
+        // out 40h, al     ; Timer 8253-5 (AT: 8254.2).
+        // al = 5Dh ; ']'
+        // out 40h, al     ; Timer 8253-5 (AT: 8254.2).
+        // pop es
+        // pop ds
+        // assume ds:data
+        // retn
+// setint8     endp
+}
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -1371,8 +1419,8 @@ resetint8   proc near       ; CODE XREF: start+48Bp
                     ; loadScreen2-7D4p
         push    ds
         push    es
-        mov dx, word ptr int8loc
-        mov ax, word ptr int8loc+2
+        mov dx, word ptr originalInt8Handler
+        mov ax, word ptr originalInt8Handler+2
         mov ds, ax
         mov ah, 25h ; '%'
         al = 8
@@ -1391,44 +1439,47 @@ resetint8   proc near       ; CODE XREF: start+48Bp
 resetint8   endp
 
 
-; =============== S U B R O U T I N E =======================================
+// ; =============== S U B R O U T I N E =======================================
 
 
-setint24    proc near       ; CODE XREF: start+29Fp
-        push    ds
-        push    es
-        mov ah, 35h ; '5'
-        al = 24h ; '$'
-        int 21h     ; DOS - 2+ - GET INTERRUPT VECTOR
-                    ; AL = interrupt number
-                    ; Return: ES:BX = value of interrupt vector
-        mov word_510A9, es
-        mov word_510A7, bx
-        mov dx, offset int24handler
-        mov ax, seg code
-        mov ds, ax
-        assume ds:code
-        mov ah, 25h ; '%'
-        al = 24h ; '$'
-        int 21h     ; DOS - SET INTERRUPT VECTOR
-                    ; AL = interrupt number
-                    ; DS:DX = new vector to be used for specified interrupt
-        pop es
-        pop ds
-        assume ds:data
-        retn
-setint24    endp
+void setint24() //    proc near       ; CODE XREF: start+29Fp
+{
+    // This function replaces the handler of interruption 24 with our own (int24handler) and stores the original in originalInt24Handler
+        // push    ds
+        // push    es
+        // mov ah, 35h ; '5'
+        // al = 24h ; '$'
+        // int 21h     ; DOS - 2+ - GET INTERRUPT VECTOR
+        //             ; AL = interrupt number
+        //             ; Return: ES:BX = value of interrupt vector
+        // mov originalInt24Handler+2, es
+        // mov originalInt24Handler, bx
+        // mov dx, offset int24handler
+        // mov ax, seg code
+        // mov ds, ax
+        // assume ds:code
+        // mov ah, 25h ; '%'
+        // al = 24h ; '$'
+        // int 21h     ; DOS - SET INTERRUPT VECTOR
+        //             ; AL = interrupt number
+        //             ; DS:DX = new vector to be used for specified interrupt
+        // pop es
+        // pop ds
+        // assume ds:data
+        // retn
+// setint24    endp
+}
 
 
-; =============== S U B R O U T I N E =======================================
+// ; =============== S U B R O U T I N E =======================================
 
 
 resetint24  proc near       ; CODE XREF: start:isNotFastMode3p
                     ; loadScreen2-7DDp
         push    ds
         push    es
-        mov dx, word_510A7
-        mov ax, word_510A9
+        mov dx, originalInt24Handler
+        mov ax, originalInt24Handler+2
         mov ds, ax
         mov ah, 25h ; '%'
         al = 24h ; '$'
@@ -2147,12 +2198,13 @@ openCreditsBlock endp
 ; =============== S U B R O U T I N E =======================================
 
 
-loadScreen2 proc near       ; CODE XREF: start:loc_46F00p
+void loadScreen2() // proc near       ; CODE XREF: start:loc_46F00p
+{
 
 ; FUNCTION CHUNK AT 04B2 SIZE 00000020 BYTES
 
         mov ax, 3D00h
-        mov dx, 375Ch
+        mov dx, aTitle1_dat // points to "TITLE1.DAT"
         int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
                     ; DS:DX -> ASCIZ filename
                     ; AL = access mode
@@ -2199,7 +2251,7 @@ loc_478E7:              ; CODE XREF: loadScreen2+6Bj
         push(cx);
         mov ax, 3F00h
         mov bx, lastFileHandle
-        mov cx, 0A0h ; '?'
+        mov cx, 0A0h ; '?' // read 160 bytes
         mov dx, offset fileLevelData
         int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
                     ; BX = file handle, CX = number of bytes to read
@@ -2271,9 +2323,9 @@ loc_4792E:              ; CODE XREF: loadScreen2+76j
         call    videoloop
         mov byte_510A6, 0
         mov si, 5F95h
-        call    sub_4D836
+        call    fade2
         mov ax, 3D00h
-        mov dx, 3767h
+        mov dx, aTitle2_dat // "TITLE2.DAT"
         int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
                     ; DS:DX -> ASCIZ filename
                     ; AL = access mode
@@ -2306,7 +2358,7 @@ loc_47995:              ; CODE XREF: loadScreen2+119j
         push(cx);
         mov ax, 3F00h
         mov bx, lastFileHandle
-        mov cx, 0A0h ; '?'
+        mov cx, 0A0h ; '?' // read 160 bytes
         mov dx, offset fileLevelData
         int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
                     ; BX = file handle, CX = number of bytes to read
@@ -2353,7 +2405,8 @@ loc_479DC:              ; CODE XREF: loadScreen2+124j
         al = 0Fh
         out dx, al      ; EGA port: sequencer data register
         retn
-loadScreen2 endp ; sp-analysis failed
+// loadScreen2 endp ; sp-analysis failed
+}
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -2740,7 +2793,8 @@ readChars6Dat   endp
 ; =============== S U B R O U T I N E =======================================
 
 
-readTitleDatAndGraphics? proc near  ; CODE XREF: start+2BBp
+void readTitleDatAndGraphics() // proc near  ; CODE XREF: start+2BBp
+{
         mov bx, 4D84h
         mov word_51967, bx
         mov dx, 3D4h
@@ -2757,7 +2811,7 @@ readTitleDatAndGraphics? proc near  ; CODE XREF: start+2BBp
         inc dx
         al = bh
         out dx, al      ; Video: CRT controller internal registers
-        call    videoloop
+        videoloop();
         mov byte_510A6, 0
         mov ax, 3D00h
         mov dx, offset aTitle_dat ; "TITLE.DAT"
@@ -2769,7 +2823,7 @@ readTitleDatAndGraphics? proc near  ; CODE XREF: start+2BBp
         jmp exit
 // ; ---------------------------------------------------------------------------
 
-loc_47C18:              ; CODE XREF: readTitleDatAndGraphics?+2Bj
+loc_47C18:              ; CODE XREF: readTitleDatAndGraphics+2Bj
         mov lastFileHandle, ax
         mov dx, 3CEh
         al = 5
@@ -2798,11 +2852,12 @@ loc_47C18:              ; CODE XREF: readTitleDatAndGraphics?+2Bj
         inc dx
         al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
-        mov cx, 0C8h ; '?'
-        mov di, (offset videoStatusUnk+1570h)
+        mov cx, 0C8h ; '?' // 200
+        mov di, (offset videoStatusUnk+1570h) // di points to some memory address related to video?
 
-loc_47C3F:              ; CODE XREF: readTitleDatAndGraphics?+8Ej
+loc_47C3F:              ; CODE XREF: readTitleDatAndGraphics+8Ej
         push(cx);
+        // read 160 bytes from title.dat
         mov ax, 3F00h
         mov bx, lastFileHandle
         mov cx, 0A0h ; '?'
@@ -2814,11 +2869,12 @@ loc_47C3F:              ; CODE XREF: readTitleDatAndGraphics?+8Ej
         jmp exit
 // ; ---------------------------------------------------------------------------
 
-loc_47C54:              ; CODE XREF: readTitleDatAndGraphics?+67j
+loc_47C54:              ; CODE XREF: readTitleDatAndGraphics+67j
         mov si, offset fileLevelData
         mov ah, 1
 
-loc_47C59:              ; CODE XREF: readTitleDatAndGraphics?+88j
+// iterates 4 times: with ah taking values 0x1, 0x2, 0x4, 0x8
+loc_47C59:              ; CODE XREF: readTitleDatAndGraphics+88j
         mov dx, 3C4h
         al = 2
         out dx, al      ; EGA: sequencer address reg
@@ -2826,13 +2882,13 @@ loc_47C59:              ; CODE XREF: readTitleDatAndGraphics?+88j
         inc dx
         al = ah
         out dx, al      ; EGA port: sequencer data register
-        mov cx, 28h ; '('
-        rep movsb
-        sub di, 28h ; '('
+        mov cx, 28h // ; '('   40
+        rep movsb // this copies the first 28 bytes of the string in si to di (so from fileLevelData to di)
+        sub di, 28h ; '(' // makes di point to the beginning of the data again
         shl ah, 1
         test    ah, 0Fh
         jnz short loc_47C59
-        add di, 7Ah ; 'z'
+        add di, 7Ah // ; 'z'  122
         pop(cx);
         loop    loc_47C3F
         mov ax, 3E00h
@@ -2843,7 +2899,7 @@ loc_47C59:              ; CODE XREF: readTitleDatAndGraphics?+88j
         jmp exit
 // ; ---------------------------------------------------------------------------
 
-loc_47C86:              ; CODE XREF: readTitleDatAndGraphics?+99j
+loc_47C86:              ; CODE XREF: readTitleDatAndGraphics+99j
         mov dx, 3C4h
         al = 2
         out dx, al      ; EGA: sequencer address reg
@@ -2859,7 +2915,8 @@ loc_47C86:              ; CODE XREF: readTitleDatAndGraphics?+99j
         al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
         retn
-readTitleDatAndGraphics? endp
+// readTitleDatAndGraphics endp
+}
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -3331,7 +3388,7 @@ sub_47F39   proc near       ; CODE XREF: readPallettes+Fp
                     ; readMoving+15p ...
         call    enableFloppy?
         mov si, 60D5h
-        call    sub_4D836
+        call    fade2
         call    vgaloadbackseg
         cmp byte_53A10, 1
         jnz short loc_47F56
@@ -3349,7 +3406,7 @@ loc_47F5E:              ; CODE XREF: sub_47F39+1Bj
         mov ah, 0Fh
         call    sub_4BDF0
         mov si, 5FD5h
-        call    sub_4D836
+        call    fade2
         mov bx, 4D84h
         mov dx, 3D4h
         al = 0Dh
@@ -3368,7 +3425,7 @@ loc_47F5E:              ; CODE XREF: sub_47F39+1Bj
         call    sub_47E98
         pushf
         mov si, 60D5h
-        call    sub_4D836
+        call    fade2
         popf
         retn
 sub_47F39   endp
@@ -7280,7 +7337,7 @@ loc_49B84:              ; CODE XREF: sub_4955B+619j
         call    getTime
         call    sub_4A1AE
         mov si, 60D5h
-        call    sub_4D836
+        call    fade2
         call    sub_48F6D
         call    sub_501C0
         call    sub_4A2E6
@@ -7521,7 +7578,7 @@ loc_49DAC:              ; CODE XREF: levelScanThing+7Fj
         al = [bx-6775h]
         cmp ax, 1Ah
         jb  short loc_49DD5
-        cmp ax, 27h ; '''
+        cmp ax, 27h //; '''
         ja  short loc_49DD5
         sub ax, 1Ch
         cmp ax, 0Ah
@@ -8139,8 +8196,9 @@ movefun5  endp
 ; =============== S U B R O U T I N E =======================================
 
 
-getTime     proc near       ; CODE XREF: start:doesNotHaveCommandLinep
-                    ; sub_4955B+669p ...
+void getTime() //     proc near       ; CODE XREF: start:doesNotHaveCommandLinep
+                    // ; sub_4955B+669p ...
+{
         mov ax, 0
         int 1Ah     ; CLOCK - GET TIME OF DAY
                     ; Return: CX:DX = clock count
@@ -8150,7 +8208,8 @@ getTime     proc near       ; CODE XREF: start:doesNotHaveCommandLinep
         xor cx, dx
         mov timeOfDay, cx
         retn
-getTime     endp
+// getTime     endp
+}   
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -8374,7 +8433,7 @@ loc_4A312:              ; CODE XREF: sub_4A2E6+1Bj
         jz  short loc_4A33F
         cmp ax, 26h ; '&'
         jz  short loc_4A33F
-        cmp ax, 27h ; '''
+        cmp ax, 27h // ; '''
         jz  short loc_4A33F
         cmp ax, 1Ch
         jl  short loc_4A330
@@ -13354,7 +13413,7 @@ sub_4C4BD   endp
 
 sub_4C4F9   proc near       ; CODE XREF: sub_4C407+11p
         mov si, 60D5h
-        call    sub_4D836
+        call    fade2
         call    vgaloadbackseg
         mov si, 8577h
         mov di, 6A2Ch
@@ -13414,14 +13473,14 @@ loc_4C55C:              ; CODE XREF: sub_4C4F9+31j
         out dx, al      ; Video: CRT controller internal registers
         call    videoloop
         mov si, 5FD5h
-        call    sub_4D836
+        call    fade2
         cmp word_5197A, 1
         jz  short loc_4C591
         call    sub_47E98
 
 loc_4C591:              ; CODE XREF: sub_4C4F9+93j
         mov si, 60D5h
-        call    sub_4D836
+        call    fade2
         mov bx, 4D5Ch
         mov dx, 3D4h
         al = 0Dh
@@ -14019,7 +14078,7 @@ loc_4C955:              ; CODE XREF: runMainMenu+1B7j
         jnz short loc_4C977
         cmp demoFileName, 0
         jz  short loc_4C977
-        cmp byte_599D5, 1
+        cmp fileIsDemo, 1
         jnz short loc_4C977
         mov byte_599D4, 1
         mov ax, 0
@@ -14110,7 +14169,7 @@ showControls:                              ; DATA XREF: data:0044o
                 call    sub_4CC7C
                 call    sub_4CCDF
                 mov     si, 6055h
-                call    sub_4D836
+                call    fade2
                 call    sub_4C5AF  ; DO SLIDE
                 mov     word_58463, 0
                 call    sub_4B85C
@@ -14181,7 +14240,7 @@ loc_4CAEC:                              ; CODE XREF: code:5E74j
                 call    loc_4C44F
                 call    sub_4C2F2
                 mov     si, 6015h
-                call    sub_4D836
+                call    fade2
                 retn
 
 ; =============== S U B R O U T I N E =======================================
@@ -15392,14 +15451,14 @@ void checkVideo() //  proc near       ; CODE XREF: start+282p
         //             ; AL = current video mode
         //             ; BH = current active display page
     currVideoMode = al;
-    ax = 0x0D;
+    ax = 0x0D; // 320x200 16 color graphics (EGA, VGA) according to http://stanislavs.org/helppc/int_10-0.html
         // int 10h     ; - VIDEO - SET VIDEO MODE
         //             ; AL = mode
     bx = 0;
     cx = 0x100;
 
 videoCheckStart:            // ; CODE XREF: checkVideo:checkAgainj
-    dx = 0x3CE;
+    dx = 0x3CE; // This is a VGA port
     al = 8;
         // out dx, al      ; EGA: graph 1 and 2 addr reg:
         //             ; bit mask
@@ -15442,31 +15501,39 @@ returnout:                  // ; CODE XREF: checkVideo+37j
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_4D2BF   proc near       ; CODE XREF: start+296p
-        cmp videoStatusUnk, 1
-        jnz short loc_4D2DA
-        mov cx, 10h
+void initializeFadePalette() //   proc near       ; CODE XREF: start+296p
+{
+        if (videoStatusUnk != 1)
+        {
+            goto loc_4D2DA;
+        }
+        cx = 0x10;
 
-loc_4D2C9:              ; CODE XREF: sub_4D2BF+17j
+loc_4D2C9:              //; CODE XREF: initializeFadePalette+17j
         push(cx);
-        mov ax, 1000h
-        mov bl, cl
-        dec bl
-        mov bh, bl
-        int 10h     ; - VIDEO - SET PALETTE REGISTER (Jr, PS, TANDY 1000, EGA, VGA)
-                    ; BL = palette register to set
-                    ; BH = color value to store
+        ax = 0x1000;
+        bl = cl;
+        bl--;
+        bh = bl;
+        // int 10h     ; - VIDEO - SET PALETTE REGISTER (Jr, PS, TANDY 1000, EGA, VGA)
+        //             ; BL = palette register to set
+        //             ; BH = color value to store
         pop(cx);
-        loop    loc_4D2C9
+        cx--;
+        if (cx > 0)
+        {
+            goto loc_4D2C9;
+        }
         jmp short $+2
 // ; ---------------------------------------------------------------------------
 
-loc_4D2DA:              ; CODE XREF: sub_4D2BF+5j
-                    ; sub_4D2BF+19j
-        mov si, 60D5h
-        call    fade
+loc_4D2DA:              //; CODE XREF: initializeFadePalette+5j
+                    //; initializeFadePalette+19j
+        si = 0x60D5;
+        fade();
         retn
-sub_4D2BF   endp
+// initializeFadePalette   endp
+}
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -15485,7 +15552,9 @@ sub_4D2E1   endp
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_4D2E9   proc near       ; CODE XREF: start+299p
+void initializeMouse() //   proc near       ; CODE XREF: start+299p
+{
+    // Check if mouse handler is available
         mov byte_58487, 0
         push    es
         mov ah, 35h ; '5'
@@ -15499,15 +15568,15 @@ sub_4D2E9   proc near       ; CODE XREF: start+299p
         cmp byte ptr es:[bx], 0CFh ; '?'
         jz  short loc_4D33B
         mov ax, 0
-        int 33h     ; - MS MOUSE - RESET DRIVER AND READ STATUS
-                    ; Return: AX = status
-                    ; BX = number of buttons
+        // int 33h     ; - MS MOUSE - RESET DRIVER AND READ STATUS
+        //             ; Return: AX = status
+        //             ; BX = number of buttons
         cmp bx, 2
-        jz  short loc_4D310
+        jz  short mouseHas2Or3Buttons
         cmp bx, 3
         jnz short loc_4D33B
 
-loc_4D310:              ; CODE XREF: sub_4D2E9+20j
+mouseHas2Or3Buttons:              ; CODE XREF: initializeMouse+20j
         mov byte_58487, 1
         mov ax, 2
         int 33h     ; - MS MOUSE - HIDE MOUSE CURSOR
@@ -15522,20 +15591,23 @@ loc_4D310:              ; CODE XREF: sub_4D2E9+20j
         mov dx, 0C0h ; '?'
         int 33h     ; - MS MOUSE - DEFINE VERTICAL CURSOR RANGE
                     ; CX = minimum row, DX = maximum row
+                    
+        // Center mouse on the screen
         mov ax, 4
         mov cx, 140h
         mov dx, 64h ; 'd'
         int 33h     ; - MS MOUSE - POSITION MOUSE CURSOR
                     ; CX = column, DX = row
 
-loc_4D33B:              ; CODE XREF: sub_4D2E9+10j
-                    ; sub_4D2E9+16j ...
+loc_4D33B:              ; CODE XREF: initializeMouse+10j
+                    ; initializeMouse+16j ...
         mov word_58481, 0A0h ; '?'
         mov word_58485, 64h ; 'd'
         mov word ptr dword_58488, 1
         pop es
         retn
-sub_4D2E9   endp
+// initializeMouse   endp
+}
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -15643,7 +15715,8 @@ getMouseStatus   endp
 ; =============== S U B R O U T I N E =======================================
 
 
-videoloop   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
+void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
+{
         push    dx
         push    ax
         cmp byte ptr dword_59B67, 0
@@ -15716,7 +15789,8 @@ loc_4D453:              ; CODE XREF: videoloop+1Dj
         pop ax
         pop dx
         retn
-videoloop   endp
+// videoloop   endp
+}
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -15870,10 +15944,11 @@ locret_4D4E3:               ; CODE XREF: sub_4D464+69j
 sub_4D464   endp
 
 
-; =============== S U B R O U T I N E =======================================
+// ; =============== S U B R O U T I N E =======================================
 
 
-sub_4D4E4   proc near       ; CODE XREF: start+2B2p start+2C7p
+void initializeVideo3() //   proc near       ; CODE XREF: start+2B2p start+2C7p
+{
         mov dx, 3CEh
         al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -15916,13 +15991,15 @@ sub_4D4E4   proc near       ; CODE XREF: start+2B2p start+2C7p
         al = 3Dh ; '='
         out dx, al      ; Video: CRT controller internal registers
         retn
-sub_4D4E4   endp
+// initializeVideo3   endp
+}
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_4D517   proc near       ; CODE XREF: start+2AFp
+void initializeVideo2() //   proc near       ; CODE XREF: start+2AFp
+{
         mov dx, 3CEh
         al = 5
         out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -15962,7 +16039,8 @@ sub_4D517   proc near       ; CODE XREF: start+2AFp
         mov di, 0
         rep stosb
         retn
-sub_4D517   endp
+// initializeVideo2   endp
+}
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -16241,7 +16319,7 @@ var_2       = word ptr -2
             goto loc_4D706;
         }
         
-        sub_4D836();
+        fade2();
         pop(es);
         sp = bp;
         pop(bp);
@@ -16416,7 +16494,7 @@ isFastMode4:              //; CODE XREF: fade+11Dj
 
 loc_4D827:              //; CODE XREF: fade+132j
         pop(si);
-        sub_4D836();
+        fade2();
         ax = [bp+var_8];
         word_510A2 = ax;
         pop(es);
@@ -16427,12 +16505,13 @@ loc_4D827:              //; CODE XREF: fade+132j
 }
 
 
-; =============== S U B R O U T I N E =======================================
+// ; =============== S U B R O U T I N E =======================================
 
-; Attributes: bp-based frame
+// ; Attributes: bp-based frame
 
-sub_4D836   proc near       ; CODE XREF: start+2B8p
-                    ; loadScreen2+B5p ...
+void fade2() //   proc near       ; CODE XREF: start+2B8p
+                   // ; loadScreen2+B5p ...
+{
 
 var_2       = word ptr -2
 
@@ -16450,7 +16529,7 @@ var_2       = word ptr -2
         out dx, al
         mov dx, 3C9h
 
-loc_4D85B:              ; CODE XREF: sub_4D836+38j
+loc_4D85B:              ; CODE XREF: fade2+38j
         lodsb
         shl al, 1
         shl al, 1
@@ -16468,12 +16547,12 @@ loc_4D85B:              ; CODE XREF: sub_4D836+38j
         jmp short loc_4D89E
 // ; ---------------------------------------------------------------------------
 
-loc_4D872:              ; CODE XREF: sub_4D836+17j
+loc_4D872:              ; CODE XREF: fade2+17j
         mov cx, 10h
         mov dx, 0
         mov di, 611h
 
-loc_4D87B:              ; CODE XREF: sub_4D836+58j
+loc_4D87B:              ; CODE XREF: fade2+58j
         lodsb
         lodsb
         lodsb
@@ -16498,13 +16577,14 @@ loc_4D87B:              ; CODE XREF: sub_4D836+58j
         pop es
         assume es:nothing
 
-loc_4D89E:              ; CODE XREF: sub_4D836+3Aj
+loc_4D89E:              ; CODE XREF: fade2+3Aj
         mov ax, [bp+var_2]
         mov word_510A2, ax
         mov sp, bp
         pop bp
         retn
-sub_4D836   endp
+// fade2   endp
+}
 
 // ; ---------------------------------------------------------------------------
         db  2Eh ; .
@@ -16519,7 +16599,8 @@ sub_4D836   endp
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_4D8B0   proc near       ; CODE XREF: start+2A5p
+void initializeSound() //   proc near       ; CODE XREF: start+2A5p
+{
         push    ds
         xor ax, ax
         mov ds, ax
@@ -16539,7 +16620,8 @@ sub_4D8B0   proc near       ; CODE XREF: start+2A5p
         mov byte_59886, 0
         mov soundEnabled?, 0
         retn
-sub_4D8B0   endp
+// initializeSound   endp
+}
 
 
 ; =============== S U B R O U T I N E =======================================
