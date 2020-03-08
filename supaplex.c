@@ -547,10 +547,10 @@ leaveVideoStatus:           //; CODE XREF: start+28Aj
         ax = 0xA000;
         es = ax;
         // assume es:nothing
-        initializeFadePalette();
+        initializeFadePalette(); // 01ED:026F
         initializeMouse();
         setint8(); // Timer
-        setint24(); // disk??
+        setint24(); // Fatal error handler?
         setint9(); // Keyboard
         initializeSound();
         if (fastMode != 0)
@@ -566,7 +566,7 @@ leaveVideoStatus:           //; CODE XREF: start+28Aj
         fade();
 
 isFastMode:              //; CODE XREF: start+2ADj
-        readMoving();
+        loadMurphySprites();
         initializeVideo3();
         // Conditions to whether show 
         al = byte_59B6B;
@@ -582,7 +582,7 @@ isFastMode:              //; CODE XREF: start+2ADj
 //// ; ---------------------------------------------------------------------------
 
 openingSequence:
-        loadScreen2();
+        loadScreen2();    // 01ED:02B9
         readEverything();
         sub_502CF();
         openCreditsBlock(); // credits inside the block
@@ -663,7 +663,7 @@ isNotFastMode2:              //; CODE XREF: start+373j
         {
             goto loc_46FA5;
         }
-        readMoving();
+        loadMurphySprites();
 
 loc_46FA5:              //; CODE XREF: start+380j
         byte_5A33F = 0;
@@ -992,7 +992,7 @@ loc_4718E:              ; CODE XREF: crt?2+35j
         al = bh
         out dx, al      ; Video: CRT controller internal registers
         call    videoloop
-        call    sub_4D457
+        call    loopForVSync
         add cx, 1
         cmp cx, 90h ; '?'
         jbe short loc_4715F
@@ -1043,7 +1043,7 @@ loc_471DC:              ; CODE XREF: crt?1+21j
         al = bh
         out dx, al      ; Video: CRT controller internal registers
         call    videoloop
-        call    sub_4D457
+        call    loopForVSync
         add cx, 1
         cmp cx, 0C8h ; '?'
         jbe short loc_471C1
@@ -2094,7 +2094,7 @@ loc_47800:              ; CODE XREF: openCreditsBlock+AFj
 loc_47809:              ; CODE XREF: openCreditsBlock+4Cj
         push(cx);
         call    videoloop
-        call    sub_4D457
+        call    loopForVSync
         pop(cx);
         loop    loc_47809
         mov ax, es
@@ -2168,7 +2168,7 @@ loc_47864:              ; CODE XREF: openCreditsBlock+A6j
 loc_47884:              ; CODE XREF: openCreditsBlock+C7j
         push(cx);
         call    videoloop
-        call    sub_4D457
+        call    loopForVSync
         pop(cx);
         loop    loc_47884
         mov bx, 4DD4h
@@ -2409,195 +2409,241 @@ loc_479DC:              ; CODE XREF: loadScreen2+124j
 }
 
 
-; =============== S U B R O U T I N E =======================================
+// ; =============== S U B R O U T I N E =======================================
 
-; Attributes: bp-based frame
+// ; Attributes: bp-based frame
 
-readMoving  proc near       ; CODE XREF: start:isFastModep
-                    ; start+382p ...
+void loadMurphySprites() //  proc near       ; CODE XREF: start:isFastModep
+                    //; start+382p ...
+{
 
-var_6       = word ptr -6
-var_4       = word ptr -4
-var_1       = byte ptr -1
+        int baseDestAddress;      // = word ptr -6
+        int var_4;      // = word ptr -4
+        char var_1;      // = byte ptr -1
 
-        push    bp
-        mov bp, sp
-        add sp, 0FFFAh
+        // push    bp
+        // mov bp, sp
+        // add sp, 0FFFAh
 
-loc_479ED:              ; CODE XREF: readMoving+27j
-        mov ax, 3D00h
-        mov dx, offset aMoving_dat ; "MOVING.DAT"
-        int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-                    ; DS:DX -> ASCIZ filename
-                    ; AL = access mode
-                    ; 0 - read
-        jnb short loc_47A13
-        cmp ax, 2
-        jnz short loc_47A10
-        call    sub_47F39
-        pushf
-        cmp byte_59B86, 0FFh
-        jnz short loc_47A0B
-        popf
-        jmp loc_47AE3
+loc_479ED:              // ; CODE XREF: loadMurphySprites+27j
+        FILE *file = fopen("MOVING.DAT", "r");
+        // mov ax, 3D00h
+        // mov dx, offset aMoving_dat ; "MOVING.DAT"
+        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
+        //             ; DS:DX -> ASCIZ filename
+        //             ; AL = access mode
+        //             ; 0 - read
+        if (file != NULL)
+        {
+            goto loc_47A13;
+        }
+        if (errno != 2) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
+        {
+            goto loc_47A10;
+        }
+        sub_47F39();
+        pushf();
+        if (byte_59B86 != 0FFh)
+        {
+            goto loc_47A0B;
+        }
+        popf();
+        goto loc_47AE3;
 // ; ---------------------------------------------------------------------------
 
-loc_47A0B:              ; CODE XREF: readMoving+1Ej
+loc_47A0B:              ; CODE XREF: loadMurphySprites+1Ej
         popf
         jb  short loc_47A10
         jmp short loc_479ED
 // ; ---------------------------------------------------------------------------
 
-loc_47A10:              ; CODE XREF: readMoving+13j
-                    ; readMoving+25j
+loc_47A10:              ; CODE XREF: loadMurphySprites+13j
+                    ; loadMurphySprites+25j
         jmp exit
 // ; ---------------------------------------------------------------------------
 
-loc_47A13:              ; CODE XREF: readMoving+Ej
-        mov lastFileHandle, ax
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = 0FFh
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 1
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; enable set/reset
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
-        mov ax, 0B72h
-        mov [bp+var_6], ax
-        mov ax, 0
-        mov [bp+var_4], ax
+loc_47A13:              ; CODE XREF: loadMurphySprites+Ej
+        lastFileHandle = file;
+        // mov dx, 3CEh
+        // al = 5
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; mode register.Data bits:
+        //             ; 0-1: Write mode 0-2
+        //             ; 2: test condition
+        //             ; 3: read mode: 1=color compare, 0=direct
+        //             ; 4: 1=use odd/even RAM addressing
+        //             ; 5: 1=use CGA mid-res map (2-bits/pixel)
+        ports[0x3CE] = 5;
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = 0FFh
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0xFF;
+        // mov dx, 3CEh
+        // al = 1
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; enable set/reset
+        ports[0x3CE] = 1;
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
+        baseDestAddress = 0x0B72;
+        
+        for (var_4 = 0; var_4 < 464; ++var_4)
+        {
+        // var_4 = 0;
 
-loc_47A40:              ; CODE XREF: readMoving+BAj
-        al = 0
-        mov [bp+var_1], al
+loc_47A40:              //; CODE XREF: loadMurphySprites+BAj
+            for (var_1 = 0; var_1 < 4; ++var_1)
+            {
+            // var_1 = 0;
 
-loc_47A45:              ; CODE XREF: readMoving+AEj
-        mov ax, 3F00h
-        mov bx, lastFileHandle
-        mov cx, 28h ; '('
-        mov dx, offset fileLevelData
-        int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to read
-                    ; DS:DX -> buffer
-        jnb short loc_47A59
-        jmp exit
+loc_47A45:              //; CODE XREF: loadMurphySprites+AEj
+                // mov ax, 3F00h
+                // mov bx, lastFileHandle
+                // mov cx, 28h ; 40 bytes
+                // mov dx, offset fileLevelData
+                // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+                //             ; BX = file handle, CX = number of bytes to read
+                //             ; DS:DX -> buffer
+                int bytes = fread(&fileLevelData, 1, 40, lastFileHandle);
+                if (bytes > 0)
+                {
+                    goto loc_47A59;
+                }
+                goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_47A59:              ; CODE XREF: readMoving+6Dj
-        mov si, offset fileLevelData
-        mov ax, [bp+var_4]
-        mov bx, 7Ah ; 'z'
-        mul bx
-        mov di, ax
-        add di, [bp+var_6]
+loc_47A59:              //; CODE XREF: loadMurphySprites+6Dj
+                si = &fileLevelData;
+                // ax = var_4;
+                // bx = 0x7A; // 122
+                // ax = ax * bx;
+                di = var_4 * 122;
+                di += baseDestAddress;
 
-loc_47A69:              ; CODE XREF: readMoving+8Cj
-        cmp di, 4D34h
-        jb  short loc_47A75
-        sub di, 4D0Ch
-        jmp short loc_47A69
+loc_47A69:              //; CODE XREF: loadMurphySprites+8Cj
+                while (di >= 19764)
+                {
+                    di -= 0x4D0C; //19724
+                    // goto loc_47A69;
+                }
+                // if (di < 0x4D34) //19764
+                // {
+                //     goto loc_47A75;
+                // }
+                // di -= 0x4D0C;
 // ; ---------------------------------------------------------------------------
 
-loc_47A75:              ; CODE XREF: readMoving+86j
-        mov cl, [bp+var_1]
-        mov ah, 1
-        shl ah, cl
-        mov dx, 3C4h
-        al = 2
-        out dx, al      ; EGA: sequencer address reg
-                    ; map mask: data bits 0-3 enable writes to bit planes 0-3
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: sequencer data register
-        mov cx, 14h
-        rep movsw
-        al = [bp+var_1]
-        al++;
-        mov [bp+var_1], al
-        cmp al, 4
-        jl  short loc_47A45
-        mov ax, [bp+var_4]
-        inc ax
-        mov [bp+var_4], ax
-        cmp ax, 1D0h
-        jl  short loc_47A40
-        mov ax, 3E00h
-        mov bx, lastFileHandle
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-        jnb short loc_47AB1
-        jmp exit
+loc_47A75:              //; CODE XREF: loadMurphySprites+86j
+                cl = var_1;
+                ah = 1;
+                ah = ah << cl;
+                // mov dx, 3C4h
+                // al = 2
+                // out dx, al      ; EGA: sequencer address reg
+                //             ; map mask: data bits 0-3 enable writes to bit planes 0-3
+                ports[0x3C4] = 2;
+                // inc dx
+                // al = ah
+                // out dx, al      ; EGA port: sequencer data register
+                ports[0x3C5] = ah;
+                cx = 0x14; // 20
+                memcpy(di, si, 20); // rep movsw
+                di += 20;
+                si += 20;
+                // var_1++;
+                // if (var_1 < 4)
+                // {
+                //     goto loc_47A45;
+                // }
+            }
+            // var_4++;
+            // if (var_4 < 0x1D0) // 464
+            // {
+            //     goto loc_47A40;
+            // }
+        }
+        if (fclose(lastFileHandle) == 0)
+        {
+            goto loc_47AB1;
+        }
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_47AB1:              ; CODE XREF: readMoving+C5j
-        mov ax, 3D00h
-        mov dx, offset aFixed_dat ; "FIXED.DAT"
-        int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-                    ; DS:DX -> ASCIZ filename
-                    ; AL = access mode
-                    ; 0 - read
-        jnb short loc_47ABE
-        jmp exit
+loc_47AB1:              //; CODE XREF: loadMurphySprites+C5j
+        // mov ax, 3D00h
+        // mov dx, offset aFixed_dat ; "FIXED.DAT"
+        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
+        //             ; DS:DX -> ASCIZ filename
+        //             ; AL = access mode
+        //             ; 0 - read
+        FILE *file = fread("FIXED.DAT", "r");
+        if (file != NULL)
+        {
+            goto loc_47ABE;
+        }
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_47ABE:              ; CODE XREF: readMoving+D2j
-        mov lastFileHandle, ax
-        mov ax, 3F00h
-        mov bx, lastFileHandle
-        mov cx, 1400h
-        mov dx, 3815h
-        int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to read
-                    ; DS:DX -> buffer
-        jnb short loc_47AD5
-        jmp exit
+loc_47ABE:              //; CODE XREF: loadMurphySprites+D2j
+        lastFileHandle = ax
+        // mov ax, 3F00h
+        // mov bx, lastFileHandle
+        // mov cx, 1400h // 5120 bytes
+        // mov dx, fixedDataBuffer // buffer
+        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+        //             ; BX = file handle, CX = number of bytes to read
+        //             ; DS:DX -> buffer
+        int bytes = fread(&fixedDataBuffer, 1, 5120, lastFileHandle);
+        if (bytes > 0)
+        {
+            goto loc_47AD5;
+        }
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_47AD5:              ; CODE XREF: readMoving+E9j
-        mov ax, 3E00h
-        mov bx, lastFileHandle
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-        jnb short loc_47AE3
-        jmp exit
+loc_47AD5:              //; CODE XREF: loadMurphySprites+E9j
+        // mov ax, 3E00h
+        // mov bx, lastFileHandle
+        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
+        //             ; BX = file handle
+        if (fclose(lastFileHandle) == 0)
+        {
+            goto loc_47AE3;
+        }
+        goto exit
 // ; ---------------------------------------------------------------------------
 
-loc_47AE3:              ; CODE XREF: readMoving+21j
-                    ; readMoving+F7j
-        mov dx, 3C4h
-        al = 2
-        out dx, al      ; EGA: sequencer address reg
-                    ; map mask: data bits 0-3 enable writes to bit planes 0-3
-        inc dx
-        al = 0FFh
-        out dx, al      ; EGA port: sequencer data register
-        mov sp, bp
-        pop bp
-        retn
-readMoving  endp
+loc_47AE3:              //; CODE XREF: loadMurphySprites+21j
+                    // ; loadMurphySprites+F7j
+        // mov dx, 3C4h
+        // al = 2
+        // out dx, al      ; EGA: sequencer address reg
+        //             ; map mask: data bits 0-3 enable writes to bit planes 0-3
+        ports[0x3C4] = 2;
+        // inc dx
+        // al = 0FFh
+        // out dx, al      ; EGA port: sequencer data register
+        ports[0x3C5] = 0xFF;
+        // mov sp, bp
+        // pop bp
+        // retn
+// loadMurphySprites  endp
+}
 
 
-; =============== S U B R O U T I N E =======================================
+// ; =============== S U B R O U T I N E =======================================
 
 
 readPanelDat    proc near       ; CODE XREF: readPanelDat+14j
@@ -2795,126 +2841,173 @@ readChars6Dat   endp
 
 void readTitleDatAndGraphics() // proc near  ; CODE XREF: start+2BBp
 {
-        mov bx, 4D84h
-        mov word_51967, bx
-        mov dx, 3D4h
-        al = 0Dh
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (low)
-        inc dx
-        al = bl
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 0Ch
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (high)
-        inc dx
-        al = bh
-        out dx, al      ; Video: CRT controller internal registers
+        // mov bx, 4D84h
+        // mov word_51967, bx
+        word_51967 = 0x4D84;
+        // mov dx, 3D4h
+        // al = 0Dh
+        // out dx, al      ; Video: CRT cntrlr addr
+        //             ; regen start address (low)
+        ports[0x3D4] = 0x0D; // data index (low) 0x0D
+        // inc dx
+        // al = bl
+        // out dx, al      ; Video: CRT controller internal registers
+        ports[0x3D5] = 0x84; // data address (low) 0x84
+        // mov dx, 3D4h
+        // al = 0Ch
+        // out dx, al      ; Video: CRT cntrlr addr
+        //             ; regen start address (high)
+        ports[0x3D4] = 0x0C; // data index (high) 0x0C
+        // inc dx
+        // al = bh
+        // out dx, al      ; Video: CRT controller internal registers
+        ports[0x3D5] = 0x4D; // data address (high) 0x0D
         videoloop();
-        mov byte_510A6, 0
-        mov ax, 3D00h
-        mov dx, offset aTitle_dat ; "TITLE.DAT"
-        int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-                    ; DS:DX -> ASCIZ filename
-                    ; AL = access mode
-                    ; 0 - read
-        jnb short loc_47C18
-        jmp exit
+        byte_510A6 = 0;
+        FILE *file = fopen("TITLE.DAT", "r");
+        // mov ax, 3D00h
+        // mov dx, offset aTitle_dat ; "TITLE.DAT"
+        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
+        //             ; DS:DX -> ASCIZ filename
+        //             ; AL = access mode
+        //             ; 0 - read
+        if (file != NULL)
+        {
+            goto loc_47C18;
+        }
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_47C18:              ; CODE XREF: readTitleDatAndGraphics+2Bj
-        mov lastFileHandle, ax
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 1
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; enable set/reset
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = 0FFh
-        out dx, al      ; EGA port: graphics controller data register
-        mov cx, 0C8h ; '?' // 200
-        mov di, (offset videoStatusUnk+1570h) // di points to some memory address related to video?
+loc_47C18:              // ; CODE XREF: readTitleDatAndGraphics+2Bj
+        lastFileHandle = file;
+        // mov dx, 3CEh
+        // al = 5
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; mode register.Data bits:
+        //             ; 0-1: Write mode 0-2
+        //             ; 2: test condition
+        //             ; 3: read mode: 1=color compare, 0=direct
+        //             ; 4: 1=use odd/even RAM addressing
+        //             ; 5: 1=use CGA mid-res map (2-bits/pixel)
+        ports[0x3CE] = 5; // palette index 5
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0; // write color 0 wtf only 1 component?
+        // mov dx, 3CEh
+        // al = 1
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; enable set/reset
+        ports[0x3CE] = 1; // palette index 1
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0; // write color 0 wtf only 1 component?
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8; // palette index 8
+        // inc dx
+        // al = 0FFh
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0xFF; // write color 0xFF wtf only 1 component?
+        cx = 0xC8; // 200
+        di = 0x4D84; // di points to some memory address related to video? is this a frame buffer?
 
-loc_47C3F:              ; CODE XREF: readTitleDatAndGraphics+8Ej
-        push(cx);
-        // read 160 bytes from title.dat
-        mov ax, 3F00h
-        mov bx, lastFileHandle
-        mov cx, 0A0h ; '?'
-        mov dx, offset fileLevelData
-        int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to read
-                    ; DS:DX -> buffer
-        jnb short loc_47C54
-        jmp exit
+        for (int j = 0; j < 200; j++)
+        {
+loc_47C3F:              //; CODE XREF: readTitleDatAndGraphics+8Ej
+            push(cx);
+            // read 160 bytes from title.dat
+            int bytesRead = fread(&fileLevelData, 1, 160, lastFileHandle);
+            // mov ax, 3F00h
+            // mov bx, lastFileHandle
+            // cx = 0xA0; // 160
+            // mov dx, offset fileLevelData
+            // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+            //             ; BX = file handle, CX = number of bytes to read
+            //             ; DS:DX -> buffer
+            if (bytesRead != 0)
+            {
+                goto loc_47C54;
+            }
+            goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_47C54:              ; CODE XREF: readTitleDatAndGraphics+67j
-        mov si, offset fileLevelData
-        mov ah, 1
+loc_47C54:             // ; CODE XREF: readTitleDatAndGraphics+67j
+            si = &fileLevelData;
+            ah = 1;
 
+            for (int i = 0; i < 4; ++i)
+            {
+                ports[0x3C4] = 2; // sequencer index 2
+                ports[0x3C5] = ah; // sequencer value whatever is ah (takes 0x1, 0x2, 0x4 and 0x8)
+                memcpy(di, si, 40);
+                si += 40;
+                ah = ah << 1;
+            }
+
+/*        
 // iterates 4 times: with ah taking values 0x1, 0x2, 0x4, 0x8
 loc_47C59:              ; CODE XREF: readTitleDatAndGraphics+88j
-        mov dx, 3C4h
-        al = 2
-        out dx, al      ; EGA: sequencer address reg
-                    ; map mask: data bits 0-3 enable writes to bit planes 0-3
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: sequencer data register
-        mov cx, 28h // ; '('   40
-        rep movsb // this copies the first 28 bytes of the string in si to di (so from fileLevelData to di)
-        sub di, 28h ; '(' // makes di point to the beginning of the data again
-        shl ah, 1
-        test    ah, 0Fh
-        jnz short loc_47C59
-        add di, 7Ah // ; 'z'  122
-        pop(cx);
-        loop    loc_47C3F
-        mov ax, 3E00h
-        mov bx, lastFileHandle
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-        jnb short loc_47C86
-        jmp exit
+            // mov dx, 3C4h
+            // al = 2
+            // out dx, al      ; EGA: sequencer address reg
+            //             ; map mask: data bits 0-3 enable writes to bit planes 0-3
+            ports[0x3C4] = 2; // sequencer index 2
+            // inc dx
+            // al = ah
+            // out dx, al      ; EGA port: sequencer data register
+            ports[0x3C5] = ah; // sequencer value whatever is ah (takes 0x1, 0x2, 0x4 and 0x8)
+            cx = 40;
+            memcpy(di, si, 40);
+            si += 40;
+            // rep movsb // this copies the first 40 bytes of the string in si to di (so from fileLevelData to di)
+            // sub di, 28h ; '(' // makes di point to the beginning of the data again
+            ah = ah << 1;
+            if (ah > 0xF)
+            {
+                goto loc_47C59;
+            }
+    */
+            di += 122;
+            // pop(cx);
+            // cx--;
+            // if (cx > 0)
+            // {
+            //     goto loc_47C3F;
+            // }
+        }
+        
+        if (fclose(lastFileHandle) == 0)
+        {
+            goto loc_47C86;
+        }
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_47C86:              ; CODE XREF: readTitleDatAndGraphics+99j
-        mov dx, 3C4h
-        al = 2
-        out dx, al      ; EGA: sequencer address reg
-                    ; map mask: data bits 0-3 enable writes to bit planes 0-3
-        inc dx
-        al = 0Fh
-        out dx, al      ; EGA port: sequencer data register
-        mov dx, 3CEh
-        al = 1
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; enable set/reset
-        inc dx
-        al = 0Fh
-        out dx, al      ; EGA port: graphics controller data register
-        retn
+loc_47C86:              //; CODE XREF: readTitleDatAndGraphics+99j
+        // mov dx, 3C4h
+        // al = 2
+        // out dx, al      ; EGA: sequencer address reg
+        //             ; map mask: data bits 0-3 enable writes to bit planes 0-3
+        ports[0x3C4] = 2; // sequencer index 2
+        // inc dx
+        // al = 0Fh
+        // out dx, al      ; EGA port: sequencer data register
+        ports[0x3C5] = 0xF; // sequencer value 0xF
+        // mov dx, 3CEh
+        // al = 1
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; enable set/reset
+        ports[0x3CE] = 1; // palette index 1
+        // inc dx
+        // al = 0Fh
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0xF; // palette value 0xF
+        // retn
 // readTitleDatAndGraphics endp
 }
 
@@ -3318,7 +3411,7 @@ loc_47EC6:              ; CODE XREF: sub_47E98+57j
         dec cx
         push(cx);
         call    videoloop
-        call    sub_4D457
+        call    loopForVSync
         pop(cx);
         push(cx);
         cmp cx, 0
@@ -3385,7 +3478,7 @@ sub_47E98   endp
 
 
 sub_47F39   proc near       ; CODE XREF: readPallettes+Fp
-                    ; readMoving+15p ...
+                    ; loadMurphySprites+15p ...
         call    enableFloppy?
         mov si, 60D5h
         call    fade2
@@ -5343,7 +5436,7 @@ loc_48D38:              ; CODE XREF: runLevel+20Ej
         al = bh
         out dx, al      ; Video: CRT controller internal registers
         call    videoloop
-        call    sub_4D457
+        call    loopForVSync
         dec cx
         jz  short loc_48D58
         jmp loc_48CBE
@@ -5407,7 +5500,7 @@ loc_48DB6:              ; CODE XREF: runLevel+310j
         jz  short loc_48DCD
         cmp fastMode, 1
         jz  short isFastMode3
-        call    sub_4D457
+        call    loopForVSync
         call    videoloop
 
 isFastMode3:              ; CODE XREF: runLevel+303j
@@ -5855,7 +5948,7 @@ loc_490B1:              ; CODE XREF: sub_48F6D+140j
         xor ah, ah
         shl ax, 1
         mov si, ax
-        add si, 3815h
+        add si, fixedDataBuffer
         push(cx);
         mov cx, 10h
 
@@ -10284,7 +10377,7 @@ loc_4AFAA:              ; CODE XREF: sub_4AF0C+A3j
 
 loc_4AFB6:              ; CODE XREF: sub_4AF0C+B9j
         call    videoloop
-        call    sub_4D457
+        call    loopForVSync
         inc byte_59B94
         cmp byte_59B96, 32h ; '2'
         jb  short loc_4AFB6
@@ -11144,7 +11237,7 @@ loc_4B62A:              ; CODE XREF: sub_4B419+1E3j
                     ; DL = new default drive number (0 = A, 1 = B, etc.)
                     ; Return: AL = number of logical drives
         mov byte_59B86, 0
-        call    readMoving
+        call    loadMurphySprites
         cmp byte_59B86, 0FFh
         jnz short loc_4B647
 
@@ -13316,7 +13409,7 @@ loc_4C44F:              ; CODE XREF: sub_4B149+9p
         call    sub_4C34A
         call    sub_4C2F2
         call    videoloop
-        call    sub_4D457
+        call    loopForVSync
         mov bx, 4D83h
 
 loc_4C466:              ; CODE XREF: sub_4C407+90j
@@ -13336,10 +13429,10 @@ loc_4C466:              ; CODE XREF: sub_4C407+90j
         out dx, al      ; Video: CRT controller internal registers
         mov byte_510A6, 7
         call    videoloop
-        call    sub_4D457
+        call    loopForVSync
         mov byte_510A6, 3
         call    videoloop
-        call    sub_4D457
+        call    loopForVSync
         sub bx, 1
         cmp bx, 4D5Ch
         jnb short loc_4C466
@@ -13403,7 +13496,7 @@ loc_4C4CF:              ; CODE XREF: sub_4C4BD+1Ej
         al = bh
         out dx, al      ; Video: CRT controller internal registers
         call    videoloop
-        call    sub_4D457
+        call    loopForVSync
         retn
 sub_4C4BD   endp
 
@@ -13525,10 +13618,10 @@ loc_4C5BA:              ; CODE XREF: sub_4C5AF+3Cj
         out dx, al      ; Video: CRT controller internal registers
         mov byte_510A6, 1
         call    videoloop
-        call    sub_4D457
+        call    loopForVSync
         mov byte_510A6, 5
         call    videoloop
-        call    sub_4D457
+        call    loopForVSync
         add bx, 1
         cmp bx, 4D84h
         jb  short loc_4C5BA
@@ -15455,7 +15548,28 @@ void checkVideo() //  proc near       ; CODE XREF: start+282p
         // int 10h     ; - VIDEO - SET VIDEO MODE
         //             ; AL = mode
     bx = 0;
-    cx = 0x100;
+    
+    /*
+    // The code below is something like this? Is trying to set different values to the same palette
+    // index and then checking if the value was correctly stored??
+    for (int i = 256; i > 0; ++i)
+    {
+        set_palette_color(8, i);
+        if (get_palette_color(8) != i)
+        {
+            bx++;
+        }
+    }
+    if (bx != 0)
+    {
+        videoStatusUnk = 2;
+    }
+    else
+    {
+        videoStatusUnk = 1;
+    }
+    */
+    cx = 0x100; // 256
 
 videoCheckStart:            // ; CODE XREF: checkVideo:checkAgainj
     dx = 0x3CE; // This is a VGA port
@@ -15508,6 +15622,12 @@ void initializeFadePalette() //   proc near       ; CODE XREF: start+296p
             goto loc_4D2DA;
         }
         cx = 0x10;
+        
+        // grayscale palette?
+        for (int i = 16; i > 0; i--)
+        {
+            set_palette_register(i-1, i-1); // (number of register, value)
+        }
 
 loc_4D2C9:              //; CODE XREF: initializeFadePalette+17j
         push(cx);
@@ -15721,7 +15841,7 @@ void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
         push    ax
         cmp byte ptr dword_59B67, 0
         jnz short waitForVsync
-        mov dx, 3DAh
+        mov dx, 3DAh // check http://stanislavs.org/helppc/6845.html
         cli
         in  al, dx      ; Video status bits:
                     ; 0: retrace.  1=display is in vert or horiz retrace.
@@ -15796,11 +15916,13 @@ loc_4D453:              ; CODE XREF: videoloop+1Dj
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_4D457   proc near       ; CODE XREF: crt?2+55p crt?1+41p ...
+void loopForVSync() //   proc near       ; CODE XREF: crt?2+55p crt?1+41p ...
+{
+    /*
         push    dx
         push    ax
 
-loc_4D459:              ; CODE XREF: sub_4D457+8j
+loc_4D459:              ; CODE XREF: loopForVSync+8j
         mov dx, 3DAh
         in  al, dx      ; Video status bits:
                     ; 0: retrace.  1=display is in vert or horiz retrace.
@@ -15812,7 +15934,9 @@ loc_4D459:              ; CODE XREF: sub_4D457+8j
         pop ax
         pop dx
         retn
-sub_4D457   endp
+        */
+// loopForVSync   endp
+}
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -15949,48 +16073,58 @@ sub_4D464   endp
 
 void initializeVideo3() //   proc near       ; CODE XREF: start+2B2p start+2C7p
 {
-        mov dx, 3CEh
-        al = 1
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; enable set/reset
-        inc dx
-        al = 0Fh
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 1
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3C4h
-        al = 2
-        out dx, al      ; EGA: sequencer address reg
-                    ; map mask: data bits 0-3 enable writes to bit planes 0-3
-        inc dx
-        al = 0Fh
-        out dx, al      ; EGA port: sequencer data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = 0FFh
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3D4h
-        al = 13h
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; vertical displayed adjustment
-        inc dx
-        al = 3Dh ; '='
-        out dx, al      ; Video: CRT controller internal registers
-        retn
+        // mov dx, 3CEh
+        // al = 1
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; enable set/reset
+        ports[0x3CE] = 1; // palette index 1
+        // inc dx
+        // al = 0Fh
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0x0F; // write color 0x0F wtf only 1 component?
+        // mov dx, 3CEh
+        // al = 5
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; mode register.Data bits:
+        //             ; 0-1: Write mode 0-2
+        //             ; 2: test condition
+        //             ; 3: read mode: 1=color compare, 0=direct
+        //             ; 4: 1=use odd/even RAM addressing
+        //             ; 5: 1=use CGA mid-res map (2-bits/pixel)
+        ports[0x3CE] = 5; // palette index 5
+        // inc dx
+        // al = 1
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0x1; // write color 0x1 wtf only 1 component?
+        // mov dx, 3C4h
+        // al = 2
+        // out dx, al      ; EGA: sequencer address reg
+        //             ; map mask: data bits 0-3 enable writes to bit planes 0-3
+        ports[0x3CE] = 2; // palette index 2
+        // inc dx
+        // al = 0Fh
+        // out dx, al      ; EGA port: sequencer data register
+        ports[0x3CF] = 0x0F; // write color 0x0F wtf only 1 component?
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8; // palette index 8
+        // inc dx
+        // al = 0FFh
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0xFF; // write color 0xFF wtf only 1 component?
+        // mov dx, 3D4h
+        // al = 13h
+        // out dx, al      ; Video: CRT cntrlr addr
+        //             ; vertical displayed adjustment
+        ports[0x3D4] = 0x13; // palette index 0x13 CAUTION THIS IS A DIFFERENT REGISTER/PORT
+        // inc dx
+        // al = 3Dh ; '='
+        // out dx, al      ; Video: CRT controller internal registers
+        ports[0x3D5] = 0x3D; // write color 0x3D wtf only 1 component? CAUTION THIS IS A DIFFERENT REGISTER/PORT
+        // retn
 // initializeVideo3   endp
 }
 
@@ -16000,45 +16134,53 @@ void initializeVideo3() //   proc near       ; CODE XREF: start+2B2p start+2C7
 
 void initializeVideo2() //   proc near       ; CODE XREF: start+2AFp
 {
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 0
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; set/reset.
-                    ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 1
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; enable set/reset
-        inc dx
-        al = 0Fh
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = 0FFh
-        out dx, al      ; EGA port: graphics controller data register
-        mov cx, 0FFFFh
-        mov di, 0
-        rep stosb
-        retn
+        ports[0x3CE] = 5; // Palette index starting at 5?
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; mode register.Data bits:
+        //             ; 0-1: Write mode 0-2
+        //             ; 2: test condition
+        //             ; 3: read mode: 1=color compare, 0=direct
+        //             ; 4: 1=use odd/even RAM addressing
+        //             ; 5: 1=use CGA mid-res map (2-bits/pixel)
+        // inc dx
+        ports[0x3CF] = 0; // write a 0 at position 5 wtf only 1 component?
+        // out dx, al      ; EGA port: graphics controller data register
+        // mov dx, 3CEh
+        // al = 0
+        ports[0x3CE] = 0; // Palette index starting at 0
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; set/reset.
+        //             ; Data bits 0-3 select planes for write mode 00
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0; // write a 0 at position 0 wtf only 1 component?
+        // mov dx, 3CEh
+        // al = 1
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; enable set/reset
+        ports[0x3CE] = 1; // Palette index starting at 1
+        // inc dx
+        // al = 0Fh
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0x0F; // write a 0x0F at position 1 wtf only 1 component?
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8; // Palette index starting at 8
+        // inc dx
+        // al = 0FFh
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0xFF; // write a 0xFF at position 8 wtf only 1 component?
+        cx = 0xFFFF;
+        di = 0;
+        
+        memset(di, 0xFF, 0xFFFF);
+        // mov di, 0
+        // rep stosb // fill DI with 0xFFFF bytes with value 0xFF
+        // retn
 // initializeVideo2   endp
 }
 
@@ -16305,10 +16447,10 @@ readLevels  endp
 void fade() //        proc near       ; CODE XREF: start+2C1p start+312p ...
 {
 
-var_8       = word ptr -8
-var_6       = word ptr -6
-var_4       = word ptr -4
-var_2       = word ptr -2
+        int var_8;
+        int var_6;
+        int remainingSteps;
+        int var_2;
 
         push(bp);
         bp = sp;
@@ -16331,37 +16473,54 @@ loc_4D706:              //; CODE XREF: fade+Cj
         ax = ds;
         es = ax;
         // assume es:data
-        ax = word_510A2;
-        [bp+var_8] = ax;
+        old_word_510A2 = word_510A2;
         word_510A2 = 0;
-        cx = 0x40; // '@'
+        cx = 0x40; // '@'   64
         di = &fileLevelData;
-
+        
+        // reads 64 values from si, divides them by 4, stores them in si
+        // is this a palette? why dividing it by 4?
+        for (int i = 0; i < 64; ++i)
+        {
+            di[i] = si[i] / 4;
+        }
+/*
 loc_4D71D:              //; CODE XREF: fade+33j
-        lodsb
-        al = al << 1;
-        al = al << 1;
-        stosb
+        al = ds:[si];
+        si++;
+        al = al / 4;
+        ds:[di] = al;
+        di++;
         cx--;
         if (cx > 0)
         {
             goto loc_4D71D;
         }
-        dx = 0x3C7;
-        al = 0;
-        // out dx, al
-        dx = 0x3C9;
-        di = 0x6115;
-        cx = 0x10;
+*/
+        ports[0x3C7] = 0; // sets the palette index to read to 0 (first color?)
 
+        dx = 0x3C9; // This is where the bytes will be read from
+        di = 0x6115; // What's this exactly?
+        cx = 0x10; // 16 colors?
+        
+        // Writes the palette somewhere? where is di pointing to?
+        for (int i = 0; i < 16; ++i)
+        {
+            di[0] = get_palette_color(i * 3, 'r');
+            di[1] = get_palette_color(i * 3, 'g');
+            di[2] = get_palette_color(i * 3, 'b');
+            di += 3;
+            di += 1; // no idea why this extra add?? alpha color? LOL
+        }
+/*
 loc_4D734:              // ; CODE XREF: fade+51j
-        // in  al, dx
+        al = ports[dx]; // r
         *di = al;
         di++;
-        // in  al, dx
+        al = ports[dx]; // g
         *di = al;
         di++;
-        // in  al, dx
+        al = ports[dx]; // b
         *di = al;
         di++;
         di++;
@@ -16369,101 +16528,84 @@ loc_4D734:              // ; CODE XREF: fade+51j
         if (cx > 0)
         {
             goto loc_4D734;
-        }
-        ax = 0;
-        [bp+var_2] = ax;
-        ax = 0x3F; // '?'
-        [bp+var_4] = ax;
+        }*/
+        currentStep = 0;
+        remainingSteps = 0x3F; // 63 remainingSteps to perform fade?
 
 loc_4D74F:              //; CODE XREF: fade+134j
-        dx = 0x3C8;
-        al = 0;
-        // out dx, al
-        cx = 0x10;
-        si = &fileLevelData;
-        di = 0x6115;
+        ports[0x3C8] = 0; // we're gonna start writing colors in the palette starting from 0
+        cx = 0x10; // 16 colors
+        si = &fileLevelData; // why
+        di = 0x6115; // Point back to where we saved the previous palette
+        
+        dest_palette = &fileLevelData;
+        source_palette = 0x6115;
+        
+        int totalSteps = 63;
+        
+        for (int step = 0; step < totalSteps; ++step)
+        {
+            int remainingSteps = totalSteps - step;
 
+            for (int i = 0; i < 16; ++i);
+            {
+                int r = (dest_palette[i].r * step / 64) + (source_palette[i].r * remainingSteps / 64);
+                int g = (dest_palette[i].g * step / 64) + (source_palette[i].g * remainingSteps / 64);
+                int b = (dest_palette[i].b * step / 64) + (source_palette[i].b * remainingSteps / 64);
+                
+                set_palette_color(i, 'r', r);
+                set_palette_color(i, 'g', g);
+                set_palette_color(i, 'b', b);
+            }
+            
+            videoloop();
+            loopForVSync();
+        }
+
+/*
 loc_4D75E:              //; CODE XREF: fade+115j
-        al = [si];
+        al = [si]; // value from palette level?
         ah = 0;
-        bx = [bp+var_2];
-        ax = ax * bx;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        mov [bp+var_6], ax
+        ax = ax * currentStep;
+        ax = ax / 64;
+        var_6 = ax;
         al = [di]
         ah = 0;
-        bx = [bp+var_4];
-        ax = ax * bx;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        ax += [bp+var_6];
+        ax = ax * remainingSteps;
+        ax = ax / 64;
+        ax += var_6;
+        color = (source * current / 64) + (dest * remaining / 64);
         di++;
         si++;
-        dx = 0x3C9;
-        // out dx, al
+        ports[0x3C9] = al; // r
         al = [si];
         ah = 0;
-        bx = [bp+var_2];
-        ax = ax * bx;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        [bp+var_6] = ax;
+        ax = ax * currentStep;
+        ax = ax / 64;
+        var_6 = ax;
         al = [di];
         ah = 0;
-        bx = [bp+var_4];
-        ax = ax * bx;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        add ax, [bp+var_6]
-        inc di
-        inc si
-        mov dx, 3C9h
-        out dx, al
+        ax = ax * remainingSteps;
+        ax = ax / 64;
+        add ax, var_6
+        di++;
+        si++;
+        ports[0x3C9] = al; // g
         al = [si]
-        xor ah, ah
-        mov bx, [bp+var_2]
-        ax = ax * bx;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        mov [bp+var_6], ax
-        al = [di]
-        xor ah, ah
-        mov bx, [bp+var_4]
-        ax = ax * bx;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        ax = ax >> 1;
-        ax += [bp+var_6];
+        ah = 0;
+        ax = ax * currentStep;
+        ax = ax / 64;
+        var_6 = ax;
+        al = [di];
+        ah = 0;
+        ax = ax * remainingSteps;
+        ax = ax / 64;
+        ax += var_6;
         di++;
         si++;
-        dx = 0x3C9;
-        // out dx, al
+        ports[0x3C9] = al; // b
         si++;
-        di++;
+        di++; // why the extra add? wtf? alpha??
         cx--;
         if (cx == 0)
         {
@@ -16478,30 +16620,23 @@ loc_4D808:              //; CODE XREF: fade+113j
             goto isFastMode4;
         }
         videoloop();
-        sub_4D457();
+        loopForVSync();
 
 isFastMode4:              //; CODE XREF: fade+11Dj
-        [bp+var_4]--;
-        ax = [bp+var_2];
-        ax++;
-        [bp+var_2] = ax;
-        if (ax > 0x3F) // '?'
+        remainingSteps--;
+        currentStep++;
+        if (currentStep > 0x3F) // 63
         {
             goto loc_4D827;
         }
         goto loc_4D74F;
+*/
 // ; ---------------------------------------------------------------------------
 
 loc_4D827:              //; CODE XREF: fade+132j
         pop(si);
         fade2();
-        ax = [bp+var_8];
-        word_510A2 = ax;
-        pop(es);
-        // assume es:nothing
-        sp = bp;
-        pop(bp);
-        // retn
+        word_510A2 = old_word_510A2;
 }
 
 
@@ -16513,42 +16648,57 @@ void fade2() //   proc near       ; CODE XREF: start+2B8p
                    // ; loadScreen2+B5p ...
 {
 
-var_2       = word ptr -2
+int old_word_510A2; //       = word ptr -2
 
-        push    bp
-        mov bp, sp
-        add sp, 0FFFEh
-        mov ax, word_510A2
-        mov [bp+var_2], ax
-        mov word_510A2, 0
-        cmp videoStatusUnk, 1
-        jnz short loc_4D872
-        mov cx, 10h
-        mov dx, 3C8h
-        al = 0
-        out dx, al
-        mov dx, 3C9h
-
-loc_4D85B:              ; CODE XREF: fade2+38j
-        lodsb
-        shl al, 1
-        shl al, 1
-        out dx, al
-        lodsb
-        shl al, 1
-        shl al, 1
-        out dx, al
-        lodsb
-        shl al, 1
-        shl al, 1
-        out dx, al
-        lodsb
-        loop    loc_4D85B
-        jmp short loc_4D89E
+        push(bp);
+        bp = sp;
+        sp += 0xFFFE;
+        old_word_510A2 = word_510A2;
+        word_510A2 = 0;
+        if (videoStatusUnk != 1) // not gonna happen
+        {
+            goto loc_4D872;
+        }
+        cx = 0x10; // 16 colors?
+        ports[0x3C8] = 0; // start writing palette from index 0
+        dx = 0x3C9;
+        
+        for (int i = 0; i < 16; ++i)
+        {
+            set_palette_color(i, 'r', si[i].r * 4);
+            set_palette_color(i, 'g', si[i].g * 4);
+            set_palette_color(i, 'b', si[i].b * 4);
+        }
+/*
+loc_4D85B:              //; CODE XREF: fade2+38j
+        lodsb // loads from DS:SI into AL
+        al = ds:[si];
+        di++;
+        al = al * 4;
+        ports[0x3C9] = al; // r
+        al = ds:[si];
+        di++;
+        al = al * 4;
+        ports[0x3C9] = al; // g
+        al = ds:[si];
+        di++;
+        al = al * 4;
+        ports[0x3C9] = al; // b
+        al = ds:[si]; // This extra is the usual, not used, just wtf is the alpha or what :lol:
+        di++;
+        cx--;
+        if (cx > 0)
+        {
+            goto loc_4D85B;
+        }
+        goto loc_4D89E;
+        */
 // ; ---------------------------------------------------------------------------
 
+/*
+// This only happens if videoStatusUnk is different than 1, which should never happen
 loc_4D872:              ; CODE XREF: fade2+17j
-        mov cx, 10h
+        mov cx, 10h // 16 colors
         mov dx, 0
         mov di, 611h
 
@@ -16576,16 +16726,13 @@ loc_4D87B:              ; CODE XREF: fade2+58j
                     ; ES:DX -> 17-byte palette register list
         pop es
         assume es:nothing
+*/
 
-loc_4D89E:              ; CODE XREF: fade2+3Aj
-        mov ax, [bp+var_2]
-        mov word_510A2, ax
-        mov sp, bp
-        pop bp
-        retn
+loc_4D89E:              //; CODE XREF: fade2+3Aj
+        word_510A2 = old_word_510A2;
 // fade2   endp
 }
-
+/*
 // ; ---------------------------------------------------------------------------
         db  2Eh ; .
         db  8Bh ; ?
@@ -16598,28 +16745,26 @@ loc_4D89E:              ; CODE XREF: fade2+3Aj
 
 ; =============== S U B R O U T I N E =======================================
 
-
+*/
 void initializeSound() //   proc near       ; CODE XREF: start+2A5p
 {
-        push    ds
-        xor ax, ax
-        mov ds, ax
-        assume ds:nothing
-        mov bx, 200h
-        mov [bx], ax
-        mov ax, seg soundseg
-        mov [bx+2], ax
-        xor ax, ax
-        mov bx, 204h
-        mov [bx], ax
-        mov ax, seg sound2seg
-        mov [bx+2], ax
-        pop ds
-        assume ds:data
-        mov byte_59885, 0
-        mov byte_59886, 0
-        mov soundEnabled?, 0
-        retn
+        push(ds)
+        ax = 0;
+        ds = ax;
+        // assume ds:nothing
+        bx = 0x200; // 512
+        [bx] = ax;
+        ax = seg soundseg;
+        [bx + 2] = ax;
+        ax = 0;
+        bx = 0x204; // 516
+        [bx] = ax;
+        ax = seg sound2seg;
+        [bx + 2] = ax;
+        pop(ds);
+        // assume ds:data
+        byte_59885 = 0;
+        soundEnabled? = 0;
 // initializeSound   endp
 }
 
