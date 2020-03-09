@@ -585,8 +585,8 @@ openingSequence:
         loadScreen2();    // 01ED:02B9
         readEverything();
         sub_502CF();
-        openCreditsBlock(); // credits inside the block
-        showNewCredits();   // credits below the block (herman perk and elmer productions)
+        openCreditsBlock(); // credits inside the block // 01ED:02C2
+        showNewCredits();   // credits below the block (herman perk and elmer productions) // 01ED:02C5
 
 afterOpeningSequence:              //; CODE XREF: start+2DEj
         readConfig();
@@ -2112,163 +2112,233 @@ locret_477C4:             //  ; CODE XREF: readPalettes+39j
 }
 
 
-; =============== S U B R O U T I N E =======================================
+// ; =============== S U B R O U T I N E =======================================
 
-; Attributes: bp-based frame
+// ; Attributes: bp-based frame
 
-openCreditsBlock proc near      ; CODE XREF: start+2E9p
+void openCreditsBlock() // proc near      ; CODE XREF: start+2E9p
+{
 
-var_6       = word ptr -6
-var_4       = word ptr -4
-var_2       = word ptr -2
+    int var_6; //       = word ptr -6
+    int var_4; //       = word ptr -4
+    int var_2; //       = word ptr -2
 
-        push    bp
-        mov bp, sp
-        add sp, 0FFFAh
-        push    ds
-        mov ax, ds
-        mov [bp+var_6], ax
-        mov ax, es
-        mov ds, ax
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 1
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3C4h
-        al = 2
-        out dx, al      ; EGA: sequencer address reg
-                    ; map mask: data bits 0-3 enable writes to bit planes 0-3
-        inc dx
-        al = 0Fh
-        out dx, al      ; EGA port: sequencer data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
-        mov [bp+var_2], 5A23h
-        mov [bp+var_4], 5A24h
-        mov dx, 0Fh
+    push(bp);
+    bp = sp;
+    sp += 0xFFFA;
+    push(ds);
+    ax = ds;
+    var_6 = ax;
+    ax = es;
+    ds = ax;
+    // mov dx, 3CEh
+    // al = 5
+    // out dx, al      ; EGA: graph 1 and 2 addr reg:
+    //             ; mode register.Data bits:
+    //             ; 0-1: Write mode 0-2
+    //             ; 2: test condition
+    //             ; 3: read mode: 1=color compare, 0=direct
+    //             ; 4: 1=use odd/even RAM addressing
+    //             ; 5: 1=use CGA mid-res map (2-bits/pixel)
+    ports[0x3CE] = 5;
+    // inc dx
+    // al = 1
+    // out dx, al      ; EGA port: graphics controller data register
+    ports[0x3CF] = 1; // setting write mode 1: In write mode 1 the contents of the latch registers are first loaded by performing a read operation, then copied directly onto the color maps by performing a write operation. This mode is often used in moving areas of memory.
+    // mov dx, 3C4h
+    // al = 2
+    // out dx, al      ; EGA: sequencer address reg
+    //             ; map mask: data bits 0-3 enable writes to bit planes 0-3
+    ports[0x3C4] = 2;
+    // inc dx
+    // al = 0Fh
+    // out dx, al      ; EGA port: sequencer data register
+    ports[0x3C5] = 0xF; // enables writing all planes
+    // mov dx, 3CEh
+    // al = 8
+    // out dx, al      ; EGA: graph 1 and 2 addr reg:
+    //             ; bit mask
+    //             ; Bits 0-7 select bits to be masked in all planes
+    ports[0x3CE] = 8;
+    // inc dx
+    // al = 0
+    // out dx, al      ; EGA port: graphics controller data register
+    ports[0x3CF] = 0; // unprotect all bits
+    var_2 = 0x5A23; // 23075 // are these coordinates? 23075 in 320x200x16colors would be coordinate (35, 144)
+    var_4 = 0x5A24; // 23076 // are these coordinates? 23075 in 320x200x16colors would be coordinate (36, 144)
+    dx = 0xF; // 15 number of frames in the animation
 
-loc_47800:              ; CODE XREF: openCreditsBlock+AFj
-        push    dx
-        mov ax, [bp+var_6]
-        mov ds, ax
-        mov cx, 2
+    for (int j = 0; j < 15; ++j)
+    {
+loc_47800:             // ; CODE XREF: openCreditsBlock+AFj
+        // push(dx);
+        ax = var_6;
+        ds = ax;
+        cx = 2;
 
-loc_47809:              ; CODE XREF: openCreditsBlock+4Cj
+        // Renders the screen twice (to remove some weird artifacts?)
+        for (int i = 0; i < 2; ++i)
+        {
+    // loc_47809:     //         ; CODE XREF: openCreditsBlock+4Cj
+            push(cx);
+            videoloop();
+            loopForVSync();
+            pop(cx);
+            // cx--;
+            // if (cx > 0)
+            // {
+            //     goto loc_47809;
+            // }
+        }
+        ax = es;
+        ds = ax;
+        pop(dx);
+        cx = 0x94; //148
+        si = var_2;
+        si--;
+        di = si;
+        di--;
+
+        for (int i = 0; i < 148; ++i)
+        {
+loc_47822:             // ; CODE XREF: openCreditsBlock+65j
+            *di = *si;
+            di++; si++;
+            *di = *si;
+            di++; si++;
+            si += 0x78; //120 // this would be 240 pixels?
+            di += 0x78; //120
+            // cx--;
+            // if (cx > 0)
+            // {
+            //     goto loc_47822;
+            // }
+        }
+        cx = 0x94; // 148
+        si = var_2;
+        di = si;
+        si += 40;
+
+        for (int i = 0; i < 148; ++i)
+        {
+loc_47837:             // ; CODE XREF: openCreditsBlock+79j
+            *di = *si;
+            di++; si++;
+            si += 0x79; // 121 // this would be 240 pixels?
+            di += 0x79; // 121
+            // cx--;
+            // if (cx > 0)
+            // {
+            //     goto loc_47837;
+            // }
+        }
+        std(); // store direction flag :shrug:
+        cx = 0x94; // 148;
+        si = var_4;
+        si += 0x4689; // 18057
+        di = si;
+        di++;
+
+        for (int i = 0; i < 148; ++i)
+        {
+loc_4784E:             // ; CODE XREF: openCreditsBlock+91j
+            *di = *si;
+            di--; si--;
+            *di = *si;
+            di--; si--;
+            si -= 0x78; // 120 // this would be 240 pixels?
+            di -= 0x78; // 120
+            // cx--;
+            // if (cx > 0)
+            // {
+            //     goto loc_4784E;
+            // }
+        }
+        cld() // clear direction flag :shrug:
+        
+        cx = 0x94; // 148
+        si = var_4;
+        di = si;
+        si += 0x28; // 40
+
+        for (int i = 0; i < 148; ++i)
+        {
+loc_47864:             // ; CODE XREF: openCreditsBlock+A6j
+            *di = *si;
+            di++; si++;
+            si += 0x79; // 121 // this would be 240 pixels?
+            di += 0x79; // 121
+            // cx--;
+            // if (cx > 0)
+            // {
+            //     goto loc_47864;
+            // }
+        }
+        var_2--;
+        var_4++;
+        // dx--;
+        // if (dx != 0)
+        // {
+        //     goto loc_47800;
+        // }
+    }
+    // mov dx, 3CEh
+    // al = 5
+    // out dx, al      ; EGA: graph 1 and 2 addr reg:
+    //             ; mode register.Data bits:
+    //             ; 0-1: Write mode 0-2
+    //             ; 2: test condition
+    //             ; 3: read mode: 1=color compare, 0=direct
+    //             ; 4: 1=use odd/even RAM addressing
+    //             ; 5: 1=use CGA mid-res map (2-bits/pixel)
+    ports[0x3CE] = 5;
+    // inc dx
+    // al = 1
+    // out dx, al      ; EGA port: graphics controller data register
+    ports[0x3CF] = 1; // write mode 1
+    pop(ds);
+    cx = 1;
+
+    for (int i = 0; i < 1; ++i)
+    {
+loc_47884:             // ; CODE XREF: openCreditsBlock+C7j
         push(cx);
-        call    videoloop
-        call    loopForVSync
+        videoloop();
+        loopForVSync();
         pop(cx);
-        loop    loc_47809
-        mov ax, es
-        mov ds, ax
-        pop dx
-        mov cx, 94h ; '?'
-        mov si, [bp+var_2]
-        dec si
-        mov di, si
-        dec di
-
-loc_47822:              ; CODE XREF: openCreditsBlock+65j
-        movsb
-        movsb
-        add si, 78h ; 'x'
-        add di, 78h ; 'x'
-        loop    loc_47822
-        mov cx, 94h ; '?'
-        mov si, [bp+var_2]
-        mov di, si
-        add si, 28h ; '('
-
-loc_47837:              ; CODE XREF: openCreditsBlock+79j
-        movsb
-        add si, 79h ; 'y'
-        add di, 79h ; 'y'
-        loop    loc_47837
-        std
-        mov cx, 94h ; '?'
-        mov si, [bp+var_4]
-        add si, 4689h
-        mov di, si
-        inc di
-
-loc_4784E:              ; CODE XREF: openCreditsBlock+91j
-        movsb
-        movsb
-        sub si, 78h ; 'x'
-        sub di, 78h ; 'x'
-        loop    loc_4784E
-        cld
-        mov cx, 94h ; '?'
-        mov si, [bp+var_4]
-        mov di, si
-        add si, 28h ; '('
-
-loc_47864:              ; CODE XREF: openCreditsBlock+A6j
-        movsb
-        add si, 79h ; 'y'
-        add di, 79h ; 'y'
-        loop    loc_47864
-        dec [bp+var_2]
-        inc [bp+var_4]
-        dec dx
-        jnz short loc_47800
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 1
-        out dx, al      ; EGA port: graphics controller data register
-        pop ds
-        mov cx, 1
-
-loc_47884:              ; CODE XREF: openCreditsBlock+C7j
-        push(cx);
-        call    videoloop
-        call    loopForVSync
-        pop(cx);
-        loop    loc_47884
-        mov bx, title2DataBuffer
-        mov word_51967, bx
-        mov dx, 3D4h
-        al = 0Dh
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (low)
-        inc dx
-        al = bl
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 0Ch
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (high)
-        inc dx
-        al = bh
-        out dx, al      ; Video: CRT controller internal registers
-        mov si, 5F55h
-        call    fade
-        mov sp, bp
-        pop bp
-        retn
-openCreditsBlock endp
+        // cx--;
+        // if (cx > 0)
+        // {
+        //     goto loc_47884;
+        // }
+    }
+    bx = title2DataBuffer;
+    word_51967 = bx;
+    // mov dx, 3D4h
+    // al = 0Dh
+    // out dx, al      ; Video: CRT cntrlr addr
+    //             ; regen start address (low)
+    ports[0x3D4] = 0xD; // page 155, video buffer start address, low byte
+    // inc dx
+    // al = bl
+    // out dx, al      ; Video: CRT controller internal registers
+    ports[0x3D5] = bl;
+    // mov dx, 3D4h
+    // al = 0Ch
+    // out dx, al      ; Video: CRT cntrlr addr
+    //             ; regen start address (high)
+    ports[0x3D4] = 0xC; // page 155, video buffer start address, high byte
+    // inc dx
+    // al = bh
+    // out dx, al      ; Video: CRT controller internal registers
+    ports[0x3D5] = bh;
+    si = 5F55h;
+    fade(); // fades current frame buffer into the title 2.dat (screen with the credits)
+    sp = bp;
+    pop(bp);
+    return
+// openCreditsBlock endp
+}
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -2846,55 +2916,69 @@ void readBackDat() // proc near       ; CODE XREF: readBackDat+14j
                     // ; readEverything+15p
 {
         // address: 01ED:0ECD
-        mov ax, 3D00h
-        mov dx, offset aBack_dat ; "BACK.DAT"
-        int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-                    ; DS:DX -> ASCIZ filename
-                    ; AL = access mode
-                    ; 0 - read
-        jnb short loc_47B49
-        cmp ax, 2
-        jnz short loc_47B46
-        call    sub_47F39
-        jb  short loc_47B46
-        jmp short readBackDat
+    
+        // mov ax, 3D00h
+        // mov dx, offset aBack_dat ; "BACK.DAT"
+        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
+        //             ; DS:DX -> ASCIZ filename
+        //             ; AL = access mode
+        //             ; 0 - read
+        FILE *fopen("BACK.DAT", "r");
+        if (file != NULL)
+        {
+            goto loc_47B49;
+        }
+        if (errno != 2) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
+        {
+            goto loc_47B46;
+        }
+        // sub_47F39();
+        // jb  short loc_47B46
+        goto readBackDat;
 // ; ---------------------------------------------------------------------------
 
-loc_47B46:              ; CODE XREF: readBackDat+Dj
-                    ; readBackDat+12j
-        jmp exit
+loc_47B46:        //      ; CODE XREF: readBackDat+Dj
+                  //  ; readBackDat+12j
+        goto exit
 // ; ---------------------------------------------------------------------------
 
-loc_47B49:              ; CODE XREF: readBackDat+8j
-        mov lastFileHandle, ax
-        push    ds
-        mov ax, seg backseg
-        mov bx, lastFileHandle
-        mov ds, ax
-        assume ds:nothing
-        mov ax, 3F00h
-        mov cx, 7D00h
-        mov dx, 0
-        int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to read
-                    ; DS:DX -> buffer
-        jnb short loc_47B67
-        pop ds
-        assume ds:data
-        jmp exit
+loc_47B49:             // ; CODE XREF: readBackDat+8j
+        lastFileHandle = ax;
+        push(ds);
+        ax = seg backseg;
+        bx = lastFileHandle
+        ds = ax;
+        // assume ds:nothing
+        // mov ax, 3F00h
+        // mov cx, 7D00h // 32000 bytes
+        // mov dx, 0
+        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+        //             ; BX = file handle, CX = number of bytes to read
+        //             ; DS:DX -> buffer
+        int bytes = fread(backDataBuffer, 1, 32000, lastFileHandle);
+        if (bytes > 0)
+        {
+            goto loc_47B67;
+        }
+        pop(ds);
+        // assume ds:data
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_47B67:              ; CODE XREF: readBackDat+31j
-        pop ds
-        mov ax, 3E00h
-        mov bx, lastFileHandle
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-        jnb short locret_47B76
-        jmp exit
+loc_47B67:              //; CODE XREF: readBackDat+31j
+        pop(ds);
+        // mov ax, 3E00h
+        // mov bx, lastFileHandle
+        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
+        //             ; BX = file handle
+        if (fclose(lastFileHandle) == 0)
+        {
+            goto locret_47B76;
+        }
+        goto exit;
 // ; ---------------------------------------------------------------------------
 
-locret_47B76:               ; CODE XREF: readBackDat+41j
+locret_47B76:              // ; CODE XREF: readBackDat+41j
         return
 // readBackDat endp
 }
@@ -3419,59 +3503,74 @@ locret_47D9B:              // ; CODE XREF: readLevelsLst+FBj
 ; =============== S U B R O U T I N E =======================================
 
 
-readGfxDat  proc near       ; CODE XREF: readGfxDat+14j
-                    ; readEverything+1Ep
-        mov ax, 3D00h
-        mov dx, offset aGfx_dat ; "GFX.DAT"
-        int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-                    ; DS:DX -> ASCIZ filename
-                    ; AL = access mode
-                    ; 0 - read
-        jnb short loc_47DB5
-        cmp ax, 2
-        jnz short loc_47DB2
-        call    sub_47F39
-        jb  short loc_47DB2
-        jmp short readGfxDat
+void readGfxDat() //  proc near       ; CODE XREF: readGfxDat+14j
+                   // ; readEverything+1Ep
+{
+        // mov ax, 3D00h
+        // mov dx, offset aGfx_dat ; "GFX.DAT"
+        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
+        //             ; DS:DX -> ASCIZ filename
+        //             ; AL = access mode
+        //             ; 0 - read
+    FILE *file = fopen("GFX.DAT", "r");
+    if (file != NULL)
+    {
+        goto loc_47DB5;
+    }
+    if (errno != 2) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
+    {
+        goto loc_47DB2;
+    }
+    // sub_47F39();
+    // jb  short loc_47DB2
+    goto readGfxDat;
 // ; ---------------------------------------------------------------------------
 
-loc_47DB2:              ; CODE XREF: readGfxDat+Dj
-                    ; readGfxDat+12j
-        jmp exit
+loc_47DB2:             // ; CODE XREF: readGfxDat+Dj
+                   // ; readGfxDat+12j
+    goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_47DB5:              ; CODE XREF: readGfxDat+8j
-        mov lastFileHandle, ax
-        mov bx, lastFileHandle
-        push    ds
-        mov ax, seg gfxseg
-        mov ds, ax
-        assume ds:nothing
-        mov ax, 3F00h
-        mov cx, 7D00h
-        mov dx, 0
-        int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to read
-                    ; DS:DX -> buffer
-        jnb short loc_47DD3
-        pop ds
-        assume ds:data
-        jmp exit
+loc_47DB5:             // ; CODE XREF: readGfxDat+8j
+    lastFileHandle = ax;
+    bx = lastFileHandle;
+    push(ds);
+    ax = seg gfxseg;
+    ds = ax;
+    // assume ds:nothing
+    // mov ax, 3F00h
+    // mov cx, 7D00h // 32000 bytes
+    // mov dx, 0
+    // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+    //             ; BX = file handle, CX = number of bytes to read
+    //             ; DS:DX -> buffer
+    int bytes = fread(gfxDataBuffer, 1, 32000, file);
+    if (bytes > 0)
+    {
+        goto loc_47DD3;
+    }
+    pop(ds);
+    // assume ds:data
+    goto exit
 // ; ---------------------------------------------------------------------------
 
-loc_47DD3:              ; CODE XREF: readGfxDat+31j
-        pop ds
-        mov ax, 3E00h
-        mov bx, lastFileHandle
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-        jnb short locret_47DE2
-        jmp exit
+loc_47DD3:             // ; CODE XREF: readGfxDat+31j
+    pop(ds)
+    // mov ax, 3E00h
+    // mov bx, lastFileHandle
+    // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
+    //             ; BX = file handle
+    if (fclose(file) == 0)
+    {
+        goto locret_47DE2;
+    }
+    goto exit;
 // ; ---------------------------------------------------------------------------
 
-locret_47DE2:               ; CODE XREF: readGfxDat+41j
-        retn
-readGfxDat  endp
+locret_47DE2:              // ; CODE XREF: readGfxDat+41j
+        return
+// readGfxDat  endp
+}
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -3550,65 +3649,95 @@ locret_47E29:              // ; CODE XREF: readControlsDat+41j
 ; =============== S U B R O U T I N E =======================================
 
 
-readPlayersLst  proc near       ; CODE XREF: readEverything+1Bp
-                    ; sub_4B419+149p
-        cmp byte_59B85, 0
-        jnz short locret_47E4F
-        mov ax, 3D00h
-        mov dx, offset aPlayer_lst ; "PLAYER.LST"
-        int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-                    ; DS:DX -> ASCIZ filename
-                    ; AL = access mode
-                    ; 0 - read
-        jb  short locret_47E4F
-        mov bx, ax
-        mov ax, 3F00h
-        mov cx, 0A00h
-        mov dx, 8A9Ch
-        int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to read
-                    ; DS:DX -> buffer
-        jb  short locret_47E4F
-        mov ax, 3E00h
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
+void readPlayersLst() //  proc near       ; CODE XREF: readEverything+1Bp
+                    // ; sub_4B419+149p
+{
+    if (byte_59B85 != 0)
+    {
+        goto locret_47E4F;
+    }
+    // mov ax, 3D00h
+    // mov dx, offset aPlayer_lst ; "PLAYER.LST"
+    // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
+    //             ; DS:DX -> ASCIZ filename
+    //             ; AL = access mode
+    //             ; 0 - read
+    FILE *file = fopen("PLAYER.LST", "r");
+    if (file == NULL)
+    {
+        goto locret_47E4F;
+    }
+    // mov bx, ax
+    // mov ax, 3F00h
+    // mov cx, 0A00h // 2560 bytes
+    // mov dx, playerListDataBuffer // 8A9Ch
+    // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+    //             ; BX = file handle, CX = number of bytes to read
+    //             ; DS:DX -> buffer
+    int bytes = fread(&playerListDataBuffer, 1, 2560, file);
+    if (bytes == 0)
+    {
+        goto locret_47E4F;
+    }
+    
+    // mov ax, 3E00h
+    // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
+    //             ; BX = file handle
+    fclose(file);
 
-locret_47E4F:               ; CODE XREF: readPlayersLst+5j
-                    ; readPlayersLst+Fj ...
-        retn
-readPlayersLst  endp
+locret_47E4F:       //         ; CODE XREF: readPlayersLst+5j
+                    // ; readPlayersLst+Fj ...
+        return
+// readPlayersLst  endp
+}
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-readHallfameLst proc near       ; CODE XREF: readEverything+18p
-                    ; sub_4B419+146p
-        cmp byte_59B85, 0
-        jnz short locret_47E75
-        mov ax, 3D00h
-        mov dx, offset aHallfame_lst ; "HALLFAME.LST"
-        int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-                    ; DS:DX -> ASCIZ filename
-                    ; AL = access mode
-                    ; 0 - read
-        jb  short locret_47E75
-        mov bx, ax
-        mov ax, 3F00h
-        mov cx, 24h ; '$'
-        mov dx, 9514h
-        int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to read
-                    ; DS:DX -> buffer
-        jb  short locret_47E75
-        mov ax, 3E00h
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
+void readHallfameLst() // proc near       ; CODE XREF: readEverything+18p
+                    // ; sub_4B419+146p
+{
+    if (byte_59B85 != 0)
+    {
+        goto locret_47E75;
+    }
+    
+    // mov ax, 3D00h
+    // mov dx, offset aHallfame_lst ; "HALLFAME.LST"
+    // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
+    //             ; DS:DX -> ASCIZ filename
+    //             ; AL = access mode
+    //             ; 0 - read
+    FILE *file = fopen("HALLFAME.LST", "r");
+    if (file == NULL)
+    {
+        goto locret_47E75;
+    }
+    
+    // mov bx, ax
+    // mov ax, 3F00h
+    // mov cx, 24h ; '$' // 36 bytes
+    // mov dx, hallFameDataBuffer // 9514h
+    // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+    //             ; BX = file handle, CX = number of bytes to read
+    //             ; DS:DX -> buffer
+    int bytes = fread(&hallFameDataBuffer, 1, 36, file);
+    if (bytes == 0)
+    {
+        goto locret_47E75;
+    }
+    
+    // mov ax, 3E00h
+    // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
+    //             ; BX = file handle
+    fclose (file);
 
-locret_47E75:               ; CODE XREF: readHallfameLst+5j
-                    ; readHallfameLst+Fj ...
-        retn
-readHallfameLst endp
+locret_47E75:               //; CODE XREF: readHallfameLst+5j
+                   // ; readHallfameLst+Fj ...
+    return
+// readHallfameLst endp
+}
 
 
 // ; =============== S U B R O U T I N E =======================================
@@ -6162,21 +6291,24 @@ loc_49067:              ; CODE XREF: sub_48F6D+101j
                     ; 3: read mode: 1=color compare, 0=direct
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
         mov dx, 3CEh
         al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
         inc dx
         al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
@@ -9810,7 +9942,7 @@ loc_4A980:              ; CODE XREF: sub_4A95F+1Ej
         xor bl, bl
         shr bx, 1
         mov si, bx
-        add si, 8A9Ch
+        add si, playerListDataBuffer
         al = byte_510B4
         add al, [si+0Bh]
 
@@ -10098,7 +10230,7 @@ sub_4AB1B   proc near       ; CODE XREF: runMainMenu+28Fp
                     ; DATA XREF: data:off_50318o
         cmp byte_59B85, 0
         jnz short loc_4AB4A
-        mov si, 8A9Ch
+        mov si, playerListDataBuffer
         mov ax, 2D2Dh
         mov bl, 0
         mov cx, 14h
@@ -10265,7 +10397,7 @@ loc_4AC4B:              ; CODE XREF: sub_4AB1B+14Cj
 loc_4AC69:              ; CODE XREF: sub_4AB1B+137j
         pop es
         assume es:nothing
-        mov di, 8A9Ch
+        mov di, playerListDataBuffer
         mov si, 820Bh
         mov cx, 14h
 
@@ -10299,7 +10431,7 @@ loc_4ACA3:              ; CODE XREF: sub_4AB1B+15Cj
         mov byte_5981F, bh
         xor bl, bl
         shr bx, 1
-        mov di, 8A9Ch
+        mov di, playerListDataBuffer
         add di, bx
         mov si, 820Bh
         mov ax, [si]
@@ -10344,7 +10476,7 @@ sub_4AD0E   proc near
         mov bh, byte_5981F
         xor bl, bl
         shr bx, 1
-        mov si, 8A9Ch
+        mov si, playerListDataBuffer
         add si, bx
         mov word ptr dword_58477, si
         mov ax, 2D2Dh
@@ -10454,7 +10586,7 @@ sub_4ADFF   proc near
         mov bh, byte_5981F
         xor bl, bl
         shr bx, 1
-        mov si, 8A9Ch
+        mov si, playerListDataBuffer
         add si, bx
         mov ax, 2D2Dh
         cmp ax, [si]
@@ -10588,7 +10720,7 @@ sub_4AF0C   proc near
         mov bh, byte_5981F
         xor bl, bl
         shr bx, 1
-        add bx, 8A9Ch
+        add bx, playerListDataBuffer
         mov bp, bx
         mov si, bx
         mov ax, 2D2Dh
@@ -11112,7 +11244,7 @@ sub_4B375   proc near       ; CODE XREF: runMainMenu+11Ep
         mov bh, byte_5981F
         xor bl, bl
         shr bx, 1
-        mov si, 8A9Ch
+        mov si, playerListDataBuffer
         add si, bx
         mov ax, 2D2Dh
         cmp [si], ax
@@ -11930,11 +12062,12 @@ sub_4B8BE   proc near       ; CODE XREF: sub_4AB1B+FFp
         mov bh, 8
         sub bh, bl
         mov cx, 8
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
         inc dx
         al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
@@ -11978,11 +12111,12 @@ loc_4B926:              ; CODE XREF: sub_4B8BE+85j
         inc dx
         al = 5
         out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
         inc dx
         al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
@@ -12025,11 +12159,12 @@ loc_4B96A:              ; CODE XREF: sub_4B8BE+C9j
         inc dx
         al = 8
         out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
         inc dx
         al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
@@ -12072,11 +12207,12 @@ loc_4B9AE:              ; CODE XREF: sub_4B8BE+10Dj
         inc dx
         al = 9
         out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
         inc dx
         al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
@@ -12119,11 +12255,12 @@ loc_4B9F2:              ; CODE XREF: sub_4B8BE+151j
         inc dx
         al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
         inc dx
         al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
@@ -12149,11 +12286,12 @@ loc_4BA34:              ; CODE XREF: sub_4B8BE+193j
         pop(cx);
         loop    loc_4BA34
         pop ds
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
         inc dx
         al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
@@ -12164,96 +12302,200 @@ sub_4B8BE   endp
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_4BA5F   proc near       ; CODE XREF: sub_4AB1B+37p
-                    ; sub_4AB1B+4Ap ...
-        cmp byte_5A33F, 1
-        jnz short loc_4BA69
-        jmp locret_4BDEF
+void sub_4BA5F() //   proc near       ; CODE XREF: sub_4AB1B+37p
+                  //  ; sub_4AB1B+4Ap ...
+{
+    // Address: 01ED:4DFC
+        if (byte_5A33F != 1)
+        {
+            goto loc_4BA69;
+        }
+        goto locret_4BDEF;
 // ; ---------------------------------------------------------------------------
 
-loc_4BA69:              ; CODE XREF: sub_4BA5F+5j
-        mov byte_51969, ah
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 1
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; enable set/reset
-        inc dx
-        al = 0Fh
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
+loc_4BA69:             // ; CODE XREF: sub_4BA5F+5j
+        byte_51969 = ah;
+        // mov dx, 3CEh
+        // al = 5
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; mode register.Data bits:
+        //             ; 0-1: Write mode 0-2
+        //             ; 2: test condition
+        //             ; 3: read mode: 1=color compare, 0=direct
+        //             ; 4: 1=use odd/even RAM addressing
+        //             ; 5: 1=use CGA mid-res map (2-bits/pixel)
+        ports[0x3CE] = 5; // set graphics mode
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0; // write mode 0: Write mode 0 is the default write mode. In this write mode, the Map Mask register of the Sequencer group, the Bit Mask register of the Graphics Controller group, and the CPU are used to set the screen pixel to a desired color.
+        // mov dx, 3CEh
+        // al = 1
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; enable set/reset
+        ports[0x3CE] = 1;
+        // inc dx
+        // al = 0Fh
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0xF; // clear all planes
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah; // protect bits specified by ah?? Check PC Graphics Handbook, page 167
         mov cl, 0
 
-loc_4BA8D:              ; CODE XREF: sub_4BA5F:loc_4BDECj
-        mov bl, [si]
-        cmp bl, 0
-        jnz short loc_4BA97
-        jmp locret_4BDEF
+loc_4BA8D:             // ; CODE XREF: sub_4BA5F:loc_4BDECj
+        bl = *si;
+        if (bl != 0)
+        {
+            goto loc_4BA97;
+        }
+        goto locret_4BDEF;
 // ; ---------------------------------------------------------------------------
 
-loc_4BA97:              ; CODE XREF: sub_4BA5F+33j
-        cmp bl, 0Ah
-        jnz short loc_4BA9F
-        jmp locret_4BDEF
+loc_4BA97:             // ; CODE XREF: sub_4BA5F+33j
+        if (bl != 10)
+        {
+            goto loc_4BA9F;
+        }
+        goto locret_4BDEF;
 // ; ---------------------------------------------------------------------------
 
-loc_4BA9F:              ; CODE XREF: sub_4BA5F+3Bj
-        inc si
-        sub bl, 20h ; ' '
-        xor bh, bh
-        add bx, chars6DataBuffer
-        mov dx, 3CEh
-        al = 0
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; set/reset.
-                    ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
+loc_4BA9F:             // ; CODE XREF: sub_4BA5F+3Bj
+        si++;
+        bl -= 32;
+        bh = 0;
+        bx += chars6DataBuffer;
+        // mov dx, 3CEh
+        // al = 0
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; set/reset.
+        //             ; Data bits 0-3 select planes for write mode 00
+        ports[0x3CE] = 0;
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
+        ah = 0xFC; // 252
+        ah = ah >> cl;
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
+        *(es:di) = *(es:di) | al;
+        ah = 0xFC;
+        ch = cl;
+        al = 8;
+        al -= cl;
+        cl = al;
+        ah = ah << cl;
+        cl = ch;
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
+        *(es:di) = *(es:di) | al;
+        // mov dx, 3CEh
+        // al = 0
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; set/reset.
+        //             ; Data bits 0-3 select planes for write mode 00
+        ports[0x3CE] = 0;
+        // inc dx
+        // al = byte_51969
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = byte_51969;
+        ah = *bx;
+        ah = ah >> cl;
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
+        *(es:di) = *(es:di) | al;
+        ah = *bx;
+        ch = cl;
+        al = 8;
+        al -=cl;
+        cl = al;
+        ah = ah << cl;
+        cl = ch;
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
+        *(es:di) = *(es:di) | al;
+        di += 0x7A; // 122
+        bx += 0x40; // 64
+        // mov dx, 3CEh
+        // al = 0
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; set/reset.
+        //             ; Data bits 0-3 select planes for write mode 00
+        ports[0x3CE] = 0;
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
         mov ah, 0FCh ; '?'
         shr ah, cl
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
-        mov ah, 0FCh ; '?'
-        mov ch, cl
-        al = 8
-        sub al, cl
-        mov cl, al
-        shl ah, cl
-        mov cl, ch
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
+        *(es:di) = *(es:di) | al;
+        ah = 0xFC;
+        ch = cl;
+        al = 8;
+        al -= cl;
+        cl = al;
+        ah = ah << cl;
+        cl = ch;
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
         or  es:[di+1], al
         mov dx, 3CEh
         al = 0
@@ -12265,15 +12507,17 @@ loc_4BA9F:              ; CODE XREF: sub_4BA5F+3Bj
         out dx, al      ; EGA port: graphics controller data register
         mov ah, [bx]
         shr ah, cl
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
+        *(es:di) = *(es:di) | al;
         mov ah, [bx]
         mov ch, cl
         al = 8
@@ -12281,14 +12525,16 @@ loc_4BA9F:              ; CODE XREF: sub_4BA5F+3Bj
         mov cl, al
         shl ah, cl
         mov cl, ch
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
         or  es:[di+1], al
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
@@ -12297,35 +12543,40 @@ loc_4BA9F:              ; CODE XREF: sub_4BA5F+3Bj
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
         mov ah, 0FCh ; '?'
         shr ah, cl
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
-        mov ah, 0FCh ; '?'
-        mov ch, cl
-        al = 8
-        sub al, cl
-        mov cl, al
-        shl ah, cl
-        mov cl, ch
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
+        *(es:di) = *(es:di) | al;
+        ah = 0xFC;
+        ch = cl;
+        al = 8;
+        al -= cl;
+        cl = al;
+        ah = ah << cl;
+        cl = ch;
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
         or  es:[di+1], al
         mov dx, 3CEh
         al = 0
@@ -12337,15 +12588,17 @@ loc_4BA9F:              ; CODE XREF: sub_4BA5F+3Bj
         out dx, al      ; EGA port: graphics controller data register
         mov ah, [bx]
         shr ah, cl
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
+        *(es:di) = *(es:di) | al;
         mov ah, [bx]
         mov ch, cl
         al = 8
@@ -12353,14 +12606,16 @@ loc_4BA9F:              ; CODE XREF: sub_4BA5F+3Bj
         mov cl, al
         shl ah, cl
         mov cl, ch
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
         or  es:[di+1], al
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
@@ -12369,35 +12624,40 @@ loc_4BA9F:              ; CODE XREF: sub_4BA5F+3Bj
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
         mov ah, 0FCh ; '?'
         shr ah, cl
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
-        mov ah, 0FCh ; '?'
-        mov ch, cl
-        al = 8
-        sub al, cl
-        mov cl, al
-        shl ah, cl
-        mov cl, ch
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
+        *(es:di) = *(es:di) | al;
+        ah = 0xFC;
+        ch = cl;
+        al = 8;
+        al -= cl;
+        cl = al;
+        ah = ah << cl;
+        cl = ch;
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
         or  es:[di+1], al
         mov dx, 3CEh
         al = 0
@@ -12409,15 +12669,17 @@ loc_4BA9F:              ; CODE XREF: sub_4BA5F+3Bj
         out dx, al      ; EGA port: graphics controller data register
         mov ah, [bx]
         shr ah, cl
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
+        *(es:di) = *(es:di) | al;
         mov ah, [bx]
         mov ch, cl
         al = 8
@@ -12425,14 +12687,16 @@ loc_4BA9F:              ; CODE XREF: sub_4BA5F+3Bj
         mov cl, al
         shl ah, cl
         mov cl, ch
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
         or  es:[di+1], al
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
@@ -12441,35 +12705,40 @@ loc_4BA9F:              ; CODE XREF: sub_4BA5F+3Bj
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
         mov ah, 0FCh ; '?'
         shr ah, cl
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
-        mov ah, 0FCh ; '?'
-        mov ch, cl
-        al = 8
-        sub al, cl
-        mov cl, al
-        shl ah, cl
-        mov cl, ch
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
+        *(es:di) = *(es:di) | al;
+        ah = 0xFC;
+        ch = cl;
+        al = 8;
+        al -= cl;
+        cl = al;
+        ah = ah << cl;
+        cl = ch;
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
         or  es:[di+1], al
         mov dx, 3CEh
         al = 0
@@ -12481,15 +12750,17 @@ loc_4BA9F:              ; CODE XREF: sub_4BA5F+3Bj
         out dx, al      ; EGA port: graphics controller data register
         mov ah, [bx]
         shr ah, cl
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
+        *(es:di) = *(es:di) | al;
         mov ah, [bx]
         mov ch, cl
         al = 8
@@ -12497,14 +12768,16 @@ loc_4BA9F:              ; CODE XREF: sub_4BA5F+3Bj
         mov cl, al
         shl ah, cl
         mov cl, ch
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
         or  es:[di+1], al
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
@@ -12513,35 +12786,40 @@ loc_4BA9F:              ; CODE XREF: sub_4BA5F+3Bj
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
         mov ah, 0FCh ; '?'
         shr ah, cl
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
-        mov ah, 0FCh ; '?'
-        mov ch, cl
-        al = 8
-        sub al, cl
-        mov cl, al
-        shl ah, cl
-        mov cl, ch
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
+        *(es:di) = *(es:di) | al;
+        ah = 0xFC;
+        ch = cl;
+        al = 8;
+        al -= cl;
+        cl = al;
+        ah = ah << cl;
+        cl = ch;
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
         or  es:[di+1], al
         mov dx, 3CEh
         al = 0
@@ -12553,15 +12831,17 @@ loc_4BA9F:              ; CODE XREF: sub_4BA5F+3Bj
         out dx, al      ; EGA port: graphics controller data register
         mov ah, [bx]
         shr ah, cl
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
+        *(es:di) = *(es:di) | al;
         mov ah, [bx]
         mov ch, cl
         al = 8
@@ -12569,14 +12849,16 @@ loc_4BA9F:              ; CODE XREF: sub_4BA5F+3Bj
         mov cl, al
         shl ah, cl
         mov cl, ch
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
         or  es:[di+1], al
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
@@ -12585,35 +12867,40 @@ loc_4BA9F:              ; CODE XREF: sub_4BA5F+3Bj
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
         mov ah, 0FCh ; '?'
         shr ah, cl
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
-        mov ah, 0FCh ; '?'
-        mov ch, cl
-        al = 8
-        sub al, cl
-        mov cl, al
-        shl ah, cl
-        mov cl, ch
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
+        *(es:di) = *(es:di) | al;
+        ah = 0xFC;
+        ch = cl;
+        al = 8;
+        al -= cl;
+        cl = al;
+        ah = ah << cl;
+        cl = ch;
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
         or  es:[di+1], al
         mov dx, 3CEh
         al = 0
@@ -12625,15 +12912,17 @@ loc_4BA9F:              ; CODE XREF: sub_4BA5F+3Bj
         out dx, al      ; EGA port: graphics controller data register
         mov ah, [bx]
         shr ah, cl
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
+        *(es:di) = *(es:di) | al;
         mov ah, [bx]
         mov ch, cl
         al = 8
@@ -12641,86 +12930,16 @@ loc_4BA9F:              ; CODE XREF: sub_4BA5F+3Bj
         mov cl, al
         shl ah, cl
         mov cl, ch
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di+1], al
-        add di, 7Ah ; 'z'
-        add bx, 40h ; '@'
-        mov dx, 3CEh
-        al = 0
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; set/reset.
-                    ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
-        mov ah, 0FCh ; '?'
-        shr ah, cl
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
-        mov ah, 0FCh ; '?'
-        mov ch, cl
-        al = 8
-        sub al, cl
-        mov cl, al
-        shl ah, cl
-        mov cl, ch
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di+1], al
-        mov dx, 3CEh
-        al = 0
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; set/reset.
-                    ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        al = byte_51969
-        out dx, al      ; EGA port: graphics controller data register
-        mov ah, [bx]
-        shr ah, cl
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
-        mov ah, [bx]
-        mov ch, cl
-        al = 8
-        sub al, cl
-        mov cl, al
-        shl ah, cl
-        mov cl, ch
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
         or  es:[di+1], al
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
@@ -12731,14 +12950,15 @@ loc_4BA9F:              ; CODE XREF: sub_4BA5F+3Bj
         sub cl, 8
         inc di
 
-loc_4BDEC:              ; CODE XREF: sub_4BA5F+387j
-        jmp loc_4BA8D
+loc_4BDEC:             // ; CODE XREF: sub_4BA5F+387j
+        goto loc_4BA8D;
 // ; ---------------------------------------------------------------------------
 
-locret_4BDEF:               ; CODE XREF: sub_4BA5F+7j
-                    ; sub_4BA5F+35j ...
-        retn
-sub_4BA5F   endp
+locret_4BDEF:      //         ; CODE XREF: sub_4BA5F+7j
+                   // ; sub_4BA5F+35j ...
+        return;
+// sub_4BA5F   endp
+}
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -12762,9 +12982,10 @@ loc_4BDFA:              ; CODE XREF: sub_4BDF0+5j
                     ; 3: read mode: 1=color compare, 0=direct
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
         mov dx, 3CEh
         al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -12772,14 +12993,16 @@ loc_4BDFA:              ; CODE XREF: sub_4BDF0+5j
         inc dx
         al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
         mov cl, 0
 
 loc_4BE1E:              ; CODE XREF: sub_4BDF0:loc_4BF46j
@@ -12808,18 +13031,20 @@ loc_4BE30:              ; CODE XREF: sub_4BDF0+3Bj
         inc dx
         al = byte_51969
         out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
         al = [bx]
         shr al, cl
         out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
+        *(es:di) = *(es:di) | al;
         al = [bx]
         mov ch, cl
         mov ah, 8
@@ -12834,7 +13059,7 @@ loc_4BE30:              ; CODE XREF: sub_4BDF0+3Bj
         al = [bx]
         shr al, cl
         out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
+        *(es:di) = *(es:di) | al;
         al = [bx]
         mov ch, cl
         mov ah, 8
@@ -12849,7 +13074,7 @@ loc_4BE30:              ; CODE XREF: sub_4BDF0+3Bj
         al = [bx]
         shr al, cl
         out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
+        *(es:di) = *(es:di) | al;
         al = [bx]
         mov ch, cl
         mov ah, 8
@@ -12864,7 +13089,7 @@ loc_4BE30:              ; CODE XREF: sub_4BDF0+3Bj
         al = [bx]
         shr al, cl
         out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
+        *(es:di) = *(es:di) | al;
         al = [bx]
         mov ch, cl
         mov ah, 8
@@ -12879,7 +13104,7 @@ loc_4BE30:              ; CODE XREF: sub_4BDF0+3Bj
         al = [bx]
         shr al, cl
         out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
+        *(es:di) = *(es:di) | al;
         al = [bx]
         mov ch, cl
         mov ah, 8
@@ -12894,7 +13119,7 @@ loc_4BE30:              ; CODE XREF: sub_4BDF0+3Bj
         al = [bx]
         shr al, cl
         out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
+        *(es:di) = *(es:di) | al;
         al = [bx]
         mov ch, cl
         mov ah, 8
@@ -12909,7 +13134,7 @@ loc_4BE30:              ; CODE XREF: sub_4BDF0+3Bj
         al = [bx]
         shr al, cl
         out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
+        *(es:di) = *(es:di) | al;
         al = [bx]
         mov ch, cl
         mov ah, 8
@@ -13021,7 +13246,7 @@ sub_4BF8D   proc near       ; CODE XREF: sub_4C0DDp
 
 loc_4BF97:              ; CODE XREF: sub_4BF8D+5j
         mov cx, 14h
-        mov si, 8A9Ch
+        mov si, playerListDataBuffer
         mov di, 8A38h
         mov dl, 0
 
@@ -13140,7 +13365,7 @@ loc_4C07F:              ; CODE XREF: sub_4BF8D+E9j
         mov ah, [si]
         xor al, al
         shr ax, 1
-        mov si, 8A9Ch
+        mov si, playerListDataBuffer
         add si, ax
         mov bx, 8
 
@@ -13298,7 +13523,7 @@ sub_4C1A9   proc near       ; CODE XREF: sub_4B419+15Ap
         mov ax, ds
         mov es, ax
         assume es:data
-        mov si, 9514h
+        mov si, hallFameDataBuffer
         mov di, 836Bh
         mov cx, 3
 
@@ -13363,7 +13588,7 @@ sub_4C224   proc near       ; CODE XREF: sub_4C293+5Bp
         xor bl, bl
         shr bx, 1
         mov si, bx
-        add si, 8A9Ch
+        add si, playerListDataBuffer
         mov bp, si
         mov di, 79C3h
         mov ah, 8
@@ -13412,7 +13637,7 @@ sub_4C293   proc near       ; CODE XREF: start+32Cp start+407p ...
         xor bl, bl
         shr bx, 1
         mov si, bx
-        add si, 8A9Ch
+        add si, playerListDataBuffer
         push    si
         mov di, 879Fh
         mov cx, 8
@@ -13521,7 +13746,7 @@ sub_4C34A   proc near       ; CODE XREF: start+404p sub_4AB1B+1E0p ...
         shr bx, 1
         mov si, 8AA8h
         add si, bx
-        mov di, 8A9Ch
+        mov di, playerListDataBuffer
         add di, bx
         push(di);
         mov di, 949Eh
@@ -13935,21 +14160,24 @@ sub_4C611   proc near       ; CODE XREF: sub_4C407+14p
                     ; 3: read mode: 1=color compare, 0=direct
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
         mov dx, 3CEh
         al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
         inc dx
         al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
@@ -13983,11 +14211,12 @@ loc_4C641:              ; CODE XREF: sub_4C611+47j
         inc dx
         al = 0Fh
         out dx, al      ; EGA port: sequencer data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
         inc dx
         al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
@@ -14014,7 +14243,7 @@ vgaloadgfxseg:
 ; START OF FUNCTION CHUNK FOR vgaloadbackseg
 
 vgaloadseginax:              ; CODE XREF: vgaloadbackseg+4j code:5AD9j
-        mov ds, ax // yes, it will use controlsDataBuffer here
+        mov ds, ax // yes, it will use controlsDataBuffer here, heh or gfxDataBuffer
         assume ds:nothing
         mov si, 0
         mov di, 4D84h
@@ -14027,21 +14256,24 @@ vgaloadseginax:              ; CODE XREF: vgaloadbackseg+4j code:5AD9j
                     ; 3: read mode: 1=color compare, 0=direct
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
         mov dx, 3CEh
         al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
         inc dx
         al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
@@ -14075,11 +14307,12 @@ loc_4C6B0:              ; CODE XREF: vgaloadbackseg-28j
         inc dx
         al = 0Fh
         out dx, al      ; EGA port: sequencer data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
         inc dx
         al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
@@ -15039,14 +15272,16 @@ var_2       = word ptr -2
         mov ax, es
         mov ds, ax
         mov [bp+var_2], cx
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
 
 loc_4CE68:              ; CODE XREF: sub_4CE11+5Aj
                     ; sub_4CE11+6Aj
@@ -15062,11 +15297,12 @@ loc_4CE68:              ; CODE XREF: sub_4CE11+5Aj
         dec bx
         jnz short loc_4CE68
         pop ds
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
         inc dx
         al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
@@ -15158,14 +15394,16 @@ var_2       = word ptr -2
         mov ax, es
         mov ds, ax
         mov [bp+var_2], cx
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
 
 loc_4CEF3:              ; CODE XREF: sub_4CE9C+5Aj
                     ; sub_4CE9C+6Aj
@@ -15208,17 +15446,19 @@ sub_4CF13   proc near       ; CODE XREF: sub_4CAFC+11p
                     ; 3: read mode: 1=color compare, 0=direct
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
         mov dx, 3CEh
         al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
         mov dx, 3CEh
         al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -15246,14 +15486,16 @@ loc_4CF38:              ; CODE XREF: sub_4CF13+96j
         mov ah, 80h ; '?'
         shr ah, cl
         mov cx, [si+5]
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
         al = ah
 
 loc_4CF6F:              ; CODE XREF: sub_4CF13:loc_4CFA4j
@@ -15327,7 +15569,7 @@ sub_4CFB2   proc near       ; CODE XREF: sub_4AB1B+1D5p
         mov bx, ax
         mov ax, 4000h
         mov cx, 0A00h
-        mov dx, 8A9Ch
+        mov dx, playerListDataBuffer
         int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
                     ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
         jb  short locret_4CFDA
@@ -15358,7 +15600,7 @@ sub_4CFDB   proc near       ; CODE XREF: sub_4AB1B+1D8p
         mov bx, ax
         mov ax, 4000h
         mov cx, 24h ; '$'
-        mov dx, 9514h
+        mov dx, hallFameDataBuffer
         int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
                     ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
         jb  short locret_4D003
@@ -15391,17 +15633,19 @@ sub_4D004   proc near       ; CODE XREF: sub_4D0AD+17p
                     ; 3: read mode: 1=color compare, 0=direct
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
         mov dx, 3CEh
         al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
         mov dx, 3CEh
         al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -15429,14 +15673,16 @@ loc_4D029:              ; CODE XREF: sub_4D004+96j
         mov ah, 80h ; '?'
         shr ah, cl
         mov cx, [si+5]
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
         al = ah
 
 loc_4D060:              ; CODE XREF: sub_4D004:loc_4D095j
@@ -15685,7 +15931,7 @@ loc_4D1BE:              ; CODE XREF: sub_4D1B6+5j
         mov bh, byte_5981F
         xor bl, bl
         shr bx, 1
-        mov si, 8A9Ch
+        mov si, playerListDataBuffer
         add si, bx
         cmp byte ptr [si+7Fh], 0
         jz  short loc_4D1D2
@@ -15714,7 +15960,7 @@ loc_4D1E8:              ; CODE XREF: sub_4D1B6+2Fj
         jnz short loc_4D24B
         mov byte ptr [si+7Fh], 1
         mov cx, 3
-        mov di, 9514h
+        mov di, hallFameDataBuffer
 
 loc_4D1FA:              ; CODE XREF: sub_4D1B6+78j
         cmp byte ptr [di+9], 0
@@ -16237,11 +16483,12 @@ sub_4D464   proc near       ; CODE XREF: start+332p sub_4A463+3p
         inc dx
         al = 0Fh
         out dx, al      ; EGA port: sequencer data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
         inc dx
         al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
@@ -19895,7 +20142,7 @@ loc_4EC4E:              ; CODE XREF: update?+DB9j
 // ; ---------------------------------------------------------------------------
 
 loc_4EC56:              ; CODE XREF: update?+DC1j
-        cmp bl, 27h ; '''
+        cmp bl, 27h //; '''
         jnz short loc_4EC5E
         jmp loc_4F165
 // ; ---------------------------------------------------------------------------
@@ -22326,9 +22573,10 @@ loc_4FD99:              ; CODE XREF: sub_4FD65+3Cj
                     ; 3: read mode: 1=color compare, 0=direct
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
         retn
 sub_4FD65   endp
 
@@ -22498,9 +22746,10 @@ sub_4FE9C   proc near       ; CODE XREF: sub_500F3+7p
                     ; 3: read mode: 1=color compare, 0=direct
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
         mov dx, 3CEh
         al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -22508,14 +22757,16 @@ sub_4FE9C   proc near       ; CODE XREF: sub_500F3+7p
         inc dx
         al = 0Fh
         out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
 
 loc_4FEBE:              ; CODE XREF: sub_4FE9C+1C3j
         mov bl, [si]
@@ -22540,18 +22791,20 @@ loc_4FED0:              ; CODE XREF: sub_4FE9C+2Fj
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
         inc dx
         al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
+        *(es:di) = *(es:di) | al;
         mov dx, 3CEh
         al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -22561,15 +22814,17 @@ loc_4FED0:              ; CODE XREF: sub_4FE9C+2Fj
         al = byte_51969
         out dx, al      ; EGA port: graphics controller data register
         mov ah, [bx]
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
+        *(es:di) = *(es:di) | al;
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
         mov dx, 3CEh
@@ -22577,18 +22832,20 @@ loc_4FED0:              ; CODE XREF: sub_4FE9C+2Fj
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
         inc dx
         al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
+        *(es:di) = *(es:di) | al;
         mov dx, 3CEh
         al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -22598,15 +22855,17 @@ loc_4FED0:              ; CODE XREF: sub_4FE9C+2Fj
         al = byte_51969
         out dx, al      ; EGA port: graphics controller data register
         mov ah, [bx]
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
+        *(es:di) = *(es:di) | al;
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
         mov dx, 3CEh
@@ -22614,18 +22873,20 @@ loc_4FED0:              ; CODE XREF: sub_4FE9C+2Fj
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
         inc dx
         al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
+        *(es:di) = *(es:di) | al;
         mov dx, 3CEh
         al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -22635,15 +22896,17 @@ loc_4FED0:              ; CODE XREF: sub_4FE9C+2Fj
         al = byte_51969
         out dx, al      ; EGA port: graphics controller data register
         mov ah, [bx]
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
+        *(es:di) = *(es:di) | al;
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
         mov dx, 3CEh
@@ -22651,18 +22914,20 @@ loc_4FED0:              ; CODE XREF: sub_4FE9C+2Fj
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
         inc dx
         al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
+        *(es:di) = *(es:di) | al;
         mov dx, 3CEh
         al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -22672,15 +22937,17 @@ loc_4FED0:              ; CODE XREF: sub_4FE9C+2Fj
         al = byte_51969
         out dx, al      ; EGA port: graphics controller data register
         mov ah, [bx]
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
+        *(es:di) = *(es:di) | al;
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
         mov dx, 3CEh
@@ -22688,18 +22955,20 @@ loc_4FED0:              ; CODE XREF: sub_4FE9C+2Fj
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
         inc dx
         al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
+        *(es:di) = *(es:di) | al;
         mov dx, 3CEh
         al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -22709,15 +22978,17 @@ loc_4FED0:              ; CODE XREF: sub_4FE9C+2Fj
         al = byte_51969
         out dx, al      ; EGA port: graphics controller data register
         mov ah, [bx]
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
+        *(es:di) = *(es:di) | al;
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
         mov dx, 3CEh
@@ -22725,18 +22996,20 @@ loc_4FED0:              ; CODE XREF: sub_4FE9C+2Fj
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
         inc dx
         al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
+        *(es:di) = *(es:di) | al;
         mov dx, 3CEh
         al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -22746,15 +23019,17 @@ loc_4FED0:              ; CODE XREF: sub_4FE9C+2Fj
         al = byte_51969
         out dx, al      ; EGA port: graphics controller data register
         mov ah, [bx]
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
+        *(es:di) = *(es:di) | al;
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
         mov dx, 3CEh
@@ -22762,18 +23037,20 @@ loc_4FED0:              ; CODE XREF: sub_4FE9C+2Fj
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; set/reset.
                     ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
         inc dx
         al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
+        *(es:di) = *(es:di) | al;
         mov dx, 3CEh
         al = 0
         out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -22783,15 +23060,17 @@ loc_4FED0:              ; CODE XREF: sub_4FE9C+2Fj
         al = byte_51969
         out dx, al      ; EGA port: graphics controller data register
         mov ah, [bx]
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: graphics controller data register
-        or  es:[di], al
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
+        // inc dx
+        // al = ah
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = ah;
+        *(es:di) = *(es:di) | al;
         add di, 7Ah ; 'z'
         add bx, 40h ; '@'
         sub di, 355h
@@ -22812,11 +23091,12 @@ loc_50062:              ; CODE XREF: sub_4FE9C+29j
         inc dx
         al = 1
         out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
         inc dx
         al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
@@ -23105,21 +23385,24 @@ loc_501EA:              ; CODE XREF: sub_501C0+5j
                     ; 3: read mode: 1=color compare, 0=direct
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
         mov dx, 3CEh
         al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
         inc dx
         al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
@@ -23198,21 +23481,24 @@ loc_50253:              ; CODE XREF: sub_5024B+5j
                     ; 3: read mode: 1=color compare, 0=direct
                     ; 4: 1=use odd/even RAM addressing
                     ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
         mov dx, 3CEh
         al = 1
         out dx, al      ; EGA: graph 1 and 2 addr reg:
                     ; enable set/reset
-        inc dx
-        al = 0
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 8
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; bit mask
-                    ; Bits 0-7 select bits to be masked in all planes
+        // inc dx
+        // al = 0
+        // out dx, al      ; EGA port: graphics controller data register
+        ports[0x3CF] = 0;
+        // mov dx, 3CEh
+        // al = 8
+        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+        //             ; bit mask
+        //             ; Bits 0-7 select bits to be masked in all planes
+        ports[0x3CE] = 8;
         inc dx
         al = 0FFh
         out dx, al      ; EGA port: graphics controller data register
@@ -23274,13 +23560,14 @@ sub_5024B   endp
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_502CF   proc near       ; CODE XREF: start+2E6p
-        mov si, 95A5h
-        mov di, 531Bh
-        mov ah, 1
-        call    sub_4BA5F
-        retn
-sub_502CF   endp
+void sub_502CF() //   proc near       ; CODE XREF: start+2E6p
+{
+    si = 0x95A5;
+    di = 0x531B;
+    ah = 1;
+    sub_4BA5F();
+// sub_502CF   endp
+}
 
 
 ; =============== S U B R O U T I N E =======================================
