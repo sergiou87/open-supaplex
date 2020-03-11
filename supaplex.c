@@ -8,6 +8,8 @@
 
 // ; Attributes: noreturn
 
+#include <SDL2/SDL.h>
+
 const int levelDataLength = 1536; // exact length of a level file, even of each level inside the LEVELS.DAT file
 
 // 30 elements...
@@ -16,9 +18,69 @@ int word_599DC[] = { 0x00CE, 0x016A, 0x0146, 0x00CD, 0x024D, 0x012C, 0x01A7, 0x0
                     0xF00B, 0xF0F0, 0xF01D, 0xF0F0, 0xF026, 0x50F0, 0xF037,
                     0x41D0, 0x105F, 0xF3F3, 0xF068, 0x10F0, 0x106C, 0x94F4 };
 
+static const uint8_t kNumberOfColors = 16;
+typedef SDL_Color ColorPalette[kNumberOfColors];
+ColorPalette gCurrentPalette;
+ColorPalette gBlackPalette = {
+    {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
+    {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
+    {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
+    {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
+};
+ColorPalette gTitle1Palette;
+
+const int kScreenWidth = 320;
+const int kScreenHeight = 200;
+
+SDL_Surface *gScreenSurface = NULL;
+uint8_t *gScreenPixels = NULL;
+SDL_Window *gWindow = NULL;
+SDL_Renderer *gRenderer = NULL;
+SDL_Texture *gTexture = NULL;
+SDL_Surface *gTextureSurface = NULL;
+
+// registers to prevent compiler errors
+uint8_t ah, al, bh, bl, ch, cl, dh, dl;
+uint16_t ax, bx, cx, dx, ds, cs, es, bp, sp, di, si;
+
+void setPalette(ColorPalette palette);
+void fadeToPalette(ColorPalette palette);
+void readTitleDatAndGraphics(void);
+void videoloop(void);
+void loopForVSync(void);
+
 //         public start
-void main(int argc, char **argv)
+int main(int argc, const char * argv[])
 {
+    gWindow = SDL_CreateWindow("Supaplex",
+                                          SDL_WINDOWPOS_UNDEFINED,
+                                          SDL_WINDOWPOS_UNDEFINED,
+                                          kScreenWidth,
+                                          kScreenHeight,
+                                          0);
+    if (gWindow == NULL)
+    {
+      SDL_Log("Could not create a window: %s", SDL_GetError());
+      return -1;
+    }
+
+    gRenderer = SDL_CreateRenderer(gWindow, -1, 0);
+
+    gTexture = SDL_CreateTexture(gRenderer,
+                                             SDL_PIXELFORMAT_ARGB32,
+                                             SDL_TEXTUREACCESS_STREAMING,
+                                             kScreenWidth, kScreenHeight);
+
+    gTextureSurface = SDL_CreateRGBSurfaceWithFormat(0, kScreenWidth, kScreenHeight, 8, SDL_PIXELFORMAT_ARGB32);
+
+    gScreenSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, kScreenWidth, kScreenHeight, 8, 0, 0, 0, 0);
+    gScreenPixels = (uint8_t *)gScreenSurface->pixels;
+
+    // Get an event
+    SDL_Event event;
+    SDL_PollEvent(&event);
+
+/*
 //; FUNCTION CHUNK AT 027F SIZE 00000217 BYTES
 
         // mov dx, seg data
@@ -546,7 +608,7 @@ doesNotHaveCommandLine:         //; CODE XREF: start+13j start+23Fj ...
 leaveVideoStatus:           //; CODE XREF: start+28Aj
         ax = 0xA000;
         es = ax;
-        // assume es:nothing
+         assume es:nothing
         initializeFadePalette(); // 01ED:026F
         initializeMouse();
         setint8(); // Timer
@@ -560,25 +622,39 @@ leaveVideoStatus:           //; CODE XREF: start+28Aj
         initializeVideo2();
         initializeVideo3();
         si = 0x60D5;
-        setPalette();
-        readTitleDatAndGraphics();
-        si = 0x5F15;
-        fadeToPalette();
-
+ */
+    setPalette(gBlackPalette);
+    readTitleDatAndGraphics();
+    ColorPalette titleDatPalette; // si = 0x5F15;
+    for (int i = 0; i < kNumberOfColors; ++i)
+    {
+        uint8_t value = i * 255 / (kNumberOfColors - 1);
+        titleDatPalette[i] = (SDL_Color) {
+            value, value, value,
+            255,
+        };
+    }
+    titleDatPalette[0] = (SDL_Color) { 255, 0, 0, 255 };
+    titleDatPalette[1] = (SDL_Color) { 0, 255, 0, 255 };
+    titleDatPalette[2] = (SDL_Color) { 0, 0, 255, 255 };
+    titleDatPalette[3] = (SDL_Color) { 0, 255, 255, 255 };
+//    setPalette(titleDatPalette);
+    fadeToPalette(titleDatPalette);
+/*
 isFastMode:              //; CODE XREF: start+2ADj
-        loadMurphySprites();
-        initializeVideo3();
-        // Conditions to whether show 
-        al = byte_59B6B;
-        al |= byte_59B84;
-        al |= byte_599D4;
-        al |= fastMode;
-        if (al == 0)
-        {
-            goto openingSequence;
-        }
-        readEverything();
-        goto afterOpeningSequence;
+    loadMurphySprites();
+    initializeVideo3();
+    // Conditions to whether show
+    al = byte_59B6B;
+    al |= byte_59B84;
+    al |= byte_599D4;
+    al |= fastMode;
+    if (al == 0)
+    {
+        goto openingSequence;
+    }
+    readEverything();
+    goto afterOpeningSequence;
 //// ; ---------------------------------------------------------------------------
 
 openingSequence:
@@ -771,17 +847,17 @@ doneWithDemoPlayback:           //; CODE XREF: start+375j
         {
             goto isNotFastMode3;
         }
-        
+
         if (byte_5A19C == 0)
         {
             goto loc_47094;
         }
-        
+
         if (byte_5A19B == 0)
         {
             goto loc_4708E;
         }
-        
+
         si = *aDemoSuccessful; // "Demo successful: "
         goto printMessageAfterward;
 //// ; ---------------------------------------------------------------------------
@@ -822,29 +898,43 @@ immediateexit:              //; CODE XREF: start+D1j start+114j ...
 // ; START OF FUNCTION CHUNK FOR loadScreen2
 
 exit:                   //; CODE XREF: readConfig:loc_474BBj
-                    //; readConfig+3Bj ...
-        push(ax);
-        resetint9();
-        resetint24();
-        soundShutdown?();
-        sub_4D2E1();
-        resetint8();
-        pop(ax);
-        push(ax);
-        writeexitmessage();
-        pop(ax);
-        if (al != 0)
-        {
-            goto exitnow;
-        }
-        al--;
+*/
+        // Wait a bit
+        SDL_Delay(2000);
 
-exitnow:                //; CODE XREF: loadScreen2-7C9j
-        exit(al);  //mov ah, 4Ch
-//         int 21h     ; DOS - 2+ - QUIT WITH EXIT CODE (EXIT)
-// ; END OF FUNCTION CHUNK FOR loadScreen2 ; AL = exit code
+        // Tidy up
+        SDL_FreeSurface(gTextureSurface);
+        SDL_DestroyTexture(gTexture);
+        SDL_DestroyRenderer(gRenderer);
+        SDL_DestroyWindow(gWindow);
+        SDL_Quit();
+
+        return 0;
+
+//    //; readConfig+3Bj ...
+//        push(ax);
+//        resetint9();
+//        resetint24();
+//        soundShutdown?();
+//        sub_4D2E1();
+//        resetint8();
+//        pop(ax);
+//        push(ax);
+//        writeexitmessage();
+//        pop(ax);
+//        if (al != 0)
+//        {
+//            goto exitnow;
+//        }
+//        al--;
+//
+//exitnow:                //; CODE XREF: loadScreen2-7C9j
+//        exit(al);  //mov ah, 4Ch
+////         int 21h     ; DOS - 2+ - QUIT WITH EXIT CODE (EXIT)
+//// ; END OF FUNCTION CHUNK FOR loadScreen2 ; AL = exit code
 }
 
+/*
 //; =============== S U B R O U T I N E =======================================
 
 
@@ -3137,32 +3227,32 @@ locret_47BE7:               //; CODE XREF: readBitmapFonts+6Bj
 
 ; =============== S U B R O U T I N E =======================================
 
-
+*/
 void readTitleDatAndGraphics() // proc near  ; CODE XREF: start+2BBp
 {
-        // mov bx, 4D84h
-        // mov word_51967, bx
-        word_51967 = 0x4D84;
-        // mov dx, 3D4h
-        // al = 0Dh
-        // out dx, al      ; Video: CRT cntrlr addr
-        //             ; regen start address (low)
-        ports[0x3D4] = 0x0D; // data index (low) 0x0D
-        // inc dx
-        // al = bl
-        // out dx, al      ; Video: CRT controller internal registers
-        ports[0x3D5] = 0x84; // data address (low) 0x84
-        // mov dx, 3D4h
-        // al = 0Ch
-        // out dx, al      ; Video: CRT cntrlr addr
-        //             ; regen start address (high)
-        ports[0x3D4] = 0x0C; // data index (high) 0x0C
-        // inc dx
-        // al = bh
-        // out dx, al      ; Video: CRT controller internal registers
-        ports[0x3D5] = 0x4D; // data address (high) 0x0D
+//        // mov bx, 4D84h
+//        // mov word_51967, bx
+//        word_51967 = 0x4D84;
+//        // mov dx, 3D4h
+//        // al = 0Dh
+//        // out dx, al      ; Video: CRT cntrlr addr
+//        //             ; regen start address (low)
+//        ports[0x3D4] = 0x0D; // data index (low) 0x0D
+//        // inc dx
+//        // al = bl
+//        // out dx, al      ; Video: CRT controller internal registers
+//        ports[0x3D5] = 0x84; // data address (low) 0x84
+//        // mov dx, 3D4h
+//        // al = 0Ch
+//        // out dx, al      ; Video: CRT cntrlr addr
+//        //             ; regen start address (high)
+//        ports[0x3D4] = 0x0C; // data index (high) 0x0C
+//        // inc dx
+//        // al = bh
+//        // out dx, al      ; Video: CRT controller internal registers
+//        ports[0x3D5] = 0x4D; // data address (high) 0x0D
         videoloop();
-        byte_510A6 = 0;
+//        byte_510A6 = 0;
         FILE *file = fopen("TITLE.DAT", "r");
         // mov ax, 3D00h
         // mov dx, offset aTitle_dat ; "TITLE.DAT"
@@ -3170,15 +3260,14 @@ void readTitleDatAndGraphics() // proc near  ; CODE XREF: start+2BBp
         //             ; DS:DX -> ASCIZ filename
         //             ; AL = access mode
         //             ; 0 - read
-        if (file != NULL)
+        if (file == NULL)
         {
-            goto loc_47C18;
+            return; //goto exit;
         }
-        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_47C18:              // ; CODE XREF: readTitleDatAndGraphics+2Bj
-        lastFileHandle = file;
+//loc_47C18:              // ; CODE XREF: readTitleDatAndGraphics+2Bj
+//        lastFileHandle = file;
         // mov dx, 3CEh
         // al = 5
         // out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -3188,39 +3277,42 @@ loc_47C18:              // ; CODE XREF: readTitleDatAndGraphics+2Bj
         //             ; 3: read mode: 1=color compare, 0=direct
         //             ; 4: 1=use odd/even RAM addressing
         //             ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        ports[0x3CE] = 5; // set graphics mode
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0; // write mode 0
-        // mov dx, 3CEh
-        // al = 1
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; enable set/reset
-        ports[0x3CE] = 1; // enable set/reset
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0; // disable set/reset on all planes
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8; // bit mask
-        // inc dx
-        // al = 0FFh
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0xFF; // protect all bits
-        cx = 0xC8; // 200
-        di = 0x4D84; // di points to some memory address related to video? is this a frame buffer?
+//        ports[0x3CE] = 5; // set graphics mode
+//        // inc dx
+//        // al = 0
+//        // out dx, al      ; EGA port: graphics controller data register
+//        ports[0x3CF] = 0; // write mode 0
+//        // mov dx, 3CEh
+//        // al = 1
+//        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+//        //             ; enable set/reset
+//        ports[0x3CE] = 1; // enable set/reset
+//        // inc dx
+//        // al = 0
+//        // out dx, al      ; EGA port: graphics controller data register
+//        ports[0x3CF] = 0; // disable set/reset on all planes
+//        // mov dx, 3CEh
+//        // al = 8
+//        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+//        //             ; bit mask
+//        //             ; Bits 0-7 select bits to be masked in all planes
+//        ports[0x3CE] = 8; // bit mask
+//        // inc dx
+//        // al = 0FFh
+//        // out dx, al      ; EGA port: graphics controller data register
+//        ports[0x3CF] = 0xFF; // protect all bits
+//        cx = 0xC8; // 200
+//        di = 0x4D84; // di points to some memory address related to video? is this a frame buffer?
 
-        for (int j = 0; j < 200; j++)
+    const uint8_t kBytesPerRow = kScreenWidth / 2;
+    uint8_t fileData[kBytesPerRow];
+
+        for (int y = 0; y < kScreenHeight; y++)
         {
-loc_47C3F:              //; CODE XREF: readTitleDatAndGraphics+8Ej
-            push(cx);
+//loc_47C3F:              //; CODE XREF: readTitleDatAndGraphics+8Ej
+//            push(cx);
             // read 160 bytes from title.dat
-            int bytesRead = fread(&fileLevelData, 1, 160, lastFileHandle);
+            size_t bytesRead = fread(fileData, sizeof(uint8_t), kBytesPerRow, file);
             // mov ax, 3F00h
             // mov bx, lastFileHandle
             // cx = 0xA0; // 160
@@ -3228,51 +3320,70 @@ loc_47C3F:              //; CODE XREF: readTitleDatAndGraphics+8Ej
             // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
             //             ; BX = file handle, CX = number of bytes to read
             //             ; DS:DX -> buffer
-            if (bytesRead != 0)
+            if (bytesRead < kBytesPerRow)
             {
-                goto loc_47C54;
+                return; //goto exit;
             }
-            goto exit;
+
+            for (int x = 0; x < kScreenWidth; ++x)
+            {
+                uint16_t destPixelAddress = y * kScreenWidth + x;
+
+                uint8_t sourcePixelAddress = x / 8;
+                uint8_t sourcePixelBitPosition = 7 - (x % 8);
+
+                uint8_t b = (fileData[sourcePixelAddress + 0] >> sourcePixelBitPosition) & 0x1;
+                uint8_t g = (fileData[sourcePixelAddress + 40] >> sourcePixelBitPosition) & 0x1;
+                uint8_t r = (fileData[sourcePixelAddress + 80] >> sourcePixelBitPosition) & 0x1;
+                uint8_t i = (fileData[sourcePixelAddress + 120] >> sourcePixelBitPosition) & 0x1;
+
+                uint8_t finalColor = ((r << 0)
+                                      | (g << 1)
+                                      | (b << 2)
+                                      | (i << 3));
+
+                gScreenPixels[destPixelAddress] = finalColor;
+            }
+
 // ; ---------------------------------------------------------------------------
 
-loc_47C54:             // ; CODE XREF: readTitleDatAndGraphics+67j
-            si = &fileLevelData;
-            ah = 1;
+//loc_47C54:             // ; CODE XREF: readTitleDatAndGraphics+67j
+//            si = &fileLevelData;
+//            ah = 1;
+//
+//            // 4 is the number of planes (rgb and intensity)
+//            // it goes copying 40 bytes for each plane at a time
+//            for (int i = 0; i < 4; ++i)
+//            {
+//                ports[0x3C4] = 2; // sequencer index 2: map mask (to choose which plane to render: rgb or intensity)
+//                ports[0x3C5] = ah; // sequencer value whatever is ah (takes 0x1 blue, 0x2 green, 0x4 red and 0x8 intensity)
+//                memcpy(di, si, 40);
+//                si += 40;
+//                ah = ah << 1;
+//            }
 
-            // 4 is the number of planes (rgb and intensity)
-            // it goes copying 40 bytes for each plane at a time
-            for (int i = 0; i < 4; ++i)
-            {
-                ports[0x3C4] = 2; // sequencer index 2: map mask (to choose which plane to render: rgb or intensity)
-                ports[0x3C5] = ah; // sequencer value whatever is ah (takes 0x1 blue, 0x2 green, 0x4 red and 0x8 intensity)
-                memcpy(di, si, 40);
-                si += 40;
-                ah = ah << 1;
-            }
+//// iterates 4 times: with ah taking values 0x1, 0x2, 0x4, 0x8
+//loc_47C59:              ; CODE XREF: readTitleDatAndGraphics+88j
+//            // mov dx, 3C4h
+//            // al = 2
+//            // out dx, al      ; EGA: sequencer address reg
+//            //             ; map mask: data bits 0-3 enable writes to bit planes 0-3
+//            ports[0x3C4] = 2; // sequencer index 2
+//            // inc dx
+//            // al = ah
+//            // out dx, al      ; EGA port: sequencer data register
+//            ports[0x3C5] = ah; // sequencer value whatever is ah (takes 0x1, 0x2, 0x4 and 0x8)
+//            cx = 40;
+//            memcpy(di, si, 40);
+//            si += 40;
+//            // rep movsb // this copies the first 40 bytes of the string in si to di (so from fileLevelData to di)
+//            // sub di, 28h ; '(' // makes di point to the beginning of the data again
+//            ah = ah << 1;
+//            if (ah > 0xF)
+//            {
+//                goto loc_47C59;
+//            }
 
-/*        
-// iterates 4 times: with ah taking values 0x1, 0x2, 0x4, 0x8
-loc_47C59:              ; CODE XREF: readTitleDatAndGraphics+88j
-            // mov dx, 3C4h
-            // al = 2
-            // out dx, al      ; EGA: sequencer address reg
-            //             ; map mask: data bits 0-3 enable writes to bit planes 0-3
-            ports[0x3C4] = 2; // sequencer index 2
-            // inc dx
-            // al = ah
-            // out dx, al      ; EGA port: sequencer data register
-            ports[0x3C5] = ah; // sequencer value whatever is ah (takes 0x1, 0x2, 0x4 and 0x8)
-            cx = 40;
-            memcpy(di, si, 40);
-            si += 40;
-            // rep movsb // this copies the first 40 bytes of the string in si to di (so from fileLevelData to di)
-            // sub di, 28h ; '(' // makes di point to the beginning of the data again
-            ah = ah << 1;
-            if (ah > 0xF)
-            {
-                goto loc_47C59;
-            }
-    */
             di += 122;
             // pop(cx);
             // cx--;
@@ -3282,37 +3393,36 @@ loc_47C59:              ; CODE XREF: readTitleDatAndGraphics+88j
             // }
         }
         
-        if (fclose(lastFileHandle) == 0)
+        if (fclose(file) != 0)
         {
-            goto loc_47C86;
+            return; //goto exit;
         }
-        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_47C86:              //; CODE XREF: readTitleDatAndGraphics+99j
-        // mov dx, 3C4h
-        // al = 2
-        // out dx, al      ; EGA: sequencer address reg
-        //             ; map mask: data bits 0-3 enable writes to bit planes 0-3
-        ports[0x3C4] = 2; // sequencer index 2
-        // inc dx
-        // al = 0Fh
-        // out dx, al      ; EGA port: sequencer data register
-        ports[0x3C5] = 0xF; // sequencer value 0xF
-        // mov dx, 3CEh
-        // al = 1
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; enable set/reset
-        ports[0x3CE] = 1; // palette index 1
-        // inc dx
-        // al = 0Fh
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0xF; // palette value 0xF
+//loc_47C86:              //; CODE XREF: readTitleDatAndGraphics+99j
+//        // mov dx, 3C4h
+//        // al = 2
+//        // out dx, al      ; EGA: sequencer address reg
+//        //             ; map mask: data bits 0-3 enable writes to bit planes 0-3
+//        ports[0x3C4] = 2; // sequencer index 2
+//        // inc dx
+//        // al = 0Fh
+//        // out dx, al      ; EGA port: sequencer data register
+//        ports[0x3C5] = 0xF; // sequencer value 0xF
+//        // mov dx, 3CEh
+//        // al = 1
+//        // out dx, al      ; EGA: graph 1 and 2 addr reg:
+//        //             ; enable set/reset
+//        ports[0x3CE] = 1; // palette index 1
+//        // inc dx
+//        // al = 0Fh
+//        // out dx, al      ; EGA port: graphics controller data register
+//        ports[0x3CF] = 0xF; // palette value 0xF
         // return;
 // readTitleDatAndGraphics endp
 }
 
-
+/*
 // ; =============== S U B R O U T I N E =======================================
 
 
@@ -16616,111 +16726,118 @@ getMouseStatus   endp
 
 ; =============== S U B R O U T I N E =======================================
 
-
+*/
 void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
 {
-        push    dx
-        push    ax
-        cmp byte ptr dword_59B67, 0
-        jnz short waitForVsync
-        mov dx, 3DAh // check http://stanislavs.org/helppc/6845.html
-        cli
-        in  al, dx      ; Video status bits:
-                    ; 0: retrace.  1=display is in vert or horiz retrace.
-                    ; 1: 1=light pen is triggered; 0=armed
-                    ; 2: 1=light pen switch is open; 0=closed
-                    ; 3: 1=vertical sync pulse is occurring.
-        mov ah, al
-        mov dx, 3C0h
-        al = 33h ; '3'
-        out dx, al      ; EGA: horizontal pixel panning:
-                    ; Number of dots to shift data left.
-                    ; Bits 0-3 valid (0-0fH)
-        al = byte_510A6
-        out dx, al      ; EGA: palette register: select colors for attribute AL:
-                    ; 0: RED
-                    ; 1: GREEN
-                    ; 2: BLUE
-                    ; 3: blue
-                    ; 4: green
-                    ; 5: red
-        test    ah, 8
-        jnz short loc_4D453
+    SDL_BlitSurface(gScreenSurface, NULL, gTextureSurface, NULL);
 
-waitForVsync:              ; CODE XREF: videoloop+7j
-                    ; videoloop+31j
-        sti
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        mov dx, 3DAh
-        cli
-        in  al, dx      ; Video status bits:
-                    ; 0: retrace.  1=display is in vert or horiz retrace.
-                    ; 1: 1=light pen is triggered; 0=armed
-                    ; 2: 1=light pen switch is open; 0=closed
-                    ; 3: 1=vertical sync pulse is occurring.
-        test    al, 1000b
-        jz  short waitForVsync
-        cmp byte ptr dword_59B67, 0
-        jz  short loc_4D453
-        mov dx, 3C0h
-        al = 33h ; '3'
-        out dx, al      ; EGA: horizontal pixel panning:
-                    ; Number of dots to shift data left.
-                    ; Bits 0-3 valid (0-0fH)
-        al = byte_510A6
-        out dx, al      ; EGA: palette register: select colors for attribute AL:
-                    ; 0: RED
-                    ; 1: GREEN
-                    ; 2: BLUE
-                    ; 3: blue
-                    ; 4: green
-                    ; 5: red
+    SDL_UpdateTexture(gTexture, NULL, gTextureSurface->pixels, gTextureSurface->pitch);
+    SDL_RenderClear(gRenderer);
+    SDL_RenderCopy(gRenderer, gTexture, NULL, NULL);
+    SDL_RenderPresent(gRenderer);
 
-loc_4D453:              ; CODE XREF: videoloop+1Dj
-                    ; videoloop+38j
-        sti
-        pop ax
-        pop dx
-        return;
+//        push    dx
+//        push    ax
+//        cmp byte ptr dword_59B67, 0
+//        jnz short waitForVsync
+//        mov dx, 3DAh // check http://stanislavs.org/helppc/6845.html
+//        cli
+//        in  al, dx      ; Video status bits:
+//                    ; 0: retrace.  1=display is in vert or horiz retrace.
+//                    ; 1: 1=light pen is triggered; 0=armed
+//                    ; 2: 1=light pen switch is open; 0=closed
+//                    ; 3: 1=vertical sync pulse is occurring.
+//        mov ah, al
+//        mov dx, 3C0h
+//        al = 33h ; '3'
+//        out dx, al      ; EGA: horizontal pixel panning:
+//                    ; Number of dots to shift data left.
+//                    ; Bits 0-3 valid (0-0fH)
+//        al = byte_510A6
+//        out dx, al      ; EGA: palette register: select colors for attribute AL:
+//                    ; 0: RED
+//                    ; 1: GREEN
+//                    ; 2: BLUE
+//                    ; 3: blue
+//                    ; 4: green
+//                    ; 5: red
+//        test    ah, 8
+//        jnz short loc_4D453
+//
+//waitForVsync:              ; CODE XREF: videoloop+7j
+//                    ; videoloop+31j
+//        sti
+//        nop
+//        nop
+//        nop
+//        nop
+//        nop
+//        nop
+//        nop
+//        nop
+//        nop
+//        nop
+//        mov dx, 3DAh
+//        cli
+//        in  al, dx      ; Video status bits:
+//                    ; 0: retrace.  1=display is in vert or horiz retrace.
+//                    ; 1: 1=light pen is triggered; 0=armed
+//                    ; 2: 1=light pen switch is open; 0=closed
+//                    ; 3: 1=vertical sync pulse is occurring.
+//        test    al, 1000b
+//        jz  short waitForVsync
+//        cmp byte ptr dword_59B67, 0
+//        jz  short loc_4D453
+//        mov dx, 3C0h
+//        al = 33h ; '3'
+//        out dx, al      ; EGA: horizontal pixel panning:
+//                    ; Number of dots to shift data left.
+//                    ; Bits 0-3 valid (0-0fH)
+//        al = byte_510A6
+//        out dx, al      ; EGA: palette register: select colors for attribute AL:
+//                    ; 0: RED
+//                    ; 1: GREEN
+//                    ; 2: BLUE
+//                    ; 3: blue
+//                    ; 4: green
+//                    ; 5: red
+//
+//loc_4D453:              ; CODE XREF: videoloop+1Dj
+//                    ; videoloop+38j
+//        sti
+//        pop ax
+//        pop dx
+//        return;
 // videoloop   endp
 }
 
 
-; =============== S U B R O U T I N E =======================================
+//; =============== S U B R O U T I N E =======================================
 
 
 void loopForVSync() //   proc near       ; CODE XREF: crt?2+55p crt?1+41p ...
 {
-    /*
-        push    dx
-        push    ax
+    SDL_Delay(16);
+//        push    dx
+//        push    ax
+//
+//loc_4D459:              ; CODE XREF: loopForVSync+8j
+//        mov dx, 3DAh
+//        in  al, dx      ; Video status bits:
+//                    ; 0: retrace.  1=display is in vert or horiz retrace.
+//                    ; 1: 1=light pen is triggered; 0=armed
+//                    ; 2: 1=light pen switch is open; 0=closed
+//                    ; 3: 1=vertical sync pulse is occurring.
+//        test    al, 8
+//        jnz short loc_4D459
+//        pop ax
+//        pop dx
+//        return;
 
-loc_4D459:              ; CODE XREF: loopForVSync+8j
-        mov dx, 3DAh
-        in  al, dx      ; Video status bits:
-                    ; 0: retrace.  1=display is in vert or horiz retrace.
-                    ; 1: 1=light pen is triggered; 0=armed
-                    ; 2: 1=light pen switch is open; 0=closed
-                    ; 3: 1=vertical sync pulse is occurring.
-        test    al, 8
-        jnz short loc_4D459
-        pop ax
-        pop dx
-        return;
-        */
 // loopForVSync   endp
 }
 
-
+/*
 ; =============== S U B R O U T I N E =======================================
 
 
@@ -17236,313 +17353,280 @@ readLevels  endp
 // ; =============== S U B R O U T I N E =======================================
 
 // ; Attributes: bp-based frame
+*/
 
-void fadeToPalette() //        proc near       ; CODE XREF: start+2C1p start+312p ...
+void fadeToPalette(ColorPalette palette) //        proc near       ; CODE XREF: start+2C1p start+312p ...
 {
     // Parameters:
     // si -> points to the first color of the palette to fade to
-        int var_8;
-        int var_6;
-        int remainingSteps;
-        int var_2;
-
-        push(bp);
-        bp = sp;
-        sp += 0x0FFF8;
-        push(es);
-        if (videoStatusUnk != 2)
-        {
-            goto loc_4D706;
-        }
-        
-        setPalette();
-        pop(es);
-        sp = bp;
-        pop(bp);
-        return;
+//    int var_8;
+//    int var_6;
+//    int remainingSteps;
+//    int var_2;
+//
+//    push(bp);
+//    bp = sp;
+//    sp += 0x0FFF8;
+//    push(es);
+//        if (videoStatusUnk != 2)
+//        {
+//            goto loc_4D706;
+//        }
+//
+//        setPalette();
+//        pop(es);
+//        sp = bp;
+//        pop(bp);
+//        return;
 // ; ---------------------------------------------------------------------------
 
-loc_4D706:              //; CODE XREF: fade+Cj
-        push(si);
-        ax = ds;
-        es = ax;
-        // assume es:data
-        old_word_510A2 = word_510A2;
-        word_510A2 = 0;
-        cx = 0x40; // '@'   64
-        di = &fileLevelData;
-        
-        // reads 64 values from si, shifts it twice to the left, stores them in si
-        // is this a palette? why the SHL 2?
-        // Maybe the SHL2 is because the port expects only 6 bits per component (http://www.osdever.net/FreeVGA/vga/colorreg.htm#3C9)
-        for (int i = 0; i < 64; ++i)
-        {
-            di[i] = si[i] << 2;
-        }
-/*
-loc_4D71D:              //; CODE XREF: fade+33j
-        al = ds:[si];
-        si++;
-        al = al << 2;
-        ds:[di] = al;
-        di++;
-        cx--;
-        if (cx > 0)
-        {
-            goto loc_4D71D;
-        }
-*/
-        ports[0x3C7] = 0; // sets the palette index to read to 0 (first color)
+//loc_4D706:              //; CODE XREF: fade+Cj
+//    push(si);
+//    ax = ds;
+//    es = ax;
+//    // assume es:data
+//    old_word_510A2 = word_510A2;
+//    word_510A2 = 0;
+//    cx = 0x40; // '@'   64
+//    di = &fileLevelData;
+//
+//    // reads 64 values from si, shifts it twice to the left, stores them in si
+//    // is this a palette? why the SHL 2?
+//    // Maybe the SHL2 is because the port expects only 6 bits per component (http://www.osdever.net/FreeVGA/vga/colorreg.htm#3C9)
+//    for (int i = 0; i < 64; ++i)
+//    {
+//        di[i] = si[i] << 2;
+//    }
 
-        dx = 0x3C9; // This is where the bytes will be read from, which is the DAC pixel data register (check page 174)
-        di = 0x6115; // What's this exactly? seems to be a buffer used to hold the current palette
-        cx = 0x10; // 16 colors
-        
-        // Reads 16 pixels from the palette
-        for (int i = 0; i < 16; ++i)
-        {
-            di[0] = ports[0x3C9]; // reads r
-            di[1] = ports[0x3C9]; // reads g
-            di[2] = ports[0x3C9]; // reads b
-            di += 3;
-            di += 1; // no idea why this extra add?? alpha color? LOL! Intensity maybe??
-        }
-/*
-loc_4D734:              // ; CODE XREF: fade+51j
-        al = ports[dx]; // r
-        *di = al;
-        di++;
-        al = ports[dx]; // g
-        *di = al;
-        di++;
-        al = ports[dx]; // b
-        *di = al;
-        di++;
-        di++;
-        cx--;
-        if (cx > 0)
-        {
-            goto loc_4D734;
-        }*/
-        currentStep = 0;
-        remainingSteps = 0x3F; // 63 remainingSteps to perform fade?
+//loc_4D71D:              //; CODE XREF: fade+33j
+//        al = ds:[si];
+//        si++;
+//        al = al << 2;
+//        ds:[di] = al;
+//        di++;
+//        cx--;
+//        if (cx > 0)
+//        {
+//            goto loc_4D71D;
+//        }
 
-loc_4D74F:              //; CODE XREF: fade+134j
-        ports[0x3C8] = 0; // we're gonna start writing colors in the palette starting from 0
-        cx = 0x10; // 16 colors
-        si = &fileLevelData; // why
-        di = 0x6115; // Point back to where we saved the previous pixels
-        
-        dest_palette = &fileLevelData;
-        source_palette = 0x6115;
-        
-        int totalSteps = 63;
-        
-        for (int step = 0; step < totalSteps; ++step)
-        {
-            int remainingSteps = totalSteps - step;
+//    ports[0x3C7] = 0; // sets the palette index to read to 0 (first color)
+//
+//    dx = 0x3C9; // This is where the bytes will be read from, which is the DAC pixel data register (check page 174)
+//    di = 0x6115; // What's this exactly? seems to be a buffer used to hold the current palette
+//    cx = 0x10; // 16 colors
+//
+//    // Reads 16 pixels from the palette
+//    for (int i = 0; i < 16; ++i)
+//    {
+//        di[0] = ports[0x3C9]; // reads r
+//        di[1] = ports[0x3C9]; // reads g
+//        di[2] = ports[0x3C9]; // reads b
+//        di += 3;
+//        di += 1; // no idea why this extra add?? alpha color? LOL! Intensity maybe??
+//    }
 
-            for (int i = 0; i < 16; ++i);
-            {
-                int r = (dest_palette[i].r * step / 64) + (source_palette[i].r * remainingSteps / 64);
-                int g = (dest_palette[i].g * step / 64) + (source_palette[i].g * remainingSteps / 64);
-                int b = (dest_palette[i].b * step / 64) + (source_palette[i].b * remainingSteps / 64);
-                
-                ports[0x3C9] = r;
-                ports[0x3C9] = g;
-                ports[0x3C9] = b;
-            }
-            
-            videoloop();
-            loopForVSync();
+//loc_4D734:              // ; CODE XREF: fade+51j
+//        al = ports[dx]; // r
+//        *di = al;
+//        di++;
+//        al = ports[dx]; // g
+//        *di = al;
+//        di++;
+//        al = ports[dx]; // b
+//        *di = al;
+//        di++;
+//        di++;
+//        cx--;
+//        if (cx > 0)
+//        {
+//            goto loc_4D734;
+//        }
+
+//loc_4D74F:              //; CODE XREF: fade+134j
+//        ports[0x3C8] = 0; // we're gonna start writing colors in the palette starting from 0
+//        cx = 0x10; // 16 colors
+//        si = &fileLevelData; // why
+//        di = 0x6115; // Point back to where we saved the previous pixels
+
+    ColorPalette intermediatePalette;
+//    dest_palette = &fileLevelData;
+//    source_palette = 0x6115;
+
+    uint8_t totalSteps = 64;
+
+    for (uint8_t step = 0; step < totalSteps; ++step)
+    {
+        uint8_t remainingSteps = totalSteps - step;
+
+        for (uint8_t i = 0; i < kNumberOfColors; ++i)
+        {
+            uint8_t r = (palette[i].r * step / totalSteps) + (gCurrentPalette[i].r * remainingSteps / totalSteps);
+            uint8_t g = (palette[i].g * step / totalSteps) + (gCurrentPalette[i].g * remainingSteps / totalSteps);
+            uint8_t b = (palette[i].b * step / totalSteps) + (gCurrentPalette[i].b * remainingSteps / totalSteps);
+
+            intermediatePalette[i] = (SDL_Color) { r, g, b, 255};
         }
 
-/*
-loc_4D75E:              //; CODE XREF: fade+115j
-        al = [si]; // value from palette level?
-        ah = 0;
-        ax = ax * currentStep;
-        ax = ax / 64;
-        var_6 = ax;
-        al = [di]
-        ah = 0;
-        ax = ax * remainingSteps;
-        ax = ax / 64;
-        ax += var_6;
-        color = (source * current / 64) + (dest * remaining / 64);
-        di++;
-        si++;
-        ports[0x3C9] = al; // r
-        al = [si];
-        ah = 0;
-        ax = ax * currentStep;
-        ax = ax / 64;
-        var_6 = ax;
-        al = [di];
-        ah = 0;
-        ax = ax * remainingSteps;
-        ax = ax / 64;
-        add ax, var_6
-        di++;
-        si++;
-        ports[0x3C9] = al; // g
-        al = [si]
-        ah = 0;
-        ax = ax * currentStep;
-        ax = ax / 64;
-        var_6 = ax;
-        al = [di];
-        ah = 0;
-        ax = ax * remainingSteps;
-        ax = ax / 64;
-        ax += var_6;
-        di++;
-        si++;
-        ports[0x3C9] = al; // b
-        si++;
-        di++; // why the extra add? wtf? alpha??
-        cx--;
-        if (cx == 0)
-        {
-            goto loc_4D808;
-        }
-        goto loc_4D75E;
-// ; ---------------------------------------------------------------------------
+        SDL_SetPaletteColors(gScreenSurface->format->palette, intermediatePalette, 0, kNumberOfColors);
 
-loc_4D808:              //; CODE XREF: fade+113j
-        if (fastMode == 1)
-        {
-            goto isFastMode4;
-        }
         videoloop();
         loopForVSync();
+    }
 
-isFastMode4:              //; CODE XREF: fade+11Dj
-        remainingSteps--;
-        currentStep++;
-        if (currentStep > 0x3F) // 63
-        {
-            goto loc_4D827;
-        }
-        goto loc_4D74F;
-*/
+
+//loc_4D75E:              //; CODE XREF: fade+115j
+//        al = [si]; // value from palette level?
+//        ah = 0;
+//        ax = ax * currentStep;
+//        ax = ax / 64;
+//        var_6 = ax;
+//        al = [di]
+//        ah = 0;
+//        ax = ax * remainingSteps;
+//        ax = ax / 64;
+//        ax += var_6;
+//        color = (source * current / 64) + (dest * remaining / 64);
+//        di++;
+//        si++;
+//        ports[0x3C9] = al; // r
+//        al = [si];
+//        ah = 0;
+//        ax = ax * currentStep;
+//        ax = ax / 64;
+//        var_6 = ax;
+//        al = [di];
+//        ah = 0;
+//        ax = ax * remainingSteps;
+//        ax = ax / 64;
+//        add ax, var_6
+//        di++;
+//        si++;
+//        ports[0x3C9] = al; // g
+//        al = [si]
+//        ah = 0;
+//        ax = ax * currentStep;
+//        ax = ax / 64;
+//        var_6 = ax;
+//        al = [di];
+//        ah = 0;
+//        ax = ax * remainingSteps;
+//        ax = ax / 64;
+//        ax += var_6;
+//        di++;
+//        si++;
+//        ports[0x3C9] = al; // b
+//        si++;
+//        di++; // why the extra add? wtf? alpha??
+//        cx--;
+//        if (cx == 0)
+//        {
+//            goto loc_4D808;
+//        }
+//        goto loc_4D75E;
+//// ; ---------------------------------------------------------------------------
+//
+//loc_4D808:              //; CODE XREF: fade+113j
+//        if (fastMode == 1)
+//        {
+//            goto isFastMode4;
+//        }
+//        videoloop();
+//        loopForVSync();
+//
+//isFastMode4:              //; CODE XREF: fade+11Dj
+//        remainingSteps--;
+//        currentStep++;
+//        if (currentStep > 0x3F) // 63
+//        {
+//            goto loc_4D827;
+//        }
+//        goto loc_4D74F;
+
 // ; ---------------------------------------------------------------------------
 
-loc_4D827:              //; CODE XREF: fade+132j
-        pop(si);
-        setPalette();
-        word_510A2 = old_word_510A2;
+//loc_4D827:              //; CODE XREF: fade+132j
+//        pop(si);
+    setPalette(palette);
+//        word_510A2 = old_word_510A2;
 }
-
 
 // ; =============== S U B R O U T I N E =======================================
 
 // ; Attributes: bp-based frame
 
-void setPalette() //   proc near       ; CODE XREF: start+2B8p
+void setPalette(ColorPalette palette) //   proc near       ; CODE XREF: start+2B8p
                    // ; loadScreen2+B5p ...
 {
+    SDL_SetPaletteColors(gScreenSurface->format->palette, palette, 0, kNumberOfColors);
+    memcpy(gCurrentPalette, palette, sizeof(ColorPalette));
+//    int old_word_510A2; //       = word ptr -2
 
-int old_word_510A2; //       = word ptr -2
+//    push(bp);
+//    bp = sp;
+//    sp += 0xFFFE;
+//    old_word_510A2 = word_510A2;
+//    word_510A2 = 0;
+//    if (videoStatusUnk != 1) // not gonna happen
+//    {
+//        goto loc_4D872;
+//    }
+//    cx = 0x10; // 16 colors
+//    ports[0x3C8] = 0; // start writing palette from index 0
+//    dx = 0x3C9;
+//
+//    for (int i = 0; i < 16; ++i)
+//    {
+//        ports[0x3C9] = si[0] * 4; // r
+//        ports[0x3C9] = si[1] * 4; // g
+//        ports[0x3C9] = si[2] * 4; // b
+//        si += 3;
+//        si++; // extra add for something, intensity maybe?
+//    }
 
-        push(bp);
-        bp = sp;
-        sp += 0xFFFE;
-        old_word_510A2 = word_510A2;
-        word_510A2 = 0;
-        if (videoStatusUnk != 1) // not gonna happen
-        {
-            goto loc_4D872;
-        }
-        cx = 0x10; // 16 colors
-        ports[0x3C8] = 0; // start writing palette from index 0
-        dx = 0x3C9;
-        
-        for (int i = 0; i < 16; ++i)
-        {
-            ports[0x3C9] = si[0] * 4; // r
-            ports[0x3C9] = si[1] * 4; // g
-            ports[0x3C9] = si[2] * 4; // b
-            si += 3;
-            si++; // extra add for something, intensity maybe?
-        }
-/*
-loc_4D85B:              //; CODE XREF: setPalette+38j
-        lodsb // loads from DS:SI into AL
-        al = ds:[si];
-        si++;
-        al = al * 4;
-        ports[0x3C9] = al; // r
-        al = ds:[si];
-        si++;
-        al = al * 4;
-        ports[0x3C9] = al; // g
-        al = ds:[si];
-        si++;
-        al = al * 4;
-        ports[0x3C9] = al; // b
-        al = ds:[si]; // This extra is the usual, not used, just wtf is the alpha or what :lol:
-        di++;
-        cx--;
-        if (cx > 0)
-        {
-            goto loc_4D85B;
-        }
-        goto loc_4D89E;
-        */
+//loc_4D85B:              //; CODE XREF: setPalette+38j
+//        lodsb // loads from DS:SI into AL
+//        al = ds:[si];
+//        si++;
+//        al = al * 4;
+//        ports[0x3C9] = al; // r
+//        al = ds:[si];
+//        si++;
+//        al = al * 4;
+//        ports[0x3C9] = al; // g
+//        al = ds:[si];
+//        si++;
+//        al = al * 4;
+//        ports[0x3C9] = al; // b
+//        al = ds:[si]; // This extra is the usual, not used, just wtf is the alpha or what :lol:
+//        di++;
+//        cx--;
+//        if (cx > 0)
+//        {
+//            goto loc_4D85B;
+//        }
+//        goto loc_4D89E;
+
 // ; ---------------------------------------------------------------------------
 
-/*
-// This only happens if videoStatusUnk is different than 1, which should never happen
-loc_4D872:              ; CODE XREF: setPalette+17j
-        mov cx, 10h // 16 colors
-        mov dx, 0
-        mov di, 611h
 
-loc_4D87B:              ; CODE XREF: setPalette+58j
-        lodsb
-        lodsb
-        lodsb
-        lodsb
-        mov bh, al
-        and bh, 7
-        and al, 8
-        shl al, 1
-        or  bh, al
-        mov [di], bh
-        inc di
-        inc dx
-        loop    loc_4D87B
-        push    es
-        mov ax, ds
-        mov es, ax
-        assume es:data
-        mov ax, 1002h
-        mov dx, 611h
-        int 10h     ; - VIDEO - SET ALL PALETTE REGISTERS (Jr, PS, TANDY 1000, EGA, VGA)
-                    ; ES:DX -> 17-byte palette register list
-        pop es
-        assume es:nothing
-*/
-
-loc_4D89E:              //; CODE XREF: setPalette+3Aj
-        word_510A2 = old_word_510A2;
+//loc_4D89E:              //; CODE XREF: setPalette+3Aj
+//        word_510A2 = old_word_510A2;
 // setPalette   endp
 }
 /*
 // ; ---------------------------------------------------------------------------
-        db  2Eh ; .
-        db  8Bh ; ?
-        db 0C0h ; +
-        db  2Eh ; .
-        db  8Bh ; ?
-        db 0C0h ; +
-        db  8Bh ; ?
-        db 0C0h ; +
+//        db  2Eh ; .
+//        db  8Bh ; ?
+//        db 0C0h ; +
+//        db  2Eh ; .
+//        db  8Bh ; ?
+//        db 0C0h ; +
+//        db  8Bh ; ?
+//        db 0C0h ; +
+//
+//; =============== S U B R O U T I N E =======================================
 
-; =============== S U B R O U T I N E =======================================
-
-*/
 void initializeSound() //   proc near       ; CODE XREF: start+2A5p
 {
         push(ds)
@@ -23902,3 +23986,4 @@ include DATA.INC
 
 
 end start
+*/
