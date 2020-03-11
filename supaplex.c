@@ -560,10 +560,10 @@ leaveVideoStatus:           //; CODE XREF: start+28Aj
         initializeVideo2();
         initializeVideo3();
         si = 0x60D5;
-        fade2();
+        setPalette();
         readTitleDatAndGraphics();
         si = 0x5F15;
-        fade();
+        fadeToPalette();
 
 isFastMode:              //; CODE XREF: start+2ADj
         loadMurphySprites();
@@ -611,7 +611,7 @@ loc_46F25:              //; CODE XREF: start+2FEj
 
 isNotFastMode:              //; CODE XREF: start+30Aj
         si = 0x60D5;
-        fade();
+        fadeToPalette();
         word_58467 = 1;
         goto loc_46FBE;
 //// ; ---------------------------------------------------------------------------
@@ -619,7 +619,7 @@ isNotFastMode:              //; CODE XREF: start+30Aj
 loc_46F3E:              //; CODE XREF: start+428j start+444j
         readLevels();
         si = 0x60D5;
-        fade();
+        fadeToPalette();
         byte_5A33F = 0;
         drawCurrentPlayerInfo();
         sub_48A20();
@@ -631,7 +631,7 @@ loc_46F3E:              //; CODE XREF: start+428j start+444j
         enableFloppy();
         findMurphy();
         si = 0x6015;
-        fade();
+        fadeToPalette();
         if (isMusicEnabled != 0)
         {
             goto loc_46F77;
@@ -762,7 +762,7 @@ loc_4704B:              //; CODE XREF: start+3EEj start+3F2j
 
 loc_47067:              //; CODE XREF: start+36Bj start+391j ...
         si = 0x60D5;
-        fade();
+        fadeToPalette();
 
 doneWithDemoPlayback:           //; CODE XREF: start+375j
         resetint9();
@@ -2368,7 +2368,7 @@ loc_47884:             // ; CODE XREF: openCreditsBlock+C7j
     // out dx, al      ; Video: CRT controller internal registers
     ports[0x3D5] = bh;
     si = 5F55h;
-    fade(); // fades current frame buffer into the title 2.dat (screen with the credits)
+    fadeToPalette(); // fades current frame buffer into the title 2.dat (screen with the credits)
     sp = bp;
     pop(bp);
     return
@@ -2537,7 +2537,7 @@ loc_4792E:              //; CODE XREF: loadScreen2+76j
         videoloop();
         byte_510A6 = 0;
         si = 0x5F95;
-        fade2();
+        setPalette();
         // mov ax, 3D00h
         // mov dx, aTitle2_dat // "TITLE2.DAT"
         // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
@@ -3908,7 +3908,7 @@ void sub_47F39() //   proc near       ; CODE XREF: readPalettes+Fp
 {
         call    enableFloppy
         mov si, 60D5h
-        call    fade2
+        call    setPalette
         call    vgaloadbackseg
         cmp byte_53A10, 1
         jnz short loc_47F56
@@ -3926,7 +3926,7 @@ loc_47F5E:              ; CODE XREF: sub_47F39+1Bj
         mov ah, 0Fh
         call    drawTextWithChars6Font_method2
         mov si, palettesDataBuffer
-        call    fade2
+        call    setPalette
         mov bx, 4D84h
         mov dx, 3D4h
         al = 0Dh
@@ -3945,7 +3945,7 @@ loc_47F5E:              ; CODE XREF: sub_47F39+1Bj
         call    sub_47E98
         pushf
         mov si, 60D5h
-        call    fade2
+        call    setPalette
         popf
         return;
 // sub_47F39   endp
@@ -7870,7 +7870,7 @@ loc_49B84:              ; CODE XREF: sub_4955B+619j
         call    getTime
         call    sub_4A1AE
         mov si, 60D5h
-        call    fade2
+        call    setPalette
         call    sub_48F6D
         call    sub_501C0
         call    sub_4A2E6
@@ -14190,7 +14190,7 @@ sub_4C4BD   endp
 
 sub_4C4F9   proc near       ; CODE XREF: sub_4C407+11p
         mov si, 60D5h
-        call    fade2
+        call    setPalette
         call    vgaloadbackseg
         mov si, 8577h
         mov di, 6A2Ch
@@ -14250,14 +14250,14 @@ loc_4C55C:              ; CODE XREF: sub_4C4F9+31j
         out dx, al      ; Video: CRT controller internal registers
         call    videoloop
         mov si, palettesDataBuffer
-        call    fade2
+        call    setPalette
         cmp word_5197A, 1
         jz  short loc_4C591
         call    sub_47E98
 
 loc_4C591:              ; CODE XREF: sub_4C4F9+93j
         mov si, 60D5h
-        call    fade2
+        call    setPalette
         mov bx, 4D5Ch
         mov dx, 3D4h
         al = 0Dh
@@ -14702,7 +14702,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
     byte_510A6 = 0;
     videoloop();
     si = 6015h;
-    fade();
+    fadeToPalette();
     word_58467 = 0;
     goto loc_4C7F4;
 // ; ---------------------------------------------------------------------------
@@ -15041,7 +15041,7 @@ showControls:                              ; DATA XREF: data:0044o
                 call    sub_4CC7C
                 call    sub_4CCDF
                 mov     si, 6055h
-                call    fade2
+                call    setPalette
                 call    sub_4C5AF  ; DO SLIDE
                 mov     word_58463, 0
                 call    sub_4B85C
@@ -15112,7 +15112,7 @@ loc_4CAEC:                              ; CODE XREF: code:5E74j
                 call    loc_4C44F
                 call    drawMenuTitleAndDemoLevelResult
                 mov     si, 6015h
-                call    fade2
+                call    setPalette
                 return;
 
 ; =============== S U B R O U T I N E =======================================
@@ -16432,7 +16432,7 @@ loc_4D2C9:              //; CODE XREF: initializeFadePalette+17j
 loc_4D2DA:              //; CODE XREF: initializeFadePalette+5j
                     //; initializeFadePalette+19j
         si = 0x60D5;
-        fade();
+        fadeToPalette();
         return;
 // initializeFadePalette   endp
 }
@@ -17237,9 +17237,10 @@ readLevels  endp
 
 // ; Attributes: bp-based frame
 
-void fade() //        proc near       ; CODE XREF: start+2C1p start+312p ...
+void fadeToPalette() //        proc near       ; CODE XREF: start+2C1p start+312p ...
 {
-
+    // Parameters:
+    // si -> points to the first color of the palette to fade to
         int var_8;
         int var_6;
         int remainingSteps;
@@ -17254,7 +17255,7 @@ void fade() //        proc near       ; CODE XREF: start+2C1p start+312p ...
             goto loc_4D706;
         }
         
-        fade2();
+        setPalette();
         pop(es);
         sp = bp;
         pop(bp);
@@ -17271,17 +17272,18 @@ loc_4D706:              //; CODE XREF: fade+Cj
         cx = 0x40; // '@'   64
         di = &fileLevelData;
         
-        // reads 64 values from si, divides them by 4, stores them in si
-        // is this a palette? why dividing it by 4?
+        // reads 64 values from si, shifts it twice to the left, stores them in si
+        // is this a palette? why the SHL 2?
+        // Maybe the SHL2 is because the port expects only 6 bits per component (http://www.osdever.net/FreeVGA/vga/colorreg.htm#3C9)
         for (int i = 0; i < 64; ++i)
         {
-            di[i] = si[i] / 4;
+            di[i] = si[i] << 2;
         }
 /*
 loc_4D71D:              //; CODE XREF: fade+33j
         al = ds:[si];
         si++;
-        al = al / 4;
+        al = al << 2;
         ds:[di] = al;
         di++;
         cx--;
@@ -17293,7 +17295,7 @@ loc_4D71D:              //; CODE XREF: fade+33j
         ports[0x3C7] = 0; // sets the palette index to read to 0 (first color)
 
         dx = 0x3C9; // This is where the bytes will be read from, which is the DAC pixel data register (check page 174)
-        di = 0x6115; // What's this exactly?
+        di = 0x6115; // What's this exactly? seems to be a buffer used to hold the current palette
         cx = 0x10; // 16 colors
         
         // Reads 16 pixels from the palette
@@ -17428,7 +17430,7 @@ isFastMode4:              //; CODE XREF: fade+11Dj
 
 loc_4D827:              //; CODE XREF: fade+132j
         pop(si);
-        fade2();
+        setPalette();
         word_510A2 = old_word_510A2;
 }
 
@@ -17437,7 +17439,7 @@ loc_4D827:              //; CODE XREF: fade+132j
 
 // ; Attributes: bp-based frame
 
-void fade2() //   proc near       ; CODE XREF: start+2B8p
+void setPalette() //   proc near       ; CODE XREF: start+2B8p
                    // ; loadScreen2+B5p ...
 {
 
@@ -17465,7 +17467,7 @@ int old_word_510A2; //       = word ptr -2
             si++; // extra add for something, intensity maybe?
         }
 /*
-loc_4D85B:              //; CODE XREF: fade2+38j
+loc_4D85B:              //; CODE XREF: setPalette+38j
         lodsb // loads from DS:SI into AL
         al = ds:[si];
         si++;
@@ -17492,12 +17494,12 @@ loc_4D85B:              //; CODE XREF: fade2+38j
 
 /*
 // This only happens if videoStatusUnk is different than 1, which should never happen
-loc_4D872:              ; CODE XREF: fade2+17j
+loc_4D872:              ; CODE XREF: setPalette+17j
         mov cx, 10h // 16 colors
         mov dx, 0
         mov di, 611h
 
-loc_4D87B:              ; CODE XREF: fade2+58j
+loc_4D87B:              ; CODE XREF: setPalette+58j
         lodsb
         lodsb
         lodsb
@@ -17523,9 +17525,9 @@ loc_4D87B:              ; CODE XREF: fade2+58j
         assume es:nothing
 */
 
-loc_4D89E:              //; CODE XREF: fade2+3Aj
+loc_4D89E:              //; CODE XREF: setPalette+3Aj
         word_510A2 = old_word_510A2;
-// fade2   endp
+// setPalette   endp
 }
 /*
 // ; ---------------------------------------------------------------------------
