@@ -9,8 +9,16 @@
 // ; Attributes: noreturn
 
 #include <SDL2/SDL.h>
+#include <errno.h>
 
-const int levelDataLength = 1536; // exact length of a level file, even of each level inside the LEVELS.DAT file
+static const int kScreenWidth = 320;
+static const int kScreenHeight = 200;
+
+//static const int levelDataLength = 1536; // exact length of a level file, even of each level inside the LEVELS.DAT file
+uint8_t byte_510A6 = 0;
+uint8_t byte_59B85 = 0;
+uint8_t byte_5A33F = 0;
+uint8_t byte_51969 = 0;
 
 // 30 elements...
 int word_599DC[] = { 0x00CE, 0x016A, 0x0146, 0x00CD, 0x024D, 0x012C, 0x01A7, 0x01FB, 0x01D2,
@@ -19,11 +27,29 @@ int word_599DC[] = { 0x00CE, 0x016A, 0x0146, 0x00CD, 0x024D, 0x012C, 0x01A7, 0x0
                     0x41D0, 0x105F, 0xF3F3, 0xF068, 0x10F0, 0x106C, 0x94F4 };
 
 static const uint8_t kNumberOfColors = 16;
-static const uint8_t kPaleteDataSize = kNumberOfColors * 4;
-static const int kNumberOfPalettes = 4;
+static const size_t kPaleteDataSize = kNumberOfColors * 4;
+static const uint8_t kNumberOfPalettes = 4;
 
 typedef SDL_Color ColorPalette[kNumberOfColors];
 typedef uint8_t ColorPaletteData[kPaleteDataSize];
+
+static const size_t kBitmapFontCharacterSize = 8;
+static const size_t kNumberOfCharactersInBitmapFont = 64;
+static const size_t kBitmapFontLength = kNumberOfCharactersInBitmapFont * kBitmapFontCharacterSize;
+
+uint8_t gChars6BitmapFont[kBitmapFontLength];
+uint8_t gChars8BitmapFont[kBitmapFontLength];
+
+uint8_t gPanelBitmapData[3840];
+
+static const size_t kFullScreenBitmapLength = kScreenWidth * kScreenHeight / 2; // They use 4 bits to encode pixels
+uint8_t gMenuBitmapData[kFullScreenBitmapLength];
+uint8_t gControlsBitmapData[kFullScreenBitmapLength];
+uint8_t gBackBitmapData[kFullScreenBitmapLength];
+uint8_t gGfxBitmapData[kFullScreenBitmapLength];
+
+uint8_t gHallOfFameData[36];
+uint8_t gPlayerListData[2560];
 
 ColorPalette gCurrentPalette;
 
@@ -42,8 +68,19 @@ ColorPaletteData gTitlePaletteData = {
     0x0F, 0x06, 0x04, 0x0C, 0x02, 0x05, 0x06, 0x08, 0x0F, 0x0C, 0x06, 0x0E, 0x0C, 0x0C, 0x0D, 0x0E,
 };
 
-const int kScreenWidth = 320;
-const int kScreenHeight = 200;
+ColorPaletteData gTitle1PaletteData = {
+    0x00, 0x00, 0x00, 0x00, 0x0F, 0x0F, 0x0F, 0x0F, 0x08, 0x08, 0x08, 0x08, 0x0A, 0x0A, 0x0A, 0x07,
+    0x0A, 0x0A, 0x0A, 0x07, 0x0B, 0x0B, 0x0B, 0x07, 0x0E, 0x01, 0x01, 0x04, 0x09, 0x09, 0x09, 0x07,
+    0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x09, 0x00, 0x00, 0x04, 0x0B, 0x00, 0x00, 0x0C,
+    0x08, 0x08, 0x08, 0x08, 0x05, 0x05, 0x05, 0x08, 0x06, 0x06, 0x06, 0x08, 0x08, 0x08, 0x08, 0x08,
+};
+
+ColorPaletteData gTitle2PaletteData = {
+    0x00, 0x00, 0x00, 0x00, 0x0F, 0x0F, 0x0F, 0x0F, 0x06, 0x06, 0x06, 0x08, 0x0A, 0x0A, 0x0A, 0x07,
+    0x0A, 0x0A, 0x0A, 0x07, 0x0B, 0x0B, 0x0B, 0x07, 0x0E, 0x01, 0x01, 0x04, 0x09, 0x09, 0x09, 0x07,
+    0x01, 0x03, 0x07, 0x00, 0x08, 0x08, 0x08, 0x08, 0x09, 0x00, 0x00, 0x04, 0x0B, 0x00, 0x00, 0x0C,
+    0x00, 0x02, 0x0A, 0x01, 0x05, 0x05, 0x05, 0x08, 0x06, 0x06, 0x06, 0x08, 0x08, 0x08, 0x08, 0x07,
+};
 
 SDL_Surface *gScreenSurface = NULL;
 uint8_t *gScreenPixels = NULL;
@@ -63,6 +100,10 @@ void videoloop(void);
 void loopForVSync(void);
 void convertPaletteDataToPalette(ColorPaletteData paletteData, ColorPalette outPalette);
 void loadScreen2(void);
+void readEverything(void);
+void exitWithError(const char *format, ...);
+void readMenuDat(void);
+void drawSpeedFixTitleAndVersion(void);
 
 //         public start
 int main(int argc, const char * argv[])
@@ -663,9 +704,10 @@ isFastMode:              //; CODE XREF: start+2ADj
 openingSequence:
  */
         loadScreen2();    // 01ED:02B9
-/*
         readEverything();
         drawSpeedFixTitleAndVersion();
+    videoloop(); // remove
+    /*
         openCreditsBlock(); // credits inside the block // 01ED:02C2
         drawSpeedFixCredits();   // credits below the block (herman perk and elmer productions) // 01ED:02C5
 
@@ -2194,72 +2236,38 @@ void convertPaletteDataToPalette(ColorPaletteData paletteData, ColorPalette outP
 
 void readPalettes()  // proc near       ; CODE XREF: readEverythingp
 {
-//        mov ax, 3D00h
-//        mov dx, offset aPalettes_dat ; "PALETTES.DAT"
-//        int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-//                    ; DS:DX -> ASCIZ filename
-//                    ; AL = access mode
-//                    ; 0 - read
     FILE *file = fopen("PALETTES.DAT", "r");
     if (file == NULL)
     {
-        return; // TODO: Error somehow
+        if (errno == ENOENT) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
+        {
+    //        recoverFilesFromFloppyDisk();
+    //        jb  short loc_4779C // if success try again?
+    //        goto short loc_4779F;
+        }
+
+        exitWithError("Error opening PALETTES.DAT\n");
     }
-//        if (file != NULL)
-//        {
-//            goto loc_4779F;
-//        }
-//        if (errno != 2) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
-//        {
-//            goto loc_4779C;
-//        }
-//        sub_47F39();
-//        jb  short loc_4779C
-//        goto short loc_4779F;
-//// ; ---------------------------------------------------------------------------
-//
-//loc_4779C:             // ; CODE XREF: readPalettes+Dj
-//                    // ; readPalettes+12j
-//        goto exit;
-// ; ---------------------------------------------------------------------------
 
 //loc_4779F:              // ; CODE XREF: readPalettes+8j
-                     // ; readPalettes+14j
-//        ax = lastFileHandle;
-        // mov bx, lastFileHandle
-        // mov ax, 3F00h
-        // mov cx, 100h // 256 bytes
-        // mov dx, palettesDataBuffer
-        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-        //             ; BX = file handle, CX = number of bytes to read
-                    // ; DS:DX -> buffer
-
     ColorPaletteData palettesDataBuffer[kNumberOfPalettes];
     size_t bytes = fread(&palettesDataBuffer, sizeof(ColorPaletteData), kNumberOfPalettes, file);
     if (bytes == 0)
     {
-        return; // TODO: error goto exit;
+        exitWithError("Couldn't read PALETTES.DAT\n");
     }
 
     for (int i = 0; i < kNumberOfPalettes; ++i)
     {
         convertPaletteDataToPalette(palettesDataBuffer[i], gPalettes[i]);
     }
-// ; ---------------------------------------------------------------------------
 
 //loc_477B6:              //; CODE XREF: readPalettes+2Bj
-        // mov ax, 3E00h
-        // mov bx, lastFileHandle
-        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-        //             ; BX = file handle
     if (fclose(file) != 0)
     {
-        return; // TODO: error goto exit;
+        exitWithError("Error closing PALETTES.DAT\n");
     }
-// ; ---------------------------------------------------------------------------
 
-//locret_477C4:             //  ; CODE XREF: readPalettes+39j
-        // return;
 // readPalettes   endp
 }
 
@@ -2498,94 +2506,25 @@ loc_47884:             // ; CODE XREF: openCreditsBlock+C7j
 */
 void loadScreen2() // proc near       ; CODE XREF: start:loc_46F00p
 {
-
-// ; FUNCTION CHUNK AT 04B2 SIZE 00000020 BYTES
-
-    // mov ax, 3D00h
-    // mov dx, aTitle1_dat // points to "TITLE1.DAT"
-    // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-    //             ; DS:DX -> ASCIZ filename
-    //             ; AL = access mode
-    //             ; 0 - read
+    //loc_478C0:              // ; CODE XREF: loadScreen2+8j
     FILE *file = fopen("TITLE1.DAT", "r");
     if (file == NULL)
     {
-        return; // TODO: error goto exit;
+        exitWithError("Error opening TITLE1.DAT\n");
     }
-
-// ; ---------------------------------------------------------------------------
-/*
-//loc_478C0:              // ; CODE XREF: loadScreen2+8j
-//        lastFileHandle = file;
-        // mov lastFileHandle, ax
-        // mov dx, 3CEh
-        // al = 5
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; mode register.Data bits:
-        //             ; 0-1: Write mode 0-2
-        //             ; 2: test condition
-        //             ; 3: read mode: 1=color compare, 0=direct
-        //             ; 4: 1=use odd/even RAM addressing
-        //             ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        ports[0x3CE] = 5;
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0;
-
-loc_478CD:
-        // mov dx, 3CEh
-        // al = 1
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; enable set/reset
-        ports[0x3CE] = 1;
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0;
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        // inc dx
-        // al = 0FFh
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0xFF;
-        cx = 0xC8; // 200
-        di = title1DataBuffer;
-
-loc_478E7:              //; CODE XREF: loadScreen2+6Bj
-        push(cx);
- */
-        // mov ax, 3F00h
-        // mov bx, lastFileHandle
-        // mov cx, 0A0h ; '?' // read 160 bytes
-        // mov dx, offset fileLevelData
-        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-        //             ; BX = file handle, CX = number of bytes to read
-        //             ; DS:DX -> buffer
 
     const uint8_t kBytesPerRow = kScreenWidth / 2;
     uint8_t fileData[kBytesPerRow];
 
     for (int y = 0; y < kScreenHeight; y++)
     {
-//loc_47C3F:              //; CODE XREF: readTitleDatAndGraphics+8Ej
-//            push(cx);
+//loc_478E7:              //; CODE XREF: loadScreen2+6Bj
         // read 160 bytes from title.dat
         size_t bytesRead = fread(fileData, sizeof(uint8_t), kBytesPerRow, file);
-        // mov ax, 3F00h
-        // mov bx, lastFileHandle
-        // cx = 0xA0; // 160
-        // mov dx, offset fileLevelData
-        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-        //             ; BX = file handle, CX = number of bytes to read
-        //             ; DS:DX -> buffer
+
         if (bytesRead < kBytesPerRow)
         {
-            return; //goto exit;
+            exitWithError("Error reading TITLE1.DAT\n");
         }
 
         for (int x = 0; x < kScreenWidth; ++x)
@@ -2608,203 +2547,65 @@ loc_478E7:              //; CODE XREF: loadScreen2+6Bj
             gScreenPixels[destPixelAddress] = finalColor;
         }
     }
-/*
-        int bytes = fread(&fileLevelData, 1, 160, lastFileHandle);
-        if (bytes > 0)
-        {
-            goto loc_478FC;
-        }
-        goto exit;
-// ; ---------------------------------------------------------------------------
 
-loc_478FC:              // ; CODE XREF: loadScreen2+44j
-        si = &fileLevelData;
-        ah = 1;
-
-loc_47901:              // ; CODE XREF: loadScreen2+65j
-        // mov dx, 3C4h
-        // al = 2
-        // out dx, al      ; EGA: sequencer address reg
-        //             ; map mask: data bits 0-3 enable writes to bit planes 0-3
-        ports[0x3C4] = 2;
-        // inc dx
-        // al = ah
-        // out dx, al      ; EGA port: sequencer data register
-        ports[0x3C5] = ah;
-        cx = 0x28; // 40
-        memcpy(di, si, 40); // rep movsb
-        si += 40;        
-        // sub di, 28h ; '('
-        ah = ah << 1;
-        
-        if (ah <= 0xF)
-        {
-            goto loc_47901;
-        }
-        
-        di += 122;
-        pop(cx);
-        cx--;
-        if (cx > 0)
-        {
-            goto loc_478E7;
-        }
- */
     if (fclose(file) != 0)
     {
-        return; // TODO: error goto exit;
+        exitWithError("Error closing TITLE1.DAT\n");
     }
 
-// ; ---------------------------------------------------------------------------
-/*
-loc_4792E:              //; CODE XREF: loadScreen2+76j
-        // mov dx, 3C4h
-        // al = 2
-        // out dx, al      ; EGA: sequencer address reg
-        //             ; map mask: data bits 0-3 enable writes to bit planes 0-3
-        ports[0x3C4] = 2;
-        // inc dx
-        // al = 0Fh
-        // out dx, al      ; EGA port: sequencer data register
-        ports[0x3C5] = 0xF;
-        // mov dx, 3CEh
-        // al = 1
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; enable set/reset
-        ports[0x3CE] = 1;
-        // inc dx
-        // al = 0Fh
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0xF;
-        bx = title1DataBuffer;
-        word_51967 =  bx;
-        // mov dx, 3D4h
-        // al = 0Dh
-        // out dx, al      ; Video: CRT cntrlr addr
-        //             ; regen start address (low)
-        ports[0x3D4] = 0xD;
-        // inc dx
-        // al = bl
-        // out dx, al      ; Video: CRT controller internal registers
-        ports[0x3D5] = bl;
-        // mov dx, 3D4h
-        // al = 0Ch
-        // out dx, al      ; Video: CRT cntrlr addr
-        //             ; regen start address (high)
-        ports[0x3D4] = 0xC;
-        // inc dx
-        // al = bh
-        // out dx, al      ; Video: CRT controller internal registers
-        ports[0x3D5] = bh;
- */
+//loc_4792E:              //; CODE XREF: loadScreen2+76j
+//    word_51967 = gScreenPixels??; // points to where title1.dat was RENDERED
     videoloop();
-        /*
-        byte_510A6 = 0;
-        si = 0x5F95;
-        setPalette();
-        // mov ax, 3D00h
-        // mov dx, aTitle2_dat // "TITLE2.DAT"
-        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-        //             ; DS:DX -> ASCIZ filename
-        //             ; AL = access mode
-        //             ; 0 - read
-        FILE *file = fopen("TITLE2.DAT", "r");
-        if (file != NULL)
-        {
-            goto loc_47978;
-        }
-        goto exit;
-// ; ---------------------------------------------------------------------------
+    byte_510A6 = 0;
+    ColorPalette title1DatPalette;
+    convertPaletteDataToPalette(gTitle1PaletteData, title1DatPalette);
+    setPalette(title1DatPalette);
 
-loc_47978:              //; CODE XREF: loadScreen2+C0j
-        lastFileHandle = ax;
-        // mov dx, 3CEh
-        // al = 1
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; enable set/reset
-        ports[0x3CE] = 1;
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0;
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        // inc dx
-        // al = 0FFh
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0xFF;
-        cx = 200;
-        di = title2DataBuffer;
+    file = fopen("TITLE2.DAT", "r");
+    if (file == NULL)
+    {
+        exitWithError("Error opening TITLE2.DAT\n");
+    }
 
-loc_47995:              //; CODE XREF: loadScreen2+119j
-        push(cx);
-        // mov ax, 3F00h
-        // mov bx, lastFileHandle
-        // mov cx, 0A0h ; '?' // read 160 bytes
-        // mov dx, offset fileLevelData
-        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-        //             ; BX = file handle, CX = number of bytes to read
-        //             ; DS:DX -> buffer
-        int bytes = fread(&fileLevelData, 1, 160, lastFileHandle);
-        if (bytes > 0)
-        {
-            goto loc_479AA;
-        }
-        goto exit;
-// ; ---------------------------------------------------------------------------
+// loc_47978:              //; CODE XREF: loadScreen2+C0j
+    for (int y = 0; y < kScreenHeight; y++)
+    {
+        // loc_47995:              //; CODE XREF: loadScreen2+119j
+        // read 160 bytes from title.dat
+        size_t bytesRead = fread(fileData, sizeof(uint8_t), kBytesPerRow, file);
 
-loc_479AA:              //; CODE XREF: loadScreen2+F2j
-        si = &fileLevelData;
-        ah = 1;
+        if (bytesRead < kBytesPerRow)
+        {
+            exitWithError("Error reading TITLE2.DAT\n");
+        }
 
-loc_479AF:              ; CODE XREF: loadScreen2+113j
-        // mov dx, 3C4h
-        // al = 2
-        // out dx, al      ; EGA: sequencer address reg
-        //             ; map mask: data bits 0-3 enable writes to bit planes 0-3
-        ports[0x3C4] = 2;
-        // inc dx
-        // al = ah
-        // out dx, al      ; EGA port: sequencer data register
-        ports[0x3C5] = ah;
-        cx = 40;
-        memcpy(di, si, 40); // rep movsb
-        si += 40;
-        // sub di, 28h ; '('
-        ah = ah << 1;
-        if (ah <= 0xF)
+        for (int x = 0; x < kScreenWidth; ++x)
         {
-            goto loc_479AF;
-        }
-        di += 122;
-        pop(cx);
-        cx--;
-        if (cx > 0)
-        {
-            goto loc_47995;
-        }
-        if (fclose(lastFileHandle) == 0)
-        {
-            goto loc_479DC;
-        }
-        goto exit;
-// ; ---------------------------------------------------------------------------
+//loc_479AF:              ; CODE XREF: loadScreen2+113j
+            uint16_t destPixelAddress = y * kScreenWidth + x;
 
-loc_479DC:             // ; CODE XREF: loadScreen2+124j
-        // mov dx, 3C4h
-        // al = 2
-        // out dx, al      ; EGA: sequencer address reg
-        //             ; map mask: data bits 0-3 enable writes to bit planes 0-3
-        ports[0x3C4] = 2;
-        // inc dx
-        // al = 0Fh
-        // out dx, al      ; EGA port: sequencer data register
-        ports[0x3C5] = 0xF;
-         */
+            uint8_t sourcePixelAddress = x / 8;
+            uint8_t sourcePixelBitPosition = 7 - (x % 8);
+
+            uint8_t b = (fileData[sourcePixelAddress + 0] >> sourcePixelBitPosition) & 0x1;
+            uint8_t g = (fileData[sourcePixelAddress + 40] >> sourcePixelBitPosition) & 0x1;
+            uint8_t r = (fileData[sourcePixelAddress + 80] >> sourcePixelBitPosition) & 0x1;
+            uint8_t i = (fileData[sourcePixelAddress + 120] >> sourcePixelBitPosition) & 0x1;
+
+            uint8_t finalColor = ((r << 0)
+                                  | (g << 1)
+                                  | (b << 2)
+                                  | (i << 3));
+
+            gScreenPixels[destPixelAddress] = finalColor;
+        }
+    }
+
+    if (fclose(file) != 0)
+    {
+        exitWithError("Error closing TITLE2.DAT\n");
+    }
+//loc_479DC:             // ; CODE XREF: loadScreen2+124j
 // loadScreen2 endp ; sp-analysis failed
 }
 
@@ -2842,7 +2643,7 @@ loc_479ED:              // ; CODE XREF: loadMurphySprites+27j
         {
             goto loc_47A10;
         }
-        sub_47F39();
+        recoverFilesFromFloppyDisk();
         pushf();
         if (byte_59B86 != 0FFh)
         {
@@ -3046,146 +2847,69 @@ loc_47AE3:              //; CODE XREF: loadMurphySprites+21j
 
 // ; =============== S U B R O U T I N E =======================================
 
-
+*/
 void readPanelDat() //    proc near       ; CODE XREF: readPanelDat+14j
                     // ; readEverything+6p
 {
-        // mov ax, 3D00h
-        // mov dx, offset aPanel_dat ; "PANEL.DAT"
-        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-        //             ; DS:DX -> ASCIZ filename
-        //             ; AL = access mode
-        //             ; 0 - read
-        FILE *file = fopen("PANEL.DAT", "r");
-        if (file != NULL)
+    FILE *file = fopen("PANEL.DAT", "r");
+    if (file == NULL)
+    {
+        if (errno == ENOENT) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
         {
-            goto loc_47B0A;
+            // recoverFilesFromFloppyDisk();
+            // jb  short loc_47B07 // try again
         }
-        if (errno != 2) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
-        {
-            goto loc_47B07;
-        }
-        // sub_47F39();
-        // jb  short loc_47B07
-        goto readPanelDat;
-// ; ---------------------------------------------------------------------------
 
-loc_47B07:             // ; CODE XREF: readPanelDat+Dj
-                    // ; readPanelDat+12j
-        goto exit;
-// ; ---------------------------------------------------------------------------
+        exitWithError("Error opening PANEL.DAT\n");
+    }
 
-loc_47B0A:             // ; CODE XREF: readPanelDat+8j
-        lastFileHandle = ax;
-        // mov ax, 3F00h
-        // mov bx, lastFileHandle
-        // mov cx, 0F00h // 3840 bytes
-        // mov dx, panelDataBuffer
-        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-        //             ; BX = file handle, CX = number of bytes to read
-        //             ; DS:DX -> buffer
-        int bytes = fread(&panelDataBuffer, 1, 3840, lastFileHandle);
-        if (bytes > 0)
-        {
-            goto loc_47B21;
-        }
-        goto exit;
-// ; ---------------------------------------------------------------------------
+//loc_47B0A:             // ; CODE XREF: readPanelDat+8j
+    size_t bytes = fread(gPanelBitmapData, sizeof(uint8_t), sizeof(gPanelBitmapData), file);
+    if (bytes < sizeof(gPanelBitmapData))
+    {
+        exitWithError("Error reading PANEL.DAT\n");
+    }
 
-loc_47B21:              // ; CODE XREF: readPanelDat+2Bj
-        // mov ax, 3E00h
-        // mov bx, lastFileHandle
-        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-        //             ; BX = file handle
-        if (fclose(lastFileHandle) == 0)
-        {
-            goto locret_47B2F;
-        }
-        goto exit;
-// ; ---------------------------------------------------------------------------
+//loc_47B21:              // ; CODE XREF: readPanelDat+2Bj
+    if (fclose(file) != 0)
+    {
+        exitWithError("Error closing PANEL.DAT\n");
+    }
 
-locret_47B2F:               // ; CODE XREF: readPanelDat+39j
-        // return;
 // readPanelDat    endp
 }
-
-
-// ; =============== S U B R O U T I N E =======================================
-
 
 void readBackDat() // proc near       ; CODE XREF: readBackDat+14j
                     // ; readEverything+15p
 {
-        // address: 01ED:0ECD
-    
-        // mov ax, 3D00h
-        // mov dx, offset aBack_dat ; "BACK.DAT"
-        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-        //             ; DS:DX -> ASCIZ filename
-        //             ; AL = access mode
-        //             ; 0 - read
-        FILE *fopen("BACK.DAT", "r");
-        if (file != NULL)
+    // address: 01ED:0ECD
+    FILE *file = fopen("BACK.DAT", "r");
+    if (file == NULL)
+    {
+        if (errno == ENOENT) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
         {
-            goto loc_47B49;
+            // recoverFilesFromFloppyDisk();
+            // jb  short loc_47B46 // Try again
         }
-        if (errno != 2) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
-        {
-            goto loc_47B46;
-        }
-        // sub_47F39();
-        // jb  short loc_47B46
-        goto readBackDat;
-// ; ---------------------------------------------------------------------------
 
-loc_47B46:        //      ; CODE XREF: readBackDat+Dj
-                  //  ; readBackDat+12j
-        goto exit
-// ; ---------------------------------------------------------------------------
+        exitWithError("Error opening BACK.DAT\n");
+    }
 
-loc_47B49:             // ; CODE XREF: readBackDat+8j
-        lastFileHandle = ax;
-        push(ds);
-        ax = seg backseg;
-        bx = lastFileHandle
-        ds = ax;
-        // assume ds:nothing
-        // mov ax, 3F00h
-        // mov cx, 7D00h // 32000 bytes
-        // mov dx, 0
-        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-        //             ; BX = file handle, CX = number of bytes to read
-        //             ; DS:DX -> buffer
-        int bytes = fread(backDataBuffer, 1, 32000, lastFileHandle);
-        if (bytes > 0)
-        {
-            goto loc_47B67;
-        }
-        pop(ds);
-        // assume ds:data
-        goto exit;
-// ; ---------------------------------------------------------------------------
+//loc_47B49:             // ; CODE XREF: readBackDat+8j
+    size_t bytes = fread(gBackBitmapData, 1, sizeof(gBackBitmapData), file);
+    if (bytes < sizeof(gBackBitmapData))
+    {
+        exitWithError("Error reading BACK.DAT\n");
+    }
 
-loc_47B67:              //; CODE XREF: readBackDat+31j
-        pop(ds);
-        // mov ax, 3E00h
-        // mov bx, lastFileHandle
-        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-        //             ; BX = file handle
-        if (fclose(lastFileHandle) == 0)
-        {
-            goto locret_47B76;
-        }
-        goto exit;
-// ; ---------------------------------------------------------------------------
+//loc_47B67:              //; CODE XREF: readBackDat+31j
+    if (fclose(file) != 0)
+    {
+        exitWithError("Error closing BACK.DAT\n");
+    }
 
-locret_47B76:              // ; CODE XREF: readBackDat+41j
-        return
 // readBackDat endp
 }
-
-
-// ; =============== S U B R O U T I N E =======================================
 
 // The bitmap fonts are bitmaps of 512x8 pixels. The way they're encoded is each bit is a pixel that
 // is either on or off, so this is encoded in exactly 512 bytes.
@@ -3198,303 +2922,112 @@ locret_47B76:              // ; CODE XREF: readBackDat+41j
 void readBitmapFonts() //   proc near       ; CODE XREF: readBitmapFonts+14j
                     // ; readEverything+3p
 {
-        // mov ax, 3D00h
-        // mov dx, offset aChars6_dat ; "CHARS6.DAT"
-        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-        //             ; DS:DX -> ASCIZ filename
-        //             ; AL = access mode
-        //             ; 0 - read
-        FILE *file = fopen("CHARS6.DAT", "r");
-        if (file != NULL)
+    FILE *file = fopen("CHARS6.DAT", "r");
+    if (file == NULL)
+    {
+        if (errno == ENOENT) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
         {
-            goto loc_47B90;
+            // recoverFilesFromFloppyDisk();
+            // jb  short loc_47B8D // try again
         }
-        if (errno != 2) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
-        {
-            goto loc_47B8D;
-        }
-        // sub_47F39();
-        // jb  short loc_47B8D
-        goto readBitmapFonts
-// ; ---------------------------------------------------------------------------
 
-loc_47B8D:             // ; CODE XREF: readBitmapFonts+Dj
-                    //; readBitmapFonts+12j
-        goto exit;
-// ; ---------------------------------------------------------------------------
+        exitWithError("Error opening CHARS6.DAT\n");
+    }
 
-loc_47B90:              // ; CODE XREF: readBitmapFonts+8j
-        ax = lastFileHandle;
-        // mov ax, 3F00h
-        // mov bx, lastFileHandle
-        // mov cx, 200h // 512 bytes
-        // mov dx, chars6DataBuffer
-        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-        //             ; BX = file handle, CX = number of bytes to read
-        //             ; DS:DX -> buffer
-        int bytes = fread(&chars6DataBuffer, 1, 512, lastFileHandle);
-        if (bytes > 0)
-        {
-            goto loc_47BA7;
-        }
-        goto exit;
-// ; ---------------------------------------------------------------------------
+//loc_47B8D:             // ; CODE XREF: readBitmapFonts+Dj
+                //; readBitmapFonts+12j
 
-loc_47BA7:              // ; CODE XREF: readBitmapFonts+2Bj
-        // mov ax, 3E00h
-        // mov bx, lastFileHandle
-        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-        //             ; BX = file handle
-        if (fclose(lastFileHandle) == 0)
-        {
-            goto loc_47BB5;
-        }
-        goto exit;
-// ; ---------------------------------------------------------------------------
+//loc_47B90:              // ; CODE XREF: readBitmapFonts+8j
+    size_t bytes = fread(gChars6BitmapFont, sizeof(uint8_t), kBitmapFontLength, file);
+    if (bytes < kBitmapFontLength)
+    {
+        exitWithError("Error reading CHARS6.DAT\n");
+    }
 
-loc_47BB5:              //; CODE XREF: readBitmapFonts+39j
-        // mov ax, 3D00h
-        // mov dx, offset aChars8_dat
-        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-        //             ; DS:DX -> ASCIZ filename
-        //             ; AL = access mode
-        //             ; 0 - read
-        FILE *file = fopen("CHARS8.DAT", "r");
-        if (file != NULL)
-        {
-            goto loc_47BC2;
-        }
-        goto exit;
-// ; ---------------------------------------------------------------------------
+//loc_47BA7:              // ; CODE XREF: readBitmapFonts+2Bj
+    if (fclose(file) != 0)
+    {
+        exitWithError("Error closing CHARS6.DAT\n");
+    }
 
-loc_47BC2:              //; CODE XREF: readBitmapFonts+46j
-        lastFileHandle = ax;
-        // mov ax, 3F00h
-        // mov bx, lastFileHandle
-        // mov cx, 200h // 512 bytes
-        // mov dx, chars8DataBuffer
-        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-        //             ; BX = file handle, CX = number of bytes to read
-        //             ; DS:DX -> buffer
-        int bytes = fread(&chars8DataBuffer, 1, 512, lastFileHandle);
-        if (bytes > 0)
-        {
-            goto loc_47BD9;
-        }
-        goto exit;
-// ; ---------------------------------------------------------------------------
+//loc_47BB5:              //; CODE XREF: readBitmapFonts+39j
+    file = fopen("CHARS8.DAT", "r");
+    if (file == NULL)
+    {
+        exitWithError("Error opening CHARS8.DAT\n");
+    }
 
-loc_47BD9:             // ; CODE XREF: readBitmapFonts+5Dj
-        // mov ax, 3E00h
-        // mov bx, lastFileHandle
-        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-        //             ; BX = file handle
-        if (fclose(lastFileHandle) == 0)
-        {
-            goto locret_47BE7;
-        }
-        goto exit;
-// ; ---------------------------------------------------------------------------
+//loc_47BC2:              //; CODE XREF: readBitmapFonts+46j
+    bytes = fread(gChars8BitmapFont, sizeof(uint8_t), kBitmapFontLength, file);
+    if (bytes < kBitmapFontLength)
+    {
+        exitWithError("Error reading CHARS8.DAT\n");
+    }
 
-locret_47BE7:               //; CODE XREF: readBitmapFonts+6Bj
-// readBitmapFonts   endp
+//loc_47BD9:             // ; CODE XREF: readBitmapFonts+5Dj
+    if (fclose(file) != 0)
+    {
+        exitWithError("Error closing CHARS8.DAT\n");
+    }
 }
 
-
-; =============== S U B R O U T I N E =======================================
-
-*/
 void readTitleDatAndGraphics() // proc near  ; CODE XREF: start+2BBp
 {
-//        // mov bx, 4D84h
-//        // mov word_51967, bx
-//        word_51967 = 0x4D84;
-//        // mov dx, 3D4h
-//        // al = 0Dh
-//        // out dx, al      ; Video: CRT cntrlr addr
-//        //             ; regen start address (low)
-//        ports[0x3D4] = 0x0D; // data index (low) 0x0D
-//        // inc dx
-//        // al = bl
-//        // out dx, al      ; Video: CRT controller internal registers
-//        ports[0x3D5] = 0x84; // data address (low) 0x84
-//        // mov dx, 3D4h
-//        // al = 0Ch
-//        // out dx, al      ; Video: CRT cntrlr addr
-//        //             ; regen start address (high)
-//        ports[0x3D4] = 0x0C; // data index (high) 0x0C
-//        // inc dx
-//        // al = bh
-//        // out dx, al      ; Video: CRT controller internal registers
-//        ports[0x3D5] = 0x4D; // data address (high) 0x0D
-        videoloop();
-//        byte_510A6 = 0;
-        FILE *file = fopen("TITLE.DAT", "r");
-        // mov ax, 3D00h
-        // mov dx, offset aTitle_dat ; "TITLE.DAT"
-        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-        //             ; DS:DX -> ASCIZ filename
-        //             ; AL = access mode
-        //             ; 0 - read
-        if (file == NULL)
-        {
-            return; //goto exit;
-        }
-// ; ---------------------------------------------------------------------------
+//  word_51967 = 0x4D84; // address where the bitmap will be rendered
+    videoloop();
+//  byte_510A6 = 0;
+    FILE *file = fopen("TITLE.DAT", "r");
+
+    if (file == NULL)
+    {
+        return; //goto exit;
+    }
 
 //loc_47C18:              // ; CODE XREF: readTitleDatAndGraphics+2Bj
-//        lastFileHandle = file;
-        // mov dx, 3CEh
-        // al = 5
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; mode register.Data bits:
-        //             ; 0-1: Write mode 0-2
-        //             ; 2: test condition
-        //             ; 3: read mode: 1=color compare, 0=direct
-        //             ; 4: 1=use odd/even RAM addressing
-        //             ; 5: 1=use CGA mid-res map (2-bits/pixel)
-//        ports[0x3CE] = 5; // set graphics mode
-//        // inc dx
-//        // al = 0
-//        // out dx, al      ; EGA port: graphics controller data register
-//        ports[0x3CF] = 0; // write mode 0
-//        // mov dx, 3CEh
-//        // al = 1
-//        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-//        //             ; enable set/reset
-//        ports[0x3CE] = 1; // enable set/reset
-//        // inc dx
-//        // al = 0
-//        // out dx, al      ; EGA port: graphics controller data register
-//        ports[0x3CF] = 0; // disable set/reset on all planes
-//        // mov dx, 3CEh
-//        // al = 8
-//        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-//        //             ; bit mask
-//        //             ; Bits 0-7 select bits to be masked in all planes
-//        ports[0x3CE] = 8; // bit mask
-//        // inc dx
-//        // al = 0FFh
-//        // out dx, al      ; EGA port: graphics controller data register
-//        ports[0x3CF] = 0xFF; // protect all bits
-//        cx = 0xC8; // 200
-//        di = 0x4D84; // di points to some memory address related to video? is this a frame buffer?
 
     const uint8_t kBytesPerRow = kScreenWidth / 2;
     uint8_t fileData[kBytesPerRow];
 
-        for (int y = 0; y < kScreenHeight; y++)
-        {
-//loc_47C3F:              //; CODE XREF: readTitleDatAndGraphics+8Ej
-//            push(cx);
-            // read 160 bytes from title.dat
-            size_t bytesRead = fread(fileData, sizeof(uint8_t), kBytesPerRow, file);
-            // mov ax, 3F00h
-            // mov bx, lastFileHandle
-            // cx = 0xA0; // 160
-            // mov dx, offset fileLevelData
-            // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-            //             ; BX = file handle, CX = number of bytes to read
-            //             ; DS:DX -> buffer
-            if (bytesRead < kBytesPerRow)
-            {
-                return; //goto exit;
-            }
+    for (int y = 0; y < kScreenHeight; y++)
+    {
+        //loc_47C3F:              //; CODE XREF: readTitleDatAndGraphics+8Ej
+        // read 160 bytes from title.dat
+        size_t bytesRead = fread(fileData, sizeof(uint8_t), kBytesPerRow, file);
 
-            for (int x = 0; x < kScreenWidth; ++x)
-            {
-                uint16_t destPixelAddress = y * kScreenWidth + x;
-
-                uint8_t sourcePixelAddress = x / 8;
-                uint8_t sourcePixelBitPosition = 7 - (x % 8);
-
-                uint8_t b = (fileData[sourcePixelAddress + 0] >> sourcePixelBitPosition) & 0x1;
-                uint8_t g = (fileData[sourcePixelAddress + 40] >> sourcePixelBitPosition) & 0x1;
-                uint8_t r = (fileData[sourcePixelAddress + 80] >> sourcePixelBitPosition) & 0x1;
-                uint8_t i = (fileData[sourcePixelAddress + 120] >> sourcePixelBitPosition) & 0x1;
-
-                uint8_t finalColor = ((r << 0)
-                                      | (g << 1)
-                                      | (b << 2)
-                                      | (i << 3));
-
-                gScreenPixels[destPixelAddress] = finalColor;
-            }
-
-// ; ---------------------------------------------------------------------------
-
-//loc_47C54:             // ; CODE XREF: readTitleDatAndGraphics+67j
-//            si = &fileLevelData;
-//            ah = 1;
-//
-//            // 4 is the number of planes (rgb and intensity)
-//            // it goes copying 40 bytes for each plane at a time
-//            for (int i = 0; i < 4; ++i)
-//            {
-//                ports[0x3C4] = 2; // sequencer index 2: map mask (to choose which plane to render: rgb or intensity)
-//                ports[0x3C5] = ah; // sequencer value whatever is ah (takes 0x1 blue, 0x2 green, 0x4 red and 0x8 intensity)
-//                memcpy(di, si, 40);
-//                si += 40;
-//                ah = ah << 1;
-//            }
-
-//// iterates 4 times: with ah taking values 0x1, 0x2, 0x4, 0x8
-//loc_47C59:              ; CODE XREF: readTitleDatAndGraphics+88j
-//            // mov dx, 3C4h
-//            // al = 2
-//            // out dx, al      ; EGA: sequencer address reg
-//            //             ; map mask: data bits 0-3 enable writes to bit planes 0-3
-//            ports[0x3C4] = 2; // sequencer index 2
-//            // inc dx
-//            // al = ah
-//            // out dx, al      ; EGA port: sequencer data register
-//            ports[0x3C5] = ah; // sequencer value whatever is ah (takes 0x1, 0x2, 0x4 and 0x8)
-//            cx = 40;
-//            memcpy(di, si, 40);
-//            si += 40;
-//            // rep movsb // this copies the first 40 bytes of the string in si to di (so from fileLevelData to di)
-//            // sub di, 28h ; '(' // makes di point to the beginning of the data again
-//            ah = ah << 1;
-//            if (ah > 0xF)
-//            {
-//                goto loc_47C59;
-//            }
-
-//            di += 122;
-            // pop(cx);
-            // cx--;
-            // if (cx > 0)
-            // {
-            //     goto loc_47C3F;
-            // }
-        }
-        
-        if (fclose(file) != 0)
+        if (bytesRead < kBytesPerRow)
         {
             return; //goto exit;
         }
-// ; ---------------------------------------------------------------------------
+
+        for (int x = 0; x < kScreenWidth; ++x)
+        {
+//loc_47C54:             // ; CODE XREF: readTitleDatAndGraphics+67j
+            uint16_t destPixelAddress = y * kScreenWidth + x;
+
+            uint8_t sourcePixelAddress = x / 8;
+            uint8_t sourcePixelBitPosition = 7 - (x % 8);
+
+//loc_47C59:              ; CODE XREF: readTitleDatAndGraphics+88j
+            uint8_t b = (fileData[sourcePixelAddress + 0] >> sourcePixelBitPosition) & 0x1;
+            uint8_t g = (fileData[sourcePixelAddress + 40] >> sourcePixelBitPosition) & 0x1;
+            uint8_t r = (fileData[sourcePixelAddress + 80] >> sourcePixelBitPosition) & 0x1;
+            uint8_t i = (fileData[sourcePixelAddress + 120] >> sourcePixelBitPosition) & 0x1;
+
+            uint8_t finalColor = ((r << 0)
+                                  | (g << 1)
+                                  | (b << 2)
+                                  | (i << 3));
+
+            gScreenPixels[destPixelAddress] = finalColor;
+        }
+    }
+
+    if (fclose(file) != 0)
+    {
+        return; //goto exit;
+    }
 
 //loc_47C86:              //; CODE XREF: readTitleDatAndGraphics+99j
-//        // mov dx, 3C4h
-//        // al = 2
-//        // out dx, al      ; EGA: sequencer address reg
-//        //             ; map mask: data bits 0-3 enable writes to bit planes 0-3
-//        ports[0x3C4] = 2; // sequencer index 2
-//        // inc dx
-//        // al = 0Fh
-//        // out dx, al      ; EGA port: sequencer data register
-//        ports[0x3C5] = 0xF; // sequencer value 0xF
-//        // mov dx, 3CEh
-//        // al = 1
-//        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-//        //             ; enable set/reset
-//        ports[0x3CE] = 1; // palette index 1
-//        // inc dx
-//        // al = 0Fh
-//        // out dx, al      ; EGA port: graphics controller data register
-//        ports[0x3CF] = 0xF; // palette value 0xF
-        // return;
 // readTitleDatAndGraphics endp
 }
 
@@ -3677,7 +3210,7 @@ errorOpeningLevelsDat:             // ; CODE XREF: readLevelsLst+17j
         {
             goto loc_47D6A;
         }
-        // sub_47F39();
+        // recoverFilesFromFloppyDisk();
         // jb  short loc_47D6A
         goto readLevelsLst; // wtf?
 // ; ---------------------------------------------------------------------------
@@ -3732,246 +3265,117 @@ locret_47D9B:              // ; CODE XREF: readLevelsLst+FBj
 
 ; =============== S U B R O U T I N E =======================================
 
-
+*/
 void readGfxDat() //  proc near       ; CODE XREF: readGfxDat+14j
                    // ; readEverything+1Ep
 {
-        // mov ax, 3D00h
-        // mov dx, offset aGfx_dat ; "GFX.DAT"
-        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-        //             ; DS:DX -> ASCIZ filename
-        //             ; AL = access mode
-        //             ; 0 - read
     FILE *file = fopen("GFX.DAT", "r");
-    if (file != NULL)
+    if (file == NULL)
     {
-        goto loc_47DB5;
+        if (errno == ENOENT) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
+        {
+            // recoverFilesFromFloppyDisk();
+            // jb  short loc_47DB2 // try again
+        }
+        exitWithError("Error opening GFX.DAT\n");
     }
-    if (errno != 2) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
+
+//loc_47DB5:             // ; CODE XREF: readGfxDat+8j
+    size_t bytes = fread(gGfxBitmapData, 1, sizeof(gGfxBitmapData), file);
+    if (bytes < sizeof(gGfxBitmapData))
     {
-        goto loc_47DB2;
+        exitWithError("Error reading GFX.DAT\n");
     }
-    // sub_47F39();
-    // jb  short loc_47DB2
-    goto readGfxDat;
-// ; ---------------------------------------------------------------------------
 
-loc_47DB2:             // ; CODE XREF: readGfxDat+Dj
-                   // ; readGfxDat+12j
-    goto exit;
-// ; ---------------------------------------------------------------------------
-
-loc_47DB5:             // ; CODE XREF: readGfxDat+8j
-    lastFileHandle = ax;
-    bx = lastFileHandle;
-    push(ds);
-    ax = seg gfxseg;
-    ds = ax;
-    // assume ds:nothing
-    // mov ax, 3F00h
-    // mov cx, 7D00h // 32000 bytes
-    // mov dx, 0
-    // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-    //             ; BX = file handle, CX = number of bytes to read
-    //             ; DS:DX -> buffer
-    int bytes = fread(gfxDataBuffer, 1, 32000, file);
-    if (bytes > 0)
+//loc_47DD3:             // ; CODE XREF: readGfxDat+31j
+    if (fclose(file) != 0)
     {
-        goto loc_47DD3;
+        exitWithError("Error closing GFX.DAT\n");
     }
-    pop(ds);
-    // assume ds:data
-    goto exit
-// ; ---------------------------------------------------------------------------
 
-loc_47DD3:             // ; CODE XREF: readGfxDat+31j
-    pop(ds)
-    // mov ax, 3E00h
-    // mov bx, lastFileHandle
-    // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-    //             ; BX = file handle
-    if (fclose(file) == 0)
-    {
-        goto locret_47DE2;
-    }
-    goto exit;
-// ; ---------------------------------------------------------------------------
-
-locret_47DE2:              // ; CODE XREF: readGfxDat+41j
-        return
 // readGfxDat  endp
 }
-
-
-; =============== S U B R O U T I N E =======================================
-
 
 void readControlsDat() // proc near       ; CODE XREF: readControlsDat+14j
                     // ; readEverything+Cp
 {
-        // mov ax, 3D00h
-        // mov dx, offset aControls_dat ; "CONTROLS.DAT"
-        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-        //             ; DS:DX -> ASCIZ filename
-        //             ; AL = access mode
-        //             ; 0 - read
-        FILE *file = fopen("CONTROLS.DAT", "r");
-        if (file != NULL)
+    FILE *file = fopen("CONTROLS.DAT", "r");
+    if (file == NULL)
+    {
+        if (errno == ENOENT) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
         {
-            goto loc_47DFC;
+//          recoverFilesFromFloppyDisk();
+//          jb  short loc_47DF9 // try again
         }
-        if (errno != 2) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
-        {
-            goto loc_47DF9;
-        }
-        sub_47F39();
-        jb  short loc_47DF9
-        goto short readControlsDat;
-// ; ---------------------------------------------------------------------------
 
-loc_47DF9:              // ; CODE XREF: readControlsDat+Dj
-                    // ; readControlsDat+12j
-        goto exit;
-// ; ---------------------------------------------------------------------------
+        exitWithError("Error opening CONTROLS.DAT\n");
+    }
 
-loc_47DFC:             // ; CODE XREF: readControlsDat+8j
-        lastFileHandle = ax;
-        bx = lastFileHandle;
-        push(ds);
-        ax = seg controlsseg;
-        ds = ax;
-        // assume ds:controlsseg
-        // mov ax, 3F00h
-        // mov cx, 7D00h // 32000 bytes
-        // mov dx, 0
-        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-        //             ; BX = file handle, CX = number of bytes to read
-        //             ; DS:DX -> buffer
-        int bytes = fread(&controlsDataBuffer, 1, 32000, lastFileHandle);
-        if (bytes > 0)
-        {
-            goto loc_47E1A;
-        }
-        pop(ds);
-        // assume ds:data
-        goto exit;
-// ; ---------------------------------------------------------------------------
+//loc_47DFC:             // ; CODE XREF: readControlsDat+8j
+    size_t bytes = fread(gControlsBitmapData, 1, sizeof(gControlsBitmapData), file);
+    if (bytes < sizeof(gControlsBitmapData))
+    {
+        exitWithError("Error reading CONTROLS.DAT\n");
+    }
 
-loc_47E1A:             // ; CODE XREF: readControlsDat+31j
-        pop(ds);
-        // mov ax, 3E00h
-        // mov bx, lastFileHandle
-        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-        //             ; BX = file handle
-        if (fclose(lastFileHandle) == 0)
-        {
-            goto locret_47E29;
-        }
-        goto exit;
-// ; ---------------------------------------------------------------------------
+//loc_47E1A:             // ; CODE XREF: readControlsDat+31j
+    if (fclose(file) != 0)
+    {
+        exitWithError("Error closing CONTROLS.DAT\n");
+    }
 
-locret_47E29:              // ; CODE XREF: readControlsDat+41j
-        // return;
 // readControlsDat endp
 }
-
-
-; =============== S U B R O U T I N E =======================================
-
 
 void readPlayersLst() //  proc near       ; CODE XREF: readEverything+1Bp
                     // ; sub_4B419+149p
 {
     if (byte_59B85 != 0)
     {
-        goto locret_47E4F;
+        return;
     }
-    // mov ax, 3D00h
-    // mov dx, offset aPlayer_lst ; "PLAYER.LST"
-    // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-    //             ; DS:DX -> ASCIZ filename
-    //             ; AL = access mode
-    //             ; 0 - read
+
     FILE *file = fopen("PLAYER.LST", "r");
     if (file == NULL)
     {
-        goto locret_47E4F;
+        return;
     }
-    // mov bx, ax
-    // mov ax, 3F00h
-    // mov cx, 0A00h // 2560 bytes
-    // mov dx, playerListDataBuffer // 8A9Ch
-    // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-    //             ; BX = file handle, CX = number of bytes to read
-    //             ; DS:DX -> buffer
-    int bytes = fread(&playerListDataBuffer, 1, 2560, file);
+
+    size_t bytes = fread(gPlayerListData, 1, sizeof(gPlayerListData), file);
     if (bytes == 0)
     {
-        goto locret_47E4F;
+        return;
     }
     
-    // mov ax, 3E00h
-    // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-    //             ; BX = file handle
     fclose(file);
 
-locret_47E4F:       //         ; CODE XREF: readPlayersLst+5j
-                    // ; readPlayersLst+Fj ...
-        return
 // readPlayersLst  endp
 }
-
-
-; =============== S U B R O U T I N E =======================================
-
 
 void readHallfameLst() // proc near       ; CODE XREF: readEverything+18p
                     // ; sub_4B419+146p
 {
     if (byte_59B85 != 0)
     {
-        goto locret_47E75;
+        return;
     }
     
-    // mov ax, 3D00h
-    // mov dx, offset aHallfame_lst ; "HALLFAME.LST"
-    // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-    //             ; DS:DX -> ASCIZ filename
-    //             ; AL = access mode
-    //             ; 0 - read
     FILE *file = fopen("HALLFAME.LST", "r");
     if (file == NULL)
     {
-        goto locret_47E75;
+        return;
     }
     
-    // mov bx, ax
-    // mov ax, 3F00h
-    // mov cx, 24h ; '$' // 36 bytes
-    // mov dx, hallFameDataBuffer // 9514h
-    // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-    //             ; BX = file handle, CX = number of bytes to read
-    //             ; DS:DX -> buffer
-    int bytes = fread(&hallFameDataBuffer, 1, 36, file);
+    size_t bytes = fread(gHallOfFameData, 1, sizeof(gHallOfFameData), file);
     if (bytes == 0)
     {
-        goto locret_47E75;
+        return;
     }
     
-    // mov ax, 3E00h
-    // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-    //             ; BX = file handle
     fclose (file);
 
-locret_47E75:               //; CODE XREF: readHallfameLst+5j
-                   // ; readHallfameLst+Fj ...
-    return
 // readHallfameLst endp
 }
-
-
-// ; =============== S U B R O U T I N E =======================================
-
 
 void readEverything() //  proc near       ; CODE XREF: start+2DBp start+2E3p ...
 {
@@ -3980,20 +3384,20 @@ void readEverything() //  proc near       ; CODE XREF: start+2DBp start+2E3p .
     readPanelDat();
     readMenuDat();
     readControlsDat();
-    readLevelsLst(); // TODO: need to test & debug when LEVEL.LST is not available and it's generated from LEVELS.DAT
-    readDemoFiles(); // TODO: just crazy, needs more RE work
+//    readLevelsLst(); // TODO: need to test & debug when LEVEL.LST is not available and it's generated from LEVELS.DAT
+//    readDemoFiles(); // TODO: just crazy, needs more RE work
     readBackDat();
     readHallfameLst();
     readPlayersLst();
     readGfxDat();
 // readEverything  endp
 } 
-
+/*
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_47E98   proc near       ; CODE XREF: sub_47F39+4Ap
+sub_47E98   proc near       ; CODE XREF: recoverFilesFromFloppyDisk+4Ap
                     ; sub_4AF0C+216p ...
         mov byte_59B86, 0
 
@@ -4089,7 +3493,7 @@ sub_47E98   endp
 ; =============== S U B R O U T I N E =======================================
 
 
-void sub_47F39() //   proc near       ; CODE XREF: readPalettes+Fp
+void recoverFilesFromFloppyDisk() //   proc near       ; CODE XREF: readPalettes+Fp
                    // ; loadMurphySprites+15p ...
 {
         call    enableFloppy
@@ -4103,11 +3507,11 @@ void sub_47F39() //   proc near       ; CODE XREF: readPalettes+Fp
         jmp short loc_47F5E
 // ; ---------------------------------------------------------------------------
 
-loc_47F56:              ; CODE XREF: sub_47F39+11j
+loc_47F56:              ; CODE XREF: recoverFilesFromFloppyDisk+11j
         mov si, 3701h
         mov byte_53A10, 1
 
-loc_47F5E:              ; CODE XREF: sub_47F39+1Bj
+loc_47F5E:              ; CODE XREF: recoverFilesFromFloppyDisk+1Bj
         mov di, 7D3Bh
         mov ah, 0Fh
         call    drawTextWithChars6Font_method2
@@ -4134,7 +3538,7 @@ loc_47F5E:              ; CODE XREF: sub_47F39+1Bj
         call    setPalette
         popf
         return;
-// sub_47F39   endp
+// recoverFilesFromFloppyDisk   endp
 }
 
 // ; ---------------------------------------------------------------------------
@@ -10399,72 +9803,34 @@ loc_4AAD3:              ; CODE XREF: sub_4AAB4+27j
         pop si
         return;
 sub_4AAB4   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
+*/
 
 void readMenuDat() // proc near       ; CODE XREF: readEverything+9p
 {
-        // mov ax, 3D00h
-        // mov dx, offset aMenu_dat ; "MENU.DAT"
-        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-        //             ; DS:DX -> ASCIZ filename
-        //             ; AL = access mode
-        //             ; 0 - read
-        FILE *file = fopen("MENU.DAT", "r");
-        if (file != NULL)
-        {
-            goto loc_4AAED;
-        }
-        goto exit;
-// ; ---------------------------------------------------------------------------
+    FILE *file = fopen("MENU.DAT", "r");
+    if (file == NULL)
+    {
+        exitWithError("Error opening MENU.DAT\n");
+    }
 
-loc_4AAED:             // ; CODE XREF: readMenuDat+8j
-        lastFileHandle = ax;
-        bx = lastFileHandle;
-        push(ds);
-        ax = seg menuseg;
-        ds = ax;
-        // assume ds:nothing
-        // mov ax, 3F00h
-        // mov cx, 7D00h // 32000 bytes
-        // mov dx, 0
-        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-        //             ; BX = file handle, CX = number of bytes to read
-        //             ; DS:DX -> buffer
-        int bytes = fread(&menuDataBuffer, 1, 32000, lastFileHandle);
-        if (bytes > 0)
-        {
-            goto loc_4AB0B;
-        }
-        pop(ds);
-        // assume ds:data
-        goto exit;
-// ; ---------------------------------------------------------------------------
+//loc_4AAED:             // ; CODE XREF: readMenuDat+8j
 
-loc_4AB0B:              // ; CODE XREF: readMenuDat+25j
-        pop(ds);
-        // mov ax, 3E00h
-        // mov bx, lastFileHandle
-        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-        //             ; BX = file handle
-        if (fclose(lastFileHandle) == 0)
-        {
-            goto locret_4AB1A;
-        }
-        goto exit;
-// ; ---------------------------------------------------------------------------
+    size_t bytes = fread(gMenuBitmapData, sizeof(uint8_t), sizeof(gMenuBitmapData), file);
+    if (bytes < sizeof(gMenuBitmapData))
+    {
+        exitWithError("Error reading MENU.DAT\n");
+    }
 
-locret_4AB1A:               // ; CODE XREF: readMenuDat+35j
-        // return;
+//loc_4AB0B:              // ; CODE XREF: readMenuDat+25j
+    if (fclose(file) != 0)
+    {
+        exitWithError("Error closing MENU.DAT\n");
+    }
+
 // readMenuDat endp
 }
 
-
-; =============== S U B R O U T I N E =======================================
-
-
+/*
 sub_4AB1B   proc near       ; CODE XREF: runMainMenu+28Fp
                     ; DATA XREF: data:off_50318o
         cmp byte_59B85, 0
@@ -11419,19 +10785,19 @@ sub_4B2FC   proc near       ; CODE XREF: sub_4B375+56p
         mov si, 60D5h
         call    fade
         call    vgaloadbackseg
-        mov si, 8718h
+        mov si, 8718h // "CONGRATULATIONS"
         mov ah, 0Fh
         mov di, 5BDFh
         call    drawTextWithChars6Font_method2
-        mov si, 8728h
+        mov si, 8728h // "YOU HAVE COMPLETED ALL 111 LEVELS OF SUPAPLEX"
         mov ah, 0Fh
         mov di, 6EE3h
         call    drawTextWithChars6Font_method2
-        mov si, 8756h
+        mov si, 8756h // "YOUR BRAIN IS IN FANTASTIC SHAPE"
         mov ah, 0Fh
         mov di, 760Eh
         call    drawTextWithChars6Font_method2
-        mov si, 8777h
+        mov si, 8777h // "NOT MANY PEOPLE ARE ABLE TO MANAGE THIS"
         mov ah, 0Fh
         mov di, 7D31h
         call    drawTextWithChars6Font_method2
@@ -12537,702 +11903,74 @@ loc_4BA34:              ; CODE XREF: sub_4B8BE+193j
         return;
 sub_4B8BE   endp
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-void drawTextWithChars6Font_method1() //   proc near       ; CODE XREF: sub_4AB1B+37p
+*/
+void drawTextWithChars6Font_method1(size_t destX, size_t destY, uint8_t color, const char *text) //   proc near       ; CODE XREF: sub_4AB1B+37p
                   //  ; sub_4AB1B+4Ap ...
 {
     // Parameters:
     // di is the destination surface
     // si is the text to be rendered
-    // ah ... ??? maybe something to encode the color?
-    //    4 -> green (WELCOME TO SUPAPLEX)
-    //    1 -> white (SPEED FIX VERSION 6.3)
-    //    E -> gray (SPEED FIX CREDITS)
+    // ah ... ??? maybe something to encode the color? or just a color index in the current palette?
+    //    0x4 -> 0100b -> green (WELCOME TO SUPAPLEX)
+    //    0x1 -> 0001b -> white (SPEED FIX VERSION 6.3)
+    //    0xE -> 1110b -> gray (SPEED FIX CREDITS)
     
     // Address: 01ED:4DFC
-    if (byte_5A33F != 1)
+    if (byte_5A33F == 1)
     {
-        goto loc_4BA69;
+        return;
     }
-    goto locret_4BDEF;
-// ; ---------------------------------------------------------------------------
 
-loc_4BA69:             // ; CODE XREF: drawTextWithChars6Font_method1+5j
-    byte_51969 = ah;
-    // mov dx, 3CEh
-    // al = 5
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; mode register.Data bits:
-    //             ; 0-1: Write mode 0-2
-    //             ; 2: test condition
-    //             ; 3: read mode: 1=color compare, 0=direct
-    //             ; 4: 1=use odd/even RAM addressing
-    //             ; 5: 1=use CGA mid-res map (2-bits/pixel)
-    ports[0x3CE] = 5; // set graphics mode
-    // inc dx
-    // al = 0
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = 0; // write mode 0: Write mode 0 is the default write mode. In this write mode, the Map Mask register of the Sequencer group, the Bit Mask register of the Graphics Controller group, and the CPU are used to set the screen pixel to a desired color.
-    // mov dx, 3CEh
-    // al = 1
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; enable set/reset
-    ports[0x3CE] = 1;
-    // inc dx
-    // al = 0Fh
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = 0xF; // enable set/reset in all planes
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah; // protect bits specified by ah?? Check PC Graphics Handbook, page 167
-     // 0x1 -> 0000 0001 -> used to render the top SPEED FIX VERSION 6.3 text
-     // 0xE -> 0000 1100 -> used to render the bottom credits for the speed fix
-    cl = 0;
+//loc_4BA69:             // ; CODE XREF: drawTextWithChars6Font_method1+5j
+    byte_51969 = color;
 
-loc_4BA8D:             // ; CODE XREF: drawTextWithChars6Font_method1:loc_4BDECj
-    bl = *si;
-    if (bl != 0)
+//    cl = 0;
+
+//loc_4BA8D:             // ; CODE XREF: drawTextWithChars6Font_method1:loc_4BDECj
+    if (text[0] == '\0')
     {
-        goto loc_4BA97;
+        return;
     }
-    goto locret_4BDEF;
-// ; ---------------------------------------------------------------------------
 
-loc_4BA97:             // ; CODE XREF: drawTextWithChars6Font_method1+33j
-    if (bl != 10)
+//loc_4BA97:             // ; CODE XREF: drawTextWithChars6Font_method1+33j
+    if (text[0] == '\n')
     {
-        goto loc_4BA9F;
+        return;
     }
-    goto locret_4BDEF;
-// ; ---------------------------------------------------------------------------
 
-loc_4BA9F:             // ; CODE XREF: drawTextWithChars6Font_method1+3Bj
-    si++;
-    bl -= 32; // ' ', first ascii that can be represented? used to convert the ascii from the string to the index in the font maybe
-    bh = 0;
-    bx += chars6DataBuffer;
-    // mov dx, 3CEh
-    // al = 0
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; set/reset.
-    //             ; Data bits 0-3 select planes for write mode 00
-    ports[0x3CE] = 0;
-    // inc dx
-    // al = 0
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = 0; // don't reset anything?
-    ah = 0xFC; // 252
-    ah = ah >> cl;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    *(es:di) = *(es:di) | al;
-    ah = 0xFC;
-    ch = cl;
-    al = 8;
-    al -= cl;
-    cl = al;
-    ah = ah << cl;
-    cl = ch;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    *(es:di) = *(es:di) | al;
-    // mov dx, 3CEh
-    // al = 0
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; set/reset.
-    //             ; Data bits 0-3 select planes for write mode 00
-    ports[0x3CE] = 0;
-    // inc dx
-    // al = byte_51969
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = byte_51969;
-    ah = *bx;
-    ah = ah >> cl;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    *(es:di) = *(es:di) | al;
-    ah = *bx;
-    ch = cl;
-    al = 8;
-    al -=cl;
-    cl = al;
-    ah = ah << cl;
-    cl = ch;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    *(es:di) = *(es:di) | al;
-    di += 0x7A; // 122
-    bx += 0x40; // 64 -> width of the font image?
-    // mov dx, 3CEh
-    // al = 0
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; set/reset.
-    //             ; Data bits 0-3 select planes for write mode 00
-    ports[0x3CE] = 0;
-    // inc dx
-    // al = 0
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = 0;
-    ah = 0xFC; // 252
-    ah = ah >> cl;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    *(es:di) = *(es:di) | al;
-    ah = 0xFC;
-    ch = cl;
-    al = 8;
-    al -= cl;
-    cl = al;
-    ah = ah << cl;
-    cl = ch;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    *(di + 1) = *(di + 1) | al;
-    // mov dx, 3CEh
-    // al = 0
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; set/reset.
-    //             ; Data bits 0-3 select planes for write mode 00
-    ports[0x3CE] = 0;
-    // inc dx
-    // al = byte_51969
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = byte_51969;
-    ah = *bx;
-    ah = ah >> cl;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    *(es:di) = *(es:di) | al;
-    ah = *bx;
-    ch = cl;
-    al = 8
-    al -= cl;
-    cl = al;
-    ah = ah << cl;
-    cl = ch;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    *(di + 1) = *(di + 1) | al;
-    di += 0x7A; // 122;
-    bx += 0x40; // 64
-    // mov dx, 3CEh
-    // al = 0
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; set/reset.
-    //             ; Data bits 0-3 select planes for write mode 00
-    ports[0x3CE] = 0;
-    // inc dx
-    // al = 0
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = 0;
-    ah = 0xFC; // 252
-    ah = ah >> cl;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    *(es:di) = *(es:di) | al;
-    ah = 0xFC;
-    ch = cl;
-    al = 8;
-    al -= cl;
-    cl = al;
-    ah = ah << cl;
-    cl = ch;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    *(di + 1) = *(di + 1) | al;
-    // mov dx, 3CEh
-    // al = 0
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; set/reset.
-    //             ; Data bits 0-3 select planes for write mode 00
-    ports[0x3CE] = 0;
-    // inc dx
-    // al = byte_51969
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = byte_51969;
-    ah = *bx;
-    ah = ah >> cl;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    *(es:di) = *(es:di) | al;
-    ah = *bx;
-    ch = cl;
-    al = 8;
-    al -= cl;
-    cl = al;
-    ah = ah << cl;
-    cl = ch;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    *(di + 1) = *(di + 1) | al;
-    di += 0x7A; // 122;
-    bx += 0x40; // 64
-    // mov dx, 3CEh
-    // al = 0
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; set/reset.
-    //             ; Data bits 0-3 select planes for write mode 00
-    ports[0x3CE] = 0;
-    // inc dx
-    // al = 0
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = 0;
-    ah = 0xFC;
-    ah = ah >> cl;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    *(es:di) = *(es:di) | al;
-    ah = 0xFC;
-    ch = cl;
-    al = 8;
-    al -= cl;
-    cl = al;
-    ah = ah << cl;
-    cl = ch;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    *(di + 1) = *(di + 1) | al;
-    // mov dx, 3CEh
-    // al = 0
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; set/reset.
-    //             ; Data bits 0-3 select planes for write mode 00
-    ports[0x3CE] = 0;
-    // inc dx
-    // al = byte_51969
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = byte_51969;
-    ah = *bx;
-    ah = ah >> cl;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    *(es:di) = *(es:di) | al;
-    ah = *bx;
-    ch = cl;
-    al = 8
-    al -= cl;
-    cl = al;
-    ah = ah << cl;
-    cl = ch;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    *(di + 1) = *(di + 1) | al;
-    di += 0x7A; // 252
-    bx += 0x40; // 64
-    // mov dx, 3CEh
-    // al = 0
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; set/reset.
-    //             ; Data bits 0-3 select planes for write mode 00
-    ports[0x3CE] = 0;
-    // inc dx
-    // al = 0
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = 0;
-    mov ah, 0FCh ; '?'
-    shr ah, cl
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    *(es:di) = *(es:di) | al;
-    ah = 0xFC;
-    ch = cl;
-    al = 8;
-    al -= cl;
-    cl = al;
-    ah = ah << cl;
-    cl = ch;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    or  es:[di+1], al
-    // mov dx, 3CEh
-    // al = 0
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; set/reset.
-    //             ; Data bits 0-3 select planes for write mode 00
-    ports[0x3CE] = 0;
-    // inc dx
-    // al = byte_51969
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = byte_51969;
-    ah = *bx;
-    ah = ah >> cl;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    *(es:di) = *(es:di) | al;
-    ah = *bx;
-    ch = cl;
-    al = 8;
-    al -= cl;
-    cl = al;
-    ah = ah << cl;
-    cl = ch;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    *(di + 1) = *(di + 1) | al;
-    di += 0x7A; // 252
-    bx += 0x40; // 64
-    // mov dx, 3CEh
-    // al = 0
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; set/reset.
-    //             ; Data bits 0-3 select planes for write mode 00
-    ports[0x3CE] = 0;
-    // inc dx
-    // al = 0
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = 0;
-    mov ah, 0FCh ; '?'
-    shr ah, cl
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    *(es:di) = *(es:di) | al;
-    ah = 0xFC;
-    ch = cl;
-    al = 8;
-    al -= cl;
-    cl = al;
-    ah = ah << cl;
-    cl = ch;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    or  es:[di+1], al
-    // mov dx, 3CEh
-    // al = 0
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; set/reset.
-    //             ; Data bits 0-3 select planes for write mode 00
-    ports[0x3CE] = 0;
-    // inc dx
-    // al = byte_51969
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = byte_51969;
-    ah = *bx;
-    ah = ah >> cl;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    *(es:di) = *(es:di) | al;
-    ah = *bx;
-    ch = cl;
-    al = 8;
-    al -= cl;
-    cl = al;
-    ah = ah << cl;
-    cl = ch;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    *(di + 1) = *(di + 1) | al;
-    di += 0x7A; // 252
-    bx += 0x40; // 64
-    // mov dx, 3CEh
-    // al = 0
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; set/reset.
-    //             ; Data bits 0-3 select planes for write mode 00
-    ports[0x3CE] = 0;
-    // inc dx
-    // al = 0
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = 0;
-    mov ah, 0FCh ; '?'
-    shr ah, cl
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    *(es:di) = *(es:di) | al;
-    ah = 0xFC;
-    ch = cl;
-    al = 8;
-    al -= cl;
-    cl = al;
-    ah = ah << cl;
-    cl = ch;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    or  es:[di+1], al
-    // mov dx, 3CEh
-    // al = 0
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; set/reset.
-    //             ; Data bits 0-3 select planes for write mode 00
-    ports[0x3CE] = 0;
-    // inc dx
-    // al = byte_51969
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = byte_51969;
-    ah = *bx;
-    ah = ah >> cl;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    *(es:di) = *(es:di) | al;
-    ah = *bx;
-    ch = cl;
-    al = 8;
-    al -= cl;
-    cl = al;
-    ah = ah << cl;
-    cl = ch;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    *(di + 1) = *(di + 1) | al;
-    di += 0x7A; // 252
-    bx += 0x40; // 64
-    di -= 0x356; // 854
-    cl += 6;
-    if (cl < 8)
+//loc_4BA9F:             // ; CODE XREF: drawTextWithChars6Font_method1+3Bj
+    long textLength = strlen(text);
+
+    for (long idx = 0; idx < textLength; ++idx)
     {
-        goto loc_4BDEC;
+        char character = text[idx];
+
+        // ' ' = 0x20 = 32, and is first ascii that can be represented.
+        // This line converts the ascii from the string to the index in the font
+        //
+        uint8_t bitmapCharacterIndex = character - 0x20;
+
+        for (uint8_t y = 0; y < kBitmapFontCharacterSize; ++y)
+        {
+            for (uint8_t x = 0; x < kBitmapFontCharacterSize; ++x)
+            {
+                uint8_t bitmapCharacterRow = gChars6BitmapFont[bitmapCharacterIndex + y * kNumberOfCharactersInBitmapFont];
+                uint8_t pixelValue = (bitmapCharacterRow >> (7 - x)) & 0x1;
+                if (pixelValue == 1)
+                {
+                    // 6 is the wide (in pixels) of this font
+                    size_t destAddress = (destY + y) * kScreenWidth + (idx * 6 + destX + x);
+                    gScreenPixels[destAddress] = color; // this color might need an operation?
+                }
+            }
+        }
     }
-    cl -= 8;
-    di++;
 
-loc_4BDEC:             // ; CODE XREF: drawTextWithChars6Font_method1+387j
-    goto loc_4BA8D;
-// ; ---------------------------------------------------------------------------
-
-locret_4BDEF:      //         ; CODE XREF: drawTextWithChars6Font_method1+7j
-               // ; drawTextWithChars6Font_method1+35j ...
-    return;
 // drawTextWithChars6Font_method1   endp
 }
+/*
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-void drawTextWithChars6Font_method2()  // proc near       ; CODE XREF: sub_47F39+2Ap
+void drawTextWithChars6Font_method2()  // proc near       ; CODE XREF: recoverFilesFromFloppyDisk+2Ap
                    // ; sub_4AF0C+EDp ...
 {
     if (byte_5A33F != 1)
@@ -24007,21 +22745,15 @@ loc_50290:              ; CODE XREF: sub_5024B+5Cj
 sub_5024B   endp
 
 
-; =============== S U B R O U T I N E =======================================
-
+*/
 
 void drawSpeedFixTitleAndVersion() //   proc near       ; CODE XREF: start+2E6p
 {
-    si = 0x95A5; // SUPAPLEX SPEED FIX VERSION 6.3
-    di = 0x531B;
-    ah = 1;
-    drawTextWithChars6Font_method1();
+    drawTextWithChars6Font_method1(72, 11, 1, "SUPAPLEX SPEED FIX VERSION 6.3");
 // drawSpeedFixTitleAndVersion   endp
 }
 
-
-// ; =============== S U B R O U T I N E =======================================
-
+/*
 
 void drawSpeedFixCredits() //  proc near       ; CODE XREF: start+2ECp
 {
@@ -24063,3 +22795,12 @@ include DATA.INC
 
 end start
 */
+
+void exitWithError(const char *format, ...)
+{
+    va_list argptr;
+    va_start(argptr, format);
+    vfprintf(stderr, format, argptr);
+    va_end(argptr);
+    exit(errno);
+}
