@@ -19,15 +19,28 @@ int word_599DC[] = { 0x00CE, 0x016A, 0x0146, 0x00CD, 0x024D, 0x012C, 0x01A7, 0x0
                     0x41D0, 0x105F, 0xF3F3, 0xF068, 0x10F0, 0x106C, 0x94F4 };
 
 static const uint8_t kNumberOfColors = 16;
+static const uint8_t kPaleteDataSize = kNumberOfColors * 4;
+static const int kNumberOfPalettes = 4;
+
 typedef SDL_Color ColorPalette[kNumberOfColors];
+typedef uint8_t ColorPaletteData[kPaleteDataSize];
+
 ColorPalette gCurrentPalette;
+
+ColorPalette gPalettes[kNumberOfPalettes];
 ColorPalette gBlackPalette = {
     {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
     {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
     {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
     {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
 };
-ColorPalette gTitle1Palette;
+
+ColorPaletteData gTitlePaletteData = {
+    0x02, 0x03, 0x05, 0x00, 0x0D, 0x0A, 0x04, 0x0C, 0x02, 0x06, 0x06, 0x02, 0x03, 0x09, 0x09, 0x03,
+    0x0B, 0x08, 0x03, 0x06, 0x02, 0x07, 0x07, 0x0A, 0x08, 0x06, 0x0D, 0x09, 0x06, 0x04, 0x0B, 0x01,
+    0x09, 0x01, 0x00, 0x04, 0x0B, 0x01, 0x00, 0x04, 0x0D, 0x01, 0x00, 0x0C, 0x0F, 0x01, 0x00, 0x0C,
+    0x0F, 0x06, 0x04, 0x0C, 0x02, 0x05, 0x06, 0x08, 0x0F, 0x0C, 0x06, 0x0E, 0x0C, 0x0C, 0x0D, 0x0E,
+};
 
 const int kScreenWidth = 320;
 const int kScreenHeight = 200;
@@ -48,6 +61,8 @@ void fadeToPalette(ColorPalette palette);
 void readTitleDatAndGraphics(void);
 void videoloop(void);
 void loopForVSync(void);
+void convertPaletteDataToPalette(ColorPaletteData paletteData, ColorPalette outPalette);
+void loadScreen2(void);
 
 //         public start
 int main(int argc, const char * argv[])
@@ -626,19 +641,7 @@ leaveVideoStatus:           //; CODE XREF: start+28Aj
     setPalette(gBlackPalette);
     readTitleDatAndGraphics();
     ColorPalette titleDatPalette; // si = 0x5F15;
-    for (int i = 0; i < kNumberOfColors; ++i)
-    {
-        uint8_t value = i * 255 / (kNumberOfColors - 1);
-        titleDatPalette[i] = (SDL_Color) {
-            value, value, value,
-            255,
-        };
-    }
-    titleDatPalette[0] = (SDL_Color) { 255, 0, 0, 255 };
-    titleDatPalette[1] = (SDL_Color) { 0, 255, 0, 255 };
-    titleDatPalette[2] = (SDL_Color) { 0, 0, 255, 255 };
-    titleDatPalette[3] = (SDL_Color) { 0, 255, 255, 255 };
-//    setPalette(titleDatPalette);
+    convertPaletteDataToPalette(gTitlePaletteData, titleDatPalette);
     fadeToPalette(titleDatPalette);
 /*
 isFastMode:              //; CODE XREF: start+2ADj
@@ -658,7 +661,9 @@ isFastMode:              //; CODE XREF: start+2ADj
 //// ; ---------------------------------------------------------------------------
 
 openingSequence:
+ */
         loadScreen2();    // 01ED:02B9
+/*
         readEverything();
         drawSpeedFixTitleAndVersion();
         openCreditsBlock(); // credits inside the block // 01ED:02C2
@@ -2172,38 +2177,55 @@ loc_47783:              //; CODE XREF: readDemoFiles+45j readDemoFiles+BFj ...
 
 
 ; =============== S U B R O U T I N E =======================================
+*/
 
+void convertPaletteDataToPalette(ColorPaletteData paletteData, ColorPalette outPalette)
+{
+    int kExponent = 4; // no idea why (yet)
+
+    for (int i = 0; i < kNumberOfColors; ++i)
+    {
+        outPalette[i].r = paletteData[i * 4 + 0] << kExponent;
+        outPalette[i].g = paletteData[i * 4 + 1] << kExponent;
+        outPalette[i].b = paletteData[i * 4 + 2] << kExponent;
+        outPalette[i].a = paletteData[i * 4 + 3] << kExponent; // intensity, for now
+    }
+}
 
 void readPalettes()  // proc near       ; CODE XREF: readEverythingp
 {
-        mov ax, 3D00h
-        mov dx, offset aPalettes_dat ; "PALETTES.DAT"
-        int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-                    ; DS:DX -> ASCIZ filename
-                    ; AL = access mode
-                    ; 0 - read
-        FILE *file = fopen("PALETTES.DAT", "r");
-        if (file != NULL)
-        {
-            goto loc_4779F;
-        }
-        if (errno != 2) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
-        {
-            goto loc_4779C;
-        }
-        sub_47F39();
-        jb  short loc_4779C
-        goto short loc_4779F;
+//        mov ax, 3D00h
+//        mov dx, offset aPalettes_dat ; "PALETTES.DAT"
+//        int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
+//                    ; DS:DX -> ASCIZ filename
+//                    ; AL = access mode
+//                    ; 0 - read
+    FILE *file = fopen("PALETTES.DAT", "r");
+    if (file == NULL)
+    {
+        return; // TODO: Error somehow
+    }
+//        if (file != NULL)
+//        {
+//            goto loc_4779F;
+//        }
+//        if (errno != 2) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
+//        {
+//            goto loc_4779C;
+//        }
+//        sub_47F39();
+//        jb  short loc_4779C
+//        goto short loc_4779F;
+//// ; ---------------------------------------------------------------------------
+//
+//loc_4779C:             // ; CODE XREF: readPalettes+Dj
+//                    // ; readPalettes+12j
+//        goto exit;
 // ; ---------------------------------------------------------------------------
 
-loc_4779C:             // ; CODE XREF: readPalettes+Dj
-                    // ; readPalettes+12j
-        goto exit;
-// ; ---------------------------------------------------------------------------
-
-loc_4779F:              // ; CODE XREF: readPalettes+8j
+//loc_4779F:              // ; CODE XREF: readPalettes+8j
                      // ; readPalettes+14j
-        ax = lastFileHandle;
+//        ax = lastFileHandle;
         // mov bx, lastFileHandle
         // mov ax, 3F00h
         // mov cx, 100h // 256 bytes
@@ -2211,32 +2233,37 @@ loc_4779F:              // ; CODE XREF: readPalettes+8j
         // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
         //             ; BX = file handle, CX = number of bytes to read
                     // ; DS:DX -> buffer
-        int bytes = fread(&palettesDataBuffer, 1, 256, lastFileHandle);
-        if (bytes > 0)
-        {
-            goto loc_477B6;
-        }
-        goto exit;
+
+    ColorPaletteData palettesDataBuffer[kNumberOfPalettes];
+    size_t bytes = fread(&palettesDataBuffer, sizeof(ColorPaletteData), kNumberOfPalettes, file);
+    if (bytes == 0)
+    {
+        return; // TODO: error goto exit;
+    }
+
+    for (int i = 0; i < kNumberOfPalettes; ++i)
+    {
+        convertPaletteDataToPalette(palettesDataBuffer[i], gPalettes[i]);
+    }
 // ; ---------------------------------------------------------------------------
 
-loc_477B6:              //; CODE XREF: readPalettes+2Bj
+//loc_477B6:              //; CODE XREF: readPalettes+2Bj
         // mov ax, 3E00h
         // mov bx, lastFileHandle
         // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
         //             ; BX = file handle
-        if (fclose(lastFileHandle) == 0)
-        {
-            goto locret_477C4;
-        }
-        goto exit;
+    if (fclose(file) != 0)
+    {
+        return; // TODO: error goto exit;
+    }
 // ; ---------------------------------------------------------------------------
 
-locret_477C4:             //  ; CODE XREF: readPalettes+39j
+//locret_477C4:             //  ; CODE XREF: readPalettes+39j
         // return;
 // readPalettes   endp
 }
 
-
+/*
 // ; =============== S U B R O U T I N E =======================================
 
 // ; Attributes: bp-based frame
@@ -2468,28 +2495,28 @@ loc_47884:             // ; CODE XREF: openCreditsBlock+C7j
 
 ; =============== S U B R O U T I N E =======================================
 
-
+*/
 void loadScreen2() // proc near       ; CODE XREF: start:loc_46F00p
 {
 
 // ; FUNCTION CHUNK AT 04B2 SIZE 00000020 BYTES
 
-        // mov ax, 3D00h
-        // mov dx, aTitle1_dat // points to "TITLE1.DAT"
-        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-        //             ; DS:DX -> ASCIZ filename
-        //             ; AL = access mode
-        //             ; 0 - read
-        FILE *file = fopen("TITLE1.DAT");
-        if (file != NULL)
-        {
-            goto loc_478C0;
-        }
-        goto exit;
-// ; ---------------------------------------------------------------------------
+    // mov ax, 3D00h
+    // mov dx, aTitle1_dat // points to "TITLE1.DAT"
+    // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
+    //             ; DS:DX -> ASCIZ filename
+    //             ; AL = access mode
+    //             ; 0 - read
+    FILE *file = fopen("TITLE1.DAT", "r");
+    if (file == NULL)
+    {
+        return; // TODO: error goto exit;
+    }
 
-loc_478C0:              // ; CODE XREF: loadScreen2+8j
-        lastFileHandle = file;
+// ; ---------------------------------------------------------------------------
+/*
+//loc_478C0:              // ; CODE XREF: loadScreen2+8j
+//        lastFileHandle = file;
         // mov lastFileHandle, ax
         // mov dx, 3CEh
         // al = 5
@@ -2531,6 +2558,7 @@ loc_478CD:
 
 loc_478E7:              //; CODE XREF: loadScreen2+6Bj
         push(cx);
+ */
         // mov ax, 3F00h
         // mov bx, lastFileHandle
         // mov cx, 0A0h ; '?' // read 160 bytes
@@ -2538,6 +2566,49 @@ loc_478E7:              //; CODE XREF: loadScreen2+6Bj
         // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
         //             ; BX = file handle, CX = number of bytes to read
         //             ; DS:DX -> buffer
+
+    const uint8_t kBytesPerRow = kScreenWidth / 2;
+    uint8_t fileData[kBytesPerRow];
+
+    for (int y = 0; y < kScreenHeight; y++)
+    {
+//loc_47C3F:              //; CODE XREF: readTitleDatAndGraphics+8Ej
+//            push(cx);
+        // read 160 bytes from title.dat
+        size_t bytesRead = fread(fileData, sizeof(uint8_t), kBytesPerRow, file);
+        // mov ax, 3F00h
+        // mov bx, lastFileHandle
+        // cx = 0xA0; // 160
+        // mov dx, offset fileLevelData
+        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+        //             ; BX = file handle, CX = number of bytes to read
+        //             ; DS:DX -> buffer
+        if (bytesRead < kBytesPerRow)
+        {
+            return; //goto exit;
+        }
+
+        for (int x = 0; x < kScreenWidth; ++x)
+        {
+            uint16_t destPixelAddress = y * kScreenWidth + x;
+
+            uint8_t sourcePixelAddress = x / 8;
+            uint8_t sourcePixelBitPosition = 7 - (x % 8);
+
+            uint8_t b = (fileData[sourcePixelAddress + 0] >> sourcePixelBitPosition) & 0x1;
+            uint8_t g = (fileData[sourcePixelAddress + 40] >> sourcePixelBitPosition) & 0x1;
+            uint8_t r = (fileData[sourcePixelAddress + 80] >> sourcePixelBitPosition) & 0x1;
+            uint8_t i = (fileData[sourcePixelAddress + 120] >> sourcePixelBitPosition) & 0x1;
+
+            uint8_t finalColor = ((r << 0)
+                                  | (g << 1)
+                                  | (b << 2)
+                                  | (i << 3));
+
+            gScreenPixels[destPixelAddress] = finalColor;
+        }
+    }
+/*
         int bytes = fread(&fileLevelData, 1, 160, lastFileHandle);
         if (bytes > 0)
         {
@@ -2578,13 +2649,14 @@ loc_47901:              // ; CODE XREF: loadScreen2+65j
         {
             goto loc_478E7;
         }
-        if (fclose(lastFileHandle) == 0)
-        {
-            goto loc_4792E;
-        }
-        goto exit;
-// ; ---------------------------------------------------------------------------
+ */
+    if (fclose(file) != 0)
+    {
+        return; // TODO: error goto exit;
+    }
 
+// ; ---------------------------------------------------------------------------
+/*
 loc_4792E:              //; CODE XREF: loadScreen2+76j
         // mov dx, 3C4h
         // al = 2
@@ -2624,7 +2696,9 @@ loc_4792E:              //; CODE XREF: loadScreen2+76j
         // al = bh
         // out dx, al      ; Video: CRT controller internal registers
         ports[0x3D5] = bh;
-        videoloop();
+ */
+    videoloop();
+        /*
         byte_510A6 = 0;
         si = 0x5F95;
         setPalette();
@@ -2730,9 +2804,11 @@ loc_479DC:             // ; CODE XREF: loadScreen2+124j
         // al = 0Fh
         // out dx, al      ; EGA port: sequencer data register
         ports[0x3C5] = 0xF;
+         */
 // loadScreen2 endp ; sp-analysis failed
 }
 
+/*
 
 // ; =============== S U B R O U T I N E =======================================
 
@@ -3384,7 +3460,7 @@ void readTitleDatAndGraphics() // proc near  ; CODE XREF: start+2BBp
 //                goto loc_47C59;
 //            }
 
-            di += 122;
+//            di += 122;
             // pop(cx);
             // cx--;
             // if (cx > 0)
