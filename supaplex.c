@@ -14,6 +14,9 @@
 static const int kScreenWidth = 320;
 static const int kScreenHeight = 200;
 
+// title1DataBuffer -> A000:4DAC - A000:CAAC
+// title2DataBuffer -> 0x4DD4 - 0xCAD4
+
 //static const int levelDataLength = 1536; // exact length of a level file, even of each level inside the LEVELS.DAT file
 uint8_t byte_510A6 = 0;
 uint8_t byte_59B85 = 0;
@@ -43,10 +46,25 @@ uint8_t gChars8BitmapFont[kBitmapFontLength];
 uint8_t gPanelBitmapData[3840];
 
 static const size_t kFullScreenBitmapLength = kScreenWidth * kScreenHeight / 2; // They use 4 bits to encode pixels
+
+// These buffers contain the raw bitmap data of the corresponding DAT files, separated in 4 bitmaps:
+//  - The bitmap has 4 columns of 40 bytes width x 200 bytes height
+//  - Every column represents a component (R, G, B and intensity).
+//  - In one of these columns/components, every bit represents a pixel (40 bytes x 8 bits = 320 pixels)
+//  - The way these are decoded seems to be to pick, for every pixel, the bit of the r column, the bit of the g column,
+//    the bit from the b column and the bit from the intensity column, and create a 4 bit number that represents an index
+//    in the 16 color palette.
+//
 uint8_t gMenuBitmapData[kFullScreenBitmapLength];
 uint8_t gControlsBitmapData[kFullScreenBitmapLength];
 uint8_t gBackBitmapData[kFullScreenBitmapLength];
 uint8_t gGfxBitmapData[kFullScreenBitmapLength];
+
+// These two buffers have the contents of TITLE1.DAT and TITLE2.DAT after they've been "decoded" (i.e. after picking
+// the different channels every 40 bytes and forming the 4 bit palette index for each pixel).
+//
+uint8_t gTitle1DecodedBitmapData[kFullScreenBitmapLength];
+uint8_t gTitle2DecodedBitmapData[kFullScreenBitmapLength];
 
 uint8_t gHallOfFameData[36];
 uint8_t gPlayerListData[2560];
@@ -104,6 +122,7 @@ void readEverything(void);
 void exitWithError(const char *format, ...);
 void readMenuDat(void);
 void drawSpeedFixTitleAndVersion(void);
+void openCreditsBlock(void);
 
 //         public start
 int main(int argc, const char * argv[])
@@ -704,12 +723,10 @@ isFastMode:              //; CODE XREF: start+2ADj
 openingSequence:
  */
         loadScreen2();    // 01ED:02B9
-        readEverything();
-        drawSpeedFixTitleAndVersion();
-    videoloop(); // remove
-    /*
+        readEverything(); // 01ED:02BC
+        drawSpeedFixTitleAndVersion(); // 01ED:02BF
         openCreditsBlock(); // credits inside the block // 01ED:02C2
-        drawSpeedFixCredits();   // credits below the block (herman perk and elmer productions) // 01ED:02C5
+/*        drawSpeedFixCredits();   // credits below the block (herman perk and elmer productions) // 01ED:02C5
 
 afterOpeningSequence:              //; CODE XREF: start+2DEj
         readConfig();
@@ -2271,239 +2288,113 @@ void readPalettes()  // proc near       ; CODE XREF: readEverythingp
 // readPalettes   endp
 }
 
-/*
-// ; =============== S U B R O U T I N E =======================================
-
-// ; Attributes: bp-based frame
-
 void openCreditsBlock() // proc near      ; CODE XREF: start+2E9p
 {
+    uint16_t var_4; //       = word ptr -4
+    uint16_t var_2; //       = word ptr -2
 
-    int var_6; //       = word ptr -6
-    int var_4; //       = word ptr -4
-    int var_2; //       = word ptr -2
+    var_2 = 26 * 320 + 145; // 23075 // are these coordinates? 23075 in 320x200x16colors would be coordinate (35, 144)
+    var_4 = var_2 + 8; // 23076 // are these coordinates? 23076 in 320x200x16colors would be coordinate (36, 144)
 
-    push(bp);
-    bp = sp;
-    sp += 0xFFFA;
-    push(ds);
-    ax = ds;
-    var_6 = ax;
-    ax = es;
-    ds = ax;
-    // mov dx, 3CEh
-    // al = 5
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; mode register.Data bits:
-    //             ; 0-1: Write mode 0-2
-    //             ; 2: test condition
-    //             ; 3: read mode: 1=color compare, 0=direct
-    //             ; 4: 1=use odd/even RAM addressing
-    //             ; 5: 1=use CGA mid-res map (2-bits/pixel)
-    ports[0x3CE] = 5;
-    // inc dx
-    // al = 1
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = 1; // setting write mode 1: In write mode 1 the contents of the latch registers are first loaded by performing a read operation, then copied directly onto the color maps by performing a write operation. This mode is often used in moving areas of memory.
-    // mov dx, 3C4h
-    // al = 2
-    // out dx, al      ; EGA: sequencer address reg
-    //             ; map mask: data bits 0-3 enable writes to bit planes 0-3
-    ports[0x3C4] = 2;
-    // inc dx
-    // al = 0Fh
-    // out dx, al      ; EGA port: sequencer data register
-    ports[0x3C5] = 0xF; // enables writing all planes
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = 0
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = 0; // unprotect all bits
-    var_2 = 0x5A23; // 23075 // are these coordinates? 23075 in 320x200x16colors would be coordinate (35, 144)
-    var_4 = 0x5A24; // 23076 // are these coordinates? 23075 in 320x200x16colors would be coordinate (36, 144)
-    dx = 0xF; // 15 number of frames in the animation
+    static const int kEdgeWidth = 16;
+    static const int kEdgeHeight = 148;
+    static const int kEdgeStep = 8;
+    int leftX = 144;
+    int rightX = leftX + kEdgeWidth + 1;
 
+    // 15 frames of animation
     for (int j = 0; j < 15; ++j)
     {
-loc_47800:             // ; CODE XREF: openCreditsBlock+AFj
-        // push(dx);
-        ax = var_6;
-        ds = ax;
-        cx = 2;
-
+//loc_47800:             // ; CODE XREF: openCreditsBlock+AFj
         // Renders the screen twice (to remove some weird artifacts?)
         for (int i = 0; i < 2; ++i)
         {
-    // loc_47809:     //         ; CODE XREF: openCreditsBlock+4Cj
-            push(cx);
             videoloop();
             loopForVSync();
-            pop(cx);
-            // cx--;
-            // if (cx > 0)
-            // {
-            //     goto loc_47809;
-            // }
+            SDL_Delay(100);
         }
-        ax = es;
-        ds = ax;
-        pop(dx);
-        cx = 0x94; //148
-        si = var_2;
-        si--;
-        di = si;
-        di--;
 
+        // This loop moves the left edge of the panel, leaving a trail behind
+        for (int y = 26; y < 26 + kEdgeHeight; ++y)
+        {
+            for (int x = leftX; x < leftX + kEdgeWidth; ++x)
+            {
+                long addr = y * kScreenWidth + x;
+                gScreenPixels[addr] = gScreenPixels[addr + 8];
+            }
+
+/*
+        // This loop copies the left internal side of the panel (the part with the credits) to "clear" the
+        // trail left by the left edge.
+        //
         for (int i = 0; i < 148; ++i)
         {
-loc_47822:             // ; CODE XREF: openCreditsBlock+65j
-            *di = *si;
+//loc_47837:             // ; CODE XREF: openCreditsBlock+79j
+//            gScreenPixels[di] = gScreenPixels[si];
             di++; si++;
-            *di = *si;
+//            gScreenPixels[di] = gScreenPixels[si];
             di++; si++;
-            si += 0x78; //120 // this would be 240 pixels?
-            di += 0x78; //120
-            // cx--;
-            // if (cx > 0)
-            // {
-            //     goto loc_47822;
-            // }
-        }
-        cx = 0x94; // 148
-        si = var_2;
-        di = si;
-        si += 40;
-
-        for (int i = 0; i < 148; ++i)
-        {
-loc_47837:             // ; CODE XREF: openCreditsBlock+79j
-            *di = *si;
-            di++; si++;
-            si += 0x79; // 121 // this would be 240 pixels?
+            si += 0x79; // 121 // this would be 242 pixels?
             di += 0x79; // 121
-            // cx--;
-            // if (cx > 0)
-            // {
-            //     goto loc_47837;
-            // }
         }
-        std(); // store direction flag :shrug:
-        cx = 0x94; // 148;
+//        std(); // set direction flag :shrug:
         si = var_4;
         si += 0x4689; // 18057
         di = si;
         di++;
-
-        for (int i = 0; i < 148; ++i)
-        {
-loc_4784E:             // ; CODE XREF: openCreditsBlock+91j
-            *di = *si;
-            di--; si--;
-            *di = *si;
-            di--; si--;
-            si -= 0x78; // 120 // this would be 240 pixels?
-            di -= 0x78; // 120
-            // cx--;
-            // if (cx > 0)
-            // {
-            //     goto loc_4784E;
-            // }
+*/
+            for (int x = rightX + kEdgeWidth; x > rightX; --x)
+            {
+                long addr = y * kScreenWidth + x;
+                gScreenPixels[addr + 8] = gScreenPixels[addr];
+            }
         }
-        cld() // clear direction flag :shrug:
+
+        leftX -= kEdgeStep;
+        rightX += kEdgeStep;
+
+//        cld() // clear direction flag :shrug:
         
-        cx = 0x94; // 148
         si = var_4;
         di = si;
         si += 0x28; // 40
 
+        // This loop copies the right internal side of the panel (the part with the credits) to "clear" the
+        // trail left by the right edge.
+        //
         for (int i = 0; i < 148; ++i)
         {
-loc_47864:             // ; CODE XREF: openCreditsBlock+A6j
-            *di = *si;
+//loc_47864:             // ; CODE XREF: openCreditsBlock+A6j
+//            gScreenPixels[di] = gScreenPixels[si];
             di++; si++;
-            si += 0x79; // 121 // this would be 240 pixels?
+//            gScreenPixels[di] = gScreenPixels[si];
+            di++; si++;
+            si += 0x79; // 121 // this would be 242 pixels?
             di += 0x79; // 121
-            // cx--;
-            // if (cx > 0)
-            // {
-            //     goto loc_47864;
-            // }
         }
-        var_2--;
-        var_4++;
+        var_2-=8;
+        var_4+=8;
         // dx--;
         // if (dx != 0)
         // {
         //     goto loc_47800;
         // }
     }
-    // mov dx, 3CEh
-    // al = 5
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; mode register.Data bits:
-    //             ; 0-1: Write mode 0-2
-    //             ; 2: test condition
-    //             ; 3: read mode: 1=color compare, 0=direct
-    //             ; 4: 1=use odd/even RAM addressing
-    //             ; 5: 1=use CGA mid-res map (2-bits/pixel)
-    ports[0x3CE] = 5;
-    // inc dx
-    // al = 1
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = 1; // write mode 1
-    pop(ds);
-    cx = 1;
 
     for (int i = 0; i < 1; ++i)
     {
-loc_47884:             // ; CODE XREF: openCreditsBlock+C7j
-        push(cx);
+//loc_47884:             // ; CODE XREF: openCreditsBlock+C7j
         videoloop();
         loopForVSync();
-        pop(cx);
-        // cx--;
-        // if (cx > 0)
-        // {
-        //     goto loc_47884;
-        // }
     }
-    bx = title2DataBuffer;
-    word_51967 = bx;
-    // mov dx, 3D4h
-    // al = 0Dh
-    // out dx, al      ; Video: CRT cntrlr addr
-    //             ; regen start address (low)
-    ports[0x3D4] = 0xD; // page 155, video buffer start address, low byte
-    // inc dx
-    // al = bl
-    // out dx, al      ; Video: CRT controller internal registers
-    ports[0x3D5] = bl;
-    // mov dx, 3D4h
-    // al = 0Ch
-    // out dx, al      ; Video: CRT cntrlr addr
-    //             ; regen start address (high)
-    ports[0x3D4] = 0xC; // page 155, video buffer start address, high byte
-    // inc dx
-    // al = bh
-    // out dx, al      ; Video: CRT controller internal registers
-    ports[0x3D5] = bh;
-    si = 5F55h;
-    fadeToPalette(); // fades current frame buffer into the title 2.dat (screen with the credits)
-    sp = bp;
-    pop(bp);
-    return
-// openCreditsBlock endp
+//    word_51967 = title2DataBuffer; // points to where the title 2 has been RENDERED
+    ColorPalette title2Palette;
+    convertPaletteDataToPalette(gTitle2PaletteData, title2Palette);
+    fadeToPalette(title2Palette); // fades current frame buffer into the title 2.dat (screen with the credits)
+
+    // openCreditsBlock endp
 }
 
-
-; =============== S U B R O U T I N E =======================================
-
-*/
 void loadScreen2() // proc near       ; CODE XREF: start:loc_46F00p
 {
     //loc_478C0:              // ; CODE XREF: loadScreen2+8j
@@ -2520,7 +2411,7 @@ void loadScreen2() // proc near       ; CODE XREF: start:loc_46F00p
     {
 //loc_478E7:              //; CODE XREF: loadScreen2+6Bj
         // read 160 bytes from title.dat
-        size_t bytesRead = fread(fileData, sizeof(uint8_t), kBytesPerRow, file);
+        size_t bytesRead = fread(fileData, 1, kBytesPerRow, file);
 
         if (bytesRead < kBytesPerRow)
         {
@@ -2544,6 +2435,12 @@ void loadScreen2() // proc near       ; CODE XREF: start:loc_46F00p
                                   | (b << 2)
                                   | (i << 3));
 
+            // Store a copy of the decoded value in a buffer with 4bit per pixel
+            gTitle1DecodedBitmapData[destPixelAddress / 2] |= ((x % 2 == 0)
+                                                               ? finalColor
+                                                               : (finalColor << 4));
+
+            // Copy directly to the screen too
             gScreenPixels[destPixelAddress] = finalColor;
         }
     }
@@ -2597,7 +2494,10 @@ void loadScreen2() // proc near       ; CODE XREF: start:loc_46F00p
                                   | (b << 2)
                                   | (i << 3));
 
-            gScreenPixels[destPixelAddress] = finalColor;
+            // Store a copy of the decoded value in a buffer with 4bit per pixel
+            gTitle2DecodedBitmapData[destPixelAddress / 2] |= ((x % 2 == 0)
+                                                               ? finalColor
+                                                               : (finalColor << 4));
         }
     }
 
