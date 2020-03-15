@@ -109,7 +109,15 @@ static const size_t kFullScreenFramebufferLength = kScreenWidth * kScreenHeight;
 //
 uint8_t gTitle2DecodedBitmapData[kFullScreenFramebufferLength];
 
-uint8_t gHallOfFameData[36];
+typedef struct
+{
+    char playerName[9];
+    uint8_t hours;
+    uint8_t minutes;
+    uint8_t seconds;
+} HallOfFameEntry;
+
+HallOfFameEntry gHallOfFameData[3];
 
 
 enum PlayerLevelState {
@@ -119,7 +127,7 @@ enum PlayerLevelState {
 };
 
 // This is a structure I still need to reverse-engineer. It's 128 bytes long:
-// - 8 bytes (0x00-0x08): player name
+// - 9 bytes (0x00-0x08): player name
 // - 1 byte (0x09): hours
 // - 1 byte (0x0A): minutes
 // - 1 byte (0x0B): seconds
@@ -130,7 +138,7 @@ enum PlayerLevelState {
 //
 typedef struct
 {
-    char name[8];
+    char name[9];
     uint8_t hours;
     uint8_t minutes;
     uint8_t seconds;
@@ -139,8 +147,6 @@ typedef struct
     uint8_t unknown2;
     uint8_t nextLevelToPlay;
     uint8_t unknown3;
-    uint8_t unknown4;
-    uint8_t unknown5;
 } PlayerEntry;
 
 static const int kNumberOfPlayers = 20;
@@ -12277,95 +12283,55 @@ void drawLevelList() //   proc near       ; CODE XREF: start+41Ap sub_4955B+39B
     char *nextLevelName = (char *)&gLevelListData[gCurrentSelectedLevelIndex * kLevelEntryLength];
     drawTextWithChars6Font_method1(144, 173, byte_59823, nextLevelName);
 }
-/*
 
-drawHallOfFame   proc near       ; CODE XREF: sub_4B419+15Ap
-                    ; drawMenuTitleAndDemoLevelResult+11p
-        push    es
-        mov ax, ds
-        mov es, ax
-        assume es:data
-        mov si, hallFameDataBuffer
-        mov di, 836Bh
-        mov cx, 3
+void drawHallOfFame() //   proc near       ; CODE XREF: sub_4B419+15Ap
+//                    ; drawMenuTitleAndDemoLevelResult+11p
+{
+    // 01ED:5546
+    char text[19] = "                  ";
 
-loc_4C1B7:              ; CODE XREF: drawHallOfFame+56j
-        push(cx);
-        push    si
-        al = [si+0Bh]
-        mov si, di
-        add si, 0Fh
-        call    convertNumberTo3DigitStringWithPadding0
-        mov si, di
-        add si, 0Fh
-        mov byte ptr [si], 3Ah ; ':'
-        pop si
-        push    si
-        al = [si+0Ah]
-        mov si, di
-        add si, 0Ch
-        call    convertNumberTo3DigitStringWithPadding0
-        mov si, di
-        add si, 0Ch
-        mov byte ptr [si], 3Ah ; ':'
-        pop si
-        push    si
-        al = [si+9]
-        mov si, di
-        add si, 9
-        mov ah, 20h ; ' '
-        call    convertNumberTo3DigitPaddedString
-        pop si
-        push    si
-        mov cx, 8
-        rep movsb
-        pop si
-        add si, 0Ch
-        add di, 0Bh
-        pop(cx);
-        loop    loc_4C1B7
-        pop es
-        assume es:nothing
-        mov si, 836Bh
-        mov ah, 8
-        mov di, 5ACBh
-        call    drawTextWithChars6Font_method1
-        mov si, 837Eh
-        mov ah, 8
-        mov di, 5F15h
-        call    drawTextWithChars6Font_method1
-        mov si, 8391h
-        mov ah, 8
-        mov di, 635Fh
-        call    drawTextWithChars6Font_method1
-        return;
-drawHallOfFame   endp
+    for (int i = 0; i < 3; ++i)
+    {
+//loc_4C1B7:              ; CODE XREF: drawHallOfFame+56j
+        HallOfFameEntry entry = gHallOfFameData[i];
 
+        convertNumberTo3DigitStringWithPadding0(entry.seconds, &text[15]);
+        text[15] = ':';
 
-*/
+        convertNumberTo3DigitStringWithPadding0(entry.minutes, &text[12]);
+        text[12] = ':';
+
+        convertNumberTo3DigitPaddedString(entry.hours, &text[9], 1);
+
+        memcpy(text, entry.playerName, sizeof(entry.playerName) - 1);
+
+        drawTextWithChars6Font_method1(184, 28 + i * 9, 8, text);
+    }
+}
+
 void drawCurrentPlayerRanking() //   proc near       ; CODE XREF: drawPlayerList+5Bp // sub_4C224
 {
     // 01ED:55C1
-    uint8_t *currentPlayerEntry = &gPlayerListData[gCurrentPlayerIndex * kPlayerEntryLength];
-    drawTextWithChars6Font_method1(168, 93, 8, (char *)currentPlayerEntry);
+    PlayerEntry currentPlayerEntry = gPlayerListData[gCurrentPlayerIndex];
+    drawTextWithChars6Font_method1(168, 93, 8, currentPlayerEntry.name);
 
     char timeText[10] = "000:00:00";
 
     // Seconds
-    convertNumberTo3DigitStringWithPadding0(currentPlayerEntry[0xB], &timeText[6]);
+    convertNumberTo3DigitStringWithPadding0(currentPlayerEntry.seconds, &timeText[6]);
     timeText[6] = ':';
 
     // Minutes
-    convertNumberTo3DigitStringWithPadding0(currentPlayerEntry[0xa], &timeText[3]);
+    convertNumberTo3DigitStringWithPadding0(currentPlayerEntry.minutes, &timeText[3]);
     timeText[3] = ':';
 
     // Hours
-    convertNumberTo3DigitStringWithPadding0(currentPlayerEntry[0x9], timeText);
+    convertNumberTo3DigitStringWithPadding0(currentPlayerEntry.hours, timeText);
 
     drawTextWithChars6Font_method1(224, 93, 8, timeText);
 
     char nextLevelText[4] = "000";
-    convertNumberTo3DigitStringWithPadding0(currentPlayerEntry[0x7E], nextLevelText);
+    convertNumberTo3DigitStringWithPadding0(currentPlayerEntry.nextLevelToPlay, nextLevelText);
     drawTextWithChars6Font_method1(288, 93, 8, nextLevelText);
 }
 
@@ -12373,7 +12339,7 @@ void drawPlayerList() //  proc near       ; CODE XREF: start+32Cp start+407p .
 {
     // 01ED:5630
     PlayerEntry currentPlayer = gPlayerListData[gCurrentPlayerIndex];
-    strncpy(gPlayerName, currentPlayer.name, sizeof(currentPlayer.name));
+    memcpy(gPlayerName, currentPlayer.name, sizeof(currentPlayer.name) - 1);
     drawTextWithChars6Font_method1(16, 164, 6, currentPlayer.name);
 
     char *prevPlayerName = "";
@@ -12412,10 +12378,9 @@ void drawMenuTitleAndDemoLevelResult() //   proc near       ; CODE XREF: sub_4B1
     // 01ED:568F
     drawTextWithChars6Font_method1(180, 127, 4, "WELCOME TO SUPAPLEX");
     drawPlayerList();
-    drawLevelList(); // draw level list?
-    /*
+    drawLevelList();
     drawHallOfFame(); // draw hall of fame?
-    drawRankings(); // draw player ranking ?
+    /*drawRankings(); // draw player ranking ?
     if (byte_59B83 == 0)
     {
         goto locret_4C349;
