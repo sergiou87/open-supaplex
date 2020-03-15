@@ -17,11 +17,43 @@ static const int kScreenHeight = 200;
 // title1DataBuffer -> A000:4DAC - A000:CAAC
 // title2DataBuffer -> 0x4DD4 - 0xCAD4
 
-//static const int levelDataLength = 1536; // exact length of a level file, even of each level inside the LEVELS.DAT file
+static const int levelDataLength = 1536; // exact length of a level file, even of each level inside the LEVELS.DAT file
+uint8_t byte_50946 = 0;
 uint8_t byte_510A6 = 0;
-uint8_t byte_59B85 = 0;
-uint8_t byte_5A33F = 0;
+uint8_t byte_510AB = 0;
+uint8_t byte_510B3 = 0;
+uint8_t byte_510DE = 0;
 uint8_t byte_51969 = 0;
+uint8_t byte_599D4 = 0;
+uint8_t byte_59B84 = 0;
+uint8_t byte_59B85 = 0;
+uint8_t byte_5A19B = 0;
+uint8_t byte_5A2F9 = 0;
+uint8_t byte_5A33F = 0;
+uint8_t byte_51ABE = 0;
+uint8_t byte_59B6B = 0;
+uint8_t byte_5A33E = 0;
+uint8_t gCurrentPlayerIndex = 0;
+uint8_t byte_59B62 = 0;
+uint16_t word_58467 = 0;
+uint16_t word_51ABC = 0;
+uint16_t word_5196C = 0;
+uint16_t word_5197A = 0;
+uint16_t word_599D8 = 0;
+uint16_t word_58465 = 0;
+uint8_t fileIsDemo = 0;
+uint8_t isJoystickEnabled = 0;
+uint8_t isMusicEnabled = 0;
+uint8_t isFXEnabled = 0;
+
+char a00s0010_sp[12] = "00S001$0.SP";
+char aLevels_dat_0[11] = "LEVELS.DAT";
+char gPlayerName[9] = "WIBBLE  "; // 0x879F
+
+static const int kNumberOfLevels = 111;
+static const int kLevelEntryLength = 28; // In the list of levels, every level is 28 bytes long and looks like "001                        \n"
+uint8_t gLevelListData[kNumberOfLevels * kLevelEntryLength];
+uint8_t gSomeWeirdLevelData[kNumberOfLevels]; // 0x949E
 
 // 30 elements...
 int word_599DC[] = { 0x00CE, 0x016A, 0x0146, 0x00CD, 0x024D, 0x012C, 0x01A7, 0x01FB, 0x01D2,
@@ -60,14 +92,21 @@ uint8_t gControlsBitmapData[kFullScreenBitmapLength];
 uint8_t gBackBitmapData[kFullScreenBitmapLength];
 uint8_t gGfxBitmapData[kFullScreenBitmapLength];
 
-// These two buffers have the contents of TITLE1.DAT and TITLE2.DAT after they've been "decoded" (i.e. after picking
-// the different channels every 40 bytes and forming the 4 bit palette index for each pixel).
+static const size_t kFullScreenFramebufferLength = kScreenWidth * kScreenHeight; // We only use 16 colors, but SDL doesn't support that mode, so we use 256 colors
+
+// This buffer has the contents of TITLE2.DAT after it's been "decoded" (i.e. after picking the different channels
+// every 40 bytes and forming the 4 bit palette index for each pixel).
 //
-uint8_t gTitle1DecodedBitmapData[kFullScreenBitmapLength];
-uint8_t gTitle2DecodedBitmapData[kFullScreenBitmapLength];
+uint8_t gTitle2DecodedBitmapData[kFullScreenFramebufferLength];
 
 uint8_t gHallOfFameData[36];
-uint8_t gPlayerListData[2560];
+
+static const int kNumberOfPlayers = 20;
+static const int kPlayerEntryLength = 128;
+// This is a structure I still need to rever-engineer. For now I know the player
+// name is in the first 8 characters.
+//
+uint8_t gPlayerListData[kPlayerEntryLength * kNumberOfPlayers]; // 0x8A9C
 
 ColorPalette gCurrentPalette;
 
@@ -123,6 +162,18 @@ void exitWithError(const char *format, ...);
 void readMenuDat(void);
 void drawSpeedFixTitleAndVersion(void);
 void openCreditsBlock(void);
+void drawSpeedFixCredits(void);
+void readConfig(void);
+void loadAdlib(void);
+void loadBlaster(void);
+void loadRoland(void);
+void loadCombined(void);
+void loadBeep(void);
+void loadBeep2(void);
+void sub_4921B(void);
+void enableFloppy(void);
+void prepareSomeKindOfLevelIdentifier(void);
+void runMainMenu(void);
 
 //         public start
 int main(int argc, const char * argv[])
@@ -130,8 +181,8 @@ int main(int argc, const char * argv[])
     gWindow = SDL_CreateWindow("Supaplex",
                                           SDL_WINDOWPOS_UNDEFINED,
                                           SDL_WINDOWPOS_UNDEFINED,
-                                          kScreenWidth,
-                                          kScreenHeight,
+                                          kScreenWidth * 4,
+                                          kScreenHeight * 4,
                                           0);
     if (gWindow == NULL)
     {
@@ -613,7 +664,7 @@ loc_46E2B:              //; CODE XREF: start+207j
 
 loc_46E31:              //; CODE XREF: start+20Dj
         al--;
-        byte_5981F = al;
+        gCurrentPlayerIndex = al;
         byte_58D46 = al;
 
 loc_46E39:              //; CODE XREF: start+1F6j start+200j
@@ -726,42 +777,40 @@ openingSequence:
         readEverything(); // 01ED:02BC
         drawSpeedFixTitleAndVersion(); // 01ED:02BF
         openCreditsBlock(); // credits inside the block // 01ED:02C2
-/*        drawSpeedFixCredits();   // credits below the block (herman perk and elmer productions) // 01ED:02C5
+        drawSpeedFixCredits();   // credits below the block (herman perk and elmer productions) // 01ED:02C5
 
-afterOpeningSequence:              //; CODE XREF: start+2DEj
+//afterOpeningSequence:              //; CODE XREF: start+2DEj
         readConfig();
         if (byte_50946 == 0)
         {
-            goto loc_46F20;
+            isJoystickEnabled = 0;
         }
-        isJoystickEnabled = 1;
-        goto loc_46F25;
-//// ; ---------------------------------------------------------------------------
+        else
+        {
+            isJoystickEnabled = 1;
+        }
 
-loc_46F20:              //; CODE XREF: start+2F7j
-        isJoystickEnabled = 0;
-
-loc_46F25:              //; CODE XREF: start+2FEj
+//loc_46F25:              //; CODE XREF: start+2FEj
+/*
         if (fastMode == 0)
         {
             goto isNotFastMode;
         }
         goto loc_46FBE;
-//// ; ---------------------------------------------------------------------------
+ */
 
 isNotFastMode:              //; CODE XREF: start+30Aj
-        si = 0x60D5;
-        fadeToPalette();
-        word_58467 = 1;
-        goto loc_46FBE;
+    fadeToPalette(gBlackPalette);
+    word_58467 = 1;
+/*
+    goto loc_46FBE;
 //// ; ---------------------------------------------------------------------------
 
 loc_46F3E:              //; CODE XREF: start+428j start+444j
         readLevels();
-        si = 0x60D5;
-        fadeToPalette();
+        fadeToPalette(gBlackPalette);
         byte_5A33F = 0;
-        drawCurrentPlayerInfo();
+        drawPlayerList();
         sub_48A20();
         sub_4D464();
         sub_48F6D();
@@ -819,80 +868,85 @@ loc_46FB4:              //; CODE XREF: start+38Fj
         {
             goto loc_46FBE;
         }
-        sound?2();
+        sound2();
+*/
+//loc_46FBE:              //; CODE XREF: start+30Cj start+31Bj ...
+    enableFloppy(); // 01ED:0377
+    prepareSomeKindOfLevelIdentifier();
 
-loc_46FBE:              //; CODE XREF: start+30Cj start+31Bj ...
-        enableFloppy(); // 01ED:0377
-        prepareSomeKindOfLevelIdentifier();
-        if (byte_599D4 != 2)
-        {
-            goto loc_46FFF;
-        }
+    if (byte_599D4 == 2)
+    {
+//            goto loc_46FFF; <- if byte_599D4 != 2
+
         byte_599D4 = 1;
-        if (fileIsDemo != 1)
+        if (fileIsDemo == 1)
         {
-            goto loc_46FDF;
+//        ax = 0;
+//        demoSomething();
+//        goto loc_46FE4;
         }
-        ax = 0;
-        demoSomething?();
-        goto loc_46FE4;
-//// ; ---------------------------------------------------------------------------
+        else
+        {
+//loc_46FDF:              //; CODE XREF: start+3B5j
+            byte_510DE = 0;
+        }
 
-loc_46FDF:              //; CODE XREF: start+3B5j
-        byte_510DE = 0;
-
-loc_46FE4:              //; CODE XREF: start+3BDj
+//loc_46FE4:              //; CODE XREF: start+3BDj
         ax = 1;
         byte_510B3 = 0;
         byte_5A2F9 = 1;
         a00s0010_sp[3] = 0x2D; // '-' ; "001$0.SP"
-        a00s0010_sp[4] = 0x2D2D; // "01$0.SP"
-        push(ax);
-        goto loc_4701A;
-//// ; ---------------------------------------------------------------------------
-
-loc_46FFF:              //; CODE XREF: start+3A9j
-        al = byte_59B84
+        a00s0010_sp[4] = 0x2D; // "01$0.SP"
+        a00s0010_sp[5] = 0x2D; // "1$0.SP"
+//        push(ax);
+//        goto loc_4701A;
+    }
+    else
+    {
+//loc_46FFF:              //; CODE XREF: start+3A9j
+        al = byte_59B84;
         byte_59B84 = 0;
         byte_510DE = 0;
         al++;
         if (al == 0)
         {
-            goto loc_4704B;
+//            goto loc_4704B;
         }
         al--;
         if (al == 0)
         {
-            goto loc_4704B;
+//            goto loc_4704B;
         }
-        ah = 0;
-        push(ax);
-        sub_4BF4A();
+//        ah = 0;
+//        push(ax);
+//        sub_4BF4A();
+    }
 
-loc_4701A:              //; CODE XREF: start+3DDj start+433j
-        byte_5A33F = 1;
-        byte_51ABE = 1;
-        doSomethingWithLevelOrPlayerList();
-        drawCurrentPlayerInfo();
-        word_58467 = 0;
-        sound?2();
-        pop(ax);
-        word_51ABC = ax;
-        sub_4B899();
-        drawLevelList();
-        word_5196C = 0;
-        byte_5A19B = 0;
-        goto loc_46F3E;
+//loc_4701A:              //; CODE XREF: start+3DDj start+433j
+//        byte_5A33F = 1;
+//        byte_51ABE = 1;
+//        doSomethingWithLevelOrPlayerList();
+//        drawPlayerList();
+//        word_58467 = 0;
+//        sound2();
+//        pop(ax);
+//        word_51ABC = ax;
+//        sub_4B899();
+//        drawLevelList();
+//        word_5196C = 0;
+//        byte_5A19B = 0;
+//        goto loc_46F3E;
 //// ; ---------------------------------------------------------------------------
 
-loc_4704B:              //; CODE XREF: start+3EEj start+3F2j
+//loc_4704B:              //; CODE XREF: start+3EEj start+3F2j
         ax = 1;
         if (byte_59B6B != 0)
         {
-            goto loc_4701A;
+//            goto loc_4701A;
         }
         byte_5A2F9 = 0;
         runMainMenu();
+    /*
         if (word_5197A != 0)
         {
             goto loc_47067;
@@ -1655,162 +1709,91 @@ int24handler    proc far        ; DATA XREF: setint24+10o
 int24handler    endp
 
 
-; =============== S U B R O U T I N E =======================================
-
+*/
 
 void readConfig() //  proc near       ; CODE XREF: start:loc_46F0Fp
 {
-    // mov ax, 3D00h
-    // mov dx, offset aSupaplex_cfg ; "SUPAPLEX.CFG"
-    // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-    //             ; DS:DX -> ASCIZ filename
-    //             ; AL = access mode
-    //             ; 0 - read
     FILE *file = fopen("SUPAPLEX.CFG", "r");
-    if (file != NULL)
+    if (file == NULL)
     {
-        goto loc_474BE;
+        if (errno == ENOENT) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
+        {
+//loc_47551:              //; CODE XREF: readConfig+Fj
+                       // ; readConfig+17j
+            loadBeep();
+            isJoystickEnabled = 0;
+            return;
+        }
+        else
+        {
+            exitWithError("Error opening SUPAPLEX.CFG");
+        }
     }
-    if (errno != 2) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
+
+//loc_474BE:             // ; CODE XREF: readConfig+8j
+
+    uint8_t configData[4];
+
+    size_t bytes = fread(&configData, 1, sizeof(configData), file);
+
+    if (fclose(file) != 0)
     {
-        goto loc_474B3;
+        exitWithError("Error closing SUPAPLEX.CFG");
     }
-    goto loc_47551;
-// ; ---------------------------------------------------------------------------
 
-loc_474B3:              // ; CODE XREF: readConfig+Dj
-    if (errno != 3) // ax == 3? ax has error code, 3 is path not found (http://stanislavs.org/helppc/dos_error_codes.html)
+//loc_474DF:             // ; CODE XREF: readConfig+39j
+    if (bytes < sizeof(configData))
     {
-        goto loc_474BB;
+        exitWithError("Error reading SUPAPLEX.CFG");
     }
-    goto loc_47551;
-// ; ---------------------------------------------------------------------------
 
-loc_474BB:             // ; CODE XREF: readConfig+15j
-    goto exit;
-// ; ---------------------------------------------------------------------------
+//loc_474E5:             // ; CODE XREF: readConfig+3Fj
+    uint8_t soundSetting = configData[0];
 
-loc_474BE:             // ; CODE XREF: readConfig+8j
-    lastFileHandle = ax;
-    bx = lastFileHandle;
-    // mov ax, 3F00h
-    // mov cx, 4 // 4 bytes
-    // mov dx, offset fileLevelData
-    // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-    //             ; BX = file handle, CX = number of bytes to read
-    //             ; DS:DX -> buffer
-    int bytes = fread(&fileLevelData, 1, 4, lastFileHandle);
-    pushf(); // saves the result of the fread operation
-    // mov ax, 3E00h
-    // mov bx, lastFileHandle
-    // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-    //             ; BX = file handle
-    if (fclose(lastFileHandle) == 0)
+    if (soundSetting == 's')
     {
-        goto loc_474DF;
+        loadBeep2();
     }
-    goto exit;
-// ; ---------------------------------------------------------------------------
-
-loc_474DF:             // ; CODE XREF: readConfig+39j
-    popf(); // recovers the result of the fread operation
-    if (bytes > 0)
+    else if (soundSetting == 'a')
     {
-        goto loc_474E5;
+        loadAdlib();
     }
-    goto exit;
-// ; ---------------------------------------------------------------------------
-
-loc_474E5:             // ; CODE XREF: readConfig+3Fj
-    si = &fileLevelData;
-    if (*si != 0x73) // 's'
+    else if (soundSetting == 'b')
     {
-        goto loc_474F2;
+        loadBlaster();
     }
-    loadBeep2();
-    goto loc_4751D;
-// ; ---------------------------------------------------------------------------
-
-loc_474F2:             // ; CODE XREF: readConfig+4Aj
-    if (*si != 0x61) // 'a'
+    else if (soundSetting == 'r')
     {
-        goto loc_474FC;
+        loadRoland();
     }
-    loadAdlib();
-    goto loc_4751D;
-// ; ---------------------------------------------------------------------------
-
-loc_474FC:             // ; CODE XREF: readConfig+54j
-    if (*si != 0x62) // 'b'
+    else if (soundSetting == 'c')
     {
-        goto loc_47506;
+        loadCombined();
     }
-    loadBlaster();
-    goto loc_4751D;
-// ; ---------------------------------------------------------------------------
-
-loc_47506:              //; CODE XREF: readConfig+5Ej
-    if (*si != 0x72) // 'r'
+    else
     {
-        goto loc_47510;
+        loadBeep();
     }
-    loadRoland();
-    goto loc_4751D;
-// ; ---------------------------------------------------------------------------
 
-loc_47510:              //; CODE XREF: readConfig+68j
-    if (*si != 0x63) // 'c'
-    {
-        goto loc_4751A;
-    }
-    loadCombined();
-    goto loc_4751D;
-// ; ---------------------------------------------------------------------------
-
-loc_4751A:             // ; CODE XREF: readConfig+72j
-    loadBeep();
-
-loc_4751D:             // ; CODE XREF: readConfig+4Fj
+//loc_4751D:             // ; CODE XREF: readConfig+4Fj
                // ; readConfig+59j ...
-    si++;
+
     isJoystickEnabled = 0;
-    if (*si != 0x6A) // 'j'
+    if (configData[1] == 'j')
     {
-        goto loc_47530;
+        isJoystickEnabled = 1;
+        sub_4921B();
     }
-    isJoystickEnabled = 1;
-    sub_4921B();
 
-loc_47530:              //; CODE XREF: readConfig+85j
-    si++;
-    isMusicEnabled = 0;
-    if (*si != 0x6D) //'m'
-    {
-        goto loc_47540;
-    }
-    isMusicEnabled = 1;
+//loc_47530:              //; CODE XREF: readConfig+85j
+    isMusicEnabled = (configData[2] == 'm');
 
-loc_47540:              //; CODE XREF: readConfig+98j
-    si++;
-    isFXEnabled = 0;
-    if (*si != 0x78) // 'x'
-    {
-        goto locret_47550;
-    }
-    isFXEnabled = 1;
-
-locret_47550:              // ; CODE XREF: readConfig+A8j
-    return
-// ; ---------------------------------------------------------------------------
-
-loc_47551:              //; CODE XREF: readConfig+Fj
-               // ; readConfig+17j
-    loadBeep();
-    isJoystickEnabled = 0;
-    return
+//loc_47540:              //; CODE XREF: readConfig+98j
+    isFXEnabled = (configData[3] == 'x');
 // readConfig  endp
 }
 
+/*
 // ; ---------------------------------------------------------------------------
 sub_4755A       proc near               ; CODE XREF: code:loc_4CAECp
                 mov     ax, 3C00h
@@ -1923,7 +1906,7 @@ sub_4755A       endp
 
 ; =============== S U B R O U T I N E =======================================
 
-
+*/
 void enableFloppy() //   proc near       ; CODE XREF: start+341p
                     // ; start:loc_46FBEp ...
 {
@@ -1938,7 +1921,7 @@ void enableFloppy() //   proc near       ; CODE XREF: start+341p
     // return;
 // enableFloppy   endp
 }
-
+/*
 
 //; =============== S U B R O U T I N E =======================================
 
@@ -2290,20 +2273,16 @@ void readPalettes()  // proc near       ; CODE XREF: readEverythingp
 
 void openCreditsBlock() // proc near      ; CODE XREF: start+2E9p
 {
-    uint16_t var_4; //       = word ptr -4
-    uint16_t var_2; //       = word ptr -2
-
-    var_2 = 26 * 320 + 145; // 23075 // are these coordinates? 23075 in 320x200x16colors would be coordinate (35, 144)
-    var_4 = var_2 + 8; // 23076 // are these coordinates? 23076 in 320x200x16colors would be coordinate (36, 144)
-
     static const int kEdgeWidth = 16;
     static const int kEdgeHeight = 148;
     static const int kEdgeStep = 8;
-    int leftX = 144;
-    int rightX = leftX + kEdgeWidth + 1;
+    static const int kEdgeTopY = 26;
+    static const int kNumberOfFrames = 15;
 
-    // 15 frames of animation
-    for (int j = 0; j < 15; ++j)
+    int leftEdgeX = 144 - kEdgeStep; // Left edge starts at x=144
+    int rightEdgeX = leftEdgeX + kEdgeWidth + kEdgeStep - 1;
+
+    for (int j = 0; j < kNumberOfFrames; ++j)
     {
 //loc_47800:             // ; CODE XREF: openCreditsBlock+AFj
         // Renders the screen twice (to remove some weird artifacts?)
@@ -2311,88 +2290,48 @@ void openCreditsBlock() // proc near      ; CODE XREF: start+2E9p
         {
             videoloop();
             loopForVSync();
-            SDL_Delay(100);
         }
 
-        // This loop moves the left edge of the panel, leaving a trail behind
-        for (int y = 26; y < 26 + kEdgeHeight; ++y)
+        // This loop moves both edges of the panel, and fills the inside of the panel with the contents of TITLE2.DAT
+        for (int y = kEdgeTopY; y < kEdgeTopY + kEdgeHeight; ++y)
         {
-            for (int x = leftX; x < leftX + kEdgeWidth; ++x)
+            // Left edge
+            for (int x = leftEdgeX; x < leftEdgeX + kEdgeWidth; ++x)
             {
                 long addr = y * kScreenWidth + x;
-                gScreenPixels[addr] = gScreenPixels[addr + 8];
+                gScreenPixels[addr] = gScreenPixels[addr + kEdgeStep]; // Move panel edge
+                gScreenPixels[addr + kEdgeStep] = gTitle2DecodedBitmapData[addr + kEdgeStep]; // Content of now visible panel
             }
 
-/*
-        // This loop copies the left internal side of the panel (the part with the credits) to "clear" the
-        // trail left by the left edge.
-        //
-        for (int i = 0; i < 148; ++i)
-        {
-//loc_47837:             // ; CODE XREF: openCreditsBlock+79j
-//            gScreenPixels[di] = gScreenPixels[si];
-            di++; si++;
-//            gScreenPixels[di] = gScreenPixels[si];
-            di++; si++;
-            si += 0x79; // 121 // this would be 242 pixels?
-            di += 0x79; // 121
-        }
-//        std(); // set direction flag :shrug:
-        si = var_4;
-        si += 0x4689; // 18057
-        di = si;
-        di++;
-*/
-            for (int x = rightX + kEdgeWidth; x > rightX; --x)
+            // Right edge
+            for (int x = rightEdgeX + kEdgeWidth; x > rightEdgeX; --x)
             {
                 long addr = y * kScreenWidth + x;
-                gScreenPixels[addr + 8] = gScreenPixels[addr];
+                gScreenPixels[addr + kEdgeStep] = gScreenPixels[addr]; // Move panel edge
+                gScreenPixels[addr] = gTitle2DecodedBitmapData[addr]; // Content of now visible panel
             }
         }
 
-        leftX -= kEdgeStep;
-        rightX += kEdgeStep;
-
-//        cld() // clear direction flag :shrug:
-        
-        si = var_4;
-        di = si;
-        si += 0x28; // 40
-
-        // This loop copies the right internal side of the panel (the part with the credits) to "clear" the
-        // trail left by the right edge.
-        //
-        for (int i = 0; i < 148; ++i)
-        {
-//loc_47864:             // ; CODE XREF: openCreditsBlock+A6j
-//            gScreenPixels[di] = gScreenPixels[si];
-            di++; si++;
-//            gScreenPixels[di] = gScreenPixels[si];
-            di++; si++;
-            si += 0x79; // 121 // this would be 242 pixels?
-            di += 0x79; // 121
-        }
-        var_2-=8;
-        var_4+=8;
-        // dx--;
-        // if (dx != 0)
-        // {
-        //     goto loc_47800;
-        // }
+        leftEdgeX -= kEdgeStep;
+        rightEdgeX += kEdgeStep;
     }
 
-    for (int i = 0; i < 1; ++i)
-    {
 //loc_47884:             // ; CODE XREF: openCreditsBlock+C7j
-        videoloop();
-        loopForVSync();
-    }
+    videoloop();
+    loopForVSync();
+
 //    word_51967 = title2DataBuffer; // points to where the title 2 has been RENDERED
+
+    // Display now the contents of TITLE2.DAT starting at the y=panel_edge_top_y (to prevent removing the top title)
+    // This basically makes the edges of the panel docked at the sides of the screen look better (as intended in TITLE2.DAT
+    // compared to how they look when the "crafted" animation concludes).
+    //
+    size_t copyOffset = kEdgeTopY * kScreenWidth;
+    memcpy(gScreenPixels + copyOffset, gTitle2DecodedBitmapData + copyOffset, sizeof(gTitle2DecodedBitmapData) - copyOffset);
+
     ColorPalette title2Palette;
     convertPaletteDataToPalette(gTitle2PaletteData, title2Palette);
     fadeToPalette(title2Palette); // fades current frame buffer into the title 2.dat (screen with the credits)
-
-    // openCreditsBlock endp
 }
 
 void loadScreen2() // proc near       ; CODE XREF: start:loc_46F00p
@@ -2434,11 +2373,6 @@ void loadScreen2() // proc near       ; CODE XREF: start:loc_46F00p
                                   | (g << 1)
                                   | (b << 2)
                                   | (i << 3));
-
-            // Store a copy of the decoded value in a buffer with 4bit per pixel
-            gTitle1DecodedBitmapData[destPixelAddress / 2] |= ((x % 2 == 0)
-                                                               ? finalColor
-                                                               : (finalColor << 4));
 
             // Copy directly to the screen too
             gScreenPixels[destPixelAddress] = finalColor;
@@ -2495,9 +2429,7 @@ void loadScreen2() // proc near       ; CODE XREF: start:loc_46F00p
                                   | (i << 3));
 
             // Store a copy of the decoded value in a buffer with 4bit per pixel
-            gTitle2DecodedBitmapData[destPixelAddress / 2] |= ((x % 2 == 0)
-                                                               ? finalColor
-                                                               : (finalColor << 4));
+            gTitle2DecodedBitmapData[destPixelAddress] = finalColor;
         }
     }
 
@@ -2928,244 +2860,144 @@ void readTitleDatAndGraphics() // proc near  ; CODE XREF: start+2BBp
     }
 
 //loc_47C86:              //; CODE XREF: readTitleDatAndGraphics+99j
-// readTitleDatAndGraphics endp
 }
-
-/*
-// ; =============== S U B R O U T I N E =======================================
-
 
 void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
                     // ; readEverything+Fp ...
 {
-    // address: 01ED:1038
-        // mov ax, 3D00h
-        // mov dx, offset aLevel_lst ; "LEVEL.LST"
-        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-        //             ; DS:DX -> ASCIZ filename
-        //             ; AL = access mode
-        //             ; 0 - read
-        FILE *file = fopen("LEVEL.LST", "r");
+    // 01ED:1038
+    FILE *file = fopen("LEVEL.LST", "r");
+    if (file == NULL)
+    {
+        // TODO: run this with the debugger (removing the LEVEL.LST file and letting the game rebuild it
+//        goto errorOpeningLevelLst;
+//errorOpeningLevelLst:             // ; CODE XREF: readLevelsLst+8j
+        FILE *file = fopen("LEVELS.DAT", "r");
         if (file == NULL)
         {
-            goto errorOpeningLevelLst;
+//errorOpeningLevelsDat:             // ; CODE XREF: readLevelsLst+17j
+            if (errno == ENOENT) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
+            {
+                // This would try to recover the files from the floppy disk
+                // in the original game and then try again to load the level
+                // list. That won't be an option here...
+                //
+                // recoverFilesFromFloppyDisk();
+                // jb  short loc_47D6A
+//                goto readLevelsLst; // wtf?
+            }
+            exitWithError("Error opening LEVELS.DAT\n");
         }
-        goto successOpeningLevelLst
-// ; ---------------------------------------------------------------------------
-
-errorOpeningLevelLst:             // ; CODE XREF: readLevelsLst+8j
-        // mov ax, 3D00h
-        // mov dx, aLevels_dat
-        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-        //             ; DS:DX -> ASCIZ filename
-        //             ; AL = access mode
-        //             ; 0 - read
-        FILE *file = fopen("LEVELS.DAT", "r");
-        if (file != NULL)
-        {
-            goto successOpeningLevelsDat;
-        }
-        goto errorOpeningLevelsDat;
-// ; ---------------------------------------------------------------------------
-
-successOpeningLevelsDat:             // ; CODE XREF: readLevelsLst+15j
-        lastFileHandle = ax;
+//successOpeningLevelsDat:             // ; CODE XREF: readLevelsLst+15j
+//        lastFileHandle = ax;
         bx = 0x2A6C;
-        ax = 0x3030;
-        dx = 0x2031;
+        ax = 0x3030; // "00"
+        dx = 0x2031; // "1 "
         cx = 111;
 
-loc_47CC4:             // ; CODE XREF: readLevelsLst:loc_47CE4j
-        *bx = ax;
-        *(bx + 2) = dx;
-        bx += 28;
-        *(bx - 1) = 0xA;
-        dl++;
-        if (dl <= 0x39) // '9'
-        {
-            goto loc_47CE4;
-        }
-        dl = 0x30; // '0'
-        ah++;
-        if (ah <= 0x39) // '9'
-        {
-            goto loc_47CE4;
-        }
-        ah = 0x30; // '0'
-        al++;
+        memset(gLevelListData, 0, sizeof(gLevelListData));
 
-loc_47CE4:            //  ; CODE XREF: readLevelsLst+3Aj
-                   // ; readLevelsLst+43j
-        cx--;
-        if (cx > 0)
+        for (int i = 0; i < 111; ++i)
         {
-            goto loc_47CC4;
+    //loc_47CC4:             // ; CODE XREF: readLevelsLst:loc_47CE4j
+            char number[5];
+            sprintf(number, "%3d ", i);
+
+            memcpy(gLevelListData + i * kLevelEntryLength, number, sizeof(number) - 1);
+            gLevelListData[i * kLevelEntryLength + kLevelEntryLength - 1] = '\n';
+    //loc_47CE4:            //  ; CODE XREF: readLevelsLst+3Aj
         }
         cx = 111;
         dx = 0x5A6;
         ax = 0;
         bx = 0x2A70;
-        char *levelsDataBuffer = NULL; // initialize this with a malloc or something
-        // levelsDataBuffer += 0x05A6; // offset to make sure the bytes are written in the right position? no idea, this is made up, not from asm code
 
         for (int i = 0; i < 111; ++i)
         {
 // loc_47CF1:             //  ; CODE XREF: readLevelsLst+83j
-            push(cx);
-            push(dx);
-            push(ax);
-            push(bx);
-            
+//                push(cx);
+//                push(dx);
+//                push(ax);
+//                push(bx);
+
             cx = ax;
-            bx = lastFileHandle;
+//                bx = lastFileHandle;
             int seekOffset = 0x5A6 + i * levelDataLength;
-            
-            // mov cx, ax
-            // mov bx, lastFileHandle
-            // mov ax, 4200h
-            // int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
-            //             ; AL = method: offset from beginning of file
-            fseek(lastFileHandle, seekOffset, SEEK_SET); // position 1446
-            pop(dx);
-            push(dx);
-            // mov cx, 17h // 23 bytes
-            // mov bx, lastFileHandle
-            // mov ax, 3F00h
-            // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-            //             ; BX = file handle, CX = number of bytes to read
-            //             ; DS:DX -> buffer
-            int bytes = fread(&levelsDataBuffer, 1, 23, lastFileHandle);
-            pop(bx);
-            pop(ax);
-            pop(dx);
-            pop(cx);
-            if (bytes == 0)
+
+            fseek(file, seekOffset, SEEK_SET); // position 1446
+//                pop(dx);
+//                push(dx);
+            size_t bytes = fread(gLevelListData + i * kLevelEntryLength + 4, 1, 23, file);
+//                pop(bx);
+//                pop(ax);
+//                pop(dx);
+//                pop(cx);
+            if (bytes < 23)
             {
-                goto loc_47D81;
+                fclose(file);
+                exitWithError("Error reading LEVELS.DAT\n");
             }
             // these two operations are just adding levelDataLength to the memory address where we want to store the levels data
             // dx += levelDataLength;
             // ax += 0 + carry_flag;
-            levelsDataBuffer += levelDataLength;
-            bx += 28; // no idea what's this for
-            // cx--;
-            // if (cx > 0)
-            // {
-            //     goto loc_47CF1;
-            // }
+//            levelsDataBuffer += levelDataLength;
+//            bx += 28; // no idea what's this for
         }
         if (byte_59B62 == 0)
         {
-            goto loc_47D8D;
+//            goto loc_47D8D;
+            if (fclose(file) != 0)
+            {
+                exitWithError("Error closing LEVELS.DAT\n");
+            }
+            return;
         }
-        
-        // mov ax, 3E00h
-        // mov bx, lastFileHandle
-        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-        //             ; BX = file handle
-        if (fclose(lastFileHandle) == 0)
+
+        if (fclose(file) != 0)
         {
-            goto loc_47D35;
+            exitWithError("Error closing LEVELS.DAT\n");
         }
-        goto exit;
-// ; ---------------------------------------------------------------------------
 
-loc_47D35:             // ; CODE XREF: readLevelsLst+95j
-        // mov ax, 3C00h
-        // mov cx, 0
-        // mov dx, offset aLevel_lst ; "LEVEL.LST"
-        // int 21h     ; DOS - 2+ - CREATE A FILE WITH HANDLE (CREAT)
-        //             ; CX = attributes for file
-        //             ; DS:DX -> ASCIZ filename (may include drive and path)
-        FILE *file = fopen("LEVEL.LST", "w");
-        if (file != NULL)
+//    loc_47D35:             // ; CODE XREF: readLevelsLst+95j
+        file = fopen("LEVEL.LST", "w");
+        if (file == NULL)
         {
-            goto writeLevelLstData;
+            exitWithError("Error opening LEVEL.LST\n");
         }
-        goto exit;
-// ; ---------------------------------------------------------------------------
 
-writeLevelLstData:             // ; CODE XREF: readLevelsLst+A5j
-        bx = ax;
-        lastFileHandle = bx;
-        // mov cx, 0C24h // 3108
-        // mov dx, 2A6Ch // levelsDataBuffer
-        // mov ax, 4000h
-        // int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
-        //             ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
-        int bytes = fwrite(&levelsDataBuffer, 1, 3108, lastFileHandle);
-        if (bytes > 0)
+//    writeLevelLstData:             // ; CODE XREF: readLevelsLst+A5j
+        size_t bytes = fwrite(gLevelListData, 1, sizeof(gLevelListData), file);
+        if (bytes < sizeof(gLevelListData))
         {
-            goto loc_47D5B;
+            exitWithError("Error reading LEVEL.LST\n");
         }
-        goto exit;
-// ; ---------------------------------------------------------------------------
 
-loc_47D5B:             // ; CODE XREF: readLevelsLst+BBj
-        goto loc_47D8D;
-// ; ---------------------------------------------------------------------------
-
-errorOpeningLevelsDat:             // ; CODE XREF: readLevelsLst+17j
-        if (errno != 2) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
+//    loc_47D5B:             // ; CODE XREF: readLevelsLst+BBj
+        if (fclose(file) != 0)
         {
-            goto loc_47D6A;
+            exitWithError("Error closing LEVEL.LST");
         }
-        // recoverFilesFromFloppyDisk();
-        // jb  short loc_47D6A
-        goto readLevelsLst; // wtf?
-// ; ---------------------------------------------------------------------------
+        return;
+    }
 
-loc_47D6A:             // ; CODE XREF: readLevelsLst+C5j
-                   // ; readLevelsLst+CAj
-        goto exit;
-// ; ---------------------------------------------------------------------------
+//successOpeningLevelLst:             // ; CODE XREF: readLevelsLst+Aj
+    size_t bytes = fread(gLevelListData, 1, sizeof(gLevelListData), file);
+    if (bytes < sizeof(gLevelListData))
+    {
+        fclose(file);
+        exitWithError("Error reading LEVEL.LST");
+    }
 
-successOpeningLevelLst:             // ; CODE XREF: readLevelsLst+Aj
-        lastFileHandle = ax;
-        bx = lastFileHandle;
-        // mov ax, 3F00h
-        // mov cx, 0C24h // 3108
-        // mov dx, 2A6Ch //levelsDataBuffer
-        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-        //             ; BX = file handle, CX = number of bytes to read
-        //             ; DS:DX -> buffer
-        int bytes = fread(&levelsDataBuffer, 1, 3108, lastFileHandle);
-        if (bytes > 0)
-        {
-            goto loc_47D8D;
-        }
+//loc_47D8D:             // ; CODE XREF: readLevelsLst+8Aj
+               // ; readLevelsLst:loc_47D5Bj ...
+    if (fclose(file) != 0)
+    {
+        exitWithError("Error closing LEVEL.LST");
+    }
 
-loc_47D81:             // ; CODE XREF: readLevelsLst+77j
-        // mov ax, 3E00h
-        // mov bx, lastFileHandle
-        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-        //             ; BX = file handle
-        fclose(lastFileHandle);
-        goto exit;
-// ; ---------------------------------------------------------------------------
-
-loc_47D8D:             // ; CODE XREF: readLevelsLst+8Aj
-                   // ; readLevelsLst:loc_47D5Bj ...
-        // mov ax, 3E00h
-        // mov bx, lastFileHandle
-        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-        //             ; BX = file handle
-        if (fclose(lastFileHandle) == 0)
-        {
-            goto locret_47D9B;
-        }
-        goto exit;
-// ; ---------------------------------------------------------------------------
-
-locret_47D9B:              // ; CODE XREF: readLevelsLst+FBj
-        // return;
-// readLevelsLst   endp
+//locret_47D9B:              // ; CODE XREF: readLevelsLst+FBj
 }
 
-
-; =============== S U B R O U T I N E =======================================
-
-*/
 void readGfxDat() //  proc near       ; CODE XREF: readGfxDat+14j
                    // ; readEverything+1Ep
 {
@@ -3279,12 +3111,13 @@ void readHallfameLst() // proc near       ; CODE XREF: readEverything+18p
 
 void readEverything() //  proc near       ; CODE XREF: start+2DBp start+2E3p ...
 {
+    // 01ED:1213
     readPalettes();
     readBitmapFonts();
     readPanelDat();
     readMenuDat();
     readControlsDat();
-//    readLevelsLst(); // TODO: need to test & debug when LEVEL.LST is not available and it's generated from LEVELS.DAT
+    readLevelsLst(); // TODO: need to test & debug when LEVEL.LST is not available and it's generated from LEVELS.DAT
 //    readDemoFiles(); // TODO: just crazy, needs more RE work
     readBackDat();
     readHallfameLst();
@@ -6055,9 +5888,11 @@ sub_4914A   endp
 
 ; =============== S U B R O U T I N E =======================================
 
-
-sub_4921B   proc near       ; CODE XREF: readConfig+8Cp
-                    ; sub_4955B+31p ...
+*/
+void sub_4921B() //   proc near       ; CODE XREF: readConfig+8Cp
+                   // ; sub_4955B+31p ...
+{
+    /*
         push    bp
         xor ax, ax
         mov byte_50946, al
@@ -6122,9 +5957,10 @@ loc_492A6:              ; CODE XREF: sub_4921B+19j
                     ; sub_4921B+22j ...
         pop bp
         return;
-sub_4921B   endp
+     */
+}
 
-
+/*
 ; =============== S U B R O U T I N E =======================================
 
 
@@ -6462,39 +6298,35 @@ locret_49543:               ; CODE XREF: sub_4945D+58j
         return;
 sub_4945D   endp
 
-
-; =============== S U B R O U T I N E =======================================
-
+*/
 
 void prepareSomeKindOfLevelIdentifier() //   proc near       ; CODE XREF: start+3A1p
                    // ; sub_4B375:loc_4B40Fp ...
 {
-    // mov ax, word ptr aLevels_dat_0+8 ; "AT"
-    // cmp ax, 3030h
-    // jnz short loc_4954F
-    ax = aLevels_dat_0 + 8; // gets the 2 chars where the A of DAT is
-    if (ax != 0x3030) // checks if those chars are "00" like LEVELS.D00?
+    // Checks if the last two chars are "00" like LEVELS.D00?
+    if (aLevels_dat_0[8] == '0' && aLevels_dat_0[9] == '0')
     {
-        goto loc_4954F;
+        // replaces the content with "--"
+        aLevels_dat_0[8] = '-';
+        aLevels_dat_0[9] = '-';
     }
-    ax = 0x2D2D; // replaces the content with "--"
 
-loc_4954F:             // ; CODE XREF: prepareSomeKindOfLevelIdentifier+6j
-    if (ax != 0x5441) // checks if those chars are "AT" like "LEVELS.DAT"?
+//loc_4954F:             // ; CODE XREF: prepareSomeKindOfLevelIdentifier+6j
+    // Now checks if the last two chars are "AT" like LEVELS.DAT?
+    if (aLevels_dat_0[8] == 'A' && aLevels_dat_0[9] == 'T')
     {
-        goto loc_49557;
+        // replaces the content with "00"
+        aLevels_dat_0[8] = '0';
+        aLevels_dat_0[9] = '0';
     }
-    ax = 0x3030; // replaces the content with "00"
 
-loc_49557:             // ; CODE XREF: prepareSomeKindOfLevelIdentifier+Ej
-    *a00s0010_sp = ax; // WTF replaces the first two chars of the string "00S001$0.SP" with what is at ax??
-    return;
-// prepareSomeKindOfLevelIdentifier   endp
+//loc_49557:             // ; CODE XREF: prepareSomeKindOfLevelIdentifier+Ej
+    // WTF replaces the first two chars of the string "00S001$0.SP" with what is at ax??
+    a00s0010_sp[0] = aLevels_dat_0[8];
+    a00s0010_sp[1] = aLevels_dat_0[9];
 }
 
-
-; =============== S U B R O U T I N E =======================================
-
+/*
 
 sub_4955B   proc near       ; CODE XREF: runLevel:loc_48B6Bp
                     ; runLevel+30Cp
@@ -9481,11 +9313,11 @@ locret_4A97F:               ; CODE XREF: sub_4A95F+17j
 // ; ---------------------------------------------------------------------------
 
 loc_4A980:              ; CODE XREF: sub_4A95F+1Ej
-        mov bh, byte_5981F
+        mov bh, gCurrentPlayerIndex
         xor bl, bl
         shr bx, 1
         mov si, bx
-        add si, playerListDataBuffer
+        add si, gPlayerListData
         al = byte_510B4
         add al, [si+0Bh]
 
@@ -9735,7 +9567,7 @@ sub_4AB1B   proc near       ; CODE XREF: runMainMenu+28Fp
                     ; DATA XREF: data:off_50318o
         cmp byte_59B85, 0
         jnz short loc_4AB4A
-        mov si, playerListDataBuffer
+        mov si, gPlayerListData
         mov ax, 2D2Dh
         mov bl, 0
         mov cx, 14h
@@ -9902,7 +9734,7 @@ loc_4AC4B:              ; CODE XREF: sub_4AB1B+14Cj
 loc_4AC69:              ; CODE XREF: sub_4AB1B+137j
         pop es
         assume es:nothing
-        mov di, playerListDataBuffer
+        mov di, gPlayerListData
         mov si, 820Bh
         mov cx, 14h
 
@@ -9933,10 +9765,10 @@ loc_4ACA3:              ; CODE XREF: sub_4AB1B+15Cj
         add di, 80h ; '?'
         loop    loc_4AC73
         mov bh, byte_59820
-        mov byte_5981F, bh
+        mov gCurrentPlayerIndex, bh
         xor bl, bl
         shr bx, 1
-        mov di, playerListDataBuffer
+        mov di, gPlayerListData
         add di, bx
         mov si, 820Bh
         mov ax, [si]
@@ -9963,7 +9795,7 @@ loc_4ACA3:              ; CODE XREF: sub_4AB1B+15Cj
         call    sub_4CFDB
         mov byte_51ABE, 1
         call    doSomethingWithLevelOrPlayerList
-        call    drawCurrentPlayerInfo
+        call    drawPlayerList
         call    drawLevelList
         call    drawRankings
         call    sub_4B85C
@@ -9978,10 +9810,10 @@ sub_4AB1B   endp
 sub_4AD0E   proc near
         cmp byte_59B85, 0
         jnz short loc_4AD3C
-        mov bh, byte_5981F
+        mov bh, gCurrentPlayerIndex
         xor bl, bl
         shr bx, 1
-        mov si, playerListDataBuffer
+        mov si, gPlayerListData
         add si, bx
         mov word ptr dword_58477, si
         mov ax, 2D2Dh
@@ -10071,7 +9903,7 @@ loc_4ADCE:              ; CODE XREF: sub_4AD0E+97j
         call    sub_4CFDB
         mov byte_51ABE, 1
         call    doSomethingWithLevelOrPlayerList
-        call    drawCurrentPlayerInfo
+        call    drawPlayerList
         call    drawLevelList
         call    drawRankings
 
@@ -10088,10 +9920,10 @@ sub_4AD0E   endp
 
 
 sub_4ADFF   proc near
-        mov bh, byte_5981F
+        mov bh, gCurrentPlayerIndex
         xor bl, bl
         shr bx, 1
-        mov si, playerListDataBuffer
+        mov si, gPlayerListData
         add si, bx
         mov ax, 2D2Dh
         cmp ax, [si]
@@ -10143,7 +9975,7 @@ loc_4AE5B:              ; CODE XREF: sub_4ADFF+49j
                     ; sub_4ADFF+4Ej
         mov ax, word_51ABC
         dec ax
-        mov si, 949Eh
+        mov si, gSomeWeirdLevelData
         add si, ax
         cmp byte ptr [si], 2
         jz  short loc_4AE75
@@ -10205,7 +10037,7 @@ loc_4AEE9:              ; CODE XREF: sub_4ADFF+C3j
         mov di, 89F7h
         mov ah, 8
         call    drawTextWithChars6Font_method1
-        call    drawCurrentPlayerInfo
+        call    drawPlayerList
         call    drawLevelList
         call    drawRankings
 
@@ -10222,10 +10054,10 @@ sub_4ADFF   endp
 
 
 sub_4AF0C   proc near
-        mov bh, byte_5981F
+        mov bh, gCurrentPlayerIndex
         xor bl, bl
         shr bx, 1
-        add bx, playerListDataBuffer
+        add bx, gPlayerListData
         mov bp, bx
         mov si, bx
         mov ax, 2D2Dh
@@ -10562,7 +10394,7 @@ sub_4B159   endp
 ; =============== S U B R O U T I N E =======================================
 
 
-demoSomething?  proc near       ; CODE XREF: start+3BAp
+demoSomething  proc near       ; CODE XREF: start+3BAp
                     ; runMainMenu+12Ep ...
         push    ax
         call    readDemoFiles
@@ -10588,7 +10420,7 @@ demoSomething?  proc near       ; CODE XREF: start+3BAp
         mov word_5196C, 0
         mov byte_510DE, 0
 
-loc_4B22F:              ; CODE XREF: demoSomething?+30j
+loc_4B22F:              ; CODE XREF: demoSomething+30j
         mov word_599D8, 0
         shr al, 1
         mov ah, es:[bx]
@@ -10599,8 +10431,8 @@ loc_4B22F:              ; CODE XREF: demoSomething?+30j
         al = ah
         mov byte ptr word_599D8, al
 
-loc_4B248:              ; CODE XREF: demoSomething?+4Bj
-                    ; demoSomething?+4Fj
+loc_4B248:              ; CODE XREF: demoSomething+4Bj
+                    ; demoSomething+4Fj
         xor ah, ah
         mov word_510E6, ax
         inc bx
@@ -10611,7 +10443,7 @@ loc_4B248:              ; CODE XREF: demoSomething?+4Bj
         mov byte_510E1, 0
         mov byte_510E2, 1
         return;
-demoSomething?  endp
+demoSomething  endp
 
 // ; ---------------------------------------------------------------------------
 loc_4B262:
@@ -10746,10 +10578,10 @@ sub_4B2FC   endp
 
 
 sub_4B375   proc near       ; CODE XREF: runMainMenu+11Ep
-        mov bh, byte_5981F
+        mov bh, gCurrentPlayerIndex
         xor bl, bl
         shr bx, 1
-        mov si, playerListDataBuffer
+        mov si, gPlayerListData
         add si, bx
         mov ax, 2D2Dh
         cmp [si], ax
@@ -10806,7 +10638,7 @@ loc_4B3CF:              ; CODE XREF: sub_4B375+54j
 
 loc_4B3DB:              ; CODE XREF: sub_4B375+35j
         dec ax
-        mov si, 949Eh
+        mov si, gSomeWeirdLevelData
         add si, ax
         al = [si]
         cmp al, 6
@@ -11036,7 +10868,7 @@ loc_4B54B:              ; CODE XREF: sub_4B419+143j
 loc_4B565:              ; CODE XREF: sub_4B419+10Fj
         mov byte_51ABE, 1
         call    doSomethingWithLevelOrPlayerList
-        call    drawCurrentPlayerInfo
+        call    drawPlayerList
         call    drawLevelList
         call    drawHallOfFame
         call    drawRankings
@@ -11208,16 +11040,16 @@ loc_4B68E:              ; CODE XREF: sub_4B671+1Aj
 loc_4B69F:              ; CODE XREF: sub_4B671+28j
         cmp byte_59B85, 0
         jnz short loc_4B6B1
-        cmp byte_5981F, 13h
+        cmp gCurrentPlayerIndex, 13h
         jnb short loc_4B6B1
-        inc byte_5981F
+        inc gCurrentPlayerIndex
 
 loc_4B6B1:              ; CODE XREF: sub_4B671+33j
                     ; sub_4B671+3Aj
         call    sub_4B899
         mov byte_51ABE, 1
         call    doSomethingWithLevelOrPlayerList
-        call    drawCurrentPlayerInfo
+        call    drawPlayerList
         call    drawLevelList
         call    sub_4B85C
         call    sub_4B8BE
@@ -11249,16 +11081,16 @@ loc_4B6E6:              ; CODE XREF: sub_4B6C9+1Aj
 loc_4B6F7:              ; CODE XREF: sub_4B6C9+28j
         cmp byte_59B85, 0
         jnz short loc_4B709
-        cmp byte_5981F, 0
+        cmp gCurrentPlayerIndex, 0
         jbe short loc_4B709
-        dec byte_5981F
+        dec gCurrentPlayerIndex
 
 loc_4B709:              ; CODE XREF: sub_4B6C9+33j
                     ; sub_4B6C9+3Aj
         call    sub_4B899
         mov byte_51ABE, 1
         call    doSomethingWithLevelOrPlayerList
-        call    drawCurrentPlayerInfo
+        call    drawPlayerList
         call    drawLevelList
         call    sub_4B85C
         call    sub_4B8BE
@@ -12196,7 +12028,7 @@ sub_4BF8D   proc near       ; CODE XREF: drawRankingsp
 
 loc_4BF97:              ; CODE XREF: sub_4BF8D+5j
         mov cx, 14h
-        mov si, playerListDataBuffer
+        mov si, gPlayerListData
         mov di, 8A38h
         mov dl, 0
 
@@ -12278,7 +12110,7 @@ loc_4C036:              ; CODE XREF: sub_4BF8D+4Cj
 
 loc_4C04B:              ; CODE XREF: sub_4BF8D+CFj
         al = [si]
-        cmp al, byte_5981F
+        cmp al, gCurrentPlayerIndex
         jnz short loc_4C057
         mov byte_58D47, dl
 
@@ -12315,7 +12147,7 @@ loc_4C07F:              ; CODE XREF: sub_4BF8D+E9j
         mov ah, [si]
         xor al, al
         shr ax, 1
-        mov si, playerListDataBuffer
+        mov si, gPlayerListData
         add si, ax
         mov bx, 8
 
@@ -12417,7 +12249,7 @@ drawRankings   endp
 
 
 drawLevelList   proc near       ; CODE XREF: start+41Ap sub_4955B+39Bp ...
-        mov si, 949Eh
+        mov si, gSomeWeirdLevelData
         mov bx, word_51ABC
         sub bx, 2
         add si, bx
@@ -12533,14 +12365,14 @@ drawHallOfFame   endp
 ; =============== S U B R O U T I N E =======================================
 
 
-void drawCurrentPlayerRanking() //   proc near       ; CODE XREF: drawCurrentPlayerInfo+5Bp
+void drawCurrentPlayerRanking() //   proc near       ; CODE XREF: drawPlayerList+5Bp
 {
     // 01ED:55C1
-    bh = byte_5981F;
+    bh = gCurrentPlayerIndex;
     bl = 0;
     bx >> 1;
     si = bx;
-    si += playerListDataBuffer;
+    si += gPlayerListData;
     bp = si;
     di = 0x79C3;
     ah = 8;
@@ -12580,84 +12412,51 @@ void drawCurrentPlayerRanking() //   proc near       ; CODE XREF: drawCurrentPla
     return;
 // drawCurrentPlayerRanking   endp
 }
+*/
 
-
-// ; =============== S U B R O U T I N E =======================================
-
-
-void drawCurrentPlayerInfo() //  proc near       ; CODE XREF: start+32Cp start+407p ...
+void drawPlayerList() //  proc near       ; CODE XREF: start+32Cp start+407p ...
 {
-    bh = byte_5981F;
-    bl = 0;
-    bx = bx >> 1;
-    si = bx;
-    si += playerListDataBuffer;
-    push(si);
-    di = 0x879F;
-    cx = 8;
-    push(es);
-    ax = ds;
-    es = ax;
-    // assume es:data
-    memcpy(di, si, 8); // rep movsb
-    di += 8;
-    si += 8;
-    pop(es);
-    // assume es:nothing
-    si -= 8;
-    di = 0x9B86;
-    ah = 6;
-    drawTextWithChars6Font_method1();
-    pop(si);
-    push(si);
-    if (byte_5981F <= 0)
+    // 01ED:5630
+    strncpy(gPlayerName, (char *)&gPlayerListData[gCurrentPlayerIndex * kPlayerEntryLength], 8);
+    drawTextWithChars6Font_method1(16, 164, 6, (char *)&gPlayerListData[gCurrentPlayerIndex * kPlayerEntryLength]);
+
+    char *prevPlayerName = "";
+
+    if (gCurrentPlayerIndex <= 0)
     {
-        goto loc_4C2CA;
+        prevPlayerName = "        "; // just 8 spaces :shrug:
     }
-    si -= 0x80; // 128
-    goto loc_4C2CD;
-// ; ---------------------------------------------------------------------------
-
-loc_4C2CA:              // ; CODE XREF: drawCurrentPlayerInfo+2Fj
-    si = 0x821D;  // "        "  (just 8 spaces :shrug:)
-
-loc_4C2CD:              // ; CODE XREF: drawCurrentPlayerInfo+35j
-    di = 0x973C;
-    ah = 8;
-    drawTextWithChars6Font_method1();
-    pop(si);
-    if (byte_5981F >= 0x13) // 19
+    else
     {
-        goto loc_4C2E3;
+        prevPlayerName = (char *)&gPlayerListData[(gCurrentPlayerIndex - 1) * kPlayerEntryLength];
     }
-    si += 0x80; // 128
-    goto loc_4C2E6;
-// ; ---------------------------------------------------------------------------
 
-loc_4C2E3:              // ; CODE XREF: drawCurrentPlayerInfo+48j
-    si = 0x821D;  // "        "  (just 8 spaces :shrug:)
+//loc_4C2CD:              // ; CODE XREF: drawPlayerList+35j
+    drawTextWithChars6Font_method1(16, 155, 8, prevPlayerName);
 
-loc_4C2E6:              // ; CODE XREF: drawCurrentPlayerInfo+4Ej
-    di = 0x9FD0;
-    ah = 8;
-    drawTextWithChars6Font_method1();
-    drawCurrentPlayerRanking();
-    return;
-// drawCurrentPlayerInfo   endp
+    char *nextPlayerName = "";
+
+    if (gCurrentPlayerIndex >= kNumberOfPlayers - 1) // 19
+    {
+        nextPlayerName = "        "; // just 8 spaces :shrug:
+    }
+    else
+    {
+        nextPlayerName = (char *)&gPlayerListData[(gCurrentPlayerIndex + 1) * kPlayerEntryLength];
+    }
+
+//loc_4C2E6:              // ; CODE XREF: drawPlayerList+4Ej
+    drawTextWithChars6Font_method1(16, 173, 8, nextPlayerName);
+//    drawCurrentPlayerRanking();
 }
-
-
-; =============== S U B R O U T I N E =======================================
-
 
 void drawMenuTitleAndDemoLevelResult() //   proc near       ; CODE XREF: sub_4B149+Cp
                     // ; sub_4C407+1Fp ...
 {
-    si = 0x817B; // WELCOME TO SUPAPLEX
-    di = 0x89F7;
-    ah = 4;
-    drawTextWithChars6Font_method1();
-    drawCurrentPlayerInfo();
+    // 01ED:568F
+    drawTextWithChars6Font_method1(180, 127, 4, "WELCOME TO SUPAPLEX");
+    drawPlayerList();
+    /*
     drawLevelList(); // draw level list?
     drawHallOfFame(); // draw hall of fame?
     drawRankings(); // draw player ranking ?
@@ -12704,172 +12503,147 @@ loc_4C33C:              // ; CODE XREF: drawMenuTitleAndDemoLevelResult+34j
 
 locret_4C349:               // ; CODE XREF: drawMenuTitleAndDemoLevelResult+1Cj
     return;
+     */
 // drawMenuTitleAndDemoLevelResult   endp
 }
 
-
-// ; =============== S U B R O U T I N E =======================================
-
-
 void doSomethingWithLevelOrPlayerList() //   proc near       ; CODE XREF: start+404p sub_4AB1B+1E0p ...
 {
-    bh = byte_5981F;
+    // 01ED:56E7
+    return;
+    bh = gCurrentPlayerIndex;
     bl = 0;
     bx = bx >> 1;
-    si = 0x8AA8;
+    si = gPlayerListData + 12; // 0x8AA8; // this seems to be the list of players? yes, points to gPlayerListData + 12
     si += bx;
-    di = playerListDataBuffer;
+    di = gPlayerListData;
     di += bx;
     push(di);
-    di = 0x949E;
+    di = gSomeWeirdLevelData; // WTF is this??
     cx = 0x6F; // 111 // Number of levels?? https://supaplex.fandom.com/wiki/Level_list
     al = 6;
 
-loc_4C365:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+1Ej
-    *di = al;
-    di++;
-    cx--;
-    if (cx > 0)
-    {
-        goto loc_4C365;
-    }
-    push(si);
+    // sets everything to 6 in di :wtf:
+    memset(gSomeWeirdLevelData, 6, kNumberOfLevels); // this is the equivalent of the loop below
+
     al = 1;
     cx = 0x6F;  // 111
-    di = 0x949E;
+    di = gSomeWeirdLevelData;
 
-loc_4C373:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+53j
-    ah = *si;
-    if (ah != 2)
+    for (int i = 0; i < kNumberOfLevels; ++i)
     {
-        goto loc_4C37F;
-    }
-    *di = 8;  // mov byte ptr [di], 8
-    goto loc_4C39B;
-// ; ---------------------------------------------------------------------------
+//loc_4C373:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+53j
+        ah = *(uint8_t *)si;
+        if (ah == 2)
+        {
+            *(uint8_t *)di = 8;  // mov byte ptr [di], 8
+        }
+        else
+        {
 
-loc_4C37F:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+2Ej
-    if (ah != 1)
-    {
-        goto loc_4C389;
-    }
-    *di = 4; // mov byte ptr [di], 4
-    goto loc_4C39B;
-// ; ---------------------------------------------------------------------------
+//loc_4C37F:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+2Ej
+            if (ah == 1)
+            {
+                *(uint8_t *)di = 4; // mov byte ptr [di], 4
+            }
+            else
+            {
+//loc_4C389:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+38j
+                if (ah == 0)
+                {
+                    if (al == 1)
+                    {
+                        *(uint8_t *)di = 2; // mov byte ptr [di], 2
+    //        goto loc_4C399;
+                    }
+                    else
+                    {
+//loc_4C396:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+45j
+                        *(uint8_t *)di = 6; // mov byte ptr [di], 6
+                    }
+//loc_4C399:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+4Aj
+                    al = ah;
+                }
+            }
+        }
 
-loc_4C389:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+38j
-    if (ah != 0)
-    {
-        goto loc_4C39B;
-    }
-    if (al != 1)
-    {
-        goto loc_4C396;
-    }
-    *di = 2; // mov byte ptr [di], 2
-    goto loc_4C399;
-// ; ---------------------------------------------------------------------------
-
-loc_4C396:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+45j
-    *di = 6; // mov byte ptr [di], 6
-
-loc_4C399:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+4Aj
-    al = ah;
-
-loc_4C39B:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+33j
+//loc_4C39B:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+33j
                // ; doSomethingWithLevelOrPlayerList+3Dj ...
-    si++;
-    di++;
-    cx--;
-    if (cx > 0)
-    {
-        goto loc_4C373;
+        si++;
+        di++;
     }
-    pop(si);
-    pop(di);
-    cx = 0x6F; // 111
+//    pop(si);
+//    pop(di);
+//    cx = 0x6F; // 111
     bx = 1;
 
-loc_4C3A7:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+65j
-    al = [si];
-    if (al == 0)
+    for (int i = 0; i < kNumberOfLevels; ++i)
     {
-        goto loc_4C3D6;
-    }
-    si++;
-    bx++;
-    cx--;
-    if (cx > 0)
-    {
-        goto loc_4C3A7;
+//loc_4C3A7:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+65j
+        al = *(uint8_t *)si;
+        if (al == 0)
+        {
+            //goto loc_4C3D6;
+        }
+        si++;
+        bx++;
     }
     si -= 0x6F; // 111
     bx = 1;
-    cx = 0x6F; // 111
+//    cx = 0x6F; // 111
 
-loc_4C3BA:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+78j
-    al = [si];
-    if (al == 2)
+    for (int i = 0; i < kNumberOfLevels; ++i)
     {
-        goto loc_4C3D6;
+//loc_4C3BA:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+78j
+        al = *(uint8_t *)si;
+        if (al == 2)
+        {
+            //goto loc_4C3D6;
+        }
+        si++;
+        bx++;
     }
-    si++;
-    bx++;
-    cx--;
-    if (cx > 0)
-    {
-        goto loc_4C3BA;
-    }
-    if (byte_51ABE == 0)
-    {
-        goto loc_4C3D1;
-    }
-    word_51ABC = 0x71; // 113 or 'q'
 
-loc_4C3D1:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+7Fj
-    *(di + 0x7E) = 0x71; // 113 or 'q',   mov byte ptr [di+7Eh], 71h ; 'q'
+    if (byte_51ABE != 0)
+    {
+        word_51ABC = 0x71; // 113 or 'q'
+    }
+
+//loc_4C3D1:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+7Fj
+    *(uint8_t *)(di + 0x7E) = 0x71; // 113 or 'q',   mov byte ptr [di+7Eh], 71h ; 'q'
     return;
-// ; ---------------------------------------------------------------------------
 
-loc_4C3D6:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+61j
+//loc_4C3D6:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+61j
                 // ; doSomethingWithLevelOrPlayerList+74j
-    if (byte_51ABE == 0)
+    if (byte_51ABE != 0)
     {
-        goto loc_4C3E1;
+        word_51ABC = bx;
     }
-    word_51ABC = bx;
 
-loc_4C3E1:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+91j
-    if (bl != 1)
+//loc_4C3E1:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+91j
+    if (bl == 1)
     {
-        goto loc_4C403;
+        if (*(uint8_t *)di == 0x2D2D)
+        {
+            if (*(uint8_t *)(di + 2) == 0x2D2D)
+            {
+                if (*(uint8_t *)(di + 4) == 0x2D2D)
+                {
+                    if (*(uint8_t *)(di + 6) == 0x2D2D)
+                    {
+                        bl = 0;
+                    }
+                }
+            }
+        }
     }
-    if (*di != 0x2D2D)
-    {
-        goto loc_4C403;
-    }
-    if (*(di + 2) != 0x2D2D)
-    {
-        goto loc_4C403;
-    }
-    if (*(di + 4) != 0x2D2D)
-    {
-        goto loc_4C403;
-    }
-    if (*(di + 6) != 0x2D2D)
-    {
-        goto loc_4C403;
-    }
-    bl = 0;
 
-loc_4C403:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+9Aj
+//loc_4C403:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+9Aj
                 // ; doSomethingWithLevelOrPlayerList+A0j ...
-    *(di + 0x7E) = bl;
-    return;
-// doSomethingWithLevelOrPlayerList   endp
+    *(uint8_t *)(di + 0x7E) = bl; // 0x7e = 126
 }
 
-
+/*
 ; =============== S U B R O U T I N E =======================================
 
 
@@ -13157,104 +12931,37 @@ sub_4C5AF   endp
 
 // ; =============== S U B R O U T I N E =======================================
 
-
+*/
 void drawMenuBackground() //   proc near       ; CODE XREF: sub_4C407+14p
                     // ; sub_4C407:loc_4C44Fp ...
 {
-    push(ds);
-    ax = seg menuseg; // will this use menuDataBuffer ??
-    ds = ax;
-    // assume ds:nothing
-    si = 0;
-    di = 0x4D5C;
-    // mov dx, 3CEh
-    // al = 5
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; mode register.Data bits:
-    //             ; 0-1: Write mode 0-2
-    //             ; 2: test condition
-    //             ; 3: read mode: 1=color compare, 0=direct
-    //             ; 4: 1=use odd/even RAM addressing
-    //             ; 5: 1=use CGA mid-res map (2-bits/pixel)
-    ports[0x3CE] = 5;
-    // inc dx
-    // al = 0
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = 0;
-    // mov dx, 3CEh
-    // al = 1
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; enable set/reset
-    ports[0x3CE] = 1;
-    // inc dx
-    // al = 0
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = 0;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = 0FFh
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = 0xFF;
-    cx = 0xC8; // 200
+    for (int y = 0; y < kScreenHeight; y++)
+    {
+//        loc_4C63E:             // ; CODE XREF: drawMenuBackground+4Dj
+        for (int x = 0; x < kScreenWidth; ++x)
+        {
+//loc_4C641:             // ; CODE XREF: drawMenuBackground+47j
+            uint16_t destPixelAddress = y * kScreenWidth + x;
 
-loc_4C63E:             // ; CODE XREF: drawMenuBackground+4Dj
-    push(cx);
-    ah = 1;
+            uint16_t sourcePixelAddress = y * kScreenWidth / 2 + x / 8;
+            uint8_t sourcePixelBitPosition = 7 - (x % 8);
 
-loc_4C641:             // ; CODE XREF: drawMenuBackground+47j
-    mov dx, 3C4h
-    al = 2
-    out dx, al      ; EGA: sequencer address reg
-                ; map mask: data bits 0-3 enable writes to bit planes 0-3
-    inc dx
-    al = ah
-    out dx, al      ; EGA port: sequencer data register
-    mov cx, 28h ; '('
-    rep movsb
-    sub di, 28h ; '('
-    shl ah, 1
-    test    ah, 0Fh
-    jnz short loc_4C641
-    add di, 7Ah ; 'z'
-    pop(cx);
-    loop    loc_4C63E
-    mov dx, 3C4h
-    al = 2
-    out dx, al      ; EGA: sequencer address reg
-                ; map mask: data bits 0-3 enable writes to bit planes 0-3
-    inc dx
-    al = 0Fh
-    out dx, al      ; EGA port: sequencer data register
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    inc dx
-    al = 0FFh
-    out dx, al      ; EGA port: graphics controller data register
-    mov dx, 3CEh
-    al = 1
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; enable set/reset
-    inc dx
-    al = 0Fh
-    out dx, al      ; EGA port: graphics controller data register
-    pop ds
-    assume ds:data
-    return
-// drawMenuBackground   endp
+            uint8_t b = (gMenuBitmapData[sourcePixelAddress + 0] >> sourcePixelBitPosition) & 0x1;
+            uint8_t g = (gMenuBitmapData[sourcePixelAddress + 40] >> sourcePixelBitPosition) & 0x1;
+            uint8_t r = (gMenuBitmapData[sourcePixelAddress + 80] >> sourcePixelBitPosition) & 0x1;
+            uint8_t i = (gMenuBitmapData[sourcePixelAddress + 120] >> sourcePixelBitPosition) & 0x1;
+
+            uint8_t finalColor = ((r << 0)
+                                  | (g << 1)
+                                  | (b << 2)
+                                  | (i << 3));
+
+            gScreenPixels[destPixelAddress] = finalColor;
+        }
+    }
 }
 
-
-; =============== S U B R O U T I N E =======================================
-
+/*
 
 vgaloadgfxseg:
         push    ds
@@ -13447,7 +13154,7 @@ sub_4C741   proc near
 
 loc_4C752:              ; CODE XREF: sub_4C741+5j
         mov isMusicEnabled, 1
-        call    sound?2
+        call    sound2
 
 loc_4C75A:              ; CODE XREF: sub_4C741+Fj
         call    sub_4CC7C
@@ -13487,7 +13194,7 @@ loc_4C78D:
 
 ; =============== S U B R O U T I N E =======================================
 
-
+*/
 void runMainMenu() // proc near       ; CODE XREF: start+43Ap
 {
     // 01ED:5B31
@@ -13495,48 +13202,29 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
     word_599D8 = 0;
     byte_599D4 = 0;
     word_58465 = 0xEF98;
-    if (word_58467 == 0)
+    if (word_58467 != 0)
     {
-        goto loc_4C7EC;
+//        goto loc_4C7EC; <- if word_58467 == 0
+        drawMenuBackground(); // 01ED:5B4E
+        byte_51ABE = 1;
+        doSomethingWithLevelOrPlayerList(); // 01ED:5B56 // TODO: I have no idea what this shit does, needs a lot of work
+        drawMenuTitleAndDemoLevelResult(); // 01ED:5B59
+
+        byte_510A6 = 0;
+        videoloop();
+//        si = 6015h;
+        fadeToPalette(gPalettes[1]);
+        word_58467 = 0;
     }
-    drawMenuBackground(); // 01ED:5B4E
-    byte_51ABE = 1;
-    doSomethingWithLevelOrPlayerList(); // 01ED:5B56
-    drawMenuTitleAndDemoLevelResult(); // 01ED:5B59
-    bx = 0x4D5C;
-    
-    // dx = 0x3D4;
-    // al = 0xD;
-    // out dx, al      ; Video: CRT cntrlr addr
-    //             ; regen start address (low)
-    ports[0x3D4] = 0xD;
-    // inc dx
-    // al = bl
-    // out dx, al      ; Video: CRT controller internal registers
-    ports[0x3D5] = 0x5C;
-    // mov dx, 3D4h
-    // al = 0Ch
-    // out dx, al      ; Video: CRT cntrlr addr
-    //             ; regen start address (high)
-    ports[0x3D4] = 0xC;
-    // inc dx
-    // al = bh
-    // out dx, al      ; Video: CRT controller internal registers
-    ports[0x3D5] = 0x4D;
-    byte_510A6 = 0;
-    videoloop();
-    si = 6015h;
-    fadeToPalette();
-    word_58467 = 0;
-    goto loc_4C7F4;
-// ; ---------------------------------------------------------------------------
-
-loc_4C7EC:              // ; CODE XREF: runMainMenu+1Bj
-    byte_59B83 = 1;
-    sub_4C407();
-
+    else
+    {
+//loc_4C7EC:              // ; CODE XREF: runMainMenu+1Bj
+//        byte_59B83 = 1;
+//        sub_4C407();
+    }
+/*
 loc_4C7F4:              // ; CODE XREF: runMainMenu+56j
-    sound?2();
+    sound2();
     sub_4B85C();
     sub_4B8BE();
 
@@ -13645,7 +13333,7 @@ loc_4C8B8:              // ; CODE XREF: runMainMenu+11Cj
         goto loc_4C8C8;
     }
     ax = 0;
-    demoSomething?();
+    demoSomething();
     goto loc_4C9B0;
 // ; ---------------------------------------------------------------------------
 
@@ -13655,7 +13343,7 @@ loc_4C8C8:              // ; CODE XREF: runMainMenu+129j
         goto loc_4C8D8;
     }
     ax = 1;
-    demoSomething?();
+    demoSomething();
     goto loc_4C9B0;
 // ; ---------------------------------------------------------------------------
 
@@ -13665,7 +13353,7 @@ loc_4C8D8:              // ; CODE XREF: runMainMenu+139j
         goto loc_4C8E8;
     }
     ax = 2;
-    demoSomething?();
+    demoSomething();
     goto loc_4C9B0;
 // ; ---------------------------------------------------------------------------
 
@@ -13675,7 +13363,7 @@ loc_4C8E8:              // ; CODE XREF: runMainMenu+149j
         goto loc_4C8F8;
     }
     ax = 3;
-    demoSomething?();
+    demoSomething();
     goto loc_4C9B0;
 // ; ---------------------------------------------------------------------------
 
@@ -13685,7 +13373,7 @@ loc_4C8F8:              // ; CODE XREF: runMainMenu+159j
         goto loc_4C908;
     }
     ax = 4;
-    demoSomething?();
+    demoSomething();
     goto loc_4C9B0;
 // ; ---------------------------------------------------------------------------
 
@@ -13695,7 +13383,7 @@ loc_4C908:              // ; CODE XREF: runMainMenu+169j
         goto loc_4C918;
     }
     ax = 5;
-    demoSomething?();
+    demoSomething();
     goto loc_4C9B0;
 // ; ---------------------------------------------------------------------------
 
@@ -13705,7 +13393,7 @@ loc_4C918:              // ; CODE XREF: runMainMenu+179j
         goto loc_4C928;
     }
     ax = 6;
-    demoSomething?();
+    demoSomething();
     goto loc_4C9B0;
 // ; ---------------------------------------------------------------------------
 
@@ -13715,7 +13403,7 @@ loc_4C928:              // ; CODE XREF: runMainMenu+189j
         goto loc_4C937;
     }
     ax = 7;
-    demoSomething?();
+    demoSomething();
     goto loc_4C9B0;
 // ; ---------------------------------------------------------------------------
 
@@ -13725,7 +13413,7 @@ loc_4C937:              // ; CODE XREF: runMainMenu+199j
         goto loc_4C946;
     }
     ax = 8;
-    demoSomething?();
+    demoSomething();
     goto loc_4C9B0;
 // ; ---------------------------------------------------------------------------
 
@@ -13735,7 +13423,7 @@ loc_4C946:              // ; CODE XREF: runMainMenu+1A8j
         goto loc_4C955;
     }
     ax = 9;
-    demoSomething?();
+    demoSomething();
     goto loc_4C9B0;
 // ; ---------------------------------------------------------------------------
 
@@ -13754,7 +13442,7 @@ loc_4C955:              // ; CODE XREF: runMainMenu+1B7j
     }
     byte_599D4 = 1;
     ax = 0;
-    demoSomething?();
+    demoSomething();
     goto loc_4C9B0;
 // ; ---------------------------------------------------------------------------
 
@@ -13852,11 +13540,12 @@ loc_4CA34:              // ; CODE XREF: runMainMenu+223j
     word_5197A = 1;
     sub_4CFB2();
     sub_4CFDB();
-    return
+     */
+    return;
 // runMainMenu endp
 }
 
-// ; ---------------------------------------------------------------------------
+/*
 
 showControls:                              ; DATA XREF: data:0044o
                 mov     byte_50919, 0FFh
@@ -14671,7 +14360,7 @@ sub_4CFB2   proc near       ; CODE XREF: sub_4AB1B+1D5p
         mov bx, ax
         mov ax, 4000h
         mov cx, 0A00h
-        mov dx, playerListDataBuffer
+        mov dx, gPlayerListData
         int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
                     ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
         jb  short locret_4CFDA
@@ -15030,10 +14719,10 @@ sub_4D1B6   proc near       ; CODE XREF: sub_4D24D+2Ep
 // ; ---------------------------------------------------------------------------
 
 loc_4D1BE:              ; CODE XREF: sub_4D1B6+5j
-        mov bh, byte_5981F
+        mov bh, gCurrentPlayerIndex
         xor bl, bl
         shr bx, 1
-        mov si, playerListDataBuffer
+        mov si, gPlayerListData
         add si, bx
         cmp byte ptr [si+7Fh], 0
         jz  short loc_4D1D2
@@ -15130,7 +14819,7 @@ sub_4D24D   proc near       ; CODE XREF: sub_4ADFF+D9p
         jnz short locret_4D27E
         al = byte_510BB
         mov byte_510BB, 0
-        mov bh, byte_5981F
+        mov bh, gCurrentPlayerIndex
         xor bl, bl
         shr bx, 1
         mov si, 8AA8h
@@ -16382,10 +16071,12 @@ soundShutdown?  endp
         return;
 
 ; =============== S U B R O U T I N E =======================================
+*/
 
-
-loadBeep    proc near       ; CODE XREF: readConfig:loc_4751Ap
-                    ; readConfig:loc_47551p ...
+void loadBeep() //    proc near       ; CODE XREF: readConfig:loc_4751Ap
+//                    ; readConfig:loc_47551p ...
+{
+    /*
         call    sound?1
         mov dx, offset aBeep_snd ; "BEEP.SND"
         mov cx, 0AC4h
@@ -16393,19 +16084,18 @@ loadBeep    proc near       ; CODE XREF: readConfig:loc_4751Ap
         mov musType, 1
         mov sndType, 1
         mov soundEnabled?, 1
-        call    sound?2
+        call    sound2
         mov byte_59889, 0
         mov byte_5988A, 64h ; 'd'
         mov byte_5988B, 0
         mov byte_5988C, 0
         return;
-loadBeep    endp
+     */
+}
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-loadBeep2   proc near       ; CODE XREF: readConfig+4Cp sub_4C70Fp
+void loadBeep2() //   proc near       ; CODE XREF: readConfig+4Cp sub_4C70Fp
+{
+    /*
         call    sound?1
         mov dx, offset aBeep_snd ; "BEEP.SND"
         mov cx, 0AC4h
@@ -16416,19 +16106,18 @@ loadBeep2   proc near       ; CODE XREF: readConfig+4Cp sub_4C70Fp
         mov musType, 1
         mov sndType, 2
         mov soundEnabled?, 1
-        call    sound?2
+        call    sound2
         mov byte_59889, 0
         mov byte_5988A, 64h ; 'd'
         mov byte_5988B, 0
         mov byte_5988C, 0
         return;
-loadBeep2   endp
+     */
+}
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-loadAdlib   proc near       ; CODE XREF: readConfig+56p sub_4C723p
+void loadAdlib() //   proc near       ; CODE XREF: readConfig+56p sub_4C723p
+{
+    /*
         call    sound?1
         mov dx, offset aAdlib_snd ; "ADLIB.SND"
         mov cx, 14EAh
@@ -16436,19 +16125,18 @@ loadAdlib   proc near       ; CODE XREF: readConfig+56p sub_4C723p
         mov musType, 3
         mov sndType, 3
         mov soundEnabled?, 0
-        call    sound?2
+        call    sound2
         mov byte_59889, 0
         mov byte_5988A, 64h ; 'd'
         mov byte_5988B, 0
         mov byte_5988C, 0
         return;
-loadAdlib   endp
+     */
+}
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-loadBlaster  proc near       ; CODE XREF: readConfig+60p sub_4C719p
+void loadBlaster() //  proc near       ; CODE XREF: readConfig+60p sub_4C719p
+{
+    /*
         call    sound?1
         mov dx, offset aAdlib_snd ; "ADLIB.SND"
         mov cx, 14EAh
@@ -16459,19 +16147,18 @@ loadBlaster  proc near       ; CODE XREF: readConfig+60p sub_4C719p
         mov musType, 3
         mov sndType, 4
         mov soundEnabled?, 0
-        call    sound?2
+        call    sound2
         mov byte_59889, 0
         mov byte_5988A, 64h ; 'd'
         mov byte_5988B, 0
         mov byte_5988C, 0
         return;
-loadBlaster  endp
+     */
+}
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-loadRoland  proc near       ; CODE XREF: readConfig+6Ap sub_4C72Dp
+void loadRoland() //  proc near       ; CODE XREF: readConfig+6Ap sub_4C72Dp
+{
+    /*
         call    sound?1
         mov dx, offset aRoland_snd ; "ROLAND.SND"
         mov cx, 0F80h
@@ -16479,19 +16166,18 @@ loadRoland  proc near       ; CODE XREF: readConfig+6Ap sub_4C72Dp
         mov musType, 5
         mov sndType, 5
         mov soundEnabled?, 0
-        call    sound?2
+        call    sound2
         mov byte_59889, 0
         mov byte_5988A, 64h ; 'd'
         mov byte_5988B, 0
         mov byte_5988C, 0
         return;
-loadRoland  endp
+     */
+}
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-loadCombined proc near       ; CODE XREF: readConfig+74p sub_4C737p
+void loadCombined() // proc near       ; CODE XREF: readConfig+74p sub_4C737p
+{
+    /*
         call    sound?1
         mov dx, offset aRoland_snd ; "ROLAND.SND"
         mov cx, 0F80h
@@ -16502,17 +16188,16 @@ loadCombined proc near       ; CODE XREF: readConfig+74p sub_4C737p
         mov musType, 5
         mov sndType, 4
         mov soundEnabled?, 0
-        call    sound?2
+        call    sound2
         mov byte_59889, 0
         mov byte_5988A, 64h ; 'd'
         mov byte_5988B, 0
         mov byte_5988C, 0
         return;
-loadCombined endp
+     */
+}
 
-
-; =============== S U B R O U T I N E =======================================
-
+/*
 
 readSound   proc near       ; CODE XREF: loadBeep+9p loadBeep2+9p ...
         mov ax, 3D00h
@@ -16675,13 +16360,13 @@ sound?1     endp
 ; =============== S U B R O U T I N E =======================================
 
 
-sound?2     proc near       ; CODE XREF: start+39Bp start+410p ...
+sound2     proc near       ; CODE XREF: start+39Bp start+410p ...
         cmp isMusicEnabled, 1
         jz  short loc_4DB13
         return;
 // ; ---------------------------------------------------------------------------
 
-loc_4DB13:              ; CODE XREF: sound?2+5j
+loc_4DB13:              ; CODE XREF: sound2+5j
         cmp musType, 1
         jnz short loc_4DB26
         mov ax, 0
@@ -16690,7 +16375,7 @@ loc_4DB13:              ; CODE XREF: sound?2+5j
         jmp short locret_4DB4D
 // ; ---------------------------------------------------------------------------
 
-loc_4DB26:              ; CODE XREF: sound?2+Dj
+loc_4DB26:              ; CODE XREF: sound2+Dj
         cmp musType, 3
         jnz short loc_4DB3C
         mov dx, 388h
@@ -16700,16 +16385,16 @@ loc_4DB26:              ; CODE XREF: sound?2+Dj
         jmp short locret_4DB4D
 // ; ---------------------------------------------------------------------------
 
-loc_4DB3C:              ; CODE XREF: sound?2+20j
+loc_4DB3C:              ; CODE XREF: sound2+20j
         cmp musType, 5
         jnz short locret_4DB4D
         mov ax, 0
         int 80h     ; LINUX - old_setup_syscall
         mov soundEnabled?, 1
 
-locret_4DB4D:               ; CODE XREF: sound?2+19j sound?2+2Fj ...
+locret_4DB4D:               ; CODE XREF: sound2+19j sound2+2Fj ...
         return;
-sound?2     endp
+sound2     endp
 
 
 ; =============== S U B R O U T I N E =======================================
@@ -21505,7 +21190,7 @@ loc_4FCD3:              ; CODE XREF: sub_4FC20+ACj
         mov di, 201h
 
 loc_4FCD6:              ; CODE XREF: sub_4FC20+B1j
-        mov si, 879Fh
+        mov si, gPlayerName
         mov ah, 6
         call    drawTextWithChars8Font
         cmp videoStatusUnk, 1
@@ -22649,23 +22334,18 @@ sub_5024B   endp
 
 void drawSpeedFixTitleAndVersion() //   proc near       ; CODE XREF: start+2E6p
 {
-    drawTextWithChars6Font_method1(72, 11, 1, "SUPAPLEX SPEED FIX VERSION 6.3");
+    drawTextWithChars6Font_method1(102, 11, 1, "SUPAPLEX VERSION 7.0");
 // drawSpeedFixTitleAndVersion   endp
 }
 
-/*
-
 void drawSpeedFixCredits() //  proc near       ; CODE XREF: start+2ECp
 {
-        si = 0x9583; // VERSIONS 1-4 + 6.X BY HERMAN PERK
-        di = 0x9EE0;
-        ah = 0x0E;
-        drawTextWithChars6Font_method1();
-        si = 0x9814; // VERSIONS 5.X BY ELMER PRODUCTIONS
-        di = 0x0A3A4;
-        ah = 0x0E;
-        drawTextWithChars6Font_method1();
+    drawTextWithChars6Font_method1(60, 168, 0xE, "VERSIONS 1-4 + 6.X BY HERMAN PERK");
+    drawTextWithChars6Font_method1(60, 176, 0xE, "VERSIONS 5.X BY ELMER PRODUCTIONS");
+    drawTextWithChars6Font_method1(75, 184, 0xE, "VERSIONS 7.X BY SERGIO PADRINO");
 
+    // TODO: requires to re-implement the int9 handler (handle keyboard)
+/*
 loc_502F1:             // ; CODE XREF: drawSpeedFixCredits+28j
         al = keyPressed
         if (byte_519C3 != 1)
@@ -22680,21 +22360,9 @@ loc_50301:             // ; CODE XREF: drawSpeedFixCredits+1Ej
             goto loc_502F1;
         }
         byte_510AB = 1;
+ */
 // drawSpeedFixCredits  endp
 }
-
-// ; ---------------------------------------------------------------------------
-code        ends
-
-
-
-include VARS.INC
-include SEGMENTS.INC
-include DATA.INC
-
-
-end start
-*/
 
 void exitWithError(const char *format, ...)
 {
