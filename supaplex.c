@@ -31,6 +31,8 @@ uint8_t byte_5A19B = 0;
 uint8_t byte_5A2F9 = 0;
 uint8_t byte_5A33F = 0;
 uint8_t byte_51ABE = 0;
+uint8_t byte_58D46 = 0;
+uint8_t byte_58D47 = 0;
 uint8_t byte_59B6B = 0;
 uint8_t byte_5A33E = 0;
 uint8_t byte_59821 = 0;
@@ -119,6 +121,28 @@ typedef struct
 
 HallOfFameEntry gHallOfFameData[3];
 
+char gRankingTextEntries[20][23] = { //0x880E
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+};
 
 enum PlayerLevelState {
     PlayerLevelStateNotCompleted = 0,
@@ -147,10 +171,11 @@ typedef struct
     uint8_t unknown2;
     uint8_t nextLevelToPlay;
     uint8_t unknown3;
+    uint8_t unknown4;
 } PlayerEntry;
 
 static const int kNumberOfPlayers = 20;
-static const int kPlayerEntryLength = 128;
+//static const int kPlayerEntryLength = 128;
 PlayerEntry gPlayerListData[kNumberOfPlayers]; // 0x8A9C
 
 ColorPalette gCurrentPalette;
@@ -12037,236 +12062,153 @@ void convertNumberTo3DigitPaddedString(uint8_t number, char numberString[3], cha
     }
 }
 
-/*
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4BF8D   proc near       ; CODE XREF: drawRankingsp
-        cmp byte_59B85, 0
-        jz  short loc_4BF97
-        jmp locret_4C0DC
-// ; ---------------------------------------------------------------------------
-
-loc_4BF97:              ; CODE XREF: sub_4BF8D+5j
-        mov cx, 14h
-        mov si, gPlayerListData
-        mov di, 8A38h
-        mov dl, 0
-
-loc_4BFA2:              ; CODE XREF: sub_4BF8D+38j
-        mov [di], dl
-        al = [si+7Eh]
-        mov [di+1], al
-        al = [si+9]
-        mov [di+2], al
-        al = [si+0Ah]
-        mov [di+3], al
-        al = [si+0Bh]
-        mov [di+4], al
-        inc dl
-        add si, 80h ; '?'
-        add di, 5
-        loop    loc_4BFA2
-
-loc_4BFC7:              ; CODE XREF: sub_4BF8D+B4j
-        mov dx, 0
-        mov cx, 13h
-        mov si, 8A38h
-        mov di, 8A3Dh
-
-loc_4BFD3:              ; CODE XREF: sub_4BF8D+AFj
-        al = [si+1]
-        cmp [di+1], al
-        jl  short loc_4C036
-        jg  short loc_4BFFD
-        al = [si+2]
-        cmp [di+2], al
-        jg  short loc_4C036
-        jl  short loc_4BFFD
-        al = [si+3]
-        cmp [di+3], al
-        jg  short loc_4C036
-        jl  short loc_4BFFD
-        al = [si+4]
-        cmp [di+4], al
-        jg  short loc_4C036
-        jl  short loc_4BFFD
-        jmp short loc_4C036
-// ; ---------------------------------------------------------------------------
-
-loc_4BFFD:              ; CODE XREF: sub_4BF8D+4Ej
-                    ; sub_4BF8D+58j ...
-        al = [si]
-        mov ah, [di]
-        mov [si], ah
-        mov [di], al
-        al = [si+1]
-        mov ah, [di+1]
-        mov [si+1], ah
-        mov [di+1], al
-        al = [si+2]
-        mov ah, [di+2]
-        mov [si+2], ah
-        mov [di+2], al
-        al = [si+3]
-        mov ah, [di+3]
-        mov [si+3], ah
-        mov [di+3], al
-        al = [si+4]
-        mov ah, [di+4]
-        mov [si+4], ah
-        mov [di+4], al
-        inc dx
-
-loc_4C036:              ; CODE XREF: sub_4BF8D+4Cj
-                    ; sub_4BF8D+56j ...
-        add si, 5
-        add di, 5
-        loop    loc_4BFD3
-        cmp dx, 0
-        jnz short loc_4BFC7
-        mov cx, 14h
-        mov dl, 0
-        mov si, 8A38h
-
-loc_4C04B:              ; CODE XREF: sub_4BF8D+CFj
-        al = [si]
-        cmp al, gCurrentPlayerIndex
-        jnz short loc_4C057
-        mov byte_58D47, dl
-
-loc_4C057:              ; CODE XREF: sub_4BF8D+C4j
-        add si, 5
-        inc dl
-        loop    loc_4C04B
-        mov cx, 14h
-
-loc_4C061:
-        mov si, 8A38h
-        mov di, 883Ch
-
-loc_4C067:              ; CODE XREF: sub_4BF8D+14Dj
-        al = [si+1]
-        cmp al, 71h ; 'q'
-        jnz short loc_4C078
-        mov word ptr [di], 3939h
-
-loc_4C072:
-        mov byte ptr [di+2], 39h ; '9'
-        jmp short loc_4C07F
-// ; ---------------------------------------------------------------------------
-
-loc_4C078:              ; CODE XREF: sub_4BF8D+DFj
-        push    si
-        mov si, di
-        call    convertNumberTo3DigitPaddedString
-        pop si
-
-loc_4C07F:              ; CODE XREF: sub_4BF8D+E9j
-        add di, 4
-        push    si
-        mov ah, [si]
-        xor al, al
-        shr ax, 1
-        mov si, gPlayerListData
-        add si, ax
-        mov bx, 8
-
-loc_4C091:              ; CODE XREF: sub_4BF8D+10Bj
-        al = [si]
-        mov [di], al
-        inc si
-        inc di
-        dec bx
-        jnz short loc_4C091
-        pop si
-        push(di);
-        push    si
-        al = [si+4]
-        mov si, di
-        add si, 7
-        call    convertNumberTo3DigitStringWithPadding0
-        mov si, di
-        add si, 7
-        mov byte ptr [si], 3Ah ; ':'
-        pop si
-        push    si
-        al = [si+3]
-        mov si, di
-        add si, 4
-        call    convertNumberTo3DigitStringWithPadding0
-        mov si, di
-        add si, 4
-        mov byte ptr [si], 3Ah ; ':'
-        pop si
-        push    si
-        al = [si+2]
-        mov si, di
-        add si, 1
-        call    convertNumberTo3DigitStringWithPadding0
-        pop si
-        pop(di);
-        add di, 0Bh
-        add si, 5
-        loop    loc_4C067
-
-locret_4C0DC:               ; CODE XREF: sub_4BF8D+7j
+void prepareRankingTextEntries() // sub_4BF8D  proc near       ; CODE XREF: drawRankingsp
+{
+    // 01ED:532A
+    if (byte_59B85 != 0)
+    {
         return;
-sub_4BF8D   endp
+    }
 
+    typedef struct
+    {
+        uint8_t playerIndex;
+        uint8_t nextLevelToPlay;
+        uint8_t hours;
+        uint8_t minutes;
+        uint8_t seconds;
+    } RankingEntry;
 
-; =============== S U B R O U T I N E =======================================
+    RankingEntry rankingEntries[kNumberOfPlayers];
 
+    for (int i = 0; i < 20; ++i)
+    {
+//loc_4BFA2:              ; CODE XREF: prepareRankingTextEntries+38j
+        RankingEntry *rankingEntry = &rankingEntries[i];
+        PlayerEntry player = gPlayerListData[i];
 
-drawRankings   proc near       ; CODE XREF: sub_4AB1B+1E9p
-                    ; sub_4AD0E+E2p ...
-        call    sub_4BF8D
-        mov si, 880Eh
-        al = byte_58D46
-        xor ah, ah
-        mov bl, 17h
-        mul bl
-        add si, ax
-        push    si
-        mov ah, 8
-        mov di, 7935h
-        call    drawTextWithChars6Font_method1
-        pop si
-        add si, 17h
-        push    si
-        mov ah, 8
-        mov di, 7D7Fh
-        call    drawTextWithChars6Font_method1
-        pop si
-        add si, 17h
-        push    si
-        mov ah, 6
-        mov di, 81C9h
-        call    drawTextWithChars6Font_method1
-        pop si
-        add si, 17h
-        push    si
-        mov ah, 8
-        mov di, 8613h
-        call    drawTextWithChars6Font_method1
-        pop si
-        add si, 17h
-        mov ah, 8
-        mov di, 8A5Dh
-        call    drawTextWithChars6Font_method1
-        mov si, 8359h // "001"
-        al = byte_58D46
-        al++;
-        call    convertNumberTo3DigitStringWithPadding0
-        mov si, 835Ah // "01"
-        mov di, 81DAh
-        mov ah, 6
-        call    drawTextWithChars6Font_method1
-        return;
-drawRankings   endp
+        rankingEntry->playerIndex = i;
+        rankingEntry->nextLevelToPlay = player.nextLevelToPlay;
+        rankingEntry->hours = player.hours;
+        rankingEntry->minutes = player.minutes;
+        rankingEntry->seconds = player.seconds;
+    }
 
+//loc_4BFC7:              ; CODE XREF: prepareRankingTextEntries+B4j
+    uint8_t numberOfChanges = 0;
 
-*/
+    do
+    {
+        numberOfChanges = 0;
+
+        for (int i = 0; i < 19; ++i)
+        {
+    //loc_4BFD3:              ; CODE XREF: prepareRankingTextEntries+AFj
+            RankingEntry *rankingEntry = &rankingEntries[i];
+            RankingEntry *nextRankingEntry = &rankingEntries[i + 1];
+
+            // next level to play
+            if (nextRankingEntry->nextLevelToPlay > rankingEntry->nextLevelToPlay
+                || nextRankingEntry->hours < rankingEntry->hours
+                || nextRankingEntry->minutes < rankingEntry->minutes
+                || nextRankingEntry->seconds < rankingEntry->seconds)
+            {
+    //loc_4BFFD:              ; CODE XREF: prepareRankingTextEntries+4Ej
+    //                ; prepareRankingTextEntries+58j ...
+                RankingEntry aux = *nextRankingEntry;
+                *nextRankingEntry = *rankingEntry;
+                *rankingEntry = aux;
+                numberOfChanges++;
+    //            al = [si]
+    //            mov ah, [di]
+    //            mov [si], ah
+    //            mov [di], al
+    //            al = [si+1]
+    //            mov ah, [di+1]
+    //            mov [si+1], ah
+    //            mov [di+1], al
+    //            al = [si+2]
+    //            mov ah, [di+2]
+    //            mov [si+2], ah
+    //            mov [di+2], al
+    //            al = [si+3]
+    //            mov ah, [di+3]
+    //            mov [si+3], ah
+    //            mov [di+3], al
+    //            al = [si+4]
+    //            mov ah, [di+4]
+    //            mov [si+4], ah
+    //            mov [di+4], al
+    //            inc dx
+            }
+        }
+    } while (numberOfChanges > 0);
+
+    for (int i = 0; i < 20; ++i)
+    {
+//loc_4C04B:              ; CODE XREF: prepareRankingTextEntries+CFj
+        if (rankingEntries[i].playerIndex == gCurrentPlayerIndex)
+        {
+            byte_58D47 = i;
+        }
+    }
+
+//loc_4C061:
+//    di = 0x883C; <- entry 2 of gRankingTextEntries
+
+    for (int i = 0; i < 20; ++i)
+    {
+        RankingEntry *rankingEntry = &rankingEntries[i];
+        char *textEntry = gRankingTextEntries[i + 2]; // No idea why the first two are always empty
+//loc_4C067:              ; CODE XREF: prepareRankingTextEntries+14Dj
+        if (rankingEntry->nextLevelToPlay == 0x71) // 113
+        {
+            textEntry[0] =
+            textEntry[1] =
+            textEntry[2] = '9';
+        }
+        else
+        {
+//loc_4C078:              ; CODE XREF: prepareRankingTextEntries+DFj
+            convertNumberTo3DigitPaddedString(rankingEntry->nextLevelToPlay, textEntry, 0);
+        }
+
+//loc_4C07F:              ; CODE XREF: prepareRankingTextEntries+E9j
+        PlayerEntry playerEntry = gPlayerListData[rankingEntry->playerIndex];
+
+//loc_4C091:              ; CODE XREF: prepareRankingTextEntries+10Bj
+        memcpy(&textEntry[4], playerEntry.name, sizeof(playerEntry.name) - 1);
+
+        convertNumberTo3DigitStringWithPadding0(rankingEntry->seconds, &textEntry[19]);
+        textEntry[19] = ':';
+
+        convertNumberTo3DigitStringWithPadding0(rankingEntry->minutes, &textEntry[16]);
+        textEntry[16] = ':';
+
+        convertNumberTo3DigitStringWithPadding0(rankingEntry->hours, &textEntry[13]);
+    }
+}
+
+void drawRankings() //   proc near       ; CODE XREF: sub_4AB1B+1E9p
+//                    ; sub_4AD0E+E2p ...
+{
+    // 01ED:547A
+    prepareRankingTextEntries();
+
+    const uint8_t kDistanceBetweenLines = 9;
+
+    for (int i = 0; i < 5; ++i)
+    {
+        const uint8_t y = 110 + kDistanceBetweenLines * (i - 2);
+        const uint8_t color = (i == 2 ? 6 : 8);
+        drawTextWithChars6Font_method1(8, y, color, gRankingTextEntries[byte_58D46 + i]);
+    }
+
+    char numberString[4] = "001"; // 0x8359
+    convertNumberTo3DigitStringWithPadding0(byte_58D46, numberString);
+    drawTextWithChars6Font_method1(144, 110, 6, &numberString[1]); // Remove the first (left most) digit
+}
+
 void drawLevelList() //   proc near       ; CODE XREF: start+41Ap sub_4955B+39Bp ...
 {
     // 01ED:54DE
@@ -12379,9 +12321,9 @@ void drawMenuTitleAndDemoLevelResult() //   proc near       ; CODE XREF: sub_4B1
     drawTextWithChars6Font_method1(180, 127, 4, "WELCOME TO SUPAPLEX");
     drawPlayerList();
     drawLevelList();
-    drawHallOfFame(); // draw hall of fame?
-    /*drawRankings(); // draw player ranking ?
-    if (byte_59B83 == 0)
+    drawHallOfFame();
+    drawRankings();
+    /*if (byte_59B83 == 0)
     {
         goto locret_4C349;
     }
