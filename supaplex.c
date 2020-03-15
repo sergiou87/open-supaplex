@@ -118,18 +118,34 @@ enum PlayerLevelState {
     PlayerLevelStateNoIdeaWhatIsThis = 2,
 };
 
-static const int kNumberOfPlayers = 20;
-static const int kPlayerEntryLength = 128;
 // This is a structure I still need to reverse-engineer. It's 128 bytes long:
 // - 8 bytes (0x00-0x08): player name
-// - 1 byte (0x09): seconds
+// - 1 byte (0x09): hours
 // - 1 byte (0x0A): minutes
 // - 1 byte (0x0B): seconds
 // - 111 bytes (0x0C-0x7B): level state (1 byte per level)
 // - 0x7C, 0x7D ??
 // - 1 byte (0x7E): next level to play
+// - 0x7F, 0x80 ??
 //
-uint8_t gPlayerListData[kPlayerEntryLength * kNumberOfPlayers]; // 0x8A9C
+typedef struct
+{
+    char name[8];
+    uint8_t hours;
+    uint8_t minutes;
+    uint8_t seconds;
+    uint8_t levelState[kNumberOfLevels]; // values are PlayerLevelState
+    uint8_t unknown1;
+    uint8_t unknown2;
+    uint8_t nextLevelToPlay;
+    uint8_t unknown3;
+    uint8_t unknown4;
+    uint8_t unknown5;
+} PlayerEntry;
+
+static const int kNumberOfPlayers = 20;
+static const int kPlayerEntryLength = 128;
+PlayerEntry gPlayerListData[kNumberOfPlayers]; // 0x8A9C
 
 ColorPalette gCurrentPalette;
 
@@ -12356,8 +12372,9 @@ void drawCurrentPlayerRanking() //   proc near       ; CODE XREF: drawPlayerList
 void drawPlayerList() //  proc near       ; CODE XREF: start+32Cp start+407p ...
 {
     // 01ED:5630
-    strncpy(gPlayerName, (char *)&gPlayerListData[gCurrentPlayerIndex * kPlayerEntryLength], 8);
-    drawTextWithChars6Font_method1(16, 164, 6, (char *)&gPlayerListData[gCurrentPlayerIndex * kPlayerEntryLength]);
+    PlayerEntry currentPlayer = gPlayerListData[gCurrentPlayerIndex];
+    strncpy(gPlayerName, currentPlayer.name, sizeof(currentPlayer.name));
+    drawTextWithChars6Font_method1(16, 164, 6, currentPlayer.name);
 
     char *prevPlayerName = "";
 
@@ -12367,7 +12384,7 @@ void drawPlayerList() //  proc near       ; CODE XREF: start+32Cp start+407p .
     }
     else
     {
-        prevPlayerName = (char *)&gPlayerListData[(gCurrentPlayerIndex - 1) * kPlayerEntryLength];
+        prevPlayerName = gPlayerListData[gCurrentPlayerIndex - 1].name;
     }
 
 //loc_4C2CD:              // ; CODE XREF: drawPlayerList+35j
@@ -12381,7 +12398,7 @@ void drawPlayerList() //  proc near       ; CODE XREF: start+32Cp start+407p .
     }
     else
     {
-        nextPlayerName = (char *)&gPlayerListData[(gCurrentPlayerIndex + 1) * kPlayerEntryLength];
+        nextPlayerName = gPlayerListData[gCurrentPlayerIndex + 1].name;
     }
 
 //loc_4C2E6:              // ; CODE XREF: drawPlayerList+4Ej
@@ -12449,9 +12466,9 @@ locret_4C349:               // ; CODE XREF: drawMenuTitleAndDemoLevelResult+1Cj
 void prepareLevelDataForCurrentPlayer() //   proc near       ; CODE XREF: start+404p sub_4AB1B+1E0p ...
 {
     // 01ED:56E7
-    uint8_t *currentPlayerEntry = &gPlayerListData[gCurrentPlayerIndex * kPlayerEntryLength];
+    PlayerEntry currentPlayerEntry = gPlayerListData[gCurrentPlayerIndex];
 
-    uint8_t *currentPlayerLevelState = &currentPlayerEntry[0xC];
+    uint8_t *currentPlayerLevelState = currentPlayerEntry.levelState;
 
     // Sets everything to 6 which seems to mean all levels are blocked
     memset(gCurrentPlayerLevelData, 6, kNumberOfLevels);
@@ -12528,7 +12545,7 @@ void prepareLevelDataForCurrentPlayer() //   proc near       ; CODE XREF: start+
         }
 
 //loc_4C3D1:              // ; CODE XREF: prepareLevelDataForCurrentPlayer+7Fj
-        currentPlayerEntry[0x7E] = 0x71; // 0x7e = 126, 0x71 = 113
+        currentPlayerEntry.nextLevelToPlay = 0x71; // 0x7e = 126, 0x71 = 113
         return;
     }
 
@@ -12542,13 +12559,13 @@ void prepareLevelDataForCurrentPlayer() //   proc near       ; CODE XREF: start+
 //loc_4C3E1:              // ; CODE XREF: prepareLevelDataForCurrentPlayer+91j
     if (nextLevelToPlay == 1)
     {
-        if (currentPlayerEntry[0] == 0x2D && currentPlayerEntry[1] == 0x2D)
+        if (currentPlayerEntry.name[0] == 0x2D && currentPlayerEntry.name[1] == 0x2D)
         {
-            if (currentPlayerEntry[2] == 0x2D && currentPlayerEntry[3] == 0x2D)
+            if (currentPlayerEntry.name[2] == 0x2D && currentPlayerEntry.name[3] == 0x2D)
             {
-                if (currentPlayerEntry[4] == 0x2D && currentPlayerEntry[5] == 0x2D)
+                if (currentPlayerEntry.name[4] == 0x2D && currentPlayerEntry.name[5] == 0x2D)
                 {
-                    if (currentPlayerEntry[6] == 0x2D && currentPlayerEntry[7] == 0x2D)
+                    if (currentPlayerEntry.name[6] == 0x2D && currentPlayerEntry.name[7] == 0x2D)
                     {
                         nextLevelToPlay = 0;
                     }
@@ -12559,7 +12576,7 @@ void prepareLevelDataForCurrentPlayer() //   proc near       ; CODE XREF: start+
 
 //loc_4C403:              // ; CODE XREF: prepareLevelDataForCurrentPlayer+9Aj
                 // ; prepareLevelDataForCurrentPlayer+A0j ...
-    currentPlayerEntry[0x7E] = bl; // 0x7e = 126
+    currentPlayerEntry.nextLevelToPlay = nextLevelToPlay; // 0x7e = 126
 }
 
 /*
