@@ -33,10 +33,13 @@ uint8_t byte_5A33F = 0;
 uint8_t byte_51ABE = 0;
 uint8_t byte_59B6B = 0;
 uint8_t byte_5A33E = 0;
+uint8_t byte_59821 = 0;
+uint8_t byte_59822 = 0;
+uint8_t byte_59823 = 0;
 uint8_t gCurrentPlayerIndex = 0;
 uint8_t byte_59B62 = 0;
 uint16_t word_58467 = 0;
-uint16_t word_51ABC = 0;
+uint16_t gCurrentSelectedLevelIndex = 0; // word_51ABC
 uint16_t word_5196C = 0;
 uint16_t word_5197A = 0;
 uint16_t word_599D8 = 0;
@@ -53,7 +56,14 @@ char gPlayerName[9] = "WIBBLE  "; // 0x879F
 static const int kNumberOfLevels = 111;
 static const int kLevelEntryLength = 28; // In the list of levels, every level is 28 bytes long and looks like "001                        \n"
 uint8_t gLevelListData[kNumberOfLevels * kLevelEntryLength];
-uint8_t gSomeWeirdLevelData[kNumberOfLevels]; // 0x949E
+
+// This array contains info about the levels, no idea if globally or per player, but seems to be global info.
+// There are different values per level, so far I've seen:
+// - 04 level completed
+// - 02 level not completed, but can be played
+// - 06 level not completed, and it CANNOT be played
+// These also seem to be used as colors. Not sure if they're colors used as some other info, or some other info used as colors.
+uint8_t gCurrentPlayerLevelData[kNumberOfLevels]; // 0x949E
 
 // 30 elements...
 int word_599DC[] = { 0x00CE, 0x016A, 0x0146, 0x00CD, 0x024D, 0x012C, 0x01A7, 0x01FB, 0x01D2,
@@ -101,10 +111,23 @@ uint8_t gTitle2DecodedBitmapData[kFullScreenFramebufferLength];
 
 uint8_t gHallOfFameData[36];
 
+
+enum PlayerLevelState {
+    PlayerLevelStateNotCompleted = 0,
+    PlayerLevelStateCompleted = 1,
+    PlayerLevelStateNoIdeaWhatIsThis = 2,
+};
+
 static const int kNumberOfPlayers = 20;
 static const int kPlayerEntryLength = 128;
-// This is a structure I still need to rever-engineer. For now I know the player
-// name is in the first 8 characters.
+// This is a structure I still need to reverse-engineer. It's 128 bytes long:
+// - 8 bytes (0x00-0x08): player name
+// - 1 byte (0x09): seconds
+// - 1 byte (0x0A): minutes
+// - 1 byte (0x0B): seconds
+// - 111 bytes (0x0C-0x7B): level state (1 byte per level)
+// - 0x7C, 0x7D ??
+// - 1 byte (0x7E): next level to play
 //
 uint8_t gPlayerListData[kPlayerEntryLength * kNumberOfPlayers]; // 0x8A9C
 
@@ -174,6 +197,7 @@ void sub_4921B(void);
 void enableFloppy(void);
 void prepareSomeKindOfLevelIdentifier(void);
 void runMainMenu(void);
+void convertNumberTo3DigitPaddedString(uint8_t number, char numberString[3], char useSpacesForPadding);
 
 //         public start
 int main(int argc, const char * argv[])
@@ -925,12 +949,12 @@ loc_46FB4:              //; CODE XREF: start+38Fj
 //loc_4701A:              //; CODE XREF: start+3DDj start+433j
 //        byte_5A33F = 1;
 //        byte_51ABE = 1;
-//        doSomethingWithLevelOrPlayerList();
+//        prepareLevelDataForCurrentPlayer();
 //        drawPlayerList();
 //        word_58467 = 0;
 //        sound2();
 //        pop(ax);
-//        word_51ABC = ax;
+//        gCurrentSelectedLevelIndex = ax;
 //        sub_4B899();
 //        drawLevelList();
 //        word_5196C = 0;
@@ -1018,7 +1042,7 @@ immediateexit:              //; CODE XREF: start+D1j start+114j ...
 exit:                   //; CODE XREF: readConfig:loc_474BBj
 */
         // Wait a bit
-        SDL_Delay(2000);
+        SDL_Delay(5000);
 
         // Tidy up
         SDL_FreeSurface(gTextureSurface);
@@ -6260,7 +6284,7 @@ loc_494B8:              ; CODE XREF: sub_4945D+56j
         int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
                     ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
         jb  short locret_49543
-        mov ax, word_51ABC
+        mov ax, gCurrentSelectedLevelIndex
         or  al, 80h
         mov byte_510E2, al
         mov ax, 4000h
@@ -6799,18 +6823,18 @@ loc_498C2:              ; CODE XREF: sub_4955B+35Fj
         mov byte_59B7F, 10h
 
 loc_498D2:              ; CODE XREF: sub_4955B+36Cj
-        cmp word_51ABC, 1
+        cmp gCurrentSelectedLevelIndex, 1
         ja  short loc_498DF
-        mov word_51ABC, 2
+        mov gCurrentSelectedLevelIndex, 2
 
 loc_498DF:              ; CODE XREF: sub_4955B+37Cj
-        dec word_51ABC
-        cmp word_51ABC, 6Fh ; 'o'
+        dec gCurrentSelectedLevelIndex
+        cmp gCurrentSelectedLevelIndex, 6Fh ; 'o'
         jbe short loc_498F0
-        mov word_51ABC, 6Fh ; 'o'
+        mov gCurrentSelectedLevelIndex, 6Fh ; 'o'
 
 loc_498F0:              ; CODE XREF: sub_4955B+38Dj
-        mov ax, word_51ABC
+        mov ax, gCurrentSelectedLevelIndex
         call    sub_4BF4A
         call    drawLevelList
         call    sub_4A3D2
@@ -6838,13 +6862,13 @@ loc_4991C:              ; CODE XREF: sub_4955B+3B9j
         mov byte_59B81, 10h
 
 loc_4992C:              ; CODE XREF: sub_4955B+3C6j
-        cmp word_51ABC, 6Fh ; 'o'
+        cmp gCurrentSelectedLevelIndex, 6Fh ; 'o'
         jb  short loc_49939
-        mov word_51ABC, 6Eh ; 'n'
+        mov gCurrentSelectedLevelIndex, 6Eh ; 'n'
 
 loc_49939:              ; CODE XREF: sub_4955B+3D6j
-        inc word_51ABC
-        mov ax, word_51ABC
+        inc gCurrentSelectedLevelIndex
+        mov ax, gCurrentSelectedLevelIndex
         call    sub_4BF4A
         call    drawLevelList
         call    sub_4A3D2
@@ -9794,7 +9818,7 @@ loc_4ACA3:              ; CODE XREF: sub_4AB1B+15Cj
         call    sub_4CFB2
         call    sub_4CFDB
         mov byte_51ABE, 1
-        call    doSomethingWithLevelOrPlayerList
+        call    prepareLevelDataForCurrentPlayer
         call    drawPlayerList
         call    drawLevelList
         call    drawRankings
@@ -9902,7 +9926,7 @@ loc_4ADCE:              ; CODE XREF: sub_4AD0E+97j
         call    sub_4CFB2
         call    sub_4CFDB
         mov byte_51ABE, 1
-        call    doSomethingWithLevelOrPlayerList
+        call    prepareLevelDataForCurrentPlayer
         call    drawPlayerList
         call    drawLevelList
         call    drawRankings
@@ -9973,9 +9997,9 @@ loc_4AE4A:              ; CODE XREF: sub_4ADFF+47j
 
 loc_4AE5B:              ; CODE XREF: sub_4ADFF+49j
                     ; sub_4ADFF+4Ej
-        mov ax, word_51ABC
+        mov ax, gCurrentSelectedLevelIndex
         dec ax
-        mov si, gSomeWeirdLevelData
+        mov si, gCurrentPlayerLevelData
         add si, ax
         cmp byte ptr [si], 2
         jz  short loc_4AE75
@@ -9988,8 +10012,8 @@ loc_4AE5B:              ; CODE XREF: sub_4ADFF+49j
 
 loc_4AE75:              ; CODE XREF: sub_4ADFF+68j
         mov si, 82A9h
-        mov ax, word_51ABC
-        call    sub_4BF4D
+        mov ax, gCurrentSelectedLevelIndex
+        call    convertNumberTo3DigitStringWithPadding0
         mov si, 829Eh
         mov di, 89F7h
         mov ah, 8
@@ -10028,7 +10052,7 @@ loc_4AE91:              ; CODE XREF: sub_4ADFF+B4j
         call    sub_4CFB2
         call    sub_4CFDB
         mov byte_51ABE, 0
-        call    doSomethingWithLevelOrPlayerList
+        call    prepareLevelDataForCurrentPlayer
 
 loc_4AEE9:              ; CODE XREF: sub_4ADFF+C3j
                     ; sub_4ADFF+C8j ...
@@ -10175,7 +10199,7 @@ loc_4B025:              ; CODE XREF: sub_4AF0C+11Fj
 
 loc_4B046:              ; CODE XREF: sub_4AF0C+133j
         mov si, 845Eh
-        call    sub_4BF4D
+        call    convertNumberTo3DigitStringWithPadding0
         mov si, 8447h
         mov di, 81FAh
         mov ah, 0Fh
@@ -10183,16 +10207,16 @@ loc_4B046:              ; CODE XREF: sub_4AF0C+133j
         mov di, bp
         al = [di+0Bh]
         mov si, 8479h
-        call    sub_4BF4D
+        call    convertNumberTo3DigitStringWithPadding0
         mov si, 8476h
         mov byte ptr [si+3], 3Ah ; ':'
         al = [di+0Ah]
-        call    sub_4BF4D
+        call    convertNumberTo3DigitStringWithPadding0
         mov si, 8473h
         mov byte ptr [si+3], 3Ah ; ':'
         al = [di+9]
         mov ah, 20h ; ' '
-        call    sub_4BF4F
+        call    convertNumberTo3DigitPaddedString
         mov si, 8462h
         mov di, 86BEh
         mov ah, 0Fh
@@ -10218,7 +10242,7 @@ loc_4B0A1:              ; CODE XREF: sub_4AF0C+192j
         mov bl, [di+7Eh]
         div bl
         mov si, 849Ch
-        call    sub_4BF4D
+        call    convertNumberTo3DigitStringWithPadding0
         pop ax
         cmp al, 0
         jnz short loc_4B0C2
@@ -10228,7 +10252,7 @@ loc_4B0C2:              ; CODE XREF: sub_4AF0C+1AFj
         mov si, 849Ah
         mov byte ptr [si+3], 2Eh ; '.'
         mov ah, 20h ; ' '
-        call    sub_4BF4F
+        call    convertNumberTo3DigitPaddedString
         cmp byte_5091A, 1
         jnz short loc_4B0E2
         mov si, 84CFh
@@ -10601,10 +10625,10 @@ sub_4B375   proc near       ; CODE XREF: runMainMenu+11Ep
 
 loc_4B3A4:              ; CODE XREF: sub_4B375+12j
                     ; sub_4B375+17j ...
-        mov ax, word_51ABC
+        mov ax, gCurrentSelectedLevelIndex
         cmp ax, 6Fh ; 'o'
         jle short loc_4B3DB
-        cmp word_51ABC, 70h ; 'p'
+        cmp gCurrentSelectedLevelIndex, 70h ; 'p'
         jnz short loc_4B3B4
         return;
 // ; ---------------------------------------------------------------------------
@@ -10638,7 +10662,7 @@ loc_4B3CF:              ; CODE XREF: sub_4B375+54j
 
 loc_4B3DB:              ; CODE XREF: sub_4B375+35j
         dec ax
-        mov si, gSomeWeirdLevelData
+        mov si, gCurrentPlayerLevelData
         add si, ax
         al = [si]
         cmp al, 6
@@ -10665,7 +10689,7 @@ loc_4B404:              ; CODE XREF: sub_4B375+70j
 loc_4B40F:              ; CODE XREF: sub_4B375+86j
                     ; sub_4B375+8Dj
         call    prepareSomeKindOfLevelIdentifier
-        mov ax, word_51ABC
+        mov ax, gCurrentSelectedLevelIndex
         call    sub_4BF4A
         return;
 sub_4B375   endp
@@ -10867,7 +10891,7 @@ loc_4B54B:              ; CODE XREF: sub_4B419+143j
 
 loc_4B565:              ; CODE XREF: sub_4B419+10Fj
         mov byte_51ABE, 1
-        call    doSomethingWithLevelOrPlayerList
+        call    prepareLevelDataForCurrentPlayer
         call    drawPlayerList
         call    drawLevelList
         call    drawHallOfFame
@@ -11048,7 +11072,7 @@ loc_4B6B1:              ; CODE XREF: sub_4B671+33j
                     ; sub_4B671+3Aj
         call    sub_4B899
         mov byte_51ABE, 1
-        call    doSomethingWithLevelOrPlayerList
+        call    prepareLevelDataForCurrentPlayer
         call    drawPlayerList
         call    drawLevelList
         call    sub_4B85C
@@ -11089,7 +11113,7 @@ loc_4B709:              ; CODE XREF: sub_4B6C9+33j
                     ; sub_4B6C9+3Aj
         call    sub_4B899
         mov byte_51ABE, 1
-        call    doSomethingWithLevelOrPlayerList
+        call    prepareLevelDataForCurrentPlayer
         call    drawPlayerList
         call    drawLevelList
         call    sub_4B85C
@@ -11131,9 +11155,9 @@ loc_4B748:              ; CODE XREF: sub_4B72B+1Aj
         dec word_58469
 
 loc_4B759:              ; CODE XREF: sub_4B72B+28j
-        cmp word_51ABC, 71h ; 'q'
+        cmp gCurrentSelectedLevelIndex, 71h ; 'q'
         jnb short locret_4B770
-        inc word_51ABC
+        inc gCurrentSelectedLevelIndex
         call    sub_4B899
         call    drawLevelList
         call    sub_4B85C
@@ -11166,9 +11190,9 @@ loc_4B78E:              ; CODE XREF: sub_4B771+1Aj
         dec word_58469
 
 loc_4B79F:              ; CODE XREF: sub_4B771+28j
-        cmp word_51ABC, 1
+        cmp gCurrentSelectedLevelIndex, 1
         jbe short locret_4B7B6
-        dec word_51ABC
+        dec gCurrentSelectedLevelIndex
         call    sub_4B899
         call    drawLevelList
         call    sub_4B85C
@@ -11664,18 +11688,18 @@ void drawTextWithChars6Font_method1(size_t destX, size_t destY, uint8_t color, c
         return;
     }
 
-//loc_4BA97:             // ; CODE XREF: drawTextWithChars6Font_method1+33j
-    if (text[0] == '\n')
-    {
-        return;
-    }
-
 //loc_4BA9F:             // ; CODE XREF: drawTextWithChars6Font_method1+3Bj
     long textLength = strlen(text);
 
     for (long idx = 0; idx < textLength; ++idx)
     {
         char character = text[idx];
+
+        //loc_4BA97:             // ; CODE XREF: drawTextWithChars6Font_method1+33j
+        if (character == '\n')
+        {
+            return;
+        }
 
         // ' ' = 0x20 = 32, and is first ascii that can be represented.
         // This line converts the ascii from the string to the index in the font
@@ -11953,70 +11977,45 @@ sub_4BF4A   proc near       ; CODE XREF: start+3F7p sub_4955B+398p ...
 sub_4BF4A   endp ; sp-analysis failed
 
 
-; =============== S U B R O U T I N E =======================================
+*/
+
+void convertNumberTo3DigitStringWithPadding0(uint8_t number, char numberString[3]) //  proc near       ; CODE XREF: sub_4ADFF+7Cp
+                   // ; sub_4AF0C+13Dp ...
+{
+    convertNumberTo3DigitPaddedString(number, numberString, 0);
+}
 
 
-sub_4BF4D   proc near       ; CODE XREF: sub_4ADFF+7Cp
-                    ; sub_4AF0C+13Dp ...
-        mov ah, 30h ; '0'
-sub_4BF4D   endp ; sp-analysis failed
+void convertNumberTo3DigitPaddedString(uint8_t number, char numberString[3], char useSpacesForPadding) // sub_4BF4F  proc near       ; CODE XREF: sub_4AF0C+16Fp
+                   // ; sub_4AF0C+1BFp ...
+{
+    // This function converts a number to a 3-digit string, so basically 123 to "123".
+    // It also adds padding to the left, so 7 is converted to "007", with the option
+    // to turn 0's in padding into spaces: 7 to "  7"
+    // Parameters in the original implementation:
+    // - al: number to convert
+    // - ah: can be ' ' (space) or anything else. When it's ' ', the padding will be done with spaces, otherwise 0's will be used.
+    // - si: the string to write the result
 
+    numberString[0] = (number / 100) + '0';
+    numberString[1] = ((number % 100) / 10) + '0';
+    numberString[2] = (number % 10) + '0';
 
-; =============== S U B R O U T I N E =======================================
+    if (useSpacesForPadding)
+    {
+        if (numberString[0] == '0')
+        {
+            numberString[0] = ' ';
 
+            if (numberString[1] == '0')
+            {
+                numberString[1] = ' ';
+            }
+        }
+    }
+}
 
-sub_4BF4F   proc near       ; CODE XREF: sub_4AF0C+16Fp
-                    ; sub_4AF0C+1BFp ...
-        push    ax
-        mov ah, 30h ; '0'
-        mov [si], ah
-        mov [si+1], ah
-        mov [si+2], ah
-
-loc_4BF5A:              ; CODE XREF: sub_4BF4F+11j
-        sub al, 64h ; 'd'
-        jb  short loc_4BF62
-        inc byte ptr [si]
-        jmp short loc_4BF5A
-// ; ---------------------------------------------------------------------------
-
-loc_4BF62:              ; CODE XREF: sub_4BF4F+Dj
-        inc si
-        add al, 64h ; 'd'
-
-loc_4BF65:              ; CODE XREF: sub_4BF4F+1Cj
-        sub al, 0Ah
-        jb  short loc_4BF6D
-        inc byte ptr [si]
-        jmp short loc_4BF65
-// ; ---------------------------------------------------------------------------
-
-loc_4BF6D:              ; CODE XREF: sub_4BF4F+18j
-        inc si
-        add al, 0Ah
-        add [si], al
-        pop ax
-        cmp ah, 20h ; ' '
-        jnz short locret_4BF8C
-        dec si
-        dec si
-        cmp byte ptr [si], 30h ; '0'
-        jnz short loc_4BF8B
-        mov byte ptr [si], 20h ; ' '
-        inc si
-        cmp byte ptr [si], 30h ; '0'
-        jnz short loc_4BF8B
-        mov byte ptr [si], 20h ; ' '
-
-loc_4BF8B:              ; CODE XREF: sub_4BF4F+2Ej
-                    ; sub_4BF4F+37j
-        inc si
-
-locret_4BF8C:               ; CODE XREF: sub_4BF4F+27j
-        return;
-sub_4BF4F   endp
-
-
+/*
 ; =============== S U B R O U T I N E =======================================
 
 
@@ -12138,7 +12137,7 @@ loc_4C072:
 loc_4C078:              ; CODE XREF: sub_4BF8D+DFj
         push    si
         mov si, di
-        call    sub_4BF4F
+        call    convertNumberTo3DigitPaddedString
         pop si
 
 loc_4C07F:              ; CODE XREF: sub_4BF8D+E9j
@@ -12164,7 +12163,7 @@ loc_4C091:              ; CODE XREF: sub_4BF8D+10Bj
         al = [si+4]
         mov si, di
         add si, 7
-        call    sub_4BF4D
+        call    convertNumberTo3DigitStringWithPadding0
         mov si, di
         add si, 7
         mov byte ptr [si], 3Ah ; ':'
@@ -12173,7 +12172,7 @@ loc_4C091:              ; CODE XREF: sub_4BF8D+10Bj
         al = [si+3]
         mov si, di
         add si, 4
-        call    sub_4BF4D
+        call    convertNumberTo3DigitStringWithPadding0
         mov si, di
         add si, 4
         mov byte ptr [si], 3Ah ; ':'
@@ -12182,7 +12181,7 @@ loc_4C091:              ; CODE XREF: sub_4BF8D+10Bj
         al = [si+2]
         mov si, di
         add si, 1
-        call    sub_4BF4D
+        call    convertNumberTo3DigitStringWithPadding0
         pop si
         pop(di);
         add di, 0Bh
@@ -12236,7 +12235,7 @@ drawRankings   proc near       ; CODE XREF: sub_4AB1B+1E9p
         mov si, 8359h // "001"
         al = byte_58D46
         al++;
-        call    sub_4BF4D
+        call    convertNumberTo3DigitStringWithPadding0
         mov si, 835Ah // "01"
         mov di, 81DAh
         mov ah, 6
@@ -12245,59 +12244,24 @@ drawRankings   proc near       ; CODE XREF: sub_4AB1B+1E9p
 drawRankings   endp
 
 
-; =============== S U B R O U T I N E =======================================
+*/
+void drawLevelList() //   proc near       ; CODE XREF: start+41Ap sub_4955B+39Bp ...
+{
+    // 01ED:54DE
+    byte_59821 = gCurrentPlayerLevelData[gCurrentSelectedLevelIndex - 2];
+    byte_59822 = gCurrentPlayerLevelData[gCurrentSelectedLevelIndex - 1];
+    byte_59823 = gCurrentPlayerLevelData[gCurrentSelectedLevelIndex];
 
+    char *previousLevelName = (char *)&gLevelListData[(gCurrentSelectedLevelIndex - 2) * kLevelEntryLength];
+    drawTextWithChars6Font_method1(144, 155, byte_59821, previousLevelName);
 
-drawLevelList   proc near       ; CODE XREF: start+41Ap sub_4955B+39Bp ...
-        mov si, gSomeWeirdLevelData
-        mov bx, word_51ABC
-        sub bx, 2
-        add si, bx
-        al = [si]
-        mov byte_59821, al
-        al = [si+1]
-        mov byte_59822, al
-        al = [si+2]
-        mov byte_59823, al
-        mov ax, word_51ABC
-        dec ax
-        mov bx, 1Ch
-        mul bx
-        mov si, ax
-        add si, levelsDataBuffer
-        sub si, 1Ch
-        push    si
-        mov di, 974Ch
-        mov ah, byte_59821
-        call    drawTextWithChars6Font_method1
-        pop si
-        add si, 1Ch
-        push    si
-        mov di, 9B96h
-        mov ah, byte_59822
-        call    drawTextWithChars6Font_method1
-        mov cx, 1Ch
-        pop si
-        push    si
-        mov di, 87A8h
-        push    es
-        mov ax, ds
-        mov es, ax
-        assume es:data
-        rep movsb
-        pop es
-        assume es:nothing
-        pop si
-        add si, 1Ch
-        mov di, 9FE0h
-        mov ah, byte_59823
-        call    drawTextWithChars6Font_method1
-        return;
-drawLevelList   endp
+    char *currentLevelName = (char *)&gLevelListData[(gCurrentSelectedLevelIndex - 1) * kLevelEntryLength];
+    drawTextWithChars6Font_method1(144, 164, byte_59822, currentLevelName);
 
-
-; =============== S U B R O U T I N E =======================================
-
+    char *nextLevelName = (char *)&gLevelListData[gCurrentSelectedLevelIndex * kLevelEntryLength];
+    drawTextWithChars6Font_method1(144, 173, byte_59823, nextLevelName);
+}
+/*
 
 drawHallOfFame   proc near       ; CODE XREF: sub_4B419+15Ap
                     ; drawMenuTitleAndDemoLevelResult+11p
@@ -12315,7 +12279,7 @@ loc_4C1B7:              ; CODE XREF: drawHallOfFame+56j
         al = [si+0Bh]
         mov si, di
         add si, 0Fh
-        call    sub_4BF4D
+        call    convertNumberTo3DigitStringWithPadding0
         mov si, di
         add si, 0Fh
         mov byte ptr [si], 3Ah ; ':'
@@ -12324,7 +12288,7 @@ loc_4C1B7:              ; CODE XREF: drawHallOfFame+56j
         al = [si+0Ah]
         mov si, di
         add si, 0Ch
-        call    sub_4BF4D
+        call    convertNumberTo3DigitStringWithPadding0
         mov si, di
         add si, 0Ch
         mov byte ptr [si], 3Ah ; ':'
@@ -12334,7 +12298,7 @@ loc_4C1B7:              ; CODE XREF: drawHallOfFame+56j
         mov si, di
         add si, 9
         mov ah, 20h ; ' '
-        call    sub_4BF4F
+        call    convertNumberTo3DigitPaddedString
         pop si
         push    si
         mov cx, 8
@@ -12362,57 +12326,32 @@ loc_4C1B7:              ; CODE XREF: drawHallOfFame+56j
 drawHallOfFame   endp
 
 
-; =============== S U B R O U T I N E =======================================
-
-
-void drawCurrentPlayerRanking() //   proc near       ; CODE XREF: drawPlayerList+5Bp
+*/
+void drawCurrentPlayerRanking() //   proc near       ; CODE XREF: drawPlayerList+5Bp // sub_4C224
 {
     // 01ED:55C1
-    bh = gCurrentPlayerIndex;
-    bl = 0;
-    bx >> 1;
-    si = bx;
-    si += gPlayerListData;
-    bp = si;
-    di = 0x79C3;
-    ah = 8;
-    drawTextWithChars6Font_method1();
-    di = bp;
-    ah = 0;
-    al = *(di + 0xB);
-    si = 0x8363; // ":00"
-    sub_4BF4D();
-    si = 0x8363; // ":00"
-    *si = 0x3A; // ':'
-    di = bp;
-    ah = 0;
-    al = [di+0Ah];
-    si -= 3;
-    sub_4BF4D();
-    si = 0x8360; // ":00:00"
-    *si = 0x3A;
-    di = bp;
-    ah = 0;
-    al = [di+9];
-    si -= 3;
-    sub_4BF4D();
-    si = 0x835D; // "000:00:00"
-    di = 0x79CA;
-    ah = 8;
-    drawTextWithChars6Font_method1();
-    di = bp;
-    ah = 0;
-    al = [di+7Eh];
-    si = 0x8367; // "000"
-    sub_4BF4D();
-    si = 0x8367; // "000"
-    di = 0x79D2;
-    ah = 8;
-    drawTextWithChars6Font_method1();
-    return;
-// drawCurrentPlayerRanking   endp
+    uint8_t *currentPlayerEntry = &gPlayerListData[gCurrentPlayerIndex * kPlayerEntryLength];
+    drawTextWithChars6Font_method1(168, 93, 8, (char *)currentPlayerEntry);
+
+    char timeText[10] = "000:00:00";
+
+    // Seconds
+    convertNumberTo3DigitStringWithPadding0(currentPlayerEntry[0xB], &timeText[6]);
+    timeText[6] = ':';
+
+    // Minutes
+    convertNumberTo3DigitStringWithPadding0(currentPlayerEntry[0xa], &timeText[3]);
+    timeText[3] = ':';
+
+    // Hours
+    convertNumberTo3DigitStringWithPadding0(currentPlayerEntry[0x9], timeText);
+
+    drawTextWithChars6Font_method1(224, 93, 8, timeText);
+
+    char nextLevelText[4] = "000";
+    convertNumberTo3DigitStringWithPadding0(currentPlayerEntry[0x7E], nextLevelText);
+    drawTextWithChars6Font_method1(288, 93, 8, nextLevelText);
 }
-*/
 
 void drawPlayerList() //  proc near       ; CODE XREF: start+32Cp start+407p ...
 {
@@ -12447,7 +12386,7 @@ void drawPlayerList() //  proc near       ; CODE XREF: start+32Cp start+407p .
 
 //loc_4C2E6:              // ; CODE XREF: drawPlayerList+4Ej
     drawTextWithChars6Font_method1(16, 173, 8, nextPlayerName);
-//    drawCurrentPlayerRanking();
+    drawCurrentPlayerRanking();
 }
 
 void drawMenuTitleAndDemoLevelResult() //   proc near       ; CODE XREF: sub_4B149+Cp
@@ -12456,8 +12395,8 @@ void drawMenuTitleAndDemoLevelResult() //   proc near       ; CODE XREF: sub_4B1
     // 01ED:568F
     drawTextWithChars6Font_method1(180, 127, 4, "WELCOME TO SUPAPLEX");
     drawPlayerList();
-    /*
     drawLevelList(); // draw level list?
+    /*
     drawHallOfFame(); // draw hall of fame?
     drawRankings(); // draw player ranking ?
     if (byte_59B83 == 0)
@@ -12507,140 +12446,120 @@ locret_4C349:               // ; CODE XREF: drawMenuTitleAndDemoLevelResult+1Cj
 // drawMenuTitleAndDemoLevelResult   endp
 }
 
-void doSomethingWithLevelOrPlayerList() //   proc near       ; CODE XREF: start+404p sub_4AB1B+1E0p ...
+void prepareLevelDataForCurrentPlayer() //   proc near       ; CODE XREF: start+404p sub_4AB1B+1E0p ...
 {
     // 01ED:56E7
-    return;
-    bh = gCurrentPlayerIndex;
-    bl = 0;
-    bx = bx >> 1;
-    si = gPlayerListData + 12; // 0x8AA8; // this seems to be the list of players? yes, points to gPlayerListData + 12
-    si += bx;
-    di = gPlayerListData;
-    di += bx;
-    push(di);
-    di = gSomeWeirdLevelData; // WTF is this??
-    cx = 0x6F; // 111 // Number of levels?? https://supaplex.fandom.com/wiki/Level_list
-    al = 6;
+    uint8_t *currentPlayerEntry = &gPlayerListData[gCurrentPlayerIndex * kPlayerEntryLength];
 
-    // sets everything to 6 in di :wtf:
-    memset(gSomeWeirdLevelData, 6, kNumberOfLevels); // this is the equivalent of the loop below
+    uint8_t *currentPlayerLevelState = &currentPlayerEntry[0xC];
 
-    al = 1;
-    cx = 0x6F;  // 111
-    di = gSomeWeirdLevelData;
+    // Sets everything to 6 which seems to mean all levels are blocked
+    memset(gCurrentPlayerLevelData, 6, kNumberOfLevels);
+
+    char isFirstUncompletedLevel = 1;
 
     for (int i = 0; i < kNumberOfLevels; ++i)
     {
-//loc_4C373:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+53j
-        ah = *(uint8_t *)si;
-        if (ah == 2)
+//loc_4C373:              // ; CODE XREF: prepareLevelDataForCurrentPlayer+53j
+        if (currentPlayerLevelState[i] == PlayerLevelStateNoIdeaWhatIsThis) // WHAT IS THIS??
         {
-            *(uint8_t *)di = 8;  // mov byte ptr [di], 8
+            gCurrentPlayerLevelData[i] = 8; // mov byte ptr [di], 8
         }
-        else
+//loc_4C37F:              // ; CODE XREF: prepareLevelDataForCurrentPlayer+2Ej
+        else if (currentPlayerLevelState[i] == PlayerLevelStateCompleted) // Completed levels
         {
-
-//loc_4C37F:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+2Ej
-            if (ah == 1)
+            gCurrentPlayerLevelData[i] = 4; // mov byte ptr [di], 4
+        }
+//loc_4C389:              // ; CODE XREF: prepareLevelDataForCurrentPlayer+38j
+        else if (currentPlayerLevelState[i] == PlayerLevelStateNotCompleted) // Levels not completed
+        {
+            if (isFirstUncompletedLevel == 1)
             {
-                *(uint8_t *)di = 4; // mov byte ptr [di], 4
+                // The first uncompleted is not blocked
+                gCurrentPlayerLevelData[i] = 2;
             }
             else
             {
-//loc_4C389:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+38j
-                if (ah == 0)
-                {
-                    if (al == 1)
-                    {
-                        *(uint8_t *)di = 2; // mov byte ptr [di], 2
-    //        goto loc_4C399;
-                    }
-                    else
-                    {
-//loc_4C396:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+45j
-                        *(uint8_t *)di = 6; // mov byte ptr [di], 6
-                    }
-//loc_4C399:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+4Aj
-                    al = ah;
-                }
+                // The rest uncompleted levels are blocked
+                gCurrentPlayerLevelData[i] = 6;
             }
+            isFirstUncompletedLevel = 0;
         }
-
-//loc_4C39B:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+33j
-               // ; doSomethingWithLevelOrPlayerList+3Dj ...
-        si++;
-        di++;
     }
-//    pop(si);
-//    pop(di);
-//    cx = 0x6F; // 111
-    bx = 1;
 
+    char hasCompletedAllLevels = 1;
+    uint8_t nextLevelToPlay = 1;
+
+    // Looks for the first uncompleted level
     for (int i = 0; i < kNumberOfLevels; ++i)
     {
-//loc_4C3A7:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+65j
-        al = *(uint8_t *)si;
-        if (al == 0)
+//loc_4C3A7:              // ; CODE XREF: prepareLevelDataForCurrentPlayer+65j
+        if (currentPlayerLevelState[i] == PlayerLevelStateNotCompleted) // not completed
         {
-            //goto loc_4C3D6;
+            hasCompletedAllLevels = 0;
+            break;
         }
-        si++;
-        bx++;
-    }
-    si -= 0x6F; // 111
-    bx = 1;
-//    cx = 0x6F; // 111
 
-    for (int i = 0; i < kNumberOfLevels; ++i)
+        nextLevelToPlay++;
+    }
+
+    if (hasCompletedAllLevels == 1)
     {
-//loc_4C3BA:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+78j
-        al = *(uint8_t *)si;
-        if (al == 2)
+        nextLevelToPlay = 1;
+
+        // Looks for the first completed level
+        for (int i = 0; i < kNumberOfLevels; ++i)
         {
-            //goto loc_4C3D6;
-        }
-        si++;
-        bx++;
-    }
-
-    if (byte_51ABE != 0)
-    {
-        word_51ABC = 0x71; // 113 or 'q'
-    }
-
-//loc_4C3D1:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+7Fj
-    *(uint8_t *)(di + 0x7E) = 0x71; // 113 or 'q',   mov byte ptr [di+7Eh], 71h ; 'q'
-    return;
-
-//loc_4C3D6:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+61j
-                // ; doSomethingWithLevelOrPlayerList+74j
-    if (byte_51ABE != 0)
-    {
-        word_51ABC = bx;
-    }
-
-//loc_4C3E1:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+91j
-    if (bl == 1)
-    {
-        if (*(uint8_t *)di == 0x2D2D)
-        {
-            if (*(uint8_t *)(di + 2) == 0x2D2D)
+//loc_4C3BA:              // ; CODE XREF: prepareLevelDataForCurrentPlayer+78j
+            if (currentPlayerLevelState[i] == PlayerLevelStateNoIdeaWhatIsThis)
             {
-                if (*(uint8_t *)(di + 4) == 0x2D2D)
+                hasCompletedAllLevels = 0;
+                break;
+            }
+            nextLevelToPlay++;
+        }
+    }
+
+    if (hasCompletedAllLevels == 1)
+    {
+        if (byte_51ABE != 0)
+        {
+            gCurrentSelectedLevelIndex = 0x71; // 113 or 'q'
+        }
+
+//loc_4C3D1:              // ; CODE XREF: prepareLevelDataForCurrentPlayer+7Fj
+        currentPlayerEntry[0x7E] = 0x71; // 0x7e = 126, 0x71 = 113
+        return;
+    }
+
+//loc_4C3D6:              // ; CODE XREF: prepareLevelDataForCurrentPlayer+61j
+                // ; prepareLevelDataForCurrentPlayer+74j
+    if (byte_51ABE != 0)
+    {
+        gCurrentSelectedLevelIndex = nextLevelToPlay;
+    }
+
+//loc_4C3E1:              // ; CODE XREF: prepareLevelDataForCurrentPlayer+91j
+    if (nextLevelToPlay == 1)
+    {
+        if (currentPlayerEntry[0] == 0x2D && currentPlayerEntry[1] == 0x2D)
+        {
+            if (currentPlayerEntry[2] == 0x2D && currentPlayerEntry[3] == 0x2D)
+            {
+                if (currentPlayerEntry[4] == 0x2D && currentPlayerEntry[5] == 0x2D)
                 {
-                    if (*(uint8_t *)(di + 6) == 0x2D2D)
+                    if (currentPlayerEntry[6] == 0x2D && currentPlayerEntry[7] == 0x2D)
                     {
-                        bl = 0;
+                        nextLevelToPlay = 0;
                     }
                 }
             }
         }
     }
 
-//loc_4C403:              // ; CODE XREF: doSomethingWithLevelOrPlayerList+9Aj
-                // ; doSomethingWithLevelOrPlayerList+A0j ...
-    *(uint8_t *)(di + 0x7E) = bl; // 0x7e = 126
+//loc_4C403:              // ; CODE XREF: prepareLevelDataForCurrentPlayer+9Aj
+                // ; prepareLevelDataForCurrentPlayer+A0j ...
+    currentPlayerEntry[0x7E] = bl; // 0x7e = 126
 }
 
 /*
@@ -12655,7 +12574,7 @@ sub_4C407   proc near       ; CODE XREF: runMainMenu+5Dp
         call    sub_4C4F9
         call    drawMenuBackground
         mov byte_51ABE, 0
-        call    doSomethingWithLevelOrPlayerList
+        call    prepareLevelDataForCurrentPlayer
         call    drawMenuTitleAndDemoLevelResult
         mov si, 6015h
         call    fade
@@ -12688,7 +12607,7 @@ loc_4C449:              ; CODE XREF: sub_4C407+3Aj
 loc_4C44F:              ; CODE XREF: sub_4B149+9p
         call    drawMenuBackground
         mov byte_51ABE, 0
-        call    doSomethingWithLevelOrPlayerList
+        call    prepareLevelDataForCurrentPlayer
         call    drawMenuTitleAndDemoLevelResult
         call    videoloop
         call    loopForVSync
@@ -12812,11 +12731,11 @@ loc_4C52C:              ; CODE XREF: sub_4C4F9+19j
         al = byte_5195B
         sub al, byte_5195A
         mov ah, 20h ; ' '
-        call    sub_4BF4F
+        call    convertNumberTo3DigitPaddedString
         mov si, 85EBh
         al = byte_5195B
         mov ah, 20h ; ' '
-        call    sub_4BF4F
+        call    convertNumberTo3DigitPaddedString
         mov si, 85C9h
         mov di, 73A9h
         mov ah, 0Fh
@@ -13207,7 +13126,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
 //        goto loc_4C7EC; <- if word_58467 == 0
         drawMenuBackground(); // 01ED:5B4E
         byte_51ABE = 1;
-        doSomethingWithLevelOrPlayerList(); // 01ED:5B56 // TODO: I have no idea what this shit does, needs a lot of work
+        prepareLevelDataForCurrentPlayer(); // 01ED:5B56
         drawMenuTitleAndDemoLevelResult(); // 01ED:5B59
 
         byte_510A6 = 0;
@@ -14824,10 +14743,10 @@ sub_4D24D   proc near       ; CODE XREF: sub_4ADFF+D9p
         shr bx, 1
         mov si, 8AA8h
         add si, bx
-        mov bx, word_51ABC
+        mov bx, gCurrentSelectedLevelIndex
         dec bx
         mov [bx+si], al
-        inc word_51ABC
+        inc gCurrentSelectedLevelIndex
         call    sub_4D1B6
 
 locret_4D27E:               ; CODE XREF: sub_4D24D+5j sub_4D24D+Cj
@@ -15581,7 +15500,7 @@ loc_4D5C2:              ; CODE XREF: readLevels+75j
 // ; ---------------------------------------------------------------------------
 
 loc_4D5D1:              ; CODE XREF: readLevels+82j
-        mov ax, word_51ABC
+        mov ax, gCurrentSelectedLevelIndex
 
 loc_4D5D4:              ; CODE XREF: readLevels+87j
         cmp byte_599D4, 0
@@ -21245,7 +21164,7 @@ sub_4FD21   proc near       ; CODE XREF: sub_4A3BB+13p
 loc_4FD2E:              ; CODE XREF: sub_4FD21+6j
         al = byte_5195A
         mov si, 87C5h
-        call    sub_4BF4D
+        call    convertNumberTo3DigitStringWithPadding0
         cmp videoStatusUnk, 1
         jnz short loc_4FD43
         mov di, 6CEh
@@ -21386,7 +21305,7 @@ loc_4FDD6:              ; CODE XREF: sub_4FDCE+5j
         push    si
         al = byte_5195C
         mov si, 87C9h
-        call    sub_4BF4D
+        call    convertNumberTo3DigitStringWithPadding0
         mov di, 6D2h
         mov si, 87CAh
         cmp byte_5195C, 0
@@ -21424,7 +21343,7 @@ var_2       = word ptr -2
         jz  short loc_4FE36
         mov byte ptr word_510B7, al
         mov si, 87CDh
-        call    sub_4BF4D
+        call    convertNumberTo3DigitStringWithPadding0
         mov si, 87CEh
         cmp videoStatusUnk, 1
         jnz short loc_4FE29
@@ -21446,7 +21365,7 @@ loc_4FE36:              ; CODE XREF: sub_4FDFD+12j
         jz  short loc_4FE5F
         mov byte ptr word_510B7+1, al
         mov si, 87CDh
-        call    sub_4BF4D
+        call    convertNumberTo3DigitStringWithPadding0
         mov si, 87CEh
         cmp videoStatusUnk, 1
         jnz short loc_4FE57
@@ -21467,7 +21386,7 @@ loc_4FE5F:              ; CODE XREF: sub_4FDFD+40j
         jz  short loc_4FE88
         mov byte_510B9, al
         mov si, 87CDh
-        call    sub_4BF4D
+        call    convertNumberTo3DigitStringWithPadding0
         mov si, 87CEh
         cmp videoStatusUnk, 1
         jnz short loc_4FE80
