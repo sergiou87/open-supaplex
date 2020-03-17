@@ -8,8 +8,9 @@
 
 // ; Attributes: noreturn
 
-#include <SDL2/SDL.h>
+#include <assert.h>
 #include <errno.h>
+#include <SDL2/SDL.h>
 
 static const int kScreenWidth = 320;
 static const int kScreenHeight = 200;
@@ -18,43 +19,79 @@ static const int kScreenHeight = 200;
 // title2DataBuffer -> 0x4DD4 - 0xCAD4
 
 static const int levelDataLength = 1536; // exact length of a level file, even of each level inside the LEVELS.DAT file
+uint8_t byte_50910 = 0;
+uint8_t byte_50911 = 0;
+uint8_t byte_50912 = 0;
+uint8_t byte_50913 = 0;
+uint8_t byte_50914 = 0;
+uint8_t byte_50915 = 0;
+uint8_t byte_50916 = 0;
+uint8_t byte_50917 = 0;
+uint8_t byte_50918 = 0;
+uint8_t byte_50941 = 0;
 uint8_t byte_50946 = 0;
+uint8_t byte_50953 = 0;
+uint8_t byte_50954 = 0;
 uint8_t byte_510A6 = 0;
 uint8_t byte_510AB = 0;
 uint8_t byte_510B3 = 0;
 uint8_t byte_510DE = 0;
 uint8_t byte_51969 = 0;
-uint8_t byte_599D4 = 0;
-uint8_t byte_59B84 = 0;
-uint8_t byte_59B85 = 0;
-uint8_t byte_5A19B = 0;
-uint8_t byte_5A2F9 = 0;
-uint8_t byte_5A33F = 0;
+uint8_t byte_5197E = 0;
+uint8_t byte_51999 = 0;
+uint8_t byte_519C5 = 0;
+uint8_t byte_519C8 = 0;
+uint8_t byte_519CA = 0;
+uint8_t byte_519CD = 0;
+uint8_t byte_519F4 = 0;
+uint8_t byte_519F5 = 0;
+uint8_t byte_519F6 = 0;
+uint8_t byte_519F7 = 0;
+uint8_t byte_519F8 = 0;
+uint8_t byte_519F9 = 0;
 uint8_t byte_51ABE = 0;
+uint8_t byte_58487 = 0;
 uint8_t byte_58D46 = 0;
 uint8_t byte_58D47 = 0;
-uint8_t byte_59B6B = 0;
-uint8_t byte_5A33E = 0;
 uint8_t byte_59821 = 0;
 uint8_t byte_59822 = 0;
 uint8_t byte_59823 = 0;
+uint8_t byte_599D4 = 0;
+uint8_t byte_59B6B = 0;
 uint8_t byte_59B83 = 0;
+uint8_t byte_59B84 = 0;
+uint8_t byte_59B85 = 0;
+uint8_t byte_5A19B = 0;
 uint8_t byte_5A19C = 0;
-uint8_t gCurrentPlayerIndex = 0;
+uint8_t byte_5A2F9 = 0;
+uint8_t byte_5A33E = 0;
+uint8_t byte_5A33F = 0;
+uint8_t gCurrentPlayerIndex = 0; // byte_5981F
 uint8_t byte_59B62 = 0;
 uint16_t word_58467 = 0;
 uint16_t gCurrentSelectedLevelIndex = 0; // word_51ABC
+uint16_t word_50942 = 0;
+uint16_t word_50944 = 0;
+uint16_t word_5094F = 0;
+uint16_t word_50951 = 0;
 uint16_t word_5196C = 0;
 uint16_t word_5197A = 0;
 uint16_t word_599D8 = 0;
 uint16_t word_58465 = 0;
 uint16_t word_5847B = 0;
+uint16_t word_5195D = 0;
+uint16_t word_58481 = 0;
+uint16_t word_58485 = 0;
+uint16_t word_5094B = 0;
+uint16_t word_5094D = 0;
+uint16_t gMouseButtonStatus = 0; // word_5847D
+uint32_t dword_58488 = 0;
 uint8_t fileIsDemo = 0;
-uint8_t isJoystickEnabled = 0;
-uint8_t isMusicEnabled = 0;
-uint8_t isFXEnabled = 0;
+uint8_t isJoystickEnabled = 0; // byte_50940
+uint8_t isMusicEnabled = 0; // byte_59886
+uint8_t isFXEnabled = 0; // byte_59885
 
-uint8_t mousex = 0, mousey = 0;
+uint8_t gMouseX = 0, gMouseY = 0;
 
 char a00s0010_sp[12] = "00S001$0.SP";
 char aLevels_dat_0[11] = "LEVELS.DAT";
@@ -95,6 +132,7 @@ static const size_t kBitmapFontLength = kNumberOfCharactersInBitmapFont * kBitma
 uint8_t gChars6BitmapFont[kBitmapFontLength];
 uint8_t gChars8BitmapFont[kBitmapFontLength];
 
+// This is a 320x24 bitmap
 uint8_t gPanelBitmapData[3840];
 
 static const size_t kFullScreenBitmapLength = kScreenWidth * kScreenHeight / 2; // They use 4 bits to encode pixels
@@ -225,6 +263,7 @@ SDL_Texture *gTexture = NULL;
 SDL_Surface *gTextureSurface = NULL;
 
 // registers to prevent compiler errors
+uint8_t cf;
 uint8_t ah, al, bh, bl, ch, cl, dh, dl;
 uint16_t ax, bx, cx, dx, ds, cs, es, bp, sp, di, si;
 
@@ -254,6 +293,12 @@ void prepareSomeKindOfLevelIdentifier(void);
 void runMainMenu(void);
 void convertNumberTo3DigitPaddedString(uint8_t number, char numberString[3], char useSpacesForPadding);
 void sound2(void);
+void savePlayerListData(void);
+void saveHallOfFameData(void);
+void getMouseStatus(uint8_t *mouseX, uint8_t *mouseY, uint16_t *mouseButtonStatus);
+void sub_4D0AD(void);
+void sub_4D004(void);
+void waitForJoystickKey(void); // sub_49FED
 
 //         public start
 int main(int argc, const char * argv[])
@@ -5415,181 +5460,172 @@ loc_48E30:              ; CODE XREF: runLevel+362j
         out dx, al
         return;
 runLevel    endp
+*/
 
+void sub_48E59() //   proc near       ; CODE XREF: sub_47E98:loc_47EB8p
+//                    ; sub_47E98+4Dp ...
+{
+    ax = 0;
+    bl = 0;
+    if (isJoystickEnabled != 0)
+    {
+//loc_48E67:              ; CODE XREF: sub_48E59+9j
+        word_50942 = ax;
+        word_50944 = ax;
+        word_5094F = ax;
+        word_50951 = ax;
+        byte_50953 = al;
+        byte_50954 = al;
+        al = byte_50946;
+        if (al != 0)
+        {
+//loc_48E83:              ; CODE XREF: sub_48E59+25j
+            ah = 1;
+            waitForJoystickKey();
 
-; =============== S U B R O U T I N E =======================================
+            if (1 /* result of waitForJoystickKey causes CF = 0 */) // jnb short loc_48E8D
+            {
+//loc_48E8D:              ; CODE XREF: sub_48E59+2Fj
+                word_50942 = ax;
+                dx = word_5094B;
+                ax = ax * dx;
+                ax = ax << 1;
+                dx = dx + cf; // adc dx, 0
+                ax = dx;
+                if (ax > 16)
+                {
+                    ax = 16;
+                }
 
+//loc_48EA5:              ; CODE XREF: sub_48E59+47j
+                if (byte_519F7 == 0)
+                {
+                    if (byte_519F6 != 0)
+                    {
+                        ax = 16;
+                    }
+                }
+                else
+                {
+                    ax = 1;
+                }
+//loc_48EBB:              ; CODE XREF: sub_48E59+56j
+//                ; sub_48E59+5Dj
+                word_5094F = ax;
+                ah = 2;
+                waitForJoystickKey();
+                if (1 /* result of waitForJoystickKey causes CF = 0 */) // jnb short loc_48EC8
+                {
+//loc_48EC8:              ; CODE XREF: sub_48E59+6Aj
+                    word_50944 = ax;
+                    dx = word_5094D;
+                    ax = ax * dx;
+                    ax = ax << 1;
+                    dx = dx + cf; // adc dx, 0
+                    ax = dx;
+                    if (ax > 16)
+                    {
+                        ax = 16;
+                    }
 
-sub_48E59   proc near       ; CODE XREF: sub_47E98:loc_47EB8p
-                    ; sub_47E98+4Dp ...
-        xor ax, ax
-        xor bl, bl
-        cmp isJoystickEnabled, 0
-        jnz short loc_48E67
-        jmp loc_48F68
-// ; ---------------------------------------------------------------------------
+//loc_48EE0:              ; CODE XREF: sub_48E59+82j
+                    if (byte_519F9 == 0)
+                    {
+                        if (byte_519F8 != 0)
+                        {
+                            ax = 16;
+                        }
+                    }
+                    else
+                    {
+                        ax = 1;
+                    }
+//loc_48EF6:              ; CODE XREF: sub_48E59+91j
+//                ; sub_48E59+98j
+                    word_50951 = ax;
+                    ax = word_50951;
+                    cx = 0x11;
+                    ax = ax * cx;
+                    si = word_5094F;
+                    si += ax;
+                    si += 0x645;
+                    bl = *(uint8_t *)si;
+                    if (bl != 0)
+                    {
+//                    mov dx, 201h
+//                    in  al, dx      ; Game I/O port
+//                                ; bits 0-3: Coordinates (resistive, time-dependent inputs)
+//                                ; bits 4-7: Buttons/Triggers (digital inputs)
+                        if ((al & 0x10))
+                        {
+                            //loc_48F1F:              ; CODE XREF: sub_48E59+BFj
+                            if ((al & 0x20))
+                            {
+                                //loc_48F28:              ; CODE XREF: sub_48E59+C8j
+                                if (byte_519F5 == 0)
+                                {
+                                    //loc_48F34:              ; CODE XREF: sub_48E59+D4j
+                                    if (byte_519F4 == 0)
+                                    {
+                                        bl += 4;
+                                    }
+                                }
+                                else
+                                {
+                                    bl += 4;
+                                }
+                            }
+                            else
+                            {
+                                bl += 4;
+                            }
+                        }
+                        else
+                        {
+                            bl += 4;
+                        }
+                    }
+                    else
+                    {
+//loc_48F40:              ; CODE XREF: sub_48E59+B7j
+//                    mov dx, 201h
+//                    in  al, dx      ; Game I/O port
+//                                ; bits 0-3: Coordinates (resistive, time-dependent inputs)
+//                                ; bits 4-7: Buttons/Triggers (digital inputs)
+                        if ((al & 0x10) == 0)
+                        {
+                            bl += 9;
 
-loc_48E67:              ; CODE XREF: sub_48E59+9j
-        mov word_50942, ax
-        mov word_50944, ax
-        mov word_5094F, ax
-        mov word_50951, ax
-        mov byte_50953, al
-        mov byte_50954, al
-        al = byte_50946
-        test    al, al
-        jnz short loc_48E83
-        jmp loc_48F68
-// ; ---------------------------------------------------------------------------
+//loc_48F4C:              ; CODE XREF: sub_48E59+EDj
+                            if ((al & 0x20) == 0)
+                            {
+                                bl += 9;
 
-loc_48E83:              ; CODE XREF: sub_48E59+25j
-        mov ah, 1
-        call    sub_49FED
-        jnb short loc_48E8D
-        jmp loc_48F68
-// ; ---------------------------------------------------------------------------
+//loc_48F54:              ; CODE XREF: sub_48E59+F5j
+                                if (byte_519F5 != 0)
+                                {
+                                    bl += 9;
 
-loc_48E8D:              ; CODE XREF: sub_48E59+2Fj
-        mov word_50942, ax
-        mov dx, word_5094B
-        mul dx
-        shl ax, 1
-        adc dx, 0
-        mov ax, dx
-        cmp ax, 10h
-        jbe short loc_48EA5
-        mov ax, 10h
+//loc_48F5F:              ; CODE XREF: sub_48E59+100j
+                                    if (byte_519F4 != 0)
+                                    {
+                                        bl += 9;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+//loc_48F68:              ; CODE XREF: sub_48E59+Bj
+//                ; sub_48E59+27j ...
+    byte_50941 = bl;
+    return;
+}
 
-loc_48EA5:              ; CODE XREF: sub_48E59+47j
-        cmp byte_519F7, 0
-        jz  short loc_48EB1
-        mov ax, 1
-        jmp short loc_48EBB
-// ; ---------------------------------------------------------------------------
-
-loc_48EB1:              ; CODE XREF: sub_48E59+51j
-        cmp byte_519F6, 0
-        jz  short loc_48EBB
-        mov ax, 10h
-
-loc_48EBB:              ; CODE XREF: sub_48E59+56j
-                    ; sub_48E59+5Dj
-        mov word_5094F, ax
-        mov ah, 2
-        call    sub_49FED
-        jnb short loc_48EC8
-        jmp loc_48F68
-// ; ---------------------------------------------------------------------------
-
-loc_48EC8:              ; CODE XREF: sub_48E59+6Aj
-        mov word_50944, ax
-        mov dx, word_5094D
-        mul dx
-        shl ax, 1
-        adc dx, 0
-        mov ax, dx
-        cmp ax, 10h
-        jbe short loc_48EE0
-        mov ax, 10h
-
-loc_48EE0:              ; CODE XREF: sub_48E59+82j
-        cmp byte_519F9, 0
-        jz  short loc_48EEC
-        mov ax, 1
-        jmp short loc_48EF6
-// ; ---------------------------------------------------------------------------
-
-loc_48EEC:              ; CODE XREF: sub_48E59+8Cj
-        cmp byte_519F8, 0
-        jz  short loc_48EF6
-        mov ax, 10h
-
-loc_48EF6:              ; CODE XREF: sub_48E59+91j
-                    ; sub_48E59+98j
-        mov word_50951, ax
-        mov ax, word_50951
-        mov cx, 11h
-        mul cx
-        mov si, word_5094F
-        add si, ax
-        add si, 645h
-        mov bl, [si]
-        cmp bl, 0
-        jz  short loc_48F40
-        mov dx, 201h
-        in  al, dx      ; Game I/O port
-                    ; bits 0-3: Coordinates (resistive, time-dependent inputs)
-                    ; bits 4-7: Buttons/Triggers (digital inputs)
-        test    al, 10h
-        jnz short loc_48F1F
-        add bl, 4
-        jmp short loc_48F68
-// ; ---------------------------------------------------------------------------
-
-loc_48F1F:              ; CODE XREF: sub_48E59+BFj
-        test    al, 20h
-        jnz short loc_48F28
-        add bl, 4
-        jmp short loc_48F68
-// ; ---------------------------------------------------------------------------
-
-loc_48F28:              ; CODE XREF: sub_48E59+C8j
-        cmp byte_519F5, 0
-        jz  short loc_48F34
-        add bl, 4
-        jmp short loc_48F3E
-// ; ---------------------------------------------------------------------------
-
-loc_48F34:              ; CODE XREF: sub_48E59+D4j
-        cmp byte_519F4, 0
-        jz  short loc_48F3E
-        add bl, 4
-
-loc_48F3E:              ; CODE XREF: sub_48E59+D9j
-                    ; sub_48E59+E0j
-        jmp short loc_48F68
-// ; ---------------------------------------------------------------------------
-
-loc_48F40:              ; CODE XREF: sub_48E59+B7j
-        mov dx, 201h
-        in  al, dx      ; Game I/O port
-                    ; bits 0-3: Coordinates (resistive, time-dependent inputs)
-                    ; bits 4-7: Buttons/Triggers (digital inputs)
-        test    al, 10h
-        jnz short loc_48F4C
-        mov bl, 9
-        jmp short loc_48F68
-// ; ---------------------------------------------------------------------------
-
-loc_48F4C:              ; CODE XREF: sub_48E59+EDj
-        test    al, 20h
-        jnz short loc_48F54
-        mov bl, 9
-        jmp short loc_48F68
-// ; ---------------------------------------------------------------------------
-
-loc_48F54:              ; CODE XREF: sub_48E59+F5j
-        cmp byte_519F5, 0
-        jz  short loc_48F5F
-        mov bl, 9
-        jmp short loc_48F68
-// ; ---------------------------------------------------------------------------
-
-loc_48F5F:              ; CODE XREF: sub_48E59+100j
-        cmp byte_519F4, 0
-        jz  short loc_48F68
-        mov bl, 9
-
-loc_48F68:              ; CODE XREF: sub_48E59+Bj
-                    ; sub_48E59+27j ...
-        mov byte_50941, bl
-        return;
-sub_48E59   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
+/*
 sub_48F6D   proc near       ; CODE XREF: start+335p runLevel+AAp ...
         mov dx, 3CEh
         al = 5
@@ -5995,19 +6031,19 @@ void sub_4921B() //   proc near       ; CODE XREF: readConfig+8Cp
         mov word_5094D, ax
         xor bp, bp
         mov ah, 1
-        call    sub_49FED
+        call    waitForJoystickKey
         jb  short loc_492A6
         add bp, ax
         mov ah, 1
-        call    sub_49FED
+        call    waitForJoystickKey
         jb  short loc_492A6
         add bp, ax
         mov ah, 1
-        call    sub_49FED
+        call    waitForJoystickKey
         jb  short loc_492A6
         add bp, ax
         mov ah, 1
-        call    sub_49FED
+        call    waitForJoystickKey
         jb  short loc_492A6
         add bp, ax
         shr bp, 1
@@ -6020,19 +6056,19 @@ void sub_4921B() //   proc near       ; CODE XREF: readConfig+8Cp
         mov word_5094B, ax
         xor bp, bp
         mov ah, 2
-        call    sub_49FED
+        call    waitForJoystickKey
         jb  short loc_492A6
         add bp, ax
         mov ah, 2
-        call    sub_49FED
+        call    waitForJoystickKey
         jb  short loc_492A6
         add bp, ax
         mov ah, 2
-        call    sub_49FED
+        call    waitForJoystickKey
         jb  short loc_492A6
         add bp, ax
         mov ah, 2
-        call    sub_49FED
+        call    waitForJoystickKey
         jb  short loc_492A6
         add bp, ax
         shr bp, 1
@@ -7867,98 +7903,91 @@ loc_49FD2:              ; CODE XREF: sub_49EBE+F7j
         return;
 sub_49EBE   endp
 
+ */
+void waitForJoystickKey() // sub_49FED  proc near       ; CODE XREF: sub_48E59+2Cp
+                   // ; sub_48E59+67p ...
+{
+    // Maybe it waits for a key in the joystick to be pressed???
+    // Parameters:
+    // ah: bitmask of the button/coordiante to test
 
-; =============== S U B R O U T I N E =======================================
-
-
-sub_49FED   proc near       ; CODE XREF: sub_48E59+2Cp
-                    ; sub_48E59+67p ...
-        al = isJoystickEnabled
-        cmp al, 0
-        jnz short loc_49FF8
-        xor ax, ax
-        stc
+    if (isJoystickEnabled == 0)
+    {
+        ax = 0;
+        cf = 1; // stc
         return;
-// ; ---------------------------------------------------------------------------
+    }
 
-loc_49FF8:              ; CODE XREF: sub_49FED+5j
-        mov dx, 201h
-        cli
-        mov cx, 0
+//loc_49FF8:              ; CODE XREF: waitForJoystickKey+5j
+    dx = 0x201; // 513
+//    cli
+    cx = 0;
 
-loc_49FFF:              ; CODE XREF: sub_49FED+21j
-        in  al, dx      ; Game I/O port
-                    ; bits 0-3: Coordinates (resistive, time-dependent inputs)
-                    ; bits 4-7: Buttons/Triggers (digital inputs)
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        test    al, ah
-        jz  short loc_4A013
-        loop    loc_49FFF
-        stc
-        jmp short loc_4A03B
-// ; ---------------------------------------------------------------------------
+    char keyWasPressed = 1;
 
-loc_4A013:              ; CODE XREF: sub_49FED+1Fj
-        out dx, al      ; Game I/O port
-                    ; bits 0-3: Coordinates (resistive, time-dependent inputs)
-                    ; bits 4-7: Buttons/Triggers (digital inputs)
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        mov cx, 0
+    do
+    {
+//loc_49FFF:              ; CODE XREF: waitForJoystickKey+21j
+        // 2 possible joysticks: (X1, Y1, 11, 12) and (X2, Y2, 21, 22)
+    //    in  al, dx      ; Game I/O port
+    //                ; bits 0-3: Coordinates (resistive, time-dependent inputs) X1, Y1, X2, Y2
+    //                ; bits 4-7: Buttons/Triggers (digital inputs) 11, 12, 21, 12
+        if ((al & ah) == 0)
+        {
+            keyWasPressed = 0;
+            break;
+        }
+        cx--;
+    }
+    while (cx > 0);
 
-loc_4A021:              ; CODE XREF: sub_49FED+44j
-        nop
-        in  al, dx      ; Game I/O port
-                    ; bits 0-3: Coordinates (resistive, time-dependent inputs)
-                    ; bits 4-7: Buttons/Triggers (digital inputs)
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        test    al, ah
-        jz  short loc_4A036
-        loop    loc_4A021
-        stc
-        jmp short loc_4A03B
-// ; ---------------------------------------------------------------------------
+    if (keyWasPressed == 1)
+    {
+        cf = 1; //stc
+    }
+    else
+    {
+//loc_4A013:              ; CODE XREF: waitForJoystickKey+1Fj
+    //    out dx, al      ; Game I/O port
+    //                ; bits 0-3: Coordinates (resistive, time-dependent inputs)
+    //                ; bits 4-7: Buttons/Triggers (digital inputs)
+        cx = 0;
 
-loc_4A036:              ; CODE XREF: sub_49FED+42j
-        neg cx
-        mov ax, cx
-        clc
+        do
+        {
+//loc_4A021:              ; CODE XREF: waitForJoystickKey+44j
+        //    in  al, dx      ; Game I/O port
+        //                ; bits 0-3: Coordinates (resistive, time-dependent inputs)
+        //                ; bits 4-7: Buttons/Triggers (digital inputs)
+            if ((al & ah) == 0)
+            {
+                keyWasPressed = 0;
+                break;
+            }
+            cx--;
+        }
+        while (cx > 0);
 
-loc_4A03B:              ; CODE XREF: sub_49FED+24j
-                    ; sub_49FED+47j
-        sti
-        return;
-sub_49FED   endp
+        if (keyWasPressed == 1)
+        {
+            cf = 1; //stc
+        }
+        else
+        {
+//loc_4A036:              ; CODE XREF: waitForJoystickKey+42j
+            cx = -cx;
+            ax = cx;
+            cf = 0; // clc
+        }
+    }
 
+//loc_4A03B:              ; CODE XREF: waitForJoystickKey+24j
+//                ; waitForJoystickKey+47j
+//    sti
+    return;
+}
 
-; =============== S U B R O U T I N E =======================================
-
+/*
 
 movefun7  proc near       ; DATA XREF: data:163Co
         cmp byte ptr leveldata[si], 19h
@@ -9884,8 +9913,8 @@ loc_4ACA3:              ; CODE XREF: sub_4AB1B+15Cj
         mov di, 89F7h
         mov ah, 8
         call    drawTextWithChars6Font_method1
-        call    sub_4CFB2
-        call    sub_4CFDB
+        call    savePlayerListData
+        call    saveHallOfFameData
         mov byte_51ABE, 1
         call    prepareLevelDataForCurrentPlayer
         call    drawPlayerList
@@ -9951,17 +9980,17 @@ loc_4AD6C:              ; CODE XREF: sub_4AD0E+64j
 loc_4AD74:              ; CODE XREF: sub_4AD0E+88j
         call    videoloop
         call    getMouseStatus
-        mov word_5847D, bx
-        mov mousex, cx
-        mov mousey, dx
+        mov gMouseButtonStatus, bx
+        mov gMouseX, cx
+        mov gMouseY, dx
         call    sub_4B899
         call    doSomethingWithMouse
         call    sub_4B8BE
-        mov bx, word_5847D
+        mov bx, gMouseButtonStatus
         cmp bx, 0
         jz  short loc_4AD74
-        mov cx, mousex
-        mov dx, mousey
+        mov cx, gMouseX
+        mov dx, gMouseY
         mov si, 5Ah ; 'Z'
         cmp [si], cx
         jg  short loc_4ADCE
@@ -9992,8 +10021,8 @@ loc_4ADCE:              ; CODE XREF: sub_4AD0E+97j
         mov di, 89F7h
         mov ah, 8
         call    drawTextWithChars6Font_method1
-        call    sub_4CFB2
-        call    sub_4CFDB
+        call    savePlayerListData
+        call    saveHallOfFameData
         mov byte_51ABE, 1
         call    prepareLevelDataForCurrentPlayer
         call    drawPlayerList
@@ -10096,17 +10125,17 @@ loc_4AE89:              ; CODE XREF: sub_4ADFF+90j
 loc_4AE91:              ; CODE XREF: sub_4ADFF+B4j
         call    videoloop
         call    getMouseStatus
-        mov word_5847D, bx
-        mov mousex, cx
-        mov mousey, dx
+        mov gMouseButtonStatus, bx
+        mov gMouseX, cx
+        mov gMouseY, dx
         call    sub_4B899
         call    doSomethingWithMouse
         call    sub_4B8BE
-        mov bx, word_5847D
+        mov bx, gMouseButtonStatus
         cmp bx, 0
         jz  short loc_4AE91
-        mov cx, mousex
-        mov dx, mousey
+        mov cx, gMouseX
+        mov dx, gMouseY
         mov si, 5Ah ; 'Z'
         cmp [si], cx
         jg  short loc_4AEE9
@@ -10118,8 +10147,8 @@ loc_4AE91:              ; CODE XREF: sub_4ADFF+B4j
         jl  short loc_4AEE9
         mov byte_510BB, 2
         call    sub_4D24D
-        call    sub_4CFB2
-        call    sub_4CFDB
+        call    savePlayerListData
+        call    saveHallOfFameData
         mov byte_51ABE, 0
         call    prepareLevelDataForCurrentPlayer
 
@@ -10403,11 +10432,12 @@ sub_4B149   proc near
         return;
 sub_4B149   endp
 
+*/
 
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4B159   proc near       ; CODE XREF: runMainMenu+6Fp
+void sub_4B159() //   proc near       ; CODE XREF: runMainMenu+6Fp
+{
+    exitWithError("function sub_4B159 not implemented yet\n");
+    /*
         call    readDemoFiles
         or  cx, cx
         jnz short loc_4B163
@@ -10481,12 +10511,10 @@ loc_4B1CF:              ; CODE XREF: sub_4B159+6Bj
 
 locret_4B1F1:               ; CODE XREF: sub_4B159+7j
         return;
-sub_4B159   endp
+*/
+}
 
-
-; =============== S U B R O U T I N E =======================================
-
-
+/*
 demoSomething  proc near       ; CODE XREF: start+3BAp
                     ; runMainMenu+12Ep ...
         push    ax
@@ -11368,12 +11396,12 @@ void doSomethingWithMouse() //   proc near       ; CODE XREF: sub_4AB1B+FCp
 //    inc dx
 //    al = 1
 //    out dx, al      ; EGA port: graphics controller data register
-    ax = mousey;
+    ax = gMouseY;
     bx = 0x7A; // 122
     ax = ax * bx;
     ax += 0x4D5C;
     si = ax;
-    ax = mousex;
+    ax = gMouseX;
     ax = ax >> 1;
     ax = ax >> 1;
     ax = ax >> 1;
@@ -11399,42 +11427,48 @@ void doSomethingWithMouse() //   proc near       ; CODE XREF: sub_4AB1B+FCp
 //    pop ds
     return;
 }
-/*
 
-sub_4B899   proc near       ; CODE XREF: start+417p sub_4AB1B+3Fp ...
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 1
-        out dx, al      ; EGA port: graphics controller data register
-        mov si, 4D34h
-        mov di, word_5847B
-        mov cx, 10h
-        push    ds
-        mov ax, es
-        mov ds, ax
+void sub_4B899() //   proc near       ; CODE XREF: start+417p sub_4AB1B+3Fp ...
+{
+    /*
+//    mov dx, 3CEh
+//    al = 5
+//    out dx, al      ; EGA: graph 1 and 2 addr reg:
+//                ; mode register.Data bits:
+//                ; 0-1: Write mode 0-2
+//                ; 2: test condition
+//                ; 3: read mode: 1=color compare, 0=direct
+//                ; 4: 1=use odd/even RAM addressing
+//                ; 5: 1=use CGA mid-res map (2-bits/pixel)
+//    inc dx
+//    al = 1
+//    out dx, al      ; EGA port: graphics controller data register
+    si = 0x4D34;
+    di = word_5847B;
+    cx = 16;
+//    push    ds
+//    mov ax, es
+//    mov ds, ax
 
-loc_4B8B2:              ; CODE XREF: sub_4B899+21j
-        movsb
-        movsb
-        add si, 78h ; 'x'
-        add di, 78h ; 'x'
-        loop    loc_4B8B2
-        pop ds
-        return;
-sub_4B899   endp
+    for (int i = 0; i < 16; ++i)
+    {
+//loc_4B8B2:              ; CODE XREF: sub_4B899+21j
+        *di = *si;
+        di++; si++;
+        *di = *si;
+        di++; si++;
+        si += 0x78; // 120
+        di += 0x78; // 120
+    }
+//    pop ds
+     */
+}
 
-*/
 void sub_4B8BE() //   proc near       ; CODE XREF: sub_4AB1B+FFp
 //                    ; sub_4AB1B+127p ...
 {
+    return;
+    /*
     mov dx, 3CEh
     al = 5
     out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -11478,19 +11512,20 @@ void sub_4B8BE() //   proc near       ; CODE XREF: sub_4AB1B+FFp
     inc dx
     al = 0Fh
     out dx, al      ; EGA port: graphics controller data register
-    mov si, 1520h
-    mov bx, word_5195D
-    shr bx, 1
-    shr bx, 1
-    ;and bx, 0Eh
-    db  83h, 0E3h, 0Eh
-    mov si, [bx+si]
-    mov di, word_5847B
-    mov bx, mousex
-    and bl, 7
-    mov bh, 8
-    sub bh, bl
-    mov cx, 8
+     */
+    si = 0x1520;
+    bx = word_5195D;
+    bx = bx >> 1;
+    bx = bx >> 1;
+    // bx &= 0xE; //    ;and bx, 0Eh //db  83h, 0E3h, 0Eh
+    si = ((uint16_t *)bx)[si];
+    di = word_5847B;
+    bx = gMouseX;
+    bl &= 7;
+    bh = 8;
+    bh -= bl;
+    cx = 8;
+    /*
     // mov dx, 3CEh
     // al = 8
     // out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -11500,30 +11535,34 @@ void sub_4B8BE() //   proc near       ; CODE XREF: sub_4AB1B+FFp
     inc dx
     al = 0FFh
     out dx, al      ; EGA port: graphics controller data register
-    push    ds
-    mov ax, es
-    mov ds, ax
-    push    si
-    push(di);
-    mov cx, 8
+     */
+//    push    ds
+    ax = es;
+    ds = ax;
+//    push    si
+//    push(di);
+    cx = 8;
 
-loc_4B926:              ; CODE XREF: sub_4B8BE+85j
-    push(cx);
-    al = [si]
-    mov ah, al
-    mov cl, bl
-    shr al, cl
-    out dx, al      ; EGA port: graphics controller data register
-    xor [di], al
-    al = ah
-    mov cl, bh
-    shl al, cl
-    out dx, al      ; EGA port: graphics controller data register
-    xor [di+1], al
-    add si, 7Ah ; 'z'
-    add di, 7Ah ; 'z'
-    pop(cx);
-    loop    loc_4B926
+    for (int i = 0; i < 8; ++i)
+    {
+//loc_4B926:              ; CODE XREF: sub_4B8BE+85j
+    //    push(cx);
+        al = *(uint8_t *)si;
+        ah = al;
+        cl = bl;
+        al = al >> cl;
+    //    out dx, al      ; EGA port: graphics controller data register
+        *(uint8_t *)di = *(uint8_t *)di ^ al;
+        al = ah;
+        cl = bh;
+        al = al << cl;
+    //    out dx, al      ; EGA port: graphics controller data register
+        ((uint8_t *)di)[1] = ((uint8_t *)di)[1] ^ al;
+        si += 0x7A; // 122 or 'z'
+        di += 0x7A;
+    //    pop(cx);
+    }
+    /*
     mov dx, 3CEh
     al = 2
     out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -11549,29 +11588,33 @@ loc_4B926:              ; CODE XREF: sub_4B8BE+85j
     inc dx
     al = 0FFh
     out dx, al      ; EGA port: graphics controller data register
-    pop(di);
-    pop si
-    push    si
-    push(di);
-    mov cx, 8
+     */
+//    pop(di);
+//    pop si
+//    push    si
+//    push(di);
+    cx = 8;
 
-loc_4B96A:              ; CODE XREF: sub_4B8BE+C9j
-    push(cx);
-    al = [si]
-    mov ah, al
-    mov cl, bl
-    shr al, cl
-    out dx, al      ; EGA port: graphics controller data register
-    xor [di], al
-    al = ah
-    mov cl, bh
-    shl al, cl
-    out dx, al      ; EGA port: graphics controller data register
-    xor [di+1], al
-    add si, 7Ah ; 'z'
-    add di, 7Ah ; 'z'
-    pop(cx);
-    loop    loc_4B96A
+    for (int i = 0; i < 8; ++i)
+    {
+//loc_4B96A:              ; CODE XREF: sub_4B8BE+C9j
+    //    push(cx);
+        al = *(uint8_t *)si;
+        ah = al;
+        cl = bl;
+        al = al >> cl;
+//        out dx, al      ; EGA port: graphics controller data register
+        *(uint8_t *)di = *(uint8_t *)di ^ al;
+        al = ah;
+        cl = bh;
+        al = al << cl;
+//        out dx, al      ; EGA port: graphics controller data register
+        ((uint8_t *)di)[1] = ((uint8_t *)di)[1] ^ al;
+        si += 0x7A; // 122 or 'z'
+        di += 0x7A;
+    //    pop(cx);
+    }
+    /*
     mov dx, 3CEh
     al = 2
     out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -11597,29 +11640,33 @@ loc_4B96A:              ; CODE XREF: sub_4B8BE+C9j
     inc dx
     al = 0FFh
     out dx, al      ; EGA port: graphics controller data register
-    pop(di);
-    pop si
-    push    si
-    push(di);
-    mov cx, 8
+     */
+//    pop(di);
+//    pop si
+//    push    si
+//    push(di);
+    cx = 8;
 
-loc_4B9AE:              ; CODE XREF: sub_4B8BE+10Dj
-    push(cx);
-    al = [si]
-    mov ah, al
-    mov cl, bl
-    shr al, cl
-    out dx, al      ; EGA port: graphics controller data register
-    xor [di], al
-    al = ah
-    mov cl, bh
-    shl al, cl
-    out dx, al      ; EGA port: graphics controller data register
-    xor [di+1], al
-    add si, 7Ah ; 'z'
-    add di, 7Ah ; 'z'
-    pop(cx);
-    loop    loc_4B9AE
+    for (int i = 0; i < 8; ++i)
+    {
+//loc_4B9AE:              ; CODE XREF: sub_4B8BE+10Dj
+    //    push(cx);
+        al = *(uint8_t *)si;
+        ah = al;
+        cl = bl;
+        al = al >> cl;
+//        out dx, al      ; EGA port: graphics controller data register
+        *(uint8_t *)di = *(uint8_t *)di ^ al;
+        al = ah;
+        cl = bh;
+        al = al << cl;
+//        out dx, al      ; EGA port: graphics controller data register
+        ((uint8_t *)di)[1] = ((uint8_t *)di)[1] ^ al;
+        si += 0x7A; // 122 or 'z'
+        di += 0x7A;
+    //    pop(cx);
+    }
+    /*
     mov dx, 3CEh
     al = 2
     out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -11645,29 +11692,33 @@ loc_4B9AE:              ; CODE XREF: sub_4B8BE+10Dj
     inc dx
     al = 0FFh
     out dx, al      ; EGA port: graphics controller data register
-    pop(di);
-    pop si
-    push    si
-    push(di);
-    mov cx, 8
+     */
+//    pop(di);
+//    pop si
+//    push    si
+//    push(di);
+    cx = 8;
 
-loc_4B9F2:              ; CODE XREF: sub_4B8BE+151j
-    push(cx);
-    al = [si]
-    mov ah, al
-    mov cl, bl
-    shr al, cl
-    out dx, al      ; EGA port: graphics controller data register
-    xor [di], al
-    al = ah
-    mov cl, bh
-    shl al, cl
-    out dx, al      ; EGA port: graphics controller data register
-    xor [di+1], al
-    add si, 7Ah ; 'z'
-    add di, 7Ah ; 'z'
-    pop(cx);
-    loop    loc_4B9F2
+    for (int i = 0; i < 8; ++i)
+    {
+//loc_4B9F2:              ; CODE XREF: sub_4B8BE+151j
+    //    push(cx);
+        al = *(uint8_t *)si;
+        ah = al;
+        cl = bl;
+        al = al >> cl;
+//        out dx, al      ; EGA port: graphics controller data register
+        *(uint8_t *)di = *(uint8_t *)di ^ al;
+        al = ah;
+        cl = bh;
+        al = al << cl;
+//        out dx, al      ; EGA port: graphics controller data register
+        ((uint8_t *)di)[1] = ((uint8_t *)di)[1] ^ al;
+        si += 0x7A; // 122 or 'z'
+        di += 0x7A;
+    //    pop(cx);
+    }
+    /*
     mov dx, 3CEh
     al = 2
     out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -11693,28 +11744,32 @@ loc_4B9F2:              ; CODE XREF: sub_4B8BE+151j
     inc dx
     al = 0FFh
     out dx, al      ; EGA port: graphics controller data register
-    pop(di);
-    pop si
-    mov cx, 8
+     */
+//    pop(di);
+//    pop si
+    cx = 8;
 
-loc_4BA34:              ; CODE XREF: sub_4B8BE+193j
-    push(cx);
-    al = [si]
-    mov ah, al
-    mov cl, bl
-    shr al, cl
-    out dx, al      ; EGA port: graphics controller data register
-    xor [di], al
-    al = ah
-    mov cl, bh
-    shl al, cl
-    out dx, al      ; EGA port: graphics controller data register
-    xor [di+1], al
-    add si, 7Ah ; 'z'
-    add di, 7Ah ; 'z'
-    pop(cx);
-    loop    loc_4BA34
-    pop ds
+    for (int i = 0; i < 8; ++i)
+    {
+//loc_4BA34:              ; CODE XREF: sub_4B8BE+193j
+    //    push(cx);
+        al = *(uint8_t *)si;
+        ah = al;
+        cl = bl;
+        al = al >> cl;
+//        out dx, al      ; EGA port: graphics controller data register
+        *(uint8_t *)di = *(uint8_t *)di ^ al;
+        al = ah;
+        cl = bh;
+        al = al << cl;
+//        out dx, al      ; EGA port: graphics controller data register
+        ((uint8_t *)di)[1] = ((uint8_t *)di)[1] ^ al;
+        si += 0x7A; // 122 or 'z'
+        di += 0x7A;
+    //    pop(cx);
+    }
+//    pop ds
+    /*
     // mov dx, 3CEh
     // al = 8
     // out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -11724,7 +11779,7 @@ loc_4BA34:              ; CODE XREF: sub_4B8BE+193j
     inc dx
     al = 0FFh
     out dx, al      ; EGA port: graphics controller data register
-    return;
+     */
 }
 
 void drawTextWithChars6Font_method1(size_t destX, size_t destY, uint8_t color, const char *text) //   proc near       ; CODE XREF: sub_4AB1B+37p
@@ -13078,55 +13133,49 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
 
 //loc_4C7F4:              // ; CODE XREF: runMainMenu+56j
     sound2(); // 01ED:5B91
-    doSomethingWithMouse();
-    sub_4B8BE();
-/*
-loc_4C7FD:              // ; CODE XREF: runMainMenu+121j
+    doSomethingWithMouse(); // TODO: No idea, needs work
+    sub_4B8BE(); // TODO: No idea, needs work
+
+//loc_4C7FD:              // ; CODE XREF: runMainMenu+121j
                // ; runMainMenu+219j ...
     word_58465++;
-    if (word_58465 != 0)
+    if (word_58465 == 0)
     {
-        goto loc_4C806;
+        sub_4B159();
     }
-    sub_4B159();
 
-loc_4C806:              // ; CODE XREF: runMainMenu+6Dj
-    if (word_5196C == 0)
+//loc_4C806:              // ; CODE XREF: runMainMenu+6Dj
+    if (word_5196C != 0)
     {
-        goto loc_4C81A;
+        word_5196C = 0;
+        savePlayerListData();
+        saveHallOfFameData();
+        return;
     }
-    word_5196C = 0;
-    sub_4CFB2();
-    sub_4CFDB();
-    return;
-// ; ---------------------------------------------------------------------------
 
-loc_4C81A:              // ; CODE XREF: runMainMenu+77j
+//loc_4C81A:              // ; CODE XREF: runMainMenu+77j
     videoloop();
     word_5195D++;
-    getMouseStatus();
-    word_5847D = bx;
-    if (mousex != cx)
+    uint8_t mouseX, mouseY;
+    uint16_t mouseButtonStatus;
+    getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
+    gMouseButtonStatus = mouseButtonStatus;
+    if (gMouseX != mouseX
+        || gMouseY != mouseY)
     {
-        goto loc_4C834;
-    }
-    if (mousey == dx)
-    {
-        goto loc_4C83A;
+//loc_4C834:              // ; CODE XREF: runMainMenu+98j
+        word_58465 = 0xEF98;
     }
 
-loc_4C834:              // ; CODE XREF: runMainMenu+98j
-    word_58465 = 0xEF98;
-
-loc_4C83A:              // ; CODE XREF: runMainMenu+9Ej
-    mousex = cx;
-    mousey = dx;
-    sub_4B899();
-    doSomethingWithMouse();
-    sub_4B8BE();
-    sub_4D0AD();
+//loc_4C83A:              // ; CODE XREF: runMainMenu+9Ej
+    gMouseX = mouseX;
+    gMouseY = mouseY;
+    sub_4B899(); // TODO: no idea what it does
+    doSomethingWithMouse(); // TODO: no idea what it does
+    sub_4B8BE(); // TODO: no idea what it does
+    sub_4D0AD(); // TODO: no idea what it does
     sub_48E59();
-    sub_4A1BF();
+/*    sub_4A1BF();
     if (byte_50910 != 0)
     {
         goto loc_4C862;
@@ -13323,7 +13372,7 @@ loc_4C977:              // ; CODE XREF: runMainMenu+1C6j
 
 loc_4C9B0:              // ; CODE XREF: runMainMenu+131j
                // ; runMainMenu+141j ...
-    bx = word_5847D;
+    bx = gMouseButtonStatus;
     if (bx == 2)
     {
         goto loc_4CA34;
@@ -13353,8 +13402,8 @@ loc_4C9B0:              // ; CODE XREF: runMainMenu+131j
 
 loc_4C9FF:              // ; CODE XREF: runMainMenu+236j
     word_58465 = 0xEF98;
-    cx = mousex;
-    dx = mousey;
+    cx = gMouseX;
+    dx = gMouseY;
     si = offset menudata;
 
 checkmousecoords:              // ; CODE XREF: runMainMenu+29Bj
@@ -13391,8 +13440,8 @@ nomousehit:              // ; CODE XREF: runMainMenu+27Ej
 loc_4CA34:              // ; CODE XREF: runMainMenu+223j
                // ; runMainMenu+22Aj ...
     word_5197A = 1;
-    sub_4CFB2();
-    sub_4CFDB();
+    savePlayerListData();
+    saveHallOfFameData();
      */
     return;
 // runMainMenu endp
@@ -13419,14 +13468,14 @@ loc_4CA67:                              ; CODE XREF: code:5E89j
                 call    sub_4CD3C
                 inc     word_5195D
                 call    getMouseStatus
-                mov     word_5847D, bx
+                mov     gMouseButtonStatus, bx
                 add     cx, 140h
-                mov     mousex, cx
-                mov     mousey, dx
+                mov     gMouseX, cx
+                mov     gMouseY, dx
                 call    sub_4B899
                 call    doSomethingWithMouse
                 call    sub_4B8BE
-                mov     bx, word_5847D
+                mov     bx, gMouseButtonStatus
                 cmp     bx, 2
                 jz      short loc_4CAEC
                 cmp     byte_5197E, 1
@@ -13439,9 +13488,9 @@ loc_4CA67:                              ; CODE XREF: code:5E89j
 // ; ---------------------------------------------------------------------------
 
 loc_4CAAB:                              ; CODE XREF: code:5E87j
-                mov     cx, mousex
+                mov     cx, gMouseX
                 sub     cx, 140h
-                mov     dx, mousey
+                mov     dx, gMouseY
                 mov     si, offset controlsbuttons ; 0ACh
 
 loc_4CABA:                              ; CODE XREF: code:5EC7j
@@ -14195,128 +14244,120 @@ loc_4CFAB:              ; CODE XREF: sub_4CF13+2Aj
         return;
 sub_4CF13   endp
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4CFB2   proc near       ; CODE XREF: sub_4AB1B+1D5p
-                    ; sub_4AD0E+CEp ...
-        cmp byte_59B85, 0
-        jnz short locret_4CFDA
-        mov ax, 3C00h
-        mov cx, 2
-        mov dx, 37E5h
-        int 21h     ; DOS - 2+ - CREATE A FILE WITH HANDLE (CREAT)
-                    ; CX = attributes for file
-                    ; DS:DX -> ASCIZ filename (may include drive and path)
-        jb  short locret_4CFDA
-        mov bx, ax
-        mov ax, 4000h
-        mov cx, 0A00h
-        mov dx, gPlayerListData
-        int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
-        jb  short locret_4CFDA
-        mov ax, 3E00h
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-
-locret_4CFDA:               ; CODE XREF: sub_4CFB2+5j
-                    ; sub_4CFB2+12j ...
+ */
+void savePlayerListData() //   proc near       ; CODE XREF: sub_4AB1B+1D5p
+//                    ; sub_4AD0E+CEp ...
+{
+    if (byte_59B85 != 0)
+    {
         return;
-sub_4CFB2   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4CFDB   proc near       ; CODE XREF: sub_4AB1B+1D8p
-                    ; sub_4AD0E+D1p ...
-        cmp byte_59B85, 0
-        jnz short locret_4D003
-        mov ax, 3C00h
-        mov cx, 2
-        mov dx, 37FDh
-        int 21h     ; DOS - 2+ - CREATE A FILE WITH HANDLE (CREAT)
-                    ; CX = attributes for file
-                    ; DS:DX -> ASCIZ filename (may include drive and path)
-        jb  short locret_4D003
-        mov bx, ax
-        mov ax, 4000h
-        mov cx, 24h ; '$'
-        mov dx, hallFameDataBuffer
-        int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
-        jb  short locret_4D003
-        mov ax, 3E00h
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-
-locret_4D003:               ; CODE XREF: sub_4CFDB+5j
-                    ; sub_4CFDB+12j ...
+    }
+    FILE *file = fopen("PLAYER.LST", "w");
+    if (file == NULL)
+    {
         return;
-sub_4CFDB   endp
+    }
 
+    assert(sizeof(gPlayerListData) == 0xA00);
 
-; =============== S U B R O U T I N E =======================================
+    fwrite(gPlayerListData, 1, sizeof(gPlayerListData), file);
 
+    fclose(file);
+}
 
-sub_4D004   proc near       ; CODE XREF: sub_4D0AD+17p
-                    ; sub_4D0AD+2Ap ...
-        push    si
-        push    ax
-        call    sub_4B899
-        pop ax
-        pop si
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0;
-        mov dx, 3CEh
-        al = 0
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; set/reset.
-                    ; Data bits 0-3 select planes for write mode 00
-        // inc dx
-        // al = ah
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = ah;
-        mov dx, 3CEh
-        al = 1
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; enable set/reset
-        inc dx
-        al = 0Fh
-        out dx, al      ; EGA port: graphics controller data register
+void saveHallOfFameData() //   proc near       ; CODE XREF: sub_4AB1B+1D8p
+//                    ; sub_4AD0E+D1p ...
+{
+    if (byte_59B85 != 0)
+    {
+        return;
+    }
 
-loc_4D029:              ; CODE XREF: sub_4D004+96j
-        mov bl, [si]
-        cmp bl, 0FFh
-        jz  short loc_4D09C
-        mov di, 4D5Ch
-        mov ax, [si+3]
-        mov cx, 7Ah ; 'z'
-        mul cx
-        add di, ax
-        mov dx, [si+1]
-        mov cx, dx
-        shr dx, 1
-        shr dx, 1
-        shr dx, 1
-        add di, dx
-        and cl, 7
-        mov ah, 80h ; '?'
-        shr ah, cl
-        mov cx, [si+5]
+    FILE *file = fopen("HALLFAME.LST", "w");
+    if (file == NULL)
+    {
+        return;
+    }
+
+    assert(sizeof(gHallOfFameData) == 0x24);
+
+    fwrite(gHallOfFameData, 1, sizeof(gHallOfFameData), file);
+
+    fclose(file);
+}
+
+void sub_4D004() //   proc near       ; CODE XREF: sub_4D0AD+17p
+//                    ; sub_4D0AD+2Ap ...
+{
+    return;
+    // Parameters:
+    // - si: ???
+    // - ah: ??? it's either 7 or 0xD in sub_4D0AD
+
+//    push    si
+//    push    ax
+    sub_4B899();
+//    pop ax
+//    pop si
+    /*
+    mov dx, 3CEh
+    al = 5
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; mode register.Data bits:
+                ; 0-1: Write mode 0-2
+                ; 2: test condition
+                ; 3: read mode: 1=color compare, 0=direct
+                ; 4: 1=use odd/even RAM addressing
+                ; 5: 1=use CGA mid-res map (2-bits/pixel)
+    // inc dx
+    // al = 0
+    // out dx, al      ; EGA port: graphics controller data register
+    ports[0x3CF] = 0;
+    mov dx, 3CEh
+    al = 0
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; set/reset.
+                ; Data bits 0-3 select planes for write mode 00
+    // inc dx
+    // al = ah
+    // out dx, al      ; EGA port: graphics controller data register
+    ports[0x3CF] = ah;
+    mov dx, 3CEh
+    al = 1
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; enable set/reset
+    inc dx
+    al = 0Fh
+    out dx, al      ; EGA port: graphics controller data register
+     */
+
+    // this iterates through a structure of 7 bytes length:
+    // - 0: some kind of index maybe that goes up to 0xFF (not included)? Seems to take values 0, 1, 2 and 3
+    // - 1-2: some X coordinate? it's divided by 8
+    // - 3-4: some Y coordinate? it's multiplied by 122
+    // - 5-6: it's an amount of something, it's used to iterate again in a loop
+//loc_4D029:              ; CODE XREF: sub_4D004+96j
+    do
+    {
+        bl = *(uint8_t *)si;
+        if (bl == 0xFF)
+        {
+            break;
+        }
+        di = 0x4D5C;
+        ax = ((uint8_t *)si)[3]; // copies 3 and 4? (ax is a word)
+        cx = 0x7A; // 122
+        ax = ax * cx;
+        di += ax;
+        dx = ((uint8_t *)si)[1]; // copies 1 and 2? (dx is a word)
+        cx = dx;
+        dx = dx / 8;
+        di += dx;
+        cl &= 7;
+        ah = 0x80; // 128
+        ah = ah >> cl;
+        cx = ((uint8_t *)si)[5]; // copies 5 and 6? (cx is a word)
+        /*
         // mov dx, 3CEh
         // al = 8
         // out dx, al      ; EGA: graph 1 and 2 addr reg:
@@ -14327,244 +14368,247 @@ loc_4D029:              ; CODE XREF: sub_4D004+96j
         // al = ah
         // out dx, al      ; EGA port: graphics controller data register
         ports[0x3CF] = ah;
-        al = ah
+         */
+        al = ah;
 
-loc_4D060:              ; CODE XREF: sub_4D004:loc_4D095j
-        out dx, al      ; EGA port: graphics controller data register
-        xor es:[di], al
-        or  bl, bl
-        jnz short loc_4D06F
-        ror al, 1
-        jnb short loc_4D06D
-        inc di
+        for (int i = 0; i < cx; ++i)
+        {
+//loc_4D060:              ; CODE XREF: sub_4D004:loc_4D095j
+        //    out dx, al      ; EGA port: graphics controller data register
+            *((uint8_t *)di) = *((uint8_t *)di) ^ al; // xor es:[di], al
+            if (bl == 0)
+            {
+//                ror al, 1 // CF=MSB(ROR(AL, 1))
+//                al = ror(al, 1);
+                if ((al & 0x80) == 0)
+                {
+                    continue; // jump if CF = 0
+                }
+                di++;
+            }
 
-loc_4D06D:              ; CODE XREF: sub_4D004+66j
-        jmp short loc_4D095
-// ; ---------------------------------------------------------------------------
+//loc_4D06F:              ; CODE XREF: sub_4D004+62j
+            if (bl == 1)
+            {
+                di -= 0x7A; // 122
+                continue; //jmp short loc_4D095
+            }
 
-loc_4D06F:              ; CODE XREF: sub_4D004+62j
-        cmp bl, 1
-        jnz short loc_4D079
-        sub di, 7Ah ; 'z'
-        jmp short loc_4D095
-// ; ---------------------------------------------------------------------------
+//loc_4D079:              ; CODE XREF: sub_4D004+6Ej
+            if (bl == 2)
+            {
+                di -= 0x7A; // 122
+//                al = ror(al, 1);
+                if ((al & 0x80) == 0)
+                {
+                    continue; // jump if CF = 0
+                }
+                di++;
+            }
 
-loc_4D079:              ; CODE XREF: sub_4D004+6Ej
-        cmp bl, 2
-        jnz short loc_4D088
-        sub di, 7Ah ; 'z'
-        ror al, 1
-        jnb short loc_4D086
-        inc di
+//loc_4D088:              ; CODE XREF: sub_4D004+78j
+            if (bl == 3)
+            {
+                di -= 0x7A; // 122
+//                al = ror(al, 1);
+                if ((al & 0x80) == 0)
+                {
+                    continue; //jnb short loc_4D095 // jump if CF = 0
+                }
+                di++;
+            }
 
-loc_4D086:              ; CODE XREF: sub_4D004+7Fj
-        jmp short loc_4D095
-// ; ---------------------------------------------------------------------------
+//loc_4D095:              ; CODE XREF: sub_4D004:loc_4D06Dj
+        //                ; sub_4D004+73j ...
+        }
+        si += 7;
+//        jmp short loc_4D029
+    } while (1);
 
-loc_4D088:              ; CODE XREF: sub_4D004+78j
-        cmp bl, 3
-        jnz short loc_4D095
-        add di, 7Ah ; 'z'
-        ror al, 1
-        jnb short loc_4D095
-        inc di
+//loc_4D09C:              ; CODE XREF: sub_4D004+2Aj
+    /*
+    mov dx, 3CEh
+    al = 5
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; mode register.Data bits:
+                ; 0-1: Write mode 0-2
+                ; 2: test condition
+                ; 3: read mode: 1=color compare, 0=direct
+                ; 4: 1=use odd/even RAM addressing
+                ; 5: 1=use CGA mid-res map (2-bits/pixel)
+    inc dx
+    al = 1
+    out dx, al      ; EGA port: graphics controller data register
+     */
+    doSomethingWithMouse();
+    sub_4B8BE();
+}
 
-loc_4D095:              ; CODE XREF: sub_4D004:loc_4D06Dj
-                    ; sub_4D004+73j ...
-        loop    loc_4D060
-        add si, 7
-        jmp short loc_4D029
-// ; ---------------------------------------------------------------------------
+void sub_4D0AD() //   proc near       ; CODE XREF: runMainMenu+B7p
+{
+    if (byte_50912 != 0)
+    {
+        if (byte_50911 == 0)
+        {
+            ah = 7;
+        }
+        else
+        {
+            ah = 0xD; // 13
+        }
 
-loc_4D09C:              ; CODE XREF: sub_4D004+2Aj
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 1
-        out dx, al      ; EGA port: graphics controller data register
-        call    doSomethingWithMouse
-        call    sub_4B8BE
+    //loc_4D0C1:              ; CODE XREF: sub_4D0AD+10j
+        si = 0x504; // 1284
+        sub_4D004();
+        if (byte_50911 == 0)
+        {
+            ah = 0xD; // 13
+        }
+        else
+        {
+            ah = 7;
+        }
+
+    //loc_4D0D4:              ; CODE XREF: sub_4D0AD+23j
+        si = 0x519; // 1305
+        sub_4D004();
+        if (byte_50910 == 0)
+        {
+            ah = 7;
+        }
+        else
+        {
+            ah = 0xD; // 13
+        }
+
+    //loc_4D0E7:              ; CODE XREF: sub_4D0AD+36j
+        si = 0x52E;
+        sub_4D004();
+        if (byte_50910 == 0)
+        {
+            ah = 0xD; // 13
+        }
+        else
+        {
+            ah = 7;
+        }
+
+    //loc_4D0FA:              ; CODE XREF: sub_4D0AD+49j
+        si = 0x543;
+        sub_4D004();
+        byte_50912 = 0;
+    }
+
+//loc_4D105:              ; CODE XREF: sub_4D0AD+5j
+    if (byte_50915 != 0)
+    {
+        if (byte_50914 == 0)
+        {
+            ah = 7;
+        }
+        else
+        {
+            ah = 0xD; // 13
+        }
+
+    //loc_4D119:              ; CODE XREF: sub_4D0AD+68j
+        si = 0x558; // 1368
+        sub_4D004();
+        if (byte_50914 == 0)
+        {
+            ah = 0xD;
+        }
+        {
+            ah = 7;
+        }
+
+    //loc_4D12C:              ; CODE XREF: sub_4D0AD+7Bj
+        si = 0x56D;
+        sub_4D004();
+        if (byte_50913 == 0)
+        {
+            ah = 7;
+        }
+        else
+        {
+            ah = 0xD;
+        }
+
+    //loc_4D13F:              ; CODE XREF: sub_4D0AD+8Ej
+        si = 0x582;
+        sub_4D004();
+        if (byte_50913 == 0)
+        {
+            ah = 0xD;
+        }
+        else
+        {
+            ah = 7;
+        }
+
+    //loc_4D152:              ; CODE XREF: sub_4D0AD+A1j
+        si = 0x597;
+        sub_4D004();
+        byte_50915 = 0;
+    }
+
+//loc_4D15D:              ; CODE XREF: sub_4D0AD+5Dj
+    if (byte_50918 == 0)
+    {
         return;
-sub_4D004   endp
+    }
+    if (byte_50917 == 0)
+    {
+        ah = 7;
+    }
+    else
+    {
+        ah = 0xD;
+    }
 
+//loc_4D171:              ; CODE XREF: sub_4D0AD+C0j
+    si = 0x5AC;
+    sub_4D004();
+    if (byte_50917 == 0)
+    {
+        ah = 0xD;
+    }
+    else
+    {
+        ah = 7;
+    }
 
-; =============== S U B R O U T I N E =======================================
+//loc_4D184:              ; CODE XREF: sub_4D0AD+D3j
+    si = 0x5C1;
+    sub_4D004();
+    if (byte_50916 == 0)
+    {
+        ah = 7;
+    }
+    else
+    {
+        ah = 0xD;
+    }
 
+//loc_4D197:              ; CODE XREF: sub_4D0AD+E6j
+    si = 0x5D6;
+    sub_4D004();
+    if (byte_50916 == 0)
+    {
+        ah = 0xD;
+    }
+    else
+    {
+        ah = 7;
+    }
 
-sub_4D0AD   proc near       ; CODE XREF: runMainMenu+B7p
-        cmp byte_50912, 0
-        jz  short loc_4D105
-        cmp byte_50911, 0
-        jz  short loc_4D0BF
-        mov ah, 0Dh
-        jmp short loc_4D0C1
-// ; ---------------------------------------------------------------------------
+//loc_4D1AA:              ; CODE XREF: sub_4D0AD+F9j
+    si = 0x5EB;
+    sub_4D004();
+    byte_50918 = 0;
+}
 
-loc_4D0BF:              ; CODE XREF: sub_4D0AD+Cj
-        mov ah, 7
-
-loc_4D0C1:              ; CODE XREF: sub_4D0AD+10j
-        mov si, 504h
-        call    sub_4D004
-        cmp byte_50911, 0
-        jz  short loc_4D0D2
-        mov ah, 7
-        jmp short loc_4D0D4
-// ; ---------------------------------------------------------------------------
-
-loc_4D0D2:              ; CODE XREF: sub_4D0AD+1Fj
-        mov ah, 0Dh
-
-loc_4D0D4:              ; CODE XREF: sub_4D0AD+23j
-        mov si, 519h
-        call    sub_4D004
-        cmp byte_50910, 0
-        jz  short loc_4D0E5
-        mov ah, 0Dh
-        jmp short loc_4D0E7
-// ; ---------------------------------------------------------------------------
-
-loc_4D0E5:              ; CODE XREF: sub_4D0AD+32j
-        mov ah, 7
-
-loc_4D0E7:              ; CODE XREF: sub_4D0AD+36j
-        mov si, 52Eh
-        call    sub_4D004
-        cmp byte_50910, 0
-        jz  short loc_4D0F8
-        mov ah, 7
-        jmp short loc_4D0FA
-// ; ---------------------------------------------------------------------------
-
-loc_4D0F8:              ; CODE XREF: sub_4D0AD+45j
-        mov ah, 0Dh
-
-loc_4D0FA:              ; CODE XREF: sub_4D0AD+49j
-        mov si, 543h
-        call    sub_4D004
-        mov byte_50912, 0
-
-loc_4D105:              ; CODE XREF: sub_4D0AD+5j
-        cmp byte_50915, 0
-        jz  short loc_4D15D
-        cmp byte_50914, 0
-        jz  short loc_4D117
-        mov ah, 0Dh
-        jmp short loc_4D119
-// ; ---------------------------------------------------------------------------
-
-loc_4D117:              ; CODE XREF: sub_4D0AD+64j
-        mov ah, 7
-
-loc_4D119:              ; CODE XREF: sub_4D0AD+68j
-        mov si, 558h
-        call    sub_4D004
-        cmp byte_50914, 0
-        jz  short loc_4D12A
-        mov ah, 7
-        jmp short loc_4D12C
-// ; ---------------------------------------------------------------------------
-
-loc_4D12A:              ; CODE XREF: sub_4D0AD+77j
-        mov ah, 0Dh
-
-loc_4D12C:              ; CODE XREF: sub_4D0AD+7Bj
-        mov si, 56Dh
-        call    sub_4D004
-        cmp byte_50913, 0
-        jz  short loc_4D13D
-        mov ah, 0Dh
-        jmp short loc_4D13F
-// ; ---------------------------------------------------------------------------
-
-loc_4D13D:              ; CODE XREF: sub_4D0AD+8Aj
-        mov ah, 7
-
-loc_4D13F:              ; CODE XREF: sub_4D0AD+8Ej
-        mov si, 582h
-        call    sub_4D004
-        cmp byte_50913, 0
-        jz  short loc_4D150
-        mov ah, 7
-        jmp short loc_4D152
-// ; ---------------------------------------------------------------------------
-
-loc_4D150:              ; CODE XREF: sub_4D0AD+9Dj
-        mov ah, 0Dh
-
-loc_4D152:              ; CODE XREF: sub_4D0AD+A1j
-        mov si, 597h
-        call    sub_4D004
-        mov byte_50915, 0
-
-loc_4D15D:              ; CODE XREF: sub_4D0AD+5Dj
-        cmp byte_50918, 0
-        jz  short locret_4D1B5
-        cmp byte_50917, 0
-        jz  short loc_4D16F
-        mov ah, 0Dh
-        jmp short loc_4D171
-// ; ---------------------------------------------------------------------------
-
-loc_4D16F:              ; CODE XREF: sub_4D0AD+BCj
-        mov ah, 7
-
-loc_4D171:              ; CODE XREF: sub_4D0AD+C0j
-        mov si, 5ACh
-        call    sub_4D004
-        cmp byte_50917, 0
-        jz  short loc_4D182
-        mov ah, 7
-        jmp short loc_4D184
-// ; ---------------------------------------------------------------------------
-
-loc_4D182:              ; CODE XREF: sub_4D0AD+CFj
-        mov ah, 0Dh
-
-loc_4D184:              ; CODE XREF: sub_4D0AD+D3j
-        mov si, 5C1h
-        call    sub_4D004
-        cmp byte_50916, 0
-        jz  short loc_4D195
-        mov ah, 0Dh
-        jmp short loc_4D197
-// ; ---------------------------------------------------------------------------
-
-loc_4D195:              ; CODE XREF: sub_4D0AD+E2j
-        mov ah, 7
-
-loc_4D197:              ; CODE XREF: sub_4D0AD+E6j
-        mov si, 5D6h
-        call    sub_4D004
-        cmp byte_50916, 0
-        jz  short loc_4D1A8
-        mov ah, 7
-        jmp short loc_4D1AA
-// ; ---------------------------------------------------------------------------
-
-loc_4D1A8:              ; CODE XREF: sub_4D0AD+F5j
-        mov ah, 0Dh
-
-loc_4D1AA:              ; CODE XREF: sub_4D0AD+F9j
-        mov si, 5EBh
-        call    sub_4D004
-        mov byte_50918, 0
-
-locret_4D1B5:               ; CODE XREF: sub_4D0AD+B5j
-        return;
-sub_4D0AD   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
+/*
 sub_4D1B6   proc near       ; CODE XREF: sub_4D24D+2Ep
         cmp byte_510DE, 0
         jz  short loc_4D1BE
@@ -14877,112 +14921,128 @@ loc_4D33B:              ; CODE XREF: initializeMouse+10j
 // initializeMouse   endp
 }
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-getMouseStatus   proc near       ; CODE XREF: sub_47E98:mouseIsClickedp
-                    ; sub_47E98+3Ep ...
-        cmp byte_58487, 0
-        jz  short loc_4D360
-        mov ax, 3
-        int 33h     ; - MS MOUSE - RETURN POSITION AND BUTTON STATUS
-                    ; Return: BX = button status, CX = column, DX = row
-        shr cx, 1
-        jmp locret_4D40E
-// ; ---------------------------------------------------------------------------
-
-loc_4D360:              ; CODE XREF: getMouseStatus+5j
-        xor bx, bx
-        cmp byte_5197E, 1
-        jnz short loc_4D36C
-        mov bx, 2
-
-loc_4D36C:              ; CODE XREF: getMouseStatus+18j
-        cmp byte_51999, 1
-        jnz short loc_4D376
-        mov bx, 1
-
-loc_4D376:              ; CODE XREF: getMouseStatus+22j
-        mov cx, 1
-        mov ax, word ptr dword_58488
-        shr ax, 1
-        shr ax, 1
-        shr ax, 1
-        inc ax
-        cmp byte_519C5, 1
-        jnz short loc_4D390
-        sub word_58485, ax
-        xor cx, cx
-
-loc_4D390:              ; CODE XREF: getMouseStatus+39j
-        cmp byte_519CD, 1
-        jnz short loc_4D39D
-        add word_58485, ax
-        xor cx, cx
-
-loc_4D39D:              ; CODE XREF: getMouseStatus+46j
-        cmp byte_519C8, 1
-        jnz short loc_4D3AA
-        sub word_58481, ax
-        xor cx, cx
-
-loc_4D3AA:              ; CODE XREF: getMouseStatus+53j
-        cmp byte_519CA, 1
-        jnz short loc_4D3B7
-        add word_58481, ax
-        xor cx, cx
-
-loc_4D3B7:              ; CODE XREF: getMouseStatus+60j
-        or  cx, cx
-        jnz short loc_4D3C1
-        inc word ptr dword_58488
-        jmp short loc_4D3C7
-// ; ---------------------------------------------------------------------------
-
-loc_4D3C1:              ; CODE XREF: getMouseStatus+6Aj
-        mov word ptr dword_58488, 1
-
-loc_4D3C7:              ; CODE XREF: getMouseStatus+70j
-        cmp word ptr dword_58488, 40h ; '@'
-        jbe short loc_4D3D4
-        mov word ptr dword_58488, 40h ; '@'
-
-loc_4D3D4:              ; CODE XREF: getMouseStatus+7Dj
-        mov cx, word_58481
-        mov dx, word_58485
-        cmp cx, 10h
-        jg  short loc_4D3E8
-        mov cx, 10h
-        mov word_58481, cx
-
-loc_4D3E8:              ; CODE XREF: getMouseStatus+90j
-        cmp cx, 130h
-        jl  short loc_4D3F5
-        mov cx, 130h
-        mov word_58481, cx
-
-loc_4D3F5:              ; CODE XREF: getMouseStatus+9Dj
-        cmp dx, 8
-        jg  short loc_4D401
-        mov dx, 8
-        mov word_58485, dx
-
-loc_4D401:              ; CODE XREF: getMouseStatus+A9j
-        cmp dx, 0C0h ; '?'
-        jl  short locret_4D40E
-        mov dx, 0C0h ; '?'
-        mov word_58485, dx
-
-locret_4D40E:               ; CODE XREF: getMouseStatus+Ej
-                    ; getMouseStatus+B6j
-        return;
-getMouseStatus   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
 */
+void getMouseStatus(uint8_t *mouseX, uint8_t *mouseY, uint16_t *mouseButtonStatus) //   proc near       ; CODE XREF: sub_47E98:mouseIsClickedp
+//                    ; sub_47E98+3Ep ...
+{
+    // Returns coordinate X in CX (half of it, because we use 4 bits per pixel)
+    // and coordinate Y in DX. Also button status in BX.
+
+    if (byte_58487 != 0)
+    {
+        int x, y;
+        Uint32 state = SDL_GetMouseState(&x, &y);
+
+        *mouseX = x / 2;
+        *mouseY = y;
+        uint8_t leftButtonPressed = (state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
+        uint8_t rightButtonPressed = (state & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0;
+        *mouseButtonStatus = (rightButtonPressed << 1
+                              | leftButtonPressed);
+
+        return;
+    }
+
+//loc_4D360:              ; CODE XREF: getMouseStatus+5j
+    bx = 0;
+    if (byte_5197E == 1)
+    {
+        bx = 2;
+    }
+
+//loc_4D36C:              ; CODE XREF: getMouseStatus+18j
+    if (byte_51999 == 1)
+    {
+        bx = 1;
+    }
+
+//loc_4D376:              ; CODE XREF: getMouseStatus+22j
+    cx = 1;
+    ax = ((uint16_t *)dword_58488)[0]; // mov ax, word ptr dword_58488
+    ax = ax >> 1;
+    ax = ax >> 1;
+    ax = ax >> 1;
+    ax++;
+    if (byte_519C5 == 1)
+    {
+        word_58485 -= ax;
+        cx = 0;
+    }
+
+//loc_4D390:              ; CODE XREF: getMouseStatus+39j
+    if (byte_519CD == 1)
+    {
+        word_58485 += ax;
+        cx = 0;
+    }
+
+//loc_4D39D:              ; CODE XREF: getMouseStatus+46j
+    if (byte_519C8 == 1)
+    {
+        word_58481 -= ax;
+        cx = 0;
+    }
+
+//loc_4D3AA:              ; CODE XREF: getMouseStatus+53j
+    if (byte_519CA == 1)
+    {
+        word_58481 += ax;
+        cx = 0;
+    }
+
+//loc_4D3B7:              ; CODE XREF: getMouseStatus+60j
+    if (cx == 0)
+    {
+        dword_58488++; //inc word ptr dword_58488
+    }
+    else
+    {
+        dword_58488 = 1; //mov word ptr dword_58488, 1
+    }
+
+//loc_4D3C7:              ; CODE XREF: getMouseStatus+70j
+    if (dword_58488 > 0x40) // 64 or '@'
+    {
+        dword_58488 = 0x40; //mov word ptr dword_58488, 40h ; '@'
+    }
+
+//loc_4D3D4:              ; CODE XREF: getMouseStatus+7Dj
+    cx = word_58481;
+    dx = word_58485;
+    if (cx <= 16)
+    {
+        cx = 16;
+        word_58481 = cx;
+    }
+
+//loc_4D3E8:              ; CODE XREF: getMouseStatus+90j
+    if (cx >= 0x130) // 304
+    {
+        cx = 0x130; //mov cx, 130h
+        word_58481 = cx;
+    }
+
+//loc_4D3F5:              ; CODE XREF: getMouseStatus+9Dj
+    if (dx <= 8)
+    {
+        dx = 8;
+        word_58485 = dx;
+    }
+
+//loc_4D401:              ; CODE XREF: getMouseStatus+A9j
+    if (dx >= 0xC0) // 192
+    {
+        dx = 0xC0;
+        word_58485 = dx;
+    }
+
+    // Returns coordinate X in CX (half of it, because we use 4 bits per pixel)
+    // and coordinate Y in DX. Also button status in BX.
+    *mouseButtonStatus = bx;
+    *mouseX = cx;
+    *mouseY = dx;
+}
+
 void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
 {
     SDL_BlitSurface(gScreenSurface, NULL, gTextureSurface, NULL);
