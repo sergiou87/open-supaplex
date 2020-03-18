@@ -380,7 +380,7 @@ typedef struct {
     uint8_t numberOfLines;
 } ButtonBorderDescriptor;
 
-static const int kNumberOfMainMenuButtonBorders = 4;
+static const int kNumberOfMainMenuButtonBorders = 12;
 static const ButtonBorderDescriptor kMainMenuButtonBorders[kNumberOfMainMenuButtonBorders] = { // starts on 0x504? or before?
     // Player List - Up Arrow - Left and Top borders
     {
@@ -411,6 +411,70 @@ static const ButtonBorderDescriptor kMainMenuButtonBorders[kNumberOfMainMenuButt
         {
             { ButtonBorderLineTypeHorizontal, 12, 192, 56 },
             { ButtonBorderLineTypeVertical, 67, 192, 11 },
+        },
+        2
+    },
+    // Ranking List - Up Arrow - Left and Top borders
+    {
+        {
+            { ButtonBorderLineTypeVertical, 141, 105, 16 },
+            { ButtonBorderLineTypeHorizontal, 142, 90, 13 },
+        },
+        2
+    },
+    // Ranking List - Up Arrow - Bottom and Right borders
+    {
+        {
+            { ButtonBorderLineTypeHorizontal, 141, 106, 14 },
+            { ButtonBorderLineTypeVertical, 154, 105, 15 },
+        },
+        2
+    },
+    // Ranking List - Down Arrow - Left and Top borders
+    {
+        {
+            { ButtonBorderLineTypeVertical, 141, 135, 16 },
+            { ButtonBorderLineTypeHorizontal, 142, 120, 13 },
+        },
+        2
+    },
+    // Ranking List - Down Arrow - Bottom and Right borders
+    {
+        {
+            { ButtonBorderLineTypeHorizontal, 141, 136, 14 },
+            { ButtonBorderLineTypeVertical, 154, 135, 15 },
+        },
+        2
+    },
+    // Level List - Up Arrow - Left and Top borders
+    {
+        {
+            { ButtonBorderLineTypeVertical, 142, 152, 11 },
+            { ButtonBorderLineTypeHorizontal, 143, 142, 163 },
+        },
+        2
+    },
+    // Level List - Up Arrow - Bottom and Right borders
+    {
+        {
+            { ButtonBorderLineTypeHorizontal, 143, 153, 164 },
+            { ButtonBorderLineTypeVertical, 306, 152, 11 },
+        },
+        2
+    },
+    // Level List - Down Arrow - Left and Top borders
+    {
+        {
+            { ButtonBorderLineTypeVertical, 142, 191, 11 },
+            { ButtonBorderLineTypeHorizontal, 143, 181, 164 },
+        },
+        2
+    },
+    // Level List - Down Arrow - Bottom and Right borders
+    {
+        {
+            { ButtonBorderLineTypeHorizontal, 142, 192, 164 },
+            { ButtonBorderLineTypeVertical, 306, 192, 12 },
         },
         2
     },
@@ -497,7 +561,7 @@ void savePlayerListData(void);
 void saveHallOfFameData(void);
 void getMouseStatus(uint8_t *mouseX, uint8_t *mouseY, uint16_t *mouseButtonStatus);
 void drawMainMenuButtonBorders(void);
-void drawButtonBorder(ButtonBorderDescriptor border, uint8_t color);
+void drawMainMenuButtonBorder(ButtonBorderDescriptor border, uint8_t color);
 void waitForJoystickKey(void); // sub_49FED
 void getTime(void);
 void checkVideo(void);
@@ -14314,7 +14378,7 @@ void saveHallOfFameData() //   proc near       ; CODE XREF: sub_4AB1B+1D8p
     fclose(file);
 }
 
-void drawButtonBorder(ButtonBorderDescriptor border, uint8_t color) // sub_4D004  proc near       ; CODE XREF: drawMainMenuButtonBorders+17p
+void drawMainMenuButtonBorder(ButtonBorderDescriptor border, uint8_t color) // sub_4D004  proc near       ; CODE XREF: drawMainMenuButtonBorders+17p
 //                    ; drawMainMenuButtonBorders+2Ap ...
 {
     // 01ED:63A1
@@ -14329,25 +14393,6 @@ void drawButtonBorder(ButtonBorderDescriptor border, uint8_t color) // sub_4D004
     {
         ButtonBorderLineDescriptor line = border.lines[i];
 
-/*        bl = *(uint8_t *)si;
-        if (bl == 0xFF)
-        {
-            break;
-        }
-        di = 0x4D5C;
-        ax = ((uint8_t *)si)[3]; // copies 3 and 4? (ax is a word)
-        cx = 0x7A; // 122
-        ax = ax * cx;
-        di += ax;
-        dx = ((uint8_t *)si)[1]; // copies 1 and 2? (dx is a word)
-        cx = dx;
-        dx = dx / 8;
-        di += dx;
-        cl &= 7;
-        ah = 0x80; // 128
-        ah = ah >> cl;
-        cx = ((uint8_t *)si)[5]; // copies 5 and 6? (cx is a word)
- */
         for (int j = 0; j < line.length; ++j)
         {
             size_t destAddress = 0;
@@ -14362,64 +14407,41 @@ void drawButtonBorder(ButtonBorderDescriptor border, uint8_t color) // sub_4D004
             else if (line.type == ButtonBorderLineTypeUnknown2)
             {
                 printf("Still unknown type of border line: %d", line.type);
+                /*
+                if (bl == 2)
+                {
+                    di -= 0x7A; // 122
+    //                al = ror(al, 1);
+                    if ((al & 0x80) == 0)
+                    {
+                        continue; // jump if CF = 0
+                    }
+                    di++;
+                }
+                 */
             }
             else if (line.type == ButtonBorderLineTypeUnknown3)
             {
                 printf("Still unknown type of border line: %d", line.type);
+                /*
+                if (bl == 3)
+                {
+                    di -= 0x7A; // 122
+    //                al = ror(al, 1);
+                    if ((al & 0x80) == 0)
+                    {
+                        continue; //jnb short loc_4D095 // jump if CF = 0
+                    }
+                    di++;
+                }
+                 */
             }
 
             gScreenPixels[destAddress] = color;
-            /*
-//loc_4D060:              ; CODE XREF: drawButtonBorder:loc_4D095j
-        //    out dx, al      ; EGA port: graphics controller data register
-            *((uint8_t *)di) = *((uint8_t *)di) ^ al; // xor es:[di], al
-            if (bl == 0)
-            {
-//                ror al, 1 // CF=MSB(ROR(AL, 1))
-//                al = ror(al, 1);
-                if ((al & 0x80) == 0)
-                {
-                    continue; // jump if CF = 0
-                }
-                di++;
-            }
-
-//loc_4D06F:              ; CODE XREF: drawButtonBorder+62j
-            if (bl == 1)
-            {
-                di -= 0x7A; // 122
-                continue; //jmp short loc_4D095
-            }
-
-//loc_4D079:              ; CODE XREF: drawButtonBorder+6Ej
-            if (bl == 2)
-            {
-                di -= 0x7A; // 122
-//                al = ror(al, 1);
-                if ((al & 0x80) == 0)
-                {
-                    continue; // jump if CF = 0
-                }
-                di++;
-            }
-
-//loc_4D088:              ; CODE XREF: drawButtonBorder+78j
-            if (bl == 3)
-            {
-                di -= 0x7A; // 122
-//                al = ror(al, 1);
-                if ((al & 0x80) == 0)
-                {
-                    continue; //jnb short loc_4D095 // jump if CF = 0
-                }
-                di++;
-            }
-             */
 
 //loc_4D095:              ; CODE XREF: drawButtonBorder:loc_4D06Dj
         //                ; drawButtonBorder+73j ...
         }
-        si += 7;
     }
 
 //loc_4D09C:              ; CODE XREF: drawButtonBorder+2Aj
@@ -14444,7 +14466,7 @@ void drawMainMenuButtonBorders() // sub_4D0AD  proc near       ; CODE XREF: runM
         }
 
     //loc_4D0C1:              ; CODE XREF: drawMainMenuButtonBorders+10j
-        drawButtonBorder(kMainMenuButtonBorders[0], color);
+        drawMainMenuButtonBorder(kMainMenuButtonBorders[0], color);
         if (gPlayerListUpButtonPressed == 0)
         {
             ah = 0xD; // 13
@@ -14455,7 +14477,7 @@ void drawMainMenuButtonBorders() // sub_4D0AD  proc near       ; CODE XREF: runM
         }
 
     //loc_4D0D4:              ; CODE XREF: drawMainMenuButtonBorders+23j
-        drawButtonBorder(kMainMenuButtonBorders[1], ah);
+        drawMainMenuButtonBorder(kMainMenuButtonBorders[1], ah);
         if (gPlayerListDownButtonPressed == 0)
         {
             color = 7;
@@ -14466,7 +14488,7 @@ void drawMainMenuButtonBorders() // sub_4D0AD  proc near       ; CODE XREF: runM
         }
 
     //loc_4D0E7:              ; CODE XREF: drawMainMenuButtonBorders+36j
-        drawButtonBorder(kMainMenuButtonBorders[2], color);
+        drawMainMenuButtonBorder(kMainMenuButtonBorders[2], color);
         if (gPlayerListDownButtonPressed == 0)
         {
             color = 0xD; // 13
@@ -14477,7 +14499,7 @@ void drawMainMenuButtonBorders() // sub_4D0AD  proc near       ; CODE XREF: runM
         }
 
     //loc_4D0FA:              ; CODE XREF: drawMainMenuButtonBorders+49j
-        drawButtonBorder(kMainMenuButtonBorders[3], color);
+        drawMainMenuButtonBorder(kMainMenuButtonBorders[3], color);
         gPlayerListButtonPressed = 0;
     }
 
@@ -14495,7 +14517,7 @@ void drawMainMenuButtonBorders() // sub_4D0AD  proc near       ; CODE XREF: runM
 
     //loc_4D119:              ; CODE XREF: drawMainMenuButtonBorders+68j
 //        si = 0x558; // 1368
-//        drawButtonBorder();
+        drawMainMenuButtonBorder(kMainMenuButtonBorders[4], color);
         if (byte_50914 == 0)
         {
             color = 0xD;
@@ -14505,8 +14527,8 @@ void drawMainMenuButtonBorders() // sub_4D0AD  proc near       ; CODE XREF: runM
         }
 
     //loc_4D12C:              ; CODE XREF: drawMainMenuButtonBorders+7Bj
-        si = 0x56D;
-//        drawButtonBorder();
+//        si = 0x56D;
+        drawMainMenuButtonBorder(kMainMenuButtonBorders[5], color);
         if (byte_50913 == 0)
         {
             color = 7;
@@ -14517,8 +14539,8 @@ void drawMainMenuButtonBorders() // sub_4D0AD  proc near       ; CODE XREF: runM
         }
 
     //loc_4D13F:              ; CODE XREF: drawMainMenuButtonBorders+8Ej
-        si = 0x582;
-//        drawButtonBorder();
+//        si = 0x582;
+        drawMainMenuButtonBorder(kMainMenuButtonBorders[6], color);
         if (byte_50913 == 0)
         {
             color = 0xD;
@@ -14529,8 +14551,8 @@ void drawMainMenuButtonBorders() // sub_4D0AD  proc near       ; CODE XREF: runM
         }
 
     //loc_4D152:              ; CODE XREF: drawMainMenuButtonBorders+A1j
-        si = 0x597;
-//        drawButtonBorder();
+//        si = 0x597;
+        drawMainMenuButtonBorder(kMainMenuButtonBorders[7], color);
         byte_50915 = 0;
     }
 
@@ -14549,8 +14571,8 @@ void drawMainMenuButtonBorders() // sub_4D0AD  proc near       ; CODE XREF: runM
     }
 
 //loc_4D171:              ; CODE XREF: drawMainMenuButtonBorders+C0j
-    si = 0x5AC;
-//    drawButtonBorder();
+//    si = 0x5AC;
+    drawMainMenuButtonBorder(kMainMenuButtonBorders[8], color);
     if (gLevelListUpButtonPressed == 0)
     {
         color = 0xD;
@@ -14561,8 +14583,8 @@ void drawMainMenuButtonBorders() // sub_4D0AD  proc near       ; CODE XREF: runM
     }
 
 //loc_4D184:              ; CODE XREF: drawMainMenuButtonBorders+D3j
-    si = 0x5C1;
-//    drawButtonBorder();
+//    si = 0x5C1;
+    drawMainMenuButtonBorder(kMainMenuButtonBorders[9], color);
     if (gLevelListDownButtonPressed == 0)
     {
         color = 7;
@@ -14573,8 +14595,8 @@ void drawMainMenuButtonBorders() // sub_4D0AD  proc near       ; CODE XREF: runM
     }
 
 //loc_4D197:              ; CODE XREF: drawMainMenuButtonBorders+E6j
-    si = 0x5D6;
-//    drawButtonBorder();
+//    si = 0x5D6;
+    drawMainMenuButtonBorder(kMainMenuButtonBorders[10], color);
     if (gLevelListDownButtonPressed == 0)
     {
         color = 0xD;
@@ -14585,8 +14607,8 @@ void drawMainMenuButtonBorders() // sub_4D0AD  proc near       ; CODE XREF: runM
     }
 
 //loc_4D1AA:              ; CODE XREF: drawMainMenuButtonBorders+F9j
-    si = 0x5EB;
-//    drawButtonBorder();
+//    si = 0x5EB;
+    drawMainMenuButtonBorder(kMainMenuButtonBorders[11], color);
     gLevelListButtonPressed = 0;
 }
 
