@@ -14,15 +14,15 @@ static const int kScreenHeight = 200;
 // title2DataBuffer -> 0x4DD4 - 0xCAD4
 
 static const int levelDataLength = 1536; // exact length of a level file, even of each level inside the LEVELS.DAT file
-uint8_t byte_50910 = 0;
-uint8_t byte_50911 = 0;
-uint8_t byte_50912 = 0;
+uint8_t gPlayerListDownButtonPressed = 0; // byte_50910
+uint8_t gPlayerListUpButtonPressed = 0; // byte_50911
+uint8_t gPlayerListButtonPressed = 0; // byte_50912
 uint8_t byte_50913 = 0;
 uint8_t byte_50914 = 0;
 uint8_t byte_50915 = 0;
-uint8_t byte_50916 = 0;
-uint8_t byte_50917 = 0;
-uint8_t byte_50918 = 0;
+uint8_t gLevelListDownButtonPressed = 0; // byte_50916
+uint8_t gLevelListUpButtonPressed = 0; // byte_50917
+uint8_t gLevelListButtonPressed = 0; // byte_50918
 uint8_t byte_50941 = 0;
 uint8_t byte_50946 = 0;
 uint8_t byte_50953 = 0;
@@ -271,7 +271,7 @@ void handleLevelListScrollUp(void);
 void handleLevelListScrollDown(void);
 
 static const uint8_t kNumberOfMenuButtons = 5;
-static const ButtonDescriptor kMenuButtonDescriptors[kNumberOfMenuButtons] = {
+static const ButtonDescriptor kMenuButtonDescriptors[kNumberOfMenuButtons] = { // located in DS:0000
     /*
     {
         5, 6,
@@ -361,6 +361,61 @@ static const ButtonDescriptor kMenuButtonDescriptors[kNumberOfMenuButtons] = {
      */
 };
 
+enum ButtonBorderLineType {
+    ButtonBorderLineTypeHorizontal = 0, // from left to right
+    ButtonBorderLineTypeVertical = 1, // from bottom to top
+    ButtonBorderLineTypeUnknown2 = 2,
+    ButtonBorderLineTypeUnknown3 = 3,
+};
+
+typedef struct {
+    uint8_t type;
+    uint16_t x;
+    uint16_t y;
+    uint16_t length;
+} ButtonBorderLineDescriptor;
+
+typedef struct {
+    ButtonBorderLineDescriptor lines[10];
+    uint8_t numberOfLines;
+} ButtonBorderDescriptor;
+
+static const int kNumberOfMainMenuButtonBorders = 4;
+static const ButtonBorderDescriptor kMainMenuButtonBorders[kNumberOfMainMenuButtonBorders] = { // starts on 0x504? or before?
+    // Player List - Up Arrow - Left and Top borders
+    {
+        {
+            { ButtonBorderLineTypeVertical, 11, 152, 11 },
+            { ButtonBorderLineTypeHorizontal, 12, 142, 56 },
+        },
+        2
+    },
+    // Player List - Up Arrow - Bottom and Right borders
+    {
+        {
+            { ButtonBorderLineTypeHorizontal, 12, 153, 56 },
+            { ButtonBorderLineTypeVertical, 67, 153, 11 },
+        },
+        2
+    },
+    // Player List - Down Arrow - Left and Top borders
+    {
+        {
+            { ButtonBorderLineTypeVertical, 11, 191, 11 },
+            { ButtonBorderLineTypeHorizontal, 12, 181, 56 },
+        },
+        2
+    },
+    // Player List - Down Arrow - Bottom and Right borders
+    {
+        {
+            { ButtonBorderLineTypeHorizontal, 12, 192, 56 },
+            { ButtonBorderLineTypeVertical, 67, 192, 11 },
+        },
+        2
+    },
+};
+
 ColorPalette gCurrentPalette;
 
 ColorPalette gPalettes[kNumberOfPalettes];
@@ -441,8 +496,8 @@ void sound2(void);
 void savePlayerListData(void);
 void saveHallOfFameData(void);
 void getMouseStatus(uint8_t *mouseX, uint8_t *mouseY, uint16_t *mouseButtonStatus);
-void sub_4D0AD(void);
-void sub_4D004(void);
+void drawMainMenuButtonBorders(void);
+void drawButtonBorder(ButtonBorderDescriptor border, uint8_t color);
 void waitForJoystickKey(void); // sub_49FED
 void getTime(void);
 void checkVideo(void);
@@ -453,8 +508,8 @@ void loadMurphySprites(void);
 void prepareLevelDataForCurrentPlayer(void);
 void drawPlayerList(void);
 void drawLevelList(void);
-void doSomethingWithMouse(void);
-void sub_4B899(void);
+void drawMouseCursor(void);
+void clearMouseCursor(void);
 void sub_4B8BE(void);
 void drawRankings(void);
 
@@ -1215,7 +1270,7 @@ loc_46FB4:              //; CODE XREF: start+38Fj
 //        sound2();
 //        pop(ax);
 //        gCurrentSelectedLevelIndex = ax;
-//        sub_4B899();
+//        clearMouseCursor();
 //        drawLevelList();
 //        word_5196C = 0;
 //        byte_5A19B = 0;
@@ -9805,7 +9860,7 @@ loc_4AB4A:              ; CODE XREF: sub_4AB1B+5j
 
 loc_4AB56:              ; CODE XREF: sub_4AB1B+25j
         mov byte_59820, bl
-        call    sub_4B899
+        call    clearMouseCursor
         mov si, 8193h
         mov di, 89F7h
         mov ah, 4
@@ -9888,7 +9943,7 @@ loc_4ABEB:              ; CODE XREF: sub_4AB1B+72j
         mov di, 89F7h
         mov ah, 8
         call    drawTextWithChars6Font_method1
-        call    doSomethingWithMouse
+        call    drawMouseCursor
         call    sub_4B8BE
         return;
 // ; ---------------------------------------------------------------------------
@@ -9908,7 +9963,7 @@ loc_4AC1E:              ; CODE XREF: sub_4AB1B+E0j
         mov di, 89F7h
         mov ah, 6
         call    drawTextWithChars6Font_method1
-        call    doSomethingWithMouse
+        call    drawMouseCursor
         call    sub_4B8BE
         return;
 // ; ---------------------------------------------------------------------------
@@ -9960,7 +10015,7 @@ loc_4AC73:              ; CODE XREF: sub_4AB1B+18Cj
         mov di, 89F7h
         mov ah, 6
         call    drawTextWithChars6Font_method1
-        call    doSomethingWithMouse
+        call    drawMouseCursor
         call    sub_4B8BE
         return;
 // ; ---------------------------------------------------------------------------
@@ -10003,7 +10058,7 @@ loc_4ACA3:              ; CODE XREF: sub_4AB1B+15Cj
         call    drawPlayerList
         call    drawLevelList
         call    drawRankings
-        call    doSomethingWithMouse
+        call    drawMouseCursor
         call    sub_4B8BE
         return;
 sub_4AB1B   endp
@@ -10066,8 +10121,8 @@ loc_4AD74:              ; CODE XREF: sub_4AD0E+88j
         mov gMouseButtonStatus, bx
         mov gMouseX, cx
         mov gMouseY, dx
-        call    sub_4B899
-        call    doSomethingWithMouse
+        call    clearMouseCursor
+        call    drawMouseCursor
         call    sub_4B8BE
         mov bx, gMouseButtonStatus
         cmp bx, 0
@@ -10099,7 +10154,7 @@ loc_4AD74:              ; CODE XREF: sub_4AD0E+88j
 
 loc_4ADCE:              ; CODE XREF: sub_4AD0E+97j
                     ; sub_4AD0E+9Cj ...
-        call    sub_4B899
+        call    clearMouseCursor
         mov si, 8226h
         mov di, 89F7h
         mov ah, 8
@@ -10116,7 +10171,7 @@ loc_4ADF3:              ; CODE XREF: sub_4AD0E+EBj
         call    getMouseStatus
         cmp bx, 0
         jnz short loc_4ADF3
-        call    doSomethingWithMouse
+        call    drawMouseCursor
         return;
 sub_4AD0E   endp
 
@@ -10211,8 +10266,8 @@ loc_4AE91:              ; CODE XREF: sub_4ADFF+B4j
         mov gMouseButtonStatus, bx
         mov gMouseX, cx
         mov gMouseY, dx
-        call    sub_4B899
-        call    doSomethingWithMouse
+        call    clearMouseCursor
+        call    drawMouseCursor
         call    sub_4B8BE
         mov bx, gMouseButtonStatus
         cmp bx, 0
@@ -10237,7 +10292,7 @@ loc_4AE91:              ; CODE XREF: sub_4ADFF+B4j
 
 loc_4AEE9:              ; CODE XREF: sub_4ADFF+C3j
                     ; sub_4ADFF+C8j ...
-        call    sub_4B899
+        call    clearMouseCursor
         mov si, 8226h
         mov di, 89F7h
         mov ah, 8
@@ -10250,7 +10305,7 @@ loc_4AF00:              ; CODE XREF: sub_4ADFF+107j
         call    getMouseStatus
         cmp bx, 0
         jnz short loc_4AF00
-        call    doSomethingWithMouse
+        call    drawMouseCursor
         return;
 sub_4ADFF   endp
 
@@ -10519,7 +10574,7 @@ sub_4B149   endp
 
 void sub_4B159() //   proc near       ; CODE XREF: runMainMenu+6Fp
 {
-    exitWithError("function sub_4B159 not implemented yet\n");
+//    exitWithError("function sub_4B159 not implemented yet\n");
     /*
         call    readDemoFiles
         or  cx, cx
@@ -10662,7 +10717,7 @@ loc_4B262:
 // ; ---------------------------------------------------------------------------
 
 loc_4B27F:              ; CODE XREF: code:465Cj
-        call    sub_4B899
+        call    clearMouseCursor
         mov ax, word_5195D
         mov word_58473, ax
         cmp word_58471, 1
@@ -10678,7 +10733,7 @@ loc_4B293:              ; CODE XREF: code:466Dj
 
 loc_4B2A5:              ; CODE XREF: code:4678j code:467Fj
         call    drawRankings
-        call    doSomethingWithMouse
+        call    drawMouseCursor
         call    sub_4B8BE
         return;
 // ; ---------------------------------------------------------------------------
@@ -10694,7 +10749,7 @@ loc_4B2AF:
 // ; ---------------------------------------------------------------------------
 
 loc_4B2CC:              ; CODE XREF: code:46A9j
-        call    sub_4B899
+        call    clearMouseCursor
         mov ax, word_5195D
         mov word_58473, ax
         cmp word_58471, 1
@@ -10710,7 +10765,7 @@ loc_4B2E0:              ; CODE XREF: code:46BAj
 
 loc_4B2F2:              ; CODE XREF: code:46C5j code:46CCj
         call    drawRankings
-        call    doSomethingWithMouse
+        call    drawMouseCursor
         call    sub_4B8BE
         return;
 
@@ -11076,8 +11131,8 @@ loc_4B565:              ; CODE XREF: sub_4B419+10Fj
         call    drawLevelList
         call    drawHallOfFame
         call    drawRankings
-        call    sub_4B899
-        call    doSomethingWithMouse
+        call    clearMouseCursor
+        call    drawMouseCursor
         call    sub_4B8BE
 
 locret_4B582:               ; CODE XREF: sub_4B419+27j
@@ -11223,9 +11278,9 @@ sub_4B419   endp
 
 void handlePlayerListScrollDown() // sub_4B671  proc near
 {
-    byte_50912 = 1;
-    byte_50910 = 1;
-    byte_50911 = 0;
+    gPlayerListButtonPressed = 1;
+    gPlayerListDownButtonPressed = 1;
+    gPlayerListUpButtonPressed = 0;
     ax = word_5195D;
     ax -= word_5846D;
     if (ax < word_5846F)
@@ -11249,20 +11304,20 @@ void handlePlayerListScrollDown() // sub_4B671  proc near
 
 //loc_4B6B1:              ; CODE XREF: handlePlayerListScrollDown+33j
 //                ; handlePlayerListScrollDown+3Aj
-    sub_4B899();
+    clearMouseCursor();
     byte_51ABE = 1;
     prepareLevelDataForCurrentPlayer();
     drawPlayerList();
     drawLevelList();
-    doSomethingWithMouse();
+    drawMouseCursor();
     sub_4B8BE();
 }
 
 void handlePlayerListScrollUp() // sub_4B6C9  proc near
 {
-    byte_50912 = 1;
-    byte_50910 = 0;
-    byte_50911 = 1;
+    gPlayerListButtonPressed = 1;
+    gPlayerListDownButtonPressed = 0;
+    gPlayerListUpButtonPressed = 1;
     ax = word_5195D;
     ax -= word_5846D;
     if (ax < word_5846F)
@@ -11286,12 +11341,12 @@ void handlePlayerListScrollUp() // sub_4B6C9  proc near
 
 //loc_4B709:              ; CODE XREF: handlePlayerListScrollUp+33j
 //                ; handlePlayerListScrollUp+3Aj
-    sub_4B899();
+    clearMouseCursor(); // Clears mouse trail
     byte_51ABE = 1;
     prepareLevelDataForCurrentPlayer();
     drawPlayerList();
     drawLevelList();
-    doSomethingWithMouse();
+    drawMouseCursor();
     sub_4B8BE();
 }
 
@@ -11303,9 +11358,9 @@ void handlePlayerListClick() // sub_4B721  proc near
 
 void handleLevelListScrollDown() // sub_4B72B  proc near
 {
-    byte_50918 = 1;
-    byte_50916 = 1;
-    byte_50917 = 0;
+    gLevelListButtonPressed = 1;
+    gLevelListDownButtonPressed = 1;
+    gLevelListUpButtonPressed = 0;
     ax = word_5195D;
     ax -= word_58469;
     if (ax >= word_5846B)
@@ -11326,9 +11381,9 @@ void handleLevelListScrollDown() // sub_4B72B  proc near
         return;
     }
     gCurrentSelectedLevelIndex++;
-    sub_4B899();
+    clearMouseCursor();
     drawLevelList();
-    doSomethingWithMouse();
+    drawMouseCursor();
     sub_4B8BE();
 
 //locret_4B770:               ; CODE XREF: handleLevelListScrollDown+33j
@@ -11336,9 +11391,9 @@ void handleLevelListScrollDown() // sub_4B72B  proc near
 
 void handleLevelListScrollUp() // sub_4B771  proc near
 {
-    byte_50918 = 1;
-    byte_50916 = 0;
-    byte_50917 = 1;
+    gLevelListButtonPressed = 1;
+    gLevelListDownButtonPressed = 0;
+    gLevelListUpButtonPressed = 1;
     ax = word_5195D;
     ax -= word_58469;
     if (ax >= word_5846B)
@@ -11359,11 +11414,10 @@ void handleLevelListScrollUp() // sub_4B771  proc near
         return;
     }
     gCurrentSelectedLevelIndex--;
-    sub_4B899();
+    clearMouseCursor();
     drawLevelList();
-    doSomethingWithMouse();
+    drawMouseCursor();
     sub_4B8BE();
-
 //locret_4B7B6:               ; CODE XREF: handleLevelListScrollUp+33j
 }
 
@@ -11444,7 +11498,7 @@ sub_4B7B7   proc near
         return;
 sub_4B7B7   endp
 */
-void doSomethingWithMouse() //   proc near       ; CODE XREF: sub_4AB1B+FCp
+void drawMouseCursor() // sub_4B85C  proc near       ; CODE XREF: sub_4AB1B+FCp
 //                    ; sub_4AB1B+124p ...
 {
     /*
@@ -11467,9 +11521,7 @@ void doSomethingWithMouse() //   proc near       ; CODE XREF: sub_4AB1B+FCp
     ax += 0x4D5C;
     si = ax;
     ax = gMouseX;
-    ax = ax >> 1;
-    ax = ax >> 1;
-    ax = ax >> 1;
+    ax = ax / 8;
     si += ax;
     word_5847B = si;
     di = 0x4D34;
@@ -11480,7 +11532,7 @@ void doSomethingWithMouse() //   proc near       ; CODE XREF: sub_4AB1B+FCp
 
     for (int i = 0; i < 16; ++i)
     {
-//loc_4B88D:              ; CODE XREF: doSomethingWithMouse+39j
+//loc_4B88D:              ; CODE XREF: drawMouseCursor+39j
         *di = *si;
         di++; si++;
         *di = *si;
@@ -11493,7 +11545,7 @@ void doSomethingWithMouse() //   proc near       ; CODE XREF: sub_4AB1B+FCp
     return;
 }
 
-void sub_4B899() //   proc near       ; CODE XREF: start+417p sub_4AB1B+3Fp ...
+void clearMouseCursor() // sub_4B899  proc near       ; CODE XREF: start+417p sub_4AB1B+3Fp ...
 {
     /*
 //    mov dx, 3CEh
@@ -11517,7 +11569,7 @@ void sub_4B899() //   proc near       ; CODE XREF: start+417p sub_4AB1B+3Fp ..
 
     for (int i = 0; i < 16; ++i)
     {
-//loc_4B8B2:              ; CODE XREF: sub_4B899+21j
+//loc_4B8B2:              ; CODE XREF: clearMouseCursor+21j
         *di = *si;
         di++; si++;
         *di = *si;
@@ -13198,8 +13250,8 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
 
 //loc_4C7F4:              // ; CODE XREF: runMainMenu+56j
     sound2(); // 01ED:5B91
-    doSomethingWithMouse(); // TODO: No idea, needs work
-    sub_4B8BE(); // TODO: No idea, needs work
+    drawMouseCursor();
+    sub_4B8BE();
 
     while (1)
     {
@@ -13240,24 +13292,24 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
 //loc_4C83A:              // ; CODE XREF: runMainMenu+9Ej
         gMouseX = mouseX;
         gMouseY = mouseY;
-        sub_4B899(); // TODO: no idea what it does
-        doSomethingWithMouse(); // TODO: no idea what it does
-        sub_4B8BE(); // TODO: no idea what it does
-        sub_4D0AD(); // TODO: no idea what it does
+        clearMouseCursor(); // 01ED:5BDF
+        drawMouseCursor(); // 01ED:5BE2
+        sub_4B8BE(); // 01ED:5BE5 Draws mouse cursor too?
+        drawMainMenuButtonBorders(); // 01ED:5BE8
         sub_48E59();
 //        sub_4A1BF();
-        if (byte_50910 != 0
-            && byte_50911 != 0)
+        if (gPlayerListDownButtonPressed != 0
+            || gPlayerListUpButtonPressed != 0)
         {
             //loc_4C862:              // ; CODE XREF: runMainMenu+C5j
-            byte_50912 = 1;
+            gPlayerListButtonPressed = 1;
         }
 
 //loc_4C867:              // ; CODE XREF: runMainMenu+CCj
-        byte_50910 = 0;
-        byte_50911 = 0;
+        gPlayerListDownButtonPressed = 0;
+        gPlayerListUpButtonPressed = 0;
         if (byte_50913 != 0
-            && byte_50914 != 0)
+            || byte_50914 != 0)
         {
             //loc_4C87F:              // ; CODE XREF: runMainMenu+E2j
             byte_50915 = 1;
@@ -13266,16 +13318,16 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
 //loc_4C884:              // ; CODE XREF: runMainMenu+E9j
         byte_50913 = 0;
         byte_50914 = 0;
-        if (byte_50916 != 0
-            && byte_50917 != 0)
+        if (gLevelListDownButtonPressed != 0
+            || gLevelListUpButtonPressed != 0)
         {
             //loc_4C89C:              // ; CODE XREF: runMainMenu+FFj
-            byte_50918 = 1;
+            gLevelListButtonPressed = 1;
         }
 
 //loc_4C8A1:              // ; CODE XREF: runMainMenu+106j
-        byte_50916 = 0;
-        byte_50917 = 0;
+        gLevelListDownButtonPressed = 0;
+        gLevelListUpButtonPressed = 0;
         if (byte_50941 > 4)
         {
 //        sub_4B375();
@@ -13435,7 +13487,7 @@ showControls:                              ; DATA XREF: data:0044o
                 call    setPalette
                 call    sub_4C5AF  ; DO SLIDE
                 mov     word_58463, 0
-                call    doSomethingWithMouse
+                call    drawMouseCursor
                 call    sub_4B8BE
 
 loc_4CA67:                              ; CODE XREF: code:5E89j
@@ -13448,8 +13500,8 @@ loc_4CA67:                              ; CODE XREF: code:5E89j
                 add     cx, 140h
                 mov     gMouseX, cx
                 mov     gMouseY, dx
-                call    sub_4B899
-                call    doSomethingWithMouse
+                call    clearMouseCursor
+                call    drawMouseCursor
                 call    sub_4B8BE
                 mov     bx, gMouseButtonStatus
                 cmp     bx, 2
@@ -13888,7 +13940,7 @@ var_2       = word ptr -2
         push    si
         push(cx);
         push    dx
-        call    sub_4B899
+        call    clearMouseCursor
         pop dx
         pop(cx);
         pop si
@@ -13987,7 +14039,7 @@ loc_4CE68:              ; CODE XREF: sub_4CE11+5Aj
         inc dx
         al = 1
         out dx, al      ; EGA port: graphics controller data register
-        call    doSomethingWithMouse
+        call    drawMouseCursor
         call    sub_4B8BE
         mov sp, bp
         pop bp
@@ -14010,7 +14062,7 @@ var_2       = word ptr -2
         push    si
         push(cx);
         push    dx
-        call    sub_4B899
+        call    clearMouseCursor
         pop dx
         pop(cx);
         pop si
@@ -14088,7 +14140,7 @@ loc_4CEF3:              ; CODE XREF: sub_4CE9C+5Aj
         dec bx
         jnz short loc_4CEF3
         pop ds
-        call    doSomethingWithMouse
+        call    drawMouseCursor
         call    sub_4B8BE
         mov sp, bp
         pop bp
@@ -14103,7 +14155,7 @@ sub_4CF13   proc near       ; CODE XREF: sub_4CAFC+11p
                     ; sub_4CAFC+19p ...
         push    si
         push    ax
-        call    sub_4B899
+        call    clearMouseCursor
         pop ax
         pop si
         mov dx, 3CEh
@@ -14215,7 +14267,7 @@ loc_4CFA4:              ; CODE XREF: sub_4CF13:loc_4CF7Cj
 // ; ---------------------------------------------------------------------------
 
 loc_4CFAB:              ; CODE XREF: sub_4CF13+2Aj
-        call    doSomethingWithMouse
+        call    drawMouseCursor
         call    sub_4B8BE
         return;
 sub_4CF13   endp
@@ -14262,60 +14314,22 @@ void saveHallOfFameData() //   proc near       ; CODE XREF: sub_4AB1B+1D8p
     fclose(file);
 }
 
-void sub_4D004() //   proc near       ; CODE XREF: sub_4D0AD+17p
-//                    ; sub_4D0AD+2Ap ...
+void drawButtonBorder(ButtonBorderDescriptor border, uint8_t color) // sub_4D004  proc near       ; CODE XREF: drawMainMenuButtonBorders+17p
+//                    ; drawMainMenuButtonBorders+2Ap ...
 {
-    return;
+    // 01ED:63A1
     // Parameters:
-    // - si: ???
-    // - ah: ??? it's either 7 or 0xD in sub_4D0AD
+    // - si: button border descriptor
+    // - ah: color??? it's either 7 or 0xD in drawMainMenuButtonBorders
 
-//    push    si
-//    push    ax
-    sub_4B899();
-//    pop ax
-//    pop si
-    /*
-    mov dx, 3CEh
-    al = 5
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; mode register.Data bits:
-                ; 0-1: Write mode 0-2
-                ; 2: test condition
-                ; 3: read mode: 1=color compare, 0=direct
-                ; 4: 1=use odd/even RAM addressing
-                ; 5: 1=use CGA mid-res map (2-bits/pixel)
-    // inc dx
-    // al = 0
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = 0;
-    mov dx, 3CEh
-    al = 0
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; set/reset.
-                ; Data bits 0-3 select planes for write mode 00
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    mov dx, 3CEh
-    al = 1
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; enable set/reset
-    inc dx
-    al = 0Fh
-    out dx, al      ; EGA port: graphics controller data register
-     */
+    clearMouseCursor();
 
-    // this iterates through a structure of 7 bytes length:
-    // - 0: some kind of index maybe that goes up to 0xFF (not included)? Seems to take values 0, 1, 2 and 3
-    // - 1-2: some X coordinate? it's divided by 8
-    // - 3-4: some Y coordinate? it's multiplied by 122
-    // - 5-6: it's an amount of something, it's used to iterate again in a loop
-//loc_4D029:              ; CODE XREF: sub_4D004+96j
-    do
+//loc_4D029:              ; CODE XREF: drawButtonBorder+96j
+    for (int i = 0; i < border.numberOfLines; ++i)
     {
-        bl = *(uint8_t *)si;
+        ButtonBorderLineDescriptor line = border.lines[i];
+
+/*        bl = *(uint8_t *)si;
         if (bl == 0xFF)
         {
             break;
@@ -14333,23 +14347,30 @@ void sub_4D004() //   proc near       ; CODE XREF: sub_4D0AD+17p
         ah = 0x80; // 128
         ah = ah >> cl;
         cx = ((uint8_t *)si)[5]; // copies 5 and 6? (cx is a word)
-        /*
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        // inc dx
-        // al = ah
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = ah;
-         */
-        al = ah;
-
-        for (int i = 0; i < cx; ++i)
+ */
+        for (int j = 0; j < line.length; ++j)
         {
-//loc_4D060:              ; CODE XREF: sub_4D004:loc_4D095j
+            size_t destAddress = 0;
+            if (line.type == ButtonBorderLineTypeHorizontal)
+            {
+                destAddress = line.y * kScreenWidth + line.x + j;
+            }
+            else if (line.type == ButtonBorderLineTypeVertical)
+            {
+                destAddress = (line.y - j) * kScreenWidth + line.x;
+            }
+            else if (line.type == ButtonBorderLineTypeUnknown2)
+            {
+                printf("Still unknown type of border line: %d", line.type);
+            }
+            else if (line.type == ButtonBorderLineTypeUnknown3)
+            {
+                printf("Still unknown type of border line: %d", line.type);
+            }
+
+            gScreenPixels[destAddress] = color;
+            /*
+//loc_4D060:              ; CODE XREF: drawButtonBorder:loc_4D095j
         //    out dx, al      ; EGA port: graphics controller data register
             *((uint8_t *)di) = *((uint8_t *)di) ^ al; // xor es:[di], al
             if (bl == 0)
@@ -14363,14 +14384,14 @@ void sub_4D004() //   proc near       ; CODE XREF: sub_4D0AD+17p
                 di++;
             }
 
-//loc_4D06F:              ; CODE XREF: sub_4D004+62j
+//loc_4D06F:              ; CODE XREF: drawButtonBorder+62j
             if (bl == 1)
             {
                 di -= 0x7A; // 122
                 continue; //jmp short loc_4D095
             }
 
-//loc_4D079:              ; CODE XREF: sub_4D004+6Ej
+//loc_4D079:              ; CODE XREF: drawButtonBorder+6Ej
             if (bl == 2)
             {
                 di -= 0x7A; // 122
@@ -14382,7 +14403,7 @@ void sub_4D004() //   proc near       ; CODE XREF: sub_4D0AD+17p
                 di++;
             }
 
-//loc_4D088:              ; CODE XREF: sub_4D004+78j
+//loc_4D088:              ; CODE XREF: drawButtonBorder+78j
             if (bl == 3)
             {
                 di -= 0x7A; // 122
@@ -14393,74 +14414,38 @@ void sub_4D004() //   proc near       ; CODE XREF: sub_4D0AD+17p
                 }
                 di++;
             }
+             */
 
-//loc_4D095:              ; CODE XREF: sub_4D004:loc_4D06Dj
-        //                ; sub_4D004+73j ...
+//loc_4D095:              ; CODE XREF: drawButtonBorder:loc_4D06Dj
+        //                ; drawButtonBorder+73j ...
         }
         si += 7;
-//        jmp short loc_4D029
-    } while (1);
+    }
 
-//loc_4D09C:              ; CODE XREF: sub_4D004+2Aj
-    /*
-    mov dx, 3CEh
-    al = 5
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; mode register.Data bits:
-                ; 0-1: Write mode 0-2
-                ; 2: test condition
-                ; 3: read mode: 1=color compare, 0=direct
-                ; 4: 1=use odd/even RAM addressing
-                ; 5: 1=use CGA mid-res map (2-bits/pixel)
-    inc dx
-    al = 1
-    out dx, al      ; EGA port: graphics controller data register
-     */
-    doSomethingWithMouse();
+//loc_4D09C:              ; CODE XREF: drawButtonBorder+2Aj
+    drawMouseCursor();
     sub_4B8BE();
 }
 
-void sub_4D0AD() //   proc near       ; CODE XREF: runMainMenu+B7p
+void drawMainMenuButtonBorders() // sub_4D0AD  proc near       ; CODE XREF: runMainMenu+B7p
 {
-    if (byte_50912 != 0)
+    // 01ED:644A
+    uint8_t color = 0;
+
+    if (gPlayerListButtonPressed != 0)
     {
-        if (byte_50911 == 0)
+        if (gPlayerListUpButtonPressed == 0)
         {
-            ah = 7;
+            color = 7;
         }
         else
         {
-            ah = 0xD; // 13
+            color = 0xD; // 13
         }
 
-    //loc_4D0C1:              ; CODE XREF: sub_4D0AD+10j
-        si = 0x504; // 1284
-        sub_4D004();
-        if (byte_50911 == 0)
-        {
-            ah = 0xD; // 13
-        }
-        else
-        {
-            ah = 7;
-        }
-
-    //loc_4D0D4:              ; CODE XREF: sub_4D0AD+23j
-        si = 0x519; // 1305
-        sub_4D004();
-        if (byte_50910 == 0)
-        {
-            ah = 7;
-        }
-        else
-        {
-            ah = 0xD; // 13
-        }
-
-    //loc_4D0E7:              ; CODE XREF: sub_4D0AD+36j
-        si = 0x52E;
-        sub_4D004();
-        if (byte_50910 == 0)
+    //loc_4D0C1:              ; CODE XREF: drawMainMenuButtonBorders+10j
+        drawButtonBorder(kMainMenuButtonBorders[0], color);
+        if (gPlayerListUpButtonPressed == 0)
         {
             ah = 0xD; // 13
         }
@@ -14469,119 +14454,140 @@ void sub_4D0AD() //   proc near       ; CODE XREF: runMainMenu+B7p
             ah = 7;
         }
 
-    //loc_4D0FA:              ; CODE XREF: sub_4D0AD+49j
-        si = 0x543;
-        sub_4D004();
-        byte_50912 = 0;
+    //loc_4D0D4:              ; CODE XREF: drawMainMenuButtonBorders+23j
+        drawButtonBorder(kMainMenuButtonBorders[1], ah);
+        if (gPlayerListDownButtonPressed == 0)
+        {
+            color = 7;
+        }
+        else
+        {
+            color = 0xD; // 13
+        }
+
+    //loc_4D0E7:              ; CODE XREF: drawMainMenuButtonBorders+36j
+        drawButtonBorder(kMainMenuButtonBorders[2], color);
+        if (gPlayerListDownButtonPressed == 0)
+        {
+            color = 0xD; // 13
+        }
+        else
+        {
+            color = 7;
+        }
+
+    //loc_4D0FA:              ; CODE XREF: drawMainMenuButtonBorders+49j
+        drawButtonBorder(kMainMenuButtonBorders[3], color);
+        gPlayerListButtonPressed = 0;
     }
 
-//loc_4D105:              ; CODE XREF: sub_4D0AD+5j
+//loc_4D105:              ; CODE XREF: drawMainMenuButtonBorders+5j
     if (byte_50915 != 0)
     {
         if (byte_50914 == 0)
         {
-            ah = 7;
+            color = 7;
         }
         else
         {
-            ah = 0xD; // 13
+            color = 0xD; // 13
         }
 
-    //loc_4D119:              ; CODE XREF: sub_4D0AD+68j
-        si = 0x558; // 1368
-        sub_4D004();
+    //loc_4D119:              ; CODE XREF: drawMainMenuButtonBorders+68j
+//        si = 0x558; // 1368
+//        drawButtonBorder();
         if (byte_50914 == 0)
         {
-            ah = 0xD;
+            color = 0xD;
         }
         {
-            ah = 7;
+            color = 7;
         }
 
-    //loc_4D12C:              ; CODE XREF: sub_4D0AD+7Bj
+    //loc_4D12C:              ; CODE XREF: drawMainMenuButtonBorders+7Bj
         si = 0x56D;
-        sub_4D004();
+//        drawButtonBorder();
         if (byte_50913 == 0)
         {
-            ah = 7;
+            color = 7;
         }
         else
         {
-            ah = 0xD;
+            color = 0xD;
         }
 
-    //loc_4D13F:              ; CODE XREF: sub_4D0AD+8Ej
+    //loc_4D13F:              ; CODE XREF: drawMainMenuButtonBorders+8Ej
         si = 0x582;
-        sub_4D004();
+//        drawButtonBorder();
         if (byte_50913 == 0)
         {
-            ah = 0xD;
+            color = 0xD;
         }
         else
         {
-            ah = 7;
+            color = 7;
         }
 
-    //loc_4D152:              ; CODE XREF: sub_4D0AD+A1j
+    //loc_4D152:              ; CODE XREF: drawMainMenuButtonBorders+A1j
         si = 0x597;
-        sub_4D004();
+//        drawButtonBorder();
         byte_50915 = 0;
     }
 
-//loc_4D15D:              ; CODE XREF: sub_4D0AD+5Dj
-    if (byte_50918 == 0)
+//loc_4D15D:              ; CODE XREF: drawMainMenuButtonBorders+5Dj
+    if (gLevelListButtonPressed == 0)
     {
         return;
     }
-    if (byte_50917 == 0)
+    if (gLevelListUpButtonPressed == 0)
     {
-        ah = 7;
+        color = 7;
     }
     else
     {
-        ah = 0xD;
+        color = 0xD;
     }
 
-//loc_4D171:              ; CODE XREF: sub_4D0AD+C0j
+//loc_4D171:              ; CODE XREF: drawMainMenuButtonBorders+C0j
     si = 0x5AC;
-    sub_4D004();
-    if (byte_50917 == 0)
+//    drawButtonBorder();
+    if (gLevelListUpButtonPressed == 0)
     {
-        ah = 0xD;
+        color = 0xD;
     }
     else
     {
-        ah = 7;
+        color = 7;
     }
 
-//loc_4D184:              ; CODE XREF: sub_4D0AD+D3j
+//loc_4D184:              ; CODE XREF: drawMainMenuButtonBorders+D3j
     si = 0x5C1;
-    sub_4D004();
-    if (byte_50916 == 0)
+//    drawButtonBorder();
+    if (gLevelListDownButtonPressed == 0)
     {
-        ah = 7;
+        color = 7;
     }
     else
     {
-        ah = 0xD;
+        color = 0xD;
     }
 
-//loc_4D197:              ; CODE XREF: sub_4D0AD+E6j
+//loc_4D197:              ; CODE XREF: drawMainMenuButtonBorders+E6j
     si = 0x5D6;
-    sub_4D004();
-    if (byte_50916 == 0)
+//    drawButtonBorder();
+    if (gLevelListDownButtonPressed == 0)
     {
-        ah = 0xD;
+        color = 0xD;
     }
     else
     {
-        ah = 7;
+        color = 7;
     }
 
-//loc_4D1AA:              ; CODE XREF: sub_4D0AD+F9j
+//loc_4D1AA:              ; CODE XREF: drawMainMenuButtonBorders+F9j
     si = 0x5EB;
-    sub_4D004();
-    byte_50918 = 0;
+//    drawButtonBorder();
+    gLevelListButtonPressed = 0;
 }
 
 /*
@@ -14821,7 +14827,7 @@ void resetVideoMode() // sub_4D2E1   proc near       ; CODE XREF: start+450p
 void initializeMouse() //   proc near       ; CODE XREF: start+299p
 {
     gIsMouseAvailable = 1; // THIS IS NOT FROM THE ASM: assume there is a mouse available
-    SDL_ShowCursor(SDL_DISABLE);
+//    SDL_ShowCursor(SDL_DISABLE);
     return;
 /*
     // Check if mouse handler is available
@@ -14901,7 +14907,7 @@ void getMouseStatus(uint8_t *mouseX, uint8_t *mouseY, uint16_t *mouseButtonStatu
         x = CLAMP(x, 16, 304);
         y = CLAMP(y, 8, 192);
 
-        printf("coords %d, %d\n", x, y);
+//        printf("coords %d, %d\n", x, y);
 
         *mouseX = x;
         *mouseY = y;
@@ -14909,6 +14915,7 @@ void getMouseStatus(uint8_t *mouseX, uint8_t *mouseY, uint16_t *mouseButtonStatu
         uint8_t rightButtonPressed = (state & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0;
         *mouseButtonStatus = (rightButtonPressed << 1
                               | leftButtonPressed);
+//        printf("mouse status %d\n", *mouseButtonStatus);
 
         return;
     }
