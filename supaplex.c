@@ -103,7 +103,6 @@ uint16_t gCursorY = 0; // word_58485
 uint16_t *dword_58488 = 0;
 uint16_t word_5094B = 0;
 uint16_t word_5094D = 0;
-uint16_t gMouseButtonStatus = 0; // word_5847D
 uint8_t fileIsDemo = 0;
 uint8_t isJoystickEnabled = 0; // byte_50940
 uint8_t isMusicEnabled = 0; // byte_59886
@@ -117,6 +116,14 @@ int8_t gameSpeed = 0;
 uint8_t demoFileName = 0; // Probably should be another type but whatever for now
 
 uint32_t gTimeOfDay = 0;
+
+enum MouseButton
+{
+    MouseButtonLeft = 1,
+    MouseButtonRight = 1 << 0,
+};
+
+uint16_t gMouseButtonStatus = 0; // word_5847D
 uint8_t gMouseX = 0, gMouseY = 0;
 
 char a00s0010_sp[12] = "00S001$0.SP";
@@ -249,6 +256,104 @@ typedef struct
 static const int kNumberOfPlayers = 20;
 //static const int kPlayerEntryLength = 128;
 PlayerEntry gPlayerListData[kNumberOfPlayers]; // 0x8A9C
+
+typedef struct
+{
+    uint16_t startX, startY;
+    uint16_t endX, endY;
+    void (*handler)(void);
+} ButtonDescriptor;
+
+static const uint8_t kNumberOfMenuButtons = 0;
+static const ButtonDescriptor kMenuButtonDescriptors[kNumberOfMenuButtons] = {
+    /*
+    {
+        5, 6,
+        157, 14,
+        sub_4AB1B, // New player
+    },
+    {
+        5, 15,
+        157, 23,
+        sub_4AD0E, // Delete player
+    },
+    {
+        5, 24,
+        157, 32,
+        sub_4ADFF, // Skip level
+    },
+    {
+        5, 33,
+        157, 41,
+        sub_4AF0C, // Statistics
+    },
+    {
+        5, 42,
+        157, 50,
+        sub_4B149, // GFX-tutor
+    },
+    {
+        5, 51,
+        157, 59,
+        sub_4B159, // Demo
+    },
+    {
+        5, 60,
+        157, 69,
+        showControls, // Controls
+    },
+    {
+        140, 90,
+        155, 108,
+        loc_4B262, // Rankings arrow up
+    },
+    {
+        140, 121,
+        155, 138,
+        loc_4B2AF, // Rankings arrow down
+    },
+    {
+        96, 140,
+        115, 163,
+        sub_4B375, // Ok button
+    },
+    {
+        83, 168,
+        126, 192,
+        sub_4B419, // Save button? (Insert data disk according to https://supaplex.fandom.com/wiki/Main_menu)
+    },
+    {
+        11, 142,
+        67, 153,
+        sub_4B6C9, // Players arrow up
+    },
+    {
+        11, 181,
+        67, 192,
+        sub_4B671, // Players arrow down
+    },
+    {
+        11, 154,
+        67, 180,
+        sub_4B721, // Players list area
+    },
+    {
+        142, 142,
+        306, 153,
+        sub_4B771, // Levels arrow up
+    },
+    {
+        142, 181,
+        306, 192,
+        sub_4B72B, // Levels arrow down
+    },
+    {
+        297, 37,
+        312, 52,
+        sub_4B7B7, // Credits
+    }
+     */
+};
 
 ColorPalette gCurrentPalette;
 
@@ -1179,8 +1284,6 @@ immediateexit:              //; CODE XREF: start+D1j start+114j ...
 
 exit:                   //; CODE XREF: readConfig:loc_474BBj
 */
-        // Wait a bit
-        SDL_Delay(5000);
 
         // Tidy up
         SDL_FreeSurface(gTextureSurface);
@@ -13121,6 +13224,9 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
 
 //loc_4C81A:              // ; CODE XREF: runMainMenu+77j
         videoloop();
+
+        SDL_PollEvent(NULL); // TODO: where should this live?
+
         word_5195D++;
         uint8_t mouseX, mouseY;
         uint16_t mouseButtonStatus;
@@ -13142,191 +13248,129 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
         sub_4D0AD(); // TODO: no idea what it does
         sub_48E59();
 //        sub_4A1BF();
-        if (byte_50910 != 0)
+        if (byte_50910 != 0
+            && byte_50911 != 0)
         {
-            goto loc_4C862;
+            //loc_4C862:              // ; CODE XREF: runMainMenu+C5j
+            byte_50912 = 1;
         }
-        if (byte_50911 == 0)
-        {
-            goto loc_4C867;
-        }
-
-//loc_4C862:              // ; CODE XREF: runMainMenu+C5j
-        byte_50912 = 1;
 
 //loc_4C867:              // ; CODE XREF: runMainMenu+CCj
         byte_50910 = 0;
         byte_50911 = 0;
-        if (byte_50913 != 0)
+        if (byte_50913 != 0
+            && byte_50914 != 0)
         {
-            goto loc_4C87F;
+            //loc_4C87F:              // ; CODE XREF: runMainMenu+E2j
+            byte_50915 = 1;
         }
-        if (byte_50914 == 0)
-        {
-            goto loc_4C884;
-        }
-
-//loc_4C87F:              // ; CODE XREF: runMainMenu+E2j
-        byte_50915 = 1;
 
 //loc_4C884:              // ; CODE XREF: runMainMenu+E9j
         byte_50913 = 0;
         byte_50914 = 0;
-        if (byte_50916 != 0)
+        if (byte_50916 != 0
+            && byte_50917 != 0)
         {
-            goto loc_4C89C;
+            //loc_4C89C:              // ; CODE XREF: runMainMenu+FFj
+            byte_50918 = 1;
         }
-        if (byte_50917 == 0)
-        {
-            goto loc_4C8A1;
-        }
-
-//loc_4C89C:              // ; CODE XREF: runMainMenu+FFj
-        byte_50918 = 1;
 
 //loc_4C8A1:              // ; CODE XREF: runMainMenu+106j
         byte_50916 = 0;
         byte_50917 = 0;
-        if (byte_50941 <= 4)
+        if (byte_50941 > 4)
         {
-            goto loc_4C8B8;
-        }
 //        sub_4B375();
-        goto loc_4C7FD;
-
+        }
 //loc_4C8B8:              // ; CODE XREF: runMainMenu+11Cj
-        if (byte_519B8 != 1)
+        else if (byte_519B8 == 1)
         {
-            goto loc_4C8C8;
+            ax = 0;
+    //        demoSomething();
         }
-        ax = 0;
-//        demoSomething();
-        goto loc_4C9B0;
-
 //loc_4C8C8:              // ; CODE XREF: runMainMenu+129j
-        if (byte_519B9 != 1)
+        else if (byte_519B9 == 1)
         {
-            goto loc_4C8D8;
+            ax = 1;
+    //        demoSomething();
         }
-        ax = 1;
-//        demoSomething();
-        goto loc_4C9B0;
-
 //loc_4C8D8:              // ; CODE XREF: runMainMenu+139j
-        if (byte_519BA != 1)
+        else if (byte_519BA == 1)
         {
-            goto loc_4C8E8;
+            ax = 2;
+    //        demoSomething();
         }
-        ax = 2;
-//        demoSomething();
-        goto loc_4C9B0;
-
 //loc_4C8E8:              // ; CODE XREF: runMainMenu+149j
-        if (byte_519BB != 1)
+        else if (byte_519BB == 1)
         {
-            goto loc_4C8F8;
+            ax = 3;
+    //        demoSomething();
         }
-        ax = 3;
-//        demoSomething();
-        goto loc_4C9B0;
-
 //loc_4C8F8:              // ; CODE XREF: runMainMenu+159j
-        if (byte_519BC != 1)
+        else if (byte_519BC == 1)
         {
-            goto loc_4C908;
+            ax = 4;
+    //        demoSomething();
         }
-        ax = 4;
-//        demoSomething();
-        goto loc_4C9B0;
-
 //loc_4C908:              // ; CODE XREF: runMainMenu+169j
-        if (byte_519BD != 1)
+        else if (byte_519BD == 1)
         {
-            goto loc_4C918;
+            ax = 5;
+    //        demoSomething();
         }
-        ax = 5;
-//        demoSomething();
-        goto loc_4C9B0;
-
 //loc_4C918:              // ; CODE XREF: runMainMenu+179j
-        if (byte_519BE != 1)
+        else if (byte_519BE == 1)
         {
-            goto loc_4C928;
+            ax = 6;
+    //        demoSomething();
         }
-        ax = 6;
-//        demoSomething();
-        goto loc_4C9B0;
-
 //loc_4C928:              // ; CODE XREF: runMainMenu+189j
-        if (byte_519BF != 1)
+        else if (byte_519BF == 1)
         {
-            goto loc_4C937;
+            ax = 7;
+//            demoSomething();
         }
-        ax = 7;
-        demoSomething();
-        goto loc_4C9B0;
-
 //loc_4C937:              // ; CODE XREF: runMainMenu+199j
-        if (byte_519C0 != 1)
+        else if (byte_519C0 == 1)
         {
-            goto loc_4C946;
+            ax = 8;
+    //        demoSomething();
         }
-        ax = 8;
-//        demoSomething();
-        goto loc_4C9B0;
-
 //loc_4C946:              // ; CODE XREF: runMainMenu+1A8j
-        if (byte_519C1 != 1)
+        else if (byte_519C1 == 1)
         {
-            goto loc_4C955;
+            ax = 9;
+    //        demoSomething();
         }
-        ax = 9;
-//        demoSomething();
-        goto loc_4C9B0;
-
 //loc_4C955:              // ; CODE XREF: runMainMenu+1B7j
-        if (byte_519D4 != 1)
+        else if (byte_519D4 == 1
+                 && demoFileName != 0
+                 && fileIsDemo == 1)
         {
-            goto loc_4C977;
+            byte_599D4 = 1;
+            ax = 0;
+//            demoSomething();
         }
-        if (demoFileName == 0)
-        {
-            goto loc_4C977;
-        }
-        if (fileIsDemo != 1)
-        {
-            goto loc_4C977;
-        }
-        byte_599D4 = 1;
-        ax = 0;
-        demoSomething();
-        goto loc_4C9B0;
-
 //loc_4C977:              // ; CODE XREF: runMainMenu+1C6j
                     // ; runMainMenu+1CDj ...
-        if (byte_519D5 != 1)
+        else if (byte_519D5 == 1
+                 && demoFileName != 0)
         {
-            goto loc_4C9B0;
+            byte_599D4 = 1;
+            word_5196C = 1;
+            byte_510DE = 0;
+            byte_510B3 = 0;
+            byte_5A2F9 = 1;
+            prepareSomeKindOfLevelIdentifier();
+            // This adds dashes to the level name or something?
+            a00s0010_sp[3] = 0x2D; // '-' ; "001$0.SP"
+            a00s0010_sp[4] = 0x2D; // '-' ; "01$0.SP"
+            a00s0010_sp[5] = 0x2D; // '-' ; "1$0.SP"
+            continue;
         }
-        if (demoFileName == 0)
-        {
-            goto loc_4C9B0;
-        }
-        byte_599D4 = 1;
-        word_5196C = 1;
-        byte_510DE = 0;
-        byte_510B3 = 0;
-        byte_5A2F9 = 1;
-        prepareSomeKindOfLevelIdentifier();
-        // This adds dashes to the level name or something?
-        *(a00s0010_sp+3) = 0x2D; // '-' ; "001$0.SP"
-        *(a00s0010_sp+4) = 0x2D2D; // '--' ; "01$0.SP"
-        goto loc_4C7FD;
-
 //loc_4C9B0:              // ; CODE XREF: runMainMenu+131j
                    // ; runMainMenu+141j ...
-        bx = gMouseButtonStatus;
-        if (bx == 2)
+        if (gMouseButtonStatus == MouseButtonRight) // Right button -> exit game
         {
             break;
         }
@@ -13338,54 +13382,41 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
         {
             break;
         }
-        if (bx == 1)
+        if (gMouseButtonStatus == MouseButtonLeft)
         {
-            goto loc_4C9FF;
-        }
-        word_58469 = 0x10;
-        word_5846B = 0;
-        word_5846D = 0x10;
-        word_5846F = 0;
-        word_58471 = 0x10;
-        word_58473 = 0;
-        word_59B8C = 0x10;
-        word_59B8E = 0;
-        goto loc_4C7FD;
-
 //loc_4C9FF:              // ; CODE XREF: runMainMenu+236j
-        word_58465 = 0xEF98;
-        cx = gMouseX;
-        dx = gMouseY;
-        si = offset menudata;
+            word_58465 = 0xEF98;
+
+            for (int i = 0; i < kNumberOfMenuButtons; ++i)
+            {
+                ButtonDescriptor buttonDescriptor = kMenuButtonDescriptors[i];
 
 //checkmousecoords:              // ; CODE XREF: runMainMenu+29Bj
-        if (*si > cx)
-        {
-            goto nomousehit;
-        }
-        if (*(si + 2) > dx)
-        {
-            goto nomousehit;
-        }
-        if (*(si + 4) < cx)
-        {
-            goto nomousehit;
-        }
-        if (*(si + 6) < dx)
-        {
-            goto nomousehit;
-        }
-        *(si + 8)(); // invokes a function here?? WTF
-        goto loc_4C7FD;
+                if (gMouseX >= buttonDescriptor.startX
+                    && gMouseY >= buttonDescriptor.startY
+                    && gMouseX >= buttonDescriptor.endX
+                    && gMouseY >= buttonDescriptor.endY)
+                {
+                    buttonDescriptor.handler();
+                    break;
+                }
 
 //nomousehit:              // ; CODE XREF: runMainMenu+27Ej
                    // ; runMainMenu+283j ...
-        si += 0xA;
-        if (*si != 0xFFFF)
-        {
-            goto checkmousecoords;
+            }
         }
-     }
+        else
+        {
+            word_58469 = 0x10;
+            word_5846B = 0;
+            word_5846D = 0x10;
+            word_5846F = 0;
+            word_58471 = 0x10;
+            word_58473 = 0;
+            word_59B8C = 0x10;
+            word_59B8E = 0;
+        }
+    }
 
 //loc_4CA34:              // ; CODE XREF: runMainMenu+223j
                // ; runMainMenu+22Aj ...
@@ -14865,10 +14896,9 @@ void getMouseStatus(uint8_t *mouseX, uint8_t *mouseY, uint16_t *mouseButtonStatu
         int x, y;
         Uint32 state = SDL_GetMouseState(&x, &y);
 
+        // Limit coordinates as in the original game
         x = CLAMP(x, 16, 304);
         y = CLAMP(y, 8, 192);
-
-        SDL_WarpMouseInWindow(gWindow, x, y);
 
         *mouseX = x;
         *mouseY = y;
