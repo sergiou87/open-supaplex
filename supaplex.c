@@ -1,16 +1,11 @@
-// include GLOBALS.INC
-
-// ; ===========================================================================
-// code segment para public 'CODE' use16
-//         assume cs:code
-
-// ; =============== S U B R O U T I N E =======================================
-
-// ; Attributes: noreturn
-
 #include <assert.h>
 #include <errno.h>
 #include <SDL2/SDL.h>
+#include <time.h>
+
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
+#define CLAMP(v, a, b) MIN(MAX(a, v), b)
 
 static const int kScreenWidth = 320;
 static const int kScreenHeight = 200;
@@ -50,7 +45,7 @@ uint8_t byte_519F7 = 0;
 uint8_t byte_519F8 = 0;
 uint8_t byte_519F9 = 0;
 uint8_t byte_51ABE = 0;
-uint8_t byte_58487 = 0;
+uint8_t gIsMouseAvailable = 0; // byte_58487
 uint8_t byte_58D46 = 0;
 uint8_t byte_58D47 = 0;
 uint8_t byte_59821 = 0;
@@ -66,6 +61,20 @@ uint8_t byte_5A19C = 0;
 uint8_t byte_5A2F9 = 0;
 uint8_t byte_5A33E = 0;
 uint8_t byte_5A33F = 0;
+uint8_t byte_59B64 = 0;
+uint8_t byte_519B5 = 0;
+uint8_t byte_519B8 = 0;
+uint8_t byte_519B9 = 0;
+uint8_t byte_519BA = 0;
+uint8_t byte_519BB = 0;
+uint8_t byte_519BC = 0;
+uint8_t byte_519BD = 0;
+uint8_t byte_519BE = 0;
+uint8_t byte_519BF = 0;
+uint8_t byte_519C0 = 0;
+uint8_t byte_519C1 = 0;
+uint8_t byte_519D4 = 0;
+uint8_t byte_519D5 = 0;
 uint8_t gCurrentPlayerIndex = 0; // byte_5981F
 uint8_t byte_59B62 = 0;
 uint16_t word_58467 = 0;
@@ -80,22 +89,39 @@ uint16_t word_599D8 = 0;
 uint16_t word_58465 = 0;
 uint16_t word_5847B = 0;
 uint16_t word_5195D = 0;
-uint16_t word_58481 = 0;
-uint16_t word_58485 = 0;
+uint16_t word_51974 = 0;
+uint16_t word_58469 = 0;
+uint16_t word_5846B = 0;
+uint16_t word_5846D = 0;
+uint16_t word_5846F = 0;
+uint16_t word_58471 = 0;
+uint16_t word_58473 = 0;
+uint16_t word_59B8C = 0;
+uint16_t word_59B8E = 0;
+uint16_t gCursorX = 0; // word_58481
+uint16_t gCursorY = 0; // word_58485
+uint16_t *dword_58488 = 0;
 uint16_t word_5094B = 0;
 uint16_t word_5094D = 0;
 uint16_t gMouseButtonStatus = 0; // word_5847D
-uint32_t dword_58488 = 0;
 uint8_t fileIsDemo = 0;
 uint8_t isJoystickEnabled = 0; // byte_50940
 uint8_t isMusicEnabled = 0; // byte_59886
 uint8_t isFXEnabled = 0; // byte_59885
+uint8_t videoStatusUnk = 0;
+uint8_t keyPressed = 0;
+int8_t speed1 = 0;
+int8_t speed2 = 0;
+int8_t speed3 = 0;
+int8_t gameSpeed = 0;
+uint8_t demoFileName = 0; // Probably should be another type but whatever for now
 
+uint32_t gTimeOfDay = 0;
 uint8_t gMouseX = 0, gMouseY = 0;
 
 char a00s0010_sp[12] = "00S001$0.SP";
 char aLevels_dat_0[11] = "LEVELS.DAT";
-char gPlayerName[9] = "WIBBLE  "; // 0x879F
+char gPlayerName[9] = "WIBBLE  "; // 0x879F // TODO: read this address when the game starts and put the same text here
 
 static const int kNumberOfLevels = 111;
 static const int kLevelEntryLength = 28; // In the list of levels, every level is 28 bytes long and looks like "001                        \n"
@@ -262,6 +288,14 @@ SDL_Renderer *gRenderer = NULL;
 SDL_Texture *gTexture = NULL;
 SDL_Surface *gTextureSurface = NULL;
 
+static const uint16_t kFixedBitmapWidth = 640;
+static const uint16_t kFixedBitmapHeight = 16;
+uint8_t gFixedBitmapData[kFixedBitmapWidth * kFixedBitmapHeight / 2];
+
+static const uint16_t kMovingBitmapWidth = 320;
+static const uint16_t kMovingBitmapHeight = 462;
+uint8_t gMovingDecodedBitmapData[kMovingBitmapWidth * kMovingBitmapHeight / 2];
+
 // registers to prevent compiler errors
 uint8_t cf;
 uint8_t ah, al, bh, bl, ch, cl, dh, dl;
@@ -299,6 +333,12 @@ void getMouseStatus(uint8_t *mouseX, uint8_t *mouseY, uint16_t *mouseButtonStatu
 void sub_4D0AD(void);
 void sub_4D004(void);
 void waitForJoystickKey(void); // sub_49FED
+void getTime(void);
+void checkVideo(void);
+void initializeFadePalette(void);
+void initializeMouse(void);
+void setint8(void);
+void loadMurphySprites(void);
 
 //         public start
 int main(int argc, const char * argv[])
@@ -615,7 +655,7 @@ demoFileNotMissing:              //; CODE XREF: start+10Bj
 
 spHasAtAndDemo:              //; CODE XREF: start+11Cj
         fastMode = 1;
-        speed? = 0
+        speed1 = 0
 
 runSpFile:              //; CODE XREF: start+104j
         push(di);
@@ -818,7 +858,7 @@ loc_46E4C:              //; CODE XREF: start+228j
         }
         
         ah |= 0x0C0;
-        speed?3 = ah;
+        speed3 = ah;
 
 loc_46E59:              //; CODE XREF: start+221j start+230j
         pop(cx);
@@ -847,23 +887,24 @@ loc_46E6F:              //; CODE XREF: start+24Bj
 loc_46E75:              //; CODE XREF: start+251j
         byte_59B84 = al;
 
-doesNotHaveCommandLine:         //; CODE XREF: start+13j start+23Fj ...
+ */
+
+//doesNotHaveCommandLine:         //; CODE XREF: start+13j start+23Fj ...
         getTime();
         checkVideo();
-        if (byte_59B64 == 0)
+        if (byte_59B64 != 0)
         {
-            goto leaveVideoStatus;
+            videoStatusUnk = 2;
         }
-        videoStatusUnk = 2;
 
-leaveVideoStatus:           //; CODE XREF: start+28Aj
-        ax = 0xA000;
-        es = ax;
-         assume es:nothing
+//leaveVideoStatus:           //; CODE XREF: start+28Aj
+//        ax = 0xA000;
+//        es = ax;
+//         assume es:nothing
         initializeFadePalette(); // 01ED:026F
         initializeMouse();
         setint8(); // Timer
-        setint24(); // Fatal error handler?
+/*        setint24(); // Fatal error handler?
         setint9(); // Keyboard
         initializeSound();
         if (fastMode != 0)
@@ -872,17 +913,16 @@ leaveVideoStatus:           //; CODE XREF: start+28Aj
         }
         initializeVideo2();
         initializeVideo3();
-        si = 0x60D5;
  */
     setPalette(gBlackPalette);
     readTitleDatAndGraphics();
     ColorPalette titleDatPalette; // si = 0x5F15;
     convertPaletteDataToPalette(gTitlePaletteData, titleDatPalette);
     fadeToPalette(titleDatPalette);
-/*
-isFastMode:              //; CODE XREF: start+2ADj
+
+//isFastMode:              //; CODE XREF: start+2ADj
     loadMurphySprites();
-    initializeVideo3();
+/*    initializeVideo3();
     // Conditions to whether show
     al = byte_59B6B;
     al |= byte_59B84;
@@ -898,22 +938,22 @@ isFastMode:              //; CODE XREF: start+2ADj
 
 openingSequence:
  */
-        loadScreen2();    // 01ED:02B9
-        readEverything(); // 01ED:02BC
-        drawSpeedFixTitleAndVersion(); // 01ED:02BF
-        openCreditsBlock(); // credits inside the block // 01ED:02C2
-        drawSpeedFixCredits();   // credits below the block (herman perk and elmer productions) // 01ED:02C5
+    loadScreen2();    // 01ED:02B9
+    readEverything(); // 01ED:02BC
+    drawSpeedFixTitleAndVersion(); // 01ED:02BF
+    openCreditsBlock(); // credits inside the block // 01ED:02C2
+    drawSpeedFixCredits();   // credits below the block (herman perk and elmer productions) // 01ED:02C5
 
 //afterOpeningSequence:              //; CODE XREF: start+2DEj
-        readConfig();
-        if (byte_50946 == 0)
-        {
-            isJoystickEnabled = 0;
-        }
-        else
-        {
-            isJoystickEnabled = 1;
-        }
+    readConfig();
+    if (byte_50946 == 0)
+    {
+        isJoystickEnabled = 0;
+    }
+    else
+    {
+        isJoystickEnabled = 1;
+    }
 
 //loc_46F25:              //; CODE XREF: start+2FEj
 /*
@@ -924,12 +964,11 @@ openingSequence:
         goto loc_46FBE;
  */
 
-isNotFastMode:              //; CODE XREF: start+30Aj
+//isNotFastMode:              //; CODE XREF: start+30Aj
     fadeToPalette(gBlackPalette);
     word_58467 = 1;
 /*
     goto loc_46FBE;
-//// ; ---------------------------------------------------------------------------
 
 loc_46F3E:              //; CODE XREF: start+428j start+444j
         readLevels();
@@ -986,7 +1025,6 @@ loc_46FA5:              //; CODE XREF: start+380j
             goto loc_46FB4;
         }
         goto loc_47067;
-//// ; ---------------------------------------------------------------------------
 
 loc_46FB4:              //; CODE XREF: start+38Fj
         if (isMusicEnabled != 0)
@@ -1061,7 +1099,6 @@ loc_46FB4:              //; CODE XREF: start+38Fj
 //        word_5196C = 0;
 //        byte_5A19B = 0;
 //        goto loc_46F3E;
-//// ; ---------------------------------------------------------------------------
 
 //loc_4704B:              //; CODE XREF: start+3EEj start+3F2j
         ax = 1;
@@ -1085,7 +1122,7 @@ loc_47067:              //; CODE XREF: start+36Bj start+391j ...
 
 doneWithDemoPlayback:           //; CODE XREF: start+375j
         resetint9();
-        sub_4D2E1();
+        resetVideoMode();
         if (fastMode != 1)
         {
             goto isNotFastMode3;
@@ -1159,7 +1196,7 @@ exit:                   //; CODE XREF: readConfig:loc_474BBj
 //        resetint9();
 //        resetint24();
 //        soundShutdown?();
-//        sub_4D2E1();
+//        resetVideoMode();
 //        resetint8();
 //        pop(ax);
 //        push(ax);
@@ -1401,10 +1438,7 @@ locret_4720F:               ; CODE XREF: slideDownGameDash+Aj
         return;
 slideDownGameDash endp
 
-
-; =============== S U B R O U T I N E =======================================
-
-
+*/
 void setint9()
 {
     // waits for shift, ctrl, alt, system, and suspend to NOT be pressed
@@ -1449,259 +1483,254 @@ void setint9()
 // setint9     endp
 }
 
-
-; =============== S U B R O U T I N E =======================================
-
-
 void resetint9() //   proc near       ; CODE XREF: start:doneWithDemoPlaybackp
+// ; loadScreen2-7E0p ...
 {
-                    // ; loadScreen2-7E0p ...
-        cmp byte_5199A, 0
-        jnz short resetint9
-        cmp byte ptr word_519A7, 0
-        jnz short resetint9
-        cmp byte ptr word_519B3, 0
-        jnz short resetint9
-        cmp byte_519B5, 0
-        jnz short resetint9
-        cmp byte_519B7, 0
-        jnz short resetint9
-        cmp byte_519C2, 0
-        jnz short resetint9
-        cmp byte_519C3, 0
-        jnz short resetint9
-        cmp byte_519CF, 0
-        jnz short resetint9
-        cmp byte_519D1, 0
-        jnz short resetint9
-        push    ds
-        push    es
-        mov dx, originalInt9Handler
-        mov ax, originalInt9Handler+2
-        mov ds, ax
-        mov ah, 25h ; '%'
-        al = 9
-        int 21h     ; DOS - SET INTERRUPT VECTOR
-                    ; AL = interrupt number
-                    ; DS:DX = new vector to be used for specified interrupt
-        pop es
-        pop ds
-        return;
+    /*
+    cmp byte_5199A, 0
+    jnz short resetint9
+    cmp byte ptr word_519A7, 0
+    jnz short resetint9
+    cmp byte ptr word_519B3, 0
+    jnz short resetint9
+    cmp byte_519B5, 0
+    jnz short resetint9
+    cmp byte_519B7, 0
+    jnz short resetint9
+    cmp byte_519C2, 0
+    jnz short resetint9
+    cmp byte_519C3, 0
+    jnz short resetint9
+    cmp byte_519CF, 0
+    jnz short resetint9
+    cmp byte_519D1, 0
+    jnz short resetint9
+    push    ds
+    push    es
+    mov dx, originalInt9Handler
+    mov ax, originalInt9Handler+2
+    mov ds, ax
+    mov ah, 25h ; '%'
+    al = 9
+    int 21h     ; DOS - SET INTERRUPT VECTOR
+                ; AL = interrupt number
+                ; DS:DX = new vector to be used for specified interrupt
+    pop es
+    pop ds
+     */
 }
-
-// ; ---------------------------------------------------------------------------
-        // nop
-
-// ; =============== S U B R O U T I N E =======================================
-
 
 void int9handler() // proc far        ; DATA XREF: setint9+1Fo
 {
-        push    ax
-        push    bx
-        push(cx);
-        push    ds
-        mov ax, seg data
-        mov ds, ax
-        in  al, 60h     ; 8042 keyboard input buffer
-        mov cl, al
-        mov bl, al
-        in  al, 61h     ; PC/XT PPI port B bits:
-                    ; 0: Tmr 2 gate ??? OR 03H=spkr ON
-                    ; 1: Tmr 2 data ?  AND  0fcH=spkr OFF
-                    ; 3: 1=read high switches
-                    ; 4: 0=enable RAM parity checking
-                    ; 5: 0=enable I/O channel check
-                    ; 6: 0=hold keyboard clock low
-                    ; 7: 0=enable kbrd
-        or  al, 10000000b
-        out 61h, al     ; enable keyboard
-        and al, 1111111b
-        out 61h, al     ; disable keyboard
-        xor al, al
-        xor bh, bh
-        shl bl, 1
-        cmc
-        rcl al, 1
-        shr bl, 1
-        mov [bx+166Dh], al
-        test    cl, 80h     ; think key up
-        jz  short storeKey
-        jmp storeNoKeyPressed
-// ; ---------------------------------------------------------------------------
+    return;
+    // This alternative int9 handler seems to control the keys +, -, *, / in the numpad
+    // to alter the game speed, and also the key X for something else.
+//    push    ax
+//    push    bx
+//    push(cx);
+//    push    ds
+//    mov ax, seg data
+//    mov ds, ax
+//    in  al, 60h     ; 8042 keyboard input buffer
+//    mov cl, al
+//    mov bl, al
+//    in  al, 61h     ; PC/XT PPI port B bits:
+//                ; 0: Tmr 2 gate ??? OR 03H=spkr ON
+//                ; 1: Tmr 2 data ?  AND  0fcH=spkr OFF
+//                ; 3: 1=read high switches
+//                ; 4: 0=enable RAM parity checking
+//                ; 5: 0=enable I/O channel check
+//                ; 6: 0=hold keyboard clock low
+//                ; 7: 0=enable kbrd
+//    or  al, 10000000b
+//    out 61h, al     ; enable keyboard
+//    and al, 1111111b
+//    out 61h, al     ; disable keyboard
+//    al = 0;
+//    bh = 0;
+//    bl = bl << 1;
+//    cf = 1 - cf; // cmc
+//    rcl al, 1
+//    bl = bl >> 1;
+//    bx[0x166D] = al;
+    if ((cl & 0x80) == 0) //test    cl, 80h     ; think key up
+    {
+//storeKey:               ; CODE XREF: int9handler+2Bj
+        keyPressed = cl;
+        if (speed3 >= 0)
+        {
+            if (cl == 0x37 // Key * in the numpad, restore speed
+                && speed3 >= 0)
+            {
+                cl = speed3;
+                gameSpeed = cl;
+//              push(cx);
+                cl = speed2;
+                cl = cl & 0xF0;
+                cl = cl | gameSpeed;
+                if (speed2 > cl)
+                {
+                    speed2 = cl;
+                }
+//              pop(cx);
+            }
+            else
+            {
+//checkSlash:             ; CODE XREF: int9handler+3Ej
+//                ; int9handler+45j
+                if (cl == 0x35) // Key / (numpad or not)
+                {
+                    speed1 = 0;
+                    gameSpeed = 0xA;
+                }
+                else
+                {
+//checkPlus:              ; CODE XREF: int9handler+54j
+                    if (cl == 0x4E) // Key + in the numpad, speed up
+                    {
+                        speed1 = 0;
+                        if (gameSpeed < 0xA) // 10
+                        {
+                            gameSpeed++;
+                        }
+                    }
+//checkMinus:             ; CODE XREF: int9handler+65j
+//                ; int9handler+71j
+                    if (cl == 0x4A) // Key - in the numpad, speed down
+                    {
+                        speed1 = 0;
+                        if (gameSpeed != 0)
+                        {
+                            gameSpeed--;
+//loc_47320:              ; CODE XREF: int9handler+4Fj
+//                          push(cx);
+                            cl = speed2;
+                            cl = cl & 0xF0;
+                            cl = cl | gameSpeed;
+                            if (speed2 > cl)
+                            {
+                                speed2 = cl;
+                            }
+//dontUpdatespeed2:          ; CODE XREF: int9handler+9Cj
+//                          pop(cx);
+                        }
+                    }
+                }
+            }
+        }
 
-storeKey:               ; CODE XREF: int9handler+2Bj
-        mov keyPressed, cl
-        cmp speed?3, 0
-        jl  short checkX
-        cmp cl, 37h ; '7'   ; Grey *
-        jnz short checkSlash
-        cmp speed?3, 0
-        jl  short checkSlash
-        mov cl, speed?3
-        mov gameSpeed, cl
-        jmp short loc_47320
-// ; ---------------------------------------------------------------------------
+    //checkX:                 ; CODE XREF: int9handler+39j
+    //                ; int9handler+60j ...
+        if (cl == 0x2D // Key X
+            && byte_519B5 != 0)
+        {
+            word_51974 = 1;
+            word_5197A = 1;
+        }
+    }
+    else
+    {
+        keyPressed = 0;
+    }
 
-checkSlash:             ; CODE XREF: int9handler+3Ej
-                    ; int9handler+45j
-        cmp cl, 35h ; '5'   ; /
-        jnz short checkPlus
-        mov speed?, 0
-        mov gameSpeed, 0Ah
-        jmp short checkX
-// ; ---------------------------------------------------------------------------
-
-checkPlus:              ; CODE XREF: int9handler+54j
-        cmp cl, 4Eh ; 'N'   ; Grey +
-        jnz short checkMinus
-        mov speed?, 0
-        cmp gameSpeed, 0Ah
-        jnb short checkMinus
-        inc gameSpeed
-
-checkMinus:             ; CODE XREF: int9handler+65j
-                    ; int9handler+71j
-        cmp cl, 4Ah ; 'J'   ; Grey -
-        jnz short checkX
-        mov speed?, 0
-        cmp gameSpeed, 0
-        jz  short checkX
-        dec gameSpeed
-
-loc_47320:              ; CODE XREF: int9handler+4Fj
-        push(cx);
-        mov cl, speed?2
-        and cl, 0F0h
-        or  cl, gameSpeed
-        cmp speed?2, cl
-        jbe short dontUpdateSpeed?2
-        mov speed?2, cl
-
-dontUpdateSpeed?2:          ; CODE XREF: int9handler+9Cj
-        pop(cx);
-
-checkX:                 ; CODE XREF: int9handler+39j
-                    ; int9handler+60j ...
-        cmp cl, 2Dh ; '-'   ; X
-        jnz short doneexit
-        cmp byte_519B5, 0
-        jz  short doneexit
-        mov word_51974, 1
-        mov word_5197A, 1
-        jmp short doneexit
-// ; ---------------------------------------------------------------------------
-
-storeNoKeyPressed:          ; CODE XREF: int9handler+2Dj
-        mov keyPressed, 0
-
-doneexit:                   ; CODE XREF: int9handler+A6j
-                    ; int9handler+ADj ...
-        al = 100000b ; nonspecific EOI
-        out 20h, al     ; Interrupt controller, 8259A.
-        pop ds
-        pop(cx);
-        pop bx
-        pop ax
-        iret
-int9handler endp
-
-// ; ---------------------------------------------------------------------------
-        nop
-
-// ; =============== S U B R O U T I N E =======================================
-
+//doneexit:                   ; CODE XREF: int9handler+A6j
+//                ; int9handler+ADj ...
+//    al = 100000b ; nonspecific EOI
+//    out 20h, al     ; Interrupt controller, 8259A.
+//    pop ds
+//    pop(cx);
+//    pop bx
+//    pop ax
+ }
 
 void int8handler() // proc far        ; DATA XREF: setint8+10o
 {
-        push    ds
-        push    dx
-        push    ax
-        mov ax, seg data
-        mov ds, ax
-        inc byte_59B96
-        cmp byte_510AE, 0
-        jz  short loc_473AA
-        al = byte_510AF
-        al++;
-        mov byte_510AF, al
-        cmp al, 32h ; '2'
-        jl  short loc_473AA
-        mov byte_510AF, 0
-        al = byte_510B0
-        al++;
-        mov byte_510B0, al
-        cmp al, 3Ch ; '<'
-        jl  short loc_473AA
-        mov byte_510B0, 0
-        al = byte_510B1
-        al++;
-        mov byte_510B1, al
-        cmp al, 3Ch ; '<'
-        jl  short loc_473AA
-        mov byte_510B1, 0
-        inc byte_510B2
+    /*
+    push    ds
+    push    dx
+    push    ax
+    mov ax, seg data
+    mov ds, ax
+    inc byte_59B96
+    cmp byte_510AE, 0
+    jz  short loc_473AA
+    al = byte_510AF
+    al++;
+    mov byte_510AF, al
+    cmp al, 32h ; '2'
+    jl  short loc_473AA
+    mov byte_510AF, 0
+    al = byte_510B0
+    al++;
+    mov byte_510B0, al
+    cmp al, 3Ch ; '<'
+    jl  short loc_473AA
+    mov byte_510B0, 0
+    al = byte_510B1
+    al++;
+    mov byte_510B1, al
+    cmp al, 3Ch ; '<'
+    jl  short loc_473AA
+    mov byte_510B1, 0
+    inc byte_510B2
 
 loc_473AA:              ; CODE XREF: int8handler+11j
-                    ; int8handler+1Dj ...
-        cmp soundEnabled, 0
-        jz  short loc_473B4
-        call    sound?11
+                ; int8handler+1Dj ...
+    cmp soundEnabled, 0
+    jz  short loc_473B4
+    call    sound?11
 
 loc_473B4:              ; CODE XREF: int8handler+4Fj
-        cmp byte_5988B, 0
-        jz  short loc_473C6
-        dec byte_5988B
-        jnz short loc_473C6
-        mov byte_59889, 0
+    cmp byte_5988B, 0
+    jz  short loc_473C6
+    dec byte_5988B
+    jnz short loc_473C6
+    mov byte_59889, 0
 
 loc_473C6:              ; CODE XREF: int8handler+59j
-                    ; int8handler+5Fj
-        cmp byte_5988C, 0
-        jz  short loc_473D8
-        dec byte_5988C
-        jnz short loc_473D8
-        mov byte_5988A, 0
+                ; int8handler+5Fj
+    cmp byte_5988C, 0
+    jz  short loc_473D8
+    dec byte_5988C
+    jnz short loc_473D8
+    mov byte_5988A, 0
 
 loc_473D8:              ; CODE XREF: int8handler+6Bj
-                    ; int8handler+71j
-        inc byte_5A320
-        inc byte_5A321
-        cmp byte_5A320, 3
-        jnz short loc_473F0
-        inc byte_5A322
-        mov byte_5A320, 0
+                ; int8handler+71j
+    inc byte_5A320
+    inc byte_5A321
+    cmp byte_5A320, 3
+    jnz short loc_473F0
+    inc byte_5A322
+    mov byte_5A320, 0
 
 loc_473F0:              ; CODE XREF: int8handler+85j
-        cmp byte_5A321, 21h ; '!'
-        jnz short loc_47400
-        inc byte_5A322
-        mov byte_5A321, 0
+    cmp byte_5A321, 21h ; '!'
+    jnz short loc_47400
+    inc byte_5A322
+    mov byte_5A321, 0
 
 loc_47400:              ; CODE XREF: int8handler+95j
-        cmp byte_5A322, 0
-        jz  short loc_47414
-        dec byte_5A322
-        pop ax
-        pop dx
-        pushf
-        originalInt8Handler();
-        pop ds
-        iret
+    cmp byte_5A322, 0
+    jz  short loc_47414
+    dec byte_5A322
+    pop ax
+    pop dx
+    pushf
+    originalInt8Handler();
+    pop ds
+    iret
 // ; ---------------------------------------------------------------------------
 
 loc_47414:              ; CODE XREF: int8handler+A5j
-        al = 20h ; ' '
-        out 20h, al     ; Interrupt controller, 8259A.
-        pop ax
-        pop dx
-        pop ds
-        iret
-// int8handler endp
+    al = 20h ; ' '
+    out 20h, al     ; Interrupt controller, 8259A.
+    pop ax
+    pop dx
+    pop ds
+    iret
+     */
 }
-
-
-// ; =============== S U B R O U T I N E =======================================
 
 
 void setint8() //     proc near       ; CODE XREF: start+29Cp
@@ -1729,8 +1758,8 @@ void setint8() //     proc near       ; CODE XREF: start+29Cp
         // Info about these ports: https://wiki.osdev.org/PIT
         // Port 43 is the Mode/command register. 0x36 is 00110110, which means:
         // It selects channel 0 (which port is 0x40), access mode lobyte/hibyte, mode 3 (square wave generator), 16-bit binary
-        al = 36h ; '6'
-        out 43h, al     ; Timer 8253-5 (AT: 8254.2).
+//        al = 36h ; '6'
+//        out 43h, al     ; Timer 8253-5 (AT: 8254.2).
         
         // No idea what this does exactly but seems to configure the timer
         // al = 38h ; '8'
@@ -1741,39 +1770,31 @@ void setint8() //     proc near       ; CODE XREF: start+29Cp
         // pop ds
         // assume ds:data
         // return;
-// setint8     endp
 }
 
 
-; =============== S U B R O U T I N E =======================================
-
-
-resetint8   proc near       ; CODE XREF: start+48Bp
-                    ; loadScreen2-7D4p
-        push    ds
-        push    es
-        mov dx, word ptr originalInt8Handler
-        mov ax, word ptr originalInt8Handler+2
-        mov ds, ax
-        mov ah, 25h ; '%'
-        al = 8
-        int 21h     ; DOS - SET INTERRUPT VECTOR
-                    ; AL = interrupt number
-                    ; DS:DX = new vector to be used for specified interrupt
-        al = 36h ; '6'
-        out 43h, al     ; Timer 8253-5 (AT: 8254.2).
-        al = 0FFh
-        out 40h, al     ; Timer 8253-5 (AT: 8254.2).
-        al = 0FFh
-        out 40h, al     ; Timer 8253-5 (AT: 8254.2).
-        pop es
-        pop ds
-        return;
-resetint8   endp
-
-
-// ; =============== S U B R O U T I N E =======================================
-
+void resetint8() //   proc near       ; CODE XREF: start+48Bp
+//                    ; loadScreen2-7D4p
+{
+//    push    ds
+//    push    es
+//    mov dx, word ptr originalInt8Handler
+//    mov ax, word ptr originalInt8Handler+2
+//    mov ds, ax
+//    mov ah, 25h ; '%'
+//    al = 8
+//    int 21h     ; DOS - SET INTERRUPT VECTOR
+//                ; AL = interrupt number
+//                ; DS:DX = new vector to be used for specified interrupt
+//    al = 36h ; '6'
+//    out 43h, al     ; Timer 8253-5 (AT: 8254.2).
+//    al = 0FFh
+//    out 40h, al     ; Timer 8253-5 (AT: 8254.2).
+//    al = 0FFh
+//    out 40h, al     ; Timer 8253-5 (AT: 8254.2).
+//    pop es
+//    pop ds
+}
 
 void setint24() //    proc near       ; CODE XREF: start+29Fp
 {
@@ -1800,41 +1821,31 @@ void setint24() //    proc near       ; CODE XREF: start+29Fp
         // pop ds
         // assume ds:data
         // return;
-// setint24    endp
 }
 
+void resetint24() //  proc near       ; CODE XREF: start:isNotFastMode3p
+//                    ; loadScreen2-7DDp
+{
+//        push    ds
+//        push    es
+//        mov dx, originalInt24Handler
+//        mov ax, originalInt24Handler+2
+//        mov ds, ax
+//        mov ah, 25h ; '%'
+//        al = 24h ; '$'
+//        int 21h     ; DOS - SET INTERRUPT VECTOR
+//                    ; AL = interrupt number
+//                    ; DS:DX = new vector to be used for specified interrupt
+//        pop es
+//        pop ds
+//        return;
+}
 
-// ; =============== S U B R O U T I N E =======================================
-
-
-resetint24  proc near       ; CODE XREF: start:isNotFastMode3p
-                    ; loadScreen2-7DDp
-        push    ds
-        push    es
-        mov dx, originalInt24Handler
-        mov ax, originalInt24Handler+2
-        mov ds, ax
-        mov ah, 25h ; '%'
-        al = 24h ; '$'
-        int 21h     ; DOS - SET INTERRUPT VECTOR
-                    ; AL = interrupt number
-                    ; DS:DX = new vector to be used for specified interrupt
-        pop es
-        pop ds
-        return;
-resetint24  endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-int24handler    proc far        ; DATA XREF: setint24+10o
-        al = 1
-        iret
-int24handler    endp
-
-
-*/
+void int24handler() //    proc far        ; DATA XREF: setint24+10o
+{
+//    al = 1
+//    iret
+}
 
 void readConfig() //  proc near       ; CODE XREF: start:loc_46F0Fp
 {
@@ -2566,258 +2577,218 @@ void loadScreen2() // proc near       ; CODE XREF: start:loc_46F00p
 // loadScreen2 endp ; sp-analysis failed
 }
 
-/*
-
-// ; =============== S U B R O U T I N E =======================================
-
-// ; Attributes: bp-based frame
-
 void loadMurphySprites() //  proc near       ; CODE XREF: start:isFastModep
                     //; start+382p ...
 {
+//    int baseDestAddress;      // = word ptr -6
+//    int y;      // = word ptr -4
+//    char component;      // = byte ptr -1
 
-        int baseDestAddress;      // = word ptr -6
-        int var_4;      // = word ptr -4
-        char var_1;      // = byte ptr -1
+    // push    bp
+    // mov bp, sp
+    // add sp, 0FFFAh
 
-        // push    bp
-        // mov bp, sp
-        // add sp, 0FFFAh
+//loc_479ED:              // ; CODE XREF: loadMurphySprites+27j
 
-loc_479ED:              // ; CODE XREF: loadMurphySprites+27j
+// IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
+// IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
+// MOVING.DAT bitmap size is 320x462
+// IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
+// IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
 
- // IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
- // IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
- // MOVING.DAT bitmap size is 320x462
- // IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
- // IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
+    FILE *file = fopen("MOVING.DAT", "r");
 
-        FILE *file = fopen("MOVING.DAT", "r");
-        // mov ax, 3D00h
-        // mov dx, offset aMoving_dat ; "MOVING.DAT"
-        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-        //             ; DS:DX -> ASCIZ filename
-        //             ; AL = access mode
-        //             ; 0 - read
-        if (file != NULL)
+    if (file == NULL)
+    {
+        if (errno == ENOENT) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
         {
-            goto loc_47A13;
+            // Try to recover files from floppy disk and retry
+            // We won't do that here
+//            recoverFilesFromFloppyDisk();
+//            pushf();
+//            if (byte_59B86 != 0FFh)
+//            {
+//                goto loc_47A0B;
+//            }
+//            popf();
+//            goto loc_47AE3;
+//
+// loc_47A0B:              ; CODE XREF: loadMurphySprites+1Ej
+//            popf
+//            jb  short loc_47A10
+//            jmp short loc_479ED
         }
-        if (errno != 2) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
+
+//    loc_47A10:              ; CODE XREF: loadMurphySprites+13j
+//                    ; loadMurphySprites+25j
+        exitWithError("Error opening MOVING.DAT\n");
+    }
+
+//loc_47A13:              ; CODE XREF: loadMurphySprites+Ej
+//    lastFileHandle = file;
+    // mov dx, 3CEh
+    // al = 5
+    // out dx, al      ; EGA: graph 1 and 2 addr reg:
+    //             ; mode register.Data bits:
+    //             ; 0-1: Write mode 0-2
+    //             ; 2: test condition
+    //             ; 3: read mode: 1=color compare, 0=direct
+    //             ; 4: 1=use odd/even RAM addressing
+    //             ; 5: 1=use CGA mid-res map (2-bits/pixel)
+//    ports[0x3CE] = 5;
+    // inc dx
+    // al = 0
+    // out dx, al      ; EGA port: graphics controller data register
+//    ports[0x3CF] = 0;
+    // mov dx, 3CEh
+    // al = 8
+    // out dx, al      ; EGA: graph 1 and 2 addr reg:
+    //             ; bit mask
+    //             ; Bits 0-7 select bits to be masked in all planes
+//    ports[0x3CE] = 8;
+    // inc dx
+    // al = 0FFh
+    // out dx, al      ; EGA port: graphics controller data register
+//    ports[0x3CF] = 0xFF;
+    // mov dx, 3CEh
+    // al = 1
+    // out dx, al      ; EGA: graph 1 and 2 addr reg:
+    //             ; enable set/reset
+//    ports[0x3CE] = 1;
+    // inc dx
+    // al = 0
+    // out dx, al      ; EGA port: graphics controller data register
+//    ports[0x3CF] = 0;
+//    baseDestAddress = 0x0B72;
+
+    // There is an error in the original code, it uses height 464 (which should be
+    // harmless in the original implementation since fread doesn't fail there, just
+    // returns 0. The new implementation will fail on partial reads.
+    for (int y = 0; y < kMovingBitmapHeight; ++y)
+    {
+    // var_4 = 0;
+
+        uint8_t fileData[kMovingBitmapWidth / 2];
+
+        size_t bytes = fread(fileData, 1, sizeof(fileData), file);
+        if (bytes < sizeof(fileData))
         {
-            goto loc_47A10;
+            exitWithError("Error reading MOVING.DAT\n");
         }
-        recoverFilesFromFloppyDisk();
-        pushf();
-        if (byte_59B86 != 0FFh)
+
+//loc_47A40:              ; CODE XREF: loadMurphySprites+BAj
+        for (int x = 0; x < kMovingBitmapWidth; ++x)
         {
-            goto loc_47A0B;
-        }
-        popf();
-        goto loc_47AE3;
-// ; ---------------------------------------------------------------------------
+        // var_1 = 0;
 
-loc_47A0B:              ; CODE XREF: loadMurphySprites+1Ej
-        popf
-        jb  short loc_47A10
-        jmp short loc_479ED
-// ; ---------------------------------------------------------------------------
+//loc_47A45:              ; CODE XREF: loadMurphySprites+AEj
+            uint16_t destPixelAddress = y * kMovingBitmapWidth + x;
 
-loc_47A10:              ; CODE XREF: loadMurphySprites+13j
-                    ; loadMurphySprites+25j
-        jmp exit
-// ; ---------------------------------------------------------------------------
+            uint8_t sourcePixelAddress = x / 8;
+            uint8_t sourcePixelBitPosition = 7 - (x % 8);
 
-loc_47A13:              ; CODE XREF: loadMurphySprites+Ej
-        lastFileHandle = file;
-        // mov dx, 3CEh
-        // al = 5
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; mode register.Data bits:
-        //             ; 0-1: Write mode 0-2
-        //             ; 2: test condition
-        //             ; 3: read mode: 1=color compare, 0=direct
-        //             ; 4: 1=use odd/even RAM addressing
-        //             ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        ports[0x3CE] = 5;
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0;
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        // inc dx
-        // al = 0FFh
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0xFF;
-        // mov dx, 3CEh
-        // al = 1
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; enable set/reset
-        ports[0x3CE] = 1;
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0;
-        baseDestAddress = 0x0B72;
-        
-        for (var_4 = 0; var_4 < 464; ++var_4)
-        {
-        // var_4 = 0;
+            uint8_t b = (fileData[sourcePixelAddress + 0] >> sourcePixelBitPosition) & 0x1;
+            uint8_t g = (fileData[sourcePixelAddress + 40] >> sourcePixelBitPosition) & 0x1;
+            uint8_t r = (fileData[sourcePixelAddress + 80] >> sourcePixelBitPosition) & 0x1;
+            uint8_t i = (fileData[sourcePixelAddress + 120] >> sourcePixelBitPosition) & 0x1;
 
-loc_47A40:              //; CODE XREF: loadMurphySprites+BAj
-            for (var_1 = 0; var_1 < 4; ++var_1)
+            uint8_t finalColor = ((r << 0)
+                                  | (g << 1)
+                                  | (b << 2)
+                                  | (i << 3));
+
+            // Store a copy of the decoded value in a buffer with 4bit per pixel
+            gMovingDecodedBitmapData[destPixelAddress] = finalColor;
+
+            /*
+
+//loc_47A59:              ; CODE XREF: loadMurphySprites+6Dj
+//            si = &fileLevelData;
+            // ax = var_4;
+            // bx = 0x7A; // 122
+            // ax = ax * bx;
+            di = y * 122;
+            di += baseDestAddress;
+
+//loc_47A69:              ; CODE XREF: loadMurphySprites+8Cj
+            while (di >= 19764)
             {
-            // var_1 = 0;
-
-loc_47A45:              //; CODE XREF: loadMurphySprites+AEj
-                // mov ax, 3F00h
-                // mov bx, lastFileHandle
-                // mov cx, 28h ; 40 bytes
-                // mov dx, offset fileLevelData
-                // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-                //             ; BX = file handle, CX = number of bytes to read
-                //             ; DS:DX -> buffer
-                int bytes = fread(&fileLevelData, 1, 40, lastFileHandle);
-                if (bytes > 0)
-                {
-                    goto loc_47A59;
-                }
-                goto exit;
-// ; ---------------------------------------------------------------------------
-
-loc_47A59:              //; CODE XREF: loadMurphySprites+6Dj
-                si = &fileLevelData;
-                // ax = var_4;
-                // bx = 0x7A; // 122
-                // ax = ax * bx;
-                di = var_4 * 122;
-                di += baseDestAddress;
-
-loc_47A69:              //; CODE XREF: loadMurphySprites+8Cj
-                while (di >= 19764)
-                {
-                    di -= 0x4D0C; //19724
-                    // goto loc_47A69;
-                }
-                // if (di < 0x4D34) //19764
-                // {
-                //     goto loc_47A75;
-                // }
-                // di -= 0x4D0C;
-// ; ---------------------------------------------------------------------------
-
-loc_47A75:              //; CODE XREF: loadMurphySprites+86j
-                cl = var_1;
-                ah = 1;
-                ah = ah << cl;
-                // mov dx, 3C4h
-                // al = 2
-                // out dx, al      ; EGA: sequencer address reg
-                //             ; map mask: data bits 0-3 enable writes to bit planes 0-3
-                ports[0x3C4] = 2;
-                // inc dx
-                // al = ah
-                // out dx, al      ; EGA port: sequencer data register
-                ports[0x3C5] = ah;
-                cx = 0x14; // 20
-                memcpy(di, si, 20); // rep movsw
-                di += 20;
-                si += 20;
-                // var_1++;
-                // if (var_1 < 4)
-                // {
-                //     goto loc_47A45;
-                // }
+                di -= 0x4D0C; //19724
+                // goto loc_47A69;
             }
-            // var_4++;
-            // if (var_4 < 0x1D0) // 464
+            // if (di < 0x4D34) //19764
             // {
-            //     goto loc_47A40;
+            //     goto loc_47A75;
             // }
-        }
-        if (fclose(lastFileHandle) == 0)
-        {
-            goto loc_47AB1;
-        }
-        goto exit;
-// ; ---------------------------------------------------------------------------
+            // di -= 0x4D0C;
 
-loc_47AB1:              //; CODE XREF: loadMurphySprites+C5j
-        // IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
-        // IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
-        // FIXED.DAT bitmap size is 640x16
-        // IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
-        // IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
-
-        // mov ax, 3D00h
-        // mov dx, offset aFixed_dat ; "FIXED.DAT"
-        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-        //             ; DS:DX -> ASCIZ filename
-        //             ; AL = access mode
-        //             ; 0 - read
-        FILE *file = fread("FIXED.DAT", "r");
-        if (file != NULL)
-        {
-            goto loc_47ABE;
+//loc_47A75:              //; CODE XREF: loadMurphySprites+86j
+            cl = component;
+            ah = 1;
+            ah = ah << cl;
+            // mov dx, 3C4h
+            // al = 2
+            // out dx, al      ; EGA: sequencer address reg
+            //             ; map mask: data bits 0-3 enable writes to bit planes 0-3
+//            ports[0x3C4] = 2;
+            // inc dx
+            // al = ah
+            // out dx, al      ; EGA port: sequencer data register
+//            ports[0x3C5] = ah;
+            cx = 0x14; // 20
+            memcpy(di, si, 20); // rep movsw
+            di += 20;
+            si += 20;
+             */
         }
-        goto exit;
-// ; ---------------------------------------------------------------------------
+    }
+    if (fclose(file) != 0)
+    {
+        exitWithError("Error closing MOVING.DAT\n");
+    }
 
-loc_47ABE:              //; CODE XREF: loadMurphySprites+D2j
-        lastFileHandle = ax
-        // mov ax, 3F00h
-        // mov bx, lastFileHandle
-        // mov cx, 1400h // 5120 bytes
-        // mov dx, fixedDataBuffer // buffer
-        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-        //             ; BX = file handle, CX = number of bytes to read
-        //             ; DS:DX -> buffer
-        int bytes = fread(&fixedDataBuffer, 1, 5120, lastFileHandle);
-        if (bytes > 0)
-        {
-            goto loc_47AD5;
-        }
-        goto exit;
-// ; ---------------------------------------------------------------------------
+//loc_47AB1:              ; CODE XREF: loadMurphySprites+C5j
+    // IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
+    // IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
+    // FIXED.DAT bitmap size is 640x16
+    // IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
+    // IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
 
-loc_47AD5:              //; CODE XREF: loadMurphySprites+E9j
-        // mov ax, 3E00h
-        // mov bx, lastFileHandle
-        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-        //             ; BX = file handle
-        if (fclose(lastFileHandle) == 0)
-        {
-            goto loc_47AE3;
-        }
-        goto exit
-// ; ---------------------------------------------------------------------------
+    file = fopen("FIXED.DAT", "r");
+    if (file == NULL)
+    {
+        exitWithError("Error opening FIXED.DAT\n");
+    }
 
-loc_47AE3:              //; CODE XREF: loadMurphySprites+21j
-                    // ; loadMurphySprites+F7j
-        // mov dx, 3C4h
-        // al = 2
-        // out dx, al      ; EGA: sequencer address reg
-        //             ; map mask: data bits 0-3 enable writes to bit planes 0-3
-        ports[0x3C4] = 2;
-        // inc dx
-        // al = 0FFh
-        // out dx, al      ; EGA port: sequencer data register
-        ports[0x3C5] = 0xFF;
-        // mov sp, bp
-        // pop bp
-        // return;
-// loadMurphySprites  endp
+//loc_47ABE:              //; CODE XREF: loadMurphySprites+D2j
+    size_t bytes = fread(gFixedBitmapData, 1, sizeof(gFixedBitmapData), file);
+    if (bytes < sizeof(gFixedBitmapData))
+    {
+        exitWithError("Error reading FIXED.DAT\n");
+    }
+
+//loc_47AD5:              //; CODE XREF: loadMurphySprites+E9j
+    if (fclose(file) != 0)
+    {
+        exitWithError("Error closing FIXED.DAT\n");
+    }
+
+//loc_47AE3:              //; CODE XREF: loadMurphySprites+21j
+                // ; loadMurphySprites+F7j
+    // mov dx, 3C4h
+    // al = 2
+    // out dx, al      ; EGA: sequencer address reg
+    //             ; map mask: data bits 0-3 enable writes to bit planes 0-3
+//    ports[0x3C4] = 2;
+    // inc dx
+    // al = 0FFh
+    // out dx, al      ; EGA port: sequencer data register
+//    ports[0x3C5] = 0xFF;
+    // mov sp, bp
+    // pop bp
+    // return;
 }
 
-
-// ; =============== S U B R O U T I N E =======================================
-
-*/
 void readPanelDat() //    proc near       ; CODE XREF: readPanelDat+14j
                     // ; readEverything+6p
 {
@@ -5121,12 +5092,12 @@ noFlashing3:              ; CODE XREF: runLevel+F1j
         mov ax, word_5195F
         and al, 7
         mov byte_510A6, al
-        test    speed?3, 40h
+        test    speed3, 40h
         jnz short loc_48BED
-        test    speed?3, 80h
+        test    speed3, 80h
         jz  short loc_48BED
         al = gameSpeed
-        xchg    al, speed?3
+        xchg    al, speed3
         cmp al, 0BFh ; '?'
         jz  short loc_48BED
         and al, 0Fh
@@ -5134,7 +5105,7 @@ noFlashing3:              ; CODE XREF: runLevel+F1j
 
 loc_48BED:              ; CODE XREF: runLevel+119j
                     ; runLevel+120j ...
-        cmp speed?, 0
+        cmp speed1, 0
         jnz short loc_48BF7
         jmp loc_48C86
 // ; ---------------------------------------------------------------------------
@@ -5159,11 +5130,11 @@ loc_48C1A:              ; CODE XREF: runLevel+154j
         mov byte_59B94, 0
         ja  short loc_48C79
         jb  short loc_48C5F
-        dec speed?
-        cmp speed?, 0FEh ; '?'
+        dec speed1
+        cmp speed1, 0FEh ; '?'
         ja  short loc_48C86
-        and speed?3, 0BFh
-        mov speed?, 0
+        and speed3, 0BFh
+        mov speed1, 0
         cmp gameSpeed, 4
         jz  short loc_48C4F
         cmp gameSpeed, 6
@@ -5189,7 +5160,7 @@ loc_48C59:              ; CODE XREF: runLevel+199j
 loc_48C5F:              ; CODE XREF: runLevel+166j
         cmp gameSpeed, 0Ah
         jb  short loc_48C59
-        dec speed?
+        dec speed1
         jmp short loc_48C86
 // ; ---------------------------------------------------------------------------
 
@@ -5205,7 +5176,7 @@ loc_48C73:              ; CODE XREF: runLevel+1C3j
 loc_48C79:              ; CODE XREF: runLevel+164j
         cmp gameSpeed, 0
         ja  short loc_48C73
-        dec speed?
+        dec speed1
         jmp short $+2
 // ; ---------------------------------------------------------------------------
 
@@ -6146,7 +6117,7 @@ sub_492F1   proc near       ; CODE XREF: sub_4955B+1Dp
         cmp byte_510E2, 0FFh
         jnz short loc_49311
         mov byte_510E1, bl
-        mov ax, timeOfDay
+        mov ax, gTimeOfDay
         mov word_5A199, ax
         mov byte_59B5F, ah
         mov byte_59B5C, al
@@ -6189,7 +6160,7 @@ sub_492F1   endp
 
 somethingspsig  proc near       ; CODE XREF: runLevel+355p
                     ; sub_4945D+30p ...
-        al = speed?2
+        al = speed2
         xor al, byte_59B5F
         mov byte_59B5D, al
         xor al, byte_59B5C
@@ -6377,11 +6348,11 @@ loc_494A6:              ; CODE XREF: sub_4945D+41j
 loc_494B8:              ; CODE XREF: sub_4945D+56j
         mov word_510E4, ax
         mov byte_5A140, 83h ; '?'
-        mov bl, speed?3
+        mov bl, speed3
         mov cl, 4
         shl bl, cl
         or  bl, gameSpeed
-        mov speed?2, bl
+        mov speed2, bl
         mov bx, word_510E4
         mov ax, 4000h
         mov cx, levelDataLength
@@ -6666,7 +6637,7 @@ loc_496AC:              ; CODE XREF: sub_4955B+149j
 // ; ---------------------------------------------------------------------------
 
 loc_496B6:              ; CODE XREF: sub_4955B+156j
-        cmp speed?3, 0
+        cmp speed3, 0
         jge short loc_496C0
         jmp loc_49742
 // ; ---------------------------------------------------------------------------
@@ -6801,7 +6772,7 @@ loc_497D1:              ; CODE XREF: sub_4955B+1EEj
 // ; ---------------------------------------------------------------------------
 
 loc_497DB:              ; CODE XREF: sub_4955B+27Bj
-        cmp speed?3, 0
+        cmp speed3, 0
         jge short loc_497E5
         jmp loc_4988E
 // ; ---------------------------------------------------------------------------
@@ -8169,36 +8140,29 @@ loc_4A0EA:              ; CODE XREF: movefun5+11j
         return;
 movefun5  endp
 
-
-; =============== S U B R O U T I N E =======================================
-
-
+*/
 void getTime() //     proc near       ; CODE XREF: start:doesNotHaveCommandLinep
                     // ; sub_4955B+669p ...
 {
-        mov ax, 0
-        int 1Ah     ; CLOCK - GET TIME OF DAY
-                    ; Return: CX:DX = clock count
-                    ; AL = 00h if clock was read or written (via AH=0,1) since the previous
-                    ; midnight
-                    ; Otherwise, AL > 0
-        xor cx, dx
-        mov timeOfDay, cx
-        return;
-// getTime     endp
-}   
+//        mov ax, 0
+//        int 1Ah     ; CLOCK - GET TIME OF DAY
+//                    ; Return: CX:DX = clock count
+//                    ; AL = 00h if clock was read or written (via AH=0,1) since the previous
+//                    ; midnight
+//                    ; Otherwise, AL > 0
+//    xor cx, dx
+//    mov gTimeOfDay, cx
+    gTimeOfDay = (uint32_t)time(NULL);
+}
 
-
-; =============== S U B R O U T I N E =======================================
-
-
+/*
 sub_4A1AE   proc near       ; CODE XREF: sub_4955B+66Cp
                     ; sub_49EBE+9p ...
-        mov ax, timeOfDay
+        mov ax, gTimeOfDay
         mov bx, 5E5h
         mul bx
         add ax, 31h ; '1'
-        mov timeOfDay, ax
+        mov gTimeOfDay, ax
         shr ax, 1
         return;
 sub_4A1AE   endp
@@ -10498,7 +10462,7 @@ loc_4B1CF:              ; CODE XREF: sub_4B159+6Bj
                     ; sub_4B159+6Fj
         al = dl
         mov bx, [bx-67CAh]
-        mov timeOfDay, bx
+        mov gTimeOfDay, bx
         pop bx
         mov word_510E6, ax
         inc bx
@@ -10524,7 +10488,7 @@ demoSomething  proc near       ; CODE XREF: start+3BAp
         mov bx, ax
         shl bx, 1
         mov ax, [bx-67CAh]
-        mov timeOfDay, ax
+        mov gTimeOfDay, ax
         pop ax
         mov word_5196C, 1
         mov byte_510DE, 1
@@ -13136,315 +13100,298 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
     doSomethingWithMouse(); // TODO: No idea, needs work
     sub_4B8BE(); // TODO: No idea, needs work
 
-//loc_4C7FD:              // ; CODE XREF: runMainMenu+121j
-               // ; runMainMenu+219j ...
-    word_58465++;
-    if (word_58465 == 0)
+    while (1)
     {
-        sub_4B159();
-    }
+//loc_4C7FD:              // ; CODE XREF: runMainMenu+121j
+                   // ; runMainMenu+219j ...
+        word_58465++;
+        if (word_58465 == 0)
+        {
+            sub_4B159();
+        }
 
 //loc_4C806:              // ; CODE XREF: runMainMenu+6Dj
-    if (word_5196C != 0)
-    {
-        word_5196C = 0;
-        savePlayerListData();
-        saveHallOfFameData();
-        return;
-    }
+        if (word_5196C != 0)
+        {
+            word_5196C = 0;
+            savePlayerListData();
+            saveHallOfFameData();
+            return;
+        }
 
 //loc_4C81A:              // ; CODE XREF: runMainMenu+77j
-    videoloop();
-    word_5195D++;
-    uint8_t mouseX, mouseY;
-    uint16_t mouseButtonStatus;
-    getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
-    gMouseButtonStatus = mouseButtonStatus;
-    if (gMouseX != mouseX
-        || gMouseY != mouseY)
-    {
+        videoloop();
+        word_5195D++;
+        uint8_t mouseX, mouseY;
+        uint16_t mouseButtonStatus;
+        getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
+        gMouseButtonStatus = mouseButtonStatus;
+        if (gMouseX != mouseX
+            || gMouseY != mouseY)
+        {
 //loc_4C834:              // ; CODE XREF: runMainMenu+98j
-        word_58465 = 0xEF98;
-    }
+            word_58465 = 0xEF98;
+        }
 
 //loc_4C83A:              // ; CODE XREF: runMainMenu+9Ej
-    gMouseX = mouseX;
-    gMouseY = mouseY;
-    sub_4B899(); // TODO: no idea what it does
-    doSomethingWithMouse(); // TODO: no idea what it does
-    sub_4B8BE(); // TODO: no idea what it does
-    sub_4D0AD(); // TODO: no idea what it does
-    sub_48E59();
-/*    sub_4A1BF();
-    if (byte_50910 != 0)
-    {
-        goto loc_4C862;
-    }
-    if (byte_50911 == 0)
-    {
-        goto loc_4C867;
-    }
+        gMouseX = mouseX;
+        gMouseY = mouseY;
+        sub_4B899(); // TODO: no idea what it does
+        doSomethingWithMouse(); // TODO: no idea what it does
+        sub_4B8BE(); // TODO: no idea what it does
+        sub_4D0AD(); // TODO: no idea what it does
+        sub_48E59();
+//        sub_4A1BF();
+        if (byte_50910 != 0)
+        {
+            goto loc_4C862;
+        }
+        if (byte_50911 == 0)
+        {
+            goto loc_4C867;
+        }
 
-loc_4C862:              // ; CODE XREF: runMainMenu+C5j
-    byte_50912 = 1;
+//loc_4C862:              // ; CODE XREF: runMainMenu+C5j
+        byte_50912 = 1;
 
-loc_4C867:              // ; CODE XREF: runMainMenu+CCj
-    byte_50910 = 0;
-    byte_50911 = 0;
-    if (byte_50913 != 0)
-    {
-        goto loc_4C87F;
-    }
-    if (byte_50914 == 0)
-    {
-        goto loc_4C884;
-    }
+//loc_4C867:              // ; CODE XREF: runMainMenu+CCj
+        byte_50910 = 0;
+        byte_50911 = 0;
+        if (byte_50913 != 0)
+        {
+            goto loc_4C87F;
+        }
+        if (byte_50914 == 0)
+        {
+            goto loc_4C884;
+        }
 
-loc_4C87F:              // ; CODE XREF: runMainMenu+E2j
-    byte_50915 = 1;
+//loc_4C87F:              // ; CODE XREF: runMainMenu+E2j
+        byte_50915 = 1;
 
-loc_4C884:              // ; CODE XREF: runMainMenu+E9j
-    byte_50913 = 0;
-    byte_50914 = 0;
-    if (byte_50916 != 0)
-    {
-        goto loc_4C89C;
-    }
-    if (byte_50917 == 0)
-    {
-        goto loc_4C8A1;
-    }
+//loc_4C884:              // ; CODE XREF: runMainMenu+E9j
+        byte_50913 = 0;
+        byte_50914 = 0;
+        if (byte_50916 != 0)
+        {
+            goto loc_4C89C;
+        }
+        if (byte_50917 == 0)
+        {
+            goto loc_4C8A1;
+        }
 
-loc_4C89C:              // ; CODE XREF: runMainMenu+FFj
-    byte_50918 = 1;
+//loc_4C89C:              // ; CODE XREF: runMainMenu+FFj
+        byte_50918 = 1;
 
-loc_4C8A1:              // ; CODE XREF: runMainMenu+106j
-    byte_50916 = 0;
-    byte_50917 = 0;
-    if (byte_50941 <= 4)
-    {
-        goto loc_4C8B8;
-    }
-    sub_4B375();
-    goto loc_4C7FD;
-// ; ---------------------------------------------------------------------------
+//loc_4C8A1:              // ; CODE XREF: runMainMenu+106j
+        byte_50916 = 0;
+        byte_50917 = 0;
+        if (byte_50941 <= 4)
+        {
+            goto loc_4C8B8;
+        }
+//        sub_4B375();
+        goto loc_4C7FD;
 
-loc_4C8B8:              // ; CODE XREF: runMainMenu+11Cj
-    if (byte_519B8 != 1)
-    {
-        goto loc_4C8C8;
-    }
-    ax = 0;
-    demoSomething();
-    goto loc_4C9B0;
-// ; ---------------------------------------------------------------------------
-
-loc_4C8C8:              // ; CODE XREF: runMainMenu+129j
-    if (byte_519B9 != 1)
-    {
-        goto loc_4C8D8;
-    }
-    ax = 1;
-    demoSomething();
-    goto loc_4C9B0;
-// ; ---------------------------------------------------------------------------
-
-loc_4C8D8:              // ; CODE XREF: runMainMenu+139j
-    if (byte_519BA != 1)
-    {
-        goto loc_4C8E8;
-    }
-    ax = 2;
-    demoSomething();
-    goto loc_4C9B0;
-// ; ---------------------------------------------------------------------------
-
-loc_4C8E8:              // ; CODE XREF: runMainMenu+149j
-    if (byte_519BB != 1)
-    {
-        goto loc_4C8F8;
-    }
-    ax = 3;
-    demoSomething();
-    goto loc_4C9B0;
-// ; ---------------------------------------------------------------------------
-
-loc_4C8F8:              // ; CODE XREF: runMainMenu+159j
-    if (byte_519BC != 1)
-    {
-        goto loc_4C908;
-    }
-    ax = 4;
-    demoSomething();
-    goto loc_4C9B0;
-// ; ---------------------------------------------------------------------------
-
-loc_4C908:              // ; CODE XREF: runMainMenu+169j
-    if (byte_519BD != 1)
-    {
-        goto loc_4C918;
-    }
-    ax = 5;
-    demoSomething();
-    goto loc_4C9B0;
-// ; ---------------------------------------------------------------------------
-
-loc_4C918:              // ; CODE XREF: runMainMenu+179j
-    if (byte_519BE != 1)
-    {
-        goto loc_4C928;
-    }
-    ax = 6;
-    demoSomething();
-    goto loc_4C9B0;
-// ; ---------------------------------------------------------------------------
-
-loc_4C928:              // ; CODE XREF: runMainMenu+189j
-    if (byte_519BF != 1)
-    {
-        goto loc_4C937;
-    }
-    ax = 7;
-    demoSomething();
-    goto loc_4C9B0;
-// ; ---------------------------------------------------------------------------
-
-loc_4C937:              // ; CODE XREF: runMainMenu+199j
-    if (byte_519C0 != 1)
-    {
-        goto loc_4C946;
-    }
-    ax = 8;
-    demoSomething();
-    goto loc_4C9B0;
-// ; ---------------------------------------------------------------------------
-
-loc_4C946:              // ; CODE XREF: runMainMenu+1A8j
-    if (byte_519C1 != 1)
-    {
-        goto loc_4C955;
-    }
-    ax = 9;
-    demoSomething();
-    goto loc_4C9B0;
-// ; ---------------------------------------------------------------------------
-
-loc_4C955:              // ; CODE XREF: runMainMenu+1B7j
-    if (byte_519D4 != 1)
-    {
-        goto loc_4C977;
-    }
-    if (demoFileName == 0)
-    {
-        goto loc_4C977;
-    }
-    if (fileIsDemo != 1)
-    {
-        goto loc_4C977;
-    }
-    byte_599D4 = 1;
-    ax = 0;
-    demoSomething();
-    goto loc_4C9B0;
-// ; ---------------------------------------------------------------------------
-
-loc_4C977:              // ; CODE XREF: runMainMenu+1C6j
-                // ; runMainMenu+1CDj ...
-    if (byte_519D5 != 1)
-    {
+//loc_4C8B8:              // ; CODE XREF: runMainMenu+11Cj
+        if (byte_519B8 != 1)
+        {
+            goto loc_4C8C8;
+        }
+        ax = 0;
+//        demoSomething();
         goto loc_4C9B0;
-    }
-    if (demoFileName == 0)
-    {
+
+//loc_4C8C8:              // ; CODE XREF: runMainMenu+129j
+        if (byte_519B9 != 1)
+        {
+            goto loc_4C8D8;
+        }
+        ax = 1;
+//        demoSomething();
         goto loc_4C9B0;
-    }
-    byte_599D4 = 1;
-    word_5196C = 1;
-    byte_510DE = 0;
-    byte_510B3 = 0;
-    byte_5A2F9 = 1;
-    prepareSomeKindOfLevelIdentifier();
-    // This adds dashes to the level name or something?
-    *(a00s0010_sp+3) = 0x2D; // '-' ; "001$0.SP"
-    *(a00s0010_sp+4) = 0x2D2D; // '--' ; "01$0.SP"
-    goto loc_4C7FD;
-// ; ---------------------------------------------------------------------------
 
-loc_4C9B0:              // ; CODE XREF: runMainMenu+131j
-               // ; runMainMenu+141j ...
-    bx = gMouseButtonStatus;
-    if (bx == 2)
-    {
-        goto loc_4CA34;
-    }
-    if (byte_5197E == 1)
-    {
-        goto loc_4CA34;
-    }
-    if (word_5197A == 1)
-    {
-        goto loc_4CA34;
-    }
-    if (bx == 1)
-    {
-        goto loc_4C9FF;
-    }
-    word_58469 = 0x10;
-    word_5846B = 0;
-    word_5846D = 0x10;
-    word_5846F = 0;
-    word_58471 = 0x10;
-    word_58473 = 0;
-    word_59B8C = 0x10;
-    word_59B8E = 0;
-    goto loc_4C7FD;
-// ; ---------------------------------------------------------------------------
+//loc_4C8D8:              // ; CODE XREF: runMainMenu+139j
+        if (byte_519BA != 1)
+        {
+            goto loc_4C8E8;
+        }
+        ax = 2;
+//        demoSomething();
+        goto loc_4C9B0;
 
-loc_4C9FF:              // ; CODE XREF: runMainMenu+236j
-    word_58465 = 0xEF98;
-    cx = gMouseX;
-    dx = gMouseY;
-    si = offset menudata;
+//loc_4C8E8:              // ; CODE XREF: runMainMenu+149j
+        if (byte_519BB != 1)
+        {
+            goto loc_4C8F8;
+        }
+        ax = 3;
+//        demoSomething();
+        goto loc_4C9B0;
 
-checkmousecoords:              // ; CODE XREF: runMainMenu+29Bj
-    if (*si > cx)
-    {
-        goto nomousehit;
-    }
-    if (*(si + 2) > dx)
-    {
-        goto nomousehit;
-    }
-    if (*(si + 4) < cx)
-    {
-        goto nomousehit;
-    }
-    if (*(si + 6) < dx)
-    {
-        goto nomousehit;
-    }
-    *(si + 8)(); // invokes a function here?? WTF
-    goto loc_4C7FD;
-// ; ---------------------------------------------------------------------------
+//loc_4C8F8:              // ; CODE XREF: runMainMenu+159j
+        if (byte_519BC != 1)
+        {
+            goto loc_4C908;
+        }
+        ax = 4;
+//        demoSomething();
+        goto loc_4C9B0;
 
-nomousehit:              // ; CODE XREF: runMainMenu+27Ej
-               // ; runMainMenu+283j ...
-    si += 0xA;
-    if (*si != 0xFFFF)
-    {
-        goto checkmousecoords;
-    }
-    goto loc_4C7FD;
-// ; ---------------------------------------------------------------------------
+//loc_4C908:              // ; CODE XREF: runMainMenu+169j
+        if (byte_519BD != 1)
+        {
+            goto loc_4C918;
+        }
+        ax = 5;
+//        demoSomething();
+        goto loc_4C9B0;
 
-loc_4CA34:              // ; CODE XREF: runMainMenu+223j
+//loc_4C918:              // ; CODE XREF: runMainMenu+179j
+        if (byte_519BE != 1)
+        {
+            goto loc_4C928;
+        }
+        ax = 6;
+//        demoSomething();
+        goto loc_4C9B0;
+
+//loc_4C928:              // ; CODE XREF: runMainMenu+189j
+        if (byte_519BF != 1)
+        {
+            goto loc_4C937;
+        }
+        ax = 7;
+        demoSomething();
+        goto loc_4C9B0;
+
+//loc_4C937:              // ; CODE XREF: runMainMenu+199j
+        if (byte_519C0 != 1)
+        {
+            goto loc_4C946;
+        }
+        ax = 8;
+//        demoSomething();
+        goto loc_4C9B0;
+
+//loc_4C946:              // ; CODE XREF: runMainMenu+1A8j
+        if (byte_519C1 != 1)
+        {
+            goto loc_4C955;
+        }
+        ax = 9;
+//        demoSomething();
+        goto loc_4C9B0;
+
+//loc_4C955:              // ; CODE XREF: runMainMenu+1B7j
+        if (byte_519D4 != 1)
+        {
+            goto loc_4C977;
+        }
+        if (demoFileName == 0)
+        {
+            goto loc_4C977;
+        }
+        if (fileIsDemo != 1)
+        {
+            goto loc_4C977;
+        }
+        byte_599D4 = 1;
+        ax = 0;
+        demoSomething();
+        goto loc_4C9B0;
+
+//loc_4C977:              // ; CODE XREF: runMainMenu+1C6j
+                    // ; runMainMenu+1CDj ...
+        if (byte_519D5 != 1)
+        {
+            goto loc_4C9B0;
+        }
+        if (demoFileName == 0)
+        {
+            goto loc_4C9B0;
+        }
+        byte_599D4 = 1;
+        word_5196C = 1;
+        byte_510DE = 0;
+        byte_510B3 = 0;
+        byte_5A2F9 = 1;
+        prepareSomeKindOfLevelIdentifier();
+        // This adds dashes to the level name or something?
+        *(a00s0010_sp+3) = 0x2D; // '-' ; "001$0.SP"
+        *(a00s0010_sp+4) = 0x2D2D; // '--' ; "01$0.SP"
+        goto loc_4C7FD;
+
+//loc_4C9B0:              // ; CODE XREF: runMainMenu+131j
+                   // ; runMainMenu+141j ...
+        bx = gMouseButtonStatus;
+        if (bx == 2)
+        {
+            break;
+        }
+        if (byte_5197E == 1)
+        {
+            break;
+        }
+        if (word_5197A == 1)
+        {
+            break;
+        }
+        if (bx == 1)
+        {
+            goto loc_4C9FF;
+        }
+        word_58469 = 0x10;
+        word_5846B = 0;
+        word_5846D = 0x10;
+        word_5846F = 0;
+        word_58471 = 0x10;
+        word_58473 = 0;
+        word_59B8C = 0x10;
+        word_59B8E = 0;
+        goto loc_4C7FD;
+
+//loc_4C9FF:              // ; CODE XREF: runMainMenu+236j
+        word_58465 = 0xEF98;
+        cx = gMouseX;
+        dx = gMouseY;
+        si = offset menudata;
+
+//checkmousecoords:              // ; CODE XREF: runMainMenu+29Bj
+        if (*si > cx)
+        {
+            goto nomousehit;
+        }
+        if (*(si + 2) > dx)
+        {
+            goto nomousehit;
+        }
+        if (*(si + 4) < cx)
+        {
+            goto nomousehit;
+        }
+        if (*(si + 6) < dx)
+        {
+            goto nomousehit;
+        }
+        *(si + 8)(); // invokes a function here?? WTF
+        goto loc_4C7FD;
+
+//nomousehit:              // ; CODE XREF: runMainMenu+27Ej
+                   // ; runMainMenu+283j ...
+        si += 0xA;
+        if (*si != 0xFFFF)
+        {
+            goto checkmousecoords;
+        }
+     }
+
+//loc_4CA34:              // ; CODE XREF: runMainMenu+223j
                // ; runMainMenu+22Aj ...
     word_5197A = 1;
     savePlayerListData();
     saveHallOfFameData();
-     */
-    return;
-// runMainMenu endp
 }
 
 /*
@@ -14731,15 +14678,13 @@ locret_4D27E:               ; CODE XREF: sub_4D24D+5j sub_4D24D+Cj
         return;
 sub_4D24D   endp
 
-// ; ---------------------------------------------------------------------------
-        nop
-
-// ; =============== S U B R O U T I N E =======================================
-
+*/
 
 void checkVideo() //  proc near       ; CODE XREF: start+282p
 {
-    ah = 0x0F;
+    videoStatusUnk = 1; // THIS IS NOT IN THE ASM!! I think we can do just this and trust is the best video mode
+    return;
+    /*
         // mov ah, 0Fh
         // int 10h     ; - VIDEO - GET CURRENT VIDEO MODE
         //             ; Return: AH = number of columns on screen
@@ -14750,7 +14695,7 @@ void checkVideo() //  proc near       ; CODE XREF: start+282p
         // int 10h     ; - VIDEO - SET VIDEO MODE
         //             ; AL = mode
     bx = 0;
-    
+
     cx = 0x100; // 256
 
     // The code below is something like this? Is trying to set different values to the bitmask
@@ -14799,25 +14744,19 @@ setStatusBit2:              // ; CODE XREF: checkVideo+30j
 
 returnout:                  // ; CODE XREF: checkVideo+37j
         //return;
-// checkVideo  endp
+     */
 }
-
-
-// ; =============== S U B R O U T I N E =======================================
-
 
 void initializeFadePalette() //   proc near       ; CODE XREF: start+296p
 {
-        if (videoStatusUnk != 1)
-        {
-            goto loc_4D2DA;
-        }
-        cx = 0x10;
-        
+    if (videoStatusUnk == 1)
+    {
+        // Probably useless?
+        /*
         // grayscale palette?
         for (int i = 16; i > 0; i--)
         {
-loc_4D2C9:              //; CODE XREF: initializeFadePalette+17j
+//loc_4D2C9:              //; CODE XREF: initializeFadePalette+17j
             // push(cx);
             // ax = 0x1000;
             // bl = cl;
@@ -14829,111 +14768,109 @@ loc_4D2C9:              //; CODE XREF: initializeFadePalette+17j
             // pop(cx);
             
             set_palette_register(i-1, i-1); // (number of register, value)
-
-            // cx--;
-            // if (cx > 0)
-            // {
-            //     goto loc_4D2C9;
-            // }
         }
-        jmp short $+2
-// ; ---------------------------------------------------------------------------
+//        jmp short $+2
+         */
+    }
 
-loc_4D2DA:              //; CODE XREF: initializeFadePalette+5j
+//loc_4D2DA:              //; CODE XREF: initializeFadePalette+5j
                     //; initializeFadePalette+19j
-        si = 0x60D5;
-        fadeToPalette();
-        return;
-// initializeFadePalette   endp
+    fadeToPalette(gBlackPalette);
 }
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4D2E1   proc near       ; CODE XREF: start+450p
-                    ; loadScreen2-7D7p
-        mov ah, 0
-        al = currVideoMode
-        int 10h     ; - VIDEO - SET VIDEO MODE
-                    ; AL = mode
-        return;
-sub_4D2E1   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
+void resetVideoMode() // sub_4D2E1   proc near       ; CODE XREF: start+450p
+//                    ; loadScreen2-7D7p
+{
+    // Do nothing because we don't need to restore the video mode?
+//    mov ah, 0
+//    al = currVideoMode
+//    int 10h     ; - VIDEO - SET VIDEO MODE
+//                ; AL = mode
+//    return;
+}
 
 void initializeMouse() //   proc near       ; CODE XREF: start+299p
 {
+    gIsMouseAvailable = 1; // THIS IS NOT FROM THE ASM: assume there is a mouse available
+    SDL_ShowCursor(SDL_DISABLE);
+    return;
+/*
     // Check if mouse handler is available
-        mov byte_58487, 0
-        push    es
-        mov ah, 35h ; '5'
-        al = 33h ; '3'
-        int 21h     ; DOS - 2+ - GET INTERRUPT VECTOR
-                    ; AL = interrupt number
-                    ; Return: ES:BX = value of interrupt vector
-        mov ax, es
-        or  ax, bx
-        jz  short loc_4D33B
-        cmp byte ptr es:[bx], 0CFh ; '?'
-        jz  short loc_4D33B
-        mov ax, 0
-        // int 33h     ; - MS MOUSE - RESET DRIVER AND READ STATUS
-        //             ; Return: AX = status
-        //             ; BX = number of buttons
-        cmp bx, 2
-        jz  short mouseHas2Or3Buttons
-        cmp bx, 3
-        jnz short loc_4D33B
+    gIsMouseAvailable = 0;
+//    push    es
+//    mov ah, 35h ; '5'
+//    al = 33h ; '3'
+//    int 21h     ; DOS - 2+ - GET INTERRUPT VECTOR
+//                ; AL = interrupt number
+//                ; Return: ES:BX = value of interrupt vector
+    ax = es;
+    ax = ax | bx;
+    if (ax != 0)
+    {
+        if (*(es:bx) != 0xCF) // 207
+        {
+//            ax = 0;
+            // int 33h     ; - MS MOUSE - RESET DRIVER AND READ STATUS
+            //             ; Return: AX = status
+            //             ; BX = number of buttons
+            if (bx == 2 || bx == 3)
+            {
+//mouseHas2Or3Buttons:              ; CODE XREF: initializeMouse+20j
+                gIsMouseAvailable = 1;
+                // TODO: hide mouse
 
-mouseHas2Or3Buttons:              ; CODE XREF: initializeMouse+20j
-        mov byte_58487, 1
-        mov ax, 2
-        int 33h     ; - MS MOUSE - HIDE MOUSE CURSOR
-                    ; SeeAlso: AX=0001h, INT 16/AX=FFFFh
-        mov ax, 7
-        mov cx, 20h ; ' '
-        mov dx, 260h
-        int 33h     ; - MS MOUSE - DEFINE HORIZONTAL CURSOR RANGE
-                    ; CX = minimum column, DX = maximum column
-        mov ax, 8
-        mov cx, 8
-        mov dx, 0C0h ; '?'
-        int 33h     ; - MS MOUSE - DEFINE VERTICAL CURSOR RANGE
-                    ; CX = minimum row, DX = maximum row
-                    
-        // Center mouse on the screen
-        mov ax, 4
-        mov cx, 140h
-        mov dx, 64h ; 'd'
-        int 33h     ; - MS MOUSE - POSITION MOUSE CURSOR
-                    ; CX = column, DX = row
+            //    ax = 2;
+            //    int 33h     ; - MS MOUSE - HIDE MOUSE CURSOR
+            //                ; SeeAlso: AX=0001h, INT 16/AX=FFFFh
+                // TODO: limit mouse X between 16-304
+            //    ax = 0x7;
+            //    cx = 0x20; // 32
+            //    dx = 0x260; // 608
+            //    int 33h     ; - MS MOUSE - DEFINE HORIZONTAL CURSOR RANGE
+            //                ; CX = minimum column, DX = maximum column
+                // TODO: limit mouse Y between 8-192
+            //    ax = 0x8;
+            //    cx = 0x8; // 8
+            //    dx = 0x0C0; // 192
+            //    int 33h     ; - MS MOUSE - DEFINE VERTICAL CURSOR RANGE
+            //                ; CX = minimum row, DX = maximum row
 
-loc_4D33B:              ; CODE XREF: initializeMouse+10j
-                    ; initializeMouse+16j ...
-        mov word_58481, 0A0h ; '?'
-        mov word_58485, 64h ; 'd'
-        mov word ptr dword_58488, 1
-        pop es
-        return;
-// initializeMouse   endp
+                // TODO: Center mouse on the screen: (160, 100)
+//                ax = 0x4;
+//                cx = 0x140;
+//                dx = 0x64; // ; 'd' 100
+            //    int 33h     ; - MS MOUSE - POSITION MOUSE CURSOR
+            //                ; CX = column, DX = row
+            }
+
+//loc_4D33B:              ; CODE XREF: initializeMouse+10j
+//                ; initializeMouse+16j ...
+            gCursorX = 0xA0; // '?' 160
+            gCursorY = 0x64; // 'd' 100
+            *dword_58488 = 1; //mov word ptr dword_58488, 1
+            //    pop es
+        }
+    }
+*/
 }
 
-*/
 void getMouseStatus(uint8_t *mouseX, uint8_t *mouseY, uint16_t *mouseButtonStatus) //   proc near       ; CODE XREF: sub_47E98:mouseIsClickedp
 //                    ; sub_47E98+3Ep ...
 {
-    // Returns coordinate X in CX (half of it, because we use 4 bits per pixel)
-    // and coordinate Y in DX. Also button status in BX.
+    // Returns coordinate X in CX (0-320) and coordinate Y in DX (0-200).
+    // Also button status in BX.
 
-    if (byte_58487 != 0)
+    if (gIsMouseAvailable != 0)
     {
         int x, y;
         Uint32 state = SDL_GetMouseState(&x, &y);
 
-        *mouseX = x / 2;
+        x = CLAMP(x, 16, 304);
+        y = CLAMP(y, 8, 192);
+
+        SDL_WarpMouseInWindow(gWindow, x, y);
+
+        *mouseX = x;
         *mouseY = y;
         uint8_t leftButtonPressed = (state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
         uint8_t rightButtonPressed = (state & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0;
@@ -14943,14 +14880,19 @@ void getMouseStatus(uint8_t *mouseX, uint8_t *mouseY, uint16_t *mouseButtonStatu
         return;
     }
 
+/*
+    // No idea what is this? Maybe to control the mouse with a joystick or keyboard?
+
 //loc_4D360:              ; CODE XREF: getMouseStatus+5j
     bx = 0;
+    // This emulates the right mouse button
     if (byte_5197E == 1)
     {
         bx = 2;
     }
 
 //loc_4D36C:              ; CODE XREF: getMouseStatus+18j
+    // This emulates the left mouse button
     if (byte_51999 == 1)
     {
         bx = 1;
@@ -14958,89 +14900,94 @@ void getMouseStatus(uint8_t *mouseX, uint8_t *mouseY, uint16_t *mouseButtonStatu
 
 //loc_4D376:              ; CODE XREF: getMouseStatus+22j
     cx = 1;
-    ax = ((uint16_t *)dword_58488)[0]; // mov ax, word ptr dword_58488
-    ax = ax >> 1;
-    ax = ax >> 1;
-    ax = ax >> 1;
+    // This might be something like the cursor speed?
+    ax = *dword_58488; // mov ax, word ptr dword_58488
+    ax = ax / 8;
     ax++;
     if (byte_519C5 == 1)
     {
-        word_58485 -= ax;
+        gCursorY -= ax;
         cx = 0;
     }
 
 //loc_4D390:              ; CODE XREF: getMouseStatus+39j
     if (byte_519CD == 1)
     {
-        word_58485 += ax;
+        gCursorY += ax;
         cx = 0;
     }
 
 //loc_4D39D:              ; CODE XREF: getMouseStatus+46j
     if (byte_519C8 == 1)
     {
-        word_58481 -= ax;
+        gCursorX -= ax;
         cx = 0;
     }
 
 //loc_4D3AA:              ; CODE XREF: getMouseStatus+53j
     if (byte_519CA == 1)
     {
-        word_58481 += ax;
+        gCursorX += ax;
         cx = 0;
     }
 
 //loc_4D3B7:              ; CODE XREF: getMouseStatus+60j
+    // Maybe this makes the speed higher as you keep the joystick or whatever pressed
     if (cx == 0)
     {
-        dword_58488++; //inc word ptr dword_58488
+        (*dword_58488)++; //inc word ptr dword_58488
     }
     else
     {
-        dword_58488 = 1; //mov word ptr dword_58488, 1
+        *dword_58488 = 1; //mov word ptr dword_58488, 1
     }
 
 //loc_4D3C7:              ; CODE XREF: getMouseStatus+70j
-    if (dword_58488 > 0x40) // 64 or '@'
+    // With a maximum of 64 pixels
+    if (*dword_58488 > 0x40) // 64 or '@'
     {
-        dword_58488 = 0x40; //mov word ptr dword_58488, 40h ; '@'
+        *dword_58488 = 0x40; //mov word ptr dword_58488, 40h ; '@'
     }
 
 //loc_4D3D4:              ; CODE XREF: getMouseStatus+7Dj
-    cx = word_58481;
-    dx = word_58485;
+    cx = gCursorX;
+    dx = gCursorY;
+
+    // Limit X between 16 and 304
     if (cx <= 16)
     {
         cx = 16;
-        word_58481 = cx;
+        gCursorX = cx;
     }
 
 //loc_4D3E8:              ; CODE XREF: getMouseStatus+90j
     if (cx >= 0x130) // 304
     {
         cx = 0x130; //mov cx, 130h
-        word_58481 = cx;
+        gCursorX = cx;
     }
 
 //loc_4D3F5:              ; CODE XREF: getMouseStatus+9Dj
+    // Limit Y between 8 and 192
     if (dx <= 8)
     {
         dx = 8;
-        word_58485 = dx;
+        gCursorY = dx;
     }
 
 //loc_4D401:              ; CODE XREF: getMouseStatus+A9j
     if (dx >= 0xC0) // 192
     {
         dx = 0xC0;
-        word_58485 = dx;
+        gCursorY = dx;
     }
 
-    // Returns coordinate X in CX (half of it, because we use 4 bits per pixel)
-    // and coordinate Y in DX. Also button status in BX.
+    // Returns coordinate X in CX (0-320) and coordinate Y in DX (0-200).
+    // Also button status in BX.
     *mouseButtonStatus = bx;
     *mouseX = cx;
     *mouseY = dx;
+ */
 }
 
 void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
@@ -15351,10 +15298,6 @@ void initializeVideo3() //   proc near       ; CODE XREF: start+2B2p start+2C7
 // initializeVideo3   endp
 }
 
-
-// ; =============== S U B R O U T I N E =======================================
-
-
 void initializeVideo2() //   proc near       ; CODE XREF: start+2AFp
 {
         // mov dx, 3CEh
@@ -15565,7 +15508,7 @@ loc_4D64B:              ; CODE XREF: readLevels+4Ej
         cmp byte_510DE, 0
         jz  short loc_4D65D
         mov ax, word_51076
-        mov timeOfDay, ax
+        mov gTimeOfDay, ax
         mov di, 87DAh
         jmp short loc_4D660
 // ; ---------------------------------------------------------------------------
@@ -19673,7 +19616,7 @@ loc_4F2CB:              ; CODE XREF: sub_4F2AF+14j
         al = [di+4]
         mov byte_510D7, al
         mov ax, word_510AC
-        xor ax, timeOfDay
+        xor ax, gTimeOfDay
         mov word_510AC, ax
         return;
 sub_4F2AF   endp
