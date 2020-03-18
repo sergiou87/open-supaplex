@@ -119,8 +119,8 @@ uint32_t gTimeOfDay = 0;
 
 enum MouseButton
 {
-    MouseButtonLeft = 1,
-    MouseButtonRight = 1 << 0,
+    MouseButtonLeft = 1 << 0,
+    MouseButtonRight = 1 << 1,
 };
 
 uint16_t gMouseButtonStatus = 0; // word_5847D
@@ -264,7 +264,13 @@ typedef struct
     void (*handler)(void);
 } ButtonDescriptor;
 
-static const uint8_t kNumberOfMenuButtons = 0;
+void handlePlayerListScrollUp(void);
+void handlePlayerListScrollDown(void);
+void handlePlayerListClick(void);
+void handleLevelListScrollUp(void);
+void handleLevelListScrollDown(void);
+
+static const uint8_t kNumberOfMenuButtons = 5;
 static const ButtonDescriptor kMenuButtonDescriptors[kNumberOfMenuButtons] = {
     /*
     {
@@ -321,32 +327,32 @@ static const ButtonDescriptor kMenuButtonDescriptors[kNumberOfMenuButtons] = {
         83, 168,
         126, 192,
         sub_4B419, // Save button? (Insert data disk according to https://supaplex.fandom.com/wiki/Main_menu)
-    },
+    },*/
     {
         11, 142,
         67, 153,
-        sub_4B6C9, // Players arrow up
+        handlePlayerListScrollUp, // Players arrow up
     },
     {
         11, 181,
         67, 192,
-        sub_4B671, // Players arrow down
+        handlePlayerListScrollDown, // Players arrow down
     },
     {
         11, 154,
         67, 180,
-        sub_4B721, // Players list area
+        handlePlayerListClick, // Players list area
     },
     {
         142, 142,
         306, 153,
-        sub_4B771, // Levels arrow up
+        handleLevelListScrollUp, // Levels arrow up
     },
     {
         142, 181,
         306, 192,
-        sub_4B72B, // Levels arrow down
-    },
+        handleLevelListScrollDown, // Levels arrow down
+    },/*
     {
         297, 37,
         312, 52,
@@ -444,6 +450,16 @@ void initializeFadePalette(void);
 void initializeMouse(void);
 void setint8(void);
 void loadMurphySprites(void);
+void prepareLevelDataForCurrentPlayer(void);
+void drawPlayerList(void);
+void drawLevelList(void);
+void doSomethingWithMouse(void);
+void sub_4B899(void);
+void sub_4B8BE(void);
+void drawRankings(void);
+
+static const int kWindowWidth = kScreenWidth * 4;
+static const int kWindowHeight = kScreenHeight * 4;
 
 //         public start
 int main(int argc, const char * argv[])
@@ -451,8 +467,8 @@ int main(int argc, const char * argv[])
     gWindow = SDL_CreateWindow("Supaplex",
                                           SDL_WINDOWPOS_UNDEFINED,
                                           SDL_WINDOWPOS_UNDEFINED,
-                                          kScreenWidth * 4,
-                                          kScreenHeight * 4,
+                                          kWindowWidth,
+                                          kWindowHeight,
                                           0);
     if (gWindow == NULL)
     {
@@ -11203,173 +11219,155 @@ loc_4B64D:              ; CODE XREF: sub_4B419+22Cj
         return;
 sub_4B419   endp
 
+*/
 
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4B671   proc near
-        mov byte_50912, 1
-        mov byte_50910, 1
-        mov byte_50911, 0
-        mov ax, word_5195D
-        sub ax, word_5846D
-        cmp ax, word_5846F
-        jnb short loc_4B68E
+void handlePlayerListScrollDown() // sub_4B671  proc near
+{
+    byte_50912 = 1;
+    byte_50910 = 1;
+    byte_50911 = 0;
+    ax = word_5195D;
+    ax -= word_5846D;
+    if (ax < word_5846F)
+    {
         return;
-// ; ---------------------------------------------------------------------------
+    }
 
-loc_4B68E:              ; CODE XREF: sub_4B671+1Aj
-        mov ax, word_5195D
-        mov word_5846F, ax
-        cmp word_5846D, 1
-        jbe short loc_4B69F
-        dec word_5846D
+//loc_4B68E:              ; CODE XREF: handlePlayerListScrollDown+1Aj
+    word_5846F = word_5195D;
+    if (word_5846D > 1)
+    {
+        word_5846D--;
+    }
 
-loc_4B69F:              ; CODE XREF: sub_4B671+28j
-        cmp byte_59B85, 0
-        jnz short loc_4B6B1
-        cmp gCurrentPlayerIndex, 13h
-        jnb short loc_4B6B1
-        inc gCurrentPlayerIndex
+//loc_4B69F:              ; CODE XREF: handlePlayerListScrollDown+28j
+    if (byte_59B85 == 0
+        && gCurrentPlayerIndex < kNumberOfPlayers - 1)
+    {
+        gCurrentPlayerIndex++;
+    }
 
-loc_4B6B1:              ; CODE XREF: sub_4B671+33j
-                    ; sub_4B671+3Aj
-        call    sub_4B899
-        mov byte_51ABE, 1
-        call    prepareLevelDataForCurrentPlayer
-        call    drawPlayerList
-        call    drawLevelList
-        call    doSomethingWithMouse
-        call    sub_4B8BE
+//loc_4B6B1:              ; CODE XREF: handlePlayerListScrollDown+33j
+//                ; handlePlayerListScrollDown+3Aj
+    sub_4B899();
+    byte_51ABE = 1;
+    prepareLevelDataForCurrentPlayer();
+    drawPlayerList();
+    drawLevelList();
+    doSomethingWithMouse();
+    sub_4B8BE();
+}
+
+void handlePlayerListScrollUp() // sub_4B6C9  proc near
+{
+    byte_50912 = 1;
+    byte_50910 = 0;
+    byte_50911 = 1;
+    ax = word_5195D;
+    ax -= word_5846D;
+    if (ax < word_5846F)
+    {
         return;
-sub_4B671   endp
+    }
 
+//loc_4B6E6:              ; CODE XREF: handlePlayerListScrollUp+1Aj
+    word_5846F = word_5195D;
+    if (word_5846D > 1)
+    {
+        word_5846D--;
+    }
 
-; =============== S U B R O U T I N E =======================================
+//loc_4B6F7:              ; CODE XREF: handlePlayerListScrollUp+28j
+    if (byte_59B85 == 0
+        && gCurrentPlayerIndex > 0)
+    {
+        gCurrentPlayerIndex--;
+    }
 
+//loc_4B709:              ; CODE XREF: handlePlayerListScrollUp+33j
+//                ; handlePlayerListScrollUp+3Aj
+    sub_4B899();
+    byte_51ABE = 1;
+    prepareLevelDataForCurrentPlayer();
+    drawPlayerList();
+    drawLevelList();
+    doSomethingWithMouse();
+    sub_4B8BE();
+}
 
-sub_4B6C9   proc near
-        mov byte_50912, 1
-        mov byte_50910, 0
-        mov byte_50911, 1
-        mov ax, word_5195D
-        sub ax, word_5846D
-        cmp ax, word_5846F
-        jnb short loc_4B6E6
+void handlePlayerListClick() // sub_4B721  proc near
+{
+    byte_58D46 = byte_58D47;
+    drawRankings();
+}
+
+void handleLevelListScrollDown() // sub_4B72B  proc near
+{
+    byte_50918 = 1;
+    byte_50916 = 1;
+    byte_50917 = 0;
+    ax = word_5195D;
+    ax -= word_58469;
+    if (ax >= word_5846B)
+    {
         return;
-// ; ---------------------------------------------------------------------------
+    }
 
-loc_4B6E6:              ; CODE XREF: sub_4B6C9+1Aj
-        mov ax, word_5195D
-        mov word_5846F, ax
-        cmp word_5846D, 1
-        jbe short loc_4B6F7
-        dec word_5846D
+//loc_4B748:              ; CODE XREF: handleLevelListScrollDown+1Aj
+    word_5846B = word_5195D;
+    if (word_58469 > 1)
+    {
+        word_58469--;
+    }
 
-loc_4B6F7:              ; CODE XREF: sub_4B6C9+28j
-        cmp byte_59B85, 0
-        jnz short loc_4B709
-        cmp gCurrentPlayerIndex, 0
-        jbe short loc_4B709
-        dec gCurrentPlayerIndex
-
-loc_4B709:              ; CODE XREF: sub_4B6C9+33j
-                    ; sub_4B6C9+3Aj
-        call    sub_4B899
-        mov byte_51ABE, 1
-        call    prepareLevelDataForCurrentPlayer
-        call    drawPlayerList
-        call    drawLevelList
-        call    doSomethingWithMouse
-        call    sub_4B8BE
+//loc_4B759:              ; CODE XREF: handleLevelListScrollDown+28j
+    if (gCurrentSelectedLevelIndex >= 113)
+    {
         return;
-sub_4B6C9   endp
+    }
+    gCurrentSelectedLevelIndex++;
+    sub_4B899();
+    drawLevelList();
+    doSomethingWithMouse();
+    sub_4B8BE();
 
+//locret_4B770:               ; CODE XREF: handleLevelListScrollDown+33j
+}
 
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4B721   proc near
-        al = byte_58D47
-        mov byte_58D46, al
-        call    drawRankings
+void handleLevelListScrollUp() // sub_4B771  proc near
+{
+    byte_50918 = 1;
+    byte_50916 = 0;
+    byte_50917 = 1;
+    ax = word_5195D;
+    ax -= word_58469;
+    if (ax >= word_5846B)
+    {
         return;
-sub_4B721   endp
+    }
 
+//loc_4B78E:              ; CODE XREF: handleLevelListScrollUp+1Aj
+    word_5846B = word_5195D;
+    if (word_58469 > 1)
+    {
+        word_58469--;
+    }
 
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4B72B   proc near
-        mov byte_50918, 1
-        mov byte_50916, 1
-        mov byte_50917, 0
-        mov ax, word_5195D
-        sub ax, word_58469
-        cmp ax, word_5846B
-        jnb short loc_4B748
+//loc_4B79F:              ; CODE XREF: handleLevelListScrollUp+28j
+    if (gCurrentSelectedLevelIndex <= 1)
+    {
         return;
-// ; ---------------------------------------------------------------------------
+    }
+    gCurrentSelectedLevelIndex--;
+    sub_4B899();
+    drawLevelList();
+    doSomethingWithMouse();
+    sub_4B8BE();
 
-loc_4B748:              ; CODE XREF: sub_4B72B+1Aj
-        mov ax, word_5195D
-        mov word_5846B, ax
-        cmp word_58469, 1
-        jbe short loc_4B759
-        dec word_58469
+//locret_4B7B6:               ; CODE XREF: handleLevelListScrollUp+33j
+}
 
-loc_4B759:              ; CODE XREF: sub_4B72B+28j
-        cmp gCurrentSelectedLevelIndex, 71h ; 'q'
-        jnb short locret_4B770
-        inc gCurrentSelectedLevelIndex
-        call    sub_4B899
-        call    drawLevelList
-        call    doSomethingWithMouse
-        call    sub_4B8BE
-
-locret_4B770:               ; CODE XREF: sub_4B72B+33j
-        return;
-sub_4B72B   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4B771   proc near
-        mov byte_50918, 1
-        mov byte_50916, 0
-        mov byte_50917, 1
-        mov ax, word_5195D
-        sub ax, word_58469
-        cmp ax, word_5846B
-        jnb short loc_4B78E
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_4B78E:              ; CODE XREF: sub_4B771+1Aj
-        mov ax, word_5195D
-        mov word_5846B, ax
-        cmp word_58469, 1
-        jbe short loc_4B79F
-        dec word_58469
-
-loc_4B79F:              ; CODE XREF: sub_4B771+28j
-        cmp gCurrentSelectedLevelIndex, 1
-        jbe short locret_4B7B6
-        dec gCurrentSelectedLevelIndex
-        call    sub_4B899
-        call    drawLevelList
-        call    doSomethingWithMouse
-        call    sub_4B8BE
-
-locret_4B7B6:               ; CODE XREF: sub_4B771+33j
-        return;
-sub_4B771   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
+/*
 sub_4B7B7   proc near
         mov si, 60D5h
         call    fade
@@ -13394,8 +13392,8 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
 //checkmousecoords:              // ; CODE XREF: runMainMenu+29Bj
                 if (gMouseX >= buttonDescriptor.startX
                     && gMouseY >= buttonDescriptor.startY
-                    && gMouseX >= buttonDescriptor.endX
-                    && gMouseY >= buttonDescriptor.endY)
+                    && gMouseX <= buttonDescriptor.endX
+                    && gMouseY <= buttonDescriptor.endY)
                 {
                     buttonDescriptor.handler();
                     break;
@@ -14896,9 +14894,14 @@ void getMouseStatus(uint8_t *mouseX, uint8_t *mouseY, uint16_t *mouseButtonStatu
         int x, y;
         Uint32 state = SDL_GetMouseState(&x, &y);
 
+        x = x * kScreenWidth / kWindowWidth;
+        y = y * kScreenHeight / kWindowHeight;
+
         // Limit coordinates as in the original game
         x = CLAMP(x, 16, 304);
         y = CLAMP(y, 8, 192);
+
+        printf("coords %d, %d\n", x, y);
 
         *mouseX = x;
         *mouseY = y;
