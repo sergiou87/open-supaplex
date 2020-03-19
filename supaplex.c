@@ -2762,9 +2762,9 @@ void loadScreen2() // proc near       ; CODE XREF: start:loc_46F00p
             uint8_t r = (fileData[sourcePixelAddress + 80] >> sourcePixelBitPosition) & 0x1;
             uint8_t i = (fileData[sourcePixelAddress + 120] >> sourcePixelBitPosition) & 0x1;
 
-            uint8_t finalColor = ((r << 0)
+            uint8_t finalColor = ((b << 0)
                                   | (g << 1)
-                                  | (b << 2)
+                                  | (r << 2)
                                   | (i << 3));
 
             // Copy directly to the screen too
@@ -2816,9 +2816,9 @@ void loadScreen2() // proc near       ; CODE XREF: start:loc_46F00p
             uint8_t r = (fileData[sourcePixelAddress + 80] >> sourcePixelBitPosition) & 0x1;
             uint8_t i = (fileData[sourcePixelAddress + 120] >> sourcePixelBitPosition) & 0x1;
 
-            uint8_t finalColor = ((r << 0)
+            uint8_t finalColor = ((b << 0)
                                   | (g << 1)
-                                  | (b << 2)
+                                  | (r << 2)
                                   | (i << 3));
 
             // Store a copy of the decoded value in a buffer with 4bit per pixel
@@ -2949,9 +2949,9 @@ void loadMurphySprites() //  proc near       ; CODE XREF: start:isFastModep
             uint8_t r = (fileData[sourcePixelAddress + 80] >> sourcePixelBitPosition) & 0x1;
             uint8_t i = (fileData[sourcePixelAddress + 120] >> sourcePixelBitPosition) & 0x1;
 
-            uint8_t finalColor = ((r << 0)
+            uint8_t finalColor = ((b << 0)
                                   | (g << 1)
-                                  | (b << 2)
+                                  | (r << 2)
                                   | (i << 3));
 
             // Store a copy of the decoded value in a buffer with 4bit per pixel
@@ -3211,9 +3211,9 @@ void readTitleDatAndGraphics() // proc near  ; CODE XREF: start+2BBp
             uint8_t r = (fileData[sourcePixelAddress + 80] >> sourcePixelBitPosition) & 0x1;
             uint8_t i = (fileData[sourcePixelAddress + 120] >> sourcePixelBitPosition) & 0x1;
 
-            uint8_t finalColor = ((r << 0)
+            uint8_t finalColor = ((b << 0)
                                   | (g << 1)
-                                  | (b << 2)
+                                  | (r << 2)
                                   | (i << 3));
 
             gScreenPixels[destPixelAddress] = finalColor;
@@ -13061,9 +13061,9 @@ void drawMenuBackground() //   proc near       ; CODE XREF: sub_4C407+14p
             uint8_t r = (gMenuBitmapData[sourcePixelAddress + 80] >> sourcePixelBitPosition) & 0x1;
             uint8_t i = (gMenuBitmapData[sourcePixelAddress + 120] >> sourcePixelBitPosition) & 0x1;
 
-            uint8_t finalColor = ((r << 0)
+            uint8_t finalColor = ((b << 0)
                                   | (g << 1)
-                                  | (b << 2)
+                                  | (r << 2)
                                   | (i << 3));
 
             gScreenPixels[destPixelAddress] = finalColor;
