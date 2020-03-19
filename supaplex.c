@@ -17,9 +17,9 @@ static const int levelDataLength = 1536; // exact length of a level file, even o
 uint8_t gPlayerListDownButtonPressed = 0; // byte_50910
 uint8_t gPlayerListUpButtonPressed = 0; // byte_50911
 uint8_t gPlayerListButtonPressed = 0; // byte_50912
-uint8_t byte_50913 = 0;
-uint8_t byte_50914 = 0;
-uint8_t byte_50915 = 0;
+uint8_t gRankingListDownButtonPressed = 0; // byte_50913
+uint8_t gRankingListUpButtonPressed = 0; // byte_50914
+uint8_t gRankingListButtonPressed = 0; // byte_50915
 uint8_t gLevelListDownButtonPressed = 0; // byte_50916
 uint8_t gLevelListUpButtonPressed = 0; // byte_50917
 uint8_t gLevelListButtonPressed = 0; // byte_50918
@@ -200,29 +200,6 @@ typedef struct
 
 HallOfFameEntry gHallOfFameData[3];
 
-char gRankingTextEntries[20][23] = { //0x880E
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-};
-
 enum PlayerLevelState {
     PlayerLevelStateNotCompleted = 0,
     PlayerLevelStateCompleted = 1,
@@ -257,6 +234,29 @@ static const int kNumberOfPlayers = 20;
 //static const int kPlayerEntryLength = 128;
 PlayerEntry gPlayerListData[kNumberOfPlayers]; // 0x8A9C
 
+char gRankingTextEntries[kNumberOfPlayers][23] = { //0x880E
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+    "                      ",
+};
+
 typedef struct
 {
     uint16_t startX, startY;
@@ -269,8 +269,10 @@ void handlePlayerListScrollDown(void);
 void handlePlayerListClick(void);
 void handleLevelListScrollUp(void);
 void handleLevelListScrollDown(void);
+void handleRankingListScrollUp(void);
+void handleRankingListScrollDown(void);
 
-static const uint8_t kNumberOfMenuButtons = 5;
+static const uint8_t kNumberOfMenuButtons = 7;
 static const ButtonDescriptor kMenuButtonDescriptors[kNumberOfMenuButtons] = { // located in DS:0000
     /*
     {
@@ -307,17 +309,17 @@ static const ButtonDescriptor kMenuButtonDescriptors[kNumberOfMenuButtons] = { /
         5, 60,
         157, 69,
         showControls, // Controls
-    },
+    },*/
     {
         140, 90,
         155, 108,
-        loc_4B262, // Rankings arrow up
+        handleRankingListScrollUp, // Rankings arrow up
     },
     {
         140, 121,
         155, 138,
-        loc_4B2AF, // Rankings arrow down
-    },
+        handleRankingListScrollDown, // Rankings arrow down
+    },/*
     {
         96, 140,
         115, 163,
@@ -10768,74 +10770,75 @@ loc_4B248:              ; CODE XREF: demoSomething+4Bj
         return;
 demoSomething  endp
 
-// ; ---------------------------------------------------------------------------
-loc_4B262:
-        mov byte_50915, 1
-        mov byte_50913, 0
-        mov byte_50914, 1
-        mov ax, word_5195D
-        sub ax, word_58471
-        cmp ax, word_58473
-        jnb short loc_4B27F
+ */
+
+void handleRankingListScrollUp() // loc_4B262
+{
+    gRankingListButtonPressed = 1;
+    gRankingListDownButtonPressed = 0;
+    gRankingListUpButtonPressed = 1;
+    ax = word_5195D;
+    ax -= word_58471;
+    if (ax < word_58473)
+    {
         return;
-// ; ---------------------------------------------------------------------------
+    }
 
-loc_4B27F:              ; CODE XREF: code:465Cj
-        call    clearMouseCursor
-        mov ax, word_5195D
-        mov word_58473, ax
-        cmp word_58471, 1
-        jbe short loc_4B293
-        dec word_58471
+//loc_4B27F:              ; CODE XREF: code:465Cj
+    clearMouseCursor();
+    word_58473 = word_5195D;
+    if (word_58471 > 1)
+    {
+        word_58471--;
+    }
 
-loc_4B293:              ; CODE XREF: code:466Dj
-        cmp byte_59B85, 0
-        jnz short loc_4B2A5
-        cmp byte_58D46, 0
-        jbe short loc_4B2A5
-        dec byte_58D46
+//loc_4B293:              ; CODE XREF: code:466Dj
+    if (byte_59B85 == 0
+        && byte_58D46 > 0)
+    {
+        byte_58D46--;
+    }
 
-loc_4B2A5:              ; CODE XREF: code:4678j code:467Fj
-        call    drawRankings
-        call    drawMouseCursor
-        call    sub_4B8BE
+//loc_4B2A5:              ; CODE XREF: code:4678j code:467Fj
+    drawRankings();
+    drawMouseCursor();
+    sub_4B8BE();
+}
+
+void handleRankingListScrollDown() // loc_4B2AF
+{
+    gRankingListButtonPressed = 1;
+    gRankingListDownButtonPressed = 1;
+    gRankingListUpButtonPressed = 0;
+    ax = word_5195D;
+    ax -= word_58471;
+    if (ax < word_58473)
+    {
         return;
-// ; ---------------------------------------------------------------------------
-loc_4B2AF:
-        mov byte_50915, 1
-        mov byte_50913, 1
-        mov byte_50914, 0
-        mov ax, word_5195D
-        sub ax, word_58471
-        cmp ax, word_58473
-        jnb short loc_4B2CC
-        return;
-// ; ---------------------------------------------------------------------------
+    }
 
-loc_4B2CC:              ; CODE XREF: code:46A9j
-        call    clearMouseCursor
-        mov ax, word_5195D
-        mov word_58473, ax
-        cmp word_58471, 1
-        jbe short loc_4B2E0
-        dec word_58471
+//loc_4B2CC:              ; CODE XREF: code:46A9j
+    clearMouseCursor();
+    word_58473 = word_5195D;
+    if (word_58471 > 1)
+    {
+        word_58471--;
+    }
 
-loc_4B2E0:              ; CODE XREF: code:46BAj
-        cmp byte_59B85, 0
-        jnz short loc_4B2F2
-        cmp byte_58D46, 13h
-        jnb short loc_4B2F2
-        inc byte_58D46
+//loc_4B2E0:              ; CODE XREF: code:46BAj
+    if (byte_59B85 == 0
+        && byte_58D46 < kNumberOfPlayers - 1)
+    {
+        byte_58D46++;
+    }
 
-loc_4B2F2:              ; CODE XREF: code:46C5j code:46CCj
-        call    drawRankings
-        call    drawMouseCursor
-        call    sub_4B8BE
-        return;
+//loc_4B2F2:              ; CODE XREF: code:46C5j code:46CCj
+    drawRankings();
+    drawMouseCursor();
+    sub_4B8BE();
+}
 
-; =============== S U B R O U T I N E =======================================
-
-
+/*
 sub_4B2FC   proc near       ; CODE XREF: sub_4B375+56p
         mov si, 60D5h
         call    fade
@@ -11427,7 +11430,7 @@ void handleLevelListScrollDown() // sub_4B72B  proc near
     gLevelListUpButtonPressed = 0;
     ax = word_5195D;
     ax -= word_58469;
-    if (ax >= word_5846B)
+    if (ax < word_5846B)
     {
         return;
     }
@@ -11460,7 +11463,7 @@ void handleLevelListScrollUp() // sub_4B771  proc near
     gLevelListUpButtonPressed = 1;
     ax = word_5195D;
     ax -= word_58469;
-    if (ax >= word_5846B)
+    if (ax < word_5846B)
     {
         return;
     }
@@ -13372,16 +13375,16 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
 //loc_4C867:              // ; CODE XREF: runMainMenu+CCj
         gPlayerListDownButtonPressed = 0;
         gPlayerListUpButtonPressed = 0;
-        if (byte_50913 != 0
-            || byte_50914 != 0)
+        if (gRankingListDownButtonPressed != 0
+            || gRankingListUpButtonPressed != 0)
         {
             //loc_4C87F:              // ; CODE XREF: runMainMenu+E2j
-            byte_50915 = 1;
+            gRankingListButtonPressed = 1;
         }
 
 //loc_4C884:              // ; CODE XREF: runMainMenu+E9j
-        byte_50913 = 0;
-        byte_50914 = 0;
+        gRankingListDownButtonPressed = 0;
+        gRankingListUpButtonPressed = 0;
         if (gLevelListDownButtonPressed != 0
             || gLevelListUpButtonPressed != 0)
         {
@@ -14469,15 +14472,15 @@ void drawMainMenuButtonBorders() // sub_4D0AD  proc near       ; CODE XREF: runM
         drawMainMenuButtonBorder(kMainMenuButtonBorders[0], color);
         if (gPlayerListUpButtonPressed == 0)
         {
-            ah = 0xD; // 13
+            color = 0xD; // 13
         }
         else
         {
-            ah = 7;
+            color = 7;
         }
 
     //loc_4D0D4:              ; CODE XREF: drawMainMenuButtonBorders+23j
-        drawMainMenuButtonBorder(kMainMenuButtonBorders[1], ah);
+        drawMainMenuButtonBorder(kMainMenuButtonBorders[1], color);
         if (gPlayerListDownButtonPressed == 0)
         {
             color = 7;
@@ -14504,9 +14507,9 @@ void drawMainMenuButtonBorders() // sub_4D0AD  proc near       ; CODE XREF: runM
     }
 
 //loc_4D105:              ; CODE XREF: drawMainMenuButtonBorders+5j
-    if (byte_50915 != 0)
+    if (gRankingListButtonPressed != 0)
     {
-        if (byte_50914 == 0)
+        if (gRankingListUpButtonPressed == 0)
         {
             color = 7;
         }
@@ -14518,10 +14521,11 @@ void drawMainMenuButtonBorders() // sub_4D0AD  proc near       ; CODE XREF: runM
     //loc_4D119:              ; CODE XREF: drawMainMenuButtonBorders+68j
 //        si = 0x558; // 1368
         drawMainMenuButtonBorder(kMainMenuButtonBorders[4], color);
-        if (byte_50914 == 0)
+        if (gRankingListUpButtonPressed == 0)
         {
             color = 0xD;
         }
+        else
         {
             color = 7;
         }
@@ -14529,7 +14533,7 @@ void drawMainMenuButtonBorders() // sub_4D0AD  proc near       ; CODE XREF: runM
     //loc_4D12C:              ; CODE XREF: drawMainMenuButtonBorders+7Bj
 //        si = 0x56D;
         drawMainMenuButtonBorder(kMainMenuButtonBorders[5], color);
-        if (byte_50913 == 0)
+        if (gRankingListDownButtonPressed == 0)
         {
             color = 7;
         }
@@ -14541,7 +14545,7 @@ void drawMainMenuButtonBorders() // sub_4D0AD  proc near       ; CODE XREF: runM
     //loc_4D13F:              ; CODE XREF: drawMainMenuButtonBorders+8Ej
 //        si = 0x582;
         drawMainMenuButtonBorder(kMainMenuButtonBorders[6], color);
-        if (byte_50913 == 0)
+        if (gRankingListDownButtonPressed == 0)
         {
             color = 0xD;
         }
@@ -14553,7 +14557,7 @@ void drawMainMenuButtonBorders() // sub_4D0AD  proc near       ; CODE XREF: runM
     //loc_4D152:              ; CODE XREF: drawMainMenuButtonBorders+A1j
 //        si = 0x597;
         drawMainMenuButtonBorder(kMainMenuButtonBorders[7], color);
-        byte_50915 = 0;
+        gRankingListButtonPressed = 0;
     }
 
 //loc_4D15D:              ; CODE XREF: drawMainMenuButtonBorders+5Dj
