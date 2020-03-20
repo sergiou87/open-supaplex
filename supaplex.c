@@ -104,7 +104,6 @@ uint16_t word_5196C = 0;
 uint16_t word_5197A = 0;
 uint16_t word_599D8 = 0;
 uint16_t word_58465 = 0;
-uint16_t word_5847B = 0;
 uint16_t word_5195D = 0;
 uint16_t word_51974 = 0;
 uint16_t word_58469 = 0;
@@ -132,6 +131,18 @@ int8_t speed3 = 0;
 int8_t gameSpeed = 0;
 uint8_t demoFileName = 0; // Probably should be another type but whatever for now
 
+// This points to the address on the screen where the mouse cursor was
+// drawn the last time, used to clear the cursor before redrawing it again
+//
+uint16_t gLastMouseCursorOriginAddress = 0; // word_5847B
+
+// This buffer will hold the bitmap of the area where the cursor is going to be drawn
+// with the intention of restoring that area before rendering the mouse in a new
+// position, hence clearing the trail the mouse would leave.
+//
+static const int kLastMouseCursorAreaSize = 16;
+uint8_t gLastMouseCursorAreaBitmap[kLastMouseCursorAreaSize * kLastMouseCursorAreaSize];
+
 uint32_t gTimeOfDay = 0;
 
 enum MouseButton
@@ -141,7 +152,7 @@ enum MouseButton
 };
 
 uint16_t gMouseButtonStatus = 0; // word_5847D
-uint8_t gMouseX = 0, gMouseY = 0;
+uint16_t gMouseX = 0, gMouseY = 0;
 
 char a00s0010_sp[12] = "00S001$0.SP";
 char aLevels_dat_0[11] = "LEVELS.DAT";
@@ -195,7 +206,7 @@ static const size_t kFullScreenBitmapLength = kScreenWidth * kScreenHeight / 2; 
 //    the bit from the b column and the bit from the intensity column, and create a 4 bit number that represents an index
 //    in the 16 color palette.
 //
-uint8_t gMenuBitmapData[kFullScreenBitmapLength];
+uint8_t gMenuBitmapData[kFullScreenBitmapLength]; // 0x4D34 ??
 uint8_t gControlsBitmapData[kFullScreenBitmapLength];
 uint8_t gBackBitmapData[kFullScreenBitmapLength];
 uint8_t gGfxBitmapData[kFullScreenBitmapLength];
@@ -543,7 +554,7 @@ uint8_t gFixedBitmapData[kFixedBitmapWidth * kFixedBitmapHeight / 2];
 
 static const uint16_t kMovingBitmapWidth = 320;
 static const uint16_t kMovingBitmapHeight = 462;
-uint8_t gMovingDecodedBitmapData[kMovingBitmapWidth * kMovingBitmapHeight / 2];
+uint8_t gMovingDecodedBitmapData[kMovingBitmapWidth * kMovingBitmapHeight];
 
 // registers to prevent compiler errors
 uint8_t cf;
@@ -578,7 +589,7 @@ void convertNumberTo3DigitPaddedString(uint8_t number, char numberString[3], cha
 void sound2(void);
 void savePlayerListData(void);
 void saveHallOfFameData(void);
-void getMouseStatus(uint8_t *mouseX, uint8_t *mouseY, uint16_t *mouseButtonStatus);
+void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonStatus);
 void drawMainMenuButtonBorders(void);
 void drawMainMenuButtonBorder(ButtonBorderDescriptor border, uint8_t color);
 void waitForJoystickKey(void); // sub_49FED
@@ -591,9 +602,9 @@ void loadMurphySprites(void);
 void prepareLevelDataForCurrentPlayer(void);
 void drawPlayerList(void);
 void drawLevelList(void);
+void saveLastMouseAreaBitmap(void);
+void restoreLastMouseAreaBitmap(void);
 void drawMouseCursor(void);
-void clearMouseCursor(void);
-void sub_4B8BE(void);
 void drawRankings(void);
 
 static const int kWindowWidth = kScreenWidth * 4;
@@ -1353,7 +1364,7 @@ loc_46FB4:              //; CODE XREF: start+38Fj
 //        sound2();
 //        pop(ax);
 //        gCurrentSelectedLevelIndex = ax;
-//        clearMouseCursor();
+//        restoreLastMouseAreaBitmap();
 //        drawLevelList();
 //        word_5196C = 0;
 //        byte_5A19B = 0;
@@ -2882,41 +2893,6 @@ void loadMurphySprites() //  proc near       ; CODE XREF: start:isFastModep
     }
 
 //loc_47A13:              ; CODE XREF: loadMurphySprites+Ej
-//    lastFileHandle = file;
-    // mov dx, 3CEh
-    // al = 5
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; mode register.Data bits:
-    //             ; 0-1: Write mode 0-2
-    //             ; 2: test condition
-    //             ; 3: read mode: 1=color compare, 0=direct
-    //             ; 4: 1=use odd/even RAM addressing
-    //             ; 5: 1=use CGA mid-res map (2-bits/pixel)
-//    ports[0x3CE] = 5;
-    // inc dx
-    // al = 0
-    // out dx, al      ; EGA port: graphics controller data register
-//    ports[0x3CF] = 0;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-//    ports[0x3CE] = 8;
-    // inc dx
-    // al = 0FFh
-    // out dx, al      ; EGA port: graphics controller data register
-//    ports[0x3CF] = 0xFF;
-    // mov dx, 3CEh
-    // al = 1
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; enable set/reset
-//    ports[0x3CE] = 1;
-    // inc dx
-    // al = 0
-    // out dx, al      ; EGA port: graphics controller data register
-//    ports[0x3CF] = 0;
-//    baseDestAddress = 0x0B72;
 
     // There is an error in the original code, it uses height 464 (which should be
     // harmless in the original implementation since fread doesn't fail there, just
@@ -2939,7 +2915,7 @@ void loadMurphySprites() //  proc near       ; CODE XREF: start:isFastModep
         // var_1 = 0;
 
 //loc_47A45:              ; CODE XREF: loadMurphySprites+AEj
-            uint16_t destPixelAddress = y * kMovingBitmapWidth + x;
+            uint32_t destPixelAddress = y * kMovingBitmapWidth + x;
 
             uint8_t sourcePixelAddress = x / 8;
             uint8_t sourcePixelBitPosition = 7 - (x % 8);
@@ -2956,7 +2932,6 @@ void loadMurphySprites() //  proc near       ; CODE XREF: start:isFastModep
 
             // Store a copy of the decoded value in a buffer with 4bit per pixel
             gMovingDecodedBitmapData[destPixelAddress] = finalColor;
-
             /*
 
 //loc_47A59:              ; CODE XREF: loadMurphySprites+6Dj
@@ -9943,7 +9918,7 @@ loc_4AB4A:              ; CODE XREF: sub_4AB1B+5j
 
 loc_4AB56:              ; CODE XREF: sub_4AB1B+25j
         mov byte_59820, bl
-        call    clearMouseCursor
+        call    restoreLastMouseAreaBitmap
         mov si, 8193h
         mov di, 89F7h
         mov ah, 4
@@ -10026,8 +10001,8 @@ loc_4ABEB:              ; CODE XREF: sub_4AB1B+72j
         mov di, 89F7h
         mov ah, 8
         call    drawTextWithChars6Font_method1
+        call    saveLastMouseAreaBitmap
         call    drawMouseCursor
-        call    sub_4B8BE
         return;
 // ; ---------------------------------------------------------------------------
 
@@ -10046,8 +10021,8 @@ loc_4AC1E:              ; CODE XREF: sub_4AB1B+E0j
         mov di, 89F7h
         mov ah, 6
         call    drawTextWithChars6Font_method1
+        call    saveLastMouseAreaBitmap
         call    drawMouseCursor
-        call    sub_4B8BE
         return;
 // ; ---------------------------------------------------------------------------
 
@@ -10098,8 +10073,8 @@ loc_4AC73:              ; CODE XREF: sub_4AB1B+18Cj
         mov di, 89F7h
         mov ah, 6
         call    drawTextWithChars6Font_method1
+        call    saveLastMouseAreaBitmap
         call    drawMouseCursor
-        call    sub_4B8BE
         return;
 // ; ---------------------------------------------------------------------------
 
@@ -10141,8 +10116,8 @@ loc_4ACA3:              ; CODE XREF: sub_4AB1B+15Cj
         call    drawPlayerList
         call    drawLevelList
         call    drawRankings
+        call    saveLastMouseAreaBitmap
         call    drawMouseCursor
-        call    sub_4B8BE
         return;
 sub_4AB1B   endp
 
@@ -10204,9 +10179,9 @@ loc_4AD74:              ; CODE XREF: sub_4AD0E+88j
         mov gMouseButtonStatus, bx
         mov gMouseX, cx
         mov gMouseY, dx
-        call    clearMouseCursor
+        call    restoreLastMouseAreaBitmap
+        call    saveLastMouseAreaBitmap
         call    drawMouseCursor
-        call    sub_4B8BE
         mov bx, gMouseButtonStatus
         cmp bx, 0
         jz  short loc_4AD74
@@ -10237,7 +10212,7 @@ loc_4AD74:              ; CODE XREF: sub_4AD0E+88j
 
 loc_4ADCE:              ; CODE XREF: sub_4AD0E+97j
                     ; sub_4AD0E+9Cj ...
-        call    clearMouseCursor
+        call    restoreLastMouseAreaBitmap
         mov si, 8226h
         mov di, 89F7h
         mov ah, 8
@@ -10254,7 +10229,7 @@ loc_4ADF3:              ; CODE XREF: sub_4AD0E+EBj
         call    getMouseStatus
         cmp bx, 0
         jnz short loc_4ADF3
-        call    drawMouseCursor
+        call    saveLastMouseAreaBitmap
         return;
 sub_4AD0E   endp
 
@@ -10349,9 +10324,9 @@ loc_4AE91:              ; CODE XREF: sub_4ADFF+B4j
         mov gMouseButtonStatus, bx
         mov gMouseX, cx
         mov gMouseY, dx
-        call    clearMouseCursor
+        call    restoreLastMouseAreaBitmap
+        call    saveLastMouseAreaBitmap
         call    drawMouseCursor
-        call    sub_4B8BE
         mov bx, gMouseButtonStatus
         cmp bx, 0
         jz  short loc_4AE91
@@ -10375,7 +10350,7 @@ loc_4AE91:              ; CODE XREF: sub_4ADFF+B4j
 
 loc_4AEE9:              ; CODE XREF: sub_4ADFF+C3j
                     ; sub_4ADFF+C8j ...
-        call    clearMouseCursor
+        call    restoreLastMouseAreaBitmap
         mov si, 8226h
         mov di, 89F7h
         mov ah, 8
@@ -10388,7 +10363,7 @@ loc_4AF00:              ; CODE XREF: sub_4ADFF+107j
         call    getMouseStatus
         cmp bx, 0
         jnz short loc_4AF00
-        call    drawMouseCursor
+        call    saveLastMouseAreaBitmap
         return;
 sub_4ADFF   endp
 
@@ -10802,7 +10777,7 @@ void handleRankingListScrollUp() // loc_4B262
     }
 
 //loc_4B27F:              ; CODE XREF: code:465Cj
-    clearMouseCursor();
+    restoreLastMouseAreaBitmap();
     word_58473 = word_5195D;
     if (word_58471 > 1)
     {
@@ -10818,8 +10793,8 @@ void handleRankingListScrollUp() // loc_4B262
 
 //loc_4B2A5:              ; CODE XREF: code:4678j code:467Fj
     drawRankings();
+    saveLastMouseAreaBitmap();
     drawMouseCursor();
-    sub_4B8BE();
 }
 
 void handleRankingListScrollDown() // loc_4B2AF
@@ -10835,7 +10810,7 @@ void handleRankingListScrollDown() // loc_4B2AF
     }
 
 //loc_4B2CC:              ; CODE XREF: code:46A9j
-    clearMouseCursor();
+    restoreLastMouseAreaBitmap();
     word_58473 = word_5195D;
     if (word_58471 > 1)
     {
@@ -10851,8 +10826,8 @@ void handleRankingListScrollDown() // loc_4B2AF
 
 //loc_4B2F2:              ; CODE XREF: code:46C5j code:46CCj
     drawRankings();
+    saveLastMouseAreaBitmap();
     drawMouseCursor();
-    sub_4B8BE();
 }
 
 /*
@@ -11215,9 +11190,9 @@ loc_4B565:              ; CODE XREF: sub_4B419+10Fj
         call    drawLevelList
         call    drawHallOfFame
         call    drawRankings
-        call    clearMouseCursor
+        call    restoreLastMouseAreaBitmap
+        call    saveLastMouseAreaBitmap
         call    drawMouseCursor
-        call    sub_4B8BE
 
 locret_4B582:               ; CODE XREF: sub_4B419+27j
         return;
@@ -11388,13 +11363,13 @@ void handlePlayerListScrollDown() // sub_4B671  proc near
 
 //loc_4B6B1:              ; CODE XREF: handlePlayerListScrollDown+33j
 //                ; handlePlayerListScrollDown+3Aj
-    clearMouseCursor();
+    restoreLastMouseAreaBitmap();
     byte_51ABE = 1;
     prepareLevelDataForCurrentPlayer();
     drawPlayerList();
     drawLevelList();
+    saveLastMouseAreaBitmap();
     drawMouseCursor();
-    sub_4B8BE();
 }
 
 void handlePlayerListScrollUp() // sub_4B6C9  proc near
@@ -11425,13 +11400,13 @@ void handlePlayerListScrollUp() // sub_4B6C9  proc near
 
 //loc_4B709:              ; CODE XREF: handlePlayerListScrollUp+33j
 //                ; handlePlayerListScrollUp+3Aj
-    clearMouseCursor(); // Clears mouse trail
+    restoreLastMouseAreaBitmap(); // Clears mouse trail
     byte_51ABE = 1;
     prepareLevelDataForCurrentPlayer();
     drawPlayerList();
     drawLevelList();
+    saveLastMouseAreaBitmap();
     drawMouseCursor();
-    sub_4B8BE();
 }
 
 void handlePlayerListClick() // sub_4B721  proc near
@@ -11465,10 +11440,10 @@ void handleLevelListScrollDown() // sub_4B72B  proc near
         return;
     }
     gCurrentSelectedLevelIndex++;
-    clearMouseCursor();
+    restoreLastMouseAreaBitmap();
     drawLevelList();
+    saveLastMouseAreaBitmap();
     drawMouseCursor();
-    sub_4B8BE();
 
 //locret_4B770:               ; CODE XREF: handleLevelListScrollDown+33j
 }
@@ -11498,10 +11473,10 @@ void handleLevelListScrollUp() // sub_4B771  proc near
         return;
     }
     gCurrentSelectedLevelIndex--;
-    clearMouseCursor();
+    restoreLastMouseAreaBitmap();
     drawLevelList();
+    saveLastMouseAreaBitmap();
     drawMouseCursor();
-    sub_4B8BE();
 //locret_4B7B6:               ; CODE XREF: handleLevelListScrollUp+33j
 }
 
@@ -11582,405 +11557,78 @@ sub_4B7B7   proc near
         return;
 sub_4B7B7   endp
 */
-void drawMouseCursor() // sub_4B85C  proc near       ; CODE XREF: sub_4AB1B+FCp
+
+// This function calculates where in the main menu bitmap the cursor will be drawn, and takes in advance
+// the area of the screen so that it can be restored later.
+//
+void saveLastMouseAreaBitmap() // sub_4B85C  proc near       ; CODE XREF: sub_4AB1B+FCp
 //                    ; sub_4AB1B+124p ...
 {
-    /*
     // 01ED:4BF9
-//    mov dx, 3CEh
-//    al = 5
-//    out dx, al      ; EGA: graph 1 and 2 addr reg:
-//                ; mode register.Data bits:
-//                ; 0-1: Write mode 0-2
-//                ; 2: test condition
-//                ; 3: read mode: 1=color compare, 0=direct
-//                ; 4: 1=use odd/even RAM addressing
-//                ; 5: 1=use CGA mid-res map (2-bits/pixel)
-//    inc dx
-//    al = 1
-//    out dx, al      ; EGA port: graphics controller data register
-    ax = gMouseY;
-    bx = 0x7A; // 122
-    ax = ax * bx;
-    ax += 0x4D5C;
-    si = ax;
-    ax = gMouseX;
-    ax = ax / 8;
-    si += ax;
-    word_5847B = si;
-    di = 0x4D34;
-    cx = 0x10;
-//    push    ds
-//    mov ax, es
-//    mov ds, ax
+    gLastMouseCursorOriginAddress = gMouseY * kScreenWidth + gMouseX;
 
-    for (int i = 0; i < 16; ++i)
+    for (int y = 0; y < kLastMouseCursorAreaSize; ++y)
     {
-//loc_4B88D:              ; CODE XREF: drawMouseCursor+39j
-        *di = *si;
-        di++; si++;
-        *di = *si;
-        di++; si++;
-        si += 0x78; // 120
-        di += 0x78; // 120
+        for (int x = 0; x < kLastMouseCursorAreaSize; ++x)
+        {
+            uint32_t destAddress = y * kLastMouseCursorAreaSize + x;
+            uint32_t sourceAddress = (gLastMouseCursorOriginAddress
+                                      + y * kScreenWidth
+                                      + x);
+
+            gLastMouseCursorAreaBitmap[destAddress] = gScreenPixels[sourceAddress];
+        }
     }
-     */
-//    pop ds
-    return;
 }
 
-void clearMouseCursor() // sub_4B899  proc near       ; CODE XREF: start+417p sub_4AB1B+3Fp ...
+// This function will restore the last portion of the background where the mouse was
+// hence clearing its trail.
+//
+void restoreLastMouseAreaBitmap() // sub_4B899  proc near       ; CODE XREF: start+417p sub_4AB1B+3Fp ...
 {
-    /*
-//    mov dx, 3CEh
-//    al = 5
-//    out dx, al      ; EGA: graph 1 and 2 addr reg:
-//                ; mode register.Data bits:
-//                ; 0-1: Write mode 0-2
-//                ; 2: test condition
-//                ; 3: read mode: 1=color compare, 0=direct
-//                ; 4: 1=use odd/even RAM addressing
-//                ; 5: 1=use CGA mid-res map (2-bits/pixel)
-//    inc dx
-//    al = 1
-//    out dx, al      ; EGA port: graphics controller data register
-    si = 0x4D34;
-    di = word_5847B;
-    cx = 16;
-//    push    ds
-//    mov ax, es
-//    mov ds, ax
-
-    for (int i = 0; i < 16; ++i)
+    for (int y = 0; y < kLastMouseCursorAreaSize; ++y)
     {
-//loc_4B8B2:              ; CODE XREF: clearMouseCursor+21j
-        *di = *si;
-        di++; si++;
-        *di = *si;
-        di++; si++;
-        si += 0x78; // 120
-        di += 0x78; // 120
+        for (int x = 0; x < kLastMouseCursorAreaSize; ++x)
+        {
+            uint32_t destAddress = y * kLastMouseCursorAreaSize + x;
+            uint32_t sourceAddress = (gLastMouseCursorOriginAddress
+                                      + y * kScreenWidth
+                                      + x);
+
+            gScreenPixels[sourceAddress] = gLastMouseCursorAreaBitmap[destAddress];
+        }
     }
-//    pop ds
-     */
 }
 
-void sub_4B8BE() //   proc near       ; CODE XREF: sub_4AB1B+FFp
+void drawMouseCursor() // sub_4B8BE  proc near       ; CODE XREF: sub_4AB1B+FFp
 //                    ; sub_4AB1B+127p ...
 {
-    return;
-    /*
-    mov dx, 3CEh
-    al = 5
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; mode register.Data bits:
-                ; 0-1: Write mode 0-2
-                ; 2: test condition
-                ; 3: read mode: 1=color compare, 0=direct
-                ; 4: 1=use odd/even RAM addressing
-                ; 5: 1=use CGA mid-res map (2-bits/pixel)
-    inc dx
-    al = 8
-    out dx, al      ; EGA port: graphics controller data register
-    mov dx, 3CEh
-    al = 2
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; color compare.
-                ; Data bits 0-3 select color for read mode 01
-    inc dx
-    al = 1
-    out dx, al      ; EGA port: graphics controller data register
-    mov dx, 3CEh
-    al = 7
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; color masking disable
-                ; bits 0-3 disable planes from compare logic in read mode 01
-    inc dx
-    al = 0Fh
-    out dx, al      ; EGA port: graphics controller data register
-    mov dx, 3CEh
-    al = 0
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; set/reset.
-                ; Data bits 0-3 select planes for write mode 00
-    inc dx
-    al = 1
-    out dx, al      ; EGA port: graphics controller data register
-    mov dx, 3CEh
-    al = 1
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; enable set/reset
-    inc dx
-    al = 0Fh
-    out dx, al      ; EGA port: graphics controller data register
-     */
-    si = 0x1520;
-    bx = word_5195D;
-    bx = bx >> 1;
-    bx = bx >> 1;
-    // bx &= 0xE; //    ;and bx, 0Eh //db  83h, 0E3h, 0Eh
-    si = ((uint16_t *)bx)[si];
-    di = word_5847B;
-    bx = gMouseX;
-    bl &= 7;
-    bh = 8;
-    bh -= bl;
-    cx = 8;
-    /*
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    inc dx
-    al = 0FFh
-    out dx, al      ; EGA port: graphics controller data register
-     */
-//    push    ds
-    ax = es;
-    ds = ax;
-//    push    si
-//    push(di);
-    cx = 8;
+    // word_5195D = some kind of counter for animations?
+    uint8_t frameNumber = (word_5195D / 4) % 8;
+    uint8_t frameRow = frameNumber / 4;
+    uint8_t frameColumn = frameNumber % 4;
 
-    for (int i = 0; i < 8; ++i)
-    {
-//loc_4B926:              ; CODE XREF: sub_4B8BE+85j
-    //    push(cx);
-        al = *(uint8_t *)si;
-        ah = al;
-        cl = bl;
-        al = al >> cl;
-    //    out dx, al      ; EGA port: graphics controller data register
-        *(uint8_t *)di = *(uint8_t *)di ^ al;
-        al = ah;
-        cl = bh;
-        al = al << cl;
-    //    out dx, al      ; EGA port: graphics controller data register
-        ((uint8_t *)di)[1] = ((uint8_t *)di)[1] ^ al;
-        si += 0x7A; // 122 or 'z'
-        di += 0x7A;
-    //    pop(cx);
-    }
-    /*
-    mov dx, 3CEh
-    al = 2
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; color compare.
-                ; Data bits 0-3 select color for read mode 01
-    inc dx
-    al = 5
-    out dx, al      ; EGA port: graphics controller data register
-    mov dx, 3CEh
-    al = 0
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; set/reset.
-                ; Data bits 0-3 select planes for write mode 00
-    inc dx
-    al = 5
-    out dx, al      ; EGA port: graphics controller data register
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    inc dx
-    al = 0FFh
-    out dx, al      ; EGA port: graphics controller data register
-     */
-//    pop(di);
-//    pop si
-//    push    si
-//    push(di);
-    cx = 8;
+    static const uint8_t kMouseCursorSize = 8;
+    static const uint32_t kMouseCursorOriginY = 445;
 
-    for (int i = 0; i < 8; ++i)
-    {
-//loc_4B96A:              ; CODE XREF: sub_4B8BE+C9j
-    //    push(cx);
-        al = *(uint8_t *)si;
-        ah = al;
-        cl = bl;
-        al = al >> cl;
-//        out dx, al      ; EGA port: graphics controller data register
-        *(uint8_t *)di = *(uint8_t *)di ^ al;
-        al = ah;
-        cl = bh;
-        al = al << cl;
-//        out dx, al      ; EGA port: graphics controller data register
-        ((uint8_t *)di)[1] = ((uint8_t *)di)[1] ^ al;
-        si += 0x7A; // 122 or 'z'
-        di += 0x7A;
-    //    pop(cx);
-    }
-    /*
-    mov dx, 3CEh
-    al = 2
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; color compare.
-                ; Data bits 0-3 select color for read mode 01
-    inc dx
-    al = 8
-    out dx, al      ; EGA port: graphics controller data register
-    mov dx, 3CEh
-    al = 0
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; set/reset.
-                ; Data bits 0-3 select planes for write mode 00
-    inc dx
-    al = 8
-    out dx, al      ; EGA port: graphics controller data register
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    inc dx
-    al = 0FFh
-    out dx, al      ; EGA port: graphics controller data register
-     */
-//    pop(di);
-//    pop si
-//    push    si
-//    push(di);
-    cx = 8;
+    // In the original code, the address below was just 0x1520 (+ the offset for the current frame)
+    const uint32_t kStartMouseCursorAddr = ((kMouseCursorOriginY * kMovingBitmapWidth) // First pixel of the cursor frames in MOVING.DAT
+                                            + (frameRow * (kMouseCursorSize + 1) * kMovingBitmapWidth) // Y offset depending on the row in which the frame we're gonna draw is. The +1 to the size is because there is 1 pixel separation between rows :shrug:
+                                            + (frameColumn * kMouseCursorSize)); // X offset depending on the column where the frame is
 
-    for (int i = 0; i < 8; ++i)
+    for (int y = 0; y < kMouseCursorSize; ++y)
     {
-//loc_4B9AE:              ; CODE XREF: sub_4B8BE+10Dj
-    //    push(cx);
-        al = *(uint8_t *)si;
-        ah = al;
-        cl = bl;
-        al = al >> cl;
-//        out dx, al      ; EGA port: graphics controller data register
-        *(uint8_t *)di = *(uint8_t *)di ^ al;
-        al = ah;
-        cl = bh;
-        al = al << cl;
-//        out dx, al      ; EGA port: graphics controller data register
-        ((uint8_t *)di)[1] = ((uint8_t *)di)[1] ^ al;
-        si += 0x7A; // 122 or 'z'
-        di += 0x7A;
-    //    pop(cx);
-    }
-    /*
-    mov dx, 3CEh
-    al = 2
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; color compare.
-                ; Data bits 0-3 select color for read mode 01
-    inc dx
-    al = 9
-    out dx, al      ; EGA port: graphics controller data register
-    mov dx, 3CEh
-    al = 0
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; set/reset.
-                ; Data bits 0-3 select planes for write mode 00
-    inc dx
-    al = 9
-    out dx, al      ; EGA port: graphics controller data register
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    inc dx
-    al = 0FFh
-    out dx, al      ; EGA port: graphics controller data register
-     */
-//    pop(di);
-//    pop si
-//    push    si
-//    push(di);
-    cx = 8;
+        for (int x = 0; x < kMouseCursorSize; ++x)
+        {
+            uint8_t sourcePixel = gMovingDecodedBitmapData[kStartMouseCursorAddr + y * kMovingBitmapWidth + x];
 
-    for (int i = 0; i < 8; ++i)
-    {
-//loc_4B9F2:              ; CODE XREF: sub_4B8BE+151j
-    //    push(cx);
-        al = *(uint8_t *)si;
-        ah = al;
-        cl = bl;
-        al = al >> cl;
-//        out dx, al      ; EGA port: graphics controller data register
-        *(uint8_t *)di = *(uint8_t *)di ^ al;
-        al = ah;
-        cl = bh;
-        al = al << cl;
-//        out dx, al      ; EGA port: graphics controller data register
-        ((uint8_t *)di)[1] = ((uint8_t *)di)[1] ^ al;
-        si += 0x7A; // 122 or 'z'
-        di += 0x7A;
-    //    pop(cx);
+            // Only draw non-0 pixels
+            if (sourcePixel > 0)
+            {
+                gScreenPixels[gLastMouseCursorOriginAddress + y * kScreenWidth + x] = sourcePixel;
+            }
+        }
     }
-    /*
-    mov dx, 3CEh
-    al = 2
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; color compare.
-                ; Data bits 0-3 select color for read mode 01
-    inc dx
-    al = 0Fh
-    out dx, al      ; EGA port: graphics controller data register
-    mov dx, 3CEh
-    al = 0
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; set/reset.
-                ; Data bits 0-3 select planes for write mode 00
-    inc dx
-    al = 0Fh
-    out dx, al      ; EGA port: graphics controller data register
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    inc dx
-    al = 0FFh
-    out dx, al      ; EGA port: graphics controller data register
-     */
-//    pop(di);
-//    pop si
-    cx = 8;
-
-    for (int i = 0; i < 8; ++i)
-    {
-//loc_4BA34:              ; CODE XREF: sub_4B8BE+193j
-    //    push(cx);
-        al = *(uint8_t *)si;
-        ah = al;
-        cl = bl;
-        al = al >> cl;
-//        out dx, al      ; EGA port: graphics controller data register
-        *(uint8_t *)di = *(uint8_t *)di ^ al;
-        al = ah;
-        cl = bh;
-        al = al << cl;
-//        out dx, al      ; EGA port: graphics controller data register
-        ((uint8_t *)di)[1] = ((uint8_t *)di)[1] ^ al;
-        si += 0x7A; // 122 or 'z'
-        di += 0x7A;
-    //    pop(cx);
-    }
-//    pop ds
-    /*
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    inc dx
-    al = 0FFh
-    out dx, al      ; EGA port: graphics controller data register
-     */
 }
 
 void drawTextWithChars6Font_method1(size_t destX, size_t destY, uint8_t color, const char *text) //   proc near       ; CODE XREF: sub_4AB1B+37p
@@ -13051,9 +12699,9 @@ void drawMenuBackground() //   proc near       ; CODE XREF: sub_4C407+14p
         for (int x = 0; x < kScreenWidth; ++x)
         {
 //loc_4C641:             // ; CODE XREF: drawMenuBackground+47j
-            uint16_t destPixelAddress = y * kScreenWidth + x;
+            uint32_t destPixelAddress = y * kScreenWidth + x;
 
-            uint16_t sourcePixelAddress = y * kScreenWidth / 2 + x / 8;
+            uint32_t sourcePixelAddress = y * kScreenWidth / 2 + x / 8;
             uint8_t sourcePixelBitPosition = 7 - (x % 8);
 
             uint8_t b = (gMenuBitmapData[sourcePixelAddress + 0] >> sourcePixelBitPosition) & 0x1;
@@ -13334,8 +12982,8 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
 
 //loc_4C7F4:              // ; CODE XREF: runMainMenu+56j
     sound2(); // 01ED:5B91
+    saveLastMouseAreaBitmap();
     drawMouseCursor();
-    sub_4B8BE();
 
     while (1)
     {
@@ -13362,7 +13010,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
         SDL_PollEvent(NULL); // TODO: where should this live?
 
         word_5195D++;
-        uint8_t mouseX, mouseY;
+        uint16_t mouseX, mouseY;
         uint16_t mouseButtonStatus;
         getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
         gMouseButtonStatus = mouseButtonStatus;
@@ -13376,9 +13024,9 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
 //loc_4C83A:              // ; CODE XREF: runMainMenu+9Ej
         gMouseX = mouseX;
         gMouseY = mouseY;
-        clearMouseCursor(); // 01ED:5BDF
-        drawMouseCursor(); // 01ED:5BE2
-        sub_4B8BE(); // 01ED:5BE5 Draws mouse cursor too?
+        restoreLastMouseAreaBitmap(); // 01ED:5BDF
+        saveLastMouseAreaBitmap(); // 01ED:5BE2
+        drawMouseCursor(); // 01ED:5BE5 Draws mouse cursor too?
         drawMainMenuButtonBorders(); // 01ED:5BE8
         sub_48E59();
 //        sub_4A1BF();
@@ -13571,8 +13219,8 @@ showControls:                              ; DATA XREF: data:0044o
                 call    setPalette
                 call    sub_4C5AF  ; DO SLIDE
                 mov     word_58463, 0
+                call    saveLastMouseAreaBitmap
                 call    drawMouseCursor
-                call    sub_4B8BE
 
 loc_4CA67:                              ; CODE XREF: code:5E89j
                                         ; code:5EBFj ...
@@ -13584,9 +13232,9 @@ loc_4CA67:                              ; CODE XREF: code:5E89j
                 add     cx, 140h
                 mov     gMouseX, cx
                 mov     gMouseY, dx
-                call    clearMouseCursor
+                call    restoreLastMouseAreaBitmap
+                call    saveLastMouseAreaBitmap
                 call    drawMouseCursor
-                call    sub_4B8BE
                 mov     bx, gMouseButtonStatus
                 cmp     bx, 2
                 jz      short loc_4CAEC
@@ -14024,7 +13672,7 @@ var_2       = word ptr -2
         push    si
         push(cx);
         push    dx
-        call    clearMouseCursor
+        call    restoreLastMouseAreaBitmap
         pop dx
         pop(cx);
         pop si
@@ -14123,8 +13771,8 @@ loc_4CE68:              ; CODE XREF: sub_4CE11+5Aj
         inc dx
         al = 1
         out dx, al      ; EGA port: graphics controller data register
+        call    saveLastMouseAreaBitmap
         call    drawMouseCursor
-        call    sub_4B8BE
         mov sp, bp
         pop bp
         return;
@@ -14146,7 +13794,7 @@ var_2       = word ptr -2
         push    si
         push(cx);
         push    dx
-        call    clearMouseCursor
+        call    restoreLastMouseAreaBitmap
         pop dx
         pop(cx);
         pop si
@@ -14224,8 +13872,8 @@ loc_4CEF3:              ; CODE XREF: sub_4CE9C+5Aj
         dec bx
         jnz short loc_4CEF3
         pop ds
+        call    saveLastMouseAreaBitmap
         call    drawMouseCursor
-        call    sub_4B8BE
         mov sp, bp
         pop bp
         return;
@@ -14239,7 +13887,7 @@ sub_4CF13   proc near       ; CODE XREF: sub_4CAFC+11p
                     ; sub_4CAFC+19p ...
         push    si
         push    ax
-        call    clearMouseCursor
+        call    restoreLastMouseAreaBitmap
         pop ax
         pop si
         mov dx, 3CEh
@@ -14351,8 +13999,8 @@ loc_4CFA4:              ; CODE XREF: sub_4CF13:loc_4CF7Cj
 // ; ---------------------------------------------------------------------------
 
 loc_4CFAB:              ; CODE XREF: sub_4CF13+2Aj
+        call    saveLastMouseAreaBitmap
         call    drawMouseCursor
-        call    sub_4B8BE
         return;
 sub_4CF13   endp
 
@@ -14406,7 +14054,7 @@ void drawMainMenuButtonBorder(ButtonBorderDescriptor border, uint8_t color) // s
     // - si: button border descriptor
     // - ah: color??? it's either 7 or 0xD in drawMainMenuButtonBorders
 
-    clearMouseCursor();
+    restoreLastMouseAreaBitmap();
 
 //loc_4D029:              ; CODE XREF: drawButtonBorder+96j
     for (int i = 0; i < border.numberOfLines; ++i)
@@ -14465,8 +14113,8 @@ void drawMainMenuButtonBorder(ButtonBorderDescriptor border, uint8_t color) // s
     }
 
 //loc_4D09C:              ; CODE XREF: drawButtonBorder+2Aj
+    saveLastMouseAreaBitmap();
     drawMouseCursor();
-    sub_4B8BE();
 }
 
 void drawMainMenuButtonBorders() // sub_4D0AD  proc near       ; CODE XREF: runMainMenu+B7p
@@ -14932,7 +14580,7 @@ void initializeMouse() //   proc near       ; CODE XREF: start+299p
 */
 }
 
-void getMouseStatus(uint8_t *mouseX, uint8_t *mouseY, uint16_t *mouseButtonStatus) //   proc near       ; CODE XREF: sub_47E98:mouseIsClickedp
+void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonStatus) //   proc near       ; CODE XREF: sub_47E98:mouseIsClickedp
 //                    ; sub_47E98+3Ep ...
 {
     // Returns coordinate X in CX (0-320) and coordinate Y in DX (0-200).
