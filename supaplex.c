@@ -186,9 +186,10 @@ static const uint8_t kNumberOfPalettes = 4;
 typedef SDL_Color ColorPalette[kNumberOfColors];
 typedef uint8_t ColorPaletteData[kPaleteDataSize];
 
-static const size_t kBitmapFontCharacterSize = 8;
+static const size_t kBitmapFontCharacterHeight = 7;
+static const size_t kBitmapFontCharacterWidth = 6;
 static const size_t kNumberOfCharactersInBitmapFont = 64;
-static const size_t kBitmapFontLength = kNumberOfCharactersInBitmapFont * kBitmapFontCharacterSize;
+static const size_t kBitmapFontLength = kNumberOfCharactersInBitmapFont * 8; // The size of the bitmap is a round number, not 100% related to the size font, there is some padding :shrug:
 
 uint8_t gChars6BitmapFont[kBitmapFontLength];
 uint8_t gChars8BitmapFont[kBitmapFontLength];
@@ -11677,18 +11678,16 @@ void drawTextWithChars6Font_method1(size_t destX, size_t destY, uint8_t color, c
         //
         uint8_t bitmapCharacterIndex = character - 0x20;
 
-        for (uint8_t y = 0; y < kBitmapFontCharacterSize; ++y)
+        for (uint8_t y = 0; y < kBitmapFontCharacterHeight; ++y)
         {
-            for (uint8_t x = 0; x < kBitmapFontCharacterSize; ++x)
+            for (uint8_t x = 0; x < kBitmapFontCharacterWidth; ++x)
             {
                 uint8_t bitmapCharacterRow = gChars6BitmapFont[bitmapCharacterIndex + y * kNumberOfCharactersInBitmapFont];
                 uint8_t pixelValue = (bitmapCharacterRow >> (7 - x)) & 0x1;
-                if (pixelValue == 1)
-                {
-                    // 6 is the wide (in pixels) of this font
-                    size_t destAddress = (destY + y) * kScreenWidth + (idx * 6 + destX + x);
-                    gScreenPixels[destAddress] = color; // this color might need an operation?
-                }
+
+                // 6 is the wide (in pixels) of this font
+                size_t destAddress = (destY + y) * kScreenWidth + (idx * 6 + destX + x);
+                gScreenPixels[destAddress] = color * pixelValue;
             }
         }
     }
@@ -12201,7 +12200,7 @@ void drawCurrentPlayerRanking() //   proc near       ; CODE XREF: drawPlayerList
     drawTextWithChars6Font_method1(288, 93, 8, nextLevelText);
 }
 
-void drawPlayerList() //  proc near       ; CODE XREF: start+32Cp start+407p ...
+void drawPlayerList() // sub_4C293  proc near       ; CODE XREF: start+32Cp start+407p ...
 {
     // 01ED:5630
     PlayerEntry currentPlayer = gPlayerListData[gCurrentPlayerIndex];
