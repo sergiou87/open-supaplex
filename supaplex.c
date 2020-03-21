@@ -1,4 +1,4 @@
-/* 
+/*
  * This file is part of the Supaplex-RE distribution (https://github.com/sergiou87/supaplex-re).
  * Copyright (c) 2020 Sergio Padrino
  * 
@@ -73,6 +73,7 @@ uint8_t byte_59B6B = 0;
 uint8_t byte_59B83 = 0;
 uint8_t byte_59B84 = 0;
 uint8_t byte_59B85 = 0;
+uint8_t byte_59B86 = 0;
 uint8_t byte_5A19B = 0;
 uint8_t byte_5A19C = 0;
 uint8_t byte_5A2F9 = 0;
@@ -100,6 +101,7 @@ uint16_t word_50942 = 0;
 uint16_t word_50944 = 0;
 uint16_t word_5094F = 0;
 uint16_t word_50951 = 0;
+uint16_t word_510A2 = 0;
 uint16_t word_5196C = 0;
 uint16_t word_5197A = 0;
 uint16_t word_599D8 = 0;
@@ -140,7 +142,7 @@ uint16_t gLastMouseCursorOriginAddress = 0; // word_5847B
 // with the intention of restoring that area before rendering the mouse in a new
 // position, hence clearing the trail the mouse would leave.
 //
-static const int kLastMouseCursorAreaSize = 16;
+static const int kLastMouseCursorAreaSize = 8;
 uint8_t gLastMouseCursorAreaBitmap[kLastMouseCursorAreaSize * kLastMouseCursorAreaSize];
 
 uint32_t gTimeOfDay = 0;
@@ -300,8 +302,9 @@ void handleLevelListScrollUp(void);
 void handleLevelListScrollDown(void);
 void handleRankingListScrollUp(void);
 void handleRankingListScrollDown(void);
+void handleLevelCreditsClick(void);
 
-static const uint8_t kNumberOfMenuButtons = 7;
+static const uint8_t kNumberOfMenuButtons = 8;
 static const ButtonDescriptor kMenuButtonDescriptors[kNumberOfMenuButtons] = { // located in DS:0000
     /*
     {
@@ -383,13 +386,12 @@ static const ButtonDescriptor kMenuButtonDescriptors[kNumberOfMenuButtons] = { /
         142, 181,
         306, 192,
         handleLevelListScrollDown, // Levels arrow down
-    },/*
+    },
     {
         297, 37,
         312, 52,
-        sub_4B7B7, // Credits
+        handleLevelCreditsClick, // Credits
     }
-     */
 };
 
 enum ButtonBorderLineType {
@@ -513,6 +515,12 @@ static const ButtonBorderDescriptor kMainMenuButtonBorders[kNumberOfMainMenuButt
 
 ColorPalette gCurrentPalette;
 
+// Game palettes:
+// - 0: level credits
+// - 1: main menu
+// - 2: ???
+// - 3: ???
+//
 ColorPalette gPalettes[kNumberOfPalettes];
 ColorPalette gBlackPalette = {
     {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
@@ -607,6 +615,10 @@ void saveLastMouseAreaBitmap(void);
 void restoreLastMouseAreaBitmap(void);
 void drawMouseCursor(void);
 void drawRankings(void);
+void drawTextWithChars6FontWithOpaqueBackground(size_t destX, size_t destY, uint8_t color, const char *text);
+void drawTextWithChars6FontWithTransparentBackground(size_t destX, size_t destY, uint8_t color, const char *text);
+void sub_48E59(void);
+void waitForKeyMouseOrJoystick(void);
 
 static const int kWindowWidth = kScreenWidth * 4;
 static const int kWindowHeight = kScreenHeight * 4;
@@ -1379,18 +1391,17 @@ loc_46FB4:              //; CODE XREF: start+38Fj
         }
         byte_5A2F9 = 0;
         runMainMenu();
-    /*
+/*
         if (word_5197A != 0)
         {
             goto loc_47067;
         }
         goto loc_46F3E;
-//// ; ---------------------------------------------------------------------------
-
-loc_47067:              //; CODE XREF: start+36Bj start+391j ...
-        si = 0x60D5;
-        fadeToPalette();
-
+*/
+//loc_47067:              //; CODE XREF: start+36Bj start+391j ...
+//        si = 0x60D5;
+        fadeToPalette(gBlackPalette);
+/*
 doneWithDemoPlayback:           //; CODE XREF: start+375j
         resetint9();
         resetVideoMode();
@@ -3465,109 +3476,120 @@ void readEverything() //  proc near       ; CODE XREF: start+2DBp start+2E3p .
     readHallfameLst();
     readPlayersLst();
     readGfxDat();
-// readEverything  endp
-} 
+}
+
+void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: recoverFilesFromFloppyDisk+4Ap
+//                    ; sub_4AF0C+216p ...
+{
+    byte_59B86 = 0;
+
+    do
+    {
+//keyIsPressed:               ; CODE XREF: waitForKeyMouseOrJoystick+16j
+        if (byte_5197E != 0)
+        {
+            byte_59B86 = 0xFF;
+        }
+
+//loc_47EA9:              ; CODE XREF: waitForKeyMouseOrJoystick+Aj
+    }
+    while (keyPressed != 0);
+
+    uint16_t mouseButtonsStatus;
+
+    do
+    {
+//mouseIsClicked:              ; CODE XREF: waitForKeyMouseOrJoystick+1Ej
+        SDL_PollEvent(NULL);
+        getMouseStatus(NULL, NULL, &mouseButtonsStatus);
+    }
+    while (mouseButtonsStatus != 0);
+
+    do
+    {
+//loc_47EB8:              ; CODE XREF: waitForKeyMouseOrJoystick+28j
+        sub_48E59();
+    }
+    while (byte_50941 > 4);
+
+    for (int i = 0; i < 4200; ++i)
+    {
+//loc_47EC6:              ; CODE XREF: waitForKeyMouseOrJoystick+57j
+        videoloop();
+        loopForVSync();
+        SDL_PollEvent(NULL);
+
+        getMouseStatus(NULL, NULL, &mouseButtonsStatus);
+        if (mouseButtonsStatus != 0)
+        {
+            break;
+        }
+        if (keyPressed != 0)
+        {
+            break;
+        }
+        sub_48E59();
+        if (byte_50941 > 4)
+        {
+            break;
+        }
+    }
+
+    if (mouseButtonsStatus != 0)
+    {
+//loc_47F02:              ; CODE XREF: waitForKeyMouseOrJoystick+44j
+//                ; waitForKeyMouseOrJoystick+70j
+        do
+        {
+            SDL_PollEvent(NULL);
+            getMouseStatus(NULL, NULL, &mouseButtonsStatus);
+        }
+        while (mouseButtonsStatus != 0);
+    }
+    else if (keyPressed != 0)
+    {
+        do
+        {
+//loc_47F0C:              ; CODE XREF: waitForKeyMouseOrJoystick+4Bj
+//                ; waitForKeyMouseOrJoystick+85j
+        if (byte_5197E != 0)
+        {
+            byte_59B86 = 0xFF;
+        }
+
+//loc_47F18:              ; CODE XREF: waitForKeyMouseOrJoystick+79j
+        }
+        while (keyPressed != 0);
+    }
+    else if (byte_50941 > 4)
+    {
+        do
+        {
+//loc_47F21:              ; CODE XREF: waitForKeyMouseOrJoystick+55j
+//                ; waitForKeyMouseOrJoystick+9Dj
+            if (byte_5197E != 0)
+            {
+                byte_59B86 = 0xFF;
+            }
+
+//loc_47F2D:              ; CODE XREF: waitForKeyMouseOrJoystick+8Ej
+            sub_48E59();
+        }
+        while (byte_50941 > 4);
+    }
+
+//loc_47EF1:              ; CODE XREF: waitForKeyMouseOrJoystick+3Cj
+//                ; waitForKeyMouseOrJoystick+72j ...
+    word_510A2 = 0;
+    char shouldJump = (byte_59B86 == 0);
+//    clc // returns success?
+    if (shouldJump == 0) // Checks an error/success?
+    {
+//    stc // returns error?
+    }
+}
+
 /*
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_47E98   proc near       ; CODE XREF: recoverFilesFromFloppyDisk+4Ap
-                    ; sub_4AF0C+216p ...
-        mov byte_59B86, 0
-
-keyIsPressed:               ; CODE XREF: sub_47E98+16j
-        cmp byte_5197E, 0
-        jz  short loc_47EA9
-        mov byte_59B86, 0FFh
-
-loc_47EA9:              ; CODE XREF: sub_47E98+Aj
-        cmp keyPressed, 0
-        jnz short keyIsPressed
-
-mouseIsClicked:              ; CODE XREF: sub_47E98+1Ej
-        call    getMouseStatus
-        cmp bx, 0
-        jnz short mouseIsClicked     ; wait for mouse to not be clicked
-
-loc_47EB8:              ; CODE XREF: sub_47E98+28j
-        call    sub_48E59
-        cmp byte_50941, 4
-        jg  short loc_47EB8
-        mov cx, 1068h
-        push(cx);
-
-loc_47EC6:              ; CODE XREF: sub_47E98+57j
-        pop(cx);
-        dec cx
-        push(cx);
-        call    videoloop
-        call    loopForVSync
-        pop(cx);
-        push(cx);
-        cmp cx, 0
-        jz  short loc_47EF1
-        call    getMouseStatus
-        cmp bx, 0
-        jnz short loc_47F02
-        cmp keyPressed, 0
-        jnz short loc_47F0C
-        call    sub_48E59
-        cmp byte_50941, 4
-        jg  short loc_47F21
-        jmp short loc_47EC6
-// ; ---------------------------------------------------------------------------
-
-loc_47EF1:              ; CODE XREF: sub_47E98+3Cj
-                    ; sub_47E98+72j ...
-        pop(cx);
-        mov word_510A2, 0
-        cmp byte_59B86, 0
-        clc
-        jz  short locret_47F01
-        stc
-
-locret_47F01:               ; CODE XREF: sub_47E98+66j
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_47F02:              ; CODE XREF: sub_47E98+44j
-                    ; sub_47E98+70j
-        call    getMouseStatus
-        cmp bx, 0
-        jnz short loc_47F02
-        jmp short loc_47EF1
-// ; ---------------------------------------------------------------------------
-
-loc_47F0C:              ; CODE XREF: sub_47E98+4Bj
-                    ; sub_47E98+85j
-        cmp byte_5197E, 0
-        jz  short loc_47F18
-        mov byte_59B86, 0FFh
-
-loc_47F18:              ; CODE XREF: sub_47E98+79j
-        cmp keyPressed, 0
-        jnz short loc_47F0C
-        jmp short loc_47EF1
-// ; ---------------------------------------------------------------------------
-
-loc_47F21:              ; CODE XREF: sub_47E98+55j
-                    ; sub_47E98+9Dj
-        cmp byte_5197E, 0
-        jz  short loc_47F2D
-        mov byte_59B86, 0FFh
-
-loc_47F2D:              ; CODE XREF: sub_47E98+8Ej
-        call    sub_48E59
-        cmp byte_50941, 4
-        jg  short loc_47F21
-        jmp short loc_47EF1
-sub_47E98   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
 void recoverFilesFromFloppyDisk() //   proc near       ; CODE XREF: readPalettes+Fp
                    // ; loadMurphySprites+15p ...
 {
@@ -3589,7 +3611,7 @@ loc_47F56:              ; CODE XREF: recoverFilesFromFloppyDisk+11j
 loc_47F5E:              ; CODE XREF: recoverFilesFromFloppyDisk+1Bj
         mov di, 7D3Bh
         mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
+        call    drawTextWithChars6FontWithTransparentBackground
         mov si, palettesDataBuffer
         call    setPalette
         mov bx, 4D84h
@@ -3607,7 +3629,7 @@ loc_47F5E:              ; CODE XREF: recoverFilesFromFloppyDisk+1Bj
         inc dx
         al = bh
         out dx, al      ; Video: CRT controller internal registers
-        call    sub_47E98
+        call    waitForKeyMouseOrJoystick
         pushf
         mov si, 60D5h
         call    setPalette
@@ -5666,8 +5688,8 @@ loc_48E30:              ; CODE XREF: runLevel+362j
 runLevel    endp
 */
 
-void sub_48E59() //   proc near       ; CODE XREF: sub_47E98:loc_47EB8p
-//                    ; sub_47E98+4Dp ...
+void sub_48E59() //   proc near       ; CODE XREF: waitForKeyMouseOrJoystick:loc_47EB8p
+//                    ; waitForKeyMouseOrJoystick+4Dp ...
 {
     ax = 0;
     bl = 0;
@@ -9913,7 +9935,7 @@ loc_4AB4A:              ; CODE XREF: sub_4AB1B+5j
         mov si, 81DBh
         mov di, 89F7h
         mov ah, 6
-        call    drawTextWithChars6Font_method1
+        call    drawTextWithChars6FontWithOpaqueBackground
         return;
 // ; ---------------------------------------------------------------------------
 
@@ -9923,7 +9945,7 @@ loc_4AB56:              ; CODE XREF: sub_4AB1B+25j
         mov si, 8193h
         mov di, 89F7h
         mov ah, 4
-        call    drawTextWithChars6Font_method1
+        call    drawTextWithChars6FontWithOpaqueBackground
         mov ax, 2020h
         mov si, 820Bh
         mov [si], ax
@@ -9964,7 +9986,7 @@ noKeyPressed:               ; CODE XREF: sub_4AB1B+79j
         mov word_58475, bx
         mov di, 89FFh
         mov ah, 6
-        call    drawTextWithChars6Font_method1
+        call    drawTextWithChars6FontWithOpaqueBackground
         jmp short noKeyPressed
 // ; ---------------------------------------------------------------------------
 
@@ -9979,7 +10001,7 @@ loc_4ABCC:              ; CODE XREF: sub_4AB1B+92j
         mov word_58475, bx
         mov di, 89FFh
         mov ah, 6
-        call    drawTextWithChars6Font_method1
+        call    drawTextWithChars6FontWithOpaqueBackground
         jmp short noKeyPressed
 // ; ---------------------------------------------------------------------------
 
@@ -10001,7 +10023,7 @@ loc_4ABEB:              ; CODE XREF: sub_4AB1B+72j
         mov si, 8226h
         mov di, 89F7h
         mov ah, 8
-        call    drawTextWithChars6Font_method1
+        call    drawTextWithChars6FontWithOpaqueBackground
         call    saveLastMouseAreaBitmap
         call    drawMouseCursor
         return;
@@ -10021,7 +10043,7 @@ loc_4AC1E:              ; CODE XREF: sub_4AB1B+E0j
         mov si, 81ABh
         mov di, 89F7h
         mov ah, 6
-        call    drawTextWithChars6Font_method1
+        call    drawTextWithChars6FontWithOpaqueBackground
         call    saveLastMouseAreaBitmap
         call    drawMouseCursor
         return;
@@ -10073,7 +10095,7 @@ loc_4AC73:              ; CODE XREF: sub_4AB1B+18Cj
         mov si, 81C3h
         mov di, 89F7h
         mov ah, 6
-        call    drawTextWithChars6Font_method1
+        call    drawTextWithChars6FontWithOpaqueBackground
         call    saveLastMouseAreaBitmap
         call    drawMouseCursor
         return;
@@ -10109,7 +10131,7 @@ loc_4ACA3:              ; CODE XREF: sub_4AB1B+15Cj
         mov si, 8226h
         mov di, 89F7h
         mov ah, 8
-        call    drawTextWithChars6Font_method1
+        call    drawTextWithChars6FontWithOpaqueBackground
         call    savePlayerListData
         call    saveHallOfFameData
         mov byte_51ABE, 1
@@ -10149,7 +10171,7 @@ loc_4AD3C:              ; CODE XREF: sub_4AD0E+5j
         mov si, 82B6h
         mov di, 89F7h
         mov ah, 8
-        call    drawTextWithChars6Font_method1
+        call    drawTextWithChars6FontWithOpaqueBackground
         return;
 // ; ---------------------------------------------------------------------------
 
@@ -10167,7 +10189,7 @@ loc_4AD48:              ; CODE XREF: sub_4AD0E+1Dj
         mov si, 8286h
         mov di, 89F7h
         mov ah, 8
-        call    drawTextWithChars6Font_method1
+        call    drawTextWithChars6FontWithOpaqueBackground
 
 loc_4AD6C:              ; CODE XREF: sub_4AD0E+64j
         call    getMouseStatus
@@ -10217,7 +10239,7 @@ loc_4ADCE:              ; CODE XREF: sub_4AD0E+97j
         mov si, 8226h
         mov di, 89F7h
         mov ah, 8
-        call    drawTextWithChars6Font_method1
+        call    drawTextWithChars6FontWithOpaqueBackground
         call    savePlayerListData
         call    saveHallOfFameData
         mov byte_51ABE, 1
@@ -10256,7 +10278,7 @@ sub_4ADFF   proc near
         mov si, 82B6h
         mov di, 89F7h
         mov ah, 8
-        call    drawTextWithChars6Font_method1
+        call    drawTextWithChars6FontWithOpaqueBackground
         return;
 // ; ---------------------------------------------------------------------------
 
@@ -10286,7 +10308,7 @@ loc_4AE4A:              ; CODE XREF: sub_4ADFF+47j
         mov si, 826Eh
         mov di, 89F7h
         mov ah, 6
-        call    drawTextWithChars6Font_method1
+        call    drawTextWithChars6FontWithOpaqueBackground
         return;
 // ; ---------------------------------------------------------------------------
 
@@ -10301,7 +10323,7 @@ loc_4AE5B:              ; CODE XREF: sub_4ADFF+49j
         mov si, 82CEh
         mov di, 89F7h
         mov ah, 4
-        call    drawTextWithChars6Font_method1
+        call    drawTextWithChars6FontWithOpaqueBackground
         return;
 // ; ---------------------------------------------------------------------------
 
@@ -10312,7 +10334,7 @@ loc_4AE75:              ; CODE XREF: sub_4ADFF+68j
         mov si, 829Eh
         mov di, 89F7h
         mov ah, 8
-        call    drawTextWithChars6Font_method1
+        call    drawTextWithChars6FontWithOpaqueBackground
 
 loc_4AE89:              ; CODE XREF: sub_4ADFF+90j
         call    getMouseStatus
@@ -10355,7 +10377,7 @@ loc_4AEE9:              ; CODE XREF: sub_4ADFF+C3j
         mov si, 8226h
         mov di, 89F7h
         mov ah, 8
-        call    drawTextWithChars6Font_method1
+        call    drawTextWithChars6FontWithOpaqueBackground
         call    drawPlayerList
         call    drawLevelList
         call    drawRankings
@@ -10391,7 +10413,7 @@ sub_4AF0C   proc near
         mov si, 82B6h
         mov di, 89F7h
         mov ah, 8
-        call    drawTextWithChars6Font_method1
+        call    drawTextWithChars6FontWithOpaqueBackground
         return;
 // ; ---------------------------------------------------------------------------
 
@@ -10459,19 +10481,19 @@ loc_4AFE3:              ; CODE XREF: sub_4AF0C+58j
         mov si, 83A4h
         mov di, 5716h
         mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
+        call    drawTextWithChars6FontWithTransparentBackground
         mov si, 83BFh
         mov di, 6560h
         mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
+        call    drawTextWithChars6FontWithTransparentBackground
         mov si, 83E0h
         mov di, 6A1Eh
         mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
+        call    drawTextWithChars6FontWithTransparentBackground
         mov si, 8411h
         mov di, 73AEh
         mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
+        call    drawTextWithChars6FontWithTransparentBackground
         mov si, bp
         mov di, 843Eh
         mov cx, 8
@@ -10485,7 +10507,7 @@ loc_4B025:              ; CODE XREF: sub_4AF0C+11Fj
         mov si, 842Ch
         mov di, 7D36h
         mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
+        call    drawTextWithChars6FontWithTransparentBackground
         mov si, bp
         al = [si+7Eh]
         cmp al, 71h ; 'q'
@@ -10498,7 +10520,7 @@ loc_4B046:              ; CODE XREF: sub_4AF0C+133j
         mov si, 8447h
         mov di, 81FAh
         mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
+        call    drawTextWithChars6FontWithTransparentBackground
         mov di, bp
         al = [di+0Bh]
         mov si, 8479h
@@ -10515,7 +10537,7 @@ loc_4B046:              ; CODE XREF: sub_4AF0C+133j
         mov si, 8462h
         mov di, 86BEh
         mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
+        call    drawTextWithChars6FontWithTransparentBackground
         mov di, bp
         al = [di+9]
         mov bl, 3Ch ; '<'
@@ -10553,7 +10575,7 @@ loc_4B0C2:              ; CODE XREF: sub_4AF0C+1AFj
         mov si, 84CFh
         mov di, 903Fh
         mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
+        call    drawTextWithChars6FontWithTransparentBackground
         jmp short loc_4B105
 // ; ---------------------------------------------------------------------------
 
@@ -10563,7 +10585,7 @@ loc_4B0E2:              ; CODE XREF: sub_4AF0C+1C7j
         mov si, 84A8h
         mov di, 9041h
         mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
+        call    drawTextWithChars6FontWithTransparentBackground
         jmp short loc_4B105
 // ; ---------------------------------------------------------------------------
 
@@ -10572,7 +10594,7 @@ loc_4B0F6:              ; CODE XREF: sub_4AF0C+1DBj
         mov byte ptr [si+1Ch], 20h ; ' '
         mov di, 9040h
         mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
+        call    drawTextWithChars6FontWithTransparentBackground
 
 loc_4B105:              ; CODE XREF: sub_4AF0C+1D4j
                     ; sub_4AF0C+1E8j
@@ -10593,7 +10615,7 @@ loc_4B105:              ; CODE XREF: sub_4AF0C+1D4j
         out dx, al      ; Video: CRT controller internal registers
         mov si, palettesDataBuffer
         call    fade
-        call    sub_47E98
+        call    waitForKeyMouseOrJoystick
         mov si, 60D5h
         call    fade
         mov bx, 4D5Ch
@@ -10623,7 +10645,7 @@ sub_4AF0C   endp
 sub_4B149   proc near
         call    vgaloadgfxseg
         call    sub_4C5AF
-        call    sub_47E98
+        call    waitForKeyMouseOrJoystick
         call    loc_4C44F
         call    drawMenuTitleAndDemoLevelResult
         return;
@@ -10839,19 +10861,19 @@ sub_4B2FC   proc near       ; CODE XREF: sub_4B375+56p
         mov si, 8718h // "CONGRATULATIONS"
         mov ah, 0Fh
         mov di, 5BDFh
-        call    drawTextWithChars6Font_method2
+        call    drawTextWithChars6FontWithTransparentBackground
         mov si, 8728h // "YOU HAVE COMPLETED ALL 111 LEVELS OF SUPAPLEX"
         mov ah, 0Fh
         mov di, 6EE3h
-        call    drawTextWithChars6Font_method2
+        call    drawTextWithChars6FontWithTransparentBackground
         mov si, 8756h // "YOUR BRAIN IS IN FANTASTIC SHAPE"
         mov ah, 0Fh
         mov di, 760Eh
-        call    drawTextWithChars6Font_method2
+        call    drawTextWithChars6FontWithTransparentBackground
         mov si, 8777h // "NOT MANY PEOPLE ARE ABLE TO MANAGE THIS"
         mov ah, 0Fh
         mov di, 7D31h
-        call    drawTextWithChars6Font_method2
+        call    drawTextWithChars6FontWithTransparentBackground
         mov bx, 4D84h
         mov dx, 3D4h
         al = 0Dh
@@ -10869,7 +10891,7 @@ sub_4B2FC   proc near       ; CODE XREF: sub_4B375+56p
         out dx, al      ; Video: CRT controller internal registers
         mov si, palettesDataBuffer
         call    fade
-        call    sub_47E98
+        call    waitForKeyMouseOrJoystick
         mov si, 60D5h
         call    fade
         mov bx, 4D5Ch
@@ -10914,7 +10936,7 @@ sub_4B375   proc near       ; CODE XREF: runMainMenu+11Ep
         mov si, 82B6h
         mov di, 89F7h
         mov ah, 8
-        call    drawTextWithChars6Font_method1
+        call    drawTextWithChars6FontWithOpaqueBackground
         return;
 // ; ---------------------------------------------------------------------------
 
@@ -10951,7 +10973,7 @@ loc_4B3CF:              ; CODE XREF: sub_4B375+54j
         mov si, 82CEh
         mov di, 89F7h
         mov ah, 2
-        call    drawTextWithChars6Font_method1
+        call    drawTextWithChars6FontWithOpaqueBackground
         return;
 // ; ---------------------------------------------------------------------------
 
@@ -10979,7 +11001,7 @@ loc_4B404:              ; CODE XREF: sub_4B375+70j
         mov si, 82CEh
         mov di, 89F7h
         mov ah, 8
-        call    drawTextWithChars6Font_method1
+        call    drawTextWithChars6FontWithOpaqueBackground
 
 loc_4B40F:              ; CODE XREF: sub_4B375+86j
                     ; sub_4B375+8Dj
@@ -11135,7 +11157,7 @@ loc_4B4F9:              ; CODE XREF: sub_4B419+DBj
 loc_4B504:              ; CODE XREF: sub_4B419+E6j
         mov di, 89F7h
         mov ah, 4
-        call    drawTextWithChars6Font_method1
+        call    drawTextWithChars6FontWithOpaqueBackground
         call    readLevelsLst
         call    readDemoFiles
         push    es
@@ -11206,7 +11228,7 @@ loc_4B583:              ; CODE XREF: sub_4B419+17j
         mov si, 84FFh
         mov di, 786Dh
         mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
+        call    drawTextWithChars6FontWithTransparentBackground
         mov ah, 19h
         int 21h     ; DOS - GET DEFAULT DISK NUMBER
         mov byte_59B9A, al
@@ -11217,7 +11239,7 @@ loc_4B583:              ; CODE XREF: sub_4B419+17j
         mov si, 851Bh
         mov di, 81F5h
         mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
+        call    drawTextWithChars6FontWithTransparentBackground
         jmp short loc_4B5BE
 // ; ---------------------------------------------------------------------------
 
@@ -11226,13 +11248,13 @@ loc_4B5B3:              ; CODE XREF: sub_4B419+187j
         mov si, 853Ah
         mov di, 81F5h
         mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
+        call    drawTextWithChars6FontWithTransparentBackground
 
 loc_4B5BE:              ; CODE XREF: sub_4B419+198j
         mov si, 8562h
         mov di, 0A81Ah
         mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
+        call    drawTextWithChars6FontWithTransparentBackground
         mov bx, 4D84h
         mov dx, 3D4h
         al = 0Dh
@@ -11481,83 +11503,52 @@ void handleLevelListScrollUp() // sub_4B771  proc near
 //locret_4B7B6:               ; CODE XREF: handleLevelListScrollUp+33j
 }
 
-/*
-sub_4B7B7   proc near
-        mov si, 60D5h
-        call    fade
-        mov bx, 4D84h
-        mov dx, 3D4h
-        al = 0Dh
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (low)
-        inc dx
-        al = bl
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 0Ch
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (high)
-        inc dx
-        al = bh
-        out dx, al      ; Video: CRT controller internal registers
-        call    vgaloadbackseg
-        mov si, 861Dh
-        mov di, 5252h
-        mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
-        mov si, 8638h
-        mov di, 609Bh
-        mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
-        mov si, 865Ch
-        mov di, 6563h
-        mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
-        mov si, 866Eh
-        mov di, 786Fh
-        mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
-        mov si, 8691h
-        mov di, 7D34h
-        mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
-        mov si, 86B2h
-        mov di, 81F7h
-        mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
-        mov si, 86D5h
-        mov di, 9E90h
-        mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
-        mov si, 86F7h
-        mov di, 0A818h
-        mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
-        mov si, palettesDataBuffer
-        call    fade
-        call    sub_47E98
-        mov si, 60D5h
-        call    fade
-        mov bx, 4D5Ch
-        mov dx, 3D4h
-        al = 0Dh
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (low)
-        inc dx
-        al = bl
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 0Ch
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (high)
-        inc dx
-        al = bh
-        out dx, al      ; Video: CRT controller internal registers
-        mov si, 6015h
-        call    fade
-        return;
-sub_4B7B7   endp
-*/
+void handleLevelCreditsClick() // sub_4B7B7  proc near
+{
+    fadeToPalette(gBlackPalette);
+
+    uint8_t screenPixelsBackup[kFullScreenFramebufferLength];
+
+    memcpy(screenPixelsBackup, gScreenPixels, kFullScreenFramebufferLength);
+
+//    vgaloadbackseg();
+    for (int y = 0; y < kScreenHeight; ++y)
+    {
+        for (int x = 0; x < kScreenWidth; ++x)
+        {
+            uint32_t destPixelAddress = y * kScreenWidth + x;
+
+            uint32_t sourcePixelAddress = y * kScreenWidth / 2 + x / 8;
+            uint8_t sourcePixelBitPosition = 7 - (x % 8);
+
+            uint8_t b = (gBackBitmapData[sourcePixelAddress + 0] >> sourcePixelBitPosition) & 0x1;
+            uint8_t g = (gBackBitmapData[sourcePixelAddress + 40] >> sourcePixelBitPosition) & 0x1;
+            uint8_t r = (gBackBitmapData[sourcePixelAddress + 80] >> sourcePixelBitPosition) & 0x1;
+            uint8_t i = (gBackBitmapData[sourcePixelAddress + 120] >> sourcePixelBitPosition) & 0x1;
+
+            uint8_t finalColor = ((b << 0)
+                                  | (g << 1)
+                                  | (r << 2)
+                                  | (i << 3));
+
+            gScreenPixels[destPixelAddress] = finalColor;
+        }
+    }
+
+    drawTextWithChars6FontWithTransparentBackground(80, 10, 15, "SUPAPLEX  BY DREAM FACTORY");
+    drawTextWithChars6FontWithTransparentBackground(56, 40, 15, "ORIGINAL DESIGN BY PHILIP JESPERSEN");
+    drawTextWithChars6FontWithTransparentBackground(88, 50, 15, "AND MICHAEL STOPP");
+    drawTextWithChars6FontWithTransparentBackground(56, 90, 15, "NEARLY ALL LEVELS BY MICHEAL STOPP");
+    drawTextWithChars6FontWithTransparentBackground(64, 100, 15, "A FEW LEVELS BY PHILIP JESPERSEN");
+    drawTextWithChars6FontWithTransparentBackground(56, 110, 15, "HARDLY ANY LEVELS BY BARBARA STOPP");
+    drawTextWithChars6FontWithTransparentBackground(64, 170, 15, "NOTE: PRESS ENTER TO REMOVE PANEL");
+    drawTextWithChars6FontWithTransparentBackground(64, 190, 15, "(C) DIGITAL INTEGRATION LTD 1991");
+    fadeToPalette(gPalettes[0]);
+    waitForKeyMouseOrJoystick();
+    fadeToPalette(gBlackPalette);
+    memcpy(gScreenPixels, screenPixelsBackup, kFullScreenFramebufferLength);
+    fadeToPalette(gPalettes[1]);
+}
 
 // This function calculates where in the main menu bitmap the cursor will be drawn, and takes in advance
 // the area of the screen so that it can be restored later.
@@ -11632,7 +11623,7 @@ void drawMouseCursor() // sub_4B8BE  proc near       ; CODE XREF: sub_4AB1B+FFp
     }
 }
 
-void drawTextWithChars6Font_method1(size_t destX, size_t destY, uint8_t color, const char *text) //   proc near       ; CODE XREF: sub_4AB1B+37p
+void drawTextWithChars6FontWithOpaqueBackground(size_t destX, size_t destY, uint8_t color, const char *text) // sub_4BA5F  proc near       ; CODE XREF: sub_4AB1B+37p
                   //  ; sub_4AB1B+4Ap ...
 {
     // Parameters:
@@ -11649,25 +11640,23 @@ void drawTextWithChars6Font_method1(size_t destX, size_t destY, uint8_t color, c
         return;
     }
 
-//loc_4BA69:             // ; CODE XREF: drawTextWithChars6Font_method1+5j
+//loc_4BA69:             // ; CODE XREF: drawTextWithChars6FontWithOpaqueBackground+5j
     byte_51969 = color;
 
-//    cl = 0;
-
-//loc_4BA8D:             // ; CODE XREF: drawTextWithChars6Font_method1:loc_4BDECj
+//loc_4BA8D:             // ; CODE XREF: drawTextWithChars6FontWithOpaqueBackground:loc_4BDECj
     if (text[0] == '\0')
     {
         return;
     }
 
-//loc_4BA9F:             // ; CODE XREF: drawTextWithChars6Font_method1+3Bj
+//loc_4BA9F:             // ; CODE XREF: drawTextWithChars6FontWithOpaqueBackground+3Bj
     long textLength = strlen(text);
 
     for (long idx = 0; idx < textLength; ++idx)
     {
         char character = text[idx];
 
-        //loc_4BA97:             // ; CODE XREF: drawTextWithChars6Font_method1+33j
+        //loc_4BA97:             // ; CODE XREF: drawTextWithChars6FontWithOpaqueBackground+33j
         if (character == '\n')
         {
             return;
@@ -11686,261 +11675,69 @@ void drawTextWithChars6Font_method1(size_t destX, size_t destY, uint8_t color, c
                 uint8_t pixelValue = (bitmapCharacterRow >> (7 - x)) & 0x1;
 
                 // 6 is the wide (in pixels) of this font
-                size_t destAddress = (destY + y) * kScreenWidth + (idx * 6 + destX + x);
+                size_t destAddress = (destY + y) * kScreenWidth + (idx * kBitmapFontCharacterWidth + destX + x);
                 gScreenPixels[destAddress] = color * pixelValue;
             }
         }
     }
-
-// drawTextWithChars6Font_method1   endp
 }
-/*
 
-void drawTextWithChars6Font_method2()  // proc near       ; CODE XREF: recoverFilesFromFloppyDisk+2Ap
+void drawTextWithChars6FontWithTransparentBackground(size_t destX, size_t destY, uint8_t color, const char *text)  // sub_4BDF0 proc near       ; CODE XREF: recoverFilesFromFloppyDisk+2Ap
                    // ; sub_4AF0C+EDp ...
 {
-    if (byte_5A33F != 1)
+    if (byte_5A33F == 1)
     {
-        goto loc_4BDFA;
+        return;
     }
-    goto locret_4BF49;
-// ; ---------------------------------------------------------------------------
 
-loc_4BDFA:             // ; CODE XREF: drawTextWithChars6Font_method2+5j
-    byte_51969 = ah;
-    // mov dx, 3CEh
-    // al = 5
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; mode register.Data bits:
-    //             ; 0-1: Write mode 0-2
-    //             ; 2: test condition
-    //             ; 3: read mode: 1=color compare, 0=direct
-    //             ; 4: 1=use odd/even RAM addressing
-    //             ; 5: 1=use CGA mid-res map (2-bits/pixel)
-    ports[0x3CE] = 5;
-    // inc dx
-    // al = 0
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = 0; // mode write 0
-    // mov dx, 3CEh
-    // al = 1
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; enable set/reset
-    ports[0x3CE] = 1;
-    // inc dx
-    // al = 0Fh
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = 0xF; // enable set/reset in all planes
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
+//loc_4BDFA:             // ; CODE XREF: drawTextWithChars6FontWithTransparentBackground+5j
+    byte_51969 = color;
     cl = 0;
 
-loc_4BE1E:             // ; CODE XREF: drawTextWithChars6Font_method2:loc_4BF46j
-    bl = *si;
-    if (bl != 0) // checks for null character
+//loc_4BE1E:             // ; CODE XREF: drawTextWithChars6FontWithTransparentBackground:loc_4BF46j
+    if (text[0] == '\0')
     {
-        goto loc_4BE28;
+        return;
     }
-    goto locret_4BF49;
-// ; ---------------------------------------------------------------------------
 
-loc_4BE28:             // ; CODE XREF: drawTextWithChars6Font_method2+33j
-    if (bl != 10) // checks for \n
+//loc_4BE30:             // ; CODE XREF: drawTextWithChars6FontWithTransparentBackground+3Bj
+    long textLength = strlen(text);
+
+    for (long idx = 0; idx < textLength; ++idx)
     {
-        goto loc_4BE30;
+        char character = text[idx];
+
+        //loc_4BA97:             // ; CODE XREF: drawTextWithChars6FontWithOpaqueBackground+33j
+        if (character == '\n')
+        {
+            return;
+        }
+
+        // ' ' = 0x20 = 32, and is first ascii that can be represented.
+        // This line converts the ascii from the string to the index in the font
+        //
+        uint8_t bitmapCharacterIndex = character - 0x20;
+
+        for (uint8_t y = 0; y < kBitmapFontCharacterHeight; ++y)
+        {
+            for (uint8_t x = 0; x < kBitmapFontCharacterWidth; ++x)
+            {
+                uint8_t bitmapCharacterRow = gChars6BitmapFont[bitmapCharacterIndex + y * kNumberOfCharactersInBitmapFont];
+                uint8_t pixelValue = (bitmapCharacterRow >> (7 - x)) & 0x1;
+
+                if (pixelValue == 1)
+                {
+                    // 6 is the wide (in pixels) of this font
+                    size_t destAddress = (destY + y) * kScreenWidth + (idx * kBitmapFontCharacterWidth + destX + x);
+                    gScreenPixels[destAddress] = color;
+                }
+            }
+        }
     }
-    goto locret_4BF49;
-// ; ---------------------------------------------------------------------------
 
-loc_4BE30:             // ; CODE XREF: drawTextWithChars6Font_method2+3Bj
-    si++;
-    bl -= 0x20;
-    bh = 0;
-    bx += chars6DataBuffer;
-    // mov dx, 3CEh
-    // al = 0
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; set/reset.
-    //             ; Data bits 0-3 select planes for write mode 00
-    ports[0x3CE] = 0;
-    
-    // inc dx
-    // al = byte_51969
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = byte_51969;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    
-    al = [bx];
-    al = al >> cl;
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = al;
-    
-    *(es:di) = *(es:di) | al;
-    al = [bx];
-    ch = cl;
-    ah = 8;
-    ah -= cl;
-    cl = ah;
-    al = al << cl;
-    cl = ch;
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = al;
-    
-    *(di + 1) = *(di + 1) | al;
-    di += 0x7A; // 252
-    bx += 0x40; // 64
-    al = [bx];
-    al = al >> cl;
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = al;
-    
-    *(es:di) = *(es:di) | al;
-    al = [bx];
-    ch = cl;
-    ah = 8;
-    ah -= cl;
-    cl = ah;
-    al = al << cl;
-    cl = ch;
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = al;
-
-    *(di + 1) = *(di + 1) | al;
-    di += 0x7A; // 252
-    bx += 0x40; // 64
-    al = [bx];
-    al = al >> cl;
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = al;
-
-    *(es:di) = *(es:di) | al;
-    al = [bx];
-    ch = cl;
-    ah = 8;
-    ah -= cl;
-    cl = ah;
-    al = al << cl;
-    cl = ch;
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = al;
-
-    *(di + 1) = *(di + 1) | al;
-    di += 0x7A; // 252
-    bx += 0x40; // 64
-    al = [bx];
-    al = al >> cl;
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = al;
-    
-    *(es:di) = *(es:di) | al;
-    al = [bx];
-    ch = cl;
-    ah = 8;
-    ah -= cl;
-    cl = ah;
-    al = al << cl;
-    cl = ch;
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = al;
-
-    *(di + 1) = *(di + 1) | al;
-    di += 0x7A; // 252
-    bx += 0x40; // 64
-    al = [bx]
-    shr al, cl
-    out dx, al      ; EGA port: graphics controller data register
-    *(es:di) = *(es:di) | al;
-    al = [bx];
-    ch = cl;
-    ah = 8;
-    ah -= cl;
-    cl = ah;
-    al = al << cl;
-    cl = ch;
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = al;
-
-    *(di + 1) = *(di + 1) | al;
-    di += 0x7A; // 252
-    bx += 0x40; // 64
-    al = [bx];
-    al = al >> cl;
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = al;
-
-    *(es:di) = *(es:di) | al;
-    al = [bx];
-    ch = cl;
-    ah = 8;
-    ah -= cl;
-    cl = ah;
-    al = al << cl;
-    cl = ch;
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = al;
-
-    *(di + 1) = *(di + 1) | al;
-    di += 0x7A; // 252
-    bx += 0x40; // 64
-    al = [bx];
-    al = al >> cl;
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = al;
-
-    *(es:di) = *(es:di) | al;
-    al = [bx];
-    ch = cl;
-    ah = 8;
-    ah -= cl;
-    cl = ah;
-    al = al << cl;
-    cl = ch;
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = al;
-
-    *(di + 1) = *(di + 1) | al;
-    di += 0x7A; // 252
-    bx += 0x40; // 64
-    di -= 0x356; // 854
-    cl += 6;
-    if (cl < 8)
-    {
-        goto loc_4BF46;
-    }
-    cl -= 8;
-    di++;
-
-loc_4BF46:             // ; CODE XREF: drawTextWithChars6Font_method2+150j
-    goto loc_4BE1E;
-// ; ---------------------------------------------------------------------------
-
-locret_4BF49:            //   ; CODE XREF: drawTextWithChars6Font_method2+7j
-               // ; drawTextWithChars6Font_method2+35j ...
-    return
-// drawTextWithChars6Font_method2   endp
 }
 
-
-; =============== S U B R O U T I N E =======================================
-
+/*
 
 sub_4BF4A   proc near       ; CODE XREF: start+3F7p sub_4955B+398p ...
         mov si, 0A017h
@@ -12124,12 +11921,12 @@ void drawRankings() //   proc near       ; CODE XREF: sub_4AB1B+1E9p
     {
         const uint8_t y = 110 + kDistanceBetweenLines * (i - 2);
         const uint8_t color = (i == 2 ? 6 : 8);
-        drawTextWithChars6Font_method1(8, y, color, gRankingTextEntries[byte_58D46 + i]);
+        drawTextWithChars6FontWithOpaqueBackground(8, y, color, gRankingTextEntries[byte_58D46 + i]);
     }
 
     char numberString[4] = "001"; // 0x8359
     convertNumberTo3DigitStringWithPadding0(byte_58D46, numberString);
-    drawTextWithChars6Font_method1(144, 110, 6, &numberString[1]); // Remove the first (left most) digit
+    drawTextWithChars6FontWithOpaqueBackground(144, 110, 6, &numberString[1]); // Remove the first (left most) digit
 }
 
 void drawLevelList() //   proc near       ; CODE XREF: start+41Ap sub_4955B+39Bp ...
@@ -12140,13 +11937,13 @@ void drawLevelList() //   proc near       ; CODE XREF: start+41Ap sub_4955B+39B
     byte_59823 = gCurrentPlayerLevelData[gCurrentSelectedLevelIndex];
 
     char *previousLevelName = (char *)&gLevelListData[(gCurrentSelectedLevelIndex - 2) * kLevelEntryLength];
-    drawTextWithChars6Font_method1(144, 155, byte_59821, previousLevelName);
+    drawTextWithChars6FontWithOpaqueBackground(144, 155, byte_59821, previousLevelName);
 
     char *currentLevelName = (char *)&gLevelListData[(gCurrentSelectedLevelIndex - 1) * kLevelEntryLength];
-    drawTextWithChars6Font_method1(144, 164, byte_59822, currentLevelName);
+    drawTextWithChars6FontWithOpaqueBackground(144, 164, byte_59822, currentLevelName);
 
     char *nextLevelName = (char *)&gLevelListData[gCurrentSelectedLevelIndex * kLevelEntryLength];
-    drawTextWithChars6Font_method1(144, 173, byte_59823, nextLevelName);
+    drawTextWithChars6FontWithOpaqueBackground(144, 173, byte_59823, nextLevelName);
 }
 
 void drawHallOfFame() //   proc near       ; CODE XREF: sub_4B419+15Ap
@@ -12170,7 +11967,7 @@ void drawHallOfFame() //   proc near       ; CODE XREF: sub_4B419+15Ap
 
         memcpy(text, entry.playerName, sizeof(entry.playerName) - 1);
 
-        drawTextWithChars6Font_method1(184, 28 + i * 9, 8, text);
+        drawTextWithChars6FontWithOpaqueBackground(184, 28 + i * 9, 8, text);
     }
 }
 
@@ -12178,7 +11975,7 @@ void drawCurrentPlayerRanking() //   proc near       ; CODE XREF: drawPlayerList
 {
     // 01ED:55C1
     PlayerEntry currentPlayerEntry = gPlayerListData[gCurrentPlayerIndex];
-    drawTextWithChars6Font_method1(168, 93, 8, currentPlayerEntry.name);
+    drawTextWithChars6FontWithOpaqueBackground(168, 93, 8, currentPlayerEntry.name);
 
     char timeText[10] = "000:00:00";
 
@@ -12193,11 +11990,11 @@ void drawCurrentPlayerRanking() //   proc near       ; CODE XREF: drawPlayerList
     // Hours
     convertNumberTo3DigitStringWithPadding0(currentPlayerEntry.hours, timeText);
 
-    drawTextWithChars6Font_method1(224, 93, 8, timeText);
+    drawTextWithChars6FontWithOpaqueBackground(224, 93, 8, timeText);
 
     char nextLevelText[4] = "000";
     convertNumberTo3DigitStringWithPadding0(currentPlayerEntry.nextLevelToPlay, nextLevelText);
-    drawTextWithChars6Font_method1(288, 93, 8, nextLevelText);
+    drawTextWithChars6FontWithOpaqueBackground(288, 93, 8, nextLevelText);
 }
 
 void drawPlayerList() // sub_4C293  proc near       ; CODE XREF: start+32Cp start+407p ...
@@ -12205,7 +12002,7 @@ void drawPlayerList() // sub_4C293  proc near       ; CODE XREF: start+32Cp sta
     // 01ED:5630
     PlayerEntry currentPlayer = gPlayerListData[gCurrentPlayerIndex];
     memcpy(gPlayerName, currentPlayer.name, sizeof(currentPlayer.name) - 1);
-    drawTextWithChars6Font_method1(16, 164, 6, currentPlayer.name);
+    drawTextWithChars6FontWithOpaqueBackground(16, 164, 6, currentPlayer.name);
 
     char *prevPlayerName = "";
 
@@ -12219,7 +12016,7 @@ void drawPlayerList() // sub_4C293  proc near       ; CODE XREF: start+32Cp sta
     }
 
 //loc_4C2CD:              // ; CODE XREF: drawPlayerList+35j
-    drawTextWithChars6Font_method1(16, 155, 8, prevPlayerName);
+    drawTextWithChars6FontWithOpaqueBackground(16, 155, 8, prevPlayerName);
 
     char *nextPlayerName = "";
 
@@ -12233,7 +12030,7 @@ void drawPlayerList() // sub_4C293  proc near       ; CODE XREF: start+32Cp sta
     }
 
 //loc_4C2E6:              // ; CODE XREF: drawPlayerList+4Ej
-    drawTextWithChars6Font_method1(16, 173, 8, nextPlayerName);
+    drawTextWithChars6FontWithOpaqueBackground(16, 173, 8, nextPlayerName);
     drawCurrentPlayerRanking();
 }
 
@@ -12241,7 +12038,7 @@ void drawMenuTitleAndDemoLevelResult() //   proc near       ; CODE XREF: sub_4B1
                     // ; sub_4C407+1Fp ...
 {
     // 01ED:568F
-    drawTextWithChars6Font_method1(180, 127, 4, "WELCOME TO SUPAPLEX");
+    drawTextWithChars6FontWithOpaqueBackground(180, 127, 4, "WELCOME TO SUPAPLEX");
     drawPlayerList();
     drawLevelList();
     drawHallOfFame();
@@ -12280,7 +12077,7 @@ void drawMenuTitleAndDemoLevelResult() //   proc near       ; CODE XREF: sub_4B1
                 // ; drawMenuTitleAndDemoLevelResult+39j ...
 //    di = 0x89F7;
 //    ah = 4;
-    drawTextWithChars6Font_method1(168, 127, 4, message);
+    drawTextWithChars6FontWithOpaqueBackground(168, 127, 4, message);
     byte_5A19B = 0;
 }
 
@@ -12550,17 +12347,17 @@ sub_4C4F9   proc near       ; CODE XREF: sub_4C407+11p
         mov si, 8577h
         mov di, 6A2Ch
         mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
+        call    drawTextWithChars6FontWithTransparentBackground
         cmp byte_5195A, 0
         jnz short loc_4C52C
         mov si, 8582h
         mov di, 73A9h
         mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
+        call    drawTextWithChars6FontWithTransparentBackground
         mov si, 85ACh
         mov di, 7D35h
         mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
+        call    drawTextWithChars6FontWithTransparentBackground
         jmp short loc_4C55C
 // ; ---------------------------------------------------------------------------
 
@@ -12577,17 +12374,17 @@ loc_4C52C:              ; CODE XREF: sub_4C4F9+19j
         mov si, 85C9h
         mov di, 73A9h
         mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
+        call    drawTextWithChars6FontWithTransparentBackground
         mov si, 85EFh
         mov di, 7D39h
         mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
+        call    drawTextWithChars6FontWithTransparentBackground
 
 loc_4C55C:              ; CODE XREF: sub_4C4F9+31j
         mov si, 8600h
         mov di, 86BDh
         mov ah, 0Fh
-        call    drawTextWithChars6Font_method2
+        call    drawTextWithChars6FontWithTransparentBackground
         mov bx, 4D84h
         mov dx, 3D4h
         al = 0Dh
@@ -12608,7 +12405,7 @@ loc_4C55C:              ; CODE XREF: sub_4C4F9+31j
         call    setPalette
         cmp word_5197A, 1
         jz  short loc_4C591
-        call    sub_47E98
+        call    waitForKeyMouseOrJoystick
 
 loc_4C591:              ; CODE XREF: sub_4C4F9+93j
         mov si, 60D5h
@@ -14579,8 +14376,8 @@ void initializeMouse() //   proc near       ; CODE XREF: start+299p
 */
 }
 
-void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonStatus) //   proc near       ; CODE XREF: sub_47E98:mouseIsClickedp
-//                    ; sub_47E98+3Ep ...
+void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonStatus) //   proc near       ; CODE XREF: waitForKeyMouseOrJoystick:mouseIsClickedp
+//                    ; waitForKeyMouseOrJoystick+3Ep ...
 {
     // Returns coordinate X in CX (0-320) and coordinate Y in DX (0-200).
     // Also button status in BX.
@@ -14597,15 +14394,25 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
         x = CLAMP(x, 16, 304);
         y = CLAMP(y, 8, 192);
 
-//        printf("coords %d, %d\n", x, y);
+        if (mouseX != NULL)
+        {
+            *mouseX = x;
+        }
+        if (mouseY != NULL)
+        {
+            *mouseY = y;
+        }
 
-        *mouseX = x;
-        *mouseY = y;
+//        printf("mouse: %d, %d\n", x, y);
+
         uint8_t leftButtonPressed = (state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
         uint8_t rightButtonPressed = (state & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0;
-        *mouseButtonStatus = (rightButtonPressed << 1
-                              | leftButtonPressed);
-//        printf("mouse status %d\n", *mouseButtonStatus);
+
+        if (mouseButtonStatus != NULL)
+        {
+            *mouseButtonStatus = (rightButtonPressed << 1
+                                  | leftButtonPressed);
+        }
 
         return;
     }
@@ -21914,15 +21721,15 @@ sub_5024B   endp
 
 void drawSpeedFixTitleAndVersion() //   proc near       ; CODE XREF: start+2E6p
 {
-    drawTextWithChars6Font_method1(102, 11, 1, "SUPAPLEX VERSION 7.0");
+    drawTextWithChars6FontWithOpaqueBackground(102, 11, 1, "SUPAPLEX VERSION 7.0");
 // drawSpeedFixTitleAndVersion   endp
 }
 
 void drawSpeedFixCredits() //  proc near       ; CODE XREF: start+2ECp
 {
-    drawTextWithChars6Font_method1(60, 168, 0xE, "VERSIONS 1-4 + 6.X BY HERMAN PERK");
-    drawTextWithChars6Font_method1(60, 176, 0xE, "VERSIONS 5.X BY ELMER PRODUCTIONS");
-    drawTextWithChars6Font_method1(75, 184, 0xE, "VERSIONS 7.X BY SERGIO PADRINO");
+    drawTextWithChars6FontWithOpaqueBackground(60, 168, 0xE, "VERSIONS 1-4 + 6.X BY HERMAN PERK");
+    drawTextWithChars6FontWithOpaqueBackground(60, 176, 0xE, "VERSIONS 5.X BY ELMER PRODUCTIONS");
+    drawTextWithChars6FontWithOpaqueBackground(75, 184, 0xE, "VERSIONS 7.X BY SERGIO PADRINO");
 
     // TODO: requires to re-implement the int9 handler (handle keyboard)
 /*
