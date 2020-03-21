@@ -44,7 +44,7 @@ uint8_t byte_50941 = 0;
 uint8_t byte_50946 = 0;
 uint8_t byte_50953 = 0;
 uint8_t byte_50954 = 0;
-uint8_t byte_510A6 = 0;
+uint8_t gNumberOfDotsToShiftDataLeft = 0; // byte_510A6 Used for the scroll effect
 uint8_t byte_510AB = 0;
 uint8_t byte_510B3 = 0;
 uint8_t byte_510DE = 0;
@@ -303,8 +303,9 @@ void handleLevelListScrollDown(void);
 void handleRankingListScrollUp(void);
 void handleRankingListScrollDown(void);
 void handleLevelCreditsClick(void);
+void handleGfxTutorOptionClick(void);
 
-static const uint8_t kNumberOfMenuButtons = 8;
+static const uint8_t kNumberOfMenuButtons = 9;
 static const ButtonDescriptor kMenuButtonDescriptors[kNumberOfMenuButtons] = { // located in DS:0000
     /*
     {
@@ -326,12 +327,12 @@ static const ButtonDescriptor kMenuButtonDescriptors[kNumberOfMenuButtons] = { /
         5, 33,
         157, 41,
         sub_4AF0C, // Statistics
-    },
+    },*/
     {
         5, 42,
         157, 50,
-        sub_4B149, // GFX-tutor
-    },
+        handleGfxTutorOptionClick, // GFX-tutor
+    },/*
     {
         5, 51,
         157, 59,
@@ -619,6 +620,10 @@ void drawTextWithChars6FontWithOpaqueBackground(size_t destX, size_t destY, uint
 void drawTextWithChars6FontWithTransparentBackground(size_t destX, size_t destY, uint8_t color, const char *text);
 void sub_48E59(void);
 void waitForKeyMouseOrJoystick(void);
+void drawMenuTitleAndDemoLevelResult(void);
+void scrollRightToGfxTutor(void);
+void scrollLeftToMainMenu(void);
+void drawMenuBackground(void);
 
 static const int kWindowWidth = kScreenWidth * 4;
 static const int kWindowHeight = kScreenHeight * 4;
@@ -2803,7 +2808,7 @@ void loadScreen2() // proc near       ; CODE XREF: start:loc_46F00p
 //loc_4792E:              //; CODE XREF: loadScreen2+76j
 //    word_51967 = gScreenPixels??; // points to where title1.dat was RENDERED
     videoloop();
-    byte_510A6 = 0;
+//    gNumberOfDotsToShiftDataLeft = 0;
     ColorPalette title1DatPalette;
     convertPaletteDataToPalette(gTitle1PaletteData, title1DatPalette);
     setPalette(title1DatPalette);
@@ -3160,7 +3165,7 @@ void readTitleDatAndGraphics() // proc near  ; CODE XREF: start+2BBp
 {
 //  word_51967 = 0x4D84; // address where the bitmap will be rendered
     videoloop();
-//  byte_510A6 = 0;
+//  gNumberOfDotsToShiftDataLeft = 0;
     FILE *file = fopen("TITLE.DAT", "r");
 
     if (file == NULL)
@@ -5206,7 +5211,7 @@ void sub_48A20() //   proc near       ; CODE XREF: start+32Fp
         mov byte ptr word_510C1, 1
         mov byte ptr word_510C1+1, 0
         mov byte_510D7, 0
-        mov byte_510A6, 0
+        mov gNumberOfDotsToShiftDataLeft, 0
         mov byte ptr word_510D9, 0
         mov byte_510DB, 0
         mov word_510DC, 0
@@ -5346,7 +5351,7 @@ noFlashing3:              ; CODE XREF: runLevel+F1j
         call    sub_49EBE
         mov ax, word_5195F
         and al, 7
-        mov byte_510A6, al
+        mov gNumberOfDotsToShiftDataLeft, al
         test    speed3, 40h
         jnz short loc_48BED
         test    speed3, 80h
@@ -5524,7 +5529,7 @@ loc_48D16:              ; CODE XREF: runLevel+24Fj
         mov ax, word_59B90
         mov bx, ax
         and al, 7
-        mov byte_510A6, al
+        mov gNumberOfDotsToShiftDataLeft, al
         mov cl, 3
         shr bx, cl
         mov ax, word_59B92
@@ -5567,7 +5572,7 @@ loc_48D59:              ; CODE XREF: runLevel+19Bj
         mov ax, word_5195F
         mov word_59B90, ax
         and al, 7
-        mov byte_510A6, al
+        mov gNumberOfDotsToShiftDataLeft, al
         mov dx, 3D4h
         al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
@@ -5597,7 +5602,7 @@ loc_48D59:              ; CODE XREF: runLevel+19Bj
         out dx, al
 
 noFlashing4:              ; CODE XREF: runLevel+2D1j
-        mov byte_510A6, ah
+        mov gNumberOfDotsToShiftDataLeft, ah
         cmp fastMode, 1
         jz  short isFastMode2
         call    videoloop
@@ -8575,7 +8580,7 @@ sub_4A291   proc near       ; CODE XREF: sub_4955B+686p
         mov ax, word_5195F
         mov word_59B90, ax
         and al, 7
-        mov byte_510A6, al
+        mov gNumberOfDotsToShiftDataLeft, al
         mov dx, 3D4h
         al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
@@ -10638,20 +10643,15 @@ loc_4B105:              ; CODE XREF: sub_4AF0C+1D4j
         return;
 sub_4AF0C   endp
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4B149   proc near
-        call    vgaloadgfxseg
-        call    sub_4C5AF
-        call    waitForKeyMouseOrJoystick
-        call    loc_4C44F
-        call    drawMenuTitleAndDemoLevelResult
-        return;
-sub_4B149   endp
-
 */
+void handleGfxTutorOptionClick() // sub_4B149   proc near
+{
+//    vgaloadgfxseg();
+    scrollRightToGfxTutor();
+    waitForKeyMouseOrJoystick();
+    scrollLeftToMainMenu();
+    drawMenuTitleAndDemoLevelResult();
+}
 
 void sub_4B159() //   proc near       ; CODE XREF: runMainMenu+6Fp
 {
@@ -11508,7 +11508,6 @@ void handleLevelCreditsClick() // sub_4B7B7  proc near
     fadeToPalette(gBlackPalette);
 
     uint8_t screenPixelsBackup[kFullScreenFramebufferLength];
-
     memcpy(screenPixelsBackup, gScreenPixels, kFullScreenFramebufferLength);
 
 //    vgaloadbackseg();
@@ -11929,7 +11928,7 @@ void drawRankings() //   proc near       ; CODE XREF: sub_4AB1B+1E9p
     drawTextWithChars6FontWithOpaqueBackground(144, 110, 6, &numberString[1]); // Remove the first (left most) digit
 }
 
-void drawLevelList() //   proc near       ; CODE XREF: start+41Ap sub_4955B+39Bp ...
+void drawLevelList() // sub_4C141  proc near       ; CODE XREF: start+41Ap sub_4955B+39Bp ...
 {
     // 01ED:54DE
     byte_59821 = gCurrentPlayerLevelData[gCurrentSelectedLevelIndex - 2];
@@ -12034,7 +12033,7 @@ void drawPlayerList() // sub_4C293  proc near       ; CODE XREF: start+32Cp sta
     drawCurrentPlayerRanking();
 }
 
-void drawMenuTitleAndDemoLevelResult() //   proc near       ; CODE XREF: sub_4B149+Cp
+void drawMenuTitleAndDemoLevelResult() //   proc near       ; CODE XREF: handleGfxTutorOptionClick+Cp
                     // ; sub_4C407+1Fp ...
 {
     // 01ED:568F
@@ -12202,7 +12201,7 @@ void prepareLevelDataForCurrentPlayer() //   proc near       ; CODE XREF: start+
 
 
 sub_4C407   proc near       ; CODE XREF: runMainMenu+5Dp
-        mov byte_510A6, 0
+        mov gNumberOfDotsToShiftDataLeft, 0
         cmp byte_510BA, 0
         jz  short loc_4C431
         mov byte_510BA, 0
@@ -12238,66 +12237,69 @@ loc_4C449:              ; CODE XREF: sub_4C407+3Aj
         mov di, 4D84h
         call    sub_4C4BD
 
-;ploc_4C44F::
-loc_4C44F:              ; CODE XREF: sub_4B149+9p
-        call    drawMenuBackground
-        mov byte_51ABE, 0
-        call    prepareLevelDataForCurrentPlayer
-        call    drawMenuTitleAndDemoLevelResult
-        call    videoloop
-        call    loopForVSync
-        mov bx, 4D83h
+        // here it would continue with scrollLeftToMainMenu
+*/
 
-loc_4C466:              ; CODE XREF: sub_4C407+90j
-        mov dx, 3D4h
-        al = 0Dh
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (low)
-        inc dx
-        al = bl
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 0Ch
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (high)
-        inc dx
-        al = bh
-        out dx, al      ; Video: CRT controller internal registers
-        mov byte_510A6, 7
-        call    videoloop
-        call    loopForVSync
-        mov byte_510A6, 3
-        call    videoloop
-        call    loopForVSync
-        sub bx, 1
-        cmp bx, 4D5Ch
-        jnb short loc_4C466
+void scrollLeftToMainMenu() //loc_4C44F:              ; CODE XREF: handleGfxTutorOptionClick+9p
+{
+    uint8_t currentScreenPixels[kFullScreenFramebufferLength];
+    memcpy(currentScreenPixels, gScreenPixels, kFullScreenFramebufferLength);
 
-loc_4C499:              ; CODE XREF: sub_4C407+28j
-        mov bx, 4D5Ch
-        mov word_51967, bx
-        mov dx, 3D4h
-        al = 0Dh
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (low)
-        inc dx
-        al = bl
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 0Ch
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (high)
-        inc dx
-        al = bh
-        out dx, al      ; Video: CRT controller internal registers
-        mov byte_510A6, 0
-        call    videoloop
-        return;
-sub_4C407   endp
+    drawMenuBackground();
+    byte_51ABE = 0;
 
+    prepareLevelDataForCurrentPlayer();
+    drawMenuTitleAndDemoLevelResult();
 
-; =============== S U B R O U T I N E =======================================
+    // These two lines were in the original code, but will be
+    // left out here to prevent flickering.
+//    videoloop();
+//    loopForVSync();
 
+    uint8_t menuScreenPixels[kFullScreenFramebufferLength];
+    memcpy(menuScreenPixels, gScreenPixels, kFullScreenFramebufferLength);
+
+    const int kNumberOfSteps = 40;
+    const int kStepSize = kScreenWidth / kNumberOfSteps;
+
+    // Draws the current scroll animation step
+    for (int i = kNumberOfSteps; i >= 0; --i)
+    {
+        for (int y = 0; y < kScreenHeight; ++y)
+        {
+            int limitFromLeft = kStepSize * (kNumberOfSteps - i);
+            int limitFromRight = kScreenWidth - limitFromLeft;
+
+            // Main menu side
+            for (int x = 0; x < kScreenWidth - limitFromRight; ++x)
+            {
+                gScreenPixels[y * kScreenWidth + x] = menuScreenPixels[y * kScreenWidth + x + limitFromRight];
+            }
+
+            // GFX background side
+            for (int x = limitFromLeft; x < kScreenWidth; ++x)
+            {
+                gScreenPixels[y * kScreenWidth + x] = currentScreenPixels[y * kScreenWidth + x - limitFromLeft];
+            }
+        }
+
+//loc_4C466:              ; CODE XREF: sub_4C407+90j
+//        gNumberOfDotsToShiftDataLeft = 7;
+        videoloop();
+        loopForVSync();
+//        gNumberOfDotsToShiftDataLeft = 3;
+        videoloop();
+        loopForVSync();
+    }
+
+//loc_4C499:              ; CODE XREF: sub_4C407+28j
+//    gNumberOfDotsToShiftDataLeft = 0;
+    videoloop();
+}
+
+//sub_4C407   endp
+
+/*
 
 sub_4C4BD   proc near       ; CODE XREF: sub_4C407+3Fp
                     ; sub_4C407+45p
@@ -12428,66 +12430,79 @@ loc_4C591:              ; CODE XREF: sub_4C4F9+93j
         return;
 sub_4C4F9   endp
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4C5AF   proc near       ; CODE XREF: sub_4B149+3p
-        mov byte_510A6, 0
-        call    videoloop
-        mov bx, 4D5Ch
-
-loc_4C5BA:              ; CODE XREF: sub_4C5AF+3Cj
-        mov dx, 3D4h
-        al = 0Dh
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (low)
-        inc dx
-        al = bl
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 0Ch
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (high)
-        inc dx
-        al = bh
-        out dx, al      ; Video: CRT controller internal registers
-        mov byte_510A6, 1
-        call    videoloop
-        call    loopForVSync
-        mov byte_510A6, 5
-        call    videoloop
-        call    loopForVSync
-        add bx, 1
-        cmp bx, 4D84h
-        jb  short loc_4C5BA
-        mov bx, 4D84h
-        mov word_51967, bx
-        mov dx, 3D4h
-        al = 0Dh
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (low)
-        inc dx
-        al = bl
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 0Ch
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (high)
-        inc dx
-        al = bh
-        out dx, al      ; Video: CRT controller internal registers
-        mov byte_510A6, 0
-        call    videoloop
-        return;
-sub_4C5AF   endp
-
-
-// ; =============== S U B R O U T I N E =======================================
-
 */
+
+void scrollRightToGfxTutor() // sub_4C5AF   proc near       ; CODE XREF: handleGfxTutorOptionClick+3p
+{
+//    gNumberOfDotsToShiftDataLeft = 0;
+    videoloop();
+
+    uint8_t screenPixelsBackup[kFullScreenFramebufferLength];
+    memcpy(screenPixelsBackup, gScreenPixels, kFullScreenFramebufferLength);
+
+    uint8_t gfxBackgroundPixels[kFullScreenFramebufferLength];
+    for (int y = 0; y < kScreenHeight; ++y)
+    {
+        for (int x = 0; x < kScreenWidth; ++x)
+        {
+            uint32_t destPixelAddress = y * kScreenWidth + x;
+
+            uint32_t sourcePixelAddress = y * kScreenWidth / 2 + x / 8;
+            uint8_t sourcePixelBitPosition = 7 - (x % 8);
+
+            uint8_t b = (gGfxBitmapData[sourcePixelAddress + 0] >> sourcePixelBitPosition) & 0x1;
+            uint8_t g = (gGfxBitmapData[sourcePixelAddress + 40] >> sourcePixelBitPosition) & 0x1;
+            uint8_t r = (gGfxBitmapData[sourcePixelAddress + 80] >> sourcePixelBitPosition) & 0x1;
+            uint8_t i = (gGfxBitmapData[sourcePixelAddress + 120] >> sourcePixelBitPosition) & 0x1;
+
+            uint8_t finalColor = ((b << 0)
+                                  | (g << 1)
+                                  | (r << 2)
+                                  | (i << 3));
+
+            gfxBackgroundPixels[destPixelAddress] = finalColor;
+        }
+    }
+
+    const int kNumberOfSteps = 40;
+    const int kStepSize = kScreenWidth / kNumberOfSteps;
+
+    // Draws the current scroll animation step
+    for (int i = 0; i <= kNumberOfSteps; ++i)
+    {
+        for (int y = 0; y < kScreenHeight; ++y)
+        {
+            int limitFromLeft = kStepSize * (kNumberOfSteps - i);
+            int limitFromRight = kScreenWidth - limitFromLeft;
+
+            // Main menu side
+            for (int x = 0; x < kScreenWidth - limitFromRight; ++x)
+            {
+                gScreenPixels[y * kScreenWidth + x] = screenPixelsBackup[y * kScreenWidth + x + limitFromRight];
+            }
+
+            // GFX background side
+            for (int x = limitFromLeft; x < kScreenWidth; ++x)
+            {
+                gScreenPixels[y * kScreenWidth + x] = gfxBackgroundPixels[y * kScreenWidth + x - limitFromLeft];
+            }
+        }
+
+//loc_4C5BA:              ; CODE XREF: scrollRightToGfxTutor+3Cj
+//        gNumberOfDotsToShiftDataLeft = 1;
+        videoloop();
+        loopForVSync();
+//        gNumberOfDotsToShiftDataLeft = 5;
+        videoloop();
+        loopForVSync();
+    }
+
+//    gNumberOfDotsToShiftDataLeft = 0;
+    videoloop();
+}
+
 void drawMenuBackground() //   proc near       ; CODE XREF: sub_4C407+14p
-                    // ; sub_4C407:loc_4C44Fp ...
+                    // ; sub_4C407:scrollLeftToMainMenup ...
 {
     for (int y = 0; y < kScreenHeight; y++)
     {
@@ -12764,7 +12779,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
         prepareLevelDataForCurrentPlayer(); // 01ED:5B56
         drawMenuTitleAndDemoLevelResult(); // 01ED:5B59
 
-        byte_510A6 = 0;
+//        gNumberOfDotsToShiftDataLeft = 0;
         videoloop();
         fadeToPalette(gPalettes[1]); // 6015h
         word_58467 = 0;
@@ -13013,7 +13028,7 @@ showControls:                              ; DATA XREF: data:0044o
                 call    sub_4CCDF
                 mov     si, 6055h
                 call    setPalette
-                call    sub_4C5AF  ; DO SLIDE
+                call    scrollRightToGfxTutor  ; DO SLIDE
                 mov     word_58463, 0
                 call    saveLastMouseAreaBitmap
                 call    drawMouseCursor
@@ -13080,7 +13095,7 @@ loc_4CAE1:                              ; CODE XREF: code:5E9Cj
 loc_4CAEC:                              ; CODE XREF: code:5E74j
                                         ; code:5E7Bj ...
                 call    sub_4755A
-                call    loc_4C44F
+                call    scrollLeftToMainMenu
                 call    drawMenuTitleAndDemoLevelResult
                 mov     si, 6015h
                 call    setPalette
@@ -14553,7 +14568,7 @@ void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
 //        out dx, al      ; EGA: horizontal pixel panning:
 //                    ; Number of dots to shift data left.
 //                    ; Bits 0-3 valid (0-0fH)
-//        al = byte_510A6
+//        al = gNumberOfDotsToShiftDataLeft
 //        out dx, al      ; EGA: palette register: select colors for attribute AL:
 //                    ; 0: RED
 //                    ; 1: GREEN
@@ -14593,7 +14608,7 @@ void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
 //        out dx, al      ; EGA: horizontal pixel panning:
 //                    ; Number of dots to shift data left.
 //                    ; Bits 0-3 valid (0-0fH)
-//        al = byte_510A6
+//        al = gNumberOfDotsToShiftDataLeft
 //        out dx, al      ; EGA: palette register: select colors for attribute AL:
 //                    ; 0: RED
 //                    ; 1: GREEN
@@ -14611,13 +14626,10 @@ void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
 // videoloop   endp
 }
 
-
-//; =============== S U B R O U T I N E =======================================
-
-
 void loopForVSync() //   proc near       ; CODE XREF: crt?2+55p crt?1+41p ...
 {
-    SDL_Delay(16);
+    // TODO: handle this properly to control FPS
+    SDL_Delay(1000 / 60); // 60 fps
 //        push    dx
 //        push    ax
 //
@@ -14638,9 +14650,6 @@ void loopForVSync() //   proc near       ; CODE XREF: crt?2+55p crt?1+41p ...
 }
 
 /*
-; =============== S U B R O U T I N E =======================================
-
-
 sub_4D464   proc near       ; CODE XREF: start+332p sub_4A463+3p
         mov dx, 3CEh
         al = 1
@@ -21622,7 +21631,7 @@ sub_5024B   proc near       ; CODE XREF: gameloop?+31p
 
 loc_50253:              ; CODE XREF: sub_5024B+5j
         mov si, 0
-        mov bl, byte_510A6
+        mov bl, gNumberOfDotsToShiftDataLeft
         xor bh, bh
         mov ax, 0FC0h
         mul bx
