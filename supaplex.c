@@ -160,17 +160,34 @@ char a00s0010_sp[12] = "00S001$0.SP";
 char aLevels_dat_0[11] = "LEVELS.DAT";
 char gPlayerName[9] = "WIBBLE  "; // 0x879F // TODO: read this address when the game starts and put the same text here
 
+// Seems like the way the game handle the level list is having empty level entries at the beginning and at the
+// end. They do that instead of checking boundaries when drawing the list. So these two empty spaces will be rendered
+// (but not selectable) in the level list. For now I will mimick that behavior, in case it's something on which the
+// rest of the game depends. Once everything is reverse-engineered, it can be changed to a normal and sane implementation.
+// Also, aside from the levels themselves, they seem to have some kind of informative entries at the end of the level
+// list encouraging the player to replay skipped levels.
+//
 static const int kNumberOfLevels = 111;
+static const int kNumberOfLevelsWithPadding = kNumberOfLevels + 5;
+static const int kFirstLevelIndex = 2;
+static const int kLastLevelIndex = kFirstLevelIndex + kNumberOfLevels;
 static const int kLevelEntryLength = 28; // In the list of levels, every level is 28 bytes long and looks like "001                        \n"
-uint8_t gLevelListData[kNumberOfLevels * kLevelEntryLength];
+uint8_t gPaddedLevelListData[kNumberOfLevelsWithPadding * kLevelEntryLength];
 
-// This array contains info about the levels, no idea if globally or per player, but seems to be global info.
+static const int kLevelListDataLength = kNumberOfLevels * kLevelEntryLength;
+uint8_t *gLevelListData = &gPaddedLevelListData[kFirstLevelIndex * kLevelEntryLength];
+
+// This array contains info about the levels. It's updated when player is changed.
 // There are different values per level, so far I've seen:
 // - 04 level completed
 // - 02 level not completed, but can be played
 // - 06 level not completed, and it CANNOT be played
 // These also seem to be used as colors. Not sure if they're colors used as some other info, or some other info used as colors.
-uint8_t gCurrentPlayerLevelData[kNumberOfLevels]; // 0x949E
+//
+uint8_t gCurrentPlayerPaddedLevelData[kNumberOfLevelsWithPadding]; // 0x949C
+
+static const int kCurrentPlayerLevelDataLength = kNumberOfLevels;
+uint8_t *gCurrentPlayerLevelData = &gCurrentPlayerPaddedLevelData[kFirstLevelIndex]; // 0x949E
 
 // 30 elements...
 int word_599DC[] = { 0x00CE, 0x016A, 0x0146, 0x00CD, 0x024D, 0x012C, 0x01A7, 0x01FB, 0x01D2,
@@ -234,7 +251,7 @@ HallOfFameEntry gHallOfFameData[3];
 enum PlayerLevelState {
     PlayerLevelStateNotCompleted = 0,
     PlayerLevelStateCompleted = 1,
-    PlayerLevelStateNoIdeaWhatIsThis = 2,
+    PlayerLevelStateSkipped = 2,
 };
 
 // This is a structure I still need to reverse-engineer. It's 128 bytes long:
@@ -3224,11 +3241,23 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
                     // ; readEverything+Fp ...
 {
     // 01ED:1038
+
+//    memset(gLevelListData, 0, sizeof(gLevelListData));
+    char paddingEntryText[kLevelEntryLength] = "                           ";
+    for (int i = 0; i < kNumberOfLevelsWithPadding; ++i)
+    {
+        memcpy(&gPaddedLevelListData[i * kLevelEntryLength], paddingEntryText, sizeof(paddingEntryText));
+    }
+    memcpy(&gPaddedLevelListData[kLastLevelIndex * kLevelEntryLength],
+           "- REPLAY SKIPPED LEVELS!! -",
+           kLevelEntryLength);
+    memcpy(&gPaddedLevelListData[(kLastLevelIndex + 1) * kLevelEntryLength],
+           "---- UNBELIEVEABLE!!!! ----",
+           kLevelEntryLength);
+
     FILE *file = fopen("LEVEL.LST", "r");
     if (file == NULL)
     {
-        // TODO: run this with the debugger (removing the LEVEL.LST file and letting the game rebuild it
-//        goto errorOpeningLevelLst;
 //errorOpeningLevelLst:             // ; CODE XREF: readLevelsLst+8j
         FILE *file = fopen("LEVELS.DAT", "r");
         if (file == NULL)
@@ -3247,63 +3276,35 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
             exitWithError("Error opening LEVELS.DAT\n");
         }
 //successOpeningLevelsDat:             // ; CODE XREF: readLevelsLst+15j
-//        lastFileHandle = ax;
-        bx = 0x2A6C;
-        ax = 0x3030; // "00"
-        dx = 0x2031; // "1 "
-        cx = 111;
 
-        memset(gLevelListData, 0, sizeof(gLevelListData));
-
-        for (int i = 0; i < 111; ++i)
+        for (int i = 0; i < kNumberOfLevels; ++i)
         {
     //loc_47CC4:             // ; CODE XREF: readLevelsLst:loc_47CE4j
             char number[5];
-            sprintf(number, "%3d ", i);
+            sprintf(number, "%3d ", i + 1);
 
             memcpy(gLevelListData + i * kLevelEntryLength, number, sizeof(number) - 1);
             gLevelListData[i * kLevelEntryLength + kLevelEntryLength - 1] = '\n';
     //loc_47CE4:            //  ; CODE XREF: readLevelsLst+3Aj
         }
-        cx = 111;
-        dx = 0x5A6;
-        ax = 0;
-        bx = 0x2A70;
 
-        for (int i = 0; i < 111; ++i)
+        for (int i = 0; i < kNumberOfLevels; ++i)
         {
 // loc_47CF1:             //  ; CODE XREF: readLevelsLst+83j
-//                push(cx);
-//                push(dx);
-//                push(ax);
-//                push(bx);
 
-            cx = ax;
-//                bx = lastFileHandle;
             int seekOffset = 0x5A6 + i * levelDataLength;
 
             fseek(file, seekOffset, SEEK_SET); // position 1446
-//                pop(dx);
-//                push(dx);
             size_t bytes = fread(gLevelListData + i * kLevelEntryLength + 4, 1, 23, file);
-//                pop(bx);
-//                pop(ax);
-//                pop(dx);
-//                pop(cx);
+
             if (bytes < 23)
             {
                 fclose(file);
                 exitWithError("Error reading LEVELS.DAT\n");
             }
-            // these two operations are just adding levelDataLength to the memory address where we want to store the levels data
-            // dx += levelDataLength;
-            // ax += 0 + carry_flag;
-//            levelsDataBuffer += levelDataLength;
-//            bx += 28; // no idea what's this for
         }
         if (byte_59B62 == 0)
         {
-//            goto loc_47D8D;
             if (fclose(file) != 0)
             {
                 exitWithError("Error closing LEVELS.DAT\n");
@@ -3324,8 +3325,8 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
         }
 
 //    writeLevelLstData:             // ; CODE XREF: readLevelsLst+A5j
-        size_t bytes = fwrite(gLevelListData, 1, sizeof(gLevelListData), file);
-        if (bytes < sizeof(gLevelListData))
+        size_t bytes = fwrite(gLevelListData, 1, kLevelListDataLength, file);
+        if (bytes < kLevelListDataLength)
         {
             exitWithError("Error reading LEVEL.LST\n");
         }
@@ -3333,27 +3334,25 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
 //    loc_47D5B:             // ; CODE XREF: readLevelsLst+BBj
         if (fclose(file) != 0)
         {
-            exitWithError("Error closing LEVEL.LST");
+            exitWithError("Error closing LEVEL.LST\n");
         }
         return;
     }
 
 //successOpeningLevelLst:             // ; CODE XREF: readLevelsLst+Aj
-    size_t bytes = fread(gLevelListData, 1, sizeof(gLevelListData), file);
-    if (bytes < sizeof(gLevelListData))
+    size_t bytes = fread(gLevelListData, 1, kLevelListDataLength, file);
+    if (bytes < kLevelListDataLength)
     {
         fclose(file);
-        exitWithError("Error reading LEVEL.LST");
+        exitWithError("Error reading LEVEL.LST\n");
     }
 
 //loc_47D8D:             // ; CODE XREF: readLevelsLst+8Aj
                // ; readLevelsLst:loc_47D5Bj ...
     if (fclose(file) != 0)
     {
-        exitWithError("Error closing LEVEL.LST");
+        exitWithError("Error closing LEVEL.LST\n");
     }
-
-//locret_47D9B:              // ; CODE XREF: readLevelsLst+FBj
 }
 
 void readGfxDat() //  proc near       ; CODE XREF: readGfxDat+14j
@@ -11467,8 +11466,6 @@ void handleLevelListScrollDown() // sub_4B72B  proc near
     drawLevelList();
     saveLastMouseAreaBitmap();
     drawMouseCursor();
-
-//locret_4B770:               ; CODE XREF: handleLevelListScrollDown+33j
 }
 
 void handleLevelListScrollUp() // sub_4B771  proc near
@@ -12087,22 +12084,28 @@ void prepareLevelDataForCurrentPlayer() //   proc near       ; CODE XREF: start+
 
     uint8_t *currentPlayerLevelState = currentPlayerEntry.levelState;
 
+    const int kNotCompletedLevelEntryColor = 2;
+    const int kCompletedLevelEntryColor = 4;
+    const int kBlockedLevelEntryColor = 6;
+    const int kSkippedLevelEntryColor = 8;
+
     // Sets everything to 6 which seems to mean all levels are blocked
-    memset(gCurrentPlayerLevelData, 6, kNumberOfLevels);
+    memset(gCurrentPlayerPaddedLevelData, kSkippedLevelEntryColor, kNumberOfLevelsWithPadding);
+    memset(gCurrentPlayerLevelData, kBlockedLevelEntryColor, kCurrentPlayerLevelDataLength);
 
     char isFirstUncompletedLevel = 1;
 
     for (int i = 0; i < kNumberOfLevels; ++i)
     {
 //loc_4C373:              // ; CODE XREF: prepareLevelDataForCurrentPlayer+53j
-        if (currentPlayerLevelState[i] == PlayerLevelStateNoIdeaWhatIsThis) // WHAT IS THIS??
+        if (currentPlayerLevelState[i] == PlayerLevelStateSkipped)
         {
-            gCurrentPlayerLevelData[i] = 8; // mov byte ptr [di], 8
+            gCurrentPlayerLevelData[i] = kSkippedLevelEntryColor;
         }
 //loc_4C37F:              // ; CODE XREF: prepareLevelDataForCurrentPlayer+2Ej
         else if (currentPlayerLevelState[i] == PlayerLevelStateCompleted) // Completed levels
         {
-            gCurrentPlayerLevelData[i] = 4; // mov byte ptr [di], 4
+            gCurrentPlayerLevelData[i] = kCompletedLevelEntryColor;
         }
 //loc_4C389:              // ; CODE XREF: prepareLevelDataForCurrentPlayer+38j
         else if (currentPlayerLevelState[i] == PlayerLevelStateNotCompleted) // Levels not completed
@@ -12110,12 +12113,12 @@ void prepareLevelDataForCurrentPlayer() //   proc near       ; CODE XREF: start+
             if (isFirstUncompletedLevel == 1)
             {
                 // The first uncompleted is not blocked
-                gCurrentPlayerLevelData[i] = 2;
+                gCurrentPlayerLevelData[i] = kNotCompletedLevelEntryColor;
             }
             else
             {
                 // The rest uncompleted levels are blocked
-                gCurrentPlayerLevelData[i] = 6;
+                gCurrentPlayerLevelData[i] = kBlockedLevelEntryColor;
             }
             isFirstUncompletedLevel = 0;
         }
@@ -12145,7 +12148,7 @@ void prepareLevelDataForCurrentPlayer() //   proc near       ; CODE XREF: start+
         for (int i = 0; i < kNumberOfLevels; ++i)
         {
 //loc_4C3BA:              // ; CODE XREF: prepareLevelDataForCurrentPlayer+78j
-            if (currentPlayerLevelState[i] == PlayerLevelStateNoIdeaWhatIsThis)
+            if (currentPlayerLevelState[i] == PlayerLevelStateSkipped)
             {
                 hasCompletedAllLevels = 0;
                 break;
@@ -12158,11 +12161,11 @@ void prepareLevelDataForCurrentPlayer() //   proc near       ; CODE XREF: start+
     {
         if (byte_51ABE != 0)
         {
-            gCurrentSelectedLevelIndex = 0x71; // 113 or 'q'
+            gCurrentSelectedLevelIndex = kLastLevelIndex;
         }
 
 //loc_4C3D1:              // ; CODE XREF: prepareLevelDataForCurrentPlayer+7Fj
-        currentPlayerEntry.nextLevelToPlay = 0x71; // 0x7e = 126, 0x71 = 113
+        currentPlayerEntry.nextLevelToPlay = kLastLevelIndex;
         return;
     }
 
@@ -12197,8 +12200,6 @@ void prepareLevelDataForCurrentPlayer() //   proc near       ; CODE XREF: start+
 }
 
 /*
-; =============== S U B R O U T I N E =======================================
-
 
 sub_4C407   proc near       ; CODE XREF: runMainMenu+5Dp
         mov gNumberOfDotsToShiftDataLeft, 0
