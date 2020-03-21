@@ -3281,7 +3281,7 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
         {
     //loc_47CC4:             // ; CODE XREF: readLevelsLst:loc_47CE4j
             char number[5];
-            sprintf(number, "%3d ", i + 1);
+            sprintf(number, "%03d ", i + 1);
 
             memcpy(gLevelListData + i * kLevelEntryLength, number, sizeof(number) - 1);
             gLevelListData[i * kLevelEntryLength + kLevelEntryLength - 1] = '\n';
@@ -3303,18 +3303,14 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
                 exitWithError("Error reading LEVELS.DAT\n");
             }
         }
-        if (byte_59B62 == 0)
-        {
-            if (fclose(file) != 0)
-            {
-                exitWithError("Error closing LEVELS.DAT\n");
-            }
-            return;
-        }
-
         if (fclose(file) != 0)
         {
             exitWithError("Error closing LEVELS.DAT\n");
+        }
+
+        if (byte_59B62 == 0)
+        {
+            return;
         }
 
 //    loc_47D35:             // ; CODE XREF: readLevelsLst+95j
@@ -3328,7 +3324,7 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
         size_t bytes = fwrite(gLevelListData, 1, kLevelListDataLength, file);
         if (bytes < kLevelListDataLength)
         {
-            exitWithError("Error reading LEVEL.LST\n");
+            exitWithError("Error writing LEVEL.LST\n");
         }
 
 //    loc_47D5B:             // ; CODE XREF: readLevelsLst+BBj
