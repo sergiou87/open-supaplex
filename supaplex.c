@@ -65,6 +65,7 @@ uint8_t byte_51ABE = 0;
 uint8_t gIsMouseAvailable = 0; // byte_58487
 uint8_t byte_58D46 = 0;
 uint8_t byte_58D47 = 0;
+uint8_t gNewPlayerEntryIndex = 0; // byte_59820
 uint8_t byte_59821 = 0;
 uint8_t byte_59822 = 0;
 uint8_t byte_59823 = 0;
@@ -108,6 +109,7 @@ uint16_t word_51970 = 0;
 uint16_t word_5197A = 0;
 uint16_t word_599D8 = 0;
 uint16_t word_58465 = 0;
+uint16_t gNewPlayerNameLength = 0; // word_58475
 uint16_t word_5195D = 0;
 uint16_t word_51974 = 0;
 uint16_t word_58469 = 0;
@@ -321,6 +323,7 @@ typedef struct
     void (*handler)(void);
 } ButtonDescriptor;
 
+void handleNewPlayerOptionClick(void);
 void handlePlayerListScrollUp(void);
 void handlePlayerListScrollDown(void);
 void handlePlayerListClick(void);
@@ -337,7 +340,7 @@ static const ButtonDescriptor kMenuButtonDescriptors[kNumberOfMenuButtons] = { /
     {
         5, 6,
         157, 14,
-        handleLevelListScrollDown, //sub_4AB1B, // New player
+        handleNewPlayerOptionClick, // New player
     },
     {
         5, 15,
@@ -3512,7 +3515,6 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
     do
     {
 //mouseIsClicked:              ; CODE XREF: waitForKeyMouseOrJoystick+1Ej
-        SDL_PollEvent(NULL);
         getMouseStatus(NULL, NULL, &mouseButtonsStatus);
     }
     while (mouseButtonsStatus != 0);
@@ -3529,7 +3531,6 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
 //loc_47EC6:              ; CODE XREF: waitForKeyMouseOrJoystick+57j
         videoloop();
         loopForVSync();
-        SDL_PollEvent(NULL);
 
         getMouseStatus(NULL, NULL, &mouseButtonsStatus);
         if (mouseButtonsStatus != 0)
@@ -3553,7 +3554,6 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
 //                ; waitForKeyMouseOrJoystick+70j
         do
         {
-            SDL_PollEvent(NULL);
             getMouseStatus(NULL, NULL, &mouseButtonsStatus);
         }
         while (mouseButtonsStatus != 0);
@@ -9915,251 +9915,198 @@ void readMenuDat() // proc near       ; CODE XREF: readEverything+9p
 // readMenuDat endp
 }
 
+void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: runMainMenu+28Fp
+//                    ; DATA XREF: data:off_50318o
+{
+    // 01ED:3EB8
+    if (byte_59B85 != 0)
+    {
+        //jnz short loc_4AB4A
+        drawTextWithChars6FontWithOpaqueBackground(168, 127, 6, "PLAYER LIST FULL       ");
+        return;
+    }
+
+    int newPlayerIndex = -1;
+
+    for (int i = 0; i < kNumberOfPlayers; ++i)
+    {
+        PlayerEntry currentPlayerEntry = gPlayerListData[i];
+
+//loc_4AB2D:              ; CODE XREF: handleNewPlayerOptionClick+2Dj
+        if (strcmp(currentPlayerEntry.name, "--------") == 0)
+        {
+            newPlayerIndex = i;
+            break;
+        }
+//loc_4AB42:              ; CODE XREF: handleNewPlayerOptionClick+14j
+//                ; handleNewPlayerOptionClick+19j ...
+    }
+
+    if (newPlayerIndex == -1)
+    {
+//loc_4AB4A:              ; CODE XREF: handleNewPlayerOptionClick+5j
+//        mov di, 89F7h
+        drawTextWithChars6FontWithOpaqueBackground(168, 127, 6, "PLAYER LIST FULL       ");
+        return;
+    }
+
+//loc_4AB56:              ; CODE XREF: handleNewPlayerOptionClick+25j
+    gNewPlayerEntryIndex = newPlayerIndex;
+    restoreLastMouseAreaBitmap();
+//    mov di, 89F7h
+    drawTextWithChars6FontWithOpaqueBackground(168, 127, 4, "YOUR NAME:             ");
+
+    char newPlayerName[9] = "        ";
+    gNewPlayerNameLength = 0;
+
+    uint16_t mouseX, mouseY;
+    uint16_t mouseButtonStatus;
+
+    do
+    {
+//loc_4AB7F:              ; CODE XREF: handleNewPlayerOptionClick+6Aj
+        getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
+    }
+    while (mouseButtonStatus != 0);
+
+    do
+    {
+//noKeyPressed:               ; CODE XREF: handleNewPlayerOptionClick+79j
+//                ; handleNewPlayerOptionClick+8Aj ...
+        videoloop();
+
+        getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
+        if (mouseButtonStatus != 0)
+        {
+            break; // jnz short loc_4ABEB
+        }
+        if (keyPressed == 0)
+        {
+            continue; //jz  short noKeyPressed
+        }
+        keyPressed = 0;
+        bl = al;
+        bh = 0;
+
+        // 0x16FA points to what seems to be a map from key code to ASCII?
+//        0B5D:16FA     00 00 31 32 33 34 35 36 37 38 39 30 2D 00 08 00  ..1234567890-...
+//        0B5D:170A     51 57 45 52 54 59 55 49 4F 50 00 00 0A 00 41 53  QWERTYUIOP....AS
+//        0B5D:171A     44 46 47 48 4A 4B 4C 00 00 00 00 00 5A 58 43 56  DFGHJKL.....ZXCV
+//        0B5D:172A     42 4E 4D 00 00 00 00 00 00 20 00 00 00 00 00 00  BNM...... ......
+//        0B5D:173A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+//        0B5D:174A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+//        0B5D:175A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+//        0B5D:176A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+//        0B5D:177A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+//        0B5D:178A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+
+        al = *(uint8_t *)(bx+0x16FA);
+        if (al == 0) // mapped to 0
+        {
+            continue; // jz  short noKeyPressed
+        }
+        if (al == 0xA) // mapped to \n -> enter -> create player?
+        {
+            break; //jz  short loc_4ABEB
+        }
+        if (al == 8) // mapped to backspace -> delete last char?
+        {
+//loc_4ABCC:              ; CODE XREF: handleNewPlayerOptionClick+92j
+            if (gNewPlayerNameLength == 0)
+            {
+                continue; //jz  short noKeyPressed
+            }
+            gNewPlayerNameLength--;
+            newPlayerName[gNewPlayerNameLength] = ' ';
+            drawTextWithChars6FontWithOpaqueBackground(232, 127, 6, newPlayerName);
+            continue;
+        }
+        if (gNewPlayerNameLength >= 8) // when more than 8 chars were entered, ignore the rest?
+        {
+            continue; //jge short noKeyPressed
+        }
+        newPlayerName[gNewPlayerNameLength] = al; // mov [bx+si], al
+        gNewPlayerNameLength++;
+        drawTextWithChars6FontWithOpaqueBackground(232, 127, 6, newPlayerName);
+    }
+    while (1);
+
+    do
+    {
+//loc_4ABEB:              ; CODE XREF: handleNewPlayerOptionClick+72j
+//                ; handleNewPlayerOptionClick+8Ej ...
+        getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
+    }
+    while (mouseButtonStatus != 0);
+
+    // Completely empty name: ignore
+    if (strcmp(newPlayerName, "        ") == 0)
+    {
+        drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, "                       ");
+        saveLastMouseAreaBitmap();
+        drawMouseCursor();
+        return;
+    }
+
+//loc_4AC1E:              ; CODE XREF: handleNewPlayerOptionClick+E0j
+//                ; handleNewPlayerOptionClick+E5j ...
+    // Name with all dashes: invalid
+    if (strcmp(newPlayerName, "--------") == 0)
+    {
+        drawTextWithChars6FontWithOpaqueBackground(168, 127, 6, "INVALID NAME           ");
+        saveLastMouseAreaBitmap();
+        drawMouseCursor();
+        return;
+    }
+
+//loc_4AC46:              ; CODE XREF: handleNewPlayerOptionClick+108j
+//                ; handleNewPlayerOptionClick+10Dj ...
+
+    // Move spaces at the end of the name to the beginning
+    const int kLastNameCharacterIndex = sizeof(newPlayerName) - 2;
+    while (newPlayerName[kLastNameCharacterIndex] == ' ')
+    {
+//loc_4AC4B:              ; CODE XREF: handleNewPlayerOptionClick+14Cj
+        for (int i = kLastNameCharacterIndex; i >= 1; --i)
+        {
+            newPlayerName[i - 1] = newPlayerName[i];
+        }
+        newPlayerName[0] = ' ';
+    }
+
+//loc_4AC69:              ; CODE XREF: handleNewPlayerOptionClick+137j
+
+    for (int i = 0; i < kNumberOfPlayers; ++i)
+    {
+        PlayerEntry player = gPlayerListData[i];
+//loc_4AC73:              ; CODE XREF: handleNewPlayerOptionClick+18Cj
+        if (strcmp(player.name, newPlayerName) == 0)
+        {
+            drawTextWithChars6FontWithOpaqueBackground(168, 127, 6, "PLAYER EXISTS          ");
+            saveLastMouseAreaBitmap();
+            drawMouseCursor();
+            return;
+        }
+//loc_4ACA3:              ; CODE XREF: handleNewPlayerOptionClick+15Cj
+//                ; handleNewPlayerOptionClick+164j ...
+    }
+    gCurrentPlayerIndex = gNewPlayerEntryIndex;
+    PlayerEntry *newPlayerEntry = &gPlayerListData[gCurrentPlayerIndex];
+    memcpy(newPlayerEntry->name, newPlayerName, sizeof(newPlayerName));
+
+    drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, "                       ");
+    savePlayerListData();
+    saveHallOfFameData();
+    byte_51ABE = 1;
+    prepareLevelDataForCurrentPlayer();
+    drawPlayerList();
+    drawLevelList();
+    drawRankings();
+    saveLastMouseAreaBitmap();
+    drawMouseCursor();
+}
+
 /*
-sub_4AB1B   proc near       ; CODE XREF: runMainMenu+28Fp
-                    ; DATA XREF: data:off_50318o
-        cmp byte_59B85, 0
-        jnz short loc_4AB4A
-        mov si, gPlayerListData
-        mov ax, 2D2Dh
-        mov bl, 0
-        mov cx, 14h
-
-loc_4AB2D:              ; CODE XREF: sub_4AB1B+2Dj
-        cmp [si], ax
-        jnz short loc_4AB42
-        cmp [si+2], ax
-        jnz short loc_4AB42
-        cmp [si+4], ax
-        jnz short loc_4AB42
-        cmp [si+6], ax
-        jnz short loc_4AB42
-        jmp short loc_4AB56
-// ; ---------------------------------------------------------------------------
-
-loc_4AB42:              ; CODE XREF: sub_4AB1B+14j
-                    ; sub_4AB1B+19j ...
-        add si, 80h ; '?'
-        inc bl
-        loop    loc_4AB2D
-
-loc_4AB4A:              ; CODE XREF: sub_4AB1B+5j
-        mov si, 81DBh
-        mov di, 89F7h
-        mov ah, 6
-        call    drawTextWithChars6FontWithOpaqueBackground
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_4AB56:              ; CODE XREF: sub_4AB1B+25j
-        mov byte_59820, bl
-        call    restoreLastMouseAreaBitmap
-        mov si, 8193h
-        mov di, 89F7h
-        mov ah, 4
-        call    drawTextWithChars6FontWithOpaqueBackground
-        mov ax, 2020h
-        mov si, 820Bh
-        mov [si], ax
-        mov [si+2], ax
-        mov [si+4], ax
-        mov [si+6], ax
-        mov word_58475, 0
-
-loc_4AB7F:              ; CODE XREF: sub_4AB1B+6Aj
-        call    getMouseStatus
-        cmp bx, 0
-        jnz short loc_4AB7F
-
-noKeyPressed:               ; CODE XREF: sub_4AB1B+79j
-                    ; sub_4AB1B+8Aj ...
-        call    getMouseStatus
-        cmp bx, 0
-        jnz short loc_4ABEB
-        al = keyPressed
-        cmp al, 0
-        jz  short noKeyPressed
-        mov keyPressed, 0
-        mov bl, al
-        xor bh, bh
-        al = [bx+16FAh]
-        cmp al, 0
-        jz  short noKeyPressed
-        cmp al, 0Ah
-        jz  short loc_4ABEB
-        cmp al, 8
-        jz  short loc_4ABCC
-        mov si, 820Bh
-        mov bx, word_58475
-        cmp bx, 8
-        jge short noKeyPressed
-        mov [bx+si], al
-        inc bx
-        mov word_58475, bx
-        mov di, 89FFh
-        mov ah, 6
-        call    drawTextWithChars6FontWithOpaqueBackground
-        jmp short noKeyPressed
-// ; ---------------------------------------------------------------------------
-
-loc_4ABCC:              ; CODE XREF: sub_4AB1B+92j
-        mov bx, word_58475
-        cmp bx, 0
-        jz  short noKeyPressed
-        dec bx
-        mov si, 820Bh
-        al = 20h ; ' '
-        mov [bx+si], al
-        mov word_58475, bx
-        mov di, 89FFh
-        mov ah, 6
-        call    drawTextWithChars6FontWithOpaqueBackground
-        jmp short noKeyPressed
-// ; ---------------------------------------------------------------------------
-
-loc_4ABEB:              ; CODE XREF: sub_4AB1B+72j
-                    ; sub_4AB1B+8Ej ...
-        call    getMouseStatus
-        cmp bx, 0
-        jnz short loc_4ABEB
-        mov ax, 2020h
-        mov si, 820Bh
-        cmp [si], ax
-        jnz short loc_4AC1E
-        cmp [si+2], ax
-        jnz short loc_4AC1E
-        cmp [si+4], ax
-        jnz short loc_4AC1E
-        cmp [si+6], ax
-        jnz short loc_4AC1E
-        mov si, 8226h
-        mov di, 89F7h
-        mov ah, 8
-        call    drawTextWithChars6FontWithOpaqueBackground
-        call    saveLastMouseAreaBitmap
-        call    drawMouseCursor
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_4AC1E:              ; CODE XREF: sub_4AB1B+E0j
-                    ; sub_4AB1B+E5j ...
-        mov ax, 2D2Dh
-        cmp [si], ax
-        jnz short loc_4AC46
-        cmp [si+2], ax
-        jnz short loc_4AC46
-        cmp [si+4], ax
-        jnz short loc_4AC46
-        cmp [si+6], ax
-        jnz short loc_4AC46
-        mov si, 81ABh
-        mov di, 89F7h
-        mov ah, 6
-        call    drawTextWithChars6FontWithOpaqueBackground
-        call    saveLastMouseAreaBitmap
-        call    drawMouseCursor
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_4AC46:              ; CODE XREF: sub_4AB1B+108j
-                    ; sub_4AB1B+10Dj ...
-        push    es
-        mov ax, ds
-        mov es, ax
-        assume es:data
-
-loc_4AC4B:              ; CODE XREF: sub_4AB1B+14Cj
-        mov si, 820Bh
-        cmp byte ptr [si+7], 20h ; ' '
-        jnz short loc_4AC69
-        mov cx, 7
-        add si, 6
-        mov di, si
-        inc di
-        std
-        rep movsb
-        cld
-        mov si, 820Bh
-        mov byte ptr [si], 20h ; ' '
-        jmp short loc_4AC4B
-// ; ---------------------------------------------------------------------------
-
-loc_4AC69:              ; CODE XREF: sub_4AB1B+137j
-        pop es
-        assume es:nothing
-        mov di, gPlayerListData
-        mov si, 820Bh
-        mov cx, 14h
-
-loc_4AC73:              ; CODE XREF: sub_4AB1B+18Cj
-        mov ax, [si]
-        cmp ax, [di]
-        jnz short loc_4ACA3
-        mov ax, [si+2]
-        cmp ax, [di+2]
-        jnz short loc_4ACA3
-        mov ax, [si+4]
-        cmp ax, [di+4]
-        jnz short loc_4ACA3
-        mov ax, [si+6]
-        cmp ax, [di+6]
-        jnz short loc_4ACA3
-        mov si, 81C3h
-        mov di, 89F7h
-        mov ah, 6
-        call    drawTextWithChars6FontWithOpaqueBackground
-        call    saveLastMouseAreaBitmap
-        call    drawMouseCursor
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_4ACA3:              ; CODE XREF: sub_4AB1B+15Cj
-                    ; sub_4AB1B+164j ...
-        add di, 80h ; '?'
-        loop    loc_4AC73
-        mov bh, byte_59820
-        mov gCurrentPlayerIndex, bh
-        xor bl, bl
-        shr bx, 1
-        mov di, gPlayerListData
-        add di, bx
-        mov si, 820Bh
-        mov ax, [si]
-        mov [di], ax
-        add si, 2
-        add di, 2
-        mov ax, [si]
-        mov [di], ax
-        add si, 2
-        add di, 2
-        mov ax, [si]
-        mov [di], ax
-        add si, 2
-        add di, 2
-        mov ax, [si]
-        mov [di], ax
-        add si, 2
-        add di, 2
-        mov si, 8226h
-        mov di, 89F7h
-        mov ah, 8
-        call    drawTextWithChars6FontWithOpaqueBackground
-        call    savePlayerListData
-        call    saveHallOfFameData
-        mov byte_51ABE, 1
-        call    prepareLevelDataForCurrentPlayer
-        call    drawPlayerList
-        call    drawLevelList
-        call    drawRankings
-        call    saveLastMouseAreaBitmap
-        call    drawMouseCursor
-        return;
-sub_4AB1B   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
 sub_4AD0E   proc near
         cmp byte_59B85, 0
         jnz short loc_4AD3C
@@ -10331,7 +10278,6 @@ void handleSkipLevelOptionClick() // sub_4ADFF  proc near
     do
     {
 //loc_4AE89:              ; CODE XREF: handleSkipLevelOptionClick+90j
-        SDL_PollEvent(NULL);
         getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
     }
     while (mouseButtonStatus != 0);
@@ -10340,7 +10286,6 @@ void handleSkipLevelOptionClick() // sub_4ADFF  proc near
     {
 //loc_4AE91:              ; CODE XREF: handleSkipLevelOptionClick+B4j
         videoloop();
-        SDL_PollEvent(NULL);
         getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
         gMouseButtonStatus = mouseButtonStatus;
         gMouseX = mouseX;
@@ -10380,7 +10325,6 @@ void handleSkipLevelOptionClick() // sub_4ADFF  proc near
     do
     {
 //loc_4AF00:              ; CODE XREF: handleSkipLevelOptionClick+107j
-        SDL_PollEvent(NULL);
         getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
     }
     while (mouseButtonStatus != 0);
@@ -11539,8 +11483,8 @@ void handleLevelCreditsClick() // sub_4B7B7  proc near
 // This function calculates where in the main menu bitmap the cursor will be drawn, and takes in advance
 // the area of the screen so that it can be restored later.
 //
-void saveLastMouseAreaBitmap() // sub_4B85C  proc near       ; CODE XREF: sub_4AB1B+FCp
-//                    ; sub_4AB1B+124p ...
+void saveLastMouseAreaBitmap() // sub_4B85C  proc near       ; CODE XREF: handleNewPlayerOptionClick+FCp
+//                    ; handleNewPlayerOptionClick+124p ...
 {
     // 01ED:4BF9
     gLastMouseCursorOriginAddress = gMouseY * kScreenWidth + gMouseX;
@@ -11562,7 +11506,7 @@ void saveLastMouseAreaBitmap() // sub_4B85C  proc near       ; CODE XREF: sub_4A
 // This function will restore the last portion of the background where the mouse was
 // hence clearing its trail.
 //
-void restoreLastMouseAreaBitmap() // sub_4B899  proc near       ; CODE XREF: start+417p sub_4AB1B+3Fp ...
+void restoreLastMouseAreaBitmap() // sub_4B899  proc near       ; CODE XREF: start+417p handleNewPlayerOptionClick+3Fp ...
 {
     for (int y = 0; y < kLastMouseCursorAreaSize; ++y)
     {
@@ -11578,8 +11522,8 @@ void restoreLastMouseAreaBitmap() // sub_4B899  proc near       ; CODE XREF: sta
     }
 }
 
-void drawMouseCursor() // sub_4B8BE  proc near       ; CODE XREF: sub_4AB1B+FFp
-//                    ; sub_4AB1B+127p ...
+void drawMouseCursor() // sub_4B8BE  proc near       ; CODE XREF: handleNewPlayerOptionClick+FFp
+//                    ; handleNewPlayerOptionClick+127p ...
 {
     // word_5195D = some kind of counter for animations?
     uint8_t frameNumber = (word_5195D / 4) % 8;
@@ -11609,8 +11553,8 @@ void drawMouseCursor() // sub_4B8BE  proc near       ; CODE XREF: sub_4AB1B+FFp
     }
 }
 
-void drawTextWithChars6FontWithOpaqueBackground(size_t destX, size_t destY, uint8_t color, const char *text) // sub_4BA5F  proc near       ; CODE XREF: sub_4AB1B+37p
-                  //  ; sub_4AB1B+4Ap ...
+void drawTextWithChars6FontWithOpaqueBackground(size_t destX, size_t destY, uint8_t color, const char *text) // sub_4BA5F  proc near       ; CODE XREF: handleNewPlayerOptionClick+37p
+                  //  ; handleNewPlayerOptionClick+4Ap ...
 {
     // Parameters:
     // di is the destination surface
@@ -11895,7 +11839,7 @@ void prepareRankingTextEntries() // sub_4BF8D  proc near       ; CODE XREF: draw
     }
 }
 
-void drawRankings() //   proc near       ; CODE XREF: sub_4AB1B+1E9p
+void drawRankings() //   proc near       ; CODE XREF: handleNewPlayerOptionClick+1E9p
 //                    ; sub_4AD0E+E2p ...
 {
     // 01ED:547A
@@ -12067,7 +12011,7 @@ void drawMenuTitleAndDemoLevelResult() //   proc near       ; CODE XREF: handleG
     byte_5A19B = 0;
 }
 
-void prepareLevelDataForCurrentPlayer() //   proc near       ; CODE XREF: start+404p sub_4AB1B+1E0p ...
+void prepareLevelDataForCurrentPlayer() //   proc near       ; CODE XREF: start+404p handleNewPlayerOptionClick+1E0p ...
 {
     // 01ED:56E7
     PlayerEntry currentPlayerEntry = gPlayerListData[gCurrentPlayerIndex];
@@ -12803,8 +12747,6 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
 
 //loc_4C81A:              // ; CODE XREF: runMainMenu+77j
         videoloop();
-
-        SDL_PollEvent(NULL); // TODO: where should this live?
 
         word_5195D++;
         uint16_t mouseX, mouseY;
@@ -13802,7 +13744,7 @@ loc_4CFAB:              ; CODE XREF: sub_4CF13+2Aj
 sub_4CF13   endp
 
  */
-void savePlayerListData() //   proc near       ; CODE XREF: sub_4AB1B+1D5p
+void savePlayerListData() //   proc near       ; CODE XREF: handleNewPlayerOptionClick+1D5p
 //                    ; sub_4AD0E+CEp ...
 {
     if (byte_59B85 != 0)
@@ -13822,7 +13764,7 @@ void savePlayerListData() //   proc near       ; CODE XREF: sub_4AB1B+1D5p
     fclose(file);
 }
 
-void saveHallOfFameData() //   proc near       ; CODE XREF: sub_4AB1B+1D8p
+void saveHallOfFameData() //   proc near       ; CODE XREF: handleNewPlayerOptionClick+1D8p
 //                    ; sub_4AD0E+D1p ...
 {
     if (byte_59B85 != 0)
@@ -14316,7 +14258,8 @@ void resetVideoMode() // sub_4D2E1   proc near       ; CODE XREF: start+450p
 void initializeMouse() //   proc near       ; CODE XREF: start+299p
 {
     gIsMouseAvailable = 1; // THIS IS NOT FROM THE ASM: assume there is a mouse available
-//    SDL_ShowCursor(SDL_DISABLE);
+    SDL_ShowCursor(SDL_DISABLE);
+    SDL_PumpEvents();
     return;
 /*
     // Check if mouse handler is available
@@ -14386,6 +14329,8 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
 
     if (gIsMouseAvailable != 0)
     {
+        SDL_PumpEvents();
+
         int x, y;
         Uint32 state = SDL_GetMouseState(&x, &y);
 
