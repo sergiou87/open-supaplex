@@ -130,7 +130,7 @@ uint8_t isJoystickEnabled = 0; // byte_50940
 uint8_t isMusicEnabled = 0; // byte_59886
 uint8_t isFXEnabled = 0; // byte_59885
 uint8_t videoStatusUnk = 0;
-uint8_t keyPressed = 0;
+SDL_Scancode keyPressed = 0;
 int8_t speed1 = 0;
 int8_t speed2 = 0;
 int8_t speed3 = 0;
@@ -1839,7 +1839,6 @@ void resetint9() //   proc near       ; CODE XREF: start:doneWithDemoPlaybackp
 
 void int9handler() // proc far        ; DATA XREF: setint9+1Fo
 {
-    return;
     // This alternative int9 handler seems to control the keys +, -, *, / in the numpad
     // to alter the game speed, and also the key X for something else.
 //    push    ax
@@ -1870,17 +1869,35 @@ void int9handler() // proc far        ; DATA XREF: setint9+1Fo
 //    rcl al, 1
 //    bl = bl >> 1;
 //    bx[0x166D] = al;
-    if ((cl & 0x80) == 0) //test    cl, 80h     ; think key up
+    SDL_Event e;
+    SDL_PumpEvents();
+    while (SDL_PollEvent(&e)) {
+        ;
+    }
+
+    const Uint8 *keys = SDL_GetKeyboardState(NULL);
+
+    keyPressed = SDL_SCANCODE_UNKNOWN;
+
+    for (SDL_Scancode scancode = 0; scancode < SDL_NUM_SCANCODES; ++scancode)
+    {
+        if (keys[scancode])
+        {
+            keyPressed = scancode;
+            break;
+        }
+    }
+
+    if (keyPressed != SDL_SCANCODE_UNKNOWN) //test    cl, 80h     ; think key up
     {
 //storeKey:               ; CODE XREF: int9handler+2Bj
-        keyPressed = cl;
+//        keyPressed = cl;
         if (speed3 >= 0)
         {
-            if (cl == 0x37 // Key * in the numpad, restore speed
+            if (keyPressed == SDL_SCANCODE_KP_MULTIPLY // Key * in the numpad, restore speed
                 && speed3 >= 0)
             {
-                cl = speed3;
-                gameSpeed = cl;
+                gameSpeed = speed3;
 //              push(cx);
                 cl = speed2;
                 cl = cl & 0xF0;
@@ -1895,25 +1912,25 @@ void int9handler() // proc far        ; DATA XREF: setint9+1Fo
             {
 //checkSlash:             ; CODE XREF: int9handler+3Ej
 //                ; int9handler+45j
-                if (cl == 0x35) // Key / (numpad or not)
+                if (cl == SDL_SCANCODE_KP_DIVIDE) // Key / (numpad or not)
                 {
                     speed1 = 0;
-                    gameSpeed = 0xA;
+                    gameSpeed = 10;
                 }
                 else
                 {
 //checkPlus:              ; CODE XREF: int9handler+54j
-                    if (cl == 0x4E) // Key + in the numpad, speed up
+                    if (cl == SDL_SCANCODE_KP_PLUS) // Key + in the numpad, speed up
                     {
                         speed1 = 0;
-                        if (gameSpeed < 0xA) // 10
+                        if (gameSpeed < 10) // 10
                         {
                             gameSpeed++;
                         }
                     }
 //checkMinus:             ; CODE XREF: int9handler+65j
 //                ; int9handler+71j
-                    if (cl == 0x4A) // Key - in the numpad, speed down
+                    if (cl == SDL_SCANCODE_KP_MINUS) // Key - in the numpad, speed down
                     {
                         speed1 = 0;
                         if (gameSpeed != 0)
@@ -1938,17 +1955,17 @@ void int9handler() // proc far        ; DATA XREF: setint9+1Fo
 
     //checkX:                 ; CODE XREF: int9handler+39j
     //                ; int9handler+60j ...
-        if (cl == 0x2D // Key X
+        if (cl == SDL_SCANCODE_X // Key X
             && byte_519B5 != 0)
         {
             word_51974 = 1;
             word_5197A = 1;
         }
     }
-    else
-    {
-        keyPressed = 0;
-    }
+//    else
+//    {
+//        keyPressed = 0;
+//    }
 
 //doneexit:                   ; CODE XREF: int9handler+A6j
 //                ; int9handler+ADj ...
@@ -9915,6 +9932,68 @@ void readMenuDat() // proc near       ; CODE XREF: readEverything+9p
 // readMenuDat endp
 }
 
+#define SDL_SCANCODE_TO_CHAR_CASE(scancode, char) case scancode: return char
+
+char characterForSDLScancode(SDL_Scancode scancode)
+{
+    switch (scancode)
+    {
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_0, '0');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_1, '1');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_2, '2');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_3, '3');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_4, '4');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_5, '5');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_6, '6');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_7, '7');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_8, '8');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_9, '9');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_Q, 'Q');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_W, 'W');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_E, 'E');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_R, 'R');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_T, 'T');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_Y, 'Y');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_U, 'U');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_I, 'I');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_O, 'O');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_P, 'P');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_A, 'A');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_S, 'S');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_D, 'D');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_F, 'F');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_G, 'G');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_H, 'H');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_J, 'J');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_K, 'K');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_L, 'L');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_Z, 'Z');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_X, 'X');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_C, 'C');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_V, 'V');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_B, 'B');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_N, 'N');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_M, 'M');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_SPACE, ' ');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_MINUS, '-');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_BACKSPACE, '\b');
+        SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_RETURN, '\n');
+
+        default:
+            return '\0';
+    }
+    //        0B5D:16FA     00 00 31 32 33 34 35 36 37 38 39 30 2D 00 08 00  ..1234567890-...
+    //        0B5D:170A     51 57 45 52 54 59 55 49 4F 50 00 00 0A 00 41 53  QWERTYUIOP....AS
+    //        0B5D:171A     44 46 47 48 4A 4B 4C 00 00 00 00 00 5A 58 43 56  DFGHJKL.....ZXCV
+    //        0B5D:172A     42 4E 4D 00 00 00 00 00 00 20 00 00 00 00 00 00  BNM...... ......
+    //        0B5D:173A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    //        0B5D:174A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    //        0B5D:175A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    //        0B5D:176A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    //        0B5D:177A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    //        0B5D:178A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+}
+
 void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: runMainMenu+28Fp
 //                    ; DATA XREF: data:off_50318o
 {
@@ -9969,24 +10048,32 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
     }
     while (mouseButtonStatus != 0);
 
+    SDL_Scancode lastPressedKey = SDL_SCANCODE_UNKNOWN;
+
     do
     {
 //noKeyPressed:               ; CODE XREF: handleNewPlayerOptionClick+79j
 //                ; handleNewPlayerOptionClick+8Aj ...
         videoloop();
 
+        int9handler();
         getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
         if (mouseButtonStatus != 0)
         {
             break; // jnz short loc_4ABEB
         }
-        if (keyPressed == 0)
+        if (keyPressed == SDL_SCANCODE_UNKNOWN)
         {
+            lastPressedKey = SDL_SCANCODE_UNKNOWN;
             continue; //jz  short noKeyPressed
         }
-        keyPressed = 0;
-        bl = al;
-        bh = 0;
+
+        if (lastPressedKey == keyPressed)
+        {
+            continue;
+        }
+
+        lastPressedKey = keyPressed;
 
         // 0x16FA points to what seems to be a map from key code to ASCII?
 //        0B5D:16FA     00 00 31 32 33 34 35 36 37 38 39 30 2D 00 08 00  ..1234567890-...
@@ -10000,16 +10087,17 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
 //        0B5D:177A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
 //        0B5D:178A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
 
-        al = *(uint8_t *)(bx+0x16FA);
-        if (al == 0) // mapped to 0
+        char character = characterForSDLScancode(lastPressedKey);
+//        al = *(uint8_t *)(bx+0x16FA);
+        if (character == 0) // mapped to 0
         {
             continue; // jz  short noKeyPressed
         }
-        if (al == 0xA) // mapped to \n -> enter -> create player?
+        if (character == '\n') // mapped to \n -> enter -> create player?
         {
             break; //jz  short loc_4ABEB
         }
-        if (al == 8) // mapped to backspace -> delete last char?
+        if (character == '\b') // mapped to backspace -> delete last char?
         {
 //loc_4ABCC:              ; CODE XREF: handleNewPlayerOptionClick+92j
             if (gNewPlayerNameLength == 0)
@@ -10025,7 +10113,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
         {
             continue; //jge short noKeyPressed
         }
-        newPlayerName[gNewPlayerNameLength] = al; // mov [bx+si], al
+        newPlayerName[gNewPlayerNameLength] = character; // mov [bx+si], al
         gNewPlayerNameLength++;
         drawTextWithChars6FontWithOpaqueBackground(232, 127, 6, newPlayerName);
     }
@@ -10069,7 +10157,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
 //loc_4AC4B:              ; CODE XREF: handleNewPlayerOptionClick+14Cj
         for (int i = kLastNameCharacterIndex; i >= 1; --i)
         {
-            newPlayerName[i - 1] = newPlayerName[i];
+            newPlayerName[i] = newPlayerName[i - 1];
         }
         newPlayerName[0] = ' ';
     }
