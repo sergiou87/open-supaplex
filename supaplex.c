@@ -80,6 +80,7 @@ uint8_t byte_5A2F9 = 0;
 uint8_t byte_5A33E = 0;
 uint8_t byte_5A33F = 0;
 uint8_t byte_59B64 = 0;
+uint8_t byte_510BB = 0;
 uint8_t byte_519B5 = 0;
 uint8_t byte_519B8 = 0;
 uint8_t byte_519B9 = 0;
@@ -103,6 +104,7 @@ uint16_t word_5094F = 0;
 uint16_t word_50951 = 0;
 uint16_t word_510A2 = 0;
 uint16_t word_5196C = 0;
+uint16_t word_51970 = 0;
 uint16_t word_5197A = 0;
 uint16_t word_599D8 = 0;
 uint16_t word_58465 = 0;
@@ -177,11 +179,17 @@ uint8_t gPaddedLevelListData[kNumberOfLevelsWithPadding * kLevelEntryLength];
 static const int kLevelListDataLength = kNumberOfLevels * kLevelEntryLength;
 uint8_t *gLevelListData = &gPaddedLevelListData[kFirstLevelIndex * kLevelEntryLength];
 
+static const int kNotCompletedLevelEntryColor = 2;
+static const int kCompletedLevelEntryColor = 4;
+static const int kBlockedLevelEntryColor = 6;
+static const int kSkippedLevelEntryColor = 8;
+
 // This array contains info about the levels. It's updated when player is changed.
 // There are different values per level, so far I've seen:
-// - 04 level completed
 // - 02 level not completed, but can be played
+// - 04 level completed
 // - 06 level not completed, and it CANNOT be played
+// - 08 level skipped
 // These also seem to be used as colors. Not sure if they're colors used as some other info, or some other info used as colors.
 //
 uint8_t gCurrentPlayerPaddedLevelData[kNumberOfLevelsWithPadding]; // 0x949C
@@ -246,7 +254,8 @@ typedef struct
     uint8_t seconds;
 } HallOfFameEntry;
 
-HallOfFameEntry gHallOfFameData[3];
+static const int kNumberOfHallOfFameEntries = 3;
+HallOfFameEntry gHallOfFameData[kNumberOfHallOfFameEntries]; // 0x9514
 
 enum PlayerLevelState {
     PlayerLevelStateNotCompleted = 0,
@@ -259,10 +268,10 @@ enum PlayerLevelState {
 // - 1 byte (0x09): hours
 // - 1 byte (0x0A): minutes
 // - 1 byte (0x0B): seconds
-// - 111 bytes (0x0C-0x7B): level state (1 byte per level)
-// - 0x7C, 0x7D ??
-// - 1 byte (0x7E): next level to play
-// - 0x7F, 0x80 ??
+// - 111 bytes (0x0C-0x7A): level state (1 byte per level)
+// - 0x7B, 0x7C ??
+// - 1 byte (0x7D): next level to play
+// - 0x7E, 0x7F ??
 //
 typedef struct
 {
@@ -321,45 +330,45 @@ void handleRankingListScrollUp(void);
 void handleRankingListScrollDown(void);
 void handleLevelCreditsClick(void);
 void handleGfxTutorOptionClick(void);
+void handleSkipLevelOptionClick(void);
 
-static const uint8_t kNumberOfMenuButtons = 9;
+static const uint8_t kNumberOfMenuButtons = 17;
 static const ButtonDescriptor kMenuButtonDescriptors[kNumberOfMenuButtons] = { // located in DS:0000
-    /*
     {
         5, 6,
         157, 14,
-        sub_4AB1B, // New player
+        handleLevelListScrollDown, //sub_4AB1B, // New player
     },
     {
         5, 15,
         157, 23,
-        sub_4AD0E, // Delete player
+        handleLevelListScrollDown, //sub_4AD0E, // Delete player
     },
     {
         5, 24,
         157, 32,
-        sub_4ADFF, // Skip level
+        handleSkipLevelOptionClick, // Skip level
     },
     {
         5, 33,
         157, 41,
-        sub_4AF0C, // Statistics
-    },*/
+        handleLevelListScrollDown, //sub_4AF0C, // Statistics
+    },
     {
         5, 42,
         157, 50,
         handleGfxTutorOptionClick, // GFX-tutor
-    },/*
+    },
     {
         5, 51,
         157, 59,
-        sub_4B159, // Demo
+        handleLevelListScrollDown, //sub_4B159, // Demo
     },
     {
         5, 60,
         157, 69,
-        showControls, // Controls
-    },*/
+        handleLevelListScrollDown, //showControls, // Controls
+    },
     {
         140, 90,
         155, 108,
@@ -369,17 +378,17 @@ static const ButtonDescriptor kMenuButtonDescriptors[kNumberOfMenuButtons] = { /
         140, 121,
         155, 138,
         handleRankingListScrollDown, // Rankings arrow down
-    },/*
+    },
     {
         96, 140,
         115, 163,
-        sub_4B375, // Ok button
+        handleLevelListScrollDown, //sub_4B375, // Ok button
     },
     {
         83, 168,
         126, 192,
-        sub_4B419, // Save button? (Insert data disk according to https://supaplex.fandom.com/wiki/Main_menu)
-    },*/
+        handleLevelListScrollDown, //sub_4B419, // Save button? (Insert data disk according to https://supaplex.fandom.com/wiki/Main_menu)
+    },
     {
         11, 142,
         67, 153,
@@ -641,6 +650,9 @@ void drawMenuTitleAndDemoLevelResult(void);
 void scrollRightToGfxTutor(void);
 void scrollLeftToMainMenu(void);
 void drawMenuBackground(void);
+void convertNumberTo3DigitStringWithPadding0(uint8_t number, char numberString[3]);
+void changePlayerCurrentLevelState(void);
+void updateHallOfFameEntries(void);
 
 static const int kWindowWidth = kScreenWidth * 4;
 static const int kWindowHeight = kScreenHeight * 4;
@@ -10255,145 +10267,127 @@ loc_4ADF3:              ; CODE XREF: sub_4AD0E+EBj
         call    saveLastMouseAreaBitmap
         return;
 sub_4AD0E   endp
+*/
 
+void handleSkipLevelOptionClick() // sub_4ADFF  proc near
+{
+    // 01ED:419C
+    PlayerEntry currentPlayerEntry = gPlayerListData[gCurrentPlayerIndex];
 
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4ADFF   proc near
-        mov bh, gCurrentPlayerIndex
-        xor bl, bl
-        shr bx, 1
-        mov si, gPlayerListData
-        add si, bx
-        mov ax, 2D2Dh
-        cmp ax, [si]
-        jnz short loc_4AE2E
-        cmp ax, [si+2]
-        jnz short loc_4AE2E
-        cmp ax, [si+4]
-        jnz short loc_4AE2E
-        cmp ax, [si+6]
-        jnz short loc_4AE2E
-        mov si, 82B6h
-        mov di, 89F7h
-        mov ah, 8
-        call    drawTextWithChars6FontWithOpaqueBackground
+    if (strcmp(currentPlayerEntry.name, "--------") == 0)
+    {
+        drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, "NO PLAYER SELECTED");
         return;
-// ; ---------------------------------------------------------------------------
+    }
 
-loc_4AE2E:              ; CODE XREF: sub_4ADFF+12j
-                    ; sub_4ADFF+17j ...
-        add si, 0Ch
-        mov cx, 6Fh ; 'o'
-        al = 2
-        mov bl, 0
+//loc_4AE2E:              ; CODE XREF: handleSkipLevelOptionClick+12j
+//                ; handleSkipLevelOptionClick+17j ...
+    int numberOfSkippedLevels = 0;
 
-loc_4AE38:              ; CODE XREF: sub_4ADFF+40j
-        cmp al, [si]
-        jnz short loc_4AE3E
-        inc bl
+    for (int i = 0; i < kNumberOfLevels; ++i)
+    {
+//loc_4AE38:              ; CODE XREF: handleSkipLevelOptionClick+40j
+        if (currentPlayerEntry.levelState[i] == PlayerLevelStateSkipped)
+        {
+            numberOfSkippedLevels++;
+        }
+//loc_4AE3E:              ; CODE XREF: handleSkipLevelOptionClick+3Bj
+    }
+    if (word_51970 == 0)
+    {
+//loc_4AE4A:              ; CODE XREF: handleSkipLevelOptionClick+47j
+        if (numberOfSkippedLevels >= 3)
+        {
+    //        mov si, 826Eh // "SKIP NOT POSSIBLE"
+    //        mov di, 89F7h
+    //        mov ah, 6
+            drawTextWithChars6FontWithOpaqueBackground(168, 127, 6, "SKIP NOT POSSIBLE");
+            return;
+        }
+    }
 
-loc_4AE3E:              ; CODE XREF: sub_4ADFF+3Bj
-        inc si
-        loop    loc_4AE38
-        cmp word_51970, 0
-        jz  short loc_4AE4A
-        jmp short loc_4AE5B
-// ; ---------------------------------------------------------------------------
-
-loc_4AE4A:              ; CODE XREF: sub_4ADFF+47j
-        cmp bl, 3
-        jl  short loc_4AE5B
-        mov si, 826Eh
-        mov di, 89F7h
-        mov ah, 6
-        call    drawTextWithChars6FontWithOpaqueBackground
+//loc_4AE5B:              ; CODE XREF: handleSkipLevelOptionClick+49j
+//                ; handleSkipLevelOptionClick+4Ej
+    if (gCurrentPlayerLevelData[gCurrentSelectedLevelIndex - 1] != kNotCompletedLevelEntryColor)
+    {
+//        mov si, 82CEh // "COLORBLIND I GUESS     "
+//        mov di, 89F7h
+//        mov ah, 4
+        drawTextWithChars6FontWithOpaqueBackground(168, 127, 4, "COLORBLIND I GUESS     ");
         return;
-// ; ---------------------------------------------------------------------------
+    }
 
-loc_4AE5B:              ; CODE XREF: sub_4ADFF+49j
-                    ; sub_4ADFF+4Ej
-        mov ax, gCurrentSelectedLevelIndex
-        dec ax
-        mov si, gCurrentPlayerLevelData
-        add si, ax
-        cmp byte ptr [si], 2
-        jz  short loc_4AE75
-        mov si, 82CEh
-        mov di, 89F7h
-        mov ah, 4
-        call    drawTextWithChars6FontWithOpaqueBackground
-        return;
-// ; ---------------------------------------------------------------------------
+//loc_4AE75:              ; CODE XREF: handleSkipLevelOptionClick+68j
+    char levelNumber[4] = "000";
+    convertNumberTo3DigitStringWithPadding0(gCurrentSelectedLevelIndex, levelNumber);
 
-loc_4AE75:              ; CODE XREF: sub_4ADFF+68j
-        mov si, 82A9h
-        mov ax, gCurrentSelectedLevelIndex
-        call    convertNumberTo3DigitStringWithPadding0
-        mov si, 829Eh
-        mov di, 89F7h
-        mov ah, 8
-        call    drawTextWithChars6FontWithOpaqueBackground
+    char message[24];
+    sprintf(message, "SKIP LEVEL %s ???     ", levelNumber);
+    drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, message);
 
-loc_4AE89:              ; CODE XREF: sub_4ADFF+90j
-        call    getMouseStatus
-        cmp bx, 0
-        jnz short loc_4AE89
+    uint16_t mouseX, mouseY;
+    uint16_t mouseButtonStatus;
 
-loc_4AE91:              ; CODE XREF: sub_4ADFF+B4j
-        call    videoloop
-        call    getMouseStatus
-        mov gMouseButtonStatus, bx
-        mov gMouseX, cx
-        mov gMouseY, dx
-        call    restoreLastMouseAreaBitmap
-        call    saveLastMouseAreaBitmap
-        call    drawMouseCursor
-        mov bx, gMouseButtonStatus
-        cmp bx, 0
-        jz  short loc_4AE91
-        mov cx, gMouseX
-        mov dx, gMouseY
-        mov si, 5Ah ; 'Z'
-        cmp [si], cx
-        jg  short loc_4AEE9
-        cmp [si+2], dx
-        jg  short loc_4AEE9
-        cmp [si+4], cx
-        jl  short loc_4AEE9
-        cmp [si+6], dx
-        jl  short loc_4AEE9
-        mov byte_510BB, 2
-        call    sub_4D24D
-        call    savePlayerListData
-        call    saveHallOfFameData
-        mov byte_51ABE, 0
-        call    prepareLevelDataForCurrentPlayer
+    do
+    {
+//loc_4AE89:              ; CODE XREF: handleSkipLevelOptionClick+90j
+        SDL_PollEvent(NULL);
+        getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
+    }
+    while (mouseButtonStatus != 0);
 
-loc_4AEE9:              ; CODE XREF: sub_4ADFF+C3j
-                    ; sub_4ADFF+C8j ...
-        call    restoreLastMouseAreaBitmap
-        mov si, 8226h
-        mov di, 89F7h
-        mov ah, 8
-        call    drawTextWithChars6FontWithOpaqueBackground
-        call    drawPlayerList
-        call    drawLevelList
-        call    drawRankings
+    do
+    {
+//loc_4AE91:              ; CODE XREF: handleSkipLevelOptionClick+B4j
+        videoloop();
+        SDL_PollEvent(NULL);
+        getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
+        gMouseButtonStatus = mouseButtonStatus;
+        gMouseX = mouseX;
+        gMouseY = mouseY;
+        restoreLastMouseAreaBitmap();
+        saveLastMouseAreaBitmap();
+        drawMouseCursor();
+    }
+    while (gMouseButtonStatus == 0);
 
-loc_4AF00:              ; CODE XREF: sub_4ADFF+107j
-        call    getMouseStatus
-        cmp bx, 0
-        jnz short loc_4AF00
-        call    saveLastMouseAreaBitmap
-        return;
-sub_4ADFF   endp
+    ButtonDescriptor okButtonDescriptor = kMenuButtonDescriptors[9];
 
+    if (gMouseX >= okButtonDescriptor.startX
+        && gMouseY >= okButtonDescriptor.startY
+        && gMouseX <= okButtonDescriptor.endX
+        && gMouseY <= okButtonDescriptor.endY)
+    {
+        byte_510BB = 2;
+        changePlayerCurrentLevelState(); // 01ED:4275
+        savePlayerListData();
+        saveHallOfFameData();
+        byte_51ABE = 0;
+        prepareLevelDataForCurrentPlayer();
+    }
 
-; =============== S U B R O U T I N E =======================================
+//loc_4AEE9:              ; CODE XREF: handleSkipLevelOptionClick+C3j
+//                ; handleSkipLevelOptionClick+C8j ...
+    restoreLastMouseAreaBitmap();
+//    mov si, 8226h // "                       "
+//    mov di, 89F7h
+//    mov ah, 8
+    drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, "                       ");
+    drawPlayerList();
+    drawLevelList();
+    drawRankings();
 
+    do
+    {
+//loc_4AF00:              ; CODE XREF: handleSkipLevelOptionClick+107j
+        SDL_PollEvent(NULL);
+        getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
+    }
+    while (mouseButtonStatus != 0);
+    saveLastMouseAreaBitmap();
+}
 
+/*
 sub_4AF0C   proc near
         mov bh, gCurrentPlayerIndex
         xor bl, bl
@@ -11738,7 +11732,7 @@ sub_4BF4A   endp ; sp-analysis failed
 
 */
 
-void convertNumberTo3DigitStringWithPadding0(uint8_t number, char numberString[3]) //  proc near       ; CODE XREF: sub_4ADFF+7Cp
+void convertNumberTo3DigitStringWithPadding0(uint8_t number, char numberString[3]) //  proc near       ; CODE XREF: handleSkipLevelOptionClick+7Cp
                    // ; sub_4AF0C+13Dp ...
 {
     convertNumberTo3DigitPaddedString(number, numberString, 0);
@@ -11944,7 +11938,7 @@ void drawHallOfFame() //   proc near       ; CODE XREF: sub_4B419+15Ap
     // 01ED:5546
     char text[19] = "                  ";
 
-    for (int i = 0; i < 3; ++i)
+    for (int i = 0; i < kNumberOfHallOfFameEntries; ++i)
     {
 //loc_4C1B7:              ; CODE XREF: drawHallOfFame+56j
         HallOfFameEntry entry = gHallOfFameData[i];
@@ -12079,11 +12073,6 @@ void prepareLevelDataForCurrentPlayer() //   proc near       ; CODE XREF: start+
     PlayerEntry currentPlayerEntry = gPlayerListData[gCurrentPlayerIndex];
 
     uint8_t *currentPlayerLevelState = currentPlayerEntry.levelState;
-
-    const int kNotCompletedLevelEntryColor = 2;
-    const int kCompletedLevelEntryColor = 4;
-    const int kBlockedLevelEntryColor = 6;
-    const int kSkippedLevelEntryColor = 8;
 
     // Sets everything to 6 which seems to mean all levels are blocked
     memset(gCurrentPlayerPaddedLevelData, kSkippedLevelEntryColor, kNumberOfLevelsWithPadding);
@@ -12987,7 +12976,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
                     && gMouseX <= buttonDescriptor.endX
                     && gMouseY <= buttonDescriptor.endY)
                 {
-                    buttonDescriptor.handler();
+                    buttonDescriptor.handler(); // 01ED:5DC0
                     break;
                 }
 
@@ -14089,130 +14078,131 @@ void drawMainMenuButtonBorders() // sub_4D0AD  proc near       ; CODE XREF: runM
     gLevelListButtonPressed = 0;
 }
 
-/*
-sub_4D1B6   proc near       ; CODE XREF: sub_4D24D+2Ep
-        cmp byte_510DE, 0
-        jz  short loc_4D1BE
+void updateHallOfFameEntries() // sub_4D1B6  proc near       ; CODE XREF: changePlayerCurrentLevelState+2Ep
+{
+    // 01ED:6553
+    if (byte_510DE != 0)
+    {
         return;
-// ; ---------------------------------------------------------------------------
+    }
 
-loc_4D1BE:              ; CODE XREF: sub_4D1B6+5j
-        mov bh, gCurrentPlayerIndex
-        xor bl, bl
-        shr bx, 1
-        mov si, gPlayerListData
-        add si, bx
-        cmp byte ptr [si+7Fh], 0
-        jz  short loc_4D1D2
+//loc_4D1BE:              ; CODE XREF: updateHallOfFameEntries+5j
+    PlayerEntry currentPlayerEntry = gPlayerListData[gCurrentPlayerIndex];
+    if (currentPlayerEntry.unknown4 != 0)
+    {
         return;
-// ; ---------------------------------------------------------------------------
+    }
 
-loc_4D1D2:              ; CODE XREF: sub_4D1B6+19j
-        push    es
-        mov ax, ds
-        mov es, ax
-        assume es:data
-        mov cx, 6Fh ; 'o'
-        mov bx, 0
-        mov di, si
-        add di, 0Ch
+//loc_4D1D2:              ; CODE XREF: updateHallOfFameEntries+19j
+    int numberOfCompletedLevels = 0;
 
-loc_4D1E2:              ; CODE XREF: sub_4D1B6+33j
-        cmp byte ptr [di], 1
-        jnz short loc_4D1E8
-        inc bx
+    for (int i = 0; i < kNumberOfLevels; ++i)
+    {
+//loc_4D1E2:              ; CODE XREF: updateHallOfFameEntries+33j
+        if (currentPlayerEntry.levelState[i] == PlayerLevelStateCompleted)
+        {
+            numberOfCompletedLevels++;
+        }
+//loc_4D1E8:              ; CODE XREF: updateHallOfFameEntries+2Fj
+    }
 
-loc_4D1E8:              ; CODE XREF: sub_4D1B6+2Fj
-        inc di
-        loop    loc_4D1E2
-        cmp bx, 6Fh ; 'o'
-        jnz short loc_4D24B
-        mov byte ptr [si+7Fh], 1
-        mov cx, 3
-        mov di, hallFameDataBuffer
-
-loc_4D1FA:              ; CODE XREF: sub_4D1B6+78j
-        cmp byte ptr [di+9], 0
-        jnz short loc_4D20E
-        cmp byte ptr [di+0Ah], 0
-        jnz short loc_4D20E
-        cmp byte ptr [di+0Bh], 0
-        jnz short loc_4D20E
-        jmp short loc_4D232
-// ; ---------------------------------------------------------------------------
-
-loc_4D20E:              ; CODE XREF: sub_4D1B6+48j
-                    ; sub_4D1B6+4Ej ...
-        al = [si+9]
-        cmp al, [di+9]
-        jl  short loc_4D232
-        jnz short loc_4D22A
-        al = [si+0Ah]
-        cmp al, [di+0Ah]
-        jl  short loc_4D232
-        jnz short loc_4D22A
-        al = [si+0Bh]
-        cmp al, [di+0Bh]
-        jl  short loc_4D232
-
-loc_4D22A:              ; CODE XREF: sub_4D1B6+60j
-                    ; sub_4D1B6+6Aj
-        add di, 0Ch
-        dec cx
-        jnz short loc_4D1FA
-        jmp short loc_4D24B
-// ; ---------------------------------------------------------------------------
-
-loc_4D232:              ; CODE XREF: sub_4D1B6+56j
-                    ; sub_4D1B6+5Ej ...
-        push    si
-        add di, 2Fh ; '/'
-        mov si, di
-        sub si, 0Ch
-        std
-        mov cx, 24h ; '$'
-        rep movsb
-        cld
-        pop si
-        sub di, 0Bh
-        mov cx, 0Ch
-        rep movsb
-
-loc_4D24B:              ; CODE XREF: sub_4D1B6+38j
-                    ; sub_4D1B6+7Aj
-        pop es
-        assume es:nothing
+    if (numberOfCompletedLevels != kNumberOfLevels)
+    {
         return;
-sub_4D1B6   endp
+    }
 
+    currentPlayerEntry.unknown4 = 1;
 
-; =============== S U B R O U T I N E =======================================
+    int newEntryInsertIndex = -1;
+//    mov cx, 3
+//    mov di, hallFameDataBuffer
+    for (int i = 0; i < kNumberOfHallOfFameEntries; ++i)
+    {
+        HallOfFameEntry entry = gHallOfFameData[i];
 
+//loc_4D1FA:              ; CODE XREF: updateHallOfFameEntries+78j
+        if (entry.hours == 0
+            && entry.minutes == 0
+            && entry.seconds == 0)
+        {
+            newEntryInsertIndex = i;
+            break;
+        }
 
-sub_4D24D   proc near       ; CODE XREF: sub_4ADFF+D9p
-                    ; update?:loc_4E6A4p
-        cmp byte_510DE, 0
-        jnz short locret_4D27E
-        cmp byte_5A2F9, 0
-        jnz short locret_4D27E
-        al = byte_510BB
-        mov byte_510BB, 0
-        mov bh, gCurrentPlayerIndex
-        xor bl, bl
-        shr bx, 1
-        mov si, 8AA8h
-        add si, bx
-        mov bx, gCurrentSelectedLevelIndex
-        dec bx
-        mov [bx+si], al
-        inc gCurrentSelectedLevelIndex
-        call    sub_4D1B6
+//loc_4D20E:              ; CODE XREF: updateHallOfFameEntries+48j
+//                ; updateHallOfFameEntries+4Ej ...
+        if (currentPlayerEntry.hours < entry.hours)
+        {
+            newEntryInsertIndex = i;
+            break;
+        }
+        else if (currentPlayerEntry.hours == entry.hours)
+        {
+            if (currentPlayerEntry.minutes < entry.minutes)
+            {
+                newEntryInsertIndex = i;
+                break;
+            }
+            else if (currentPlayerEntry.minutes == entry.minutes)
+            {
+                if (currentPlayerEntry.seconds < entry.seconds)
+                {
+                    newEntryInsertIndex = i;
+                    break;
+                }
+            }
+        }
 
-locret_4D27E:               ; CODE XREF: sub_4D24D+5j sub_4D24D+Cj
+//loc_4D22A:              ; CODE XREF: updateHallOfFameEntries+60j
+//                ; updateHallOfFameEntries+6Aj
+    }
+
+    if (newEntryInsertIndex != -1)
+    {
+//loc_4D232:              ; CODE XREF: updateHallOfFameEntries+56j
+//                ; updateHallOfFameEntries+5Ej ...
+
+        // Shift the list to the right to make room for the new entry
+        for (int i = kNumberOfHallOfFameEntries - 1; i >=  newEntryInsertIndex + 1; --i)
+        {
+            memcpy(&gHallOfFameData[i], &gHallOfFameData[i - 1], sizeof(HallOfFameEntry));
+        }
+
+        // Copy the player info into the new entry
+        HallOfFameEntry *newEntry = &gHallOfFameData[newEntryInsertIndex];
+
+        memcpy(newEntry->playerName,
+               currentPlayerEntry.name,
+               sizeof(currentPlayerEntry.name));
+        newEntry->hours = currentPlayerEntry.hours;
+        newEntry->minutes = currentPlayerEntry.minutes;
+        newEntry->seconds = currentPlayerEntry.seconds;
+    }
+
+//loc_4D24B:              ; CODE XREF: updateHallOfFameEntries+38j
+//                ; updateHallOfFameEntries+7Aj
+}
+
+void changePlayerCurrentLevelState() // sub_4D24D  proc near       ; CODE XREF: handleSkipLevelOptionClick+D9p
+//                    ; update?:loc_4E6A4p
+{
+    // 01ED:65EA
+    if (byte_510DE != 0)
+    {
         return;
-sub_4D24D   endp
+    }
+    if (byte_5A2F9 != 0)
+    {
+        return;
+    }
+    uint8_t previousValue = byte_510BB;
+    byte_510BB = 0;
 
-*/
+    PlayerEntry *currentPlayerEntry = &gPlayerListData[gCurrentPlayerIndex];
+    currentPlayerEntry->levelState[gCurrentSelectedLevelIndex - 1] = previousValue;
+    gCurrentSelectedLevelIndex++;
+    updateHallOfFameEntries(); // 01ED:6618
+}
 
 void checkVideo() //  proc near       ; CODE XREF: start+282p
 {
@@ -17477,7 +17467,7 @@ loc_4E674:              ; CODE XREF: update?+242j update?+2AAj ...
         call    sub_4A95F
 
 loc_4E6A4:              ; CODE XREF: update?+803j update?+80Aj
-        call    sub_4D24D
+        call    changePlayerCurrentLevelState
         mov word_51978, 40h ; '@'
         pop si
         mov dx, 0E5Eh
@@ -21721,14 +21711,11 @@ loc_50290:              ; CODE XREF: sub_5024B+5Cj
         out dx, al      ; EGA port: graphics controller data register
         return;
 sub_5024B   endp
-
-
 */
 
 void drawSpeedFixTitleAndVersion() //   proc near       ; CODE XREF: start+2E6p
 {
     drawTextWithChars6FontWithOpaqueBackground(102, 11, 1, "SUPAPLEX VERSION 7.0");
-// drawSpeedFixTitleAndVersion   endp
 }
 
 void drawSpeedFixCredits() //  proc near       ; CODE XREF: start+2ECp
