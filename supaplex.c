@@ -96,10 +96,23 @@ uint8_t byte_519C0 = 0;
 uint8_t byte_519C1 = 0;
 uint8_t byte_519D4 = 0;
 uint8_t byte_519D5 = 0;
+uint8_t byte_59B94 = 0;
+uint8_t byte_59B96 = 0;
+uint8_t byte_5091A = 0;
 uint8_t gCurrentPlayerIndex = 0; // byte_5981F
 uint8_t byte_59B62 = 0;
+uint8_t byte_5870F = 0;
 uint16_t word_58467 = 0;
 uint16_t gCurrentSelectedLevelIndex = 0; // word_51ABC
+uint16_t word_586FD = 0;
+uint16_t word_586FF = 0;
+uint16_t word_58701 = 0;
+uint16_t word_58703 = 0;
+uint16_t word_5870D = 0;
+uint16_t word_58710 = 0;
+uint16_t word_58712 = 0;
+uint16_t word_58714 = 0;
+uint16_t word_586FB = 0;
 uint16_t word_50942 = 0;
 uint16_t word_50944 = 0;
 uint16_t word_5094F = 0;
@@ -272,9 +285,9 @@ enum PlayerLevelState {
 // - 1 byte (0x0A): minutes
 // - 1 byte (0x0B): seconds
 // - 111 bytes (0x0C-0x7A): level state (1 byte per level)
-// - 0x7B, 0x7C ??
-// - 1 byte (0x7D): next level to play
-// - 0x7E, 0x7F ??
+// - 0x7B, 0x7C, 0x7D ??
+// - 1 byte (0x7E): next level to play
+// - 1 byte (0x7F): 1 if the user finished all levels ??
 //
 typedef struct
 {
@@ -285,9 +298,9 @@ typedef struct
     uint8_t levelState[kNumberOfLevels]; // values are PlayerLevelState
     uint8_t unknown1;
     uint8_t unknown2;
-    uint8_t nextLevelToPlay;
     uint8_t unknown3;
-    uint8_t unknown4;
+    uint8_t nextLevelToPlay;
+    uint8_t completedAllLevels; // Still not 100% sure
 } PlayerEntry;
 
 static const int kNumberOfPlayers = 20;
@@ -337,6 +350,7 @@ void handleGfxTutorOptionClick(void);
 void handleSkipLevelOptionClick(void);
 void handleFloppyDiskButtonClick(void);
 void handleDeletePlayerOptionClick(void);
+void sub_4AF0C(void);
 
 static const uint8_t kNumberOfMenuButtons = 17;
 static const ButtonDescriptor kMenuButtonDescriptors[kNumberOfMenuButtons] = { // located in DS:0000
@@ -358,7 +372,7 @@ static const ButtonDescriptor kMenuButtonDescriptors[kNumberOfMenuButtons] = { /
     {
         5, 33,
         157, 41,
-        handleLevelListScrollDown, //sub_4AF0C, // Statistics
+        sub_4AF0C, // Statistics
     },
     {
         5, 42,
@@ -10375,252 +10389,221 @@ void handleSkipLevelOptionClick() // sub_4ADFF  proc near
     saveLastMouseAreaBitmap();
 }
 
-/*
-sub_4AF0C   proc near
-        mov bh, gCurrentPlayerIndex
-        xor bl, bl
-        shr bx, 1
-        add bx, gPlayerListData
-        mov bp, bx
-        mov si, bx
-        mov ax, 2D2Dh
-        cmp ax, [si]
-        jnz short loc_4AF3E
-        cmp ax, [si+2]
-        jnz short loc_4AF3E
-        cmp ax, [si+4]
-        jnz short loc_4AF3E
-        cmp ax, [si+6]
-        jnz short loc_4AF3E
-        mov si, 82B6h
-        mov di, 89F7h
-        mov ah, 8
-        call    drawTextWithChars6FontWithOpaqueBackground
+void sub_4AF0C() //   proc near
+{
+    PlayerEntry currentPlayerEntry = gPlayerListData[gCurrentPlayerIndex];
+    if (strcmp(currentPlayerEntry.name, "--------") == 0)
+    {
+        drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, "NO PLAYER SELECTED     ");
         return;
-// ; ---------------------------------------------------------------------------
+    }
 
-loc_4AF3E:              ; CODE XREF: sub_4AF0C+15j
-                    ; sub_4AF0C+1Aj ...
-        mov ax, 5F5Fh
-        mov word_586FB, ax
-        mov word_586FD, ax
-        mov word_586FF, ax
-        mov word_58701, ax
-        mov word_58703, ax
-        mov word_5870D, ax
-        mov byte_5870F, al
-        mov word_58710, ax
-        mov word_58712, ax
-        mov word_58714, ax
-        cmp word_51970, 0
-        jz  short loc_4AFE3
-        al = 0Ah
-        sub al, gameSpeed
-        aam
-        or  ax, 3030h
-        xchg    al, ah
-        mov word_586FB, 3C20h
-        mov word_586FD, 4C44h
-        mov word_586FF, 3A59h
-        mov word_58701, ax
-        mov word_58703, 203Eh
-        mov word_5870D, 3C20h
-        mov word_58712, 5A48h
-        mov word_58714, 203Eh
-        mov byte_59B94, 0
-        mov byte_59B96, 0
+//loc_4AF3E:              ; CODE XREF: sub_4AF0C+15j
+//                ; sub_4AF0C+1Aj ...
+    uint16_t someValue = 0x5F5F;
+    word_586FB = someValue;
+    word_586FD = someValue;
+    word_586FF = someValue;
+    word_58701 = someValue;
+    word_58703 = someValue;
+    word_5870D = someValue;
+    byte_5870F = someValue & 0xFF;
+    word_58710 = someValue;
+    word_58712 = someValue;
+    word_58714 = someValue;
+    if (word_51970 != 0)
+    {
+    //    al = 0Ah
+    //    sub al, gameSpeed
+    //    aam
+    //    or  ax, 3030h
+    //    xchg    al, ah
+        word_586FB = 0x3C20;
+        word_586FD = 0x4C44;
+        word_586FF = 0x3A59;
+    //    word_58701 = 0xax
+        word_58703 = 0x203E;
+        word_5870D = 0x3C20;
+        word_58712 = 0x5A48;
+        word_58714 = 0x203E;
+        byte_59B94 = 0x0;
+        byte_59B96 = 0x0;
 
-loc_4AFAA:              ; CODE XREF: sub_4AF0C+A3j
-        test    byte_59B96, 0FFh
-        jz  short loc_4AFAA
-        mov byte_59B96, 0
+        do
+        {
+    //loc_4AFAA:              ; CODE XREF: sub_4AF0C+A3j
+            // TODO: update timer
+        }
+        while ((byte_59B96 & 0xFF) == 0); // test    byte_59B96, 0FFh
+        byte_59B96 = 0;
 
-loc_4AFB6:              ; CODE XREF: sub_4AF0C+B9j
-        call    videoloop
-        call    loopForVSync
-        inc byte_59B94
-        cmp byte_59B96, 32h ; '2'
-        jb  short loc_4AFB6
-        al = byte_59B94
-        xor ah, ah
-        push(cx);
-        mov cl, 64h ; 'd'
-        div cl
-        pop(cx);
-        or  al, 30h
-        mov byte_5870F, al
-        al = ah
-        aam
-        or  ax, 3030h
-        xchg    al, ah
-        mov word_58710, ax
+        do
+        {
+    //loc_4AFB6:              ; CODE XREF: sub_4AF0C+B9j
+            videoloop();
+            loopForVSync();
+            byte_59B94++;
+        }
+        while (byte_59B96 < 0x32); // '2'
 
-loc_4AFE3:              ; CODE XREF: sub_4AF0C+58j
-        mov si, 60D5h
-        call    fade
-        call    vgaloadbackseg
-        mov byte_5091A, 0
-        mov si, 83A4h
-        mov di, 5716h
-        mov ah, 0Fh
-        call    drawTextWithChars6FontWithTransparentBackground
-        mov si, 83BFh
-        mov di, 6560h
-        mov ah, 0Fh
-        call    drawTextWithChars6FontWithTransparentBackground
-        mov si, 83E0h
-        mov di, 6A1Eh
-        mov ah, 0Fh
-        call    drawTextWithChars6FontWithTransparentBackground
-        mov si, 8411h
-        mov di, 73AEh
-        mov ah, 0Fh
-        call    drawTextWithChars6FontWithTransparentBackground
-        mov si, bp
-        mov di, 843Eh
-        mov cx, 8
+        al = byte_59B94;
+        ah = 0;
+    //    push(cx);
+        cl = 100;
+        al = ax / cl;
+        ah = ax % cl;
+    //    pop(cx);
+        al |= 0x30;
+        byte_5870F = al;
+        al = ah;
+    //    aam
+        ax |= 0x3030;
+    //    xchg    al, ah
+        word_58710 = ax;
+    }
 
-loc_4B025:              ; CODE XREF: sub_4AF0C+11Fj
-        al = [si]
-        mov [di], al
-        inc si
-        inc di
-        loop    loc_4B025
-        mov si, 842Ch
-        mov di, 7D36h
-        mov ah, 0Fh
-        call    drawTextWithChars6FontWithTransparentBackground
-        mov si, bp
-        al = [si+7Eh]
-        cmp al, 71h ; 'q'
-        jnz short loc_4B046
-        mov byte_5091A, 1
+//loc_4AFE3:              ; CODE XREF: sub_4AF0C+58j
+    fadeToPalette(gBlackPalette);
 
-loc_4B046:              ; CODE XREF: sub_4AF0C+133j
-        mov si, 845Eh
-        call    convertNumberTo3DigitStringWithPadding0
-        mov si, 8447h
-        mov di, 81FAh
-        mov ah, 0Fh
-        call    drawTextWithChars6FontWithTransparentBackground
-        mov di, bp
-        al = [di+0Bh]
-        mov si, 8479h
-        call    convertNumberTo3DigitStringWithPadding0
-        mov si, 8476h
-        mov byte ptr [si+3], 3Ah ; ':'
-        al = [di+0Ah]
-        call    convertNumberTo3DigitStringWithPadding0
-        mov si, 8473h
-        mov byte ptr [si+3], 3Ah ; ':'
-        al = [di+9]
-        mov ah, 20h ; ' '
-        call    convertNumberTo3DigitPaddedString
-        mov si, 8462h
-        mov di, 86BEh
-        mov ah, 0Fh
-        call    drawTextWithChars6FontWithTransparentBackground
-        mov di, bp
-        al = [di+9]
-        mov bl, 3Ch ; '<'
-        mul bl
-        add al, [di+0Ah]
-        adc ah, 0
-        mov bl, [di+0Bh]
-        cmp bl, 1Eh
-        jl  short loc_4B0A1
-        inc ax
+    uint8_t screenPixelsBackup[kFullScreenFramebufferLength];
+    memcpy(screenPixelsBackup, gScreenPixels, kFullScreenFramebufferLength);
 
-loc_4B0A1:              ; CODE XREF: sub_4AF0C+192j
-        mov bl, [di+7Eh]
-        div bl
-        push    ax
-        al = ah
-        mov bl, 0Ah
-        mul bl
-        mov bl, [di+7Eh]
-        div bl
-        mov si, 849Ch
-        call    convertNumberTo3DigitStringWithPadding0
-        pop ax
-        cmp al, 0
-        jnz short loc_4B0C2
-        mov byte_5091A, 2
+//    call    vgaloadbackseg
+    for (int y = 0; y < kScreenHeight; ++y)
+    {
+        for (int x = 0; x < kScreenWidth; ++x)
+        {
+            uint32_t destPixelAddress = y * kScreenWidth + x;
 
-loc_4B0C2:              ; CODE XREF: sub_4AF0C+1AFj
-        mov si, 849Ah
-        mov byte ptr [si+3], 2Eh ; '.'
-        mov ah, 20h ; ' '
-        call    convertNumberTo3DigitPaddedString
-        cmp byte_5091A, 1
-        jnz short loc_4B0E2
-        mov si, 84CFh
-        mov di, 903Fh
-        mov ah, 0Fh
-        call    drawTextWithChars6FontWithTransparentBackground
-        jmp short loc_4B105
-// ; ---------------------------------------------------------------------------
+            uint32_t sourcePixelAddress = y * kScreenWidth / 2 + x / 8;
+            uint8_t sourcePixelBitPosition = 7 - (x % 8);
 
-loc_4B0E2:              ; CODE XREF: sub_4AF0C+1C7j
-        cmp byte_5091A, 2
-        jnz short loc_4B0F6
-        mov si, 84A8h
-        mov di, 9041h
-        mov ah, 0Fh
-        call    drawTextWithChars6FontWithTransparentBackground
-        jmp short loc_4B105
-// ; ---------------------------------------------------------------------------
+            uint8_t b = (gBackBitmapData[sourcePixelAddress + 0] >> sourcePixelBitPosition) & 0x1;
+            uint8_t g = (gBackBitmapData[sourcePixelAddress + 40] >> sourcePixelBitPosition) & 0x1;
+            uint8_t r = (gBackBitmapData[sourcePixelAddress + 80] >> sourcePixelBitPosition) & 0x1;
+            uint8_t i = (gBackBitmapData[sourcePixelAddress + 120] >> sourcePixelBitPosition) & 0x1;
 
-loc_4B0F6:              ; CODE XREF: sub_4AF0C+1DBj
-        mov si, 847Dh
-        mov byte ptr [si+1Ch], 20h ; ' '
-        mov di, 9040h
-        mov ah, 0Fh
-        call    drawTextWithChars6FontWithTransparentBackground
+            uint8_t finalColor = ((b << 0)
+                                  | (g << 1)
+                                  | (r << 2)
+                                  | (i << 3));
 
-loc_4B105:              ; CODE XREF: sub_4AF0C+1D4j
-                    ; sub_4AF0C+1E8j
-        mov bx, 4D84h
-        mov dx, 3D4h
-        al = 0Dh
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (low)
-        inc dx
-        al = bl
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 0Ch
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (high)
-        inc dx
-        al = bh
-        out dx, al      ; Video: CRT controller internal registers
-        mov si, palettesDataBuffer
-        call    fade
-        call    waitForKeyMouseOrJoystick
-        mov si, 60D5h
-        call    fade
-        mov bx, 4D5Ch
-        mov dx, 3D4h
-        al = 0Dh
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (low)
-        inc dx
-        al = bl
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 0Ch
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (high)
-        inc dx
-        al = bh
-        out dx, al      ; Video: CRT controller internal registers
-        mov si, 6015h
-        call    fade
-        return;
-sub_4AF0C   endp
+            gScreenPixels[destPixelAddress] = finalColor;
+        }
+    }
 
-*/
+    for (int y = 0; y < kScreenHeight; ++y)
+    {
+        for (int x = 0; x < kScreenWidth; ++x)
+        {
+            uint32_t destPixelAddress = y * kScreenWidth + x;
+
+            uint32_t sourcePixelAddress = y * kScreenWidth / 2 + x / 8;
+            uint8_t sourcePixelBitPosition = 7 - (x % 8);
+
+            uint8_t b = (gBackBitmapData[sourcePixelAddress + 0] >> sourcePixelBitPosition) & 0x1;
+            uint8_t g = (gBackBitmapData[sourcePixelAddress + 40] >> sourcePixelBitPosition) & 0x1;
+            uint8_t r = (gBackBitmapData[sourcePixelAddress + 80] >> sourcePixelBitPosition) & 0x1;
+            uint8_t i = (gBackBitmapData[sourcePixelAddress + 120] >> sourcePixelBitPosition) & 0x1;
+
+            uint8_t finalColor = ((b << 0)
+                                  | (g << 1)
+                                  | (r << 2)
+                                  | (i << 3));
+
+            gScreenPixels[destPixelAddress] = finalColor;
+        }
+    }
+
+    byte_5091A = 0;
+    drawTextWithChars6FontWithTransparentBackground(80, 20, 15, "SUPAPLEX  BY DREAM FACTORY");
+    drawTextWithChars6FontWithTransparentBackground(64, 50, 15, "(C) DIGITAL INTEGRATION LTD 1991");
+    drawTextWithChars6FontWithTransparentBackground(16, 60, 15, "________________________________________________");
+    drawTextWithChars6FontWithTransparentBackground(80, 80, 15, "SUPAPLEX PLAYER STATISTICS");
+
+    char currentPlayerText[27] = "";
+    sprintf(currentPlayerText, "CURRENT PLAYER :  %s", currentPlayerEntry.name);
+    drawTextWithChars6FontWithTransparentBackground(80, 100, 15, currentPlayerText);
+
+    if (currentPlayerEntry.nextLevelToPlay == kLastLevelIndex)
+    {
+        byte_5091A = 1;
+    }
+
+//loc_4B046:              ; CODE XREF: sub_4AF0C+133j
+    char levelNumberString[4] = "000";
+    convertNumberTo3DigitStringWithPadding0(currentPlayerEntry.nextLevelToPlay, levelNumberString);
+
+    char currentLevelText[27] = "";
+    sprintf(currentLevelText, "CURRENT LEVEL  :       %s", levelNumberString);
+    drawTextWithChars6FontWithTransparentBackground(80, 110, 15, currentLevelText);
+
+    char secondsNumberString[4] = ":00";
+    char minutesNumberString[4] = ":00";
+    char hoursNumberString[4] = "  0";
+
+    convertNumberTo3DigitStringWithPadding0(currentPlayerEntry.seconds, secondsNumberString);
+    secondsNumberString[0] = ':';
+
+    convertNumberTo3DigitStringWithPadding0(currentPlayerEntry.minutes, minutesNumberString);
+    minutesNumberString[0] = ':';
+
+    convertNumberTo3DigitPaddedString(currentPlayerEntry.hours, hoursNumberString, 1);
+
+    char usedTimeText[27] = "";
+    sprintf(usedTimeText, "USED TIME      : %s%s%s", hoursNumberString, minutesNumberString, secondsNumberString);
+
+    drawTextWithChars6FontWithTransparentBackground(80, 120, 15, usedTimeText);
+
+    uint32_t totalMinutes = currentPlayerEntry.hours * 60 + currentPlayerEntry.minutes;
+
+    if (currentPlayerEntry.seconds >= 30)
+    {
+        totalMinutes++;
+    }
+
+//loc_4B0A1:              ; CODE XREF: sub_4AF0C+192j
+
+    char averageTimeString[6] = "000.0";
+    uint16_t averageMinutesWhole = totalMinutes / currentPlayerEntry.nextLevelToPlay;
+    uint16_t averageMinutesFraction = (totalMinutes % currentPlayerEntry.nextLevelToPlay);
+    averageMinutesFraction = averageMinutesFraction / currentPlayerEntry.nextLevelToPlay;
+    convertNumberTo3DigitStringWithPadding0(averageMinutesFraction, &averageTimeString[2]);
+
+    if (averageMinutesWhole == 0)
+    {
+        byte_5091A = 2;
+    }
+
+//loc_4B0C2:              ; CODE XREF: sub_4AF0C+1AFj
+    averageTimeString[3] = '.';
+
+    convertNumberTo3DigitPaddedString(averageMinutesWhole, averageTimeString, 1);
+    if (byte_5091A == 1)
+    {
+        drawTextWithChars6FontWithTransparentBackground(24, 140, 15, "YOU'VE COMPLETED ALL LEVELS! CONGRATULATIONS!!!");
+    }
+//loc_4B0E2:              ; CODE XREF: sub_4AF0C+1C7j
+    else if (byte_5091A == 2)
+    {
+        drawTextWithChars6FontWithTransparentBackground(40, 140, 15, "STILL UNDER ONE MINUTE (KEEP IT UP...)");
+    }
+//loc_4B0F6:              ; CODE XREF: sub_4AF0C+1DBj
+    else
+    {
+        char averageTimeMessage[44] = "";
+        sprintf(averageTimeMessage, "AVERAGE TIME USED PER LEVEL  %s MINUTES", averageTimeString);
+        drawTextWithChars6FontWithTransparentBackground(32, 140, 15, averageTimeMessage);
+    }
+//loc_4B105:              ; CODE XREF: sub_4AF0C+1D4j
+//                ; sub_4AF0C+1E8j
+    fadeToPalette(gPalettes[0]);
+    waitForKeyMouseOrJoystick();
+    fadeToPalette(gBlackPalette);
+    memcpy(gScreenPixels, screenPixelsBackup, kFullScreenFramebufferLength);
+    fadeToPalette(gPalettes[1]);
+}
+
 void handleGfxTutorOptionClick() // sub_4B149   proc near
 {
 //    vgaloadgfxseg();
@@ -11447,27 +11430,30 @@ void prepareRankingTextEntries() // sub_4BF8D  proc near       ; CODE XREF: draw
     {
         numberOfChanges = 0;
 
-        for (int i = 0; i < 19; ++i)
+        for (int i = 0; i < kNumberOfPlayers - 1; ++i)
         {
-    //loc_4BFD3:              ; CODE XREF: prepareRankingTextEntries+AFj
+//loc_4BFD3:              ; CODE XREF: prepareRankingTextEntries+AFj
             RankingEntry *rankingEntry = &rankingEntries[i];
             RankingEntry *nextRankingEntry = &rankingEntries[i + 1];
 
-            // next level to play
+            uint32_t totalSeconds = rankingEntry->hours * 3600 + rankingEntry->minutes * 60 + rankingEntry->seconds;
+            uint32_t nextTotalSeconds = rankingEntry->hours * 3600 + rankingEntry->minutes * 60 + rankingEntry->seconds;
+
             if (nextRankingEntry->nextLevelToPlay > rankingEntry->nextLevelToPlay
-                || nextRankingEntry->hours < rankingEntry->hours
-                || nextRankingEntry->minutes < rankingEntry->minutes
-                || nextRankingEntry->seconds < rankingEntry->seconds)
+                || (nextRankingEntry->nextLevelToPlay == rankingEntry->nextLevelToPlay
+                    && nextTotalSeconds > totalSeconds)
+                )
             {
-    //loc_4BFFD:              ; CODE XREF: prepareRankingTextEntries+4Ej
-    //                ; prepareRankingTextEntries+58j ...
+//loc_4BFFD:              ; CODE XREF: prepareRankingTextEntries+4Ej
+//                ; prepareRankingTextEntries+58j ...
                 RankingEntry aux = *nextRankingEntry;
                 *nextRankingEntry = *rankingEntry;
                 *rankingEntry = aux;
                 numberOfChanges++;
             }
         }
-    } while (numberOfChanges > 0);
+    }
+    while (numberOfChanges > 0);
 
     for (int i = 0; i < 20; ++i)
     {
@@ -13697,7 +13683,7 @@ void updateHallOfFameEntries() // sub_4D1B6  proc near       ; CODE XREF: change
 
 //loc_4D1BE:              ; CODE XREF: updateHallOfFameEntries+5j
     PlayerEntry currentPlayerEntry = gPlayerListData[gCurrentPlayerIndex];
-    if (currentPlayerEntry.unknown4 != 0)
+    if (currentPlayerEntry.completedAllLevels != 0)
     {
         return;
     }
@@ -13720,7 +13706,7 @@ void updateHallOfFameEntries() // sub_4D1B6  proc near       ; CODE XREF: change
         return;
     }
 
-    currentPlayerEntry.unknown4 = 1;
+    currentPlayerEntry.completedAllLevels = 1;
 
     int newEntryInsertIndex = -1;
 //    mov cx, 3
