@@ -267,6 +267,8 @@ static const size_t kFullScreenFramebufferLength = kScreenWidth * kScreenHeight;
 //
 uint8_t gTitle2DecodedBitmapData[kFullScreenFramebufferLength];
 
+uint8_t gScrollDestinationScreenBitmapData[kFullScreenFramebufferLength];
+
 typedef struct
 {
     char playerName[9];
@@ -447,7 +449,9 @@ static const ButtonDescriptor kMainMenuButtonDescriptors[kNumberOfMainMenuButton
     }
 };
 
-static const uint8_t kNumberOfOptionsMenuButtons = 0;
+void handleOptionsExitAreaClick(void);
+
+static const uint8_t kNumberOfOptionsMenuButtons = 2;
 static const ButtonDescriptor kOptionsMenuButtonDescriptors[kNumberOfOptionsMenuButtons] = { // located in DS:00AC
     /*{
         12, 13,
@@ -503,17 +507,17 @@ static const ButtonDescriptor kOptionsMenuButtonDescriptors[kNumberOfOptionsMenu
         233, 80,
         252, 154,
         loc_4C781, // Joystick
-    },
+    },*/
     {
         0, 181,
         319, 199,
-        loc_4C78D, // Exit (bottom)
+        handleOptionsExitAreaClick, // Exit (bottom)
     },
     {
         284, 0,
         319, 180,
-        loc_4C78D, // Exit (right)
-    },*/
+        handleOptionsExitAreaClick, // Exit (right)
+    },
 };
 
 enum ButtonBorderLineType {
@@ -742,13 +746,13 @@ void drawTextWithChars6FontWithTransparentBackground(size_t destX, size_t destY,
 void sub_48E59(void);
 void waitForKeyMouseOrJoystick(void);
 void drawMenuTitleAndDemoLevelResult(void);
-void scrollRightToGfxTutor(void);
+void scrollRightToNewScreen(void);
 void scrollLeftToMainMenu(void);
 void drawMenuBackground(void);
 void convertNumberTo3DigitStringWithPadding0(uint8_t number, char numberString[3]);
 void changePlayerCurrentLevelState(void);
 void updateHallOfFameEntries(void);
-void drawOptionsBackground(void);
+void drawOptionsBackground(uint8_t *dest);
 void drawBackBackground(void);
 void drawGfxTutorBackground(uint8_t *dest);
 void drawFullScreenBitmap(uint8_t *bitmapData, uint8_t *dest);
@@ -10615,8 +10619,8 @@ void handleStatisticsOptionClick() // sub_4AF0C   proc near
 
 void handleGfxTutorOptionClick() // sub_4B149   proc near
 {
-//    drawGfxTutorBackground();
-    scrollRightToGfxTutor();
+    drawGfxTutorBackground(gScrollDestinationScreenBitmapData);
+    scrollRightToNewScreen();
     waitForKeyMouseOrJoystick();
     scrollLeftToMainMenu();
     drawMenuTitleAndDemoLevelResult();
@@ -12002,16 +12006,13 @@ loc_4C591:              ; CODE XREF: sub_4C4F9+93j
 sub_4C4F9   endp
 */
 
-void scrollRightToGfxTutor() // sub_4C5AF   proc near       ; CODE XREF: handleGfxTutorOptionClick+3p
+void scrollRightToNewScreen() // sub_4C5AF   proc near       ; CODE XREF: handleGfxTutorOptionClick+3p
 {
 //    gNumberOfDotsToShiftDataLeft = 0;
     videoloop();
 
     uint8_t screenPixelsBackup[kFullScreenFramebufferLength];
     memcpy(screenPixelsBackup, gScreenPixels, kFullScreenFramebufferLength);
-
-    uint8_t gfxBackgroundPixels[kFullScreenFramebufferLength];
-    drawGfxTutorBackground(gfxBackgroundPixels);
 
     const int kNumberOfSteps = 40;
     const int kStepSize = kScreenWidth / kNumberOfSteps;
@@ -12033,7 +12034,7 @@ void scrollRightToGfxTutor() // sub_4C5AF   proc near       ; CODE XREF: handleG
             // GFX background side
             for (int x = limitFromLeft; x < kScreenWidth; ++x)
             {
-                gScreenPixels[y * kScreenWidth + x] = gfxBackgroundPixels[y * kScreenWidth + x - limitFromLeft];
+                gScreenPixels[y * kScreenWidth + x] = gScrollDestinationScreenBitmapData[y * kScreenWidth + x - limitFromLeft];
             }
         }
 
@@ -12079,9 +12080,9 @@ void drawMenuBackground() //   proc near       ; CODE XREF: sub_4C407+14p
     }
 }
 
-void drawOptionsBackground() // vgaloadcontrolsseg
+void drawOptionsBackground(uint8_t *dest) // vgaloadcontrolsseg
 {
-    drawFullScreenBitmap(gControlsBitmapData, gScreenPixels);
+    drawFullScreenBitmap(gControlsBitmapData, dest);
 }
 
 void drawBackBackground() // vgaloadbackseg
@@ -12230,14 +12231,13 @@ loc_4C781:
         call    sub_4921B
         call    sub_4CCDF
         return;
-// ; ---------------------------------------------------------------------------
-loc_4C78D:
-        mov word_58463, 1
-        return;
-
-; =============== S U B R O U T I N E =======================================
-
 */
+
+void handleOptionsExitAreaClick() // loc_4C78D
+{
+    word_58463 = 1;
+}
+
 void runMainMenu() // proc near       ; CODE XREF: start+43Ap
 {
     // 01ED:5B31
@@ -12494,13 +12494,13 @@ void showControls() //:                              ; DATA XREF: data:0044o
 {
     // 01ED:5DDE;
     byte_50919 = 0xFF;
-    drawOptionsBackground();
+    drawOptionsBackground(gScrollDestinationScreenBitmapData);
     sub_4CAFC();
     sub_4CC7C();
     sub_4CCDF();
 //    mov     si, 6055h
     setPalette(gPalettes[2]);
-    scrollRightToGfxTutor();
+    scrollRightToNewScreen();
     word_58463 = 0;
     saveLastMouseAreaBitmap();
     drawMouseCursor();
