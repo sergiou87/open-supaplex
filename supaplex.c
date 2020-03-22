@@ -44,6 +44,7 @@ uint8_t byte_50941 = 0;
 uint8_t byte_50946 = 0;
 uint8_t byte_50953 = 0;
 uint8_t byte_50954 = 0;
+uint8_t byte_50919 = 0;
 uint8_t gNumberOfDotsToShiftDataLeft = 0; // byte_510A6 Used for the scroll effect
 uint8_t byte_510AB = 0;
 uint8_t byte_510B3 = 0;
@@ -122,6 +123,7 @@ uint16_t word_5196C = 0;
 uint16_t word_51970 = 0;
 uint16_t word_5197A = 0;
 uint16_t word_599D8 = 0;
+uint16_t word_58463 = 0;
 uint16_t word_58465 = 0;
 uint16_t gNewPlayerNameLength = 0; // word_58475
 uint16_t word_5195D = 0;
@@ -162,6 +164,8 @@ uint16_t gLastMouseCursorOriginAddress = 0; // word_5847B
 //
 static const int kLastMouseCursorAreaSize = 8;
 uint8_t gLastMouseCursorAreaBitmap[kLastMouseCursorAreaSize * kLastMouseCursorAreaSize];
+
+static const int kConfigDataLength = 4;
 
 uint32_t gTimeOfDay = 0;
 
@@ -219,6 +223,7 @@ int word_599DC[] = { 0x00CE, 0x016A, 0x0146, 0x00CD, 0x024D, 0x012C, 0x01A7, 0x0
                     0xF00B, 0xF0F0, 0xF01D, 0xF0F0, 0xF026, 0x50F0, 0xF037,
                     0x41D0, 0x105F, 0xF3F3, 0xF068, 0x10F0, 0x106C, 0x94F4 };
 
+uint8_t sndType = 0;
 uint8_t musType = 1;
 uint8_t soundEnabled = 0;
 
@@ -351,9 +356,10 @@ void handleSkipLevelOptionClick(void);
 void handleFloppyDiskButtonClick(void);
 void handleDeletePlayerOptionClick(void);
 void handleStatisticsOptionClick(void);
+void showControls(void);
 
-static const uint8_t kNumberOfMenuButtons = 17;
-static const ButtonDescriptor kMenuButtonDescriptors[kNumberOfMenuButtons] = { // located in DS:0000
+static const uint8_t kNumberOfMainMenuButtons = 17;
+static const ButtonDescriptor kMainMenuButtonDescriptors[kNumberOfMainMenuButtons] = { // located in DS:0000
     {
         5, 6,
         157, 14,
@@ -387,7 +393,7 @@ static const ButtonDescriptor kMenuButtonDescriptors[kNumberOfMenuButtons] = { /
     {
         5, 60,
         157, 69,
-        handleLevelListScrollDown, //showControls, // Controls
+        showControls, // Controls
     },
     {
         140, 90,
@@ -439,6 +445,75 @@ static const ButtonDescriptor kMenuButtonDescriptors[kNumberOfMenuButtons] = { /
         312, 52,
         handleLevelCreditsClick, // Credits
     }
+};
+
+static const uint8_t kNumberOfOptionsMenuButtons = 0;
+static const ButtonDescriptor kOptionsMenuButtonDescriptors[kNumberOfOptionsMenuButtons] = { // located in DS:00AC
+    /*{
+        12, 13,
+        107, 36,
+        sub_4C723, // Adlib
+    },
+    {
+        12, 49,
+        107, 72,
+        sub_4C719, // Sound Blaster
+    },
+    {
+        12, 85,
+        107, 108,
+        sub_4C72D, // Roland
+    },
+    {
+        12, 121,
+        107, 144,
+        sub_4C737, // Combined
+    },
+    {
+        132, 13,
+        211, 31,
+        loc_4C6FB, // Internal
+    },
+    {
+        126, 43,
+        169, 54,
+        sub_4C705, // Standard
+    },
+    {
+        174, 43,
+        217, 54,
+        sub_4C70F, // Samples
+    },
+    {
+        132, 86,
+        175, 120,
+        sub_4C741, // Music
+    },
+    {
+        134, 132,
+        168, 152,
+        loc_4C75E, // FX
+    },
+    {
+        201, 80,
+        221, 154,
+        loc_4C778, // Keyboard
+    },
+    {
+        233, 80,
+        252, 154,
+        loc_4C781, // Joystick
+    },
+    {
+        0, 181,
+        319, 199,
+        loc_4C78D, // Exit (bottom)
+    },
+    {
+        284, 0,
+        319, 180,
+        loc_4C78D, // Exit (right)
+    },*/
 };
 
 enum ButtonBorderLineType {
@@ -673,9 +748,17 @@ void drawMenuBackground(void);
 void convertNumberTo3DigitStringWithPadding0(uint8_t number, char numberString[3]);
 void changePlayerCurrentLevelState(void);
 void updateHallOfFameEntries(void);
+void drawOptionsBackground(void);
 void drawBackBackground(void);
 void drawGfxTutorBackground(uint8_t *dest);
 void drawFullScreenBitmap(uint8_t *bitmapData, uint8_t *dest);
+void sub_4CAFC(void);
+void sub_4CE9C(void);
+void drawOptionsMenuLine(void);
+void sub_4CE11(void);
+void sub_4CC7C(void);
+void sub_4CCDF(void);
+void sub_4CD3C(void);
 
 static const int kWindowWidth = kScreenWidth * 4;
 static const int kWindowHeight = kScreenHeight * 4;
@@ -2216,25 +2299,25 @@ void readConfig() //  proc near       ; CODE XREF: start:loc_46F0Fp
         }
         else
         {
-            exitWithError("Error opening SUPAPLEX.CFG");
+            exitWithError("Error opening SUPAPLEX.CFG\n");
         }
     }
 
 //loc_474BE:             // ; CODE XREF: readConfig+8j
 
-    uint8_t configData[4];
+    uint8_t configData[kConfigDataLength];
 
     size_t bytes = fread(&configData, 1, sizeof(configData), file);
 
     if (fclose(file) != 0)
     {
-        exitWithError("Error closing SUPAPLEX.CFG");
+        exitWithError("Error closing SUPAPLEX.CFG\n");
     }
 
 //loc_474DF:             // ; CODE XREF: readConfig+39j
     if (bytes < sizeof(configData))
     {
-        exitWithError("Error reading SUPAPLEX.CFG");
+        exitWithError("Error reading SUPAPLEX.CFG\n");
     }
 
 //loc_474E5:             // ; CODE XREF: readConfig+3Fj
@@ -2283,118 +2366,86 @@ void readConfig() //  proc near       ; CODE XREF: start:loc_46F0Fp
 // readConfig  endp
 }
 
-/*
-// ; ---------------------------------------------------------------------------
-sub_4755A       proc near               ; CODE XREF: code:loc_4CAECp
-                mov     ax, 3C00h
-                mov     cx, 0
-                mov     dx, 371Dh
-                int     21h             ; DOS - 2+ - CREATE A FILE WITH HANDLE (CREAT)
-                                        ; CX = attributes for file
-                                        ; DS:DX -> ASCIZ filename (may include drive and path)
-                jnb     short loc_4756A
-                jmp     exit
-// ; ---------------------------------------------------------------------------
+void saveConfiguration() // sub_4755A      proc near               ; CODE XREF: code:loc_4CAECp
+{
+    FILE *file = fopen("SUPAPLEX.CFG", "w");
+    if (file == NULL)
+    {
+        exitWithError("Error opening SUPAPLEX.CFG\n");
+    }
 
-loc_4756A:                              ; CODE XREF: sub_4755A+Bj
-                mov     lastFileHandle, ax
-                mov     si, offset fileLevelData
-                cmp     sndType, 2
-                jnz     short loc_4757C
-                mov     byte ptr [si], 73h ; 's'
-                jmp     short loc_475AF
-// ; ---------------------------------------------------------------------------
+//loc_4756A:                              ; CODE XREF: saveConfiguration+Bj
+    uint8_t configData[kConfigDataLength];
 
-loc_4757C:                              ; CODE XREF: sub_4755A+1Bj
-                cmp     sndType, 1
-                jnz     short loc_47588
-                mov     byte ptr [si], 69h ; 'i'
-                jmp     short loc_475AF
-// ; ---------------------------------------------------------------------------
+    if (sndType == 2)
+    {
+        configData[0] = 's';
+    }
+    else if (sndType == 1)
+    {
+        configData[0] = 'i';
+    }
+    else if (sndType == 3)
+    {
+        configData[0] = 'a';
+    }
+    else if (sndType == 5)
+    {
+        configData[0] = 'r';
+    }
+    else if (musType == 5)
+    {
+        configData[0] = 'c';
+    }
+    else
+    {
+        configData[0] = 'b';
+    }
 
-loc_47588:                              ; CODE XREF: sub_4755A+27j
-                cmp     sndType, 3
-                jnz     short loc_47594
-                mov     byte ptr [si], 61h ; 'a'
-                jmp     short loc_475AF
-// ; ---------------------------------------------------------------------------
+//loc_475AF:                              ; CODE XREF: saveConfiguration+20j
+//                            ; saveConfiguration+2Cj ...
+    if (isJoystickEnabled == 0)
+    {
+        configData[1] = 'k';
+    }
+    else
+    {
+        configData[1] = 'j';
+    }
 
-loc_47594:                              ; CODE XREF: sub_4755A+33j
-                cmp     sndType, 5
-                jnz     short loc_475A0
-                mov     byte ptr [si], 72h ; 'r'
-                jmp     short loc_475AF
-// ; ---------------------------------------------------------------------------
+//loc_475BF:                              ; CODE XREF: saveConfiguration+60j
+    if (isMusicEnabled != 0)
+    {
+        configData[2] = 'm';
+    }
+    else
+    {
+        configData[2] = 'n';
+    }
 
-loc_475A0:                              ; CODE XREF: sub_4755A+3Fj
-                cmp     musType, 5
-                jnz     short loc_475AC
-                mov     byte ptr [si], 63h ; 'c'
-                jmp     short loc_475AF
-// ; ---------------------------------------------------------------------------
+//loc_475CF:                              ; CODE XREF: saveConfiguration+70j
+    if (isFXEnabled != 0)
+    {
+        configData[3] = 'x';
+    }
+    else
+    {
+        configData[3] = 'y';
+    }
 
-loc_475AC:                              ; CODE XREF: sub_4755A+4Bj
-                mov     byte ptr [si], 62h ; 'b'
+//loc_475DF:                              ; CODE XREF: saveConfiguration+80j
+    size_t bytes = fwrite(configData, 1, sizeof(configData), file);
+    if (bytes < sizeof(configData))
+    {
+        exitWithError("Error writing SUPAPLEX.CFG\n");
+    }
 
-loc_475AF:                              ; CODE XREF: sub_4755A+20j
-                                        ; sub_4755A+2Cj ...
-                inc     si
-                cmp     isJoystickEnabled, 0
-                jnz     short loc_475BC
-                mov     byte ptr [si], 6Bh ; 'k'
-                jmp     short loc_475BF
-// ; ---------------------------------------------------------------------------
+    if (fclose(file) != 0)
+    {
+        exitWithError("Error closing SUPAPLEX.CFG\n");
+    }
+}
 
-loc_475BC:                              ; CODE XREF: sub_4755A+5Bj
-                mov     byte ptr [si], 6Ah ; 'j'
-
-loc_475BF:                              ; CODE XREF: sub_4755A+60j
-                inc     si
-                cmp     isMusicEnabled, 0
-                jz      short loc_475CC
-                mov     byte ptr [si], 6Dh ; 'm'
-                jmp     short loc_475CF
-// ; ---------------------------------------------------------------------------
-
-loc_475CC:                              ; CODE XREF: sub_4755A+6Bj
-                mov     byte ptr [si], 6Eh ; 'n'
-
-loc_475CF:                              ; CODE XREF: sub_4755A+70j
-                inc     si
-                cmp     isFXEnabled, 0
-                jz      short loc_475DC
-                mov     byte ptr [si], 78h ; 'x'
-                jmp     short loc_475DF
-// ; ---------------------------------------------------------------------------
-
-loc_475DC:                              ; CODE XREF: sub_4755A+7Bj
-                mov     byte ptr [si], 79h ; 'y'
-
-loc_475DF:                              ; CODE XREF: sub_4755A+80j
-                mov     bx, lastFileHandle
-                mov     ax, 4000h
-                mov     cx, 4
-                mov     dx, offset fileLevelData
-                int     21h             ; DOS - 2+ - WRITE TO FILE WITH HANDLE
-                                        ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
-                jnb     short loc_475F3
-                jmp     exit
-// ; ---------------------------------------------------------------------------
-
-loc_475F3:                              ; CODE XREF: sub_4755A+94j
-                mov     ax, 3E00h
-                mov     bx, lastFileHandle
-                int     21h             ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                                        ; BX = file handle
-                jnb     short locret_47601
-                jmp     exit
-// ; ---------------------------------------------------------------------------
-
-locret_47601:                           ; CODE XREF: sub_4755A+A2j
-                return;
-sub_4755A       endp
-
-*/
 void enableFloppy() //   proc near       ; CODE XREF: start+341p
                     // ; start:loc_46FBEp ...
 {
@@ -10253,7 +10304,7 @@ void handleDeletePlayerOptionClick() // sub_4AD0E  proc near
     }
     while (gMouseButtonStatus == 0);
 
-    ButtonDescriptor okButtonDescriptor = kMenuButtonDescriptors[9];
+    ButtonDescriptor okButtonDescriptor = kMainMenuButtonDescriptors[9];
 
     if (gMouseX >= okButtonDescriptor.startX
         && gMouseY >= okButtonDescriptor.startY
@@ -10360,7 +10411,7 @@ void handleSkipLevelOptionClick() // sub_4ADFF  proc near
     }
     while (gMouseButtonStatus == 0);
 
-    ButtonDescriptor okButtonDescriptor = kMenuButtonDescriptors[9];
+    ButtonDescriptor okButtonDescriptor = kMainMenuButtonDescriptors[9];
 
     if (gMouseX >= okButtonDescriptor.startX
         && gMouseY >= okButtonDescriptor.startY
@@ -12028,6 +12079,11 @@ void drawMenuBackground() //   proc near       ; CODE XREF: sub_4C407+14p
     }
 }
 
+void drawOptionsBackground() // vgaloadcontrolsseg
+{
+    drawFullScreenBitmap(gControlsBitmapData, gScreenPixels);
+}
+
 void drawBackBackground() // vgaloadbackseg
 {
     drawFullScreenBitmap(gBackBitmapData, gScreenPixels);
@@ -12396,9 +12452,9 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
 //loc_4C9FF:              // ; CODE XREF: runMainMenu+236j
             word_58465 = 0xEF98;
 
-            for (int i = 0; i < kNumberOfMenuButtons; ++i)
+            for (int i = 0; i < kNumberOfMainMenuButtons; ++i)
             {
-                ButtonDescriptor buttonDescriptor = kMenuButtonDescriptors[i];
+                ButtonDescriptor buttonDescriptor = kMainMenuButtonDescriptors[i];
 
 //checkmousecoords:              // ; CODE XREF: runMainMenu+29Bj
                 if (gMouseX >= buttonDescriptor.startX
@@ -12434,804 +12490,811 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
     saveHallOfFameData();
 }
 
-/*
+void showControls() //:                              ; DATA XREF: data:0044o
+{
+    // 01ED:5DDE;
+    byte_50919 = 0xFF;
+    drawOptionsBackground();
+    sub_4CAFC();
+    sub_4CC7C();
+    sub_4CCDF();
+//    mov     si, 6055h
+    setPalette(gPalettes[2]);
+    scrollRightToGfxTutor();
+    word_58463 = 0;
+    saveLastMouseAreaBitmap();
+    drawMouseCursor();
 
-showControls:                              ; DATA XREF: data:0044o
-                mov     byte_50919, 0FFh
-                call    vgaloadcontrolsseg
-                call    sub_4CAFC
-                call    sub_4CC7C
-                call    sub_4CCDF
-                mov     si, 6055h
-                call    setPalette
-                call    scrollRightToGfxTutor  ; DO SLIDE
-                mov     word_58463, 0
-                call    saveLastMouseAreaBitmap
-                call    drawMouseCursor
+    uint16_t mouseX, mouseY;
+    uint16_t mouseButtonStatus;
 
-loc_4CA67:                              ; CODE XREF: code:5E89j
-                                        ; code:5EBFj ...
-                call    videoloop
-                call    sub_4CD3C
-                inc     word_5195D
-                call    getMouseStatus
-                mov     gMouseButtonStatus, bx
-                add     cx, 140h
-                mov     gMouseX, cx
-                mov     gMouseY, dx
-                call    restoreLastMouseAreaBitmap
-                call    saveLastMouseAreaBitmap
-                call    drawMouseCursor
-                mov     bx, gMouseButtonStatus
-                cmp     bx, 2
-                jz      short loc_4CAEC
-                cmp     byte_5197E, 1
-                jz      short loc_4CAEC
-                cmp     word_58463, 1
-                jz      short loc_4CAEC
-                cmp     bx, 1
-                jz      short loc_4CAAB
-                jmp     short loc_4CA67
-// ; ---------------------------------------------------------------------------
+    do
+    {
+//loc_4CA67:                              ; CODE XREF: code:5E89j
+//                            ; code:5EBFj ...
+        videoloop();
+        sub_4CD3C();
+        word_5195D++;
+        getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
 
-loc_4CAAB:                              ; CODE XREF: code:5E87j
-                mov     cx, gMouseX
-                sub     cx, 140h
-                mov     dx, gMouseY
-                mov     si, offset controlsbuttons ; 0ACh
+        gMouseButtonStatus = mouseButtonStatus;
+        gMouseX = mouseX;
+        gMouseY = mouseY;
+    //    mov     gMouseButtonStatus, bx
+    //    add     cx, 140h
+    //    mov     gMouseX, cx
+    //    mov     gMouseY, dx
+        restoreLastMouseAreaBitmap();
+        saveLastMouseAreaBitmap();
+        drawMouseCursor();
+        if (gMouseButtonStatus == 2)
+        {
+            break;
+        }
+        if (byte_5197E == 1)
+        {
+            break;
+        }
+        if (word_58463 == 1)
+        {
+            break;
+        }
+        if (gMouseButtonStatus == 1)
+        {
+    //loc_4CAAB:                              ; CODE XREF: code:5E87j
+        //    mov     si, offset controlsbuttons ; 0ACh // 01ED:5E54
 
-loc_4CABA:                              ; CODE XREF: code:5EC7j
-                cmp     [si], cx
-                jg      short loc_4CAE1
-                cmp     [si+2], dx
-                jg      short loc_4CAE1
-                cmp     [si+4], cx
-                jl      short loc_4CAE1
-                cmp     [si+6], dx
-                jl      short loc_4CAE1
-                call    word ptr [si+8]
+            for (int i = 0; i < kNumberOfOptionsMenuButtons; ++i)
+            {
+                ButtonDescriptor buttonDescriptor = kOptionsMenuButtonDescriptors[i];
+//loc_4CABA:                              ; CODE XREF: code:5EC7j
+                if (gMouseX >= buttonDescriptor.startX
+                    && gMouseY >= buttonDescriptor.startY
+                    && gMouseX <= buttonDescriptor.endX
+                    && gMouseY <= buttonDescriptor.endY)
+                {
+                    buttonDescriptor.handler(); // 01ED:5E6A
 
-loc_4CAD0:                              ; CODE XREF: code:5EBDj
-                call    videoloop
-                inc     word_5195D
-                call    getMouseStatus
-                cmp     bx, 0
-                jnz     short loc_4CAD0
-                jmp     short loc_4CA67
-// ; ---------------------------------------------------------------------------
+                    do
+                    {
+//loc_4CAD0:                              ; CODE XREF: code:5EBDj
+                        videoloop();
+                        word_5195D++;
+                        getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
+                    }
+                    while (mouseButtonStatus != 0);
+                }
+            }
+        }
+    }
+    while (1);
 
-loc_4CAE1:                              ; CODE XREF: code:5E9Cj
-                                        ; code:5EA1j ...
-                add     si, 0Ah
-                cmp     word ptr [si], 0FFFFh
-                jnz     short loc_4CABA
-                jmp     loc_4CA67
-// ; ---------------------------------------------------------------------------
+//loc_4CAEC:                              ; CODE XREF: code:5E74j
+//                            ; code:5E7Bj ...
+    saveConfiguration();
+    scrollLeftToMainMenu();
+    drawMenuTitleAndDemoLevelResult();
+    setPalette(gPalettes[1]);
+}
 
-loc_4CAEC:                              ; CODE XREF: code:5E74j
-                                        ; code:5E7Bj ...
-                call    sub_4755A
-                call    scrollLeftToMainMenu
-                call    drawMenuTitleAndDemoLevelResult
-                mov     si, 6015h
-                call    setPalette
-                return;
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4CAFC   proc near       ; CODE XREF: code:5AE1p sub_4C705+6p ...
-        mov si, 578Bh
-        mov cx, 5
-        mov dx, 8
-        call    sub_4CE9C
-        mov ah, 4
-        mov si, 130h
-        call    sub_4CF13
-        mov ah, 4
-        mov si, 161h
-        call    sub_4CF13
-        mov si, 68B1h
-        mov cx, 9
-        mov dx, 8
-        call    sub_4CE9C
-        mov ah, 4
-        mov si, 1A7h
-        call    sub_4CF13
-        mov ah, 4
-        mov si, 1CAh
-        call    sub_4CF13
-        mov si, 79DAh
-        mov cx, 7
-        mov dx, 8
-        call    sub_4CE9C
-        mov ah, 4
-        mov si, 1F4h
-        call    sub_4CF13
-        mov ah, 4
-        mov si, 225h
-        call    sub_4CF13
-        mov si, 8B01h
-        mov cx, 8
-        mov dx, 8
-        call    sub_4CE9C
-        mov si, 5629h
-        mov cx, 9
-        mov dx, 8
-        call    sub_4CE9C
-        mov ah, 4
-        mov si, 2E2h
-        call    sub_4CF13
-        mov si, 6380h
-        mov cx, 5
-        mov dx, 5
-        call    sub_4CE9C
-        mov ah, 4
-        mov si, 328h
-        call    sub_4CF13
-        mov si, 6386h
-        mov cx, 5
-        mov dx, 5
-        call    sub_4CE9C
-        mov ah, 4
-        mov si, 36Eh
-        call    sub_4CF13
-        mov ah, 4
-        mov si, 28Eh
-        call    sub_4CF13
-        cmp sndType, 3
-        jnz short loc_4CBC6
-        mov si, 578Bh
-        mov cx, 5
-        mov dx, 8
-        call    sub_4CE11
-        mov ah, 6
-        mov si, 130h
-        call    sub_4CF13
-        mov ah, 6
-        mov si, 161h
-        call    sub_4CF13
-        jmp locret_4CC7B
-// ; ---------------------------------------------------------------------------
-
-loc_4CBC6:              ; CODE XREF: sub_4CAFC+A9j
-        cmp sndType, 4
-        jnz short loc_4CC11
-        mov ah, 6
-        mov si, 1CAh
-        call    sub_4CF13
-        cmp musType, 3
-        jnz short loc_4CBF3
-        mov si, 68B1h
-        mov cx, 9
-        mov dx, 8
-        call    sub_4CE11
-        mov ah, 6
-        mov si, 1A7h
-        call    sub_4CF13
-        jmp locret_4CC7B
-// ; ---------------------------------------------------------------------------
-
-loc_4CBF3:              ; CODE XREF: sub_4CAFC+DEj
-        mov si, 8B01h
-        mov cx, 8
-        mov dx, 8
-        call    sub_4CE11
-        mov ah, 6
-        mov si, 1F4h
-        call    sub_4CF13
-        mov ah, 6
-        mov si, 28Eh
-        call    sub_4CF13
-        jmp short locret_4CC7B
-// ; ---------------------------------------------------------------------------
-
-loc_4CC11:              ; CODE XREF: sub_4CAFC+CFj
-        cmp sndType, 5
-        jnz short loc_4CC36
-        mov si, 79DAh
-        mov cx, 7
-        mov dx, 8
-        call    sub_4CE11
-        mov ah, 6
-        mov si, 1F4h
-        call    sub_4CF13
-        mov ah, 6
-        mov si, 225h
-        call    sub_4CF13
-        jmp short locret_4CC7B
-// ; ---------------------------------------------------------------------------
-
-loc_4CC36:              ; CODE XREF: sub_4CAFC+11Aj
-        mov si, 5629h
-        mov cx, 9
-        mov dx, 8
-        call    sub_4CE11
-        mov ah, 6
-        mov si, 2E2h
-        call    sub_4CF13
-        cmp sndType, 1
-        jnz short loc_4CC67
-        mov si, 6380h
-        mov cx, 5
-        mov dx, 5
-        call    sub_4CE11
-        mov ah, 6
-        mov si, 328h
-        call    sub_4CF13
-        jmp short locret_4CC7B
-// ; ---------------------------------------------------------------------------
-
-loc_4CC67:              ; CODE XREF: sub_4CAFC+153j
-        mov si, 6386h
-        mov cx, 5
-        mov dx, 5
-        call    sub_4CE11
-        mov ah, 6
-        mov si, 36Eh
-        call    sub_4CF13
-
-locret_4CC7B:               ; CODE XREF: sub_4CAFC+C7j
-                    ; sub_4CAFC+F4j ...
+void sub_4CAFC() //   proc near       ; CODE XREF: code:5AE1p sub_4C705+6p ...
+{
+//    si = 0x578B;
+//    cx = 5;
+//    dx = 8;
+    sub_4CE9C();
+//    mov ah, 4
+//    mov si, 130h
+    drawOptionsMenuLine();
+//    mov ah, 4
+//    mov si, 161h
+    drawOptionsMenuLine();
+//    mov si, 68B1h
+//    mov cx, 9
+//    mov dx, 8
+    sub_4CE9C();
+//    mov ah, 4
+//    mov si, 1A7h
+    drawOptionsMenuLine();
+//    mov ah, 4
+//    mov si, 1CAh
+    drawOptionsMenuLine();
+//    mov si, 79DAh
+//    mov cx, 7
+//    mov dx, 8
+    sub_4CE9C();
+//    mov ah, 4
+//    mov si, 1F4h
+    drawOptionsMenuLine();
+//    mov ah, 4
+//    mov si, 225h
+    drawOptionsMenuLine();
+//    mov si, 8B01h
+//    mov cx, 8
+//    mov dx, 8
+    sub_4CE9C();
+//    mov si, 5629h
+//    mov cx, 9
+//    mov dx, 8
+    sub_4CE9C();
+//    mov ah, 4
+//    mov si, 2E2h
+    drawOptionsMenuLine();
+//    mov si, 6380h
+//    mov cx, 5
+//    mov dx, 5
+    sub_4CE9C();
+//    mov ah, 4
+//    mov si, 328h
+    drawOptionsMenuLine();
+//    mov si, 6386h
+//    mov cx, 5
+//    mov dx, 5
+    sub_4CE9C();
+//    mov ah, 4
+//    mov si, 36Eh
+    drawOptionsMenuLine();
+//    mov ah, 4
+//    mov si, 28Eh
+    drawOptionsMenuLine();
+    if (sndType == 3)
+    {
+    //    mov si, 578Bh
+    //    mov cx, 5
+    //    mov dx, 8
+        sub_4CE11();
+    //    mov ah, 6
+    //    mov si, 130h
+        drawOptionsMenuLine();
+    //    mov ah, 6
+    //    mov si, 161h
+        drawOptionsMenuLine();
         return;
-sub_4CAFC   endp
+    }
 
+//loc_4CBC6:              ; CODE XREF: sub_4CAFC+A9j
+    if (sndType == 4)
+    {
+    //    mov ah, 6
+    //    mov si, 1CAh
+        drawOptionsMenuLine();
+        if (musType != 3)
+        {
+    //        mov si, 68B1h
+    //        mov cx, 9
+    //        mov dx, 8
+            sub_4CE11();
+    //        mov ah, 6
+    //        mov si, 1A7h
+            drawOptionsMenuLine();
+            return;
+        }
 
-; =============== S U B R O U T I N E =======================================
+//loc_4CBF3:              ; CODE XREF: sub_4CAFC+DEj
+//        mov si, 8B01h
+//        mov cx, 8
+//        mov dx, 8
+        sub_4CE11();
+//        mov ah, 6
+//        mov si, 1F4h
+        drawOptionsMenuLine();
+//        mov ah, 6
+//        mov si, 28Eh
+        drawOptionsMenuLine();
+        return;
+    }
 
+//loc_4CC11:              ; CODE XREF: sub_4CAFC+CFj
+    if (sndType == 5)
+    {
+    //    mov si, 79DAh
+    //    mov cx, 7
+    //    mov dx, 8
+        sub_4CE11();
+    //    mov ah, 6
+    //    mov si, 1F4h
+        drawOptionsMenuLine();
+    //    mov ah, 6
+    //    mov si, 225h
+        drawOptionsMenuLine();
+        return;
+    }
 
-sub_4CC7C   proc near       ; CODE XREF: sub_4C741:loc_4C75Ap
-                    ; code:loc_4C774p
-        cmp isMusicEnabled, 1
-        jnz short loc_4CC99
-        mov si, 7CC3h
-        mov cx, 5
-        mov dx, 8
-        call    sub_4CE11
-        mov ah, 6
-        mov si, 3B4h
-        call    sub_4CF13
-        jmp short loc_4CCAD
+//loc_4CC36:              ; CODE XREF: sub_4CAFC+11Aj
+//    mov si, 5629h
+//    mov cx, 9
+//    mov dx, 8
+    sub_4CE11();
+//    mov ah, 6
+//    mov si, 2E2h
+    drawOptionsMenuLine();
+    if (sndType == 1)
+    {
+    //    mov si, 6380h
+    //    mov cx, 5
+    //    mov dx, 5
+        sub_4CE11();
+    //    mov ah, 6
+    //    mov si, 328h
+        drawOptionsMenuLine();
+        return;
+    }
+
+//loc_4CC67:              ; CODE XREF: sub_4CAFC+153j
+//    mov si, 6386h
+//    mov cx, 5
+//    mov dx, 5
+    sub_4CE11();
+//    mov ah, 6
+//    mov si, 36Eh
+    drawOptionsMenuLine();
+}
+
+void sub_4CC7C() //   proc near       ; CODE XREF: sub_4C741:loc_4C75Ap
+                   // ; code:loc_4C774p
+{
+    return;
+    /*
+    cmp isMusicEnabled, 1
+    jnz short loc_4CC99
+    mov si, 7CC3h
+    mov cx, 5
+    mov dx, 8
+    call    sub_4CE11
+    mov ah, 6
+    mov si, 3B4h
+    call    drawOptionsMenuLine
+    jmp short loc_4CCAD
 // ; ---------------------------------------------------------------------------
 
 loc_4CC99:              ; CODE XREF: sub_4CC7C+5j
-        mov si, 7CC3h
-        mov cx, 5
-        mov dx, 8
-        call    sub_4CE9C
-        mov ah, 4
-        mov si, 3B4h
-        call    sub_4CF13
+    mov si, 7CC3h
+    mov cx, 5
+    mov dx, 8
+    call    sub_4CE9C
+    mov ah, 4
+    mov si, 3B4h
+    call    drawOptionsMenuLine
 
 loc_4CCAD:              ; CODE XREF: sub_4CC7C+1Bj
-        cmp isFXEnabled, 1
-        jnz short loc_4CCCA
-        mov si, 8F59h
-        mov cx, 3
-        mov dx, 8
-        call    sub_4CE11
-        mov ah, 6
-        mov si, 3DEh
-        call    sub_4CF13
-        jmp short locret_4CCDE
+    cmp isFXEnabled, 1
+    jnz short loc_4CCCA
+    mov si, 8F59h
+    mov cx, 3
+    mov dx, 8
+    call    sub_4CE11
+    mov ah, 6
+    mov si, 3DEh
+    call    drawOptionsMenuLine
+    jmp short locret_4CCDE
 // ; ---------------------------------------------------------------------------
 
 loc_4CCCA:              ; CODE XREF: sub_4CC7C+36j
-        mov si, 8F59h
-        mov cx, 3
-        mov dx, 8
-        call    sub_4CE9C
-        mov ah, 4
-        mov si, 3DEh
-        call    sub_4CF13
+    mov si, 8F59h
+    mov cx, 3
+    mov dx, 8
+    call    sub_4CE9C
+    mov ah, 4
+    mov si, 3DEh
+    call    drawOptionsMenuLine
 
 locret_4CCDE:               ; CODE XREF: sub_4CC7C+4Cj
-        return;
-sub_4CC7C   endp
+    return;
+     */
+}
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4CCDF   proc near       ; CODE XREF: code:5B5Dp code:5B69p
-        cmp isJoystickEnabled, 0
-        jnz short loc_4CD10
-        mov si, 7714h
-        mov cx, 1
-        mov dx, 3Eh ; '>'
-        call    sub_4CE11
-        mov si, 7792h
-        mov cx, 1
-        mov dx, 3Ah ; ':'
-        call    sub_4CE9C
-        mov ah, 4
-        mov si, 478h
-        call    sub_4CF13
-        mov ah, 6
-        mov si, 4E1h
-        call    sub_4CF13
-        jmp short loc_4CD38
+void sub_4CCDF() //   proc near       ; CODE XREF: code:5B5Dp code:5B69p
+{
+    return;
+    /*
+    cmp isJoystickEnabled, 0
+    jnz short loc_4CD10
+    mov si, 7714h
+    mov cx, 1
+    mov dx, 3Eh ; '>'
+    call    sub_4CE11
+    mov si, 7792h
+    mov cx, 1
+    mov dx, 3Ah ; ':'
+    call    sub_4CE9C
+    mov ah, 4
+    mov si, 478h
+    call    drawOptionsMenuLine
+    mov ah, 6
+    mov si, 4E1h
+    call    drawOptionsMenuLine
+    jmp short loc_4CD38
 // ; ---------------------------------------------------------------------------
 
 loc_4CD10:              ; CODE XREF: sub_4CCDF+5j
-        mov si, 7714h
-        mov cx, 1
-        mov dx, 3Eh ; '>'
-        call    sub_4CE9C
-        mov si, 7792h
-        mov cx, 1
-        mov dx, 3Ah ; ':'
-        call    sub_4CE11
-        mov ah, 6
-        mov si, 478h
-        call    sub_4CF13
-        mov ah, 4
-        mov si, 4E1h
-        call    sub_4CF13
+    mov si, 7714h
+    mov cx, 1
+    mov dx, 3Eh ; '>'
+    call    sub_4CE9C
+    mov si, 7792h
+    mov cx, 1
+    mov dx, 3Ah ; ':'
+    call    sub_4CE11
+    mov ah, 6
+    mov si, 478h
+    call    drawOptionsMenuLine
+    mov ah, 4
+    mov si, 4E1h
+    call    drawOptionsMenuLine
 
 loc_4CD38:              ; CODE XREF: sub_4CCDF+2Fj
-        call    sub_4CD3C
-        return;
-sub_4CCDF   endp
+    call    sub_4CD3C
+    return;
+     */
+}
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4CD3C   proc near       ; CODE XREF: sub_4CCDF:loc_4CD38p
-        call    sub_48E59
-        call    sub_4A1BF
-        mov bl, byte_50941
-        cmp bl, byte_50919
-        jnz short loc_4CD4D
-        return;
+void sub_4CD3C() //   proc near       ; CODE XREF: sub_4CCDF:loc_4CD38p
+{
+    return;
+    /*
+    call    sub_48E59
+    call    sub_4A1BF
+    mov bl, byte_50941
+    cmp bl, byte_50919
+    jnz short loc_4CD4D
+    return;
 // ; ---------------------------------------------------------------------------
 
 loc_4CD4D:              ; CODE XREF: sub_4CD3C+Ej
-        mov byte_50919, bl
-        cmp byte_50941, 0
-        jnz short loc_4CD6A
-        mov ah, 6
-        mov si, 424h
-        call    sub_4CF13
-        mov ah, 4
-        mov si, 46Ah
-        call    sub_4CF13
-        jmp short loc_4CDAE
+    mov byte_50919, bl
+    cmp byte_50941, 0
+    jnz short loc_4CD6A
+    mov ah, 6
+    mov si, 424h
+    call    drawOptionsMenuLine
+    mov ah, 4
+    mov si, 46Ah
+    call    drawOptionsMenuLine
+    jmp short loc_4CDAE
 // ; ---------------------------------------------------------------------------
 
 loc_4CD6A:              ; CODE XREF: sub_4CD3C+1Aj
-        cmp byte_50941, 4
-        jbe short loc_4CD9E
-        mov ah, 6
-        mov si, 46Ah
-        call    sub_4CF13
-        cmp byte_50941, 9
-        jnz short loc_4CD8F
-        mov byte_50941, 0
-        mov ah, 6
-        mov si, 424h
-        call    sub_4CF13
-        jmp short loc_4CDAE
+    cmp byte_50941, 4
+    jbe short loc_4CD9E
+    mov ah, 6
+    mov si, 46Ah
+    call    drawOptionsMenuLine
+    cmp byte_50941, 9
+    jnz short loc_4CD8F
+    mov byte_50941, 0
+    mov ah, 6
+    mov si, 424h
+    call    drawOptionsMenuLine
+    jmp short loc_4CDAE
 // ; ---------------------------------------------------------------------------
 
 loc_4CD8F:              ; CODE XREF: sub_4CD3C+42j
-        sub byte_50941, 4
-        mov ah, 4
-        mov si, 424h
-        call    sub_4CF13
-        jmp short loc_4CDAE
+    sub byte_50941, 4
+    mov ah, 4
+    mov si, 424h
+    call    drawOptionsMenuLine
+    jmp short loc_4CDAE
 // ; ---------------------------------------------------------------------------
 
 loc_4CD9E:              ; CODE XREF: sub_4CD3C+33j
-        mov ah, 4
-        mov si, 424h
-        call    sub_4CF13
-        mov ah, 4
-        mov si, 46Ah
-        call    sub_4CF13
+    mov ah, 4
+    mov si, 424h
+    call    drawOptionsMenuLine
+    mov ah, 4
+    mov si, 46Ah
+    call    drawOptionsMenuLine
 
 loc_4CDAE:              ; CODE XREF: sub_4CD3C+2Cj
-                    ; sub_4CD3C+51j ...
-        mov ah, 4
-        mov si, 432h
-        call    sub_4CF13
-        mov ah, 4
-        mov si, 440h
-        call    sub_4CF13
-        mov ah, 4
-        mov si, 44Eh
-        call    sub_4CF13
-        mov ah, 4
-        mov si, 45Ch
-        call    sub_4CF13
-        cmp byte_50941, 1
-        jnz short loc_4CDDF
-        mov ah, 6
-        mov si, 432h
-        call    sub_4CF13
-        jmp short locret_4CE10
+                ; sub_4CD3C+51j ...
+    mov ah, 4
+    mov si, 432h
+    call    drawOptionsMenuLine
+    mov ah, 4
+    mov si, 440h
+    call    drawOptionsMenuLine
+    mov ah, 4
+    mov si, 44Eh
+    call    drawOptionsMenuLine
+    mov ah, 4
+    mov si, 45Ch
+    call    drawOptionsMenuLine
+    cmp byte_50941, 1
+    jnz short loc_4CDDF
+    mov ah, 6
+    mov si, 432h
+    call    drawOptionsMenuLine
+    jmp short locret_4CE10
 // ; ---------------------------------------------------------------------------
 
 loc_4CDDF:              ; CODE XREF: sub_4CD3C+97j
-        cmp byte_50941, 2
-        jnz short loc_4CDF0
-        mov ah, 6
-        mov si, 440h
-        call    sub_4CF13
-        jmp short locret_4CE10
+    cmp byte_50941, 2
+    jnz short loc_4CDF0
+    mov ah, 6
+    mov si, 440h
+    call    drawOptionsMenuLine
+    jmp short locret_4CE10
 // ; ---------------------------------------------------------------------------
 
 loc_4CDF0:              ; CODE XREF: sub_4CD3C+A8j
-        cmp byte_50941, 3
-        jnz short loc_4CE01
-        mov ah, 6
-        mov si, 44Eh
-        call    sub_4CF13
-        jmp short locret_4CE10
+    cmp byte_50941, 3
+    jnz short loc_4CE01
+    mov ah, 6
+    mov si, 44Eh
+    call    drawOptionsMenuLine
+    jmp short locret_4CE10
 // ; ---------------------------------------------------------------------------
 
 loc_4CE01:              ; CODE XREF: sub_4CD3C+B9j
-        cmp byte_50941, 4
-        jnz short locret_4CE10
-        mov ah, 6
-        mov si, 45Ch
-        call    sub_4CF13
+    cmp byte_50941, 4
+    jnz short locret_4CE10
+    mov ah, 6
+    mov si, 45Ch
+    call    drawOptionsMenuLine
 
 locret_4CE10:               ; CODE XREF: sub_4CD3C+A1j
-                    ; sub_4CD3C+B2j ...
-        return;
-sub_4CD3C   endp
+                ; sub_4CD3C+B2j ...
+    return;
+     */
+}
 
+void sub_4CE11() //   proc near       ; CODE XREF: sub_4CAFC+B4p
+                   // ; sub_4CAFC+E9p ...
+{
+    return;
+    /*
+    var_2       = word ptr -2
 
-; =============== S U B R O U T I N E =======================================
-
-; Attributes: bp-based frame
-
-sub_4CE11   proc near       ; CODE XREF: sub_4CAFC+B4p
-                    ; sub_4CAFC+E9p ...
-
-var_2       = word ptr -2
-
-        push    bp
-        mov bp, sp
-        add sp, 0FFFEh
-        push    si
-        push(cx);
-        push    dx
-        call    restoreLastMouseAreaBitmap
-        pop dx
-        pop(cx);
-        pop si
-        mov bx, dx
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 8
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 2
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; color compare.
-                    ; Data bits 0-3 select color for read mode 01
-        inc dx
-        al = 0Fh
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 7
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; color masking disable
-                    ; bits 0-3 disable planes from compare logic in read mode 01
-        inc dx
-        al = 0Fh
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 0
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; set/reset.
-                    ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        al = 1
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 1
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; enable set/reset
-        inc dx
-        al = 0Fh
-        out dx, al      ; EGA port: graphics controller data register
-        mov di, si
-        push    ds
-        mov ax, es
-        mov ds, ax
-        mov [bp+var_2], cx
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0;
+    push    bp
+    mov bp, sp
+    add sp, 0FFFEh
+    push    si
+    push(cx);
+    push    dx
+    call    restoreLastMouseAreaBitmap
+    pop dx
+    pop(cx);
+    pop si
+    mov bx, dx
+    mov dx, 3CEh
+    al = 5
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; mode register.Data bits:
+                ; 0-1: Write mode 0-2
+                ; 2: test condition
+                ; 3: read mode: 1=color compare, 0=direct
+                ; 4: 1=use odd/even RAM addressing
+                ; 5: 1=use CGA mid-res map (2-bits/pixel)
+    inc dx
+    al = 8
+    out dx, al      ; EGA port: graphics controller data register
+    mov dx, 3CEh
+    al = 2
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; color compare.
+                ; Data bits 0-3 select color for read mode 01
+    inc dx
+    al = 0Fh
+    out dx, al      ; EGA port: graphics controller data register
+    mov dx, 3CEh
+    al = 7
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; color masking disable
+                ; bits 0-3 disable planes from compare logic in read mode 01
+    inc dx
+    al = 0Fh
+    out dx, al      ; EGA port: graphics controller data register
+    mov dx, 3CEh
+    al = 0
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; set/reset.
+                ; Data bits 0-3 select planes for write mode 00
+    inc dx
+    al = 1
+    out dx, al      ; EGA port: graphics controller data register
+    mov dx, 3CEh
+    al = 1
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; enable set/reset
+    inc dx
+    al = 0Fh
+    out dx, al      ; EGA port: graphics controller data register
+    mov di, si
+    push    ds
+    mov ax, es
+    mov ds, ax
+    mov [bp+var_2], cx
+    // mov dx, 3CEh
+    // al = 8
+    // out dx, al      ; EGA: graph 1 and 2 addr reg:
+    //             ; bit mask
+    //             ; Bits 0-7 select bits to be masked in all planes
+    ports[0x3CE] = 8;
+    // inc dx
+    // al = 0
+    // out dx, al      ; EGA port: graphics controller data register
+    ports[0x3CF] = 0;
 
 loc_4CE68:              ; CODE XREF: sub_4CE11+5Aj
-                    ; sub_4CE11+6Aj
-        lodsb
-        out dx, al      ; EGA port: graphics controller data register
-        stosb
-        loop    loc_4CE68
-        mov cx, [bp+var_2]
-        add si, 7Ah ; 'z'
-        sub si, cx
-        add di, 7Ah ; 'z'
-        sub di, cx
-        dec bx
-        jnz short loc_4CE68
-        pop ds
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        inc dx
-        al = 0FFh
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 1
-        out dx, al      ; EGA port: graphics controller data register
-        call    saveLastMouseAreaBitmap
-        call    drawMouseCursor
-        mov sp, bp
-        pop bp
-        return;
-sub_4CE11   endp
+                ; sub_4CE11+6Aj
+    lodsb
+    out dx, al      ; EGA port: graphics controller data register
+    stosb
+    loop    loc_4CE68
+    mov cx, [bp+var_2]
+    add si, 7Ah ; 'z'
+    sub si, cx
+    add di, 7Ah ; 'z'
+    sub di, cx
+    dec bx
+    jnz short loc_4CE68
+    pop ds
+    // mov dx, 3CEh
+    // al = 8
+    // out dx, al      ; EGA: graph 1 and 2 addr reg:
+    //             ; bit mask
+    //             ; Bits 0-7 select bits to be masked in all planes
+    ports[0x3CE] = 8;
+    inc dx
+    al = 0FFh
+    out dx, al      ; EGA port: graphics controller data register
+    mov dx, 3CEh
+    al = 5
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; mode register.Data bits:
+                ; 0-1: Write mode 0-2
+                ; 2: test condition
+                ; 3: read mode: 1=color compare, 0=direct
+                ; 4: 1=use odd/even RAM addressing
+                ; 5: 1=use CGA mid-res map (2-bits/pixel)
+    inc dx
+    al = 1
+    out dx, al      ; EGA port: graphics controller data register
+    call    saveLastMouseAreaBitmap
+    call    drawMouseCursor
+    mov sp, bp
+    pop bp
+    return;
+     */
+ }
 
+void sub_4CE9C() //   proc near       ; CODE XREF: sub_4CAFC+9p
+                   // ; sub_4CAFC+25p ...
+{
+    return;
+    // Parameters:
+    // - si: ???
+    // - cx: ???
+    // - dx: ???
+    uint16_t var_2; //       = word ptr -2
 
-; =============== S U B R O U T I N E =======================================
+//    push    bp
+//    mov bp, sp
+//    add sp, 0FFFEh
+//    push    si
+//    push(cx);
+//    push    dx
+    restoreLastMouseAreaBitmap();
+//    pop dx
+//    pop(cx);
+//    pop si
+    bx = dx;
+    /*
+    mov dx, 3CEh
+    al = 5
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; mode register.Data bits:
+                ; 0-1: Write mode 0-2
+                ; 2: test condition
+                ; 3: read mode: 1=color compare, 0=direct
+                ; 4: 1=use odd/even RAM addressing
+                ; 5: 1=use CGA mid-res map (2-bits/pixel)
+    inc dx
+    al = 8
+    out dx, al      ; EGA port: graphics controller data register
+    mov dx, 3CEh
+    al = 2
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; color compare.
+                ; Data bits 0-3 select color for read mode 01
+    inc dx
+    al = 1
+    out dx, al      ; EGA port: graphics controller data register
+    mov dx, 3CEh
+    al = 7
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; color masking disable
+                ; bits 0-3 disable planes from compare logic in read mode 01
+    inc dx
+    al = 0Fh
+    out dx, al      ; EGA port: graphics controller data register
+    mov dx, 3CEh
+    al = 0
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; set/reset.
+                ; Data bits 0-3 select planes for write mode 00
+    inc dx
+    al = 0Fh
+    out dx, al      ; EGA port: graphics controller data register
+    mov dx, 3CEh
+    al = 1
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; enable set/reset
+    inc dx
+    al = 0Fh
+    out dx, al      ; EGA port: graphics controller data register
+     */
+//    mov di, si
+//    push    ds
+//    mov ax, es
+//    mov ds, ax
+    var_2 = cx;
+    /*
+    // mov dx, 3CEh
+    // al = 8
+    // out dx, al      ; EGA: graph 1 and 2 addr reg:
+    //             ; bit mask
+    //             ; Bits 0-7 select bits to be masked in all planes
+    ports[0x3CE] = 8;
+    // inc dx
+    // al = 0
+    // out dx, al      ; EGA port: graphics controller data register
+    ports[0x3CF] = 0;
+     */
 
-; Attributes: bp-based frame
+    do
+    {
+        for (int i = 0; i < var_2; ++i)
+        {
+//loc_4CEF3:              ; CODE XREF: sub_4CE9C+5Aj
+//                ; sub_4CE9C+6Aj
+//            al = *si; // lodsb
+            si++;
+    //        out dx, al      ; EGA port: graphics controller data register
+//            *di = al; //stosb
+            di++;
+        }
+        cx = var_2;
+        di += 122;
+        si -= cx;
+        di += 122;
+        di -= cx;
+        bx--;
+    }
+    while (bx != 0);
 
-sub_4CE9C   proc near       ; CODE XREF: sub_4CAFC+9p
-                    ; sub_4CAFC+25p ...
+//    pop ds
+    saveLastMouseAreaBitmap();
+    drawMouseCursor();
+}
 
-var_2       = word ptr -2
+void drawOptionsMenuLine() // sub_4CF13  proc near       ; CODE XREF: sub_4CAFC+11p
+                   // ; sub_4CAFC+19p ...
+{
+    return;
+    // Parameters:
+    // - ah: ????
+    // - si: ????
 
-        push    bp
-        mov bp, sp
-        add sp, 0FFFEh
-        push    si
-        push(cx);
-        push    dx
-        call    restoreLastMouseAreaBitmap
-        pop dx
-        pop(cx);
-        pop si
-        mov bx, dx
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 8
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 2
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; color compare.
-                    ; Data bits 0-3 select color for read mode 01
-        inc dx
-        al = 1
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 7
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; color masking disable
-                    ; bits 0-3 disable planes from compare logic in read mode 01
-        inc dx
-        al = 0Fh
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 0
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; set/reset.
-                    ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        al = 0Fh
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 1
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; enable set/reset
-        inc dx
-        al = 0Fh
-        out dx, al      ; EGA port: graphics controller data register
-        mov di, si
-        push    ds
-        mov ax, es
-        mov ds, ax
-        mov [bp+var_2], cx
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0;
+//    push    si
+//    push    ax
+    restoreLastMouseAreaBitmap();
+//    pop ax
+//    pop si
+    /*
+    mov dx, 3CEh
+    al = 5
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; mode register.Data bits:
+                ; 0-1: Write mode 0-2
+                ; 2: test condition
+                ; 3: read mode: 1=color compare, 0=direct
+                ; 4: 1=use odd/even RAM addressing
+                ; 5: 1=use CGA mid-res map (2-bits/pixel)
+    // inc dx
+    // al = 0
+    // out dx, al      ; EGA port: graphics controller data register
+    ports[0x3CF] = 0;
+    mov dx, 3CEh
+    al = 0
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; set/reset.
+                ; Data bits 0-3 select planes for write mode 00
+    // inc dx
+    // al = ah
+    // out dx, al      ; EGA port: graphics controller data register
+    ports[0x3CF] = ah;
+    mov dx, 3CEh
+    al = 1
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; enable set/reset
+    inc dx
+    al = 0Fh
+    out dx, al      ; EGA port: graphics controller data register
+*/
 
-loc_4CEF3:              ; CODE XREF: sub_4CE9C+5Aj
-                    ; sub_4CE9C+6Aj
-        lodsb
-        out dx, al      ; EGA port: graphics controller data register
-        stosb
-        loop    loc_4CEF3
-        mov cx, [bp+var_2]
-        add si, 7Ah ; 'z'
-        sub si, cx
-        add di, 7Ah ; 'z'
-        sub di, cx
-        dec bx
-        jnz short loc_4CEF3
-        pop ds
-        call    saveLastMouseAreaBitmap
-        call    drawMouseCursor
-        mov sp, bp
-        pop bp
-        return;
-sub_4CE9C   endp
+//loc_4CF38:              ; CODE XREF: drawOptionsMenuLine+96j
+    /*
+    bl = *si;
+    if (bl == 0xFF)
+    {
+        //jz  short loc_4CFAB
+    }
+    di = 0x4D84;
+    ax = si[3];
+    cx = 122;
+    ax = ax * cx;
+    di += ax;
+    dx = si[1];
+    cx = dx;
+    dx = dx / 8;
+    di += dx;
+    cl = cl & 7;
+    ah = 0x80; // 128
+    ah = ah >> cl;
+    cx = si[5];
+     */
+    /*
+    // mov dx, 3CEh
+    // al = 8
+    // out dx, al      ; EGA: graph 1 and 2 addr reg:
+    //             ; bit mask
+    //             ; Bits 0-7 select bits to be masked in all planes
+    ports[0x3CE] = 8;
+    // inc dx
+    // al = ah
+    // out dx, al      ; EGA port: graphics controller data register
+    ports[0x3CF] = ah;
+     */
+    al = ah;
+/*
+//loc_4CF6F:              ; CODE XREF: drawOptionsMenuLine:loc_4CFA4j
+    out dx, al      ; EGA port: graphics controller data register
+    xor es:[di], al
+    or  bl, bl
+    jnz short loc_4CF7E
+    ror al, 1
+    jnb short loc_4CF7C
+    inc di
 
+//loc_4CF7C:              ; CODE XREF: drawOptionsMenuLine+66j
+    jmp short loc_4CFA4
 
-; =============== S U B R O U T I N E =======================================
+//loc_4CF7E:              ; CODE XREF: drawOptionsMenuLine+62j
+    cmp bl, 1
+    jnz short loc_4CF88
+    sub di, 7Ah ; 'z'
+    jmp short loc_4CFA4
 
+//loc_4CF88:              ; CODE XREF: drawOptionsMenuLine+6Ej
+    cmp bl, 2
+    jnz short loc_4CF97
+    sub di, 7Ah ; 'z'
+    ror al, 1
+    jnb short loc_4CF95
+    inc di
 
-sub_4CF13   proc near       ; CODE XREF: sub_4CAFC+11p
-                    ; sub_4CAFC+19p ...
-        push    si
-        push    ax
-        call    restoreLastMouseAreaBitmap
-        pop ax
-        pop si
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0;
-        mov dx, 3CEh
-        al = 0
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; set/reset.
-                    ; Data bits 0-3 select planes for write mode 00
-        // inc dx
-        // al = ah
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = ah;
-        mov dx, 3CEh
-        al = 1
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; enable set/reset
-        inc dx
-        al = 0Fh
-        out dx, al      ; EGA port: graphics controller data register
+//loc_4CF95:              ; CODE XREF: drawOptionsMenuLine+7Fj
+    jmp short loc_4CFA4
 
-loc_4CF38:              ; CODE XREF: sub_4CF13+96j
-        mov bl, [si]
-        cmp bl, 0FFh
-        jz  short loc_4CFAB
-        mov di, 4D84h
-        mov ax, [si+3]
-        mov cx, 7Ah ; 'z'
-        mul cx
-        add di, ax
-        mov dx, [si+1]
-        mov cx, dx
-        shr dx, 1
-        shr dx, 1
-        shr dx, 1
-        add di, dx
-        and cl, 7
-        mov ah, 80h ; '?'
-        shr ah, cl
-        mov cx, [si+5]
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        // inc dx
-        // al = ah
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = ah;
-        al = ah
+//loc_4CF97:              ; CODE XREF: drawOptionsMenuLine+78j
+    cmp bl, 3
+    jnz short loc_4CFA4
+    add di, 7Ah ; 'z'
+    ror al, 1
+    jnb short loc_4CFA4
+    inc di
 
-loc_4CF6F:              ; CODE XREF: sub_4CF13:loc_4CFA4j
-        out dx, al      ; EGA port: graphics controller data register
-        xor es:[di], al
-        or  bl, bl
-        jnz short loc_4CF7E
-        ror al, 1
-        jnb short loc_4CF7C
-        inc di
+//loc_4CFA4:              ; CODE XREF: drawOptionsMenuLine:loc_4CF7Cj
+//                ; drawOptionsMenuLine+73j ...
+    loop    loc_4CF6F
+    add si, 7
+    jmp short loc_4CF38
+*/
+//loc_4CFAB:              ; CODE XREF: drawOptionsMenuLine+2Aj
+    saveLastMouseAreaBitmap();
+    drawMouseCursor();
+}
 
-loc_4CF7C:              ; CODE XREF: sub_4CF13+66j
-        jmp short loc_4CFA4
-// ; ---------------------------------------------------------------------------
-
-loc_4CF7E:              ; CODE XREF: sub_4CF13+62j
-        cmp bl, 1
-        jnz short loc_4CF88
-        sub di, 7Ah ; 'z'
-        jmp short loc_4CFA4
-// ; ---------------------------------------------------------------------------
-
-loc_4CF88:              ; CODE XREF: sub_4CF13+6Ej
-        cmp bl, 2
-        jnz short loc_4CF97
-        sub di, 7Ah ; 'z'
-        ror al, 1
-        jnb short loc_4CF95
-        inc di
-
-loc_4CF95:              ; CODE XREF: sub_4CF13+7Fj
-        jmp short loc_4CFA4
-// ; ---------------------------------------------------------------------------
-
-loc_4CF97:              ; CODE XREF: sub_4CF13+78j
-        cmp bl, 3
-        jnz short loc_4CFA4
-        add di, 7Ah ; 'z'
-        ror al, 1
-        jnb short loc_4CFA4
-        inc di
-
-loc_4CFA4:              ; CODE XREF: sub_4CF13:loc_4CF7Cj
-                    ; sub_4CF13+73j ...
-        loop    loc_4CF6F
-        add si, 7
-        jmp short loc_4CF38
-// ; ---------------------------------------------------------------------------
-
-loc_4CFAB:              ; CODE XREF: sub_4CF13+2Aj
-        call    saveLastMouseAreaBitmap
-        call    drawMouseCursor
-        return;
-sub_4CF13   endp
-
- */
 void savePlayerListData() //   proc near       ; CODE XREF: handleNewPlayerOptionClick+1D5p
 //                    ; handleDeletePlayerOptionClick+CEp ...
 {
