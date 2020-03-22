@@ -97,6 +97,8 @@ uint8_t byte_519C0 = 0;
 uint8_t byte_519C1 = 0;
 uint8_t byte_519D4 = 0;
 uint8_t byte_519D5 = 0;
+uint8_t byte_59889 = 0;
+uint8_t byte_5988B = 0;
 uint8_t byte_59B94 = 0;
 uint8_t byte_59B96 = 0;
 uint8_t byte_5091A = 0;
@@ -450,64 +452,75 @@ static const ButtonDescriptor kMainMenuButtonDescriptors[kNumberOfMainMenuButton
 };
 
 void handleOptionsExitAreaClick(void);
+void handleOptionsMusicClick(void);
+void handleOptionsAdlibClick(void);
+void handleOptionsSoundBlasterClick(void);
+void handleOptionsRolandClick(void);
+void handleOptionsCombinedClick(void);
+void handleOptionsStandardClick(void);
+void handleOptionsSamplesClick(void);
+void handleOptionsInternalClick(void);
+void handleOptionsFXClick(void);
+void handleOptionsKeyboardClick(void);
+void handleOptionsJoystickClick(void);
 
-static const uint8_t kNumberOfOptionsMenuButtons = 2;
+static const uint8_t kNumberOfOptionsMenuButtons = 13;
 static const ButtonDescriptor kOptionsMenuButtonDescriptors[kNumberOfOptionsMenuButtons] = { // located in DS:00AC
-    /*{
+    {
         12, 13,
         107, 36,
-        sub_4C723, // Adlib
+        handleOptionsAdlibClick, // Adlib
     },
     {
         12, 49,
         107, 72,
-        sub_4C719, // Sound Blaster
+        handleOptionsSoundBlasterClick, // Sound Blaster
     },
     {
         12, 85,
         107, 108,
-        sub_4C72D, // Roland
+        handleOptionsRolandClick, // Roland
     },
     {
         12, 121,
         107, 144,
-        sub_4C737, // Combined
+        handleOptionsCombinedClick, // Combined
     },
     {
         132, 13,
         211, 31,
-        loc_4C6FB, // Internal
+        handleOptionsInternalClick, // Internal
     },
     {
         126, 43,
         169, 54,
-        sub_4C705, // Standard
+        handleOptionsStandardClick, // Standard
     },
     {
         174, 43,
         217, 54,
-        sub_4C70F, // Samples
+        handleOptionsSamplesClick, // Samples
     },
     {
         132, 86,
         175, 120,
-        sub_4C741, // Music
+        handleOptionsMusicClick, // Music
     },
     {
         134, 132,
         168, 152,
-        loc_4C75E, // FX
+        handleOptionsFXClick, // FX
     },
     {
         201, 80,
         221, 154,
-        loc_4C778, // Keyboard
+        handleOptionsKeyboardClick, // Keyboard
     },
     {
         233, 80,
         252, 154,
-        loc_4C781, // Joystick
-    },*/
+        handleOptionsJoystickClick, // Joystick
+    },
     {
         0, 181,
         319, 199,
@@ -721,7 +734,10 @@ void enableFloppy(void);
 void prepareSomeKindOfLevelIdentifier(void);
 void runMainMenu(void);
 void convertNumberTo3DigitPaddedString(uint8_t number, char numberString[3], char useSpacesForPadding);
+void sound1(void);
 void sound2(void);
+void sound3(void);
+void sound4(void);
 void savePlayerListData(void);
 void saveHallOfFameData(void);
 void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonStatus);
@@ -1416,7 +1432,7 @@ loc_46F3E:              //; CODE XREF: start+428j start+444j
         {
             goto loc_46F77;
         }
-        sound?3();
+        sound3();
 
 loc_46F77:              //; CODE XREF: start+352j
         byte_5A33F = 1;
@@ -2119,7 +2135,7 @@ loc_473AA:              ; CODE XREF: int8handler+11j
                 ; int8handler+1Dj ...
     cmp soundEnabled, 0
     jz  short loc_473B4
-    call    sound?11
+    call    sound11
 
 loc_473B4:              ; CODE XREF: int8handler+4Fj
     cmp byte_5988B, 0
@@ -3992,7 +4008,7 @@ loc_4811B:              ; CODE XREF: movefun+186j
 // ; ---------------------------------------------------------------------------
 
 loc_48125:              ; CODE XREF: movefun+190j
-        call    sound?7
+        call    sound7
         cmp word ptr [si+18ACh], 1
         jz  short loc_4813E
         cmp word ptr [si+18ACh], 4
@@ -4608,7 +4624,7 @@ loc_48569:              ; CODE XREF: movefun2+15Cj
 // ; ---------------------------------------------------------------------------
 
 loc_48573:              ; CODE XREF: movefun2+166j
-        call    sound?7
+        call    sound7
         cmp word ptr [si+18ACh], 1
         jz  short loc_4858C
         cmp word ptr [si+18ACh], 4
@@ -5352,7 +5368,7 @@ notFunctionKey:             ; CODE XREF: runLevel+31j
         call    sub_48A20
         cmp isMusicEnabled, 0
         jnz short loc_48AFF
-        call    sound?3
+        call    sound3
 
 loc_48AFF:              ; CODE XREF: runLevel+3Fj
         mov byte_5A19C, 0
@@ -5709,7 +5725,7 @@ noFlashing4:              ; CODE XREF: runLevel+2D1j
 isFastMode2:              ; CODE XREF: runLevel+2E8j
         cmp word_51A07, 1
         jbe short loc_48DB2
-        call    sound?9
+        call    sound9
 
 loc_48DB2:              ; CODE XREF: runLevel+2F2j
         mov cx, word_51A07
@@ -8373,7 +8389,7 @@ loc_4A071:              ; CODE XREF: movefun7+31j
 
 loc_4A0AB:              ; CODE XREF: movefun7+39j
                     ; movefun7+40j ...
-        call    sound?8
+        call    sound8
 
 loc_4A0AE:              ; CODE XREF: movefun7+6Cj
         xor bh, bh
@@ -9679,7 +9695,7 @@ loc_4A901:              ; CODE XREF: sub_4A61F+2ABj
 loc_4A90B:              ; CODE XREF: sub_4A61F:loc_4A8F5j
                     ; sub_4A61F+2E0j ...
         pop(cx);
-        call    sound?4
+        call    sound4
         return;
 sub_4A61F   endp
 
@@ -12121,117 +12137,103 @@ void drawFullScreenBitmap(uint8_t *bitmapData, uint8_t *dest)
     }
 }
 
-/*
-sub_4C705   proc near       ; CODE XREF: code:5ADBp
-        call    loadBeep
-        call    sound?4
-        call    sub_4CAFC
-        return;
-sub_4C705   endp
+void handleOptionsStandardClick() // sub_4C705  proc near       ; CODE XREF: code:5ADBp
+{
+    loadBeep();
+    sound4();
+    sub_4CAFC();
+}
 
+void handleOptionsInternalClick() // loc_4C6FB
+{
+    handleOptionsStandardClick();
+    sound4();
+    sub_4CAFC();
+}
 
-; =============== S U B R O U T I N E =======================================
+void handleOptionsSamplesClick() // sub_4C70F  proc near
+{
+    loadBeep2();
+    sound4();
+    sub_4CAFC();
+}
 
+void handleOptionsSoundBlasterClick() // sub_4C719  proc near
+{
+    loadBlaster();
+    sound4();
+    sub_4CAFC();
+}
 
-sub_4C70F   proc near
-        call    loadBeep2
-        call    sound?4
-        call    sub_4CAFC
-        return;
-sub_4C70F   endp
+void handleOptionsAdlibClick() // sub_4C723  proc near
+{
+    loadAdlib();
+    sound4();
+    sub_4CAFC();
+}
 
+void handleOptionsRolandClick() // sub_4C72D  proc near
+{
+    loadRoland();
+    sound4();
+    sub_4CAFC();
+}
 
-; =============== S U B R O U T I N E =======================================
+void handleOptionsCombinedClick() // sub_4C737  proc near
+{
+    loadCombined();
+    sound4();
+    sub_4CAFC();
+}
 
+void handleOptionsMusicClick() // sub_4C741   proc near
+{
+    if (isMusicEnabled == 1)
+    {
+        sound3();
+        isMusicEnabled = 0;
+    }
+    else
+    {
+//loc_4C752:              ; CODE XREF: handleOptionsAdlibClick+5j
+        isMusicEnabled = 1;
+        sound2();
+    }
 
-sub_4C719   proc near
-        call    loadBlaster
-        call    sound?4
-        call    sub_4CAFC
-        return;
-sub_4C719   endp
+//loc_4C75A:              ; CODE XREF: handleOptionsAdlibClick+Fj
+    sub_4CC7C();
+    return;
+}
 
+void handleOptionsFXClick() // loc_4C75E
+{
+    if (isFXEnabled == 1)
+    {
+        isFXEnabled = 0;
+    }
+    else
+    {
+//loc_4C76C:              ; CODE XREF: code:5B43j
+        isFXEnabled = 1;
+        sound4();
+    }
 
-; =============== S U B R O U T I N E =======================================
+//loc_4C774:              ; CODE XREF: code:5B4Aj
+    sub_4CC7C();
+}
 
+void handleOptionsKeyboardClick() // loc_4C778
+{
+    isJoystickEnabled = 0;
+    sub_4CCDF();
+}
 
-sub_4C723   proc near
-        call    loadAdlib
-        call    sound?4
-        call    sub_4CAFC
-        return;
-sub_4C723   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4C72D   proc near
-        call    loadRoland
-        call    sound?4
-        call    sub_4CAFC
-        return;
-sub_4C72D   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4C737   proc near
-        call    loadCombined
-        call    sound?4
-        call    sub_4CAFC
-        return;
-sub_4C737   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4C741   proc near
-        cmp isMusicEnabled, 1
-        jnz short loc_4C752
-        call    sound?3
-        mov isMusicEnabled, 0
-        jmp short loc_4C75A
-// ; ---------------------------------------------------------------------------
-
-loc_4C752:              ; CODE XREF: sub_4C741+5j
-        mov isMusicEnabled, 1
-        call    sound2
-
-loc_4C75A:              ; CODE XREF: sub_4C741+Fj
-        call    sub_4CC7C
-        return;
-sub_4C741   endp
-
-// ; ---------------------------------------------------------------------------
-loc_4C75E:
-        cmp isFXEnabled, 1
-        jnz short loc_4C76C
-        mov isFXEnabled, 0
-        jmp short loc_4C774
-// ; ---------------------------------------------------------------------------
-
-loc_4C76C:              ; CODE XREF: code:5B43j
-        mov isFXEnabled, 1
-        call    sound?4
-
-loc_4C774:              ; CODE XREF: code:5B4Aj
-        call    sub_4CC7C
-        return;
-// ; ---------------------------------------------------------------------------
-loc_4C778:
-        mov isJoystickEnabled, 0
-        call    sub_4CCDF
-        return;
-// ; ---------------------------------------------------------------------------
-loc_4C781:
-        mov isJoystickEnabled, 1
-        call    sub_4921B
-        call    sub_4CCDF
-        return;
-*/
+void handleOptionsJoystickClick() // loc_4C781
+{
+    isJoystickEnabled = 1;
+    sub_4921B();
+    sub_4CCDF();
+}
 
 void handleOptionsExitAreaClick() // loc_4C78D
 {
@@ -12577,7 +12579,7 @@ void showControls() //:                              ; DATA XREF: data:0044o
     setPalette(gPalettes[1]);
 }
 
-void sub_4CAFC() //   proc near       ; CODE XREF: code:5AE1p sub_4C705+6p ...
+void sub_4CAFC() //   proc near       ; CODE XREF: code:5AE1p handleOptionsStandardClick+6p ...
 {
 //    si = 0x578B;
 //    cx = 5;
@@ -12730,7 +12732,7 @@ void sub_4CAFC() //   proc near       ; CODE XREF: code:5AE1p sub_4C705+6p ...
     drawOptionsMenuLine();
 }
 
-void sub_4CC7C() //   proc near       ; CODE XREF: sub_4C741:loc_4C75Ap
+void sub_4CC7C() //   proc near       ; CODE XREF: handleOptionsAdlibClick:loc_4C75Ap
                    // ; code:loc_4C774p
 {
     return;
@@ -14946,12 +14948,12 @@ void initializeSound() //   proc near       ; CODE XREF: start+2A5p
 soundShutdown?  proc near       ; CODE XREF: start+48Ep
                     ; loadScreen2-7DAp
         mov soundEnabled, 0
-        call    sound?1
+        call    sound1
         return;
 soundShutdown?  endp
 
 // ; ---------------------------------------------------------------------------
-        call    sound?1
+        call    sound1
         mov musType, 0
         mov sndType, 0
         mov soundEnabled, 0
@@ -14964,7 +14966,7 @@ void loadBeep() //    proc near       ; CODE XREF: readConfig:loc_4751Ap
 //                    ; readConfig:loc_47551p ...
 {
     /*
-        call    sound?1
+        call    sound1
         mov dx, offset aBeep_snd ; "BEEP.SND"
         mov cx, 0AC4h
         call    readSound
@@ -14980,10 +14982,10 @@ void loadBeep() //    proc near       ; CODE XREF: readConfig:loc_4751Ap
      */
 }
 
-void loadBeep2() //   proc near       ; CODE XREF: readConfig+4Cp sub_4C70Fp
+void loadBeep2() //   proc near       ; CODE XREF: readConfig+4Cp handleOptionsSamplesClickp
 {
     /*
-        call    sound?1
+        call    sound1
         mov dx, offset aBeep_snd ; "BEEP.SND"
         mov cx, 0AC4h
         call    readSound
@@ -15002,10 +15004,10 @@ void loadBeep2() //   proc near       ; CODE XREF: readConfig+4Cp sub_4C70Fp
      */
 }
 
-void loadAdlib() //   proc near       ; CODE XREF: readConfig+56p sub_4C723p
+void loadAdlib() //   proc near       ; CODE XREF: readConfig+56p handleOptionsAdlibClickp
 {
     /*
-        call    sound?1
+        call    sound1
         mov dx, offset aAdlib_snd ; "ADLIB.SND"
         mov cx, 14EAh
         call    readSound
@@ -15021,10 +15023,10 @@ void loadAdlib() //   proc near       ; CODE XREF: readConfig+56p sub_4C723p
      */
 }
 
-void loadBlaster() //  proc near       ; CODE XREF: readConfig+60p sub_4C719p
+void loadBlaster() //  proc near       ; CODE XREF: readConfig+60p handleOptionsSoundBlasterClickp
 {
     /*
-        call    sound?1
+        call    sound1
         mov dx, offset aAdlib_snd ; "ADLIB.SND"
         mov cx, 14EAh
         call    readSound
@@ -15043,10 +15045,10 @@ void loadBlaster() //  proc near       ; CODE XREF: readConfig+60p sub_4C719p
      */
 }
 
-void loadRoland() //  proc near       ; CODE XREF: readConfig+6Ap sub_4C72Dp
+void loadRoland() //  proc near       ; CODE XREF: readConfig+6Ap handleOptionsRolandClickp
 {
     /*
-        call    sound?1
+        call    sound1
         mov dx, offset aRoland_snd ; "ROLAND.SND"
         mov cx, 0F80h
         call    readSound
@@ -15062,10 +15064,10 @@ void loadRoland() //  proc near       ; CODE XREF: readConfig+6Ap sub_4C72Dp
      */
 }
 
-void loadCombined() // proc near       ; CODE XREF: readConfig+74p sub_4C737p
+void loadCombined() // proc near       ; CODE XREF: readConfig+74p handleOptionsCombinedClickp
 {
     /*
-        call    sound?1
+        call    sound1
         mov dx, offset aRoland_snd ; "ROLAND.SND"
         mov cx, 0F80h
         call    readSound
@@ -15175,75 +15177,66 @@ locret_4DAB0:               ; CODE XREF: readSound2+2Fj
         return;
 readSound2  endp
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-sound?1     proc near       ; CODE XREF: soundShutdown?+5p
-                    ; code:6CC7p ...
-        mov soundEnabled, 0
-        cmp musType, 1
-        jnz short loc_4DAC9
-        mov ah, 2
-        int 80h     ; LINUX -
-        in  al, 61h     ; PC/XT PPI port B bits:
-                    ; 0: Tmr 2 gate ??? OR 03H=spkr ON
-                    ; 1: Tmr 2 data ?  AND  0fcH=spkr OFF
-                    ; 3: 1=read high switches
-                    ; 4: 0=enable RAM parity checking
-                    ; 5: 0=enable I/O channel check
-                    ; 6: 0=hold keyboard clock low
-                    ; 7: 0=enable kbrd
-        and al, 0FCh
-        out 61h, al     ; PC/XT PPI port B bits:
-                    ; 0: Tmr 2 gate ??? OR 03H=spkr ON
-                    ; 1: Tmr 2 data ?  AND  0fcH=spkr OFF
-                    ; 3: 1=read high switches
-                    ; 4: 0=enable RAM parity checking
-                    ; 5: 0=enable I/O channel check
-                    ; 6: 0=hold keyboard clock low
-                    ; 7: 0=enable kbrd
-        jmp short loc_4DAE8
-// ; ---------------------------------------------------------------------------
-
-loc_4DAC9:              ; CODE XREF: sound?1+Aj
-        cmp musType, 3
-        jnz short loc_4DAD9
-        mov dx, 388h
-        mov ah, 2
-        int 80h     ; LINUX -
-        jmp short loc_4DAE8
-// ; ---------------------------------------------------------------------------
-
-loc_4DAD9:              ; CODE XREF: sound?1+1Dj
-        cmp musType, 5
-        jnz short loc_4DAE8
-        mov ah, 2
-        int 80h     ; LINUX -
-        mov ah, 10h
-        int 80h     ; LINUX -
-
-loc_4DAE8:              ; CODE XREF: sound?1+16j sound?1+26j ...
-        mov musType, 0
-        cmp sndType, 2
-        jnz short loc_4DAFA
-        mov ah, 1
-        int 81h
-        jmp short loc_4DB05
-// ; ---------------------------------------------------------------------------
-
-loc_4DAFA:              ; CODE XREF: sound?1+41j
-        cmp sndType, 4
-        jnz short loc_4DB05
-        mov ah, 2
-        int 81h
-
-loc_4DB05:              ; CODE XREF: sound?1+47j sound?1+4Ej
-        mov sndType, 0
-        return;
-sound?1     endp
-
 */
+void sound1() //     proc near       ; CODE XREF: soundShutdown?+5p
+                 //   ; code:6CC7p ...
+{
+    soundEnabled = 0;
+    if (musType == 1)
+    {
+//        mov ah, 2
+//        int 80h     ; LINUX -
+//        in  al, 61h     ; PC/XT PPI port B bits:
+//                    ; 0: Tmr 2 gate ??? OR 03H=spkr ON
+//                    ; 1: Tmr 2 data ?  AND  0fcH=spkr OFF
+//                    ; 3: 1=read high switches
+//                    ; 4: 0=enable RAM parity checking
+//                    ; 5: 0=enable I/O channel check
+//                    ; 6: 0=hold keyboard clock low
+//                    ; 7: 0=enable kbrd
+//        and al, 0FCh
+//        out 61h, al     ; PC/XT PPI port B bits:
+//                    ; 0: Tmr 2 gate ??? OR 03H=spkr ON
+//                    ; 1: Tmr 2 data ?  AND  0fcH=spkr OFF
+//                    ; 3: 1=read high switches
+//                    ; 4: 0=enable RAM parity checking
+//                    ; 5: 0=enable I/O channel check
+//                    ; 6: 0=hold keyboard clock low
+//                    ; 7: 0=enable kbrd
+    }
+//loc_4DAC9:              ; CODE XREF: sound1+Aj
+    else if (musType == 3)
+    {
+//        mov dx, 388h
+//        mov ah, 2
+//        int 80h     ; LINUX -
+    }
+//loc_4DAD9:              ; CODE XREF: sound1+1Dj
+    else if (musType == 5)
+    {
+//    mov ah, 2
+//    int 80h     ; LINUX -
+//    mov ah, 10h
+//    int 80h     ; LINUX -
+    }
+
+//loc_4DAE8:              ; CODE XREF: sound1+16j sound1+26j ...
+    musType = 0;
+    if (sndType == 2)
+    {
+//        mov ah, 1
+//        int 81h
+    }
+//loc_4DAFA:              ; CODE XREF: sound1+41j
+    else if (sndType == 4)
+    {
+//        mov ah, 2
+//        int 81h
+    }
+
+//loc_4DB05:              ; CODE XREF: sound1+47j sound1+4Ej
+    sndType = 0;
+}
 
 void sound2() //     proc near       ; CODE XREF: start+39Bp start+410p ...
 {
@@ -15280,116 +15273,109 @@ void sound2() //     proc near       ; CODE XREF: start+39Bp start+410p ...
     }
 }
 
+void sound3() //     proc near       ; CODE XREF: start+354p runLevel+41p ...
+{
+    if (musType == 1)
+    {
+    //    mov ah, 2
+    //    int 80h     ; LINUX -
+        return;
+    }
+
+//loc_4DB5B:              ; CODE XREF: sound3+5j
+    if (musType == 3)
+    {
+    //    mov dx, 388h
+    //    mov ah, 2
+    //    int 80h     ; LINUX -
+        return;
+    }
+
+//loc_4DB6B:              ; CODE XREF: sound3+12j
+    if (musType == 3)
+    {
+//        mov ah, 2
+//        int 80h     ; LINUX -
+    }
+
+//locret_4DB76:               ; CODE XREF: sound3+Bj sound3+1Bj ...
+}
+
+void sound4() //     proc near       ; CODE XREF: sub_4A61F+2EDp code:5ADEp ...
+{
+    if (isFXEnabled != 1)
+    {
+        return;
+    }
+
+//loc_4DB7F:              ; CODE XREF: sound4+5j
+    if (byte_59889 >= 5)
+    {
+        return;
+    }
+
+//loc_4DB87:              ; CODE XREF: sound4+Dj
+    byte_5988B = 0xF;
+    byte_59889 = 5;
+    if (sndType == 1)
+    {
+//        mov ax, 400h
+//        int 80h     ; LINUX -
+        return;
+    }
+
+//loc_4DB9F:              ; CODE XREF: sound4+1Fj
+    if (sndType == 2)
+    {
+//        mov dx, 5D38h
+//        mov ah, 3
+//        int 81h
+//        mov ax, 0
+//        int 81h
+        return;
+    }
+
+//loc_4DBB4:              ; CODE XREF: sound4+2Dj
+    if (sndType == 3)
+    {
+//        mov ax, 400h
+//        mov dx, 388h
+//        int 80h     ; LINUX -
+        return;
+    }
+
+//loc_4DBC5:              ; CODE XREF: sound4+42j
+    if (sndType == 4)
+    {
+//        mov ax, 0
+//        int 81h
+        return;
+    }
+
+//loc_4DBD3:              ; CODE XREF: sound4+53j
+    if (sndType == 5)
+    {
+//        mov ax, 400h
+//        int 80h     ; LINUX -
+        return;
+    }
+}
+
 /*
-sound?3     proc near       ; CODE XREF: start+354p runLevel+41p ...
-        cmp musType, 1
-        jnz short loc_4DB5B
-        mov ah, 2
-        int 80h     ; LINUX -
-        jmp short locret_4DB76
-// ; ---------------------------------------------------------------------------
-
-loc_4DB5B:              ; CODE XREF: sound?3+5j
-        cmp musType, 3
-        jnz short loc_4DB6B
-        mov dx, 388h
-        mov ah, 2
-        int 80h     ; LINUX -
-        jmp short locret_4DB76
-// ; ---------------------------------------------------------------------------
-
-loc_4DB6B:              ; CODE XREF: sound?3+12j
-        cmp musType, 5
-        jnz short locret_4DB76
-        mov ah, 2
-        int 80h     ; LINUX -
-
-locret_4DB76:               ; CODE XREF: sound?3+Bj sound?3+1Bj ...
-        return;
-sound?3     endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-sound?4     proc near       ; CODE XREF: sub_4A61F+2EDp code:5ADEp ...
-        cmp isFXEnabled, 1
-        jz  short loc_4DB7F
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_4DB7F:              ; CODE XREF: sound?4+5j
-        cmp byte_59889, 5
-        jl  short loc_4DB87
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_4DB87:              ; CODE XREF: sound?4+Dj
-        mov byte_5988B, 0Fh
-        mov byte_59889, 5
-        cmp sndType, 1
-        jnz short loc_4DB9F
-        mov ax, 400h
-        int 80h     ; LINUX -
-        jmp short locret_4DBDF
-// ; ---------------------------------------------------------------------------
-
-loc_4DB9F:              ; CODE XREF: sound?4+1Fj
-        cmp sndType, 2
-        jnz short loc_4DBB4
-        mov dx, 5D38h
-        mov ah, 3
-        int 81h
-        mov ax, 0
-        int 81h
-        jmp short locret_4DBDF
-// ; ---------------------------------------------------------------------------
-
-loc_4DBB4:              ; CODE XREF: sound?4+2Dj
-        cmp sndType, 3
-        jnz short loc_4DBC5
-        mov ax, 400h
-        mov dx, 388h
-        int 80h     ; LINUX -
-        jmp short locret_4DBDF
-// ; ---------------------------------------------------------------------------
-
-loc_4DBC5:              ; CODE XREF: sound?4+42j
-        cmp sndType, 4
-        jnz short loc_4DBD3
-        mov ax, 0
-        int 81h
-        jmp short locret_4DBDF
-// ; ---------------------------------------------------------------------------
-
-loc_4DBD3:              ; CODE XREF: sound?4+53j
-        cmp sndType, 5
-        jnz short locret_4DBDF
-        mov ax, 400h
-        int 80h     ; LINUX -
-
-locret_4DBDF:               ; CODE XREF: sound?4+26j sound?4+3Bj ...
-        return;
-sound?4     endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-sound?5     proc near       ; CODE XREF: update?:loc_4E55Cp
+sound5     proc near       ; CODE XREF: update?:loc_4E55Cp
                     ; update?:loc_4E588p ...
         cmp isFXEnabled, 1
         jz  short loc_4DBE8
         return;
 // ; ---------------------------------------------------------------------------
 
-loc_4DBE8:              ; CODE XREF: sound?5+5j
+loc_4DBE8:              ; CODE XREF: sound5+5j
         cmp byte_59889, 5
         jl  short loc_4DBF0
         return;
 // ; ---------------------------------------------------------------------------
 
-loc_4DBF0:              ; CODE XREF: sound?5+Dj
+loc_4DBF0:              ; CODE XREF: sound5+Dj
         mov byte_5988B, 0Fh
         mov byte_59889, 4
         cmp sndType, 1
@@ -15399,7 +15385,7 @@ loc_4DBF0:              ; CODE XREF: sound?5+Dj
         jmp short locret_4DC48
 // ; ---------------------------------------------------------------------------
 
-loc_4DC08:              ; CODE XREF: sound?5+1Fj
+loc_4DC08:              ; CODE XREF: sound5+1Fj
         cmp sndType, 2
         jnz short loc_4DC1D
         mov dx, 5D38h
@@ -15410,7 +15396,7 @@ loc_4DC08:              ; CODE XREF: sound?5+1Fj
         jmp short locret_4DC48
 // ; ---------------------------------------------------------------------------
 
-loc_4DC1D:              ; CODE XREF: sound?5+2Dj
+loc_4DC1D:              ; CODE XREF: sound5+2Dj
         cmp sndType, 3
         jnz short loc_4DC2E
         mov ax, 401h
@@ -15419,7 +15405,7 @@ loc_4DC1D:              ; CODE XREF: sound?5+2Dj
         jmp short locret_4DC48
 // ; ---------------------------------------------------------------------------
 
-loc_4DC2E:              ; CODE XREF: sound?5+42j
+loc_4DC2E:              ; CODE XREF: sound5+42j
         cmp sndType, 4
         jnz short loc_4DC3C
         mov ax, 1
@@ -15427,34 +15413,34 @@ loc_4DC2E:              ; CODE XREF: sound?5+42j
         jmp short locret_4DC48
 // ; ---------------------------------------------------------------------------
 
-loc_4DC3C:              ; CODE XREF: sound?5+53j
+loc_4DC3C:              ; CODE XREF: sound5+53j
         cmp sndType, 5
         jnz short locret_4DC48
         mov ax, 401h
         int 80h     ; LINUX -
 
-locret_4DC48:               ; CODE XREF: sound?5+26j sound?5+3Bj ...
+locret_4DC48:               ; CODE XREF: sound5+26j sound5+3Bj ...
         return;
-sound?5     endp
+sound5     endp
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sound?6     proc near       ; CODE XREF: update?+B8Bp
+sound6     proc near       ; CODE XREF: update?+B8Bp
                     ; update?+136Cp
         cmp isFXEnabled, 1
         jz  short loc_4DC51
         return;
 // ; ---------------------------------------------------------------------------
 
-loc_4DC51:              ; CODE XREF: sound?6+5j
+loc_4DC51:              ; CODE XREF: sound6+5j
         cmp byte_59889, 2
         jl  short loc_4DC59
         return;
 // ; ---------------------------------------------------------------------------
 
-loc_4DC59:              ; CODE XREF: sound?6+Dj
+loc_4DC59:              ; CODE XREF: sound6+Dj
         mov byte_5988B, 7
         mov byte_59889, 2
         cmp sndType, 1
@@ -15464,7 +15450,7 @@ loc_4DC59:              ; CODE XREF: sound?6+Dj
         jmp short locret_4DCB1
 // ; ---------------------------------------------------------------------------
 
-loc_4DC71:              ; CODE XREF: sound?6+1Fj
+loc_4DC71:              ; CODE XREF: sound6+1Fj
         cmp sndType, 2
         jnz short loc_4DC86
         mov dx, 5D38h
@@ -15475,7 +15461,7 @@ loc_4DC71:              ; CODE XREF: sound?6+1Fj
         jmp short locret_4DCB1
 // ; ---------------------------------------------------------------------------
 
-loc_4DC86:              ; CODE XREF: sound?6+2Dj
+loc_4DC86:              ; CODE XREF: sound6+2Dj
         cmp sndType, 3
         jnz short loc_4DC97
         mov ax, 402h
@@ -15484,7 +15470,7 @@ loc_4DC86:              ; CODE XREF: sound?6+2Dj
         jmp short locret_4DCB1
 // ; ---------------------------------------------------------------------------
 
-loc_4DC97:              ; CODE XREF: sound?6+42j
+loc_4DC97:              ; CODE XREF: sound6+42j
         cmp sndType, 4
         jnz short loc_4DCA5
         mov ax, 2
@@ -15492,34 +15478,34 @@ loc_4DC97:              ; CODE XREF: sound?6+42j
         jmp short locret_4DCB1
 // ; ---------------------------------------------------------------------------
 
-loc_4DCA5:              ; CODE XREF: sound?6+53j
+loc_4DCA5:              ; CODE XREF: sound6+53j
         cmp sndType, 5
         jnz short locret_4DCB1
         mov ax, 402h
         int 80h     ; LINUX -
 
-locret_4DCB1:               ; CODE XREF: sound?6+26j sound?6+3Bj ...
+locret_4DCB1:               ; CODE XREF: sound6+26j sound6+3Bj ...
         return;
-sound?6     endp
+sound6     endp
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sound?7     proc near       ; CODE XREF: movefun:loc_48125p
+sound7     proc near       ; CODE XREF: movefun:loc_48125p
                     ; movefun2:loc_48573p
         cmp isFXEnabled, 1
         jz  short loc_4DCBA
         return;
 // ; ---------------------------------------------------------------------------
 
-loc_4DCBA:              ; CODE XREF: sound?7+5j
+loc_4DCBA:              ; CODE XREF: sound7+5j
         cmp byte_59889, 2
         jl  short loc_4DCC2
         return;
 // ; ---------------------------------------------------------------------------
 
-loc_4DCC2:              ; CODE XREF: sound?7+Dj
+loc_4DCC2:              ; CODE XREF: sound7+Dj
         mov byte_5988B, 7
         mov byte_59889, 2
         cmp sndType, 1
@@ -15529,7 +15515,7 @@ loc_4DCC2:              ; CODE XREF: sound?7+Dj
         jmp short locret_4DD1A
 // ; ---------------------------------------------------------------------------
 
-loc_4DCDA:              ; CODE XREF: sound?7+1Fj
+loc_4DCDA:              ; CODE XREF: sound7+1Fj
         cmp sndType, 2
         jnz short loc_4DCEF
         mov dx, 5D38h
@@ -15540,7 +15526,7 @@ loc_4DCDA:              ; CODE XREF: sound?7+1Fj
         jmp short locret_4DD1A
 // ; ---------------------------------------------------------------------------
 
-loc_4DCEF:              ; CODE XREF: sound?7+2Dj
+loc_4DCEF:              ; CODE XREF: sound7+2Dj
         cmp sndType, 3
         jnz short loc_4DD00
         mov ax, 403h
@@ -15549,7 +15535,7 @@ loc_4DCEF:              ; CODE XREF: sound?7+2Dj
         jmp short locret_4DD1A
 // ; ---------------------------------------------------------------------------
 
-loc_4DD00:              ; CODE XREF: sound?7+42j
+loc_4DD00:              ; CODE XREF: sound7+42j
         cmp sndType, 4
         jnz short loc_4DD0E
         mov ax, 3
@@ -15557,33 +15543,33 @@ loc_4DD00:              ; CODE XREF: sound?7+42j
         jmp short locret_4DD1A
 // ; ---------------------------------------------------------------------------
 
-loc_4DD0E:              ; CODE XREF: sound?7+53j
+loc_4DD0E:              ; CODE XREF: sound7+53j
         cmp sndType, 5
         jnz short locret_4DD1A
         mov ax, 403h
         int 80h     ; LINUX -
 
-locret_4DD1A:               ; CODE XREF: sound?7+26j sound?7+3Bj ...
+locret_4DD1A:               ; CODE XREF: sound7+26j sound7+3Bj ...
         return;
-sound?7     endp
+sound7     endp
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sound?8     proc near       ; CODE XREF: movefun7:loc_4A0ABp
+sound8     proc near       ; CODE XREF: movefun7:loc_4A0ABp
         cmp isFXEnabled, 1
         jz  short loc_4DD23
         return;
 // ; ---------------------------------------------------------------------------
 
-loc_4DD23:              ; CODE XREF: sound?8+5j
+loc_4DD23:              ; CODE XREF: sound8+5j
         cmp byte_59889, 3
         jl  short loc_4DD2B
         return;
 // ; ---------------------------------------------------------------------------
 
-loc_4DD2B:              ; CODE XREF: sound?8+Dj
+loc_4DD2B:              ; CODE XREF: sound8+Dj
         mov byte_5988B, 3
         mov byte_59889, 3
         cmp sndType, 1
@@ -15593,7 +15579,7 @@ loc_4DD2B:              ; CODE XREF: sound?8+Dj
         jmp short locret_4DD83
 // ; ---------------------------------------------------------------------------
 
-loc_4DD43:              ; CODE XREF: sound?8+1Fj
+loc_4DD43:              ; CODE XREF: sound8+1Fj
         cmp sndType, 2
         jnz short loc_4DD58
         mov dx, 5D38h
@@ -15604,7 +15590,7 @@ loc_4DD43:              ; CODE XREF: sound?8+1Fj
         jmp short locret_4DD83
 // ; ---------------------------------------------------------------------------
 
-loc_4DD58:              ; CODE XREF: sound?8+2Dj
+loc_4DD58:              ; CODE XREF: sound8+2Dj
         cmp sndType, 3
         jnz short loc_4DD69
         mov ax, 404h
@@ -15613,7 +15599,7 @@ loc_4DD58:              ; CODE XREF: sound?8+2Dj
         jmp short locret_4DD83
 // ; ---------------------------------------------------------------------------
 
-loc_4DD69:              ; CODE XREF: sound?8+42j
+loc_4DD69:              ; CODE XREF: sound8+42j
         cmp sndType, 4
         jnz short loc_4DD77
         mov ax, 4
@@ -15621,34 +15607,34 @@ loc_4DD69:              ; CODE XREF: sound?8+42j
         jmp short locret_4DD83
 // ; ---------------------------------------------------------------------------
 
-loc_4DD77:              ; CODE XREF: sound?8+53j
+loc_4DD77:              ; CODE XREF: sound8+53j
         cmp sndType, 5
         jnz short locret_4DD83
         mov ax, 404h
         int 80h     ; LINUX -
 
-locret_4DD83:               ; CODE XREF: sound?8+26j sound?8+3Bj ...
+locret_4DD83:               ; CODE XREF: sound8+26j sound8+3Bj ...
         return;
-sound?8     endp
+sound8     endp
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sound?9     proc near       ; CODE XREF: runLevel+2F4p
+sound9     proc near       ; CODE XREF: runLevel+2F4p
                     ; update?:loc_4E3E1p ...
         cmp isFXEnabled, 1
         jz  short xxxxxxxxdcdc
         return;
 // ; ---------------------------------------------------------------------------
 
-xxxxxxxxdcdc:               ; CODE XREF: sound?9+5j
+xxxxxxxxdcdc:               ; CODE XREF: sound9+5j
         cmp byte_59889, 1
         jl  short loc_4DD94
         return;
 // ; ---------------------------------------------------------------------------
 
-loc_4DD94:              ; CODE XREF: sound?9+Dj
+loc_4DD94:              ; CODE XREF: sound9+Dj
         mov byte_5988B, 3
         mov byte_59889, 1
         cmp sndType, 1
@@ -15658,7 +15644,7 @@ loc_4DD94:              ; CODE XREF: sound?9+Dj
         jmp short locret_4DDEC
 // ; ---------------------------------------------------------------------------
 
-loc_4DDAC:              ; CODE XREF: sound?9+1Fj
+loc_4DDAC:              ; CODE XREF: sound9+1Fj
         cmp sndType, 2
         jnz short loc_4DDC1
         mov dx, 5D38h
@@ -15669,7 +15655,7 @@ loc_4DDAC:              ; CODE XREF: sound?9+1Fj
         jmp short locret_4DDEC
 // ; ---------------------------------------------------------------------------
 
-loc_4DDC1:              ; CODE XREF: sound?9+2Dj
+loc_4DDC1:              ; CODE XREF: sound9+2Dj
         cmp sndType, 3
         jnz short loc_4DDD2
         mov ax, 405h
@@ -15678,7 +15664,7 @@ loc_4DDC1:              ; CODE XREF: sound?9+2Dj
         jmp short locret_4DDEC
 // ; ---------------------------------------------------------------------------
 
-loc_4DDD2:              ; CODE XREF: sound?9+42j
+loc_4DDD2:              ; CODE XREF: sound9+42j
         cmp sndType, 4
         jnz short loc_4DDE0
         mov ax, 5
@@ -15686,30 +15672,30 @@ loc_4DDD2:              ; CODE XREF: sound?9+42j
         jmp short locret_4DDEC
 // ; ---------------------------------------------------------------------------
 
-loc_4DDE0:              ; CODE XREF: sound?9+53j
+loc_4DDE0:              ; CODE XREF: sound9+53j
         cmp sndType, 5
         jnz short locret_4DDEC
         mov ax, 405h
         int 80h     ; LINUX -
 
-locret_4DDEC:               ; CODE XREF: sound?9+26j sound?9+3Bj ...
+locret_4DDEC:               ; CODE XREF: sound9+26j sound9+3Bj ...
         return;
-sound?9     endp
+sound9     endp
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sound?10    proc near       ; CODE XREF: update?+7EBp
+sound10    proc near       ; CODE XREF: update?+7EBp
         cmp isFXEnabled, 1
         jz  short loc_4DDF5
         return;
 // ; ---------------------------------------------------------------------------
 
-loc_4DDF5:              ; CODE XREF: sound?10+5j
+loc_4DDF5:              ; CODE XREF: sound10+5j
         mov byte_5988B, 0FAh ; '?'
         mov byte_59889, 0Ah
-        call    sound?3
+        call    sound3
         cmp sndType, 1
         jnz short loc_4DE10
         mov ax, 1
@@ -15718,7 +15704,7 @@ loc_4DDF5:              ; CODE XREF: sound?10+5j
         jmp short locret_4DE5E
 // ; ---------------------------------------------------------------------------
 
-loc_4DE10:              ; CODE XREF: sound?10+1Aj
+loc_4DE10:              ; CODE XREF: sound10+1Aj
         cmp sndType, 2
         jnz short loc_4DE25
         mov dx, 5D38h
@@ -15729,7 +15715,7 @@ loc_4DE10:              ; CODE XREF: sound?10+1Aj
         jmp short locret_4DE5E
 // ; ---------------------------------------------------------------------------
 
-loc_4DE25:              ; CODE XREF: sound?10+28j
+loc_4DE25:              ; CODE XREF: sound10+28j
         cmp sndType, 3
         jnz short loc_4DE36
         mov ax, 1
@@ -15739,7 +15725,7 @@ loc_4DE25:              ; CODE XREF: sound?10+28j
         jmp short locret_4DE5E
 // ; ---------------------------------------------------------------------------
 
-loc_4DE36:              ; CODE XREF: sound?10+3Dj
+loc_4DE36:              ; CODE XREF: sound10+3Dj
         cmp sndType, 4
         jnz short loc_4DE52
         cmp musType, 5
@@ -15750,28 +15736,28 @@ loc_4DE36:              ; CODE XREF: sound?10+3Dj
         jmp short locret_4DE5E
 // ; ---------------------------------------------------------------------------
 
-loc_4DE4B:              ; CODE XREF: sound?10+55j
+loc_4DE4B:              ; CODE XREF: sound10+55j
         mov ax, 6
         int 81h
         jmp short locret_4DE5E
 // ; ---------------------------------------------------------------------------
 
-loc_4DE52:              ; CODE XREF: sound?10+4Ej
+loc_4DE52:              ; CODE XREF: sound10+4Ej
         cmp sndType, 5
         jnz short locret_4DE5E
         mov ax, 1
         int 80h     ; LINUX - sys_exit
 // ; ---------------------------------------------------------------------------
 
-locret_4DE5E:               ; CODE XREF: sound?10+21j sound?10+36j ...
+locret_4DE5E:               ; CODE XREF: sound10+21j sound10+36j ...
         return;
-sound?10    endp
+sound10    endp
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sound?11    proc near       ; CODE XREF: int8handler+51p
+sound11    proc near       ; CODE XREF: int8handler+51p
         cmp musType, 1
         jnz short loc_4DE6C
         mov ah, 1
@@ -15779,7 +15765,7 @@ sound?11    proc near       ; CODE XREF: int8handler+51p
         jmp short locret_4DE87
 // ; ---------------------------------------------------------------------------
 
-loc_4DE6C:              ; CODE XREF: sound?11+5j
+loc_4DE6C:              ; CODE XREF: sound11+5j
         cmp musType, 3
         jnz short loc_4DE7C
         mov dx, 388h
@@ -15788,15 +15774,15 @@ loc_4DE6C:              ; CODE XREF: sound?11+5j
         jmp short locret_4DE87
 // ; ---------------------------------------------------------------------------
 
-loc_4DE7C:              ; CODE XREF: sound?11+12j
+loc_4DE7C:              ; CODE XREF: sound11+12j
         cmp musType, 5
         jnz short locret_4DE87
         mov ah, 1
         int 80h     ; LINUX -
 
-locret_4DE87:               ; CODE XREF: sound?11+Bj sound?11+1Bj ...
+locret_4DE87:               ; CODE XREF: sound11+Bj sound11+1Bj ...
         return;
-sound?11    endp
+sound11    endp
 
 // ; ---------------------------------------------------------------------------
         db  2Eh ; .
@@ -16656,7 +16642,7 @@ loc_4E3DB:              ; CODE XREF: update?+545j
         mov word ptr [si+17BCh], 2
 
 loc_4E3E1:              ; CODE XREF: update?+22Bj
-        call    sound?9
+        call    sound9
         cmp word_510CB, 0
         jz  short loc_4E3F0
         mov dx, 0E6Eh
@@ -16686,7 +16672,7 @@ loc_4E418:              ; CODE XREF: update?+582j
         mov word ptr [si+1832h], 2
 
 loc_4E41E:              ; CODE XREF: update?+293j
-        call    sound?9
+        call    sound9
         mov dx, 0E8Eh
         mov byte ptr [si+1833h], 2
         mov byte ptr [si+1832h], 3
@@ -16707,7 +16693,7 @@ loc_4E449:              ; CODE XREF: update?+5B3j
         mov word ptr [si+18ACh], 2
 
 loc_4E44F:              ; CODE XREF: update?+307j
-        call    sound?9
+        call    sound9
         cmp word_510CB, 0
         jz  short loc_4E45E
         mov dx, 0E9Eh
@@ -16737,7 +16723,7 @@ loc_4E486:              ; CODE XREF: update?+5F0j
         mov word ptr [si+1836h], 2
 
 loc_4E48C:              ; CODE XREF: update?+36Fj
-        call    sound?9
+        call    sound9
         mov dx, 0EBEh
         mov byte ptr [si+1837h], 8
         mov byte ptr [si+1836h], 3
@@ -16763,7 +16749,7 @@ loc_4E4BD:              ; CODE XREF: update?+3D9j
         mov si, word_51840
         call    sub_4F200
         pop si
-        call    sound?9
+        call    sound9
         mov dx, 0ECEh
         mov byte ptr [si+1835h], 10h
         jmp loc_4E8F0
@@ -16785,7 +16771,7 @@ loc_4E4E9:              ; CODE XREF: update?+409j
         mov si, word_51842
         call    sub_4F200
         pop si
-        call    sound?9
+        call    sound9
         mov dx, 0EDEh
         mov byte ptr [si+1835h], 11h
         jmp loc_4E8F0
@@ -16807,7 +16793,7 @@ loc_4E515:              ; CODE XREF: update?+433j
         mov si, word_51844
         call    sub_4F200
         pop si
-        call    sound?9
+        call    sound9
         mov dx, 0EEEh
         mov byte ptr [si+1835h], 12h
         jmp loc_4E8F0
@@ -16829,14 +16815,14 @@ loc_4E541:              ; CODE XREF: update?+463j
         mov si, word_51846
         call    sub_4F200
         pop si
-        call    sound?9
+        call    sound9
         mov dx, 0EFEh
         mov byte ptr [si+1835h], 13h
         jmp loc_4E8F0
 // ; ---------------------------------------------------------------------------
 
 loc_4E55C:              ; CODE XREF: update?+23Aj
-        call    sound?5
+        call    sound5
         cmp word_510CB, 0
         jz  short loc_4E56B
         mov dx, 0F0Eh
@@ -16856,7 +16842,7 @@ loc_4E56E:              ; CODE XREF: update?+6D9j
 // ; ---------------------------------------------------------------------------
 
 loc_4E588:              ; CODE XREF: update?+2A2j
-        call    sound?5
+        call    sound5
         mov dx, 0F2Eh
         mov byte ptr [si+1833h], 0Ah
         mov byte ptr [si+1832h], 3
@@ -16867,7 +16853,7 @@ loc_4E588:              ; CODE XREF: update?+2A2j
 // ; ---------------------------------------------------------------------------
 
 loc_4E5A8:              ; CODE XREF: update?+316j
-        call    sound?5
+        call    sound5
         cmp word_510CB, 0
         jz  short loc_4E5B7
         mov dx, 0F3Eh
@@ -16887,7 +16873,7 @@ loc_4E5BA:              ; CODE XREF: update?+725j
 // ; ---------------------------------------------------------------------------
 
 loc_4E5D4:              ; CODE XREF: update?+37Ej
-        call    sound?5
+        call    sound5
         mov dx, 0F5Eh
         mov byte ptr [si+1837h], 0Ch
         mov byte ptr [si+1836h], 3
@@ -16903,7 +16889,7 @@ loc_4E5F4:              ; CODE XREF: update?+3E8j
         mov si, word_51840
         call    sub_4F200
         pop si
-        call    sound?5
+        call    sound5
         mov dx, 0F6Eh
         mov byte ptr [si+1835h], 14h
         mov byte ptr [si+17BDh], 0FFh
@@ -16916,7 +16902,7 @@ loc_4E614:              ; CODE XREF: update?+418j
         mov si, word_51842
         call    sub_4F200
         pop si
-        call    sound?5
+        call    sound5
         mov dx, 0F7Eh
         mov byte ptr [si+1835h], 15h
         mov byte ptr [si+1833h], 0FFh
@@ -16929,7 +16915,7 @@ loc_4E634:              ; CODE XREF: update?+442j
         mov si, word_51844
         call    sub_4F200
         pop si
-        call    sound?5
+        call    sound5
         mov dx, 0F8Eh
         mov byte ptr [si+1835h], 16h
         mov byte ptr [si+18ADh], 0FFh
@@ -16942,7 +16928,7 @@ loc_4E654:              ; CODE XREF: update?+472j
         mov si, word_51846
         call    sub_4F200
         pop si
-        call    sound?5
+        call    sound5
         mov dx, 0F9Eh
         mov byte ptr [si+1835h], 17h
         mov byte ptr [si+1837h], 0FFh
@@ -16952,7 +16938,7 @@ loc_4E654:              ; CODE XREF: update?+472j
 loc_4E674:              ; CODE XREF: update?+242j update?+2AAj ...
         cmp byte_5195A, 0
         jnz short locret_4E6B9
-        call    sound?10
+        call    sound10
         push    si
         mov byte_5A19B, 1
         mov byte_510BB, 1
@@ -17415,7 +17401,7 @@ loc_4EA07:              ; CODE XREF: update?+21j
         dec ax
         mov word_510EE, ax
         jnz short loc_4EA1E
-        call    sound?6
+        call    sound6
 
 loc_4EA1E:              ; CODE XREF: update?+B89j
         mov bl, [si+1835h]
@@ -18486,7 +18472,7 @@ loc_4F1EA:              ; CODE XREF: update?+DEBj
         mov byte_510DB, 2
         dec byte_5195C
         call    sub_4FDCE
-        call    sound?6
+        call    sound6
         return;
 ; END OF FUNCTION CHUNK FOR update?
 
