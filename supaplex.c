@@ -336,6 +336,7 @@ void handleLevelCreditsClick(void);
 void handleGfxTutorOptionClick(void);
 void handleSkipLevelOptionClick(void);
 void handleFloppyDiskButtonClick(void);
+void handleDeletePlayerOptionClick(void);
 
 static const uint8_t kNumberOfMenuButtons = 17;
 static const ButtonDescriptor kMenuButtonDescriptors[kNumberOfMenuButtons] = { // located in DS:0000
@@ -347,7 +348,7 @@ static const ButtonDescriptor kMenuButtonDescriptors[kNumberOfMenuButtons] = { /
     {
         5, 15,
         157, 23,
-        handleLevelListScrollDown, //sub_4AD0E, // Delete player
+        handleDeletePlayerOptionClick, // Delete player
     },
     {
         5, 24,
@@ -392,7 +393,7 @@ static const ButtonDescriptor kMenuButtonDescriptors[kNumberOfMenuButtons] = { /
     {
         83, 168,
         126, 192,
-        handleFloppyDiskButtonClick, // Save button? (Insert data disk according to https://supaplex.fandom.com/wiki/Main_menu)
+        handleFloppyDiskButtonClick, // Insert data disk according to https://supaplex.fandom.com/wiki/Main_menu
     },
     {
         11, 142,
@@ -10186,115 +10187,87 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
     drawMouseCursor();
 }
 
-/*
-sub_4AD0E   proc near
-        cmp byte_59B85, 0
-        jnz short loc_4AD3C
-        mov bh, gCurrentPlayerIndex
-        xor bl, bl
-        shr bx, 1
-        mov si, gPlayerListData
-        add si, bx
-        mov word ptr dword_58477, si
-        mov ax, 2D2Dh
-        cmp ax, [si]
-        jnz short loc_4AD48
-        cmp ax, [si+2]
-        jnz short loc_4AD48
-        cmp ax, [si+4]
-        jnz short loc_4AD48
-        cmp ax, [si+6]
-        jnz short loc_4AD48
-
-loc_4AD3C:              ; CODE XREF: sub_4AD0E+5j
-        mov si, 82B6h
-        mov di, 89F7h
-        mov ah, 8
-        call    drawTextWithChars6FontWithOpaqueBackground
+void handleDeletePlayerOptionClick() // sub_4AD0E  proc near
+{
+    if (byte_59B85 != 0)
+    {
+        //loc_4AD3C:              ; CODE XREF: handleDeletePlayerOptionClick+5j
+        drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, "NO PLAYER SELECTED     ");
         return;
-// ; ---------------------------------------------------------------------------
+    }
 
-loc_4AD48:              ; CODE XREF: sub_4AD0E+1Dj
-                    ; sub_4AD0E+22j ...
-        mov di, 828Eh
-        mov ax, [si]
-        mov [di], ax
-        mov ax, [si+2]
-        mov [di+2], ax
-        mov ax, [si+4]
-        mov [di+4], ax
-        mov ax, [si+6]
-        mov [di+6], ax
-        mov si, 8286h
-        mov di, 89F7h
-        mov ah, 8
-        call    drawTextWithChars6FontWithOpaqueBackground
-
-loc_4AD6C:              ; CODE XREF: sub_4AD0E+64j
-        call    getMouseStatus
-        cmp bx, 0
-        jnz short loc_4AD6C
-
-loc_4AD74:              ; CODE XREF: sub_4AD0E+88j
-        call    videoloop
-        call    getMouseStatus
-        mov gMouseButtonStatus, bx
-        mov gMouseX, cx
-        mov gMouseY, dx
-        call    restoreLastMouseAreaBitmap
-        call    saveLastMouseAreaBitmap
-        call    drawMouseCursor
-        mov bx, gMouseButtonStatus
-        cmp bx, 0
-        jz  short loc_4AD74
-        mov cx, gMouseX
-        mov dx, gMouseY
-        mov si, 5Ah ; 'Z'
-        cmp [si], cx
-        jg  short loc_4ADCE
-        cmp [si+2], dx
-        jg  short loc_4ADCE
-        cmp [si+4], cx
-        jl  short loc_4ADCE
-        cmp [si+6], dx
-        jl  short loc_4ADCE
-        mov di, word ptr dword_58477
-        push    es
-        mov ax, ds
-        mov es, ax
-        assume es:data
-        mov cx, 8
-        al = 2Dh ; '-'
-        rep stosb
-        al = 0
-        mov cx, 78h ; 'x'
-        rep stosb
-        pop es
-        assume es:nothing
-
-loc_4ADCE:              ; CODE XREF: sub_4AD0E+97j
-                    ; sub_4AD0E+9Cj ...
-        call    restoreLastMouseAreaBitmap
-        mov si, 8226h
-        mov di, 89F7h
-        mov ah, 8
-        call    drawTextWithChars6FontWithOpaqueBackground
-        call    savePlayerListData
-        call    saveHallOfFameData
-        mov byte_51ABE, 1
-        call    prepareLevelDataForCurrentPlayer
-        call    drawPlayerList
-        call    drawLevelList
-        call    drawRankings
-
-loc_4ADF3:              ; CODE XREF: sub_4AD0E+EBj
-        call    getMouseStatus
-        cmp bx, 0
-        jnz short loc_4ADF3
-        call    saveLastMouseAreaBitmap
+    PlayerEntry *currentPlayerEntry = &gPlayerListData[gCurrentPlayerIndex];
+//    *dword_58477 = currentPlayerEntry; // mov word ptr dword_58477, si
+    if (strcmp(currentPlayerEntry->name, "--------") == 0)
+    {
+//loc_4AD3C:              ; CODE XREF: handleDeletePlayerOptionClick+5j
+        drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, "NO PLAYER SELECTED     ");
         return;
-sub_4AD0E   endp
-*/
+    }
+
+//loc_4AD48:              ; CODE XREF: handleDeletePlayerOptionClick+1Dj
+//                ; handleDeletePlayerOptionClick+22j ...
+    char message[24] = "";
+    sprintf(message, "DELETE '%s' ???  ", currentPlayerEntry->name);
+
+    drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, message);
+
+    uint16_t mouseX, mouseY;
+    uint16_t mouseButtonStatus;
+
+    do
+    {
+//loc_4AD6C:              ; CODE XREF: handleDeletePlayerOptionClick+64j
+        getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
+    }
+    while (mouseButtonStatus != 0);
+
+    do
+    {
+//loc_4AD74:              ; CODE XREF: handleDeletePlayerOptionClick+88j
+        videoloop();
+        getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
+        gMouseButtonStatus = mouseButtonStatus;
+        gMouseX = mouseX;
+        gMouseY = mouseY;
+        restoreLastMouseAreaBitmap();
+        saveLastMouseAreaBitmap();
+        drawMouseCursor();
+    }
+    while (gMouseButtonStatus == 0);
+
+    ButtonDescriptor okButtonDescriptor = kMenuButtonDescriptors[9];
+
+    if (gMouseX >= okButtonDescriptor.startX
+        && gMouseY >= okButtonDescriptor.startY
+        && gMouseX <= okButtonDescriptor.endX
+        && gMouseY <= okButtonDescriptor.endY)
+    {
+//        mov di, word ptr dword_58477 // recover current player entry pointer
+        memset(currentPlayerEntry, 0, sizeof(PlayerEntry));
+        memset(currentPlayerEntry->name, '-', sizeof(currentPlayerEntry->name) - 1);
+    }
+
+//loc_4ADCE:              ; CODE XREF: handleDeletePlayerOptionClick+97j
+//                ; handleDeletePlayerOptionClick+9Cj ...
+    restoreLastMouseAreaBitmap();
+    drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, "                       ");
+    savePlayerListData();
+    saveHallOfFameData();
+    byte_51ABE = 1;
+    prepareLevelDataForCurrentPlayer();
+    drawPlayerList();
+    drawLevelList();
+    drawRankings();
+
+    do
+    {
+//loc_4ADF3:              ; CODE XREF: handleDeletePlayerOptionClick+EBj
+        getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
+    }
+    while (mouseButtonStatus != 0);
+    saveLastMouseAreaBitmap();
+}
 
 void handleSkipLevelOptionClick() // sub_4ADFF  proc near
 {
@@ -11542,7 +11515,7 @@ void prepareRankingTextEntries() // sub_4BF8D  proc near       ; CODE XREF: draw
 }
 
 void drawRankings() //   proc near       ; CODE XREF: handleNewPlayerOptionClick+1E9p
-//                    ; sub_4AD0E+E2p ...
+//                    ; handleDeletePlayerOptionClick+E2p ...
 {
     // 01ED:547A
     prepareRankingTextEntries();
@@ -13439,7 +13412,7 @@ sub_4CF13   endp
 
  */
 void savePlayerListData() //   proc near       ; CODE XREF: handleNewPlayerOptionClick+1D5p
-//                    ; sub_4AD0E+CEp ...
+//                    ; handleDeletePlayerOptionClick+CEp ...
 {
     if (byte_59B85 != 0)
     {
@@ -13459,7 +13432,7 @@ void savePlayerListData() //   proc near       ; CODE XREF: handleNewPlayerOptio
 }
 
 void saveHallOfFameData() //   proc near       ; CODE XREF: handleNewPlayerOptionClick+1D8p
-//                    ; sub_4AD0E+D1p ...
+//                    ; handleDeletePlayerOptionClick+D1p ...
 {
     if (byte_59B85 != 0)
     {
