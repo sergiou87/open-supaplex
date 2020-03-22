@@ -51,6 +51,7 @@ uint8_t byte_510DE = 0;
 uint8_t byte_51969 = 0;
 uint8_t byte_5197E = 0;
 uint8_t byte_51999 = 0;
+uint8_t byte_519C3 = 0;
 uint8_t byte_519C5 = 0;
 uint8_t byte_519C8 = 0;
 uint8_t byte_519CA = 0;
@@ -3523,9 +3524,10 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
             byte_59B86 = 0xFF;
         }
 
+        int9handler();
 //loc_47EA9:              ; CODE XREF: waitForKeyMouseOrJoystick+Aj
     }
-    while (keyPressed != 0);
+    while (keyPressed != SDL_SCANCODE_UNKNOWN);
 
     uint16_t mouseButtonsStatus;
 
@@ -3550,11 +3552,13 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
         loopForVSync();
 
         getMouseStatus(NULL, NULL, &mouseButtonsStatus);
+        int9handler();
+
         if (mouseButtonsStatus != 0)
         {
             break;
         }
-        if (keyPressed != 0)
+        if (keyPressed != SDL_SCANCODE_UNKNOWN)
         {
             break;
         }
@@ -3575,7 +3579,7 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
         }
         while (mouseButtonsStatus != 0);
     }
-    else if (keyPressed != 0)
+    else if (keyPressed != SDL_SCANCODE_UNKNOWN)
     {
         do
         {
@@ -3586,9 +3590,11 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
             byte_59B86 = 0xFF;
         }
 
+        int9handler();
+
 //loc_47F18:              ; CODE XREF: waitForKeyMouseOrJoystick+79j
         }
-        while (keyPressed != 0);
+        while (keyPressed != SDL_SCANCODE_UNKNOWN);
     }
     else if (byte_50941 > 4)
     {
@@ -9936,6 +9942,18 @@ void readMenuDat() // proc near       ; CODE XREF: readEverything+9p
 
 char characterForSDLScancode(SDL_Scancode scancode)
 {
+    // 0x16FA points to what seems to be a map from key code (http://stanislavs.org/helppc/make_codes.html) to ASCII
+    //        0B5D:16FA     00 00 31 32 33 34 35 36 37 38 39 30 2D 00 08 00  ..1234567890-...
+    //        0B5D:170A     51 57 45 52 54 59 55 49 4F 50 00 00 0A 00 41 53  QWERTYUIOP....AS
+    //        0B5D:171A     44 46 47 48 4A 4B 4C 00 00 00 00 00 5A 58 43 56  DFGHJKL.....ZXCV
+    //        0B5D:172A     42 4E 4D 00 00 00 00 00 00 20 00 00 00 00 00 00  BNM...... ......
+    //        0B5D:173A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    //        0B5D:174A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    //        0B5D:175A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    //        0B5D:176A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    //        0B5D:177A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    //        0B5D:178A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+
     switch (scancode)
     {
         SDL_SCANCODE_TO_CHAR_CASE(SDL_SCANCODE_0, '0');
@@ -9982,16 +10000,6 @@ char characterForSDLScancode(SDL_Scancode scancode)
         default:
             return '\0';
     }
-    //        0B5D:16FA     00 00 31 32 33 34 35 36 37 38 39 30 2D 00 08 00  ..1234567890-...
-    //        0B5D:170A     51 57 45 52 54 59 55 49 4F 50 00 00 0A 00 41 53  QWERTYUIOP....AS
-    //        0B5D:171A     44 46 47 48 4A 4B 4C 00 00 00 00 00 5A 58 43 56  DFGHJKL.....ZXCV
-    //        0B5D:172A     42 4E 4D 00 00 00 00 00 00 20 00 00 00 00 00 00  BNM...... ......
-    //        0B5D:173A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    //        0B5D:174A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    //        0B5D:175A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    //        0B5D:176A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    //        0B5D:177A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    //        0B5D:178A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
 }
 
 void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: runMainMenu+28Fp
@@ -10060,12 +10068,12 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
         getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
         if (mouseButtonStatus != 0)
         {
-            break; // jnz short loc_4ABEB
+            break;
         }
         if (keyPressed == SDL_SCANCODE_UNKNOWN)
         {
             lastPressedKey = SDL_SCANCODE_UNKNOWN;
-            continue; //jz  short noKeyPressed
+            continue;
         }
 
         if (lastPressedKey == keyPressed)
@@ -10075,34 +10083,22 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
 
         lastPressedKey = keyPressed;
 
-        // 0x16FA points to what seems to be a map from key code to ASCII?
-//        0B5D:16FA     00 00 31 32 33 34 35 36 37 38 39 30 2D 00 08 00  ..1234567890-...
-//        0B5D:170A     51 57 45 52 54 59 55 49 4F 50 00 00 0A 00 41 53  QWERTYUIOP....AS
-//        0B5D:171A     44 46 47 48 4A 4B 4C 00 00 00 00 00 5A 58 43 56  DFGHJKL.....ZXCV
-//        0B5D:172A     42 4E 4D 00 00 00 00 00 00 20 00 00 00 00 00 00  BNM...... ......
-//        0B5D:173A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-//        0B5D:174A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-//        0B5D:175A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-//        0B5D:176A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-//        0B5D:177A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-//        0B5D:178A     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-
         char character = characterForSDLScancode(lastPressedKey);
-//        al = *(uint8_t *)(bx+0x16FA);
-        if (character == 0) // mapped to 0
+
+        if (character == 0) // For keys without a valid representation
         {
-            continue; // jz  short noKeyPressed
+            continue;
         }
-        if (character == '\n') // mapped to \n -> enter -> create player?
+        if (character == '\n') // \n -> enter -> create player
         {
-            break; //jz  short loc_4ABEB
+            break;
         }
-        if (character == '\b') // mapped to backspace -> delete last char?
+        if (character == '\b') // backspace -> delete last char
         {
 //loc_4ABCC:              ; CODE XREF: handleNewPlayerOptionClick+92j
             if (gNewPlayerNameLength == 0)
             {
-                continue; //jz  short noKeyPressed
+                continue;
             }
             gNewPlayerNameLength--;
             newPlayerName[gNewPlayerNameLength] = ' ';
@@ -10111,7 +10107,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
         }
         if (gNewPlayerNameLength >= 8) // when more than 8 chars were entered, ignore the rest?
         {
-            continue; //jge short noKeyPressed
+            continue;
         }
         newPlayerName[gNewPlayerNameLength] = character; // mov [bx+si], al
         gNewPlayerNameLength++;
@@ -10333,9 +10329,6 @@ void handleSkipLevelOptionClick() // sub_4ADFF  proc near
 //loc_4AE4A:              ; CODE XREF: handleSkipLevelOptionClick+47j
         if (numberOfSkippedLevels >= 3)
         {
-    //        mov si, 826Eh // "SKIP NOT POSSIBLE"
-    //        mov di, 89F7h
-    //        mov ah, 6
             drawTextWithChars6FontWithOpaqueBackground(168, 127, 6, "SKIP NOT POSSIBLE");
             return;
         }
@@ -10345,9 +10338,6 @@ void handleSkipLevelOptionClick() // sub_4ADFF  proc near
 //                ; handleSkipLevelOptionClick+4Ej
     if (gCurrentPlayerLevelData[gCurrentSelectedLevelIndex - 1] != kNotCompletedLevelEntryColor)
     {
-//        mov si, 82CEh // "COLORBLIND I GUESS     "
-//        mov di, 89F7h
-//        mov ah, 4
         drawTextWithChars6FontWithOpaqueBackground(168, 127, 4, "COLORBLIND I GUESS     ");
         return;
     }
@@ -10402,9 +10392,6 @@ void handleSkipLevelOptionClick() // sub_4ADFF  proc near
 //loc_4AEE9:              ; CODE XREF: handleSkipLevelOptionClick+C3j
 //                ; handleSkipLevelOptionClick+C8j ...
     restoreLastMouseAreaBitmap();
-//    mov si, 8226h // "                       "
-//    mov di, 89F7h
-//    mov ah, 8
     drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, "                       ");
     drawPlayerList();
     drawLevelList();
@@ -11645,13 +11632,10 @@ void drawTextWithChars6FontWithOpaqueBackground(size_t destX, size_t destY, uint
                   //  ; handleNewPlayerOptionClick+4Ap ...
 {
     // Parameters:
-    // di is the destination surface
-    // si is the text to be rendered
-    // ah ... ??? maybe something to encode the color? or just a color index in the current palette?
-    //    0x4 -> 0100b -> green (WELCOME TO SUPAPLEX)
-    //    0x1 -> 0001b -> white (SPEED FIX VERSION 6.3)
-    //    0xE -> 1110b -> gray (SPEED FIX CREDITS)
-    
+    // - di is the destination surface
+    // - si is the text to be rendered
+    // - ah is the color index in the current palette
+
     // Address: 01ED:4DFC
     if (byte_5A33F == 1)
     {
@@ -11756,12 +11740,9 @@ void drawTextWithChars6FontWithTransparentBackground(size_t destX, size_t destY,
 }
 
 /*
-
 sub_4BF4A   proc near       ; CODE XREF: start+3F7p sub_4955B+398p ...
         mov si, 0A017h
 sub_4BF4A   endp ; sp-analysis failed
-
-
 */
 
 void convertNumberTo3DigitStringWithPadding0(uint8_t number, char numberString[3]) //  proc near       ; CODE XREF: handleSkipLevelOptionClick+7Cp
@@ -11769,7 +11750,6 @@ void convertNumberTo3DigitStringWithPadding0(uint8_t number, char numberString[3
 {
     convertNumberTo3DigitPaddedString(number, numberString, 0);
 }
-
 
 void convertNumberTo3DigitPaddedString(uint8_t number, char numberString[3], char useSpacesForPadding) // sub_4BF4F  proc near       ; CODE XREF: sub_4AF0C+16Fp
                    // ; sub_4AF0C+1BFp ...
@@ -11857,27 +11837,6 @@ void prepareRankingTextEntries() // sub_4BF8D  proc near       ; CODE XREF: draw
                 *nextRankingEntry = *rankingEntry;
                 *rankingEntry = aux;
                 numberOfChanges++;
-    //            al = [si]
-    //            mov ah, [di]
-    //            mov [si], ah
-    //            mov [di], al
-    //            al = [si+1]
-    //            mov ah, [di+1]
-    //            mov [si+1], ah
-    //            mov [di+1], al
-    //            al = [si+2]
-    //            mov ah, [di+2]
-    //            mov [si+2], ah
-    //            mov [di+2], al
-    //            al = [si+3]
-    //            mov ah, [di+3]
-    //            mov [si+3], ah
-    //            mov [di+3], al
-    //            al = [si+4]
-    //            mov ah, [di+4]
-    //            mov [si+4], ah
-    //            mov [di+4], al
-    //            inc dx
             }
         }
     } while (numberOfChanges > 0);
@@ -12093,8 +12052,6 @@ void drawMenuTitleAndDemoLevelResult() //   proc near       ; CODE XREF: handleG
 
 //loc_4C33C:              // ; CODE XREF: drawMenuTitleAndDemoLevelResult+34j
                 // ; drawMenuTitleAndDemoLevelResult+39j ...
-//    di = 0x89F7;
-//    ah = 4;
     drawTextWithChars6FontWithOpaqueBackground(168, 127, 4, message);
     byte_5A19B = 0;
 }
@@ -12217,7 +12174,6 @@ void prepareLevelDataForCurrentPlayer() //   proc near       ; CODE XREF: start+
 }
 
 /*
-
 sub_4C407   proc near       ; CODE XREF: runMainMenu+5Dp
         mov gNumberOfDotsToShiftDataLeft, 0
         cmp byte_510BA, 0
@@ -12356,10 +12312,6 @@ loc_4C4CF:              ; CODE XREF: sub_4C4BD+1Ej
         return;
 sub_4C4BD   endp
 
-
-; =============== S U B R O U T I N E =======================================
-
-
 sub_4C4F9   proc near       ; CODE XREF: sub_4C407+11p
         mov si, 60D5h
         call    setPalette
@@ -12447,7 +12399,6 @@ loc_4C591:              ; CODE XREF: sub_4C4F9+93j
         out dx, al      ; Video: CRT controller internal registers
         return;
 sub_4C4F9   endp
-
 */
 
 void scrollRightToGfxTutor() // sub_4C5AF   proc near       ; CODE XREF: handleGfxTutorOptionClick+3p
@@ -14564,6 +14515,8 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
 
 void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
 {
+    SDL_PumpEvents(); // Make sure the app stays responsive
+
     SDL_BlitSurface(gScreenSurface, NULL, gTextureSurface, NULL);
 
     SDL_UpdateTexture(gTexture, NULL, gTextureSurface->pixels, gTextureSurface->pitch);
@@ -21757,24 +21710,22 @@ void drawSpeedFixCredits() //  proc near       ; CODE XREF: start+2ECp
     drawTextWithChars6FontWithOpaqueBackground(60, 176, 0xE, "VERSIONS 5.X BY ELMER PRODUCTIONS");
     drawTextWithChars6FontWithOpaqueBackground(75, 184, 0xE, "VERSIONS 7.X BY SERGIO PADRINO");
 
-    // TODO: requires to re-implement the int9 handler (handle keyboard)
-/*
-loc_502F1:             // ; CODE XREF: drawSpeedFixCredits+28j
-        al = keyPressed
-        if (byte_519C3 != 1)
-        {
-            goto loc_50301;
-        }
-        word_51970 = 1;
+    videoloop();
 
-loc_50301:             // ; CODE XREF: drawSpeedFixCredits+1Ej
-        if (al == 0)
+    do
+    {
+//loc_502F1:             // ; CODE XREF: drawSpeedFixCredits+28j
+        int9handler();
+
+        if (byte_519C3 == 1)
         {
-            goto loc_502F1;
+            word_51970 = 1;
         }
-        byte_510AB = 1;
- */
-// drawSpeedFixCredits  endp
+//loc_50301:             // ; CODE XREF: drawSpeedFixCredits+1Ej
+    }
+    while (keyPressed == SDL_SCANCODE_UNKNOWN);
+
+    byte_510AB = 1;
 }
 
 void exitWithError(const char *format, ...)
