@@ -350,7 +350,7 @@ void handleGfxTutorOptionClick(void);
 void handleSkipLevelOptionClick(void);
 void handleFloppyDiskButtonClick(void);
 void handleDeletePlayerOptionClick(void);
-void sub_4AF0C(void);
+void handleStatisticsOptionClick(void);
 
 static const uint8_t kNumberOfMenuButtons = 17;
 static const ButtonDescriptor kMenuButtonDescriptors[kNumberOfMenuButtons] = { // located in DS:0000
@@ -372,7 +372,7 @@ static const ButtonDescriptor kMenuButtonDescriptors[kNumberOfMenuButtons] = { /
     {
         5, 33,
         157, 41,
-        sub_4AF0C, // Statistics
+        handleStatisticsOptionClick, // Statistics
     },
     {
         5, 42,
@@ -673,6 +673,9 @@ void drawMenuBackground(void);
 void convertNumberTo3DigitStringWithPadding0(uint8_t number, char numberString[3]);
 void changePlayerCurrentLevelState(void);
 void updateHallOfFameEntries(void);
+void drawBackBackground(void);
+void drawGfxTutorBackground(uint8_t *dest);
+void drawFullScreenBitmap(uint8_t *bitmapData, uint8_t *dest);
 
 static const int kWindowWidth = kScreenWidth * 4;
 static const int kWindowHeight = kScreenHeight * 4;
@@ -3523,7 +3526,7 @@ void readEverything() //  proc near       ; CODE XREF: start+2DBp start+2E3p .
 }
 
 void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: recoverFilesFromFloppyDisk+4Ap
-//                    ; sub_4AF0C+216p ...
+//                    ; handleStatisticsOptionClick+216p ...
 {
     byte_59B86 = 0;
 
@@ -3642,7 +3645,7 @@ void recoverFilesFromFloppyDisk() //   proc near       ; CODE XREF: readPalettes
         call    enableFloppy
         mov si, 60D5h
         call    setPalette
-        call    vgaloadbackseg
+        call    drawBackBackground
         cmp byte_53A10, 1
         jnz short loc_47F56
         mov si, 370Fh
@@ -10389,7 +10392,7 @@ void handleSkipLevelOptionClick() // sub_4ADFF  proc near
     saveLastMouseAreaBitmap();
 }
 
-void sub_4AF0C() //   proc near
+void handleStatisticsOptionClick() // sub_4AF0C   proc near
 {
     PlayerEntry currentPlayerEntry = gPlayerListData[gCurrentPlayerIndex];
     if (strcmp(currentPlayerEntry.name, "--------") == 0)
@@ -10398,8 +10401,8 @@ void sub_4AF0C() //   proc near
         return;
     }
 
-//loc_4AF3E:              ; CODE XREF: sub_4AF0C+15j
-//                ; sub_4AF0C+1Aj ...
+//loc_4AF3E:              ; CODE XREF: handleStatisticsOptionClick+15j
+//                ; handleStatisticsOptionClick+1Aj ...
     uint16_t someValue = 0x5F5F;
     word_586FB = someValue;
     word_586FD = someValue;
@@ -10431,7 +10434,7 @@ void sub_4AF0C() //   proc near
 
         do
         {
-    //loc_4AFAA:              ; CODE XREF: sub_4AF0C+A3j
+    //loc_4AFAA:              ; CODE XREF: handleStatisticsOptionClick+A3j
             // TODO: update timer
         }
         while ((byte_59B96 & 0xFF) == 0); // test    byte_59B96, 0FFh
@@ -10439,7 +10442,7 @@ void sub_4AF0C() //   proc near
 
         do
         {
-    //loc_4AFB6:              ; CODE XREF: sub_4AF0C+B9j
+    //loc_4AFB6:              ; CODE XREF: handleStatisticsOptionClick+B9j
             videoloop();
             loopForVSync();
             byte_59B94++;
@@ -10462,58 +10465,13 @@ void sub_4AF0C() //   proc near
         word_58710 = ax;
     }
 
-//loc_4AFE3:              ; CODE XREF: sub_4AF0C+58j
+//loc_4AFE3:              ; CODE XREF: handleStatisticsOptionClick+58j
     fadeToPalette(gBlackPalette);
 
     uint8_t screenPixelsBackup[kFullScreenFramebufferLength];
     memcpy(screenPixelsBackup, gScreenPixels, kFullScreenFramebufferLength);
 
-//    call    vgaloadbackseg
-    for (int y = 0; y < kScreenHeight; ++y)
-    {
-        for (int x = 0; x < kScreenWidth; ++x)
-        {
-            uint32_t destPixelAddress = y * kScreenWidth + x;
-
-            uint32_t sourcePixelAddress = y * kScreenWidth / 2 + x / 8;
-            uint8_t sourcePixelBitPosition = 7 - (x % 8);
-
-            uint8_t b = (gBackBitmapData[sourcePixelAddress + 0] >> sourcePixelBitPosition) & 0x1;
-            uint8_t g = (gBackBitmapData[sourcePixelAddress + 40] >> sourcePixelBitPosition) & 0x1;
-            uint8_t r = (gBackBitmapData[sourcePixelAddress + 80] >> sourcePixelBitPosition) & 0x1;
-            uint8_t i = (gBackBitmapData[sourcePixelAddress + 120] >> sourcePixelBitPosition) & 0x1;
-
-            uint8_t finalColor = ((b << 0)
-                                  | (g << 1)
-                                  | (r << 2)
-                                  | (i << 3));
-
-            gScreenPixels[destPixelAddress] = finalColor;
-        }
-    }
-
-    for (int y = 0; y < kScreenHeight; ++y)
-    {
-        for (int x = 0; x < kScreenWidth; ++x)
-        {
-            uint32_t destPixelAddress = y * kScreenWidth + x;
-
-            uint32_t sourcePixelAddress = y * kScreenWidth / 2 + x / 8;
-            uint8_t sourcePixelBitPosition = 7 - (x % 8);
-
-            uint8_t b = (gBackBitmapData[sourcePixelAddress + 0] >> sourcePixelBitPosition) & 0x1;
-            uint8_t g = (gBackBitmapData[sourcePixelAddress + 40] >> sourcePixelBitPosition) & 0x1;
-            uint8_t r = (gBackBitmapData[sourcePixelAddress + 80] >> sourcePixelBitPosition) & 0x1;
-            uint8_t i = (gBackBitmapData[sourcePixelAddress + 120] >> sourcePixelBitPosition) & 0x1;
-
-            uint8_t finalColor = ((b << 0)
-                                  | (g << 1)
-                                  | (r << 2)
-                                  | (i << 3));
-
-            gScreenPixels[destPixelAddress] = finalColor;
-        }
-    }
+    drawBackBackground();
 
     byte_5091A = 0;
     drawTextWithChars6FontWithTransparentBackground(80, 20, 15, "SUPAPLEX  BY DREAM FACTORY");
@@ -10530,7 +10488,7 @@ void sub_4AF0C() //   proc near
         byte_5091A = 1;
     }
 
-//loc_4B046:              ; CODE XREF: sub_4AF0C+133j
+//loc_4B046:              ; CODE XREF: handleStatisticsOptionClick+133j
     char levelNumberString[4] = "000";
     convertNumberTo3DigitStringWithPadding0(currentPlayerEntry.nextLevelToPlay, levelNumberString);
 
@@ -10562,7 +10520,7 @@ void sub_4AF0C() //   proc near
         totalMinutes++;
     }
 
-//loc_4B0A1:              ; CODE XREF: sub_4AF0C+192j
+//loc_4B0A1:              ; CODE XREF: handleStatisticsOptionClick+192j
 
     char averageTimeString[6] = "000.0";
     uint16_t averageMinutesWhole = totalMinutes / currentPlayerEntry.nextLevelToPlay;
@@ -10575,7 +10533,7 @@ void sub_4AF0C() //   proc near
         byte_5091A = 2;
     }
 
-//loc_4B0C2:              ; CODE XREF: sub_4AF0C+1AFj
+//loc_4B0C2:              ; CODE XREF: handleStatisticsOptionClick+1AFj
     averageTimeString[3] = '.';
 
     convertNumberTo3DigitPaddedString(averageMinutesWhole, averageTimeString, 1);
@@ -10583,20 +10541,20 @@ void sub_4AF0C() //   proc near
     {
         drawTextWithChars6FontWithTransparentBackground(24, 140, 15, "YOU'VE COMPLETED ALL LEVELS! CONGRATULATIONS!!!");
     }
-//loc_4B0E2:              ; CODE XREF: sub_4AF0C+1C7j
+//loc_4B0E2:              ; CODE XREF: handleStatisticsOptionClick+1C7j
     else if (byte_5091A == 2)
     {
         drawTextWithChars6FontWithTransparentBackground(40, 140, 15, "STILL UNDER ONE MINUTE (KEEP IT UP...)");
     }
-//loc_4B0F6:              ; CODE XREF: sub_4AF0C+1DBj
+//loc_4B0F6:              ; CODE XREF: handleStatisticsOptionClick+1DBj
     else
     {
         char averageTimeMessage[44] = "";
         sprintf(averageTimeMessage, "AVERAGE TIME USED PER LEVEL  %s MINUTES", averageTimeString);
         drawTextWithChars6FontWithTransparentBackground(32, 140, 15, averageTimeMessage);
     }
-//loc_4B105:              ; CODE XREF: sub_4AF0C+1D4j
-//                ; sub_4AF0C+1E8j
+//loc_4B105:              ; CODE XREF: handleStatisticsOptionClick+1D4j
+//                ; handleStatisticsOptionClick+1E8j
     fadeToPalette(gPalettes[0]);
     waitForKeyMouseOrJoystick();
     fadeToPalette(gBlackPalette);
@@ -10606,7 +10564,7 @@ void sub_4AF0C() //   proc near
 
 void handleGfxTutorOptionClick() // sub_4B149   proc near
 {
-//    vgaloadgfxseg();
+//    drawGfxTutorBackground();
     scrollRightToGfxTutor();
     waitForKeyMouseOrJoystick();
     scrollLeftToMainMenu();
@@ -10817,7 +10775,7 @@ void handleRankingListScrollDown() // loc_4B2AF
 sub_4B2FC   proc near       ; CODE XREF: sub_4B375+56p
         mov si, 60D5h
         call    fade
-        call    vgaloadbackseg
+        call    drawBackBackground
         mov si, 8718h // "CONGRATULATIONS"
         mov ah, 0Fh
         mov di, 5BDFh
@@ -11127,29 +11085,7 @@ void handleLevelCreditsClick() // sub_4B7B7  proc near
     uint8_t screenPixelsBackup[kFullScreenFramebufferLength];
     memcpy(screenPixelsBackup, gScreenPixels, kFullScreenFramebufferLength);
 
-//    vgaloadbackseg();
-    for (int y = 0; y < kScreenHeight; ++y)
-    {
-        for (int x = 0; x < kScreenWidth; ++x)
-        {
-            uint32_t destPixelAddress = y * kScreenWidth + x;
-
-            uint32_t sourcePixelAddress = y * kScreenWidth / 2 + x / 8;
-            uint8_t sourcePixelBitPosition = 7 - (x % 8);
-
-            uint8_t b = (gBackBitmapData[sourcePixelAddress + 0] >> sourcePixelBitPosition) & 0x1;
-            uint8_t g = (gBackBitmapData[sourcePixelAddress + 40] >> sourcePixelBitPosition) & 0x1;
-            uint8_t r = (gBackBitmapData[sourcePixelAddress + 80] >> sourcePixelBitPosition) & 0x1;
-            uint8_t i = (gBackBitmapData[sourcePixelAddress + 120] >> sourcePixelBitPosition) & 0x1;
-
-            uint8_t finalColor = ((b << 0)
-                                  | (g << 1)
-                                  | (r << 2)
-                                  | (i << 3));
-
-            gScreenPixels[destPixelAddress] = finalColor;
-        }
-    }
+    drawBackBackground();
 
     drawTextWithChars6FontWithTransparentBackground(80, 10, 15, "SUPAPLEX  BY DREAM FACTORY");
     drawTextWithChars6FontWithTransparentBackground(56, 40, 15, "ORIGINAL DESIGN BY PHILIP JESPERSEN");
@@ -11296,7 +11232,7 @@ void drawTextWithChars6FontWithOpaqueBackground(size_t destX, size_t destY, uint
 }
 
 void drawTextWithChars6FontWithTransparentBackground(size_t destX, size_t destY, uint8_t color, const char *text)  // sub_4BDF0 proc near       ; CODE XREF: recoverFilesFromFloppyDisk+2Ap
-                   // ; sub_4AF0C+EDp ...
+                   // ; handleStatisticsOptionClick+EDp ...
 {
     if (byte_5A33F == 1)
     {
@@ -11357,13 +11293,13 @@ sub_4BF4A   endp ; sp-analysis failed
 */
 
 void convertNumberTo3DigitStringWithPadding0(uint8_t number, char numberString[3]) //  proc near       ; CODE XREF: handleSkipLevelOptionClick+7Cp
-                   // ; sub_4AF0C+13Dp ...
+                   // ; handleStatisticsOptionClick+13Dp ...
 {
     convertNumberTo3DigitPaddedString(number, numberString, 0);
 }
 
-void convertNumberTo3DigitPaddedString(uint8_t number, char numberString[3], char useSpacesForPadding) // sub_4BF4F  proc near       ; CODE XREF: sub_4AF0C+16Fp
-                   // ; sub_4AF0C+1BFp ...
+void convertNumberTo3DigitPaddedString(uint8_t number, char numberString[3], char useSpacesForPadding) // sub_4BF4F  proc near       ; CODE XREF: handleStatisticsOptionClick+16Fp
+                   // ; handleStatisticsOptionClick+1BFp ...
 {
     // This function converts a number to a 3-digit string, so basically 123 to "123".
     // It also adds padding to the left, so 7 is converted to "007", with the option
@@ -11929,7 +11865,7 @@ sub_4C4BD   endp
 sub_4C4F9   proc near       ; CODE XREF: sub_4C407+11p
         mov si, 60D5h
         call    setPalette
-        call    vgaloadbackseg
+        call    drawBackBackground
         mov si, 8577h
         mov di, 6A2Ch
         mov ah, 0Fh
@@ -12024,28 +11960,7 @@ void scrollRightToGfxTutor() // sub_4C5AF   proc near       ; CODE XREF: handleG
     memcpy(screenPixelsBackup, gScreenPixels, kFullScreenFramebufferLength);
 
     uint8_t gfxBackgroundPixels[kFullScreenFramebufferLength];
-    for (int y = 0; y < kScreenHeight; ++y)
-    {
-        for (int x = 0; x < kScreenWidth; ++x)
-        {
-            uint32_t destPixelAddress = y * kScreenWidth + x;
-
-            uint32_t sourcePixelAddress = y * kScreenWidth / 2 + x / 8;
-            uint8_t sourcePixelBitPosition = 7 - (x % 8);
-
-            uint8_t b = (gGfxBitmapData[sourcePixelAddress + 0] >> sourcePixelBitPosition) & 0x1;
-            uint8_t g = (gGfxBitmapData[sourcePixelAddress + 40] >> sourcePixelBitPosition) & 0x1;
-            uint8_t r = (gGfxBitmapData[sourcePixelAddress + 80] >> sourcePixelBitPosition) & 0x1;
-            uint8_t i = (gGfxBitmapData[sourcePixelAddress + 120] >> sourcePixelBitPosition) & 0x1;
-
-            uint8_t finalColor = ((b << 0)
-                                  | (g << 1)
-                                  | (r << 2)
-                                  | (i << 3));
-
-            gfxBackgroundPixels[destPixelAddress] = finalColor;
-        }
-    }
+    drawGfxTutorBackground(gfxBackgroundPixels);
 
     const int kNumberOfSteps = 40;
     const int kStepSize = kScreenWidth / kNumberOfSteps;
@@ -12113,123 +12028,43 @@ void drawMenuBackground() //   proc near       ; CODE XREF: sub_4C407+14p
     }
 }
 
+void drawBackBackground() // vgaloadbackseg
+{
+    drawFullScreenBitmap(gBackBitmapData, gScreenPixels);
+}
+
+void drawGfxTutorBackground(uint8_t *dest) // vgaloadgfxseg
+{
+    drawFullScreenBitmap(gGfxBitmapData, dest);
+}
+
+void drawFullScreenBitmap(uint8_t *bitmapData, uint8_t *dest)
+{
+    for (int y = 0; y < kScreenHeight; ++y)
+    {
+        for (int x = 0; x < kScreenWidth; ++x)
+        {
+            uint32_t destPixelAddress = y * kScreenWidth + x;
+
+            uint32_t sourcePixelAddress = y * kScreenWidth / 2 + x / 8;
+            uint8_t sourcePixelBitPosition = 7 - (x % 8);
+
+            uint8_t b = (bitmapData[sourcePixelAddress + 0] >> sourcePixelBitPosition) & 0x1;
+            uint8_t g = (bitmapData[sourcePixelAddress + 40] >> sourcePixelBitPosition) & 0x1;
+            uint8_t r = (bitmapData[sourcePixelAddress + 80] >> sourcePixelBitPosition) & 0x1;
+            uint8_t i = (bitmapData[sourcePixelAddress + 120] >> sourcePixelBitPosition) & 0x1;
+
+            uint8_t finalColor = ((b << 0)
+                                  | (g << 1)
+                                  | (r << 2)
+                                  | (i << 3));
+
+            dest[destPixelAddress] = finalColor;
+        }
+    }
+}
+
 /*
-
-vgaloadgfxseg:
-        push    ds
-        mov ax, seg gfxseg
-
-; START OF FUNCTION CHUNK FOR vgaloadbackseg
-
-vgaloadseginax:              ; CODE XREF: vgaloadbackseg+4j code:5AD9j
-        mov ds, ax // yes, it will use controlsDataBuffer here, heh or gfxDataBuffer
-        assume ds:nothing
-        mov si, 0
-        mov di, 4D84h
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0;
-        mov dx, 3CEh
-        al = 1
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; enable set/reset
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0;
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        inc dx
-        al = 0FFh
-        out dx, al      ; EGA port: graphics controller data register
-        mov cx, 0C8h ; '?'
-
-loc_4C6AD:              ; CODE XREF: vgaloadbackseg-22j
-        push(cx);
-        mov ah, 1
-
-loc_4C6B0:              ; CODE XREF: vgaloadbackseg-28j
-        mov dx, 3C4h
-        al = 2
-        out dx, al      ; EGA: sequencer address reg
-                    ; map mask: data bits 0-3 enable writes to bit planes 0-3
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: sequencer data register
-        mov cx, 28h ; '('
-        rep movsb
-        sub di, 28h ; '('
-        shl ah, 1
-        test    ah, 0Fh
-        jnz short loc_4C6B0
-        add di, 7Ah ; 'z'
-        pop(cx);
-        loop    loc_4C6AD
-        mov dx, 3C4h
-        al = 2
-        out dx, al      ; EGA: sequencer address reg
-                    ; map mask: data bits 0-3 enable writes to bit planes 0-3
-        inc dx
-        al = 0Fh
-        out dx, al      ; EGA port: sequencer data register
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        inc dx
-        al = 0FFh
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 1
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; enable set/reset
-        inc dx
-        al = 0Fh
-        out dx, al      ; EGA port: graphics controller data register
-        pop ds
-        assume ds:data
-        return;
-; END OF FUNCTION CHUNK FOR vgaloadbackseg
-
-; =============== S U B R O U T I N E =======================================
-
-
-vgaloadbackseg:
-        push    ds
-        mov ax, backseg
-        jmp short vgaloadseginax
-
-// ; ---------------------------------------------------------------------------
-vgaloadcontrolsseg:
-        push ds
-        mov ax, controlsseg // will this use controlsDataBuffer ??
-        jmp short vgaloadseginax
-// ; ---------------------------------------------------------------------------
-loc_4C6FB:
-        call    sub_4C705
-        call    sound?4
-        call    sub_4CAFC
-        return;
-
-; =============== S U B R O U T I N E =======================================
-
-
 sub_4C705   proc near       ; CODE XREF: code:5ADBp
         call    loadBeep
         call    sound?4
