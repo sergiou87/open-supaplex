@@ -335,6 +335,7 @@ void handleRankingListScrollDown(void);
 void handleLevelCreditsClick(void);
 void handleGfxTutorOptionClick(void);
 void handleSkipLevelOptionClick(void);
+void handleFloppyDiskButtonClick(void);
 
 static const uint8_t kNumberOfMenuButtons = 17;
 static const ButtonDescriptor kMenuButtonDescriptors[kNumberOfMenuButtons] = { // located in DS:0000
@@ -391,7 +392,7 @@ static const ButtonDescriptor kMenuButtonDescriptors[kNumberOfMenuButtons] = { /
     {
         83, 168,
         126, 192,
-        handleLevelListScrollDown, //sub_4B419, // Save button? (Insert data disk according to https://supaplex.fandom.com/wiki/Main_menu)
+        handleFloppyDiskButtonClick, // Save button? (Insert data disk according to https://supaplex.fandom.com/wiki/Main_menu)
     },
     {
         11, 142,
@@ -2375,8 +2376,6 @@ locret_47601:                           ; CODE XREF: sub_4755A+A2j
                 return;
 sub_4755A       endp
 
-; =============== S U B R O U T I N E =======================================
-
 */
 void enableFloppy() //   proc near       ; CODE XREF: start+341p
                     // ; start:loc_46FBEp ...
@@ -2393,9 +2392,6 @@ void enableFloppy() //   proc near       ; CODE XREF: start+341p
 // enableFloppy   endp
 }
 /*
-
-//; =============== S U B R O U T I N E =======================================
-
 
 void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
                   //  ; sub_4B159p ...
@@ -3446,7 +3442,7 @@ void readControlsDat() // proc near       ; CODE XREF: readControlsDat+14j
 }
 
 void readPlayersLst() //  proc near       ; CODE XREF: readEverything+1Bp
-                    // ; sub_4B419+149p
+                    // ; handleFloppyDiskButtonClick+149p
 {
     if (byte_59B85 != 0)
     {
@@ -3471,7 +3467,7 @@ void readPlayersLst() //  proc near       ; CODE XREF: readEverything+1Bp
 }
 
 void readHallfameLst() // proc near       ; CODE XREF: readEverything+18p
-                    // ; sub_4B419+146p
+                    // ; handleFloppyDiskButtonClick+146p
 {
     if (byte_59B85 != 0)
     {
@@ -10307,7 +10303,7 @@ void handleSkipLevelOptionClick() // sub_4ADFF  proc near
 
     if (strcmp(currentPlayerEntry.name, "--------") == 0)
     {
-        drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, "NO PLAYER SELECTED");
+        drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, "NO PLAYER SELECTED     ");
         return;
     }
 
@@ -10329,7 +10325,7 @@ void handleSkipLevelOptionClick() // sub_4ADFF  proc near
 //loc_4AE4A:              ; CODE XREF: handleSkipLevelOptionClick+47j
         if (numberOfSkippedLevels >= 3)
         {
-            drawTextWithChars6FontWithOpaqueBackground(168, 127, 6, "SKIP NOT POSSIBLE");
+            drawTextWithChars6FontWithOpaqueBackground(168, 127, 6, "SKIP NOT POSSIBLE      ");
             return;
         }
     }
@@ -11018,353 +11014,12 @@ loc_4B40F:              ; CODE XREF: sub_4B375+86j
         call    sub_4BF4A
         return;
 sub_4B375   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4B419   proc near
-        xor al, al
-        cmp byte_519B5, al
-        jz  short loc_4B423
-        not al
-
-loc_4B423:              ; CODE XREF: sub_4B419+6j
-        cmp byte ptr word_59B65, 0
-        jz  short loc_4B42C
-        not al
-
-loc_4B42C:              ; CODE XREF: sub_4B419+Fj
-        al++;
-        jnz short loc_4B433
-        jmp loc_4B583
-// ; ---------------------------------------------------------------------------
-
-loc_4B433:              ; CODE XREF: sub_4B419+15j
-        mov ax, word_5195D
-        sub ax, word_59B8C
-        cmp ax, word_59B8E
-        jnb short loc_4B443
-        jmp locret_4B582
-// ; ---------------------------------------------------------------------------
-
-loc_4B443:              ; CODE XREF: sub_4B419+25j
-        mov ax, word_5195D
-        mov word_59B8E, ax
-        cmp word_59B8C, 1
-        jbe short loc_4B454
-        dec word_59B8C
-
-loc_4B454:              ; CODE XREF: sub_4B419+35j
-                    ; sub_4B419+9Aj
-        mov ax, word ptr aLevels_dat_0+8 ; "AT"
-        mov dl, byte ptr word_519B3
-        or  dl, byte ptr word_519A7
-        jnz short loc_4B482
-        cmp ax, 5441h
-        jnz short loc_4B46B
-        mov ax, 3030h
-        jmp short loc_4B4A3
-// ; ---------------------------------------------------------------------------
-
-loc_4B46B:              ; CODE XREF: sub_4B419+4Bj
-        cmp ax, 3939h
-        jnz short loc_4B475
-        mov ax, 5441h
-        jmp short loc_4B4A3
-// ; ---------------------------------------------------------------------------
-
-loc_4B475:              ; CODE XREF: sub_4B419+55j
-        inc ah
-        cmp ah, 39h ; '9'
-        jbe short loc_4B4A3
-        mov ah, 30h ; '0'
-        al++;
-        jmp short loc_4B4A3
-// ; ---------------------------------------------------------------------------
-
-loc_4B482:              ; CODE XREF: sub_4B419+46j
-        cmp ax, 5441h
-        jnz short loc_4B48C
-        mov ax, 3939h
-        jmp short loc_4B4A3
-// ; ---------------------------------------------------------------------------
-
-loc_4B48C:              ; CODE XREF: sub_4B419+6Cj
-        cmp ax, 3030h
-        jnz short loc_4B496
-        mov ax, 5441h
-        jmp short loc_4B4A3
-// ; ---------------------------------------------------------------------------
-
-loc_4B496:              ; CODE XREF: sub_4B419+76j
-        dec ah
-        cmp ah, 30h ; '0'
-        jnb short loc_4B4A3
-        mov ah, 39h ; '9'
-        dec al
-        jmp short $+2
-// ; ---------------------------------------------------------------------------
-
-loc_4B4A3:              ; CODE XREF: sub_4B419+50j
-                    ; sub_4B419+5Aj ...
-        mov word ptr aLevels_dat_0+8, ax ; "AT"
-        mov ax, 3D00h
-        mov dx, aLevels_dat
-        int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-                    ; DS:DX -> ASCIZ filename
-                    ; AL = access mode
-                    ; 0 - read
-        jnb short loc_4B4B8
-        cmp ax, 2
-        jz  short loc_4B454
-        jmp exit
-// ; ---------------------------------------------------------------------------
-
-loc_4B4B8:              ; CODE XREF: sub_4B419+95j
-        mov ax, 3E00h
-        mov bx, lastFileHandle
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-        jnb short loc_4B4C6
-        jmp exit
-// ; ---------------------------------------------------------------------------
-
-loc_4B4C6:              ; CODE XREF: sub_4B419+A8j
-        mov ax, word ptr aLevels_dat_0+8 ; "AT"
-        mov word ptr aLevelSet??+0Fh, ax ; "??  "
-        cmp ah, 54h ; 'T'
-        jnz short loc_4B4D3
-        al = 53h ; 'S'
-
-loc_4B4D3:              ; CODE XREF: sub_4B419+B6j
-        mov word ptr aLevel_lst+7, ax ; "ST"
-        mov word ptr aPlayer_lst+8, ax ; "ST"
-        mov word ptr aHallfame_lst+0Ah, ax ; "ST"
-        cmp ah, 54h ; 'T'
-        jnz short loc_4B4E4
-        mov ax, 4E49h
-
-loc_4B4E4:              ; CODE XREF: sub_4B419+C6j
-        mov word ptr aDemo0_bin+7, ax ; "IN"
-        cmp ah, 4Eh ; 'N'
-        jnz short loc_4B4EF
-        mov ax, 5641h
-
-loc_4B4EF:              ; CODE XREF: sub_4B419+D1j
-        cmp byte ptr dword_59B76, 0
-        jnz short loc_4B4F9
-        mov word ptr aSavegame_sav+0Ah, ax ; "AV"
-
-loc_4B4F9:              ; CODE XREF: sub_4B419+DBj
-        mov si, 9EEDh
-        cmp ah, 56h ; 'V'
-        jnz short loc_4B504
-        mov si, 9F05h
-
-loc_4B504:              ; CODE XREF: sub_4B419+E6j
-        mov di, 89F7h
-        mov ah, 4
-        call    drawTextWithChars6FontWithOpaqueBackground
-        call    readLevelsLst
-        call    readDemoFiles
-        push    es
-        push    ds
-        pop es
-        assume es:data
-        cmp byte_59B85, 0
-        jz  short loc_4B52A
-        lea di, byte_58DB4+4
-        mov cx, 6Fh ; 'o'
-        al = 2
-        rep stosb
-        pop es
-        assume es:nothing
-        jmp short loc_4B565
-// ; ---------------------------------------------------------------------------
-
-loc_4B52A:              ; CODE XREF: sub_4B419+101j
-        lea di, word_58DAC
-        mov cx, 14h
-
-loc_4B531:              ; CODE XREF: sub_4B419+129j
-        push(cx);
-        mov ax, 2D2Dh
-        mov cx, 4
-        rep stosw
-        xor ax, ax
-        mov cx, 3Ch ; '<'
-        rep stosw
-        pop(cx);
-        loop    loc_4B531
-        lea di, asc_59824   ; "    "
-        mov cx, 3
-
-loc_4B54B:              ; CODE XREF: sub_4B419+143j
-        push(cx);
-        mov ax, 2020h
-        mov cx, 4
-        rep stosw
-        xor ax, ax
-        mov cx, 2
-        rep stosw
-        pop(cx);
-        loop    loc_4B54B
-        pop es
-        call    readHallfameLst
-        call    readPlayersLst
-
-loc_4B565:              ; CODE XREF: sub_4B419+10Fj
-        mov byte_51ABE, 1
-        call    prepareLevelDataForCurrentPlayer
-        call    drawPlayerList
-        call    drawLevelList
-        call    drawHallOfFame
-        call    drawRankings
-        call    restoreLastMouseAreaBitmap
-        call    saveLastMouseAreaBitmap
-        call    drawMouseCursor
-
-locret_4B582:               ; CODE XREF: sub_4B419+27j
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_4B583:              ; CODE XREF: sub_4B419+17j
-        mov si, 60D5h
-        call    fade
-        call    vgaloadbackseg
-        mov si, 84FFh
-        mov di, 786Dh
-        mov ah, 0Fh
-        call    drawTextWithChars6FontWithTransparentBackground
-        mov ah, 19h
-        int 21h     ; DOS - GET DEFAULT DISK NUMBER
-        mov byte_59B9A, al
-        cmp al, 0
-        jz  short loc_4B5B3
-        cmp al, 1
-        jz  short loc_4B5B3
-        mov si, 851Bh
-        mov di, 81F5h
-        mov ah, 0Fh
-        call    drawTextWithChars6FontWithTransparentBackground
-        jmp short loc_4B5BE
-// ; ---------------------------------------------------------------------------
-
-loc_4B5B3:              ; CODE XREF: sub_4B419+187j
-                    ; sub_4B419+18Bj
-        mov si, 853Ah
-        mov di, 81F5h
-        mov ah, 0Fh
-        call    drawTextWithChars6FontWithTransparentBackground
-
-loc_4B5BE:              ; CODE XREF: sub_4B419+198j
-        mov si, 8562h
-        mov di, 0A81Ah
-        mov ah, 0Fh
-        call    drawTextWithChars6FontWithTransparentBackground
-        mov bx, 4D84h
-        mov dx, 3D4h
-        al = 0Dh
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (low)
-        inc dx
-        al = bl
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 0Ch
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (high)
-        inc dx
-        al = bh
-        out dx, al      ; Video: CRT controller internal registers
-        mov si, palettesDataBuffer
-        call    fade
-
-loc_4B5E6:              ; CODE XREF: sub_4B419+1D3j
-        call    getMouseStatus
-        cmp bx, 0
-        jnz short loc_4B5E6
-
-loc_4B5EE:              ; CODE XREF: sub_4B419+20Fj
-        cmp word_5197A, 1
-        jz  short loc_4B63D
-        al = keyPressed
-        xor dl, dl
-        cmp al, 1Eh     ; A
-        jz  short loc_4B62A
-        inc dl
-        cmp al, 30h ; '0'   ; B
-        jz  short loc_4B62A
-        inc dl
-        cmp al, 2Eh ; '.'   ; C
-        jz  short loc_4B62A
-        inc dl
-        cmp al, 20h ; ' '   ; D
-        jz  short loc_4B62A
-        inc dl
-        cmp al, 12h     ; E
-        jz  short loc_4B62A
-        inc dl
-        cmp al, 21h ; '!'   ; F
-        jz  short loc_4B62A
-        mov dl, byte_59B9A
-        cmp al, 1Ch     ; Enter
-        jz  short loc_4B62A
-        cmp al, 1       ; Esc
-        jz  short loc_4B63D
-        jmp short loc_4B5EE
-// ; ---------------------------------------------------------------------------
-
-loc_4B62A:              ; CODE XREF: sub_4B419+1E3j
-                    ; sub_4B419+1E9j ...
-        mov ah, 0Eh
-        int 21h     ; DOS - SELECT DISK
-                    ; DL = new default drive number (0 = A, 1 = B, etc.)
-                    ; Return: AL = number of logical drives
-        mov byte_59B86, 0
-        call    loadMurphySprites
-        cmp byte_59B86, 0FFh
-        jnz short loc_4B647
-
-loc_4B63D:              ; CODE XREF: sub_4B419+1DAj
-                    ; sub_4B419+20Dj
-        mov dl, byte_59B9A
-        mov ah, 0Eh
-        int 21h     ; DOS - SELECT DISK
-                    ; DL = new default drive number (0 = A, 1 = B, etc.)
-                    ; Return: AL = number of logical drives
-        jmp short loc_4B64D
-// ; ---------------------------------------------------------------------------
-
-loc_4B647:              ; CODE XREF: sub_4B419+222j
-        call    readEverything
-        call    vgaloadbackseg
-
-loc_4B64D:              ; CODE XREF: sub_4B419+22Cj
-        mov si, 60D5h
-        call    fade
-        mov bx, 4D5Ch
-        mov dx, 3D4h
-        al = 0Dh
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (low)
-        inc dx
-        al = bl
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 0Ch
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (high)
-        inc dx
-        al = bh
-        out dx, al      ; Video: CRT controller internal registers
-        mov si, 6015h
-        call    fade
-        return;
-sub_4B419   endp
-
 */
+
+void handleFloppyDiskButtonClick() // sub_4B419  proc near
+{
+    drawTextWithChars6FontWithOpaqueBackground(168, 127, 6, "WHAT'S A FLOPPY DISK?  ");
+}
 
 void handlePlayerListScrollDown() // sub_4B671  proc near
 {
@@ -11923,7 +11578,7 @@ void drawLevelList() // sub_4C141  proc near       ; CODE XREF: start+41Ap sub_
     drawTextWithChars6FontWithOpaqueBackground(144, 173, byte_59823, nextLevelName);
 }
 
-void drawHallOfFame() //   proc near       ; CODE XREF: sub_4B419+15Ap
+void drawHallOfFame() //   proc near       ; CODE XREF: handleFloppyDiskButtonClick+15Ap
 //                    ; drawMenuTitleAndDemoLevelResult+11p
 {
     // 01ED:5546
