@@ -98,7 +98,9 @@ uint8_t byte_519C1 = 0;
 uint8_t byte_519D4 = 0;
 uint8_t byte_519D5 = 0;
 uint8_t byte_59889 = 0;
+uint8_t byte_5988A = 0;
 uint8_t byte_5988B = 0;
+uint8_t byte_5988C = 0;
 uint8_t byte_59B94 = 0;
 uint8_t byte_59B96 = 0;
 uint8_t byte_5091A = 0;
@@ -723,6 +725,8 @@ void drawSpeedFixTitleAndVersion(void);
 void openCreditsBlock(void);
 void drawSpeedFixCredits(void);
 void readConfig(void);
+void readSound(char *filename, size_t size);
+void readSound2(char *filename, size_t size);
 void loadAdlib(void);
 void loadBlaster(void);
 void loadRoland(void);
@@ -15006,43 +15010,31 @@ void loadBeep2() //   proc near       ; CODE XREF: readConfig+4Cp handleOptions
 
 void loadAdlib() //   proc near       ; CODE XREF: readConfig+56p handleOptionsAdlibClickp
 {
-    /*
-        call    sound1
-        mov dx, offset aAdlib_snd ; "ADLIB.SND"
-        mov cx, 14EAh
-        call    readSound
-        mov musType, 3
-        mov sndType, 3
-        mov soundEnabled, 0
-        call    sound2
-        mov byte_59889, 0
-        mov byte_5988A, 64h ; 'd'
-        mov byte_5988B, 0
-        mov byte_5988C, 0
-        return;
-     */
+    sound1();
+    readSound("ADLIB.SND", 0x14EA);
+    musType = 3;
+    sndType = 3;
+    soundEnabled = 0;
+    sound2();
+    byte_59889 = 0;
+    byte_5988A = 0x64;
+    byte_5988B = 0;
+    byte_5988C = 0;
 }
 
 void loadBlaster() //  proc near       ; CODE XREF: readConfig+60p handleOptionsSoundBlasterClickp
 {
-    /*
-        call    sound1
-        mov dx, offset aAdlib_snd ; "ADLIB.SND"
-        mov cx, 14EAh
-        call    readSound
-        mov dx, offset aBlaster_snd ; "BLASTER.SND"
-        mov cx, 991Bh
-        call    readSound2
-        mov musType, 3
-        mov sndType, 4
-        mov soundEnabled, 0
-        call    sound2
-        mov byte_59889, 0
-        mov byte_5988A, 64h ; 'd'
-        mov byte_5988B, 0
-        mov byte_5988C, 0
-        return;
-     */
+    sound1();
+    readSound("ADLIB.SND", 0x14EA);
+    readSound2("BLASTER.SND", 0x991B);
+    musType = 3;
+    sndType = 4;
+    soundEnabled = 0;
+    sound2();
+    byte_59889 = 0;
+    byte_5988A = 0x64;
+    byte_5988B = 0;
+    byte_5988C = 0;
 }
 
 void loadRoland() //  proc near       ; CODE XREF: readConfig+6Ap handleOptionsRolandClickp
@@ -15086,98 +15078,70 @@ void loadCombined() // proc near       ; CODE XREF: readConfig+74p handleOption
      */
 }
 
-/*
+void readSound(char *filename, size_t size) //   proc near       ; CODE XREF: loadBeep+9p loadBeep2+9p ...
+{
+    FILE *file = fopen(filename, "r");
+    if (file == NULL)
+    {
+        exitWithError("Error opening %s\n", filename);
+    }
 
-readSound   proc near       ; CODE XREF: loadBeep+9p loadBeep2+9p ...
-        mov ax, 3D00h
-        int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-                    ; DS:DX -> ASCIZ filename
-                    ; AL = access mode
-                    ; 0 - read
-        jnb short loc_4DA51
-        jmp exit
-// ; ---------------------------------------------------------------------------
+//loc_4DA51:              ; CODE XREF: readSound+5j
+//    mov lastFileHandle, ax
+//    mov bx, lastFileHandle
+//    push    ds
+//    mov ax, seg soundseg
+//    mov ds, ax
+//    assume ds:soundseg
+//    mov ax, 3F00h
+//    mov dx, 0
+//    int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+//                ; BX = file handle, CX = number of bytes to read
+//                ; DS:DX -> buffer
+    uint8_t *someBuffer = NULL;
+    size_t bytes = fread(someBuffer, 1, size, file);
+    if (bytes < size)
+    {
+        exitWithError("Error reading %s\n", filename);
+    }
 
-loc_4DA51:              ; CODE XREF: readSound+5j
-        mov lastFileHandle, ax
-        mov bx, lastFileHandle
-        push    ds
-        mov ax, seg soundseg
-        mov ds, ax
-        assume ds:soundseg
-        mov ax, 3F00h
-        mov dx, 0
-        int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to read
-                    ; DS:DX -> buffer
-        jnb short loc_4DA6C
-        pop ds
-        assume ds:data
-        jmp exit
-// ; ---------------------------------------------------------------------------
+//loc_4DA6C:              ; CODE XREF: readSound+1Fj
+    if (fclose(file) != 0)
+    {
+        exitWithError("Error closing %s\n", filename);
+    }
+}
 
-loc_4DA6C:              ; CODE XREF: readSound+1Fj
-        pop ds
-        mov ax, 3E00h
-        mov bx, lastFileHandle
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-        jnb short locret_4DA7B
-        jmp exit
-// ; ---------------------------------------------------------------------------
+void readSound2(char *filename, size_t size) //  proc near       ; CODE XREF: loadBeep2+12p
+//                    ; loadBlaster+12p ...
+{
+    FILE *file = fopen(filename, "r");
+    if (file == NULL)
+    {
+        exitWithError("Error opening %s\n", filename);
+    }
 
-locret_4DA7B:               ; CODE XREF: readSound+2Fj
-        return;
-readSound   endp
+//loc_4DA86:              ; CODE XREF: readSound2+5j
+//        mov lastFileHandle, ax
+//        mov bx, lastFileHandle
+//        push    ds
+//        mov ax, seg sound2seg
+//        mov ds, ax
+//        assume ds:sound2seg
+    uint8_t *someOTHERBuffer = NULL;
+    size_t bytes = fread(someOTHERBuffer, 1, size, file);
+    if (bytes < size)
+    {
+        exitWithError("Error reading %s\n", filename);
+    }
 
+//loc_4DAA1:              ; CODE XREF: readSound2+1Fj
+    if (fclose(file) != 0)
+    {
+        exitWithError("Error closing %s\n", filename);
+    }
+}
 
-; =============== S U B R O U T I N E =======================================
-
-
-readSound2  proc near       ; CODE XREF: loadBeep2+12p
-                    ; loadBlaster+12p ...
-        mov ax, 3D00h
-        int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-                    ; DS:DX -> ASCIZ filename
-                    ; AL = access mode
-                    ; 0 - read
-        jnb short loc_4DA86
-        jmp exit
-// ; ---------------------------------------------------------------------------
-
-loc_4DA86:              ; CODE XREF: readSound2+5j
-        mov lastFileHandle, ax
-        mov bx, lastFileHandle
-        push    ds
-        mov ax, seg sound2seg
-        mov ds, ax
-        assume ds:sound2seg
-        mov ax, 3F00h
-        mov dx, 0
-        int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to read
-                    ; DS:DX -> buffer
-        jnb short loc_4DAA1
-        pop ds
-        assume ds:data
-        jmp exit
-// ; ---------------------------------------------------------------------------
-
-loc_4DAA1:              ; CODE XREF: readSound2+1Fj
-        pop ds
-        mov ax, 3E00h
-        mov bx, lastFileHandle
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-        jnb short locret_4DAB0
-        jmp exit
-// ; ---------------------------------------------------------------------------
-
-locret_4DAB0:               ; CODE XREF: readSound2+2Fj
-        return;
-readSound2  endp
-
-*/
 void sound1() //     proc near       ; CODE XREF: soundShutdown?+5p
                  //   ; code:6CC7p ...
 {
