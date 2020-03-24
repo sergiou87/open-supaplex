@@ -1005,9 +1005,9 @@ void drawBackBackground(void);
 void drawGfxTutorBackground(uint8_t *dest);
 void drawFullScreenBitmap(uint8_t *bitmapData, uint8_t *dest);
 void sub_4CAFC(uint8_t *destBuffer);
-void sub_4CE9C(void);
+void dimOptionsButtonText(size_t startX, size_t startY, size_t width, size_t height, uint8_t *destBuffer);
 void drawOptionsMenuLine(ButtonBorderDescriptor border, uint8_t color, uint8_t *destBuffer);
-void sub_4CE11(void);
+void highlightOptionsButtonText(size_t startX, size_t startY, size_t width, size_t height, uint8_t *destBuffer);
 void sub_4CC7C(uint8_t *destBuffer);
 void sub_4CCDF(uint8_t *destBuffer);
 void sub_4CD3C(uint8_t *destBuffer);
@@ -12754,10 +12754,7 @@ void showControls() //:                              ; DATA XREF: data:0044o
         gMouseButtonStatus = mouseButtonStatus;
         gMouseX = mouseX;
         gMouseY = mouseY;
-    //    mov     gMouseButtonStatus, bx
-    //    add     cx, 140h
-    //    mov     gMouseX, cx
-    //    mov     gMouseY, dx
+
         restoreLastMouseAreaBitmap();
         saveLastMouseAreaBitmap();
         drawMouseCursor();
@@ -12813,75 +12810,33 @@ void showControls() //:                              ; DATA XREF: data:0044o
 
 void sub_4CAFC(uint8_t *destBuffer) //   proc near       ; CODE XREF: code:5AE1p handleOptionsStandardClick+6p ...
 {
-//    si = 0x578B;
-//    cx = 5;
-//    dx = 8;
-    sub_4CE9C();
-//    mov ah, 4
-//    mov si, 130h
+    dimOptionsButtonText(40, 21, 40, 8, destBuffer);
     drawOptionsMenuLine(kOptionsMenuBorders[0], 4, destBuffer);
-//    mov ah, 4
-//    mov si, 161h
     drawOptionsMenuLine(kOptionsMenuBorders[1], 4, destBuffer);
-//    mov si, 68B1h
-//    mov cx, 9
-//    mov dx, 8
-    sub_4CE9C();
-//    mov ah, 4
-//    mov si, 1A7h
+
+    dimOptionsButtonText(24, 57, 72, 8, destBuffer);
     drawOptionsMenuLine(kOptionsMenuBorders[2], 4, destBuffer);
-//    mov ah, 4
-//    mov si, 1CAh
     drawOptionsMenuLine(kOptionsMenuBorders[3], 4, destBuffer);
-//    mov si, 79DAh
-//    mov cx, 7
-//    mov dx, 8
-    sub_4CE9C();
-//    mov ah, 4
-//    mov si, 1F4h
+
+    dimOptionsButtonText(32, 93, 56, 8, destBuffer);
     drawOptionsMenuLine(kOptionsMenuBorders[4], 4, destBuffer);
-//    mov ah, 4
-//    mov si, 225h
     drawOptionsMenuLine(kOptionsMenuBorders[5], 4, destBuffer);
-//    mov si, 8B01h
-//    mov cx, 8
-//    mov dx, 8
-    sub_4CE9C();
-//    mov si, 5629h
-//    mov cx, 9
-//    mov dx, 8
-    sub_4CE9C();
-//    mov ah, 4
-//    mov si, 2E2h
+
+    dimOptionsButtonText(24, 129, 64, 8, destBuffer);
+    dimOptionsButtonText(136, 18, 72, 8, destBuffer);
     drawOptionsMenuLine(kOptionsMenuBorders[7], 4, destBuffer);
-//    mov si, 6380h
-//    mov cx, 5
-//    mov dx, 5
-    sub_4CE9C();
-//    mov ah, 4
-//    mov si, 328h
+
+    dimOptionsButtonText(128, 46, 40, 5, destBuffer);
     drawOptionsMenuLine(kOptionsMenuBorders[8], 4, destBuffer);
-//    mov si, 6386h
-//    mov cx, 5
-//    mov dx, 5
-    sub_4CE9C();
-//    mov ah, 4
-//    mov si, 36Eh
+
+    dimOptionsButtonText(176, 46, 40, 5, destBuffer);
     drawOptionsMenuLine(kOptionsMenuBorders[9], 4, destBuffer);
-//    mov ah, 4
-//    mov si, 28Eh
     drawOptionsMenuLine(kOptionsMenuBorders[6], 4, destBuffer);
+
     if (sndType == 3)
     {
-    //    mov si, 578Bh
-    //    mov cx, 5
-    //    mov dx, 8
-        sub_4CE11();
-    //    mov ah, 6
-    //    mov si, 130h
+        highlightOptionsButtonText(40, 21, 40, 8, destBuffer);
         drawOptionsMenuLine(kOptionsMenuBorders[0], 6, destBuffer);
-    //    mov ah, 6
-    //    mov si, 161h
         drawOptionsMenuLine(kOptionsMenuBorders[1], 6, destBuffer);
         return;
     }
@@ -12889,31 +12844,18 @@ void sub_4CAFC(uint8_t *destBuffer) //   proc near       ; CODE XREF: code:5AE1
 //loc_4CBC6:              ; CODE XREF: sub_4CAFC+A9j
     if (sndType == 4)
     {
-    //    mov ah, 6
-    //    mov si, 1CAh
         drawOptionsMenuLine(kOptionsMenuBorders[3], 6, destBuffer);
+
         if (musType == 3)
         {
-    //        mov si, 68B1h
-    //        mov cx, 9
-    //        mov dx, 8
-            sub_4CE11();
-    //        mov ah, 6
-    //        mov si, 1A7h
+            highlightOptionsButtonText(24, 57, 72, 8, destBuffer);
             drawOptionsMenuLine(kOptionsMenuBorders[2], 6, destBuffer);
             return;
         }
 
 //loc_4CBF3:              ; CODE XREF: sub_4CAFC+DEj
-//        mov si, 8B01h
-//        mov cx, 8
-//        mov dx, 8
-        sub_4CE11();
-//        mov ah, 6
-//        mov si, 1F4h
+        highlightOptionsButtonText(24, 129, 64, 8, destBuffer);
         drawOptionsMenuLine(kOptionsMenuBorders[4], 6, destBuffer);
-//        mov ah, 6
-//        mov si, 28Eh
         drawOptionsMenuLine(kOptionsMenuBorders[6], 6, destBuffer);
         return;
     }
@@ -12921,46 +12863,25 @@ void sub_4CAFC(uint8_t *destBuffer) //   proc near       ; CODE XREF: code:5AE1
 //loc_4CC11:              ; CODE XREF: sub_4CAFC+CFj
     if (sndType == 5)
     {
-    //    mov si, 79DAh
-    //    mov cx, 7
-    //    mov dx, 8
-        sub_4CE11();
-    //    mov ah, 6
-    //    mov si, 1F4h
+        highlightOptionsButtonText(32, 93, 56, 8, destBuffer);
         drawOptionsMenuLine(kOptionsMenuBorders[4], 6, destBuffer);
-    //    mov ah, 6
-    //    mov si, 225h
         drawOptionsMenuLine(kOptionsMenuBorders[5], 6, destBuffer);
         return;
     }
 
 //loc_4CC36:              ; CODE XREF: sub_4CAFC+11Aj
-//    mov si, 5629h
-//    mov cx, 9
-//    mov dx, 8
-    sub_4CE11();
-//    mov ah, 6
-//    mov si, 2E2h
+    highlightOptionsButtonText(136, 18, 72, 8, destBuffer);
     drawOptionsMenuLine(kOptionsMenuBorders[7], 6, destBuffer);
+
     if (sndType == 1)
     {
-    //    mov si, 6380h
-    //    mov cx, 5
-    //    mov dx, 5
-        sub_4CE11();
-    //    mov ah, 6
-    //    mov si, 328h
+        highlightOptionsButtonText(128, 46, 40, 5, destBuffer); // Standard
         drawOptionsMenuLine(kOptionsMenuBorders[8], 6, destBuffer);
         return;
     }
 
 //loc_4CC67:              ; CODE XREF: sub_4CAFC+153j
-//    mov si, 6386h
-//    mov cx, 5
-//    mov dx, 5
-    sub_4CE11();
-//    mov ah, 6
-//    mov si, 36Eh
+    highlightOptionsButtonText(176, 46, 40, 5, destBuffer);
     drawOptionsMenuLine(kOptionsMenuBorders[9], 6, destBuffer);
 }
 
@@ -12969,46 +12890,26 @@ void sub_4CC7C(uint8_t *destBuffer) //   proc near       ; CODE XREF: handleOpti
 {
     if (isMusicEnabled == 1)
     {
-    //    mov si, 7CC3h
-    //    mov cx, 5
-    //    mov dx, 8
-        sub_4CE11();
-    //    mov ah, 6
-    //    mov si, 3B4h
+        highlightOptionsButtonText(134, 99, 40, 8, destBuffer);
         drawOptionsMenuLine(kOptionsMenuBorders[10], 6, destBuffer);
     }
     else
     {
 //loc_4CC99:              ; CODE XREF: sub_4CC7C+5j
-//        mov si, 7CC3h
-//        mov cx, 5
-//        mov dx, 8
-        sub_4CE9C();
-//        mov ah, 4
-//        mov si, 3B4h
+        dimOptionsButtonText(134, 99, 40, 8, destBuffer);
         drawOptionsMenuLine(kOptionsMenuBorders[10], 4, destBuffer);
     }
 
 //loc_4CCAD:              ; CODE XREF: sub_4CC7C+1Bj
     if (isFXEnabled == 1)
     {
-    //    mov si, 8F59h
-    //    mov cx, 3
-    //    mov dx, 8
-        sub_4CE11();
-    //    mov ah, 6
-    //    mov si, 3DEh
+        highlightOptionsButtonText(136, 138, 24, 8, destBuffer);
         drawOptionsMenuLine(kOptionsMenuBorders[11], 6, destBuffer);
         return;
     }
 
 //loc_4CCCA:              ; CODE XREF: sub_4CC7C+36j
-//    mov si, 8F59h
-//    mov cx, 3
-//    mov dx, 8
-    sub_4CE9C();
-//    mov ah, 4
-//    mov si, 3DEh
+    dimOptionsButtonText(136, 138, 24, 8, destBuffer);
     drawOptionsMenuLine(kOptionsMenuBorders[11], 4, destBuffer);
 }
 
@@ -13016,37 +12917,17 @@ void sub_4CCDF(uint8_t *destBuffer) //   proc near       ; CODE XREF: code:5B5D
 {
     if (isJoystickEnabled == 0)
     {
-        //    mov si, 7714h
-        //    mov cx, 1
-        //    mov dx, 3Eh ; '>'
-        sub_4CE11();
-        //    mov si, 7792h
-        //    mov cx, 1
-        //    mov dx, 3Ah ; ':'
-        sub_4CE9C();
-        //    mov ah, 4
-        //    mov si, 478h
+        highlightOptionsButtonText(208, 87, 8, 62, destBuffer);
+        dimOptionsButtonText(240, 88, 8, 58, destBuffer);
         drawOptionsMenuLine(kOptionsMenuBorders[18], 4, destBuffer);
-        //    mov ah, 6
-        //    mov si, 4E1h
         drawOptionsMenuLine(kOptionsMenuBorders[19], 6, destBuffer);
     }
     else
     {
-        //loc_4CD10:              ; CODE XREF: sub_4CCDF+5j
-        //    mov si, 7714h
-        //    mov cx, 1
-        //    mov dx, 3Eh ; '>'
-        sub_4CE9C();
-        //    mov si, 7792h
-        //    mov cx, 1
-        //    mov dx, 3Ah ; ':'
-        sub_4CE11();
-        //    mov ah, 6
-        //    mov si, 478h
+//loc_4CD10:              ; CODE XREF: sub_4CCDF+5j
+        dimOptionsButtonText(208, 87, 8, 62, destBuffer);
+        highlightOptionsButtonText(240, 88, 8, 58, destBuffer);
         drawOptionsMenuLine(kOptionsMenuBorders[18], 6, destBuffer);
-        //    mov ah, 4
-        //    mov si, 4E1h
         drawOptionsMenuLine(kOptionsMenuBorders[19], 4, destBuffer);
     }
 
@@ -13067,11 +12948,7 @@ void sub_4CD3C(uint8_t *destBuffer) //   proc near       ; CODE XREF: sub_4CCDF:
     byte_50919 = byte_50941;
     if (byte_50941 == 0)
     {
-//    mov ah, 6
-//    mov si, 424h
         drawOptionsMenuLine(kOptionsMenuBorders[12], 6, destBuffer);
-//    mov ah, 4
-//    mov si, 46Ah
         drawOptionsMenuLine(kOptionsMenuBorders[17], 4, destBuffer);
     }
     else
@@ -13080,31 +12957,21 @@ void sub_4CD3C(uint8_t *destBuffer) //   proc near       ; CODE XREF: sub_4CCDF:
         if (byte_50941 > 4)
         {
 //loc_4CD9E:              ; CODE XREF: sub_4CD3C+33j
-            //    mov ah, 4
-            //    mov si, 424h
             drawOptionsMenuLine(kOptionsMenuBorders[12], 4, destBuffer);
-            //    mov ah, 4
-            //    mov si, 46Ah
             drawOptionsMenuLine(kOptionsMenuBorders[17], 4, destBuffer);
         }
         else
         {
-            //    mov ah, 6
-            //    mov si, 46Ah
             drawOptionsMenuLine(kOptionsMenuBorders[17], 6, destBuffer);
             if (byte_50941 == 9)
             {
 //loc_4CD8F:              ; CODE XREF: sub_4CD3C+42j
                 byte_50941 -= 4;
-                //    mov ah, 4
-                //    mov si, 424h
                 drawOptionsMenuLine(kOptionsMenuBorders[12], 4, destBuffer);
             }
             else
             {
                 byte_50941 = 0;
-                //    mov ah, 6
-                //    mov si, 424h
                 drawOptionsMenuLine(kOptionsMenuBorders[12], 6, destBuffer);
             }
         }
@@ -13112,22 +12979,12 @@ void sub_4CD3C(uint8_t *destBuffer) //   proc near       ; CODE XREF: sub_4CCDF:
 
 //loc_4CDAE:              ; CODE XREF: sub_4CD3C+2Cj
 //                ; sub_4CD3C+51j ...
-//    mov ah, 4
-//    mov si, 432h
     drawOptionsMenuLine(kOptionsMenuBorders[13], 4, destBuffer);
-//    mov ah, 4
-//    mov si, 440h
     drawOptionsMenuLine(kOptionsMenuBorders[14], 4, destBuffer);
-//    mov ah, 4
-//    mov si, 44Eh
     drawOptionsMenuLine(kOptionsMenuBorders[15], 4, destBuffer);
-//    mov ah, 4
-//    mov si, 45Ch
     drawOptionsMenuLine(kOptionsMenuBorders[16], 4, destBuffer);
     if (byte_50941 == 1)
     {
-//    mov ah, 6
-//    mov si, 432h
         drawOptionsMenuLine(kOptionsMenuBorders[13], 6, destBuffer);
         return;
     }
@@ -13135,8 +12992,6 @@ void sub_4CD3C(uint8_t *destBuffer) //   proc near       ; CODE XREF: sub_4CCDF:
 //loc_4CDDF:              ; CODE XREF: sub_4CD3C+97j
     if (byte_50941 == 2)
     {
-//    mov ah, 6
-//    mov si, 440h
         drawOptionsMenuLine(kOptionsMenuBorders[14], 6, destBuffer);
         return;
     }
@@ -13144,8 +12999,6 @@ void sub_4CD3C(uint8_t *destBuffer) //   proc near       ; CODE XREF: sub_4CCDF:
 //loc_4CDF0:              ; CODE XREF: sub_4CD3C+A8j
     if (byte_50941 == 3)
     {
-//    mov ah, 6
-//    mov si, 44Eh
         drawOptionsMenuLine(kOptionsMenuBorders[15], 6, destBuffer);
         return;
     }
@@ -13153,238 +13006,69 @@ void sub_4CD3C(uint8_t *destBuffer) //   proc near       ; CODE XREF: sub_4CCDF:
 //loc_4CE01:              ; CODE XREF: sub_4CD3C+B9j
     if (byte_50941 == 4)
     {
-//    mov ah, 6
-//    mov si, 45Ch
         drawOptionsMenuLine(kOptionsMenuBorders[16], 6, destBuffer);
     }
 }
 
-void sub_4CE11() //   proc near       ; CODE XREF: sub_4CAFC+B4p
+void highlightOptionsButtonText(size_t startX, size_t startY, size_t width, size_t height, uint8_t *destBuffer) // sub_4CE11   proc near       ; CODE XREF: sub_4CAFC+B4p
                    // ; sub_4CAFC+E9p ...
 {
-    return;
-    /*
-    var_2       = word ptr -2
+    // Copies a portion of the buffer replacing color 0xF (not selected)
+    // with color 0x1 (selected).
+    // Used in the options screen to highlight text from buttons.
+    //
+    // Parameters:
+    // - si: origin coordinates
+    // - cx: width / 8
+    // - dx: height
 
-    push    bp
-    mov bp, sp
-    add sp, 0FFFEh
-    push    si
-    push(cx);
-    push    dx
-    call    restoreLastMouseAreaBitmap
-    pop dx
-    pop(cx);
-    pop si
-    mov bx, dx
-    mov dx, 3CEh
-    al = 5
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; mode register.Data bits:
-                ; 0-1: Write mode 0-2
-                ; 2: test condition
-                ; 3: read mode: 1=color compare, 0=direct
-                ; 4: 1=use odd/even RAM addressing
-                ; 5: 1=use CGA mid-res map (2-bits/pixel)
-    inc dx
-    al = 8
-    out dx, al      ; EGA port: graphics controller data register
-    mov dx, 3CEh
-    al = 2
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; color compare.
-                ; Data bits 0-3 select color for read mode 01
-    inc dx
-    al = 0Fh
-    out dx, al      ; EGA port: graphics controller data register
-    mov dx, 3CEh
-    al = 7
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; color masking disable
-                ; bits 0-3 disable planes from compare logic in read mode 01
-    inc dx
-    al = 0Fh
-    out dx, al      ; EGA port: graphics controller data register
-    mov dx, 3CEh
-    al = 0
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; set/reset.
-                ; Data bits 0-3 select planes for write mode 00
-    inc dx
-    al = 1
-    out dx, al      ; EGA port: graphics controller data register
-    mov dx, 3CEh
-    al = 1
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; enable set/reset
-    inc dx
-    al = 0Fh
-    out dx, al      ; EGA port: graphics controller data register
-    mov di, si
-    push    ds
-    mov ax, es
-    mov ds, ax
-    mov [bp+var_2], cx
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = 0
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = 0;
+    restoreLastMouseAreaBitmap();
 
-loc_4CE68:              ; CODE XREF: sub_4CE11+5Aj
-                ; sub_4CE11+6Aj
-    lodsb
-    out dx, al      ; EGA port: graphics controller data register
-    stosb
-    loop    loc_4CE68
-    mov cx, [bp+var_2]
-    add si, 7Ah ; 'z'
-    sub si, cx
-    add di, 7Ah ; 'z'
-    sub di, cx
-    dec bx
-    jnz short loc_4CE68
-    pop ds
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    inc dx
-    al = 0FFh
-    out dx, al      ; EGA port: graphics controller data register
-    mov dx, 3CEh
-    al = 5
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; mode register.Data bits:
-                ; 0-1: Write mode 0-2
-                ; 2: test condition
-                ; 3: read mode: 1=color compare, 0=direct
-                ; 4: 1=use odd/even RAM addressing
-                ; 5: 1=use CGA mid-res map (2-bits/pixel)
-    inc dx
-    al = 1
-    out dx, al      ; EGA port: graphics controller data register
-    call    saveLastMouseAreaBitmap
-    call    drawMouseCursor
-    mov sp, bp
-    pop bp
-    return;
-     */
- }
+    for (size_t y = startY; y < startY + height; ++y)
+    {
+        for (size_t x = startX; x < startX + width; ++x)
+        {
+//loc_4CE68:              ; CODE XREF: highlightOptionsButtonText+5Aj
+//                ; highlightOptionsButtonText+6Aj
+            size_t addr = (y * kScreenWidth) + x;
+            destBuffer[addr] = (destBuffer[addr] == 0xF
+                                ? 0x1
+                                : destBuffer[addr]);
+        }
+    }
 
-void sub_4CE9C() //   proc near       ; CODE XREF: sub_4CAFC+9p
+    saveLastMouseAreaBitmap();
+    drawMouseCursor();
+}
+
+void dimOptionsButtonText(size_t startX, size_t startY, size_t width, size_t height, uint8_t *destBuffer) // sub_4CE9C   proc near       ; CODE XREF: sub_4CAFC+9p
                    // ; sub_4CAFC+25p ...
 {
-    return;
+    // Copies a portion of the buffer replacing color 0x1 (selected)
+    // with color 0xF (not selected).
+    // Used in the options screen to dim text from buttons.
+    //
     // Parameters:
-    // - si: ???
-    // - cx: ???
-    // - dx: ???
-    uint16_t var_2; //       = word ptr -2
+    // - si: coordinates
+    // - cx: width / 8
+    // - dx: height
 
-//    push    bp
-//    mov bp, sp
-//    add sp, 0FFFEh
-//    push    si
-//    push(cx);
-//    push    dx
     restoreLastMouseAreaBitmap();
-//    pop dx
-//    pop(cx);
-//    pop si
-    bx = dx;
-    /*
-    mov dx, 3CEh
-    al = 5
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; mode register.Data bits:
-                ; 0-1: Write mode 0-2
-                ; 2: test condition
-                ; 3: read mode: 1=color compare, 0=direct
-                ; 4: 1=use odd/even RAM addressing
-                ; 5: 1=use CGA mid-res map (2-bits/pixel)
-    inc dx
-    al = 8
-    out dx, al      ; EGA port: graphics controller data register
-    mov dx, 3CEh
-    al = 2
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; color compare.
-                ; Data bits 0-3 select color for read mode 01
-    inc dx
-    al = 1
-    out dx, al      ; EGA port: graphics controller data register
-    mov dx, 3CEh
-    al = 7
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; color masking disable
-                ; bits 0-3 disable planes from compare logic in read mode 01
-    inc dx
-    al = 0Fh
-    out dx, al      ; EGA port: graphics controller data register
-    mov dx, 3CEh
-    al = 0
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; set/reset.
-                ; Data bits 0-3 select planes for write mode 00
-    inc dx
-    al = 0Fh
-    out dx, al      ; EGA port: graphics controller data register
-    mov dx, 3CEh
-    al = 1
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; enable set/reset
-    inc dx
-    al = 0Fh
-    out dx, al      ; EGA port: graphics controller data register
-     */
-//    mov di, si
-//    push    ds
-//    mov ax, es
-//    mov ds, ax
-    var_2 = cx;
-    /*
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = 0
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = 0;
-     */
 
-    do
+    for (size_t y = startY; y < startY + height; ++y)
     {
-        for (int i = 0; i < var_2; ++i)
+        for (size_t x = startX; x < startX + width; ++x)
         {
-//loc_4CEF3:              ; CODE XREF: sub_4CE9C+5Aj
-//                ; sub_4CE9C+6Aj
-//            al = *si; // lodsb
-            si++;
-    //        out dx, al      ; EGA port: graphics controller data register
-//            *di = al; //stosb
-            di++;
-        }
-        cx = var_2;
-        di += 122;
-        si -= cx;
-        di += 122;
-        di -= cx;
-        bx--;
-    }
-    while (bx != 0);
+            //loc_4CEF3:              ; CODE XREF: dimOptionsButtonText+5Aj
+            //                ; dimOptionsButtonText+6Aj
+            size_t addr = (y * kScreenWidth) + x;
 
-//    pop ds
+            destBuffer[addr] = (destBuffer[addr] == 0x1
+                                ? 0xF
+                                : destBuffer[addr]);
+        }
+    }
+
     saveLastMouseAreaBitmap();
     drawMouseCursor();
 }
@@ -13396,8 +13080,6 @@ void drawOptionsMenuLine(ButtonBorderDescriptor border, uint8_t color, uint8_t *
     // - ah: color
     // - si: pointer to ButtonBorderDescriptor item
 
-//    push    si
-//    push    ax
     restoreLastMouseAreaBitmap();
 
 //loc_4CF38:              ; CODE XREF: drawOptionsMenuLine+96j
