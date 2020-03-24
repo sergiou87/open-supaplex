@@ -1004,13 +1004,13 @@ void drawOptionsBackground(uint8_t *dest);
 void drawBackBackground(void);
 void drawGfxTutorBackground(uint8_t *dest);
 void drawFullScreenBitmap(uint8_t *bitmapData, uint8_t *dest);
-void sub_4CAFC(void);
+void sub_4CAFC(uint8_t *destBuffer);
 void sub_4CE9C(void);
-void drawOptionsMenuLine(ButtonBorderDescriptor border, uint8_t color);
+void drawOptionsMenuLine(ButtonBorderDescriptor border, uint8_t color, uint8_t *destBuffer);
 void sub_4CE11(void);
-void sub_4CC7C(void);
-void sub_4CCDF(void);
-void sub_4CD3C(void);
+void sub_4CC7C(uint8_t *destBuffer);
+void sub_4CCDF(uint8_t *destBuffer);
+void sub_4CD3C(uint8_t *destBuffer);
 
 static const int kWindowWidth = kScreenWidth * 4;
 static const int kWindowHeight = kScreenHeight * 4;
@@ -12373,49 +12373,49 @@ void handleOptionsStandardClick() // sub_4C705  proc near       ; CODE XREF: cod
 {
     loadBeep();
     sound4();
-    sub_4CAFC();
+    sub_4CAFC(gScreenPixels);
 }
 
 void handleOptionsInternalClick() // loc_4C6FB
 {
     handleOptionsStandardClick();
     sound4();
-    sub_4CAFC();
+    sub_4CAFC(gScreenPixels);
 }
 
 void handleOptionsSamplesClick() // sub_4C70F  proc near
 {
     loadBeep2();
     sound4();
-    sub_4CAFC();
+    sub_4CAFC(gScreenPixels);
 }
 
 void handleOptionsSoundBlasterClick() // sub_4C719  proc near
 {
     loadBlaster();
     sound4();
-    sub_4CAFC();
+    sub_4CAFC(gScreenPixels);
 }
 
 void handleOptionsAdlibClick() // sub_4C723  proc near
 {
     loadAdlib();
     sound4();
-    sub_4CAFC();
+    sub_4CAFC(gScreenPixels);
 }
 
 void handleOptionsRolandClick() // sub_4C72D  proc near
 {
     loadRoland();
     sound4();
-    sub_4CAFC();
+    sub_4CAFC(gScreenPixels);
 }
 
 void handleOptionsCombinedClick() // sub_4C737  proc near
 {
     loadCombined();
     sound4();
-    sub_4CAFC();
+    sub_4CAFC(gScreenPixels);
 }
 
 void handleOptionsMusicClick() // sub_4C741   proc near
@@ -12433,7 +12433,7 @@ void handleOptionsMusicClick() // sub_4C741   proc near
     }
 
 //loc_4C75A:              ; CODE XREF: handleOptionsAdlibClick+Fj
-    sub_4CC7C();
+    sub_4CC7C(gScreenPixels);
     return;
 }
 
@@ -12451,20 +12451,20 @@ void handleOptionsFXClick() // loc_4C75E
     }
 
 //loc_4C774:              ; CODE XREF: code:5B4Aj
-    sub_4CC7C();
+    sub_4CC7C(gScreenPixels);
 }
 
 void handleOptionsKeyboardClick() // loc_4C778
 {
     isJoystickEnabled = 0;
-    sub_4CCDF();
+    sub_4CCDF(gScreenPixels);
 }
 
 void handleOptionsJoystickClick() // loc_4C781
 {
     isJoystickEnabled = 1;
     sub_4921B();
-    sub_4CCDF();
+    sub_4CCDF(gScreenPixels);
 }
 
 void handleOptionsExitAreaClick() // loc_4C78D
@@ -12729,9 +12729,9 @@ void showControls() //:                              ; DATA XREF: data:0044o
     // 01ED:5DDE;
     byte_50919 = 0xFF;
     drawOptionsBackground(gScrollDestinationScreenBitmapData);
-    sub_4CAFC();
-    sub_4CC7C();
-    sub_4CCDF();
+    sub_4CAFC(gScrollDestinationScreenBitmapData);
+    sub_4CC7C(gScrollDestinationScreenBitmapData);
+    sub_4CCDF(gScrollDestinationScreenBitmapData);
 //    mov     si, 6055h
     setPalette(gPalettes[2]);
     scrollRightToNewScreen();
@@ -12747,7 +12747,7 @@ void showControls() //:                              ; DATA XREF: data:0044o
 //loc_4CA67:                              ; CODE XREF: code:5E89j
 //                            ; code:5EBFj ...
         videoloop(); // 01ED:5E04
-        sub_4CD3C();
+        sub_4CD3C(gScreenPixels);
         word_5195D++;
         getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
 
@@ -12811,7 +12811,7 @@ void showControls() //:                              ; DATA XREF: data:0044o
     setPalette(gPalettes[1]);
 }
 
-void sub_4CAFC() //   proc near       ; CODE XREF: code:5AE1p handleOptionsStandardClick+6p ...
+void sub_4CAFC(uint8_t *destBuffer) //   proc near       ; CODE XREF: code:5AE1p handleOptionsStandardClick+6p ...
 {
 //    si = 0x578B;
 //    cx = 5;
@@ -12819,30 +12819,30 @@ void sub_4CAFC() //   proc near       ; CODE XREF: code:5AE1p handleOptionsStan
     sub_4CE9C();
 //    mov ah, 4
 //    mov si, 130h
-    drawOptionsMenuLine(kOptionsMenuBorders[0], 4);
+    drawOptionsMenuLine(kOptionsMenuBorders[0], 4, destBuffer);
 //    mov ah, 4
 //    mov si, 161h
-    drawOptionsMenuLine(kOptionsMenuBorders[1], 4);
+    drawOptionsMenuLine(kOptionsMenuBorders[1], 4, destBuffer);
 //    mov si, 68B1h
 //    mov cx, 9
 //    mov dx, 8
     sub_4CE9C();
 //    mov ah, 4
 //    mov si, 1A7h
-    drawOptionsMenuLine(kOptionsMenuBorders[2], 4);
+    drawOptionsMenuLine(kOptionsMenuBorders[2], 4, destBuffer);
 //    mov ah, 4
 //    mov si, 1CAh
-    drawOptionsMenuLine(kOptionsMenuBorders[3], 4);
+    drawOptionsMenuLine(kOptionsMenuBorders[3], 4, destBuffer);
 //    mov si, 79DAh
 //    mov cx, 7
 //    mov dx, 8
     sub_4CE9C();
 //    mov ah, 4
 //    mov si, 1F4h
-    drawOptionsMenuLine(kOptionsMenuBorders[4], 4);
+    drawOptionsMenuLine(kOptionsMenuBorders[4], 4, destBuffer);
 //    mov ah, 4
 //    mov si, 225h
-    drawOptionsMenuLine(kOptionsMenuBorders[5], 4);
+    drawOptionsMenuLine(kOptionsMenuBorders[5], 4, destBuffer);
 //    mov si, 8B01h
 //    mov cx, 8
 //    mov dx, 8
@@ -12853,24 +12853,24 @@ void sub_4CAFC() //   proc near       ; CODE XREF: code:5AE1p handleOptionsStan
     sub_4CE9C();
 //    mov ah, 4
 //    mov si, 2E2h
-    drawOptionsMenuLine(kOptionsMenuBorders[7], 4);
+    drawOptionsMenuLine(kOptionsMenuBorders[7], 4, destBuffer);
 //    mov si, 6380h
 //    mov cx, 5
 //    mov dx, 5
     sub_4CE9C();
 //    mov ah, 4
 //    mov si, 328h
-    drawOptionsMenuLine(kOptionsMenuBorders[8], 4);
+    drawOptionsMenuLine(kOptionsMenuBorders[8], 4, destBuffer);
 //    mov si, 6386h
 //    mov cx, 5
 //    mov dx, 5
     sub_4CE9C();
 //    mov ah, 4
 //    mov si, 36Eh
-    drawOptionsMenuLine(kOptionsMenuBorders[9], 4);
+    drawOptionsMenuLine(kOptionsMenuBorders[9], 4, destBuffer);
 //    mov ah, 4
 //    mov si, 28Eh
-    drawOptionsMenuLine(kOptionsMenuBorders[6], 4);
+    drawOptionsMenuLine(kOptionsMenuBorders[6], 4, destBuffer);
     if (sndType == 3)
     {
     //    mov si, 578Bh
@@ -12879,10 +12879,10 @@ void sub_4CAFC() //   proc near       ; CODE XREF: code:5AE1p handleOptionsStan
         sub_4CE11();
     //    mov ah, 6
     //    mov si, 130h
-        drawOptionsMenuLine(kOptionsMenuBorders[0], 6);
+        drawOptionsMenuLine(kOptionsMenuBorders[0], 6, destBuffer);
     //    mov ah, 6
     //    mov si, 161h
-        drawOptionsMenuLine(kOptionsMenuBorders[1], 6);
+        drawOptionsMenuLine(kOptionsMenuBorders[1], 6, destBuffer);
         return;
     }
 
@@ -12891,7 +12891,7 @@ void sub_4CAFC() //   proc near       ; CODE XREF: code:5AE1p handleOptionsStan
     {
     //    mov ah, 6
     //    mov si, 1CAh
-        drawOptionsMenuLine(kOptionsMenuBorders[3], 6);
+        drawOptionsMenuLine(kOptionsMenuBorders[3], 6, destBuffer);
         if (musType == 3)
         {
     //        mov si, 68B1h
@@ -12900,7 +12900,7 @@ void sub_4CAFC() //   proc near       ; CODE XREF: code:5AE1p handleOptionsStan
             sub_4CE11();
     //        mov ah, 6
     //        mov si, 1A7h
-            drawOptionsMenuLine(kOptionsMenuBorders[2], 6);
+            drawOptionsMenuLine(kOptionsMenuBorders[2], 6, destBuffer);
             return;
         }
 
@@ -12911,10 +12911,10 @@ void sub_4CAFC() //   proc near       ; CODE XREF: code:5AE1p handleOptionsStan
         sub_4CE11();
 //        mov ah, 6
 //        mov si, 1F4h
-        drawOptionsMenuLine(kOptionsMenuBorders[4], 6);
+        drawOptionsMenuLine(kOptionsMenuBorders[4], 6, destBuffer);
 //        mov ah, 6
 //        mov si, 28Eh
-        drawOptionsMenuLine(kOptionsMenuBorders[6], 6);
+        drawOptionsMenuLine(kOptionsMenuBorders[6], 6, destBuffer);
         return;
     }
 
@@ -12927,10 +12927,10 @@ void sub_4CAFC() //   proc near       ; CODE XREF: code:5AE1p handleOptionsStan
         sub_4CE11();
     //    mov ah, 6
     //    mov si, 1F4h
-        drawOptionsMenuLine(kOptionsMenuBorders[4], 6);
+        drawOptionsMenuLine(kOptionsMenuBorders[4], 6, destBuffer);
     //    mov ah, 6
     //    mov si, 225h
-        drawOptionsMenuLine(kOptionsMenuBorders[5], 6);
+        drawOptionsMenuLine(kOptionsMenuBorders[5], 6, destBuffer);
         return;
     }
 
@@ -12941,7 +12941,7 @@ void sub_4CAFC() //   proc near       ; CODE XREF: code:5AE1p handleOptionsStan
     sub_4CE11();
 //    mov ah, 6
 //    mov si, 2E2h
-    drawOptionsMenuLine(kOptionsMenuBorders[7], 6);
+    drawOptionsMenuLine(kOptionsMenuBorders[7], 6, destBuffer);
     if (sndType == 1)
     {
     //    mov si, 6380h
@@ -12950,7 +12950,7 @@ void sub_4CAFC() //   proc near       ; CODE XREF: code:5AE1p handleOptionsStan
         sub_4CE11();
     //    mov ah, 6
     //    mov si, 328h
-        drawOptionsMenuLine(kOptionsMenuBorders[8], 6);
+        drawOptionsMenuLine(kOptionsMenuBorders[8], 6, destBuffer);
         return;
     }
 
@@ -12961,10 +12961,10 @@ void sub_4CAFC() //   proc near       ; CODE XREF: code:5AE1p handleOptionsStan
     sub_4CE11();
 //    mov ah, 6
 //    mov si, 36Eh
-    drawOptionsMenuLine(kOptionsMenuBorders[9], 6);
+    drawOptionsMenuLine(kOptionsMenuBorders[9], 6, destBuffer);
 }
 
-void sub_4CC7C() //   proc near       ; CODE XREF: handleOptionsAdlibClick:loc_4C75Ap
+void sub_4CC7C(uint8_t *destBuffer) //   proc near       ; CODE XREF: handleOptionsAdlibClick:loc_4C75Ap
                    // ; code:loc_4C774p
 {
     if (isMusicEnabled == 1)
@@ -12975,7 +12975,7 @@ void sub_4CC7C() //   proc near       ; CODE XREF: handleOptionsAdlibClick:loc_4
         sub_4CE11();
     //    mov ah, 6
     //    mov si, 3B4h
-        drawOptionsMenuLine(kOptionsMenuBorders[10], 6);
+        drawOptionsMenuLine(kOptionsMenuBorders[10], 6, destBuffer);
     }
     else
     {
@@ -12986,7 +12986,7 @@ void sub_4CC7C() //   proc near       ; CODE XREF: handleOptionsAdlibClick:loc_4
         sub_4CE9C();
 //        mov ah, 4
 //        mov si, 3B4h
-        drawOptionsMenuLine(kOptionsMenuBorders[10], 4);
+        drawOptionsMenuLine(kOptionsMenuBorders[10], 4, destBuffer);
     }
 
 //loc_4CCAD:              ; CODE XREF: sub_4CC7C+1Bj
@@ -12998,7 +12998,7 @@ void sub_4CC7C() //   proc near       ; CODE XREF: handleOptionsAdlibClick:loc_4
         sub_4CE11();
     //    mov ah, 6
     //    mov si, 3DEh
-        drawOptionsMenuLine(kOptionsMenuBorders[11], 6);
+        drawOptionsMenuLine(kOptionsMenuBorders[11], 6, destBuffer);
         return;
     }
 
@@ -13009,10 +13009,10 @@ void sub_4CC7C() //   proc near       ; CODE XREF: handleOptionsAdlibClick:loc_4
     sub_4CE9C();
 //    mov ah, 4
 //    mov si, 3DEh
-    drawOptionsMenuLine(kOptionsMenuBorders[11], 4);
+    drawOptionsMenuLine(kOptionsMenuBorders[11], 4, destBuffer);
 }
 
-void sub_4CCDF() //   proc near       ; CODE XREF: code:5B5Dp code:5B69p
+void sub_4CCDF(uint8_t *destBuffer) //   proc near       ; CODE XREF: code:5B5Dp code:5B69p
 {
     if (isJoystickEnabled == 0)
     {
@@ -13026,10 +13026,10 @@ void sub_4CCDF() //   proc near       ; CODE XREF: code:5B5Dp code:5B69p
         sub_4CE9C();
         //    mov ah, 4
         //    mov si, 478h
-        drawOptionsMenuLine(kOptionsMenuBorders[18], 4);
+        drawOptionsMenuLine(kOptionsMenuBorders[18], 4, destBuffer);
         //    mov ah, 6
         //    mov si, 4E1h
-        drawOptionsMenuLine(kOptionsMenuBorders[19], 6);
+        drawOptionsMenuLine(kOptionsMenuBorders[19], 6, destBuffer);
     }
     else
     {
@@ -13044,17 +13044,17 @@ void sub_4CCDF() //   proc near       ; CODE XREF: code:5B5Dp code:5B69p
         sub_4CE11();
         //    mov ah, 6
         //    mov si, 478h
-        drawOptionsMenuLine(kOptionsMenuBorders[18], 6);
+        drawOptionsMenuLine(kOptionsMenuBorders[18], 6, destBuffer);
         //    mov ah, 4
         //    mov si, 4E1h
-        drawOptionsMenuLine(kOptionsMenuBorders[19], 4);
+        drawOptionsMenuLine(kOptionsMenuBorders[19], 4, destBuffer);
     }
 
 //loc_4CD38:              ; CODE XREF: sub_4CCDF+2Fj
-    sub_4CD3C();
+    sub_4CD3C(destBuffer);
 }
 
-void sub_4CD3C() //   proc near       ; CODE XREF: sub_4CCDF:loc_4CD38p
+void sub_4CD3C(uint8_t *destBuffer) //   proc near       ; CODE XREF: sub_4CCDF:loc_4CD38p
 {
     sub_48E59();
 //    sub_4A1BF();
@@ -13069,10 +13069,10 @@ void sub_4CD3C() //   proc near       ; CODE XREF: sub_4CCDF:loc_4CD38p
     {
 //    mov ah, 6
 //    mov si, 424h
-    drawOptionsMenuLine(kOptionsMenuBorders[12], 6);
+        drawOptionsMenuLine(kOptionsMenuBorders[12], 6, destBuffer);
 //    mov ah, 4
 //    mov si, 46Ah
-    drawOptionsMenuLine(kOptionsMenuBorders[17], 4);
+        drawOptionsMenuLine(kOptionsMenuBorders[17], 4, destBuffer);
     }
     else
     {
@@ -13082,30 +13082,30 @@ void sub_4CD3C() //   proc near       ; CODE XREF: sub_4CCDF:loc_4CD38p
 //loc_4CD9E:              ; CODE XREF: sub_4CD3C+33j
             //    mov ah, 4
             //    mov si, 424h
-            drawOptionsMenuLine(kOptionsMenuBorders[12], 4);
+            drawOptionsMenuLine(kOptionsMenuBorders[12], 4, destBuffer);
             //    mov ah, 4
             //    mov si, 46Ah
-            drawOptionsMenuLine(kOptionsMenuBorders[17], 4);
+            drawOptionsMenuLine(kOptionsMenuBorders[17], 4, destBuffer);
         }
         else
         {
             //    mov ah, 6
             //    mov si, 46Ah
-            drawOptionsMenuLine(kOptionsMenuBorders[17], 6);
+            drawOptionsMenuLine(kOptionsMenuBorders[17], 6, destBuffer);
             if (byte_50941 == 9)
             {
 //loc_4CD8F:              ; CODE XREF: sub_4CD3C+42j
                 byte_50941 -= 4;
                 //    mov ah, 4
                 //    mov si, 424h
-                drawOptionsMenuLine(kOptionsMenuBorders[12], 4);
+                drawOptionsMenuLine(kOptionsMenuBorders[12], 4, destBuffer);
             }
             else
             {
                 byte_50941 = 0;
                 //    mov ah, 6
                 //    mov si, 424h
-                drawOptionsMenuLine(kOptionsMenuBorders[12], 6);
+                drawOptionsMenuLine(kOptionsMenuBorders[12], 6, destBuffer);
             }
         }
     }
@@ -13114,21 +13114,21 @@ void sub_4CD3C() //   proc near       ; CODE XREF: sub_4CCDF:loc_4CD38p
 //                ; sub_4CD3C+51j ...
 //    mov ah, 4
 //    mov si, 432h
-    drawOptionsMenuLine(kOptionsMenuBorders[13], 4);
+    drawOptionsMenuLine(kOptionsMenuBorders[13], 4, destBuffer);
 //    mov ah, 4
 //    mov si, 440h
-    drawOptionsMenuLine(kOptionsMenuBorders[14], 4);
+    drawOptionsMenuLine(kOptionsMenuBorders[14], 4, destBuffer);
 //    mov ah, 4
 //    mov si, 44Eh
-    drawOptionsMenuLine(kOptionsMenuBorders[15], 4);
+    drawOptionsMenuLine(kOptionsMenuBorders[15], 4, destBuffer);
 //    mov ah, 4
 //    mov si, 45Ch
-    drawOptionsMenuLine(kOptionsMenuBorders[16], 4);
+    drawOptionsMenuLine(kOptionsMenuBorders[16], 4, destBuffer);
     if (byte_50941 == 1)
     {
 //    mov ah, 6
 //    mov si, 432h
-        drawOptionsMenuLine(kOptionsMenuBorders[13], 6);
+        drawOptionsMenuLine(kOptionsMenuBorders[13], 6, destBuffer);
         return;
     }
 
@@ -13137,7 +13137,7 @@ void sub_4CD3C() //   proc near       ; CODE XREF: sub_4CCDF:loc_4CD38p
     {
 //    mov ah, 6
 //    mov si, 440h
-        drawOptionsMenuLine(kOptionsMenuBorders[14], 6);
+        drawOptionsMenuLine(kOptionsMenuBorders[14], 6, destBuffer);
         return;
     }
 
@@ -13146,7 +13146,7 @@ void sub_4CD3C() //   proc near       ; CODE XREF: sub_4CCDF:loc_4CD38p
     {
 //    mov ah, 6
 //    mov si, 44Eh
-        drawOptionsMenuLine(kOptionsMenuBorders[15], 6);
+        drawOptionsMenuLine(kOptionsMenuBorders[15], 6, destBuffer);
         return;
     }
 
@@ -13155,7 +13155,7 @@ void sub_4CD3C() //   proc near       ; CODE XREF: sub_4CCDF:loc_4CD38p
     {
 //    mov ah, 6
 //    mov si, 45Ch
-        drawOptionsMenuLine(kOptionsMenuBorders[16], 6);
+        drawOptionsMenuLine(kOptionsMenuBorders[16], 6, destBuffer);
     }
 }
 
@@ -13389,7 +13389,7 @@ void sub_4CE9C() //   proc near       ; CODE XREF: sub_4CAFC+9p
     drawMouseCursor();
 }
 
-void drawOptionsMenuLine(ButtonBorderDescriptor border, uint8_t color) // sub_4CF13  proc near       ; CODE XREF: sub_4CAFC+11p
+void drawOptionsMenuLine(ButtonBorderDescriptor border, uint8_t color, uint8_t *destBuffer) // sub_4CF13  proc near       ; CODE XREF: sub_4CAFC+11p
                    // ; sub_4CAFC+19p ...
 {
     // Parameters:
@@ -13425,7 +13425,7 @@ void drawOptionsMenuLine(ButtonBorderDescriptor border, uint8_t color) // sub_4C
                 destAddress = (line.y + j) * kScreenWidth + line.x + j;
             }
 
-            gScreenPixels[destAddress] = color;
+            destBuffer[destAddress] = color;
 
 //loc_4CFA4:              ; CODE XREF: drawOptionsMenuLine:loc_4CF7Cj
 //                ; drawOptionsMenuLine+73j ...
