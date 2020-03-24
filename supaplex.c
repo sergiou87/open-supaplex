@@ -538,8 +538,8 @@ static const ButtonDescriptor kOptionsMenuButtonDescriptors[kNumberOfOptionsMenu
 enum ButtonBorderLineType {
     ButtonBorderLineTypeHorizontal = 0, // from left to right
     ButtonBorderLineTypeVertical = 1, // from bottom to top
-    ButtonBorderLineTypeUnknown2 = 2,
-    ButtonBorderLineTypeUnknown3 = 3,
+    ButtonBorderLineTypeBottomLeftToTopRightDiagonal = 2,
+    ButtonBorderLineTypeTopLeftToBottomRightDiagonal = 3,
 };
 
 typedef struct {
@@ -550,9 +550,233 @@ typedef struct {
 } ButtonBorderLineDescriptor;
 
 typedef struct {
-    ButtonBorderLineDescriptor lines[10];
+    ButtonBorderLineDescriptor lines[15];
     uint8_t numberOfLines;
 } ButtonBorderDescriptor;
+
+static const int kNumberOfOptionsMenuBorders = 20;
+static const ButtonBorderDescriptor kOptionsMenuBorders[kNumberOfOptionsMenuBorders] = {
+    { // 0: 130
+        {
+            { ButtonBorderLineTypeVertical, 144, 81, 5 },
+            { ButtonBorderLineTypeHorizontal, 127, 76, 18 },
+            { ButtonBorderLineTypeTopLeftToBottomRightDiagonal, 122, 71, 5 },
+            { ButtonBorderLineTypeVertical, 122, 70, 69 },
+            { ButtonBorderLineTypeHorizontal, 76, 2, 46 },
+            { ButtonBorderLineTypeBottomLeftToTopRightDiagonal, 70, 8, 7 },
+        },
+        6
+    },
+    { // 1: 161
+        {
+            { ButtonBorderLineTypeHorizontal, 103, 39, 16 },
+            { ButtonBorderLineTypeVertical, 118, 77, 38 },
+            { ButtonBorderLineTypeTopLeftToBottomRightDiagonal, 119, 78, 6 },
+            { ButtonBorderLineTypeVertical, 124, 85, 2 },
+            { ButtonBorderLineTypeVertical, 124, 112, 8 },
+            { ButtonBorderLineTypeBottomLeftToTopRightDiagonal, 121, 115, 3 },
+            { ButtonBorderLineTypeVertical, 120, 117, 2 },
+            { ButtonBorderLineTypeHorizontal, 121, 126, 24 },
+            { ButtonBorderLineTypeVertical, 144, 127, 2 },
+        },
+        9
+    },
+    { // 2: 1A7
+        {
+            { ButtonBorderLineTypeVertical, 94, 44, 3 },
+            { ButtonBorderLineTypeHorizontal, 94, 42, 19 },
+            { ButtonBorderLineTypeVertical, 113, 81, 40 },
+            { ButtonBorderLineTypeTopLeftToBottomRightDiagonal, 114, 82, 14 },
+        },
+        4
+    },
+    { // 3: 1CA
+        {
+            { ButtonBorderLineTypeVertical, 94, 78, 2 },
+            { ButtonBorderLineTypeHorizontal, 95, 78, 11 },
+            { ButtonBorderLineTypeTopLeftToBottomRightDiagonal, 106, 79, 9 },
+            { ButtonBorderLineTypeVertical, 115, 129, 42 },
+            { ButtonBorderLineTypeHorizontal, 116, 129, 20 },
+        },
+        5
+    },
+    { // 4: 01F4
+        {
+            { ButtonBorderLineTypeVertical, 88, 115, 3 },
+            { ButtonBorderLineTypeHorizontal, 89, 115, 23 },
+            { ButtonBorderLineTypeVertical, 112, 115, 3 },
+            { ButtonBorderLineTypeVertical, 119, 94, 2 },
+            { ButtonBorderLineTypeTopLeftToBottomRightDiagonal, 120, 93, 8 },
+            { ButtonBorderLineTypeTopLeftToBottomRightDiagonal, 120, 94, 8 },
+        },
+        6
+    },
+    { // 5: 225
+        {
+            { ButtonBorderLineTypeVertical, 22, 114, 2 },
+            { ButtonBorderLineTypeHorizontal, 11, 114, 11 },
+            { ButtonBorderLineTypeVertical, 10, 151, 38 },
+            { ButtonBorderLineTypeHorizontal, 6, 151, 4 },
+            { ButtonBorderLineTypeVertical, 5, 156, 6 },
+            { ButtonBorderLineTypeVertical, 14, 155, 3 },
+            { ButtonBorderLineTypeHorizontal, 15, 153, 6 },
+            { ButtonBorderLineTypeVertical, 21, 160, 8 },
+            { ButtonBorderLineTypeHorizontal, 22, 160, 20 },
+            { ButtonBorderLineTypeBottomLeftToTopRightDiagonal, 42, 159, 9 },
+            { ButtonBorderLineTypeHorizontal, 51, 151, 74 },
+            { ButtonBorderLineTypeTopLeftToBottomRightDiagonal, 125, 152, 10 },
+            { ButtonBorderLineTypeHorizontal, 135, 161, 9 },
+            { ButtonBorderLineTypeVertical, 144, 161, 5 },
+        },
+        14
+    },
+    { // 6: 28E
+        {
+            { ButtonBorderLineTypeTopLeftToBottomRightDiagonal, 34, 113, 5 },
+            { ButtonBorderLineTypeBottomLeftToTopRightDiagonal, 70, 116, 3 },
+            { ButtonBorderLineTypeVertical, 73, 113, 5 },
+            { ButtonBorderLineTypeVertical, 73, 84, 7 },
+            { ButtonBorderLineTypeTopLeftToBottomRightDiagonal, 72, 76, 2 },
+            { ButtonBorderLineTypeHorizontal, 9, 111, 5 },
+            { ButtonBorderLineTypeHorizontal, 9, 112, 6 },
+            { ButtonBorderLineTypeVertical, 7, 112, 68 },
+            { ButtonBorderLineTypeVertical, 8, 112, 68 },
+            { ButtonBorderLineTypeHorizontal, 9, 45, 6 },
+            { ButtonBorderLineTypeHorizontal, 9, 46, 5 },
+        },
+        11
+    },
+    { // 7: 2E2
+        {
+            { ButtonBorderLineTypeVertical, 138, 37, 2 },
+            { ButtonBorderLineTypeHorizontal, 125, 37, 13 },
+            { ButtonBorderLineTypeVertical, 124, 67, 31 },
+            { ButtonBorderLineTypeTopLeftToBottomRightDiagonal, 125, 68, 6 },
+            { ButtonBorderLineTypeHorizontal, 131, 73, 19 },
+            { ButtonBorderLineTypeVertical, 150, 81, 9 },
+            { ButtonBorderLineTypeTopLeftToBottomRightDiagonal, 151, 36, 4 },
+            { ButtonBorderLineTypeBottomLeftToTopRightDiagonal, 182, 39, 4 },
+            { ButtonBorderLineTypeVertical, 192, 38, 3 },
+        },
+        9
+    },
+    { // 8: 328
+        {
+            { ButtonBorderLineTypeVertical, 156, 65, 7 },
+            { ButtonBorderLineTypeVertical, 156, 69, 2 },
+            { ButtonBorderLineTypeVertical, 157, 69, 2 },
+            { ButtonBorderLineTypeHorizontal, 182, 71, 2 },
+            { ButtonBorderLineTypeVertical, 183, 85, 14 },
+            { ButtonBorderLineTypeVertical, 183, 102, 7 },
+            { ButtonBorderLineTypeVertical, 183, 124, 13 },
+            { ButtonBorderLineTypeBottomLeftToTopRightDiagonal, 168, 139, 15 },
+            { ButtonBorderLineTypeHorizontal, 165, 139, 3 },
+        },
+        9
+    },
+    { // 9: 36E
+        {
+            { ButtonBorderLineTypeVertical, 180, 65, 7 },
+            { ButtonBorderLineTypeVertical, 180, 69, 2 },
+            { ButtonBorderLineTypeVertical, 181, 69, 2 },
+            { ButtonBorderLineTypeHorizontal, 182, 71, 2 },
+            { ButtonBorderLineTypeVertical, 183, 85, 14 },
+            { ButtonBorderLineTypeVertical, 183, 102, 7 },
+            { ButtonBorderLineTypeVertical, 183, 124, 13 },
+            { ButtonBorderLineTypeBottomLeftToTopRightDiagonal, 168, 139, 15 },
+            { ButtonBorderLineTypeHorizontal, 165, 139, 3 },
+        },
+        9
+    },
+    { // 10: 3B4
+        {
+            { ButtonBorderLineTypeHorizontal, 180, 90, 6 },
+            { ButtonBorderLineTypeVertical, 186, 90, 24 },
+            { ButtonBorderLineTypeHorizontal, 187, 67, 38 },
+            { ButtonBorderLineTypeVertical, 225, 67, 33 },
+            { ButtonBorderLineTypeHorizontal, 226, 35, 33 },
+        },
+        5
+    },
+    { // 11: 3DE
+        {
+            { ButtonBorderLineTypeVertical, 150, 160, 4 },
+            { ButtonBorderLineTypeHorizontal, 150, 161, 31 },
+            { ButtonBorderLineTypeVertical, 181, 161, 29 },
+            { ButtonBorderLineTypeBottomLeftToTopRightDiagonal, 181, 133, 8 },
+            { ButtonBorderLineTypeVertical, 189, 125, 22 },
+            { ButtonBorderLineTypeBottomLeftToTopRightDiagonal, 189, 103, 4 },
+            { ButtonBorderLineTypeVertical, 192, 99, 25 },
+            { ButtonBorderLineTypeHorizontal, 192, 74, 51 },
+            { ButtonBorderLineTypeBottomLeftToTopRightDiagonal, 243, 74, 17 },
+        },
+        9
+    },
+    { // 12: 424
+        {
+            { ButtonBorderLineTypeTopLeftToBottomRightDiagonal, 257, 126, 10 },
+        },
+        1
+    },
+    { // 13: 432
+        {
+            { ButtonBorderLineTypeTopLeftToBottomRightDiagonal, 257, 131, 10 },
+        },
+        1
+    },
+    { // 14: 440
+        {
+            { ButtonBorderLineTypeTopLeftToBottomRightDiagonal, 257, 136, 10 },
+        },
+        1
+    },
+    { // 15: 44E
+        {
+            { ButtonBorderLineTypeTopLeftToBottomRightDiagonal, 257, 141, 10 },
+        },
+        1
+    },
+    { // 16: 45C
+        {
+            { ButtonBorderLineTypeTopLeftToBottomRightDiagonal, 257, 146, 10 },
+        },
+        1
+    },
+    { // 17: 46A
+        {
+            { ButtonBorderLineTypeTopLeftToBottomRightDiagonal, 257, 151, 10 },
+        },
+        1
+    },
+    { // 18: 478
+        {
+            { ButtonBorderLineTypeTopLeftToBottomRightDiagonal, 257, 116, 4 },
+            { ButtonBorderLineTypeHorizontal, 261, 119, 4 },
+            { ButtonBorderLineTypeTopLeftToBottomRightDiagonal, 257, 111, 2 },
+            { ButtonBorderLineTypeHorizontal, 259, 112, 7 },
+            { ButtonBorderLineTypeHorizontal, 268, 113, 2 },
+            { ButtonBorderLineTypeVertical, 272, 114, 2 },
+            { ButtonBorderLineTypeVertical, 273, 114, 2 },
+            { ButtonBorderLineTypeHorizontal, 280, 113, 7 },
+            { ButtonBorderLineTypeHorizontal, 280, 114, 7 },
+            { ButtonBorderLineTypeHorizontal, 283, 119, 3 },
+            { ButtonBorderLineTypeHorizontal, 292, 119, 2 },
+            { ButtonBorderLineTypeVertical, 293, 131, 12 },
+            { ButtonBorderLineTypeHorizontal, 289, 131, 4 },
+            { ButtonBorderLineTypeTopLeftToBottomRightDiagonal, 283, 126, 4 },
+        },
+        14
+    },
+    { // 19: 04E1
+        {
+            { ButtonBorderLineTypeVertical, 159, 180, 14 },
+            { ButtonBorderLineTypeHorizontal, 160, 167, 28 },
+            { ButtonBorderLineTypeVertical, 187, 166, 8 },
+            { ButtonBorderLineTypeHorizontal, 187, 149, 10 },
+        },
+        4
+    },
+};
 
 static const int kNumberOfMainMenuButtonBorders = 12;
 static const ButtonBorderDescriptor kMainMenuButtonBorders[kNumberOfMainMenuButtonBorders] = { // starts on 0x504? or before?
@@ -706,6 +930,10 @@ static const uint16_t kMovingBitmapWidth = 320;
 static const uint16_t kMovingBitmapHeight = 462;
 uint8_t gMovingDecodedBitmapData[kMovingBitmapWidth * kMovingBitmapHeight];
 
+static const uint16_t kSoundBufferSize = 40 * 1024; // 40KB
+uint8_t gSoundBuffer1[kSoundBufferSize];
+uint8_t gSoundBuffer2[kSoundBufferSize];
+
 // registers to prevent compiler errors
 uint8_t cf;
 uint8_t ah, al, bh, bl, ch, cl, dh, dl;
@@ -778,7 +1006,7 @@ void drawGfxTutorBackground(uint8_t *dest);
 void drawFullScreenBitmap(uint8_t *bitmapData, uint8_t *dest);
 void sub_4CAFC(void);
 void sub_4CE9C(void);
-void drawOptionsMenuLine(void);
+void drawOptionsMenuLine(ButtonBorderDescriptor border, uint8_t color);
 void sub_4CE11(void);
 void sub_4CC7C(void);
 void sub_4CCDF(void);
@@ -791,11 +1019,11 @@ static const int kWindowHeight = kScreenHeight * 4;
 int main(int argc, const char * argv[])
 {
     gWindow = SDL_CreateWindow("Supaplex",
-                                          SDL_WINDOWPOS_UNDEFINED,
-                                          SDL_WINDOWPOS_UNDEFINED,
-                                          kWindowWidth,
-                                          kWindowHeight,
-                                          0);
+                               SDL_WINDOWPOS_UNDEFINED,
+                               SDL_WINDOWPOS_UNDEFINED,
+                               kWindowWidth,
+                               kWindowHeight,
+                               0);
     if (gWindow == NULL)
     {
       SDL_Log("Could not create a window: %s", SDL_GetError());
@@ -12518,7 +12746,7 @@ void showControls() //:                              ; DATA XREF: data:0044o
     {
 //loc_4CA67:                              ; CODE XREF: code:5E89j
 //                            ; code:5EBFj ...
-        videoloop();
+        videoloop(); // 01ED:5E04
         sub_4CD3C();
         word_5195D++;
         getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
@@ -12591,30 +12819,30 @@ void sub_4CAFC() //   proc near       ; CODE XREF: code:5AE1p handleOptionsStan
     sub_4CE9C();
 //    mov ah, 4
 //    mov si, 130h
-    drawOptionsMenuLine();
+    drawOptionsMenuLine(kOptionsMenuBorders[0], 4);
 //    mov ah, 4
 //    mov si, 161h
-    drawOptionsMenuLine();
+    drawOptionsMenuLine(kOptionsMenuBorders[1], 4);
 //    mov si, 68B1h
 //    mov cx, 9
 //    mov dx, 8
     sub_4CE9C();
 //    mov ah, 4
 //    mov si, 1A7h
-    drawOptionsMenuLine();
+    drawOptionsMenuLine(kOptionsMenuBorders[2], 4);
 //    mov ah, 4
 //    mov si, 1CAh
-    drawOptionsMenuLine();
+    drawOptionsMenuLine(kOptionsMenuBorders[3], 4);
 //    mov si, 79DAh
 //    mov cx, 7
 //    mov dx, 8
     sub_4CE9C();
 //    mov ah, 4
 //    mov si, 1F4h
-    drawOptionsMenuLine();
+    drawOptionsMenuLine(kOptionsMenuBorders[4], 4);
 //    mov ah, 4
 //    mov si, 225h
-    drawOptionsMenuLine();
+    drawOptionsMenuLine(kOptionsMenuBorders[5], 4);
 //    mov si, 8B01h
 //    mov cx, 8
 //    mov dx, 8
@@ -12625,24 +12853,24 @@ void sub_4CAFC() //   proc near       ; CODE XREF: code:5AE1p handleOptionsStan
     sub_4CE9C();
 //    mov ah, 4
 //    mov si, 2E2h
-    drawOptionsMenuLine();
+    drawOptionsMenuLine(kOptionsMenuBorders[7], 4);
 //    mov si, 6380h
 //    mov cx, 5
 //    mov dx, 5
     sub_4CE9C();
 //    mov ah, 4
 //    mov si, 328h
-    drawOptionsMenuLine();
+    drawOptionsMenuLine(kOptionsMenuBorders[8], 4);
 //    mov si, 6386h
 //    mov cx, 5
 //    mov dx, 5
     sub_4CE9C();
 //    mov ah, 4
 //    mov si, 36Eh
-    drawOptionsMenuLine();
+    drawOptionsMenuLine(kOptionsMenuBorders[9], 4);
 //    mov ah, 4
 //    mov si, 28Eh
-    drawOptionsMenuLine();
+    drawOptionsMenuLine(kOptionsMenuBorders[6], 4);
     if (sndType == 3)
     {
     //    mov si, 578Bh
@@ -12651,10 +12879,10 @@ void sub_4CAFC() //   proc near       ; CODE XREF: code:5AE1p handleOptionsStan
         sub_4CE11();
     //    mov ah, 6
     //    mov si, 130h
-        drawOptionsMenuLine();
+        drawOptionsMenuLine(kOptionsMenuBorders[0], 6);
     //    mov ah, 6
     //    mov si, 161h
-        drawOptionsMenuLine();
+        drawOptionsMenuLine(kOptionsMenuBorders[1], 6);
         return;
     }
 
@@ -12663,8 +12891,8 @@ void sub_4CAFC() //   proc near       ; CODE XREF: code:5AE1p handleOptionsStan
     {
     //    mov ah, 6
     //    mov si, 1CAh
-        drawOptionsMenuLine();
-        if (musType != 3)
+        drawOptionsMenuLine(kOptionsMenuBorders[3], 6);
+        if (musType == 3)
         {
     //        mov si, 68B1h
     //        mov cx, 9
@@ -12672,7 +12900,7 @@ void sub_4CAFC() //   proc near       ; CODE XREF: code:5AE1p handleOptionsStan
             sub_4CE11();
     //        mov ah, 6
     //        mov si, 1A7h
-            drawOptionsMenuLine();
+            drawOptionsMenuLine(kOptionsMenuBorders[2], 6);
             return;
         }
 
@@ -12683,10 +12911,10 @@ void sub_4CAFC() //   proc near       ; CODE XREF: code:5AE1p handleOptionsStan
         sub_4CE11();
 //        mov ah, 6
 //        mov si, 1F4h
-        drawOptionsMenuLine();
+        drawOptionsMenuLine(kOptionsMenuBorders[4], 6);
 //        mov ah, 6
 //        mov si, 28Eh
-        drawOptionsMenuLine();
+        drawOptionsMenuLine(kOptionsMenuBorders[6], 6);
         return;
     }
 
@@ -12699,10 +12927,10 @@ void sub_4CAFC() //   proc near       ; CODE XREF: code:5AE1p handleOptionsStan
         sub_4CE11();
     //    mov ah, 6
     //    mov si, 1F4h
-        drawOptionsMenuLine();
+        drawOptionsMenuLine(kOptionsMenuBorders[4], 6);
     //    mov ah, 6
     //    mov si, 225h
-        drawOptionsMenuLine();
+        drawOptionsMenuLine(kOptionsMenuBorders[5], 6);
         return;
     }
 
@@ -12713,7 +12941,7 @@ void sub_4CAFC() //   proc near       ; CODE XREF: code:5AE1p handleOptionsStan
     sub_4CE11();
 //    mov ah, 6
 //    mov si, 2E2h
-    drawOptionsMenuLine();
+    drawOptionsMenuLine(kOptionsMenuBorders[7], 6);
     if (sndType == 1)
     {
     //    mov si, 6380h
@@ -12722,7 +12950,7 @@ void sub_4CAFC() //   proc near       ; CODE XREF: code:5AE1p handleOptionsStan
         sub_4CE11();
     //    mov ah, 6
     //    mov si, 328h
-        drawOptionsMenuLine();
+        drawOptionsMenuLine(kOptionsMenuBorders[8], 6);
         return;
     }
 
@@ -12733,214 +12961,202 @@ void sub_4CAFC() //   proc near       ; CODE XREF: code:5AE1p handleOptionsStan
     sub_4CE11();
 //    mov ah, 6
 //    mov si, 36Eh
-    drawOptionsMenuLine();
+    drawOptionsMenuLine(kOptionsMenuBorders[9], 6);
 }
 
 void sub_4CC7C() //   proc near       ; CODE XREF: handleOptionsAdlibClick:loc_4C75Ap
                    // ; code:loc_4C774p
 {
-    return;
-    /*
-    cmp isMusicEnabled, 1
-    jnz short loc_4CC99
-    mov si, 7CC3h
-    mov cx, 5
-    mov dx, 8
-    call    sub_4CE11
-    mov ah, 6
-    mov si, 3B4h
-    call    drawOptionsMenuLine
-    jmp short loc_4CCAD
-// ; ---------------------------------------------------------------------------
+    if (isMusicEnabled == 1)
+    {
+    //    mov si, 7CC3h
+    //    mov cx, 5
+    //    mov dx, 8
+        sub_4CE11();
+    //    mov ah, 6
+    //    mov si, 3B4h
+        drawOptionsMenuLine(kOptionsMenuBorders[10], 6);
+    }
+    else
+    {
+//loc_4CC99:              ; CODE XREF: sub_4CC7C+5j
+//        mov si, 7CC3h
+//        mov cx, 5
+//        mov dx, 8
+        sub_4CE9C();
+//        mov ah, 4
+//        mov si, 3B4h
+        drawOptionsMenuLine(kOptionsMenuBorders[10], 4);
+    }
 
-loc_4CC99:              ; CODE XREF: sub_4CC7C+5j
-    mov si, 7CC3h
-    mov cx, 5
-    mov dx, 8
-    call    sub_4CE9C
-    mov ah, 4
-    mov si, 3B4h
-    call    drawOptionsMenuLine
+//loc_4CCAD:              ; CODE XREF: sub_4CC7C+1Bj
+    if (isFXEnabled == 1)
+    {
+    //    mov si, 8F59h
+    //    mov cx, 3
+    //    mov dx, 8
+        sub_4CE11();
+    //    mov ah, 6
+    //    mov si, 3DEh
+        drawOptionsMenuLine(kOptionsMenuBorders[11], 6);
+        return;
+    }
 
-loc_4CCAD:              ; CODE XREF: sub_4CC7C+1Bj
-    cmp isFXEnabled, 1
-    jnz short loc_4CCCA
-    mov si, 8F59h
-    mov cx, 3
-    mov dx, 8
-    call    sub_4CE11
-    mov ah, 6
-    mov si, 3DEh
-    call    drawOptionsMenuLine
-    jmp short locret_4CCDE
-// ; ---------------------------------------------------------------------------
-
-loc_4CCCA:              ; CODE XREF: sub_4CC7C+36j
-    mov si, 8F59h
-    mov cx, 3
-    mov dx, 8
-    call    sub_4CE9C
-    mov ah, 4
-    mov si, 3DEh
-    call    drawOptionsMenuLine
-
-locret_4CCDE:               ; CODE XREF: sub_4CC7C+4Cj
-    return;
-     */
+//loc_4CCCA:              ; CODE XREF: sub_4CC7C+36j
+//    mov si, 8F59h
+//    mov cx, 3
+//    mov dx, 8
+    sub_4CE9C();
+//    mov ah, 4
+//    mov si, 3DEh
+    drawOptionsMenuLine(kOptionsMenuBorders[11], 4);
 }
 
 void sub_4CCDF() //   proc near       ; CODE XREF: code:5B5Dp code:5B69p
 {
-    return;
-    /*
-    cmp isJoystickEnabled, 0
-    jnz short loc_4CD10
-    mov si, 7714h
-    mov cx, 1
-    mov dx, 3Eh ; '>'
-    call    sub_4CE11
-    mov si, 7792h
-    mov cx, 1
-    mov dx, 3Ah ; ':'
-    call    sub_4CE9C
-    mov ah, 4
-    mov si, 478h
-    call    drawOptionsMenuLine
-    mov ah, 6
-    mov si, 4E1h
-    call    drawOptionsMenuLine
-    jmp short loc_4CD38
-// ; ---------------------------------------------------------------------------
+    if (isJoystickEnabled == 0)
+    {
+        //    mov si, 7714h
+        //    mov cx, 1
+        //    mov dx, 3Eh ; '>'
+        sub_4CE11();
+        //    mov si, 7792h
+        //    mov cx, 1
+        //    mov dx, 3Ah ; ':'
+        sub_4CE9C();
+        //    mov ah, 4
+        //    mov si, 478h
+        drawOptionsMenuLine(kOptionsMenuBorders[18], 4);
+        //    mov ah, 6
+        //    mov si, 4E1h
+        drawOptionsMenuLine(kOptionsMenuBorders[19], 6);
+    }
+    else
+    {
+        //loc_4CD10:              ; CODE XREF: sub_4CCDF+5j
+        //    mov si, 7714h
+        //    mov cx, 1
+        //    mov dx, 3Eh ; '>'
+        sub_4CE9C();
+        //    mov si, 7792h
+        //    mov cx, 1
+        //    mov dx, 3Ah ; ':'
+        sub_4CE11();
+        //    mov ah, 6
+        //    mov si, 478h
+        drawOptionsMenuLine(kOptionsMenuBorders[18], 6);
+        //    mov ah, 4
+        //    mov si, 4E1h
+        drawOptionsMenuLine(kOptionsMenuBorders[19], 4);
+    }
 
-loc_4CD10:              ; CODE XREF: sub_4CCDF+5j
-    mov si, 7714h
-    mov cx, 1
-    mov dx, 3Eh ; '>'
-    call    sub_4CE9C
-    mov si, 7792h
-    mov cx, 1
-    mov dx, 3Ah ; ':'
-    call    sub_4CE11
-    mov ah, 6
-    mov si, 478h
-    call    drawOptionsMenuLine
-    mov ah, 4
-    mov si, 4E1h
-    call    drawOptionsMenuLine
-
-loc_4CD38:              ; CODE XREF: sub_4CCDF+2Fj
-    call    sub_4CD3C
-    return;
-     */
+//loc_4CD38:              ; CODE XREF: sub_4CCDF+2Fj
+    sub_4CD3C();
 }
 
 void sub_4CD3C() //   proc near       ; CODE XREF: sub_4CCDF:loc_4CD38p
 {
-    return;
-    /*
-    call    sub_48E59
-    call    sub_4A1BF
-    mov bl, byte_50941
-    cmp bl, byte_50919
-    jnz short loc_4CD4D
-    return;
-// ; ---------------------------------------------------------------------------
+    sub_48E59();
+//    sub_4A1BF();
+    if (byte_50941 == byte_50919)
+    {
+        return;
+    }
 
-loc_4CD4D:              ; CODE XREF: sub_4CD3C+Ej
-    mov byte_50919, bl
-    cmp byte_50941, 0
-    jnz short loc_4CD6A
-    mov ah, 6
-    mov si, 424h
-    call    drawOptionsMenuLine
-    mov ah, 4
-    mov si, 46Ah
-    call    drawOptionsMenuLine
-    jmp short loc_4CDAE
-// ; ---------------------------------------------------------------------------
+//loc_4CD4D:              ; CODE XREF: sub_4CD3C+Ej
+    byte_50919 = byte_50941;
+    if (byte_50941 == 0)
+    {
+//    mov ah, 6
+//    mov si, 424h
+    drawOptionsMenuLine(kOptionsMenuBorders[12], 6);
+//    mov ah, 4
+//    mov si, 46Ah
+    drawOptionsMenuLine(kOptionsMenuBorders[17], 4);
+    }
+    else
+    {
+//loc_4CD6A:              ; CODE XREF: sub_4CD3C+1Aj
+        if (byte_50941 > 4)
+        {
+//loc_4CD9E:              ; CODE XREF: sub_4CD3C+33j
+            //    mov ah, 4
+            //    mov si, 424h
+            drawOptionsMenuLine(kOptionsMenuBorders[12], 4);
+            //    mov ah, 4
+            //    mov si, 46Ah
+            drawOptionsMenuLine(kOptionsMenuBorders[17], 4);
+        }
+        else
+        {
+            //    mov ah, 6
+            //    mov si, 46Ah
+            drawOptionsMenuLine(kOptionsMenuBorders[17], 6);
+            if (byte_50941 == 9)
+            {
+//loc_4CD8F:              ; CODE XREF: sub_4CD3C+42j
+                byte_50941 -= 4;
+                //    mov ah, 4
+                //    mov si, 424h
+                drawOptionsMenuLine(kOptionsMenuBorders[12], 4);
+            }
+            else
+            {
+                byte_50941 = 0;
+                //    mov ah, 6
+                //    mov si, 424h
+                drawOptionsMenuLine(kOptionsMenuBorders[12], 6);
+            }
+        }
+    }
 
-loc_4CD6A:              ; CODE XREF: sub_4CD3C+1Aj
-    cmp byte_50941, 4
-    jbe short loc_4CD9E
-    mov ah, 6
-    mov si, 46Ah
-    call    drawOptionsMenuLine
-    cmp byte_50941, 9
-    jnz short loc_4CD8F
-    mov byte_50941, 0
-    mov ah, 6
-    mov si, 424h
-    call    drawOptionsMenuLine
-    jmp short loc_4CDAE
-// ; ---------------------------------------------------------------------------
+//loc_4CDAE:              ; CODE XREF: sub_4CD3C+2Cj
+//                ; sub_4CD3C+51j ...
+//    mov ah, 4
+//    mov si, 432h
+    drawOptionsMenuLine(kOptionsMenuBorders[13], 4);
+//    mov ah, 4
+//    mov si, 440h
+    drawOptionsMenuLine(kOptionsMenuBorders[14], 4);
+//    mov ah, 4
+//    mov si, 44Eh
+    drawOptionsMenuLine(kOptionsMenuBorders[15], 4);
+//    mov ah, 4
+//    mov si, 45Ch
+    drawOptionsMenuLine(kOptionsMenuBorders[16], 4);
+    if (byte_50941 == 1)
+    {
+//    mov ah, 6
+//    mov si, 432h
+        drawOptionsMenuLine(kOptionsMenuBorders[13], 6);
+        return;
+    }
 
-loc_4CD8F:              ; CODE XREF: sub_4CD3C+42j
-    sub byte_50941, 4
-    mov ah, 4
-    mov si, 424h
-    call    drawOptionsMenuLine
-    jmp short loc_4CDAE
-// ; ---------------------------------------------------------------------------
+//loc_4CDDF:              ; CODE XREF: sub_4CD3C+97j
+    if (byte_50941 == 2)
+    {
+//    mov ah, 6
+//    mov si, 440h
+        drawOptionsMenuLine(kOptionsMenuBorders[14], 6);
+        return;
+    }
 
-loc_4CD9E:              ; CODE XREF: sub_4CD3C+33j
-    mov ah, 4
-    mov si, 424h
-    call    drawOptionsMenuLine
-    mov ah, 4
-    mov si, 46Ah
-    call    drawOptionsMenuLine
+//loc_4CDF0:              ; CODE XREF: sub_4CD3C+A8j
+    if (byte_50941 == 3)
+    {
+//    mov ah, 6
+//    mov si, 44Eh
+        drawOptionsMenuLine(kOptionsMenuBorders[15], 6);
+        return;
+    }
 
-loc_4CDAE:              ; CODE XREF: sub_4CD3C+2Cj
-                ; sub_4CD3C+51j ...
-    mov ah, 4
-    mov si, 432h
-    call    drawOptionsMenuLine
-    mov ah, 4
-    mov si, 440h
-    call    drawOptionsMenuLine
-    mov ah, 4
-    mov si, 44Eh
-    call    drawOptionsMenuLine
-    mov ah, 4
-    mov si, 45Ch
-    call    drawOptionsMenuLine
-    cmp byte_50941, 1
-    jnz short loc_4CDDF
-    mov ah, 6
-    mov si, 432h
-    call    drawOptionsMenuLine
-    jmp short locret_4CE10
-// ; ---------------------------------------------------------------------------
-
-loc_4CDDF:              ; CODE XREF: sub_4CD3C+97j
-    cmp byte_50941, 2
-    jnz short loc_4CDF0
-    mov ah, 6
-    mov si, 440h
-    call    drawOptionsMenuLine
-    jmp short locret_4CE10
-// ; ---------------------------------------------------------------------------
-
-loc_4CDF0:              ; CODE XREF: sub_4CD3C+A8j
-    cmp byte_50941, 3
-    jnz short loc_4CE01
-    mov ah, 6
-    mov si, 44Eh
-    call    drawOptionsMenuLine
-    jmp short locret_4CE10
-// ; ---------------------------------------------------------------------------
-
-loc_4CE01:              ; CODE XREF: sub_4CD3C+B9j
-    cmp byte_50941, 4
-    jnz short locret_4CE10
-    mov ah, 6
-    mov si, 45Ch
-    call    drawOptionsMenuLine
-
-locret_4CE10:               ; CODE XREF: sub_4CD3C+A1j
-                ; sub_4CD3C+B2j ...
-    return;
-     */
+//loc_4CE01:              ; CODE XREF: sub_4CD3C+B9j
+    if (byte_50941 == 4)
+    {
+//    mov ah, 6
+//    mov si, 45Ch
+        drawOptionsMenuLine(kOptionsMenuBorders[16], 6);
+    }
 }
 
 void sub_4CE11() //   proc near       ; CODE XREF: sub_4CAFC+B4p
@@ -13173,129 +13389,49 @@ void sub_4CE9C() //   proc near       ; CODE XREF: sub_4CAFC+9p
     drawMouseCursor();
 }
 
-void drawOptionsMenuLine() // sub_4CF13  proc near       ; CODE XREF: sub_4CAFC+11p
+void drawOptionsMenuLine(ButtonBorderDescriptor border, uint8_t color) // sub_4CF13  proc near       ; CODE XREF: sub_4CAFC+11p
                    // ; sub_4CAFC+19p ...
 {
-    return;
     // Parameters:
-    // - ah: ????
-    // - si: ????
+    // - ah: color
+    // - si: pointer to ButtonBorderDescriptor item
 
 //    push    si
 //    push    ax
     restoreLastMouseAreaBitmap();
-//    pop ax
-//    pop si
-    /*
-    mov dx, 3CEh
-    al = 5
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; mode register.Data bits:
-                ; 0-1: Write mode 0-2
-                ; 2: test condition
-                ; 3: read mode: 1=color compare, 0=direct
-                ; 4: 1=use odd/even RAM addressing
-                ; 5: 1=use CGA mid-res map (2-bits/pixel)
-    // inc dx
-    // al = 0
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = 0;
-    mov dx, 3CEh
-    al = 0
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; set/reset.
-                ; Data bits 0-3 select planes for write mode 00
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-    mov dx, 3CEh
-    al = 1
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; enable set/reset
-    inc dx
-    al = 0Fh
-    out dx, al      ; EGA port: graphics controller data register
-*/
 
 //loc_4CF38:              ; CODE XREF: drawOptionsMenuLine+96j
-    /*
-    bl = *si;
-    if (bl == 0xFF)
+    for (int i = 0; i < border.numberOfLines; ++i)
     {
-        //jz  short loc_4CFAB
-    }
-    di = 0x4D84;
-    ax = si[3];
-    cx = 122;
-    ax = ax * cx;
-    di += ax;
-    dx = si[1];
-    cx = dx;
-    dx = dx / 8;
-    di += dx;
-    cl = cl & 7;
-    ah = 0x80; // 128
-    ah = ah >> cl;
-    cx = si[5];
-     */
-    /*
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    // inc dx
-    // al = ah
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = ah;
-     */
-    al = ah;
-/*
-//loc_4CF6F:              ; CODE XREF: drawOptionsMenuLine:loc_4CFA4j
-    out dx, al      ; EGA port: graphics controller data register
-    xor es:[di], al
-    or  bl, bl
-    jnz short loc_4CF7E
-    ror al, 1
-    jnb short loc_4CF7C
-    inc di
+        ButtonBorderLineDescriptor line = border.lines[i];
 
-//loc_4CF7C:              ; CODE XREF: drawOptionsMenuLine+66j
-    jmp short loc_4CFA4
+        for (int j = 0; j < line.length; ++j)
+        {
+            size_t destAddress = 0;
+            if (line.type == ButtonBorderLineTypeHorizontal)
+            {
+                destAddress = line.y * kScreenWidth + line.x + j;
+            }
+            else if (line.type == ButtonBorderLineTypeVertical)
+            {
+                destAddress = (line.y - j) * kScreenWidth + line.x;
+            }
+            else if (line.type == ButtonBorderLineTypeBottomLeftToTopRightDiagonal)
+            {
+                destAddress = (line.y - j) * kScreenWidth + line.x + j;
+            }
+            else if (line.type == ButtonBorderLineTypeTopLeftToBottomRightDiagonal)
+            {
+                destAddress = (line.y + j) * kScreenWidth + line.x + j;
+            }
 
-//loc_4CF7E:              ; CODE XREF: drawOptionsMenuLine+62j
-    cmp bl, 1
-    jnz short loc_4CF88
-    sub di, 7Ah ; 'z'
-    jmp short loc_4CFA4
-
-//loc_4CF88:              ; CODE XREF: drawOptionsMenuLine+6Ej
-    cmp bl, 2
-    jnz short loc_4CF97
-    sub di, 7Ah ; 'z'
-    ror al, 1
-    jnb short loc_4CF95
-    inc di
-
-//loc_4CF95:              ; CODE XREF: drawOptionsMenuLine+7Fj
-    jmp short loc_4CFA4
-
-//loc_4CF97:              ; CODE XREF: drawOptionsMenuLine+78j
-    cmp bl, 3
-    jnz short loc_4CFA4
-    add di, 7Ah ; 'z'
-    ror al, 1
-    jnb short loc_4CFA4
-    inc di
+            gScreenPixels[destAddress] = color;
 
 //loc_4CFA4:              ; CODE XREF: drawOptionsMenuLine:loc_4CF7Cj
 //                ; drawOptionsMenuLine+73j ...
-    loop    loc_4CF6F
-    add si, 7
-    jmp short loc_4CF38
-*/
+        }
+    }
+
 //loc_4CFAB:              ; CODE XREF: drawOptionsMenuLine+2Aj
     saveLastMouseAreaBitmap();
     drawMouseCursor();
@@ -13368,37 +13504,13 @@ void drawMainMenuButtonBorder(ButtonBorderDescriptor border, uint8_t color) // s
             {
                 destAddress = (line.y - j) * kScreenWidth + line.x;
             }
-            else if (line.type == ButtonBorderLineTypeUnknown2)
+            else if (line.type == ButtonBorderLineTypeBottomLeftToTopRightDiagonal)
             {
-                printf("Still unknown type of border line: %d", line.type);
-                /*
-                if (bl == 2)
-                {
-                    di -= 0x7A; // 122
-    //                al = ror(al, 1);
-                    if ((al & 0x80) == 0)
-                    {
-                        continue; // jump if CF = 0
-                    }
-                    di++;
-                }
-                 */
+                destAddress = (line.y - j) * kScreenWidth + line.x + j;
             }
-            else if (line.type == ButtonBorderLineTypeUnknown3)
+            else if (line.type == ButtonBorderLineTypeTopLeftToBottomRightDiagonal)
             {
-                printf("Still unknown type of border line: %d", line.type);
-                /*
-                if (bl == 3)
-                {
-                    di -= 0x7A; // 122
-    //                al = ror(al, 1);
-                    if ((al & 0x80) == 0)
-                    {
-                        continue; //jnb short loc_4D095 // jump if CF = 0
-                    }
-                    di++;
-                }
-                 */
+                destAddress = (line.y + j) * kScreenWidth + line.x + j;
             }
 
             gScreenPixels[destAddress] = color;
@@ -14969,43 +15081,31 @@ soundShutdown?  endp
 void loadBeep() //    proc near       ; CODE XREF: readConfig:loc_4751Ap
 //                    ; readConfig:loc_47551p ...
 {
-    /*
-        call    sound1
-        mov dx, offset aBeep_snd ; "BEEP.SND"
-        mov cx, 0AC4h
-        call    readSound
-        mov musType, 1
-        mov sndType, 1
-        mov soundEnabled, 1
-        call    sound2
-        mov byte_59889, 0
-        mov byte_5988A, 64h ; 'd'
-        mov byte_5988B, 0
-        mov byte_5988C, 0
-        return;
-     */
+    sound1();
+    readSound("BEEP.SND", 0x0AC4);
+    musType = 1;
+    sndType = 1;
+    soundEnabled = 1;
+    sound2();
+    byte_59889 = 0;
+    byte_5988A = 0x64;
+    byte_5988B = 0;
+    byte_5988C = 0;
 }
 
 void loadBeep2() //   proc near       ; CODE XREF: readConfig+4Cp handleOptionsSamplesClickp
 {
-    /*
-        call    sound1
-        mov dx, offset aBeep_snd ; "BEEP.SND"
-        mov cx, 0AC4h
-        call    readSound
-        mov dx, offset aSample_snd ; "SAMPLE.SND"
-        mov cx, 8DACh
-        call    readSound2
-        mov musType, 1
-        mov sndType, 2
-        mov soundEnabled, 1
-        call    sound2
-        mov byte_59889, 0
-        mov byte_5988A, 64h ; 'd'
-        mov byte_5988B, 0
-        mov byte_5988C, 0
-        return;
-     */
+    sound1();
+    readSound("BEEP.SND", 0x0AC4);
+    readSound2("SAMPLE.SND", 0x8DAC);
+    musType = 1;
+    sndType = 2;
+    soundEnabled = 1;
+    sound2();
+    byte_59889 = 0;
+    byte_5988A = 0x64;
+    byte_5988B = 0;
+    byte_5988C = 0;
 }
 
 void loadAdlib() //   proc near       ; CODE XREF: readConfig+56p handleOptionsAdlibClickp
@@ -15024,6 +15124,7 @@ void loadAdlib() //   proc near       ; CODE XREF: readConfig+56p handleOptions
 
 void loadBlaster() //  proc near       ; CODE XREF: readConfig+60p handleOptionsSoundBlasterClickp
 {
+    // 01ED:6D39
     sound1();
     readSound("ADLIB.SND", 0x14EA);
     readSound2("BLASTER.SND", 0x991B);
@@ -15039,43 +15140,31 @@ void loadBlaster() //  proc near       ; CODE XREF: readConfig+60p handleOption
 
 void loadRoland() //  proc near       ; CODE XREF: readConfig+6Ap handleOptionsRolandClickp
 {
-    /*
-        call    sound1
-        mov dx, offset aRoland_snd ; "ROLAND.SND"
-        mov cx, 0F80h
-        call    readSound
-        mov musType, 5
-        mov sndType, 5
-        mov soundEnabled, 0
-        call    sound2
-        mov byte_59889, 0
-        mov byte_5988A, 64h ; 'd'
-        mov byte_5988B, 0
-        mov byte_5988C, 0
-        return;
-     */
+    sound1();
+    readSound("ROLAND.SND", 0x0F80);
+    musType = 5;
+    sndType = 5;
+    soundEnabled = 0;
+    sound2();
+    byte_59889 = 0;
+    byte_5988A = 0x64;
+    byte_5988B = 0;
+    byte_5988C = 0;
 }
 
 void loadCombined() // proc near       ; CODE XREF: readConfig+74p handleOptionsCombinedClickp
 {
-    /*
-        call    sound1
-        mov dx, offset aRoland_snd ; "ROLAND.SND"
-        mov cx, 0F80h
-        call    readSound
-        mov dx, offset aBlaster_snd ; "BLASTER.SND"
-        mov cx, 991Bh
-        call    readSound2
-        mov musType, 5
-        mov sndType, 4
-        mov soundEnabled, 0
-        call    sound2
-        mov byte_59889, 0
-        mov byte_5988A, 64h ; 'd'
-        mov byte_5988B, 0
-        mov byte_5988C, 0
-        return;
-     */
+    sound1();
+    readSound("ROLAND.SND", 0x0F80);
+    readSound2("BLASTER.SND", 0x991B);
+    musType = 5;
+    sndType = 4;
+    soundEnabled = 0;
+    sound2();
+    byte_59889 = 0;
+    byte_5988A = 0x64;
+    byte_5988B = 0;
+    byte_5988C = 0;
 }
 
 void readSound(char *filename, size_t size) //   proc near       ; CODE XREF: loadBeep+9p loadBeep2+9p ...
@@ -15098,8 +15187,7 @@ void readSound(char *filename, size_t size) //   proc near       ; CODE XREF: lo
 //    int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
 //                ; BX = file handle, CX = number of bytes to read
 //                ; DS:DX -> buffer
-    uint8_t *someBuffer = NULL;
-    size_t bytes = fread(someBuffer, 1, size, file);
+    size_t bytes = fread(gSoundBuffer1, 1, size, file);
     if (bytes < size)
     {
         exitWithError("Error reading %s\n", filename);
@@ -15128,8 +15216,7 @@ void readSound2(char *filename, size_t size) //  proc near       ; CODE XREF: lo
 //        mov ax, seg sound2seg
 //        mov ds, ax
 //        assume ds:sound2seg
-    uint8_t *someOTHERBuffer = NULL;
-    size_t bytes = fread(someOTHERBuffer, 1, size, file);
+    size_t bytes = fread(gSoundBuffer2, 1, size, file);
     if (bytes < size)
     {
         exitWithError("Error reading %s\n", filename);
@@ -15145,6 +15232,7 @@ void readSound2(char *filename, size_t size) //  proc near       ; CODE XREF: lo
 void sound1() //     proc near       ; CODE XREF: soundShutdown?+5p
                  //   ; code:6CC7p ...
 {
+    // 01ED:6E4E
     soundEnabled = 0;
     if (musType == 1)
     {
@@ -15204,6 +15292,7 @@ void sound1() //     proc near       ; CODE XREF: soundShutdown?+5p
 
 void sound2() //     proc near       ; CODE XREF: start+39Bp start+410p ...
 {
+    // 01ED:6EA8
     if (isMusicEnabled != 1)
     {
         return;
