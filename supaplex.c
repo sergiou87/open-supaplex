@@ -173,6 +173,16 @@ static const int kConfigDataLength = 4;
 
 uint32_t gTimeOfDay = 0;
 
+typedef enum
+{
+    SoundTypeNone = 0,
+    SoundTypeInternalStandard = 1,
+    SoundTypeInternalSamples = 2,
+    SoundTypeAdlib = 3,
+    SoundTypeSoundBlaster = 4,
+    SoundTypeRoland = 5,
+} SoundType;
+
 enum MouseButton
 {
     MouseButtonLeft = 1 << 0,
@@ -227,8 +237,8 @@ int word_599DC[] = { 0x00CE, 0x016A, 0x0146, 0x00CD, 0x024D, 0x012C, 0x01A7, 0x0
                     0xF00B, 0xF0F0, 0xF01D, 0xF0F0, 0xF026, 0x50F0, 0xF037,
                     0x41D0, 0x105F, 0xF3F3, 0xF068, 0x10F0, 0x106C, 0x94F4 };
 
-uint8_t sndType = 0;
-uint8_t musType = 1;
+SoundType sndType = SoundTypeNone;
+SoundType musType = SoundTypeInternalStandard;
 uint8_t soundEnabled = 0;
 
 static const uint8_t kNumberOfColors = 16;
@@ -955,12 +965,12 @@ void drawSpeedFixCredits(void);
 void readConfig(void);
 void readSound(char *filename, size_t size);
 void readSound2(char *filename, size_t size);
-void loadAdlib(void);
-void loadBlaster(void);
-void loadRoland(void);
-void loadCombined(void);
-void loadBeep(void);
-void loadBeep2(void);
+void activateAdlibSound(void);
+void activateSoundBlasterSound(void);
+void activateRolandSound(void);
+void activateCombinedSound(void);
+void activateInternalStandardSound(void);
+void activateInternalSamplesSound(void);
 void sub_4921B(void);
 void enableFloppy(void);
 void prepareSomeKindOfLevelIdentifier(void);
@@ -2545,7 +2555,7 @@ void readConfig() //  proc near       ; CODE XREF: start:loc_46F0Fp
         {
 //loc_47551:              //; CODE XREF: readConfig+Fj
                        // ; readConfig+17j
-            loadBeep();
+            activateInternalStandardSound();
             isJoystickEnabled = 0;
             return;
         }
@@ -2577,27 +2587,27 @@ void readConfig() //  proc near       ; CODE XREF: start:loc_46F0Fp
 
     if (soundSetting == 's')
     {
-        loadBeep2();
+        activateInternalSamplesSound();
     }
     else if (soundSetting == 'a')
     {
-        loadAdlib();
+        activateAdlibSound();
     }
     else if (soundSetting == 'b')
     {
-        loadBlaster();
+        activateSoundBlasterSound();
     }
     else if (soundSetting == 'r')
     {
-        loadRoland();
+        activateRolandSound();
     }
     else if (soundSetting == 'c')
     {
-        loadCombined();
+        activateCombinedSound();
     }
     else
     {
-        loadBeep();
+        activateInternalStandardSound();
     }
 
 //loc_4751D:             // ; CODE XREF: readConfig+4Fj
@@ -2629,23 +2639,23 @@ void saveConfiguration() // sub_4755A      proc near               ; CODE XREF: 
 //loc_4756A:                              ; CODE XREF: saveConfiguration+Bj
     uint8_t configData[kConfigDataLength];
 
-    if (sndType == 2)
+    if (sndType == SoundTypeInternalSamples)
     {
         configData[0] = 's';
     }
-    else if (sndType == 1)
+    else if (sndType == SoundTypeInternalStandard)
     {
         configData[0] = 'i';
     }
-    else if (sndType == 3)
+    else if (sndType == SoundTypeAdlib)
     {
         configData[0] = 'a';
     }
-    else if (sndType == 5)
+    else if (sndType == SoundTypeRoland)
     {
         configData[0] = 'r';
     }
-    else if (musType == 5)
+    else if (musType == SoundTypeRoland)
     {
         configData[0] = 'c';
     }
@@ -12371,7 +12381,7 @@ void drawFullScreenBitmap(uint8_t *bitmapData, uint8_t *dest)
 
 void handleOptionsStandardClick() // sub_4C705  proc near       ; CODE XREF: code:5ADBp
 {
-    loadBeep();
+    activateInternalStandardSound();
     sound4();
     sub_4CAFC(gScreenPixels);
 }
@@ -12385,35 +12395,35 @@ void handleOptionsInternalClick() // loc_4C6FB
 
 void handleOptionsSamplesClick() // sub_4C70F  proc near
 {
-    loadBeep2();
+    activateInternalSamplesSound();
     sound4();
     sub_4CAFC(gScreenPixels);
 }
 
 void handleOptionsSoundBlasterClick() // sub_4C719  proc near
 {
-    loadBlaster();
+    activateSoundBlasterSound();
     sound4();
     sub_4CAFC(gScreenPixels);
 }
 
 void handleOptionsAdlibClick() // sub_4C723  proc near
 {
-    loadAdlib();
+    activateAdlibSound();
     sound4();
     sub_4CAFC(gScreenPixels);
 }
 
 void handleOptionsRolandClick() // sub_4C72D  proc near
 {
-    loadRoland();
+    activateRolandSound();
     sound4();
     sub_4CAFC(gScreenPixels);
 }
 
 void handleOptionsCombinedClick() // sub_4C737  proc near
 {
-    loadCombined();
+    activateCombinedSound();
     sound4();
     sub_4CAFC(gScreenPixels);
 }
@@ -12833,7 +12843,7 @@ void sub_4CAFC(uint8_t *destBuffer) //   proc near       ; CODE XREF: code:5AE1
     drawOptionsMenuLine(kOptionsMenuBorders[9], 4, destBuffer);
     drawOptionsMenuLine(kOptionsMenuBorders[6], 4, destBuffer);
 
-    if (sndType == 3)
+    if (sndType == SoundTypeAdlib)
     {
         highlightOptionsButtonText(40, 21, 40, 8, destBuffer);
         drawOptionsMenuLine(kOptionsMenuBorders[0], 6, destBuffer);
@@ -12842,11 +12852,11 @@ void sub_4CAFC(uint8_t *destBuffer) //   proc near       ; CODE XREF: code:5AE1
     }
 
 //loc_4CBC6:              ; CODE XREF: sub_4CAFC+A9j
-    if (sndType == 4)
+    if (sndType == SoundTypeSoundBlaster)
     {
         drawOptionsMenuLine(kOptionsMenuBorders[3], 6, destBuffer);
 
-        if (musType == 3)
+        if (musType == SoundTypeAdlib)
         {
             highlightOptionsButtonText(24, 57, 72, 8, destBuffer);
             drawOptionsMenuLine(kOptionsMenuBorders[2], 6, destBuffer);
@@ -12861,7 +12871,7 @@ void sub_4CAFC(uint8_t *destBuffer) //   proc near       ; CODE XREF: code:5AE1
     }
 
 //loc_4CC11:              ; CODE XREF: sub_4CAFC+CFj
-    if (sndType == 5)
+    if (sndType == SoundTypeRoland)
     {
         highlightOptionsButtonText(32, 93, 56, 8, destBuffer);
         drawOptionsMenuLine(kOptionsMenuBorders[4], 6, destBuffer);
@@ -12873,7 +12883,7 @@ void sub_4CAFC(uint8_t *destBuffer) //   proc near       ; CODE XREF: code:5AE1
     highlightOptionsButtonText(136, 18, 72, 8, destBuffer);
     drawOptionsMenuLine(kOptionsMenuBorders[7], 6, destBuffer);
 
-    if (sndType == 1)
+    if (sndType == SoundTypeInternalStandard)
     {
         highlightOptionsButtonText(128, 46, 40, 5, destBuffer); // Standard
         drawOptionsMenuLine(kOptionsMenuBorders[8], 6, destBuffer);
@@ -14716,40 +14726,36 @@ void setPalette(ColorPalette palette) //   proc near       ; CODE XREF: start+2B
 //        db 0C0h ; +
 //
 //; =============== S U B R O U T I N E =======================================
-
+*/
 void initializeSound() //   proc near       ; CODE XREF: start+2A5p
 {
-        push(ds)
-        ax = 0;
-        ds = ax;
-        // assume ds:nothing
-        bx = 0x200; // 512
-        [bx] = ax;
-        ax = seg soundseg;
-        [bx + 2] = ax;
-        ax = 0;
-        bx = 0x204; // 516
-        [bx] = ax;
-        ax = seg sound2seg;
-        [bx + 2] = ax;
-        pop(ds);
-        // assume ds:data
-        isFXEnabled = 0;
-        soundEnabled = 0;
-// initializeSound   endp
+//    push(ds)
+//    ax = 0;
+//    ds = ax;
+//    // assume ds:nothing
+//    bx = 0x200; // 512
+//    [bx] = ax;
+//    ax = seg soundseg;
+//    [bx + 2] = ax;
+//    ax = 0;
+//    bx = 0x204; // 516
+//    [bx] = ax;
+//    ax = seg sound2seg;
+//    [bx + 2] = ax;
+//    pop(ds);
+    // assume ds:data
+    isFXEnabled = 0;
+    soundEnabled = 0;
 }
 
+void soundShutdown() //  proc near       ; CODE XREF: start+48Ep
+//                    ; loadScreen2-7DAp
+{
+    soundEnabled = 0;
+    sound1();
+}
 
-; =============== S U B R O U T I N E =======================================
-
-
-soundShutdown?  proc near       ; CODE XREF: start+48Ep
-                    ; loadScreen2-7DAp
-        mov soundEnabled, 0
-        call    sound1
-        return;
-soundShutdown?  endp
-
+ /*
 // ; ---------------------------------------------------------------------------
         call    sound1
         mov musType, 0
@@ -14757,16 +14763,15 @@ soundShutdown?  endp
         mov soundEnabled, 0
         return;
 
-; =============== S U B R O U T I N E =======================================
 */
 
-void loadBeep() //    proc near       ; CODE XREF: readConfig:loc_4751Ap
+void activateInternalStandardSound() // loadBeep   proc near       ; CODE XREF: readConfig:loc_4751Ap
 //                    ; readConfig:loc_47551p ...
 {
     sound1();
     readSound("BEEP.SND", 0x0AC4);
-    musType = 1;
-    sndType = 1;
+    musType = SoundTypeInternalStandard;
+    sndType = SoundTypeInternalStandard;
     soundEnabled = 1;
     sound2();
     byte_59889 = 0;
@@ -14775,13 +14780,13 @@ void loadBeep() //    proc near       ; CODE XREF: readConfig:loc_4751Ap
     byte_5988C = 0;
 }
 
-void loadBeep2() //   proc near       ; CODE XREF: readConfig+4Cp handleOptionsSamplesClickp
+void activateInternalSamplesSound() // loadBeep2  proc near       ; CODE XREF: readConfig+4Cp handleOptionsSamplesClickp
 {
     sound1();
     readSound("BEEP.SND", 0x0AC4);
     readSound2("SAMPLE.SND", 0x8DAC);
-    musType = 1;
-    sndType = 2;
+    musType = SoundTypeInternalStandard;
+    sndType = SoundTypeInternalSamples;
     soundEnabled = 1;
     sound2();
     byte_59889 = 0;
@@ -14790,12 +14795,12 @@ void loadBeep2() //   proc near       ; CODE XREF: readConfig+4Cp handleOptions
     byte_5988C = 0;
 }
 
-void loadAdlib() //   proc near       ; CODE XREF: readConfig+56p handleOptionsAdlibClickp
+void activateAdlibSound() // loadAdlib  proc near       ; CODE XREF: readConfig+56p handleOptionsAdlibClickp
 {
     sound1();
     readSound("ADLIB.SND", 0x14EA);
-    musType = 3;
-    sndType = 3;
+    musType = SoundTypeAdlib;
+    sndType = SoundTypeAdlib;
     soundEnabled = 0;
     sound2();
     byte_59889 = 0;
@@ -14804,14 +14809,14 @@ void loadAdlib() //   proc near       ; CODE XREF: readConfig+56p handleOptions
     byte_5988C = 0;
 }
 
-void loadBlaster() //  proc near       ; CODE XREF: readConfig+60p handleOptionsSoundBlasterClickp
+void activateSoundBlasterSound() // loadBlaster  proc near       ; CODE XREF: readConfig+60p handleOptionsSoundBlasterClickp
 {
     // 01ED:6D39
     sound1();
     readSound("ADLIB.SND", 0x14EA);
     readSound2("BLASTER.SND", 0x991B);
-    musType = 3;
-    sndType = 4;
+    musType = SoundTypeAdlib;
+    sndType = SoundTypeSoundBlaster;
     soundEnabled = 0;
     sound2();
     byte_59889 = 0;
@@ -14820,12 +14825,12 @@ void loadBlaster() //  proc near       ; CODE XREF: readConfig+60p handleOption
     byte_5988C = 0;
 }
 
-void loadRoland() //  proc near       ; CODE XREF: readConfig+6Ap handleOptionsRolandClickp
+void activateRolandSound() // loadRoland  proc near       ; CODE XREF: readConfig+6Ap handleOptionsRolandClickp
 {
     sound1();
     readSound("ROLAND.SND", 0x0F80);
-    musType = 5;
-    sndType = 5;
+    musType = SoundTypeRoland;
+    sndType = SoundTypeRoland;
     soundEnabled = 0;
     sound2();
     byte_59889 = 0;
@@ -14834,13 +14839,13 @@ void loadRoland() //  proc near       ; CODE XREF: readConfig+6Ap handleOptions
     byte_5988C = 0;
 }
 
-void loadCombined() // proc near       ; CODE XREF: readConfig+74p handleOptionsCombinedClickp
+void activateCombinedSound() // loadCombined proc near       ; CODE XREF: readConfig+74p handleOptionsCombinedClickp
 {
     sound1();
     readSound("ROLAND.SND", 0x0F80);
     readSound2("BLASTER.SND", 0x991B);
-    musType = 5;
-    sndType = 4;
+    musType = SoundTypeRoland;
+    sndType = SoundTypeSoundBlaster;
     soundEnabled = 0;
     sound2();
     byte_59889 = 0;
@@ -14849,7 +14854,7 @@ void loadCombined() // proc near       ; CODE XREF: readConfig+74p handleOption
     byte_5988C = 0;
 }
 
-void readSound(char *filename, size_t size) //   proc near       ; CODE XREF: loadBeep+9p loadBeep2+9p ...
+void readSound(char *filename, size_t size) //   proc near       ; CODE XREF: activateInternalStandardSound+9p activateInternalSamplesSound+9p ...
 {
     FILE *file = fopen(filename, "r");
     if (file == NULL)
@@ -14882,8 +14887,8 @@ void readSound(char *filename, size_t size) //   proc near       ; CODE XREF: lo
     }
 }
 
-void readSound2(char *filename, size_t size) //  proc near       ; CODE XREF: loadBeep2+12p
-//                    ; loadBlaster+12p ...
+void readSound2(char *filename, size_t size) //  proc near       ; CODE XREF: activateInternalSamplesSound+12p
+//                    ; activateSoundBlasterSound+12p ...
 {
     FILE *file = fopen(filename, "r");
     if (file == NULL)
@@ -14916,7 +14921,7 @@ void sound1() //     proc near       ; CODE XREF: soundShutdown?+5p
 {
     // 01ED:6E4E
     soundEnabled = 0;
-    if (musType == 1)
+    if (musType == SoundTypeInternalStandard)
     {
 //        mov ah, 2
 //        int 80h     ; LINUX -
@@ -14939,14 +14944,14 @@ void sound1() //     proc near       ; CODE XREF: soundShutdown?+5p
 //                    ; 7: 0=enable kbrd
     }
 //loc_4DAC9:              ; CODE XREF: sound1+Aj
-    else if (musType == 3)
+    else if (musType == SoundTypeAdlib)
     {
 //        mov dx, 388h
 //        mov ah, 2
 //        int 80h     ; LINUX -
     }
 //loc_4DAD9:              ; CODE XREF: sound1+1Dj
-    else if (musType == 5)
+    else if (musType == SoundTypeRoland)
     {
 //    mov ah, 2
 //    int 80h     ; LINUX -
@@ -14955,21 +14960,21 @@ void sound1() //     proc near       ; CODE XREF: soundShutdown?+5p
     }
 
 //loc_4DAE8:              ; CODE XREF: sound1+16j sound1+26j ...
-    musType = 0;
-    if (sndType == 2)
+    musType = SoundTypeNone;
+    if (sndType == SoundTypeInternalSamples)
     {
 //        mov ah, 1
 //        int 81h
     }
 //loc_4DAFA:              ; CODE XREF: sound1+41j
-    else if (sndType == 4)
+    else if (sndType == SoundTypeSoundBlaster)
     {
 //        mov ah, 2
 //        int 81h
     }
 
 //loc_4DB05:              ; CODE XREF: sound1+47j sound1+4Ej
-    sndType = 0;
+    sndType = SoundTypeNone;
 }
 
 void sound2() //     proc near       ; CODE XREF: start+39Bp start+410p ...
@@ -14981,7 +14986,7 @@ void sound2() //     proc near       ; CODE XREF: start+39Bp start+410p ...
     }
 
 //loc_4DB13:              ; CODE XREF: sound2+5j
-    if (musType == 1)
+    if (musType == SoundTypeInternalStandard)
     {
 //        mov ax, 0
 //        int 80h     // ; LINUX - old_setup_syscall
@@ -14990,7 +14995,7 @@ void sound2() //     proc near       ; CODE XREF: start+39Bp start+410p ...
     }
 
 //loc_4DB26:              ; CODE XREF: sound2+Dj
-    if (musType == 3)
+    if (musType == SoundTypeAdlib)
     {
 //        mov dx, 388h
 //        mov ax, 0
@@ -15000,7 +15005,7 @@ void sound2() //     proc near       ; CODE XREF: start+39Bp start+410p ...
     }
 
 //loc_4DB3C:              ; CODE XREF: sound2+20j
-    if (musType == 5)
+    if (musType == SoundTypeRoland)
     {
 //        mov ax, 0
 //        int 80h     ; LINUX - old_setup_syscall
@@ -15010,7 +15015,7 @@ void sound2() //     proc near       ; CODE XREF: start+39Bp start+410p ...
 
 void sound3() //     proc near       ; CODE XREF: start+354p runLevel+41p ...
 {
-    if (musType == 1)
+    if (musType == SoundTypeInternalStandard)
     {
     //    mov ah, 2
     //    int 80h     ; LINUX -
@@ -15018,7 +15023,7 @@ void sound3() //     proc near       ; CODE XREF: start+354p runLevel+41p ...
     }
 
 //loc_4DB5B:              ; CODE XREF: sound3+5j
-    if (musType == 3)
+    if (musType == SoundTypeAdlib)
     {
     //    mov dx, 388h
     //    mov ah, 2
@@ -15027,7 +15032,7 @@ void sound3() //     proc near       ; CODE XREF: start+354p runLevel+41p ...
     }
 
 //loc_4DB6B:              ; CODE XREF: sound3+12j
-    if (musType == 3)
+    if (musType == SoundTypeAdlib)
     {
 //        mov ah, 2
 //        int 80h     ; LINUX -
@@ -15052,7 +15057,7 @@ void sound4() //     proc near       ; CODE XREF: sub_4A61F+2EDp code:5ADEp ..
 //loc_4DB87:              ; CODE XREF: sound4+Dj
     byte_5988B = 0xF;
     byte_59889 = 5;
-    if (sndType == 1)
+    if (sndType == SoundTypeInternalStandard)
     {
 //        mov ax, 400h
 //        int 80h     ; LINUX -
@@ -15060,7 +15065,7 @@ void sound4() //     proc near       ; CODE XREF: sub_4A61F+2EDp code:5ADEp ..
     }
 
 //loc_4DB9F:              ; CODE XREF: sound4+1Fj
-    if (sndType == 2)
+    if (sndType == SoundTypeInternalSamples)
     {
 //        mov dx, 5D38h
 //        mov ah, 3
@@ -15071,7 +15076,7 @@ void sound4() //     proc near       ; CODE XREF: sub_4A61F+2EDp code:5ADEp ..
     }
 
 //loc_4DBB4:              ; CODE XREF: sound4+2Dj
-    if (sndType == 3)
+    if (sndType == SoundTypeAdlib)
     {
 //        mov ax, 400h
 //        mov dx, 388h
@@ -15080,7 +15085,7 @@ void sound4() //     proc near       ; CODE XREF: sub_4A61F+2EDp code:5ADEp ..
     }
 
 //loc_4DBC5:              ; CODE XREF: sound4+42j
-    if (sndType == 4)
+    if (sndType == SoundTypeSoundBlaster)
     {
 //        mov ax, 0
 //        int 81h
@@ -15088,7 +15093,7 @@ void sound4() //     proc near       ; CODE XREF: sub_4A61F+2EDp code:5ADEp ..
     }
 
 //loc_4DBD3:              ; CODE XREF: sound4+53j
-    if (sndType == 5)
+    if (sndType == SoundTypeRoland)
     {
 //        mov ax, 400h
 //        int 80h     ; LINUX -
