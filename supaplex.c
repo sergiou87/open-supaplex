@@ -12124,6 +12124,11 @@ void scrollLeftToMainMenu() //loc_4C44F:              ; CODE XREF: handleGfxTuto
 //loc_4C499:              ; CODE XREF: sub_4C407+28j
 //    gNumberOfDotsToShiftDataLeft = 0;
     videoloop();
+
+    // This will prevent to leave traces of the options menu
+    // area in the main menu.
+    //
+    saveLastMouseAreaBitmap();
 }
 
 //sub_4C407   endp
@@ -12548,7 +12553,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
         drawMouseCursor(); // 01ED:5BE5 Draws mouse cursor too?
         drawMainMenuButtonBorders(); // 01ED:5BE8
         sub_48E59();
-//        sub_4A1BF();
+        sub_4A1BF();
         if (gPlayerListDownButtonPressed != 0
             || gPlayerListUpButtonPressed != 0)
         {
