@@ -52,6 +52,7 @@ uint8_t byte_510DE = 0;
 uint8_t byte_51969 = 0;
 uint8_t byte_5197E = 0;
 uint8_t byte_51999 = 0;
+uint8_t byte_519B6 = 0;
 uint8_t byte_519C3 = 0;
 uint8_t byte_519C5 = 0;
 uint8_t byte_519C8 = 0;
@@ -1014,13 +1015,13 @@ void drawOptionsBackground(uint8_t *dest);
 void drawBackBackground(void);
 void drawGfxTutorBackground(uint8_t *dest);
 void drawFullScreenBitmap(uint8_t *bitmapData, uint8_t *dest);
-void sub_4CAFC(uint8_t *destBuffer);
+void drawSoundTypeOptionsSelection(uint8_t *destBuffer);
 void dimOptionsButtonText(size_t startX, size_t startY, size_t width, size_t height, uint8_t *destBuffer);
 void drawOptionsMenuLine(ButtonBorderDescriptor border, uint8_t color, uint8_t *destBuffer);
 void highlightOptionsButtonText(size_t startX, size_t startY, size_t width, size_t height, uint8_t *destBuffer);
-void sub_4CC7C(uint8_t *destBuffer);
-void sub_4CCDF(uint8_t *destBuffer);
-void sub_4CD3C(uint8_t *destBuffer);
+void drawAudioOptionsSelection(uint8_t *destBuffer);
+void drawInputOptionsSelection(uint8_t *destBuffer);
+void updateOptionsMenuState(uint8_t *destBuffer);
 
 static const int kWindowWidth = kScreenWidth * 4;
 static const int kWindowHeight = kScreenHeight * 4;
@@ -8783,81 +8784,72 @@ sub_4A1AE   proc near       ; CODE XREF: sub_4955B+66Cp
         shr ax, 1
         return;
 sub_4A1AE   endp
+*/
 
+void sub_4A1BF() //   proc near       ; CODE XREF: sub_4955B+13p
+                   // ; runMainMenu+BDp ...
+{
+    ah = 0;
 
-; =============== S U B R O U T I N E =======================================
+    if (byte_519C5 != 0
+        || byte_519F9 != 0)
+    {
+//loc_4A1CF:              ; CODE XREF: sub_4A1BF+7j
+        byte_50941 = 1;
+        ah = 1;
+    }
 
+//loc_4A1D6:              ; CODE XREF: sub_4A1BF+Ej
+    if (byte_519C8 != 0
+        || byte_519F7 != 0)
+    {
+//loc_4A1E4:              ; CODE XREF: sub_4A1BF+1Cj
+        byte_50941 = 2;
+        ah = 1;
+    }
 
-sub_4A1BF   proc near       ; CODE XREF: sub_4955B+13p
-                    ; runMainMenu+BDp ...
-        xor ah, ah
-        cmp byte_519C5, 0
-        jnz short loc_4A1CF
-        cmp byte_519F9, 0
-        jz  short loc_4A1D6
+//loc_4A1EB:              ; CODE XREF: sub_4A1BF+23j
+    if (byte_519CD != 0
+        || byte_519F8 != 0)
+    {
+//loc_4A1F9:              ; CODE XREF: sub_4A1BF+31j
+        byte_50941 = 3;
+        ah = 1;
+    }
 
-loc_4A1CF:              ; CODE XREF: sub_4A1BF+7j
-        mov byte_50941, 1
-        mov ah, 1
+//loc_4A200:              ; CODE XREF: sub_4A1BF+38j
+    if (byte_519CA != 0
+        || byte_519F6 != 0)
+    {
+//loc_4A20E:              ; CODE XREF: sub_4A1BF+46j
+        byte_50941 = 4;
+        ah = 1;
+    }
 
-loc_4A1D6:              ; CODE XREF: sub_4A1BF+Ej
-        cmp byte_519C8, 0
-        jnz short loc_4A1E4
-        cmp byte_519F7, 0
-        jz  short loc_4A1EB
-
-loc_4A1E4:              ; CODE XREF: sub_4A1BF+1Cj
-        mov byte_50941, 2
-        mov ah, 1
-
-loc_4A1EB:              ; CODE XREF: sub_4A1BF+23j
-        cmp byte_519CD, 0
-        jnz short loc_4A1F9
-        cmp byte_519F8, 0
-        jz  short loc_4A200
-
-loc_4A1F9:              ; CODE XREF: sub_4A1BF+31j
-        mov byte_50941, 3
-        mov ah, 1
-
-loc_4A200:              ; CODE XREF: sub_4A1BF+38j
-        cmp byte_519CA, 0
-        jnz short loc_4A20E
-        cmp byte_519F6, 0
-        jz  short loc_4A215
-
-loc_4A20E:              ; CODE XREF: sub_4A1BF+46j
-        mov byte_50941, 4
-        mov ah, 1
-
-loc_4A215:              ; CODE XREF: sub_4A1BF+4Dj
-        cmp byte_519B6, 0
-        jnz short loc_4A22A
-        cmp byte_519F5, 0
-        jnz short loc_4A22A
-        cmp byte_519F4, 0
-        jz  short locret_4A23B
-
-loc_4A22A:              ; CODE XREF: sub_4A1BF+5Bj
-                    ; sub_4A1BF+62j
-        cmp ah, 1
-        jnz short loc_4A236
-        add byte_50941, 4
-        jmp short locret_4A23B
-// ; ---------------------------------------------------------------------------
-
-loc_4A236:              ; CODE XREF: sub_4A1BF+6Ej
-        mov byte_50941, 9
-
-locret_4A23B:               ; CODE XREF: sub_4A1BF+69j
-                    ; sub_4A1BF+75j
+//loc_4A215:              ; CODE XREF: sub_4A1BF+4Dj
+    if (byte_519B6 == 0
+        && byte_519F5 == 0
+        && byte_519F4 == 0)
+    {
         return;
-sub_4A1BF   endp
+    }
 
+//loc_4A22A:              ; CODE XREF: sub_4A1BF+5Bj
+//                ; sub_4A1BF+62j
+    if (ah == 1)
+    {
+        byte_50941 += 4;
+        return;
+    }
 
-; =============== S U B R O U T I N E =======================================
+//loc_4A236:              ; CODE XREF: sub_4A1BF+6Ej
+    byte_50941 = 9;
 
-
+//locret_4A23B:               ; CODE XREF: sub_4A1BF+69j
+//                ; sub_4A1BF+75j
+    return;
+}
+/*
 sub_4A23C   proc near       ; CODE XREF: sub_4955B+111p
                     ; sub_4955B+11Dp ...
         mov si, 0
@@ -12383,49 +12375,49 @@ void handleOptionsStandardClick() // sub_4C705  proc near       ; CODE XREF: cod
 {
     activateInternalStandardSound();
     sound4();
-    sub_4CAFC(gScreenPixels);
+    drawSoundTypeOptionsSelection(gScreenPixels);
 }
 
 void handleOptionsInternalClick() // loc_4C6FB
 {
     handleOptionsStandardClick();
     sound4();
-    sub_4CAFC(gScreenPixels);
+    drawSoundTypeOptionsSelection(gScreenPixels);
 }
 
 void handleOptionsSamplesClick() // sub_4C70F  proc near
 {
     activateInternalSamplesSound();
     sound4();
-    sub_4CAFC(gScreenPixels);
+    drawSoundTypeOptionsSelection(gScreenPixels);
 }
 
 void handleOptionsSoundBlasterClick() // sub_4C719  proc near
 {
     activateSoundBlasterSound();
     sound4();
-    sub_4CAFC(gScreenPixels);
+    drawSoundTypeOptionsSelection(gScreenPixels);
 }
 
 void handleOptionsAdlibClick() // sub_4C723  proc near
 {
     activateAdlibSound();
     sound4();
-    sub_4CAFC(gScreenPixels);
+    drawSoundTypeOptionsSelection(gScreenPixels);
 }
 
 void handleOptionsRolandClick() // sub_4C72D  proc near
 {
     activateRolandSound();
     sound4();
-    sub_4CAFC(gScreenPixels);
+    drawSoundTypeOptionsSelection(gScreenPixels);
 }
 
 void handleOptionsCombinedClick() // sub_4C737  proc near
 {
     activateCombinedSound();
     sound4();
-    sub_4CAFC(gScreenPixels);
+    drawSoundTypeOptionsSelection(gScreenPixels);
 }
 
 void handleOptionsMusicClick() // sub_4C741   proc near
@@ -12443,7 +12435,7 @@ void handleOptionsMusicClick() // sub_4C741   proc near
     }
 
 //loc_4C75A:              ; CODE XREF: handleOptionsAdlibClick+Fj
-    sub_4CC7C(gScreenPixels);
+    drawAudioOptionsSelection(gScreenPixels);
     return;
 }
 
@@ -12461,20 +12453,20 @@ void handleOptionsFXClick() // loc_4C75E
     }
 
 //loc_4C774:              ; CODE XREF: code:5B4Aj
-    sub_4CC7C(gScreenPixels);
+    drawAudioOptionsSelection(gScreenPixels);
 }
 
 void handleOptionsKeyboardClick() // loc_4C778
 {
     isJoystickEnabled = 0;
-    sub_4CCDF(gScreenPixels);
+    drawInputOptionsSelection(gScreenPixels);
 }
 
 void handleOptionsJoystickClick() // loc_4C781
 {
     isJoystickEnabled = 1;
     sub_4921B();
-    sub_4CCDF(gScreenPixels);
+    drawInputOptionsSelection(gScreenPixels);
 }
 
 void handleOptionsExitAreaClick() // loc_4C78D
@@ -12739,9 +12731,9 @@ void showControls() //:                              ; DATA XREF: data:0044o
     // 01ED:5DDE;
     byte_50919 = 0xFF;
     drawOptionsBackground(gScrollDestinationScreenBitmapData);
-    sub_4CAFC(gScrollDestinationScreenBitmapData);
-    sub_4CC7C(gScrollDestinationScreenBitmapData);
-    sub_4CCDF(gScrollDestinationScreenBitmapData);
+    drawSoundTypeOptionsSelection(gScrollDestinationScreenBitmapData);
+    drawAudioOptionsSelection(gScrollDestinationScreenBitmapData);
+    drawInputOptionsSelection(gScrollDestinationScreenBitmapData);
 //    mov     si, 6055h
     setPalette(gPalettes[2]);
     scrollRightToNewScreen();
@@ -12757,7 +12749,7 @@ void showControls() //:                              ; DATA XREF: data:0044o
 //loc_4CA67:                              ; CODE XREF: code:5E89j
 //                            ; code:5EBFj ...
         videoloop(); // 01ED:5E04
-        sub_4CD3C(gScreenPixels);
+        updateOptionsMenuState(gScreenPixels);
         word_5195D++;
         getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
 
@@ -12818,7 +12810,7 @@ void showControls() //:                              ; DATA XREF: data:0044o
     setPalette(gPalettes[1]);
 }
 
-void sub_4CAFC(uint8_t *destBuffer) //   proc near       ; CODE XREF: code:5AE1p handleOptionsStandardClick+6p ...
+void drawSoundTypeOptionsSelection(uint8_t *destBuffer) // sub_4CAFC   proc near       ; CODE XREF: code:5AE1p handleOptionsStandardClick+6p ...
 {
     dimOptionsButtonText(40, 21, 40, 8, destBuffer);
     drawOptionsMenuLine(kOptionsMenuBorders[0], 4, destBuffer);
@@ -12851,7 +12843,7 @@ void sub_4CAFC(uint8_t *destBuffer) //   proc near       ; CODE XREF: code:5AE1
         return;
     }
 
-//loc_4CBC6:              ; CODE XREF: sub_4CAFC+A9j
+//loc_4CBC6:              ; CODE XREF: drawSoundTypeOptionsSelection+A9j
     if (sndType == SoundTypeSoundBlaster)
     {
         drawOptionsMenuLine(kOptionsMenuBorders[3], 6, destBuffer);
@@ -12863,14 +12855,14 @@ void sub_4CAFC(uint8_t *destBuffer) //   proc near       ; CODE XREF: code:5AE1
             return;
         }
 
-//loc_4CBF3:              ; CODE XREF: sub_4CAFC+DEj
+//loc_4CBF3:              ; CODE XREF: drawSoundTypeOptionsSelection+DEj
         highlightOptionsButtonText(24, 129, 64, 8, destBuffer);
         drawOptionsMenuLine(kOptionsMenuBorders[4], 6, destBuffer);
         drawOptionsMenuLine(kOptionsMenuBorders[6], 6, destBuffer);
         return;
     }
 
-//loc_4CC11:              ; CODE XREF: sub_4CAFC+CFj
+//loc_4CC11:              ; CODE XREF: drawSoundTypeOptionsSelection+CFj
     if (sndType == SoundTypeRoland)
     {
         highlightOptionsButtonText(32, 93, 56, 8, destBuffer);
@@ -12879,7 +12871,7 @@ void sub_4CAFC(uint8_t *destBuffer) //   proc near       ; CODE XREF: code:5AE1
         return;
     }
 
-//loc_4CC36:              ; CODE XREF: sub_4CAFC+11Aj
+//loc_4CC36:              ; CODE XREF: drawSoundTypeOptionsSelection+11Aj
     highlightOptionsButtonText(136, 18, 72, 8, destBuffer);
     drawOptionsMenuLine(kOptionsMenuBorders[7], 6, destBuffer);
 
@@ -12890,12 +12882,12 @@ void sub_4CAFC(uint8_t *destBuffer) //   proc near       ; CODE XREF: code:5AE1
         return;
     }
 
-//loc_4CC67:              ; CODE XREF: sub_4CAFC+153j
+//loc_4CC67:              ; CODE XREF: drawSoundTypeOptionsSelection+153j
     highlightOptionsButtonText(176, 46, 40, 5, destBuffer);
     drawOptionsMenuLine(kOptionsMenuBorders[9], 6, destBuffer);
 }
 
-void sub_4CC7C(uint8_t *destBuffer) //   proc near       ; CODE XREF: handleOptionsAdlibClick:loc_4C75Ap
+void drawAudioOptionsSelection(uint8_t *destBuffer) // sub_4CC7C   proc near       ; CODE XREF: handleOptionsAdlibClick:loc_4C75Ap
                    // ; code:loc_4C774p
 {
     if (isMusicEnabled == 1)
@@ -12905,12 +12897,12 @@ void sub_4CC7C(uint8_t *destBuffer) //   proc near       ; CODE XREF: handleOpti
     }
     else
     {
-//loc_4CC99:              ; CODE XREF: sub_4CC7C+5j
+//loc_4CC99:              ; CODE XREF: drawAudioOptionsSelection+5j
         dimOptionsButtonText(134, 99, 40, 8, destBuffer);
         drawOptionsMenuLine(kOptionsMenuBorders[10], 4, destBuffer);
     }
 
-//loc_4CCAD:              ; CODE XREF: sub_4CC7C+1Bj
+//loc_4CCAD:              ; CODE XREF: drawAudioOptionsSelection+1Bj
     if (isFXEnabled == 1)
     {
         highlightOptionsButtonText(136, 138, 24, 8, destBuffer);
@@ -12918,12 +12910,12 @@ void sub_4CC7C(uint8_t *destBuffer) //   proc near       ; CODE XREF: handleOpti
         return;
     }
 
-//loc_4CCCA:              ; CODE XREF: sub_4CC7C+36j
+//loc_4CCCA:              ; CODE XREF: drawAudioOptionsSelection+36j
     dimOptionsButtonText(136, 138, 24, 8, destBuffer);
     drawOptionsMenuLine(kOptionsMenuBorders[11], 4, destBuffer);
 }
 
-void sub_4CCDF(uint8_t *destBuffer) //   proc near       ; CODE XREF: code:5B5Dp code:5B69p
+void drawInputOptionsSelection(uint8_t *destBuffer) // sub_4CCDF   proc near       ; CODE XREF: code:5B5Dp code:5B69p
 {
     if (isJoystickEnabled == 0)
     {
@@ -12934,27 +12926,27 @@ void sub_4CCDF(uint8_t *destBuffer) //   proc near       ; CODE XREF: code:5B5D
     }
     else
     {
-//loc_4CD10:              ; CODE XREF: sub_4CCDF+5j
+//loc_4CD10:              ; CODE XREF: drawInputOptionsSelection+5j
         dimOptionsButtonText(208, 87, 8, 62, destBuffer);
         highlightOptionsButtonText(240, 88, 8, 58, destBuffer);
         drawOptionsMenuLine(kOptionsMenuBorders[18], 6, destBuffer);
         drawOptionsMenuLine(kOptionsMenuBorders[19], 4, destBuffer);
     }
 
-//loc_4CD38:              ; CODE XREF: sub_4CCDF+2Fj
-    sub_4CD3C(destBuffer);
+//loc_4CD38:              ; CODE XREF: drawInputOptionsSelection+2Fj
+    updateOptionsMenuState(destBuffer);
 }
 
-void sub_4CD3C(uint8_t *destBuffer) //   proc near       ; CODE XREF: sub_4CCDF:loc_4CD38p
+void updateOptionsMenuState(uint8_t *destBuffer) // sub_4CD3C   proc near       ; CODE XREF: drawInputOptionsSelection:loc_4CD38p
 {
     sub_48E59();
-//    sub_4A1BF();
+    sub_4A1BF();
     if (byte_50941 == byte_50919)
     {
         return;
     }
 
-//loc_4CD4D:              ; CODE XREF: sub_4CD3C+Ej
+//loc_4CD4D:              ; CODE XREF: updateOptionsMenuState+Ej
     byte_50919 = byte_50941;
     if (byte_50941 == 0)
     {
@@ -12963,10 +12955,10 @@ void sub_4CD3C(uint8_t *destBuffer) //   proc near       ; CODE XREF: sub_4CCDF:
     }
     else
     {
-//loc_4CD6A:              ; CODE XREF: sub_4CD3C+1Aj
+//loc_4CD6A:              ; CODE XREF: updateOptionsMenuState+1Aj
         if (byte_50941 > 4)
         {
-//loc_4CD9E:              ; CODE XREF: sub_4CD3C+33j
+//loc_4CD9E:              ; CODE XREF: updateOptionsMenuState+33j
             drawOptionsMenuLine(kOptionsMenuBorders[12], 4, destBuffer);
             drawOptionsMenuLine(kOptionsMenuBorders[17], 4, destBuffer);
         }
@@ -12975,7 +12967,7 @@ void sub_4CD3C(uint8_t *destBuffer) //   proc near       ; CODE XREF: sub_4CCDF:
             drawOptionsMenuLine(kOptionsMenuBorders[17], 6, destBuffer);
             if (byte_50941 == 9)
             {
-//loc_4CD8F:              ; CODE XREF: sub_4CD3C+42j
+//loc_4CD8F:              ; CODE XREF: updateOptionsMenuState+42j
                 byte_50941 -= 4;
                 drawOptionsMenuLine(kOptionsMenuBorders[12], 4, destBuffer);
             }
@@ -12987,8 +12979,8 @@ void sub_4CD3C(uint8_t *destBuffer) //   proc near       ; CODE XREF: sub_4CCDF:
         }
     }
 
-//loc_4CDAE:              ; CODE XREF: sub_4CD3C+2Cj
-//                ; sub_4CD3C+51j ...
+//loc_4CDAE:              ; CODE XREF: updateOptionsMenuState+2Cj
+//                ; updateOptionsMenuState+51j ...
     drawOptionsMenuLine(kOptionsMenuBorders[13], 4, destBuffer);
     drawOptionsMenuLine(kOptionsMenuBorders[14], 4, destBuffer);
     drawOptionsMenuLine(kOptionsMenuBorders[15], 4, destBuffer);
@@ -12999,29 +12991,29 @@ void sub_4CD3C(uint8_t *destBuffer) //   proc near       ; CODE XREF: sub_4CCDF:
         return;
     }
 
-//loc_4CDDF:              ; CODE XREF: sub_4CD3C+97j
+//loc_4CDDF:              ; CODE XREF: updateOptionsMenuState+97j
     if (byte_50941 == 2)
     {
         drawOptionsMenuLine(kOptionsMenuBorders[14], 6, destBuffer);
         return;
     }
 
-//loc_4CDF0:              ; CODE XREF: sub_4CD3C+A8j
+//loc_4CDF0:              ; CODE XREF: updateOptionsMenuState+A8j
     if (byte_50941 == 3)
     {
         drawOptionsMenuLine(kOptionsMenuBorders[15], 6, destBuffer);
         return;
     }
 
-//loc_4CE01:              ; CODE XREF: sub_4CD3C+B9j
+//loc_4CE01:              ; CODE XREF: updateOptionsMenuState+B9j
     if (byte_50941 == 4)
     {
         drawOptionsMenuLine(kOptionsMenuBorders[16], 6, destBuffer);
     }
 }
 
-void highlightOptionsButtonText(size_t startX, size_t startY, size_t width, size_t height, uint8_t *destBuffer) // sub_4CE11   proc near       ; CODE XREF: sub_4CAFC+B4p
-                   // ; sub_4CAFC+E9p ...
+void highlightOptionsButtonText(size_t startX, size_t startY, size_t width, size_t height, uint8_t *destBuffer) // sub_4CE11   proc near       ; CODE XREF: drawSoundTypeOptionsSelection+B4p
+                   // ; drawSoundTypeOptionsSelection+E9p ...
 {
     // Copies a portion of the buffer replacing color 0xF (not selected)
     // with color 0x1 (selected).
@@ -13051,8 +13043,8 @@ void highlightOptionsButtonText(size_t startX, size_t startY, size_t width, size
     drawMouseCursor();
 }
 
-void dimOptionsButtonText(size_t startX, size_t startY, size_t width, size_t height, uint8_t *destBuffer) // sub_4CE9C   proc near       ; CODE XREF: sub_4CAFC+9p
-                   // ; sub_4CAFC+25p ...
+void dimOptionsButtonText(size_t startX, size_t startY, size_t width, size_t height, uint8_t *destBuffer) // sub_4CE9C   proc near       ; CODE XREF: drawSoundTypeOptionsSelection+9p
+                   // ; drawSoundTypeOptionsSelection+25p ...
 {
     // Copies a portion of the buffer replacing color 0x1 (selected)
     // with color 0xF (not selected).
@@ -13083,8 +13075,8 @@ void dimOptionsButtonText(size_t startX, size_t startY, size_t width, size_t hei
     drawMouseCursor();
 }
 
-void drawOptionsMenuLine(ButtonBorderDescriptor border, uint8_t color, uint8_t *destBuffer) // sub_4CF13  proc near       ; CODE XREF: sub_4CAFC+11p
-                   // ; sub_4CAFC+19p ...
+void drawOptionsMenuLine(ButtonBorderDescriptor border, uint8_t color, uint8_t *destBuffer) // sub_4CF13  proc near       ; CODE XREF: drawSoundTypeOptionsSelection+11p
+                   // ; drawSoundTypeOptionsSelection+19p ...
 {
     // Parameters:
     // - ah: color
