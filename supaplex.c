@@ -373,7 +373,8 @@ void handleSkipLevelOptionClick(void);
 void handleFloppyDiskButtonClick(void);
 void handleDeletePlayerOptionClick(void);
 void handleStatisticsOptionClick(void);
-void showControls(void);
+void handleControlsOptionClick(void);
+void handleOkButtonClick(void);
 
 static const uint8_t kNumberOfMainMenuButtons = 17;
 static const ButtonDescriptor kMainMenuButtonDescriptors[kNumberOfMainMenuButtons] = { // located in DS:0000
@@ -410,7 +411,7 @@ static const ButtonDescriptor kMainMenuButtonDescriptors[kNumberOfMainMenuButton
     {
         5, 60,
         157, 69,
-        showControls, // Controls
+        handleControlsOptionClick, // Controls
     },
     {
         140, 90,
@@ -425,7 +426,7 @@ static const ButtonDescriptor kMainMenuButtonDescriptors[kNumberOfMainMenuButton
     {
         96, 140,
         115, 163,
-        handleLevelListScrollDown, //sub_4B375, // Ok button
+        handleOkButtonClick, // Ok button
     },
     {
         83, 168,
@@ -1022,6 +1023,7 @@ void highlightOptionsButtonText(size_t startX, size_t startY, size_t width, size
 void drawAudioOptionsSelection(uint8_t *destBuffer);
 void drawInputOptionsSelection(uint8_t *destBuffer);
 void updateOptionsMenuState(uint8_t *destBuffer);
+void sub_4BF4A(uint8_t number);
 
 static const int kWindowWidth = kScreenWidth * 4;
 static const int kWindowHeight = kScreenHeight * 4;
@@ -1768,7 +1770,7 @@ loc_46FB4:              //; CODE XREF: start+38Fj
         }
 //        ah = 0;
 //        push(ax);
-//        sub_4BF4A();
+        sub_4BF4A(al);
     }
 
 //loc_4701A:              //; CODE XREF: start+3DDj start+433j
@@ -7019,7 +7021,7 @@ sub_4945D   endp
 */
 
 void prepareSomeKindOfLevelIdentifier() //   proc near       ; CODE XREF: start+3A1p
-                   // ; sub_4B375:loc_4B40Fp ...
+                   // ; handleOkButtonClick:loc_4B40Fp ...
 {
     // Checks if the last two chars are "00" like LEVELS.D00?
     if (aLevels_dat_0[8] == '0' && aLevels_dat_0[9] == '0')
@@ -11076,164 +11078,143 @@ void handleRankingListScrollDown() // loc_4B2AF
     drawMouseCursor();
 }
 
-/*
-sub_4B2FC   proc near       ; CODE XREF: sub_4B375+56p
-        mov si, 60D5h
-        call    fade
-        call    drawBackBackground
-        mov si, 8718h // "CONGRATULATIONS"
-        mov ah, 0Fh
-        mov di, 5BDFh
-        call    drawTextWithChars6FontWithTransparentBackground
-        mov si, 8728h // "YOU HAVE COMPLETED ALL 111 LEVELS OF SUPAPLEX"
-        mov ah, 0Fh
-        mov di, 6EE3h
-        call    drawTextWithChars6FontWithTransparentBackground
-        mov si, 8756h // "YOUR BRAIN IS IN FANTASTIC SHAPE"
-        mov ah, 0Fh
-        mov di, 760Eh
-        call    drawTextWithChars6FontWithTransparentBackground
-        mov si, 8777h // "NOT MANY PEOPLE ARE ABLE TO MANAGE THIS"
-        mov ah, 0Fh
-        mov di, 7D31h
-        call    drawTextWithChars6FontWithTransparentBackground
-        mov bx, 4D84h
-        mov dx, 3D4h
-        al = 0Dh
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (low)
-        inc dx
-        al = bl
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 0Ch
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (high)
-        inc dx
-        al = bh
-        out dx, al      ; Video: CRT controller internal registers
-        mov si, palettesDataBuffer
-        call    fade
-        call    waitForKeyMouseOrJoystick
-        mov si, 60D5h
-        call    fade
-        mov bx, 4D5Ch
-        mov dx, 3D4h
-        al = 0Dh
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (low)
-        inc dx
-        al = bl
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 0Ch
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (high)
-        inc dx
-        al = bh
-        out dx, al      ; Video: CRT controller internal registers
-        mov si, 6015h
-        call    fade
+void showCongratulationsScreen() // sub_4B2FC   proc near       ; CODE XREF: handleOkButtonClick+56p
+{
+    fadeToPalette(gBlackPalette);
+
+    uint8_t screenPixelsBackup[kFullScreenFramebufferLength];
+    memcpy(screenPixelsBackup, gScreenPixels, kFullScreenFramebufferLength);
+
+    drawBackBackground();
+//    mov si, 8718h // "CONGRATULATIONS"
+//    mov ah, 0Fh
+//    mov di, 5BDFh
+    drawTextWithChars6FontWithTransparentBackground(120, 30, 15, "CONGRATULATIONS");
+//    mov si, 8728h // "YOU HAVE COMPLETED ALL 111 LEVELS OF SUPAPLEX"
+//    mov ah, 0Fh
+//    mov di, 6EE3h
+    drawTextWithChars6FontWithTransparentBackground(24, 70, 15, "YOU HAVE COMPLETED ALL 111 LEVELS OF SUPAPLEX");
+//    mov si, 8756h // "YOUR BRAIN IS IN FANTASTIC SHAPE"
+//    mov ah, 0Fh
+//    mov di, 760Eh
+    drawTextWithChars6FontWithTransparentBackground(64, 85, 15, "YOUR BRAIN IS IN FANTASTIC SHAPE");
+//    mov si, 8777h // "NOT MANY PEOPLE ARE ABLE TO MANAGE THIS"
+//    mov ah, 0Fh
+//    mov di, 7D31h
+    drawTextWithChars6FontWithTransparentBackground(40, 100, 15, "NOT MANY PEOPLE ARE ABLE TO MANAGE THIS");
+//    mov bx, 4D84h
+//    mov dx, 3D4h
+//    al = 0Dh
+//    out dx, al      ; Video: CRT cntrlr addr
+//                ; regen start address (low)
+//    inc dx
+//    al = bl
+//    out dx, al      ; Video: CRT controller internal registers
+//    mov dx, 3D4h
+//    al = 0Ch
+//    out dx, al      ; Video: CRT cntrlr addr
+//                ; regen start address (high)
+//    inc dx
+//    al = bh
+//    out dx, al      ; Video: CRT controller internal registers
+//    mov si, palettesDataBuffer
+    fadeToPalette(gPalettes[0]);
+    waitForKeyMouseOrJoystick();
+//    mov si, 60D5h
+    fadeToPalette(gBlackPalette);
+    memcpy(gScreenPixels, screenPixelsBackup, kFullScreenFramebufferLength);
+//    mov bx, 4D5Ch
+//    mov dx, 3D4h
+//    al = 0Dh
+//    out dx, al      ; Video: CRT cntrlr addr
+//                ; regen start address (low)
+//    inc dx
+//    al = bl
+//    out dx, al      ; Video: CRT controller internal registers
+//    mov dx, 3D4h
+//    al = 0Ch
+//    out dx, al      ; Video: CRT cntrlr addr
+//                ; regen start address (high)
+//    inc dx
+//    al = bh
+//    out dx, al      ; Video: CRT controller internal registers
+
+    fadeToPalette(gPalettes[1]); // 6015h
+    return;
+}
+
+void handleOkButtonClick() // sub_4B375  proc near       ; CODE XREF: runMainMenu+11Ep
+{
+    // 01ED:4712
+    PlayerEntry currentPlayerEntry = gPlayerListData[gCurrentPlayerIndex];
+
+    if (strcmp(currentPlayerEntry.name, "--------") == 0)
+    {
+        drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, "NO PLAYER SELECTED     ");
         return;
-sub_4B2FC   endp
+    }
 
+//loc_4B3A4:              ; CODE XREF: handleOkButtonClick+12j
+//                ; handleOkButtonClick+17j ...
+//    ax = gCurrentSelectedLevelIndex;
+    if (gCurrentSelectedLevelIndex == kLastLevelIndex)
+    {
+//loc_4B3B4:              ; CODE XREF: handleOkButtonClick+3Cj
+        uint8_t numberOfCompletedLevels = 0;
 
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4B375   proc near       ; CODE XREF: runMainMenu+11Ep
-        mov bh, gCurrentPlayerIndex
-        xor bl, bl
-        shr bx, 1
-        mov si, gPlayerListData
-        add si, bx
-        mov ax, 2D2Dh
-        cmp [si], ax
-        jnz short loc_4B3A4
-        cmp [si+2], ax
-        jnz short loc_4B3A4
-        cmp [si+4], ax
-        jnz short loc_4B3A4
-        cmp [si+6], ax
-        jnz short loc_4B3A4
-        mov si, 82B6h
-        mov di, 89F7h
-        mov ah, 8
-        call    drawTextWithChars6FontWithOpaqueBackground
+        for (int i = 0; i < kNumberOfLevels; ++i)
+        {
+//loc_4B3BC:              ; CODE XREF: handleOkButtonClick+4Fj
+            if (currentPlayerEntry.levelState[i] == PlayerLevelStateCompleted)
+            {
+                numberOfCompletedLevels++;
+            }
+//loc_4B3C3:              ; CODE XREF: handleOkButtonClick+4Aj
+        }
+        if (numberOfCompletedLevels == kNumberOfLevels)
+        {
+            showCongratulationsScreen();
+            return;
+        }
+        else
+        {
+//loc_4B3CF:              ; CODE XREF: handleOkButtonClick+54j
+            drawTextWithChars6FontWithOpaqueBackground(168, 127, 2, "COLORBLIND I GUESS     ");
+            return;
+        }
+    }
+    else if (gCurrentSelectedLevelIndex > kNumberOfLevels)
+    {
         return;
-// ; ---------------------------------------------------------------------------
+    }
 
-loc_4B3A4:              ; CODE XREF: sub_4B375+12j
-                    ; sub_4B375+17j ...
-        mov ax, gCurrentSelectedLevelIndex
-        cmp ax, 6Fh ; 'o'
-        jle short loc_4B3DB
-        cmp gCurrentSelectedLevelIndex, 70h ; 'p'
-        jnz short loc_4B3B4
+//loc_4B3DB:              ; CODE XREF: handleOkButtonClick+35j
+    uint8_t currentLevelColor = gCurrentPlayerLevelData[gCurrentSelectedLevelIndex - 1];
+
+    if (currentLevelColor == kBlockedLevelEntryColor)
+    {
+//loc_4B404:              ; CODE XREF: handleOkButtonClick+70j
+        drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, "COLORBLIND I GUESS     ");
         return;
-// ; ---------------------------------------------------------------------------
+    }
+    word_5196C = 1;
+    byte_510DE = 0;
 
-loc_4B3B4:              ; CODE XREF: sub_4B375+3Cj
-        add si, 0Ch
-        mov cx, 6Fh ; 'o'
-        mov bl, 0
+    if (currentLevelColor == kCompletedLevelEntryColor)
+    {
+        byte_510B3 = 0;
+    }
+    else
+    {
+//loc_4B3FD:              ; CODE XREF: handleOkButtonClick+7Fj
+        byte_510B3 = 1;
+    }
 
-loc_4B3BC:              ; CODE XREF: sub_4B375+4Fj
-        cmp byte ptr [si], 1
-        jnz short loc_4B3C3
-        inc bl
-
-loc_4B3C3:              ; CODE XREF: sub_4B375+4Aj
-        inc si
-        loop    loc_4B3BC
-        cmp bl, 6Fh ; 'o'
-        jnz short loc_4B3CF
-        call    sub_4B2FC
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_4B3CF:              ; CODE XREF: sub_4B375+54j
-        mov si, 82CEh
-        mov di, 89F7h
-        mov ah, 2
-        call    drawTextWithChars6FontWithOpaqueBackground
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_4B3DB:              ; CODE XREF: sub_4B375+35j
-        dec ax
-        mov si, gCurrentPlayerLevelData
-        add si, ax
-        al = [si]
-        cmp al, 6
-        jz  short loc_4B404
-        mov word_5196C, 1
-        mov byte_510DE, 0
-        cmp al, 4
-        jnz short loc_4B3FD
-        mov byte_510B3, 0
-        jmp short loc_4B40F
-// ; ---------------------------------------------------------------------------
-
-loc_4B3FD:              ; CODE XREF: sub_4B375+7Fj
-        mov byte_510B3, 1
-        jmp short loc_4B40F
-// ; ---------------------------------------------------------------------------
-
-loc_4B404:              ; CODE XREF: sub_4B375+70j
-        mov si, 82CEh
-        mov di, 89F7h
-        mov ah, 8
-        call    drawTextWithChars6FontWithOpaqueBackground
-
-loc_4B40F:              ; CODE XREF: sub_4B375+86j
-                    ; sub_4B375+8Dj
-        call    prepareSomeKindOfLevelIdentifier
-        mov ax, gCurrentSelectedLevelIndex
-        call    sub_4BF4A
-        return;
-sub_4B375   endp
-*/
+//loc_4B40F:              ; CODE XREF: handleOkButtonClick+86j
+//                ; handleOkButtonClick+8Dj
+    prepareSomeKindOfLevelIdentifier();
+    sub_4BF4A(gCurrentSelectedLevelIndex); // 01ED:47B2
+}
 
 void handleFloppyDiskButtonClick() // sub_4B419  proc near
 {
@@ -11591,11 +11572,10 @@ void drawTextWithChars6FontWithTransparentBackground(size_t destX, size_t destY,
 
 }
 
-/*
-sub_4BF4A   proc near       ; CODE XREF: start+3F7p sub_4955B+398p ...
-        mov si, 0A017h
-sub_4BF4A   endp ; sp-analysis failed
-*/
+void sub_4BF4A(uint8_t number) //   proc near       ; CODE XREF: start+3F7p sub_4955B+398p ...
+{
+    convertNumberTo3DigitStringWithPadding0(number, &a00s0010_sp[3]);
+}
 
 void convertNumberTo3DigitStringWithPadding0(uint8_t number, char numberString[3]) //  proc near       ; CODE XREF: handleSkipLevelOptionClick+7Cp
                    // ; handleStatisticsOptionClick+13Dp ...
@@ -12586,7 +12566,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
         gLevelListUpButtonPressed = 0;
         if (byte_50941 > 4)
         {
-//        sub_4B375();
+            handleOkButtonClick();
         }
 //loc_4C8B8:              // ; CODE XREF: runMainMenu+11Cj
         else if (byte_519B8 == 1)
@@ -12731,7 +12711,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
     saveHallOfFameData();
 }
 
-void showControls() //:                              ; DATA XREF: data:0044o
+void handleControlsOptionClick() //showControls:                              ; DATA XREF: data:0044o
 {
     // 01ED:5DDE;
     byte_50919 = 0xFF;
