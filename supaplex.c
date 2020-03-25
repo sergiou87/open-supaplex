@@ -127,15 +127,17 @@ uint16_t word_50944 = 0;
 uint16_t word_5094F = 0;
 uint16_t word_50951 = 0;
 uint16_t word_510A2 = 0;
+uint16_t word_510E6 = 0;
 uint16_t word_5196C = 0;
 uint16_t word_51970 = 0;
 uint16_t word_5197A = 0;
-uint16_t word_599D8 = 0;
+uint8_t *word_599D8 = 0;
 uint16_t word_58463 = 0;
 uint16_t word_58465 = 0;
 uint16_t gNewPlayerNameLength = 0; // word_58475
 uint16_t word_5195D = 0;
 uint16_t word_51974 = 0;
+uint16_t word_51076 = 0;
 uint16_t word_58469 = 0;
 uint16_t word_5846B = 0;
 uint16_t word_5846D = 0;
@@ -144,10 +146,12 @@ uint16_t word_58471 = 0;
 uint16_t word_58473 = 0;
 uint16_t word_59B8C = 0;
 uint16_t word_59B8E = 0;
+uint16_t word_599D6 = 0;
 uint16_t gCursorX = 0; // word_58481
 uint16_t gCursorY = 0; // word_58485
 uint16_t *dword_58488 = 0;
 uint16_t word_5094B = 0;
+uint16_t word_599DA = 0;
 uint16_t word_5094D = 0;
 uint8_t fileIsDemo = 0;
 uint8_t isJoystickEnabled = 0; // byte_50940
@@ -1027,6 +1031,7 @@ void drawAudioOptionsSelection(uint8_t *destBuffer);
 void drawInputOptionsSelection(uint8_t *destBuffer);
 void updateOptionsMenuState(uint8_t *destBuffer);
 void sub_4BF4A(uint8_t number);
+void readLevels(void);
 
 static const int kWindowWidth = kScreenWidth * 4;
 static const int kWindowHeight = kScreenHeight * 4;
@@ -14172,366 +14177,301 @@ void initializeVideo2() //   proc near       ; CODE XREF: start+2AFp
         // return;
 // initializeVideo2   endp
 }
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-readLevels  proc near       ; CODE XREF: start:loc_46F3Ep
-                    ; sub_4A463p
-        cmp byte_510DE, 0
-        jz  short loc_4D59F
-        cmp byte ptr word_599D8, 0
-        jnz short loc_4D599
-        cmp byte_599D4, 0
-        jnz short loc_4D59F
-        mov ax, word_510E6
-        push    es
-        push    ds
-        push    ds
-        pop es
-        assume es:data
-        mov si, seg demoseg
-        mov ds, si
-        assume ds:demoseg
-        mov si, 0BE20h
-        mov di, offset fileLevelData
-        mov cx, ax
-        shl cx, 1
-        add ax, cx
-        mov cl, 9
-        shl ax, cl
-        add si, ax
-        mov cx, 300h
-        cld
-        rep movsw
-        mov di, 87DAh
-        mov ax, 532Eh
-        stosw
-        mov ax, 50h ; 'P'
-        stosw
-        sub si, 5Ah ; 'Z'
-        mov cx, 17h
-        rep movsb
-        pop ds
-        assume ds:data
-        pop es
-        assume es:nothing
-        jmp loc_4D64B
-// ; ---------------------------------------------------------------------------
-
-loc_4D599:              ; CODE XREF: readLevels+Cj
-        lea dx, aLevels_dat ; "LEVELS.DAT"
-        jmp short loc_4D5A3
-// ; ---------------------------------------------------------------------------
-
-loc_4D59F:              ; CODE XREF: readLevels+5j
-                    ; readLevels+13j
-        lea dx, aLevels_dat_0 ; "LEVELS.DAT"
-
-loc_4D5A3:              ; CODE XREF: readLevels+55j
-        mov ax, 3D00h
-        cmp byte_599D4, 0
-        jz  short loc_4D5BB
-        mov dx, offset demoFileName
-        cmp word_599DA, 0
-        jz  short loc_4D5BB
-        lea dx, aLevels_dat ; "LEVELS.DAT"
-
-loc_4D5BB:              ; CODE XREF: readLevels+63j
-                    ; readLevels+6Dj
-        int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-                    ; DS:DX -> ASCIZ filename
-                    ; AL = access mode
-                    ; 0 - read
-        jnb short loc_4D5C2
-        jmp exit
-// ; ---------------------------------------------------------------------------
-
-loc_4D5C2:              ; CODE XREF: readLevels+75j
-        mov lastFileHandle, ax
-        cmp byte_510DE, 0
-        jz  short loc_4D5D1
-        mov ax, word_510E6
-        jmp short loc_4D5D4
-// ; ---------------------------------------------------------------------------
-
-loc_4D5D1:              ; CODE XREF: readLevels+82j
-        mov ax, gCurrentSelectedLevelIndex
-
-loc_4D5D4:              ; CODE XREF: readLevels+87j
-        cmp byte_599D4, 0
-        jz  short loc_4D5E3
-        mov ax, word_599DA
-        or  ax, ax
-        jnz short loc_4D5E3
-        inc ax
-
-loc_4D5E3:              ; CODE XREF: readLevels+91j
-                    ; readLevels+98j
-        dec ax
-        mov bx, ax
-        shl bx, 1
-        add ax, bx
-        shl ax, 1
-        mov cl, 8
-        mov dx, ax
-        shl dx, cl
-        shr ax, cl
-        mov cx, ax
-        mov ax, 4200h
-        mov bx, lastFileHandle
-        int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
-                    ; AL = method: offset from beginning of file
-        jnb short loc_4D604
-        jmp exit
-// ; ---------------------------------------------------------------------------
-
-loc_4D604:              ; CODE XREF: readLevels+B7j
-        mov ax, 3F00h
-        mov bx, lastFileHandle
-        mov cx, levelDataLength
-        mov dx, offset fileLevelData
-        int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to read
-                    ; DS:DX -> buffer
-        jnb short loc_4D618
-        jmp exit
-// ; ---------------------------------------------------------------------------
-
-loc_4D618:              ; CODE XREF: readLevels+CBj
-        cmp byte ptr word_599D8, 0
-        jz  short loc_4D64B
-        mov byte ptr word_599D8+1, 0FFh
-        push    es
-        mov ax, demoseg
-        mov es, ax
-        assume es:demoseg
-        lea si, ds:[00768h]
-        lea di, ds:[0BE20h]
-        mov ax, word_599D6
-        mov word_510E6, ax
-        mov cx, ax
-        shl cx, 1
-        add ax, cx
-        mov cl, 9
-        shl ax, cl
-        add di, ax
-        mov cx, 300h
-        cld
-        rep movsw
-        pop es
-        assume es:nothing
-
-loc_4D64B:              ; CODE XREF: readLevels+4Ej
-                    ; readLevels+D5j
-        cmp byte_510DE, 0
-        jz  short loc_4D65D
-        mov ax, word_51076
-        mov gTimeOfDay, ax
-        mov di, 87DAh
-        jmp short loc_4D660
-// ; ---------------------------------------------------------------------------
-
-loc_4D65D:              ; CODE XREF: readLevels+108j
-        mov di, 87A8h
-
-loc_4D660:              ; CODE XREF: readLevels+113j
-        push    es
-        push    ds
-        pop es
-        assume es:data
-        cld
-        cmp word_599D8, 0
-        jnz short loc_4D679
-        cmp byte_599D4, 0
-        jz  short loc_4D68C
-        cmp word_599DA, 0
-        jz  short loc_4D682
-
-loc_4D679:              ; CODE XREF: readLevels+121j
-        mov ax, 4942h
-        stosw
-        mov ax, 4Eh ; 'N'
-        jmp short loc_4D689
-// ; ---------------------------------------------------------------------------
-
-loc_4D682:              ; CODE XREF: readLevels+12Fj
-        mov ax, 532Eh
-        stosw
-        mov ax, 50h ; 'P'
-
-loc_4D689:              ; CODE XREF: readLevels+138j
-        stosw
-        jmp short loc_4D68F
-// ; ---------------------------------------------------------------------------
-
-loc_4D68C:              ; CODE XREF: readLevels+128j
-        add di, 4
-
-loc_4D68F:              ; CODE XREF: readLevels+142j
-        mov si, 0D0Eh
-        mov cx, 17h
-        rep movsb
-        pop es
-        assume es:nothing
-        push    es
-        push    ds
-        pop es
-        assume es:data
-        mov si, offset fileLevelData
-        mov di, offset levelBuffer
-        mov cx, 300h
-        cld
-        rep movsw
-        pop es
-        assume es:nothing
-        push    es
-        mov ax, ds
-        mov es, ax
-        assume es:data
-        mov cx, levelDataLength
-        mov si, offset fileLevelData
-        mov di, offset leveldata
-        xor ah, ah
-
-loc_4D6B8:              ; CODE XREF: readLevels+172j
-        lodsb
-        stosw
-        loop    loc_4D6B8
-        mov di, 2434h
-        xor al, al
-        mov cx, levelbytes
-        rep stosb
-        pop es
-        assume es:nothing
-        cmp byte_510DE, 0
-        jz  short loc_4D6DC
-        cmp byte ptr word_599D8, 0
-        jnz short loc_4D6DC
-        cmp byte_599D4, 0
-        jz  short loc_4D6EA
-
-loc_4D6DC:              ; CODE XREF: readLevels+184j
-                    ; readLevels+18Bj
-        mov ax, 3E00h
-        mov bx, lastFileHandle
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-        jnb short loc_4D6EA
-        jmp exit
-// ; ---------------------------------------------------------------------------
-
-loc_4D6EA:              ; CODE XREF: readLevels+192j
-                    ; readLevels+19Dj
-        mov byte ptr word_599D8, 0
-        return;
-readLevels  endp
-
-
-// ; =============== S U B R O U T I N E =======================================
-
-// ; Attributes: bp-based frame
 */
+
+void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
+                    // ; sub_4A463p
+{
+    char *filename = "";
+    FILE *file = NULL;
+
+    if (byte_510DE != 0
+        && *word_599D8 == 0
+        && byte_599D4 == 0)
+    {
+        ax = word_510E6;
+
+    //    push    es
+    //    push    ds
+    //    push    ds
+    //    pop es
+    //    assume es:data
+    //    mov si, seg demoseg
+    //    mov ds, si
+    //    assume ds:demoseg
+
+        si = 0xBE20;
+    //    di = offset fileLevelData;
+        cx = ax;
+        cx *= 2;
+        ax += cx;
+        cl = 9;
+        ax = ax << cl;
+        si += ax;
+        cx = 0x300; // 768
+    //    cld
+        memcpy(di, si, 0x300 * 2);// rep movsw
+        di -= 0x300 * 2;
+        si -= 0x300 * 2;
+        di = 0x87DA;
+        ax = 0x532E;
+    //    *di = *si; // stosw
+        di--; si--;
+        ax = 0x50; // 80
+    //    *di = *si; // stosw
+        di--; si--;
+        si -= 0x5A; // 90
+        cx = 0x17; // 23
+        memcpy(di, si, 0x17 * 2);// rep movsw
+        di -= 0x17 * 2;
+        si -= 0x17 * 2;
+    //    pop ds
+    //    assume ds:data
+    //    pop es
+    //    assume es:nothing
+    //    jmp loc_4D64B
+    }
+    else
+    {
+        if (byte_510DE != 0
+            && *word_599D8 != 0) //cmp byte ptr word_599D8, 0
+        {
+//loc_4D599:              ; CODE XREF: readLevels+Cj
+            filename = "LEVELS.DAT"; // lea dx, aLevels_dat ; "LEVELS.DAT"
+        }
+        else if (byte_510DE == 0
+                 || byte_599D4 != 0)
+        {
+//loc_4D59F:              ; CODE XREF: readLevels+5j
+//                ; readLevels+13j
+            filename = aLevels_dat_0; // lea dx, aLevels_dat_0 ; "LEVELS.DAT"
+        }
+//loc_4D5A3:              ; CODE XREF: readLevels+55j
+        if (byte_599D4 != 0)
+        {
+//        filename = demoFileName; //    mov dx, offset demoFileName
+        }
+        else if (word_599DA != 0)
+        {
+            filename = "LEVELS.DAT"; // lea dx, aLevels_dat ; "LEVELS.DAT"
+        }
+
+//loc_4D5BB:              ; CODE XREF: readLevels+63j
+        file = fopen(filename, "r");
+        if (file == NULL)
+        {
+            exitWithError("Error opening %s\n", filename);
+        }
+
+//loc_4D5C2:              ; CODE XREF: readLevels+75j
+        if (byte_510DE != 0)
+        {
+            ax = word_510E6;
+        }
+        else
+        {
+//loc_4D5D1:              ; CODE XREF: readLevels+82j
+            ax = gCurrentSelectedLevelIndex;
+        }
+
+//loc_4D5D4:              ; CODE XREF: readLevels+87j
+        if (byte_599D4 != 0)
+        {
+            ax = word_599DA;
+            if (ax == 0)
+            {
+                ax++;
+            }
+        }
+
+//loc_4D5E3:              ; CODE XREF: readLevels+91j
+//                ; readLevels+98j
+        ax--;
+        bx = ax;
+        bx = bx << 1;
+        ax += bx;
+        ax = ax << 1;
+        cl = 8;
+        dx = ax;
+        dx = dx << cl;
+        ax = ax >> cl;
+        cx = ax;
+//    mov ax, 4200h // 16896
+//    mov bx, lastFileHandle
+//    int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
+//                ; AL = method: offset from beginning of file
+        int result = fseek(file, 0x4200, SEEK_SET);
+        if (result != 0x4200)
+        {
+            exitWithError("Error seeking %s\n", filename);
+        }
+
+//loc_4D604:              ; CODE XREF: readLevels+B7j
+    //    mov ax, 3F00h
+    //    mov bx, lastFileHandle
+    //    mov cx, levelDataLength
+    //    mov dx, offset fileLevelData
+    //    int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+    //                ; BX = file handle, CX = number of bytes to read
+    //                ; DS:DX -> buffer
+        size_t bytes = fread(fileLevelData, levelDataLength, 1, file);
+        if (bytes < levelDataLength)
+        {
+            exitWithError("Error reading %s\n", filename);
+        }
+
+//loc_4D618:              ; CODE XREF: readLevels+CBj
+        if (*word_599D8 != 0)
+        {
+            word_599D8[1] = 0xFF;
+        //    push    es
+        //    mov ax, demoseg
+        //    mov es, ax
+        //    assume es:demoseg
+        //    lea si, ds:[00768h]
+        //    lea di, ds:[0BE20h]
+            ax = word_599D6;
+            word_510E6 = ax;
+            cx = ax;
+            cx = cx << 1;
+            ax += cx;
+            cl = 9;
+            ax = ax << cl;
+            di += ax;
+            cx = 0x300; // 768
+        //    cld
+            memcpy(di, si, 0x300 * 2);// rep movsw
+            di -= 0x300 * 2;
+            si -= 0x300 * 2;
+        //    pop es
+        //    assume es:nothing
+        }
+    }
+
+//loc_4D64B:              ; CODE XREF: readLevels+4Ej
+//                ; readLevels+D5j
+    if (byte_510DE != 0)
+    {
+        ax = word_51076;
+        gTimeOfDay = ax;
+        di = 0x87DA;
+//      jmp short loc_4D660
+    }
+    else
+    {
+//loc_4D65D:              ; CODE XREF: readLevels+108j
+        di = 0x87A8;
+    }
+
+//loc_4D660:              ; CODE XREF: readLevels+113j
+//    push    es
+//    push    ds
+//    pop es
+//    assume es:data
+
+//    cld
+    if (word_599D8 != 0)
+    {
+//        jnz short loc_4D679
+    }
+    if (byte_599D4 == 0)
+    {
+//        jz  short loc_4D68C
+    }
+    if (word_599DA == 0)
+    {
+//        jz  short loc_4D682
+    }
+
+//loc_4D679:              ; CODE XREF: readLevels+121j
+    ax = 0x4942;
+//    *di = ax; // stosw
+    ax = 0x4E; // 78
+//    jmp short loc_4D689
+
+//loc_4D682:              ; CODE XREF: readLevels+12Fj
+    ax = 0x532E;
+    //    *di = ax; // stosw
+    ax = 0x50; // 80
+
+//loc_4D689:              ; CODE XREF: readLevels+138j
+    //    *di = ax; // stosw
+//    jmp short loc_4D68F
+
+//loc_4D68C:              ; CODE XREF: readLevels+128j
+    di += 4;
+
+//loc_4D68F:              ; CODE XREF: readLevels+142j
+    si = 0x0D0E;
+    cx = 0x17;
+    memcpy(di, si, 0x17);// rep movsw
+    di -= 0x17; // - or + ? is there a std/cld?
+    si -= 0x17;
+//    pop es
+//    assume es:nothing
+//    push    es
+//    push    ds
+//    pop es
+//    assume es:data
+//    si = offset fileLevelData;
+//    di = offset levelBuffer;
+    cx = 0x300;
+//    cld
+    memcpy(di, si, 0x300 * 2);// rep movsw
+    di -= 0x300 * 2;
+    si -= 0x300 * 2;
+//    pop es
+//    assume es:nothing
+//    push    es
+//    mov ax, ds
+//    mov es, ax
+//    assume es:data
+    cx = levelDataLength;
+//    si = offset fileLevelData;
+//    di = offset leveldata;
+    ah = 0;
+
+    for (int i = 0; i < levelDataLength; ++i)
+    {
+//loc_4D6B8:              ; CODE XREF: readLevels+172j
+//    al = *si; // lodsb
+        si++;
+//    *di = ax; // stosw
+        di++;
+    }
+    di = 0x2434;
+    al = 0;
+//    cx = levelbytes;
+    memset(di, 0, cx); // rep stosb
+    di -= cx;
+//    pop es
+//    assume es:nothing
+    if (byte_510DE == 0
+        || *word_599D8 != 0
+        || byte_599D4 != 0)
+    {
+//loc_4D6DC:              ; CODE XREF: readLevels+184j
+//                ; readLevels+18Bj
+        if (fclose(file) != 0)
+        {
+            exitWithError("Error closing %s\n", filename);
+        }
+    }
+
+//loc_4D6EA:              ; CODE XREF: readLevels+192j
+//                ; readLevels+19Dj
+    *word_599D8 = 0;
+}
 
 void fadeToPalette(ColorPalette palette) //        proc near       ; CODE XREF: start+2C1p start+312p ...
 {
     // Parameters:
     // si -> points to the first color of the palette to fade to
-//    int var_8;
-//    int var_6;
-//    int remainingSteps;
-//    int var_2;
-//
-//    push(bp);
-//    bp = sp;
-//    sp += 0x0FFF8;
-//    push(es);
-//        if (videoStatusUnk != 2)
-//        {
-//            goto loc_4D706;
-//        }
-//
-//        setPalette();
-//        pop(es);
-//        sp = bp;
-//        pop(bp);
-//        return;
-// ; ---------------------------------------------------------------------------
 
-//loc_4D706:              //; CODE XREF: fade+Cj
-//    push(si);
-//    ax = ds;
-//    es = ax;
-//    // assume es:data
 //    old_word_510A2 = word_510A2;
 //    word_510A2 = 0;
-//    cx = 0x40; // '@'   64
-//    di = &fileLevelData;
-//
-//    // reads 64 values from si, shifts it twice to the left, stores them in si
-//    // is this a palette? why the SHL 2?
-//    // Maybe the SHL2 is because the port expects only 6 bits per component (http://www.osdever.net/FreeVGA/vga/colorreg.htm#3C9)
-//    for (int i = 0; i < 64; ++i)
-//    {
-//        di[i] = si[i] << 2;
-//    }
-
-//loc_4D71D:              //; CODE XREF: fade+33j
-//        al = ds:[si];
-//        si++;
-//        al = al << 2;
-//        ds:[di] = al;
-//        di++;
-//        cx--;
-//        if (cx > 0)
-//        {
-//            goto loc_4D71D;
-//        }
-
-//    ports[0x3C7] = 0; // sets the palette index to read to 0 (first color)
-//
-//    dx = 0x3C9; // This is where the bytes will be read from, which is the DAC pixel data register (check page 174)
-//    di = 0x6115; // What's this exactly? seems to be a buffer used to hold the current palette
-//    cx = 0x10; // 16 colors
-//
-//    // Reads 16 pixels from the palette
-//    for (int i = 0; i < 16; ++i)
-//    {
-//        di[0] = ports[0x3C9]; // reads r
-//        di[1] = ports[0x3C9]; // reads g
-//        di[2] = ports[0x3C9]; // reads b
-//        di += 3;
-//        di += 1; // no idea why this extra add?? alpha color? LOL! Intensity maybe??
-//    }
-
-//loc_4D734:              // ; CODE XREF: fade+51j
-//        al = ports[dx]; // r
-//        *di = al;
-//        di++;
-//        al = ports[dx]; // g
-//        *di = al;
-//        di++;
-//        al = ports[dx]; // b
-//        *di = al;
-//        di++;
-//        di++;
-//        cx--;
-//        if (cx > 0)
-//        {
-//            goto loc_4D734;
-//        }
-
-//loc_4D74F:              //; CODE XREF: fade+134j
-//        ports[0x3C8] = 0; // we're gonna start writing colors in the palette starting from 0
-//        cx = 0x10; // 16 colors
-//        si = &fileLevelData; // why
-//        di = 0x6115; // Point back to where we saved the previous pixels
 
     ColorPalette intermediatePalette;
-//    dest_palette = &fileLevelData;
-//    source_palette = 0x6115;
-
     uint8_t totalSteps = 64;
 
     for (uint8_t step = 0; step < totalSteps; ++step)
@@ -14553,145 +14493,20 @@ void fadeToPalette(ColorPalette palette) //        proc near       ; CODE XREF: 
         loopForVSync();
     }
 
-
-//loc_4D75E:              //; CODE XREF: fade+115j
-//        al = [si]; // value from palette level?
-//        ah = 0;
-//        ax = ax * currentStep;
-//        ax = ax / 64;
-//        var_6 = ax;
-//        al = [di]
-//        ah = 0;
-//        ax = ax * remainingSteps;
-//        ax = ax / 64;
-//        ax += var_6;
-//        color = (source * current / 64) + (dest * remaining / 64);
-//        di++;
-//        si++;
-//        ports[0x3C9] = al; // r
-//        al = [si];
-//        ah = 0;
-//        ax = ax * currentStep;
-//        ax = ax / 64;
-//        var_6 = ax;
-//        al = [di];
-//        ah = 0;
-//        ax = ax * remainingSteps;
-//        ax = ax / 64;
-//        add ax, var_6
-//        di++;
-//        si++;
-//        ports[0x3C9] = al; // g
-//        al = [si]
-//        ah = 0;
-//        ax = ax * currentStep;
-//        ax = ax / 64;
-//        var_6 = ax;
-//        al = [di];
-//        ah = 0;
-//        ax = ax * remainingSteps;
-//        ax = ax / 64;
-//        ax += var_6;
-//        di++;
-//        si++;
-//        ports[0x3C9] = al; // b
-//        si++;
-//        di++; // why the extra add? wtf? alpha??
-//        cx--;
-//        if (cx == 0)
-//        {
-//            goto loc_4D808;
-//        }
-//        goto loc_4D75E;
-//// ; ---------------------------------------------------------------------------
-//
-//loc_4D808:              //; CODE XREF: fade+113j
-//        if (fastMode == 1)
-//        {
-//            goto isFastMode4;
-//        }
-//        videoloop();
-//        loopForVSync();
-//
-//isFastMode4:              //; CODE XREF: fade+11Dj
-//        remainingSteps--;
-//        currentStep++;
-//        if (currentStep > 0x3F) // 63
-//        {
-//            goto loc_4D827;
-//        }
-//        goto loc_4D74F;
-
-// ; ---------------------------------------------------------------------------
-
-//loc_4D827:              //; CODE XREF: fade+132j
-//        pop(si);
     setPalette(palette);
 //        word_510A2 = old_word_510A2;
 }
 
-// ; =============== S U B R O U T I N E =======================================
-
-// ; Attributes: bp-based frame
-
 void setPalette(ColorPalette palette) //   proc near       ; CODE XREF: start+2B8p
                    // ; loadScreen2+B5p ...
 {
-    SDL_SetPaletteColors(gScreenSurface->format->palette, palette, 0, kNumberOfColors);
-    memcpy(gCurrentPalette, palette, sizeof(ColorPalette));
 //    int old_word_510A2; //       = word ptr -2
 
-//    push(bp);
-//    bp = sp;
-//    sp += 0xFFFE;
 //    old_word_510A2 = word_510A2;
 //    word_510A2 = 0;
-//    if (videoStatusUnk != 1) // not gonna happen
-//    {
-//        goto loc_4D872;
-//    }
-//    cx = 0x10; // 16 colors
-//    ports[0x3C8] = 0; // start writing palette from index 0
-//    dx = 0x3C9;
-//
-//    for (int i = 0; i < 16; ++i)
-//    {
-//        ports[0x3C9] = si[0] * 4; // r
-//        ports[0x3C9] = si[1] * 4; // g
-//        ports[0x3C9] = si[2] * 4; // b
-//        si += 3;
-//        si++; // extra add for something, intensity maybe?
-//    }
-
-//loc_4D85B:              //; CODE XREF: setPalette+38j
-//        lodsb // loads from DS:SI into AL
-//        al = ds:[si];
-//        si++;
-//        al = al * 4;
-//        ports[0x3C9] = al; // r
-//        al = ds:[si];
-//        si++;
-//        al = al * 4;
-//        ports[0x3C9] = al; // g
-//        al = ds:[si];
-//        si++;
-//        al = al * 4;
-//        ports[0x3C9] = al; // b
-//        al = ds:[si]; // This extra is the usual, not used, just wtf is the alpha or what :lol:
-//        di++;
-//        cx--;
-//        if (cx > 0)
-//        {
-//            goto loc_4D85B;
-//        }
-//        goto loc_4D89E;
-
-// ; ---------------------------------------------------------------------------
-
-
-//loc_4D89E:              //; CODE XREF: setPalette+3Aj
+    SDL_SetPaletteColors(gScreenSurface->format->palette, palette, 0, kNumberOfColors);
+    memcpy(gCurrentPalette, palette, sizeof(ColorPalette));
 //        word_510A2 = old_word_510A2;
-// setPalette   endp
 }
 /*
 // ; ---------------------------------------------------------------------------
