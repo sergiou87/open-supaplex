@@ -30,6 +30,8 @@ static const int kScreenHeight = 200;
 // title1DataBuffer -> A000:4DAC - A000:CAAC
 // title2DataBuffer -> 0x4DD4 - 0xCAD4
 
+uint8_t fastMode = 0;
+
 static const int levelDataLength = 1536; // exact length of a level file, even of each level inside the LEVELS.DAT file
 uint8_t gPlayerListDownButtonPressed = 0; // byte_50910
 uint8_t gPlayerListUpButtonPressed = 0; // byte_50911
@@ -74,6 +76,7 @@ uint8_t byte_59822 = 0;
 uint8_t byte_59823 = 0;
 uint8_t byte_599D4 = 0;
 uint8_t byte_59B6B = 0;
+uint8_t byte_59B71 = 0;
 uint8_t byte_59B83 = 0;
 uint8_t byte_59B84 = 0;
 uint8_t byte_59B85 = 0;
@@ -1578,59 +1581,56 @@ loc_46E75:              //; CODE XREF: start+251j
  */
 
 //doesNotHaveCommandLine:         //; CODE XREF: start+13j start+23Fj ...
-        getTime();
-        checkVideo();
-        if (byte_59B64 != 0)
-        {
-            videoStatusUnk = 2;
-        }
+    getTime();
+    checkVideo();
+    if (byte_59B64 != 0)
+    {
+        videoStatusUnk = 2;
+    }
 
 //leaveVideoStatus:           //; CODE XREF: start+28Aj
 //        ax = 0xA000;
 //        es = ax;
 //         assume es:nothing
-        initializeFadePalette(); // 01ED:026F
-        initializeMouse();
-        setint8(); // Timer
-/*        setint24(); // Fatal error handler?
-        setint9(); // Keyboard
-        initializeSound();
-        if (fastMode != 0)
-        {
-            goto isFastMode;
-        }
-        initializeVideo2();
-        initializeVideo3();
- */
-    setPalette(gBlackPalette);
-    readTitleDatAndGraphics();
-    ColorPalette titleDatPalette; // si = 0x5F15;
-    convertPaletteDataToPalette(gTitlePaletteData, titleDatPalette);
-    fadeToPalette(titleDatPalette);
+    initializeFadePalette(); // 01ED:026F
+    initializeMouse();
+//    setint8(); // Timer or sound speaker?
+//    setint24(); // Fatal error handler?
+//    setint9(); // Keyboard
+//    initializeSound();
+    if (fastMode == 0)
+    {
+//    initializeVideo2();
+//    initializeVideo3();
+
+        setPalette(gBlackPalette);
+        readTitleDatAndGraphics();
+        ColorPalette titleDatPalette; // si = 0x5F15;
+        convertPaletteDataToPalette(gTitlePaletteData, titleDatPalette);
+        fadeToPalette(titleDatPalette);
+    }
 
 //isFastMode:              //; CODE XREF: start+2ADj
     loadMurphySprites();
-/*    initializeVideo3();
+//    initializeVideo3();
     // Conditions to whether show
     al = byte_59B6B;
     al |= byte_59B84;
     al |= byte_599D4;
     al |= fastMode;
-    if (al == 0)
+    if (al != 0)
     {
-        goto openingSequence;
+        readEverything();
     }
-    readEverything();
-    goto afterOpeningSequence;
-//// ; ---------------------------------------------------------------------------
-
-openingSequence:
- */
-    loadScreen2();    // 01ED:02B9
-    readEverything(); // 01ED:02BC
-    drawSpeedFixTitleAndVersion(); // 01ED:02BF
-    openCreditsBlock(); // credits inside the block // 01ED:02C2
-    drawSpeedFixCredits();   // credits below the block (herman perk and elmer productions) // 01ED:02C5
+    else
+    {
+//openingSequence:
+        loadScreen2();    // 01ED:02B9
+        readEverything(); // 01ED:02BC
+        drawSpeedFixTitleAndVersion(); // 01ED:02BF
+        openCreditsBlock(); // credits inside the block // 01ED:02C2
+        drawSpeedFixCredits();   // credits below the block (herman perk and elmer productions) // 01ED:02C5
+    }
 
 //afterOpeningSequence:              //; CODE XREF: start+2DEj
     readConfig();
@@ -1644,149 +1644,156 @@ openingSequence:
     }
 
 //loc_46F25:              //; CODE XREF: start+2FEj
-/*
-        if (fastMode == 0)
-        {
-            goto isNotFastMode;
-        }
-        goto loc_46FBE;
- */
-
-//isNotFastMode:              //; CODE XREF: start+30Aj
-    fadeToPalette(gBlackPalette);
-    word_58467 = 1;
-/*
-    goto loc_46FBE;
-
-loc_46F3E:              //; CODE XREF: start+428j start+444j
-        readLevels();
-        fadeToPalette(gBlackPalette);
-        byte_5A33F = 0;
-        drawPlayerList();
-        sub_48A20();
-        sub_4D464();
-        sub_48F6D();
-        sub_501C0();
-        sub_4A2E6();
-        sub_4A3BB();
-        enableFloppy();
-        findMurphy();
-        si = 0x6015;
-        fadeToPalette();
-        if (isMusicEnabled != 0)
-        {
-            goto loc_46F77;
-        }
-        sound3();
-
-loc_46F77:              //; CODE XREF: start+352j
-        byte_5A33F = 1;
-        runLevel();
-        byte_599D4 = 0;
-        if (word_5197A == 0)
-        {
-            goto loc_46F8E;
-        }
-        goto loc_47067;
-//// ; ---------------------------------------------------------------------------
-
-loc_46F8E:              //; CODE XREF: start+369j
-        if (fastMode != 1)
-        {
-            goto isNotFastMode2;
-        }
-        goto doneWithDemoPlayback;
-//// ; ---------------------------------------------------------------------------
-
-isNotFastMode2:              //; CODE XREF: start+373j
-        slideDownGameDash();
-        if (byte_59B71 == 0)
-        {
-            goto loc_46FA5;
-        }
-        loadMurphySprites();
-
-loc_46FA5:              //; CODE XREF: start+380j
-        byte_5A33F = 0;
-        if (word_5197A == 0)
-        {
-            goto loc_46FB4;
-        }
-        goto loc_47067;
-
-loc_46FB4:              //; CODE XREF: start+38Fj
-        if (isMusicEnabled != 0)
-        {
-            goto loc_46FBE;
-        }
-        sound2();
-*/
-//loc_46FBE:              //; CODE XREF: start+30Cj start+31Bj ...
-    enableFloppy(); // 01ED:0377
-    prepareSomeKindOfLevelIdentifier();
-
-    if (byte_599D4 == 2)
+    if (fastMode != 0)
     {
+//isNotFastMode:              //; CODE XREF: start+30Aj
+        fadeToPalette(gBlackPalette);
+        word_58467 = 1;
+    }
+
+    // Can't think of a better way to handle this right now, but at this point we had a "jmp loc_46FBE" which basically
+    // skipped a few lines of the loop in the first iteration. Will revisit later when I have more knowledge of the code.
+    //
+    uint8_t shouldSkipFirstPart = 1;
+
+    do
+    {
+//loc_46F3E:              //; CODE XREF: start+428j start+444j
+        if (shouldSkipFirstPart == 0)
+        {
+            readLevels();
+            fadeToPalette(gBlackPalette);
+            byte_5A33F = 0;
+            drawPlayerList();
+            sub_48A20();
+            sub_4D464();
+            sub_48F6D();
+            sub_501C0();
+            sub_4A2E6();
+            sub_4A3BB();
+            enableFloppy();
+            findMurphy();
+            si = 0x6015;
+            fadeToPalette(gPalettes[1]);
+            if (isMusicEnabled == 0)
+            {
+                sound3();
+            }
+
+//loc_46F77:              //; CODE XREF: start+352j
+            byte_5A33F = 1;
+            runLevel();
+            byte_599D4 = 0;
+            if (word_5197A != 0)
+            {
+                break; // goto loc_47067;
+            }
+
+//loc_46F8E:              //; CODE XREF: start+369j
+            if (fastMode == 1)
+            {
+//                goto doneWithDemoPlayback;
+            }
+
+//isNotFastMode2:              //; CODE XREF: start+373j
+            slideDownGameDash();
+            if (byte_59B71 != 0)
+            {
+                loadMurphySprites();
+            }
+
+//loc_46FA5:              //; CODE XREF: start+380j
+            byte_5A33F = 0;
+            if (word_5197A != 0)
+            {
+                break; // goto loc_47067;
+            }
+
+//loc_46FB4:              //; CODE XREF: start+38Fj
+            if (isMusicEnabled == 0)
+            {
+                sound2();
+            }
+        }
+
+        shouldSkipFirstPart = 0;
+
+//loc_46FBE:              //; CODE XREF: start+30Cj start+31Bj ...
+        enableFloppy(); // 01ED:0377
+        prepareSomeKindOfLevelIdentifier();
+
+        uint8_t shouldDoSomething = 1; // still no idea what this is
+
+        if (byte_599D4 == 2)
+        {
 //            goto loc_46FFF; <- if byte_599D4 != 2
 
-        byte_599D4 = 1;
-        if (fileIsDemo == 1)
-        {
-//        ax = 0;
-//        demoSomething();
-//        goto loc_46FE4;
+            byte_599D4 = 1;
+            if (fileIsDemo == 1)
+            {
+//              ax = 0;
+//              demoSomething();
+            }
+            else
+            {
+//loc_46FDF:              //; CODE XREF: start+3B5j
+                byte_510DE = 0;
+            }
+
+//loc_46FE4:              //; CODE XREF: start+3BDj
+            ax = 1;
+            byte_510B3 = 0;
+            byte_5A2F9 = 1;
+            a00s0010_sp[3] = 0x2D; // '-' ; "001$0.SP"
+            a00s0010_sp[4] = 0x2D; // "01$0.SP"
+            a00s0010_sp[5] = 0x2D; // "1$0.SP"
+//          push(ax);
+//          goto loc_4701A;
         }
         else
         {
-//loc_46FDF:              //; CODE XREF: start+3B5j
-            byte_510DE = 0;
-        }
-
-//loc_46FE4:              //; CODE XREF: start+3BDj
-        ax = 1;
-        byte_510B3 = 0;
-        byte_5A2F9 = 1;
-        a00s0010_sp[3] = 0x2D; // '-' ; "001$0.SP"
-        a00s0010_sp[4] = 0x2D; // "01$0.SP"
-        a00s0010_sp[5] = 0x2D; // "1$0.SP"
-//        push(ax);
-//        goto loc_4701A;
-    }
-    else
-    {
 //loc_46FFF:              //; CODE XREF: start+3A9j
-        al = byte_59B84;
-        byte_59B84 = 0;
-        byte_510DE = 0;
-        al++;
-        if (al == 0)
-        {
-//            goto loc_4704B;
+            al = byte_59B84;
+            byte_59B84 = 0;
+            byte_510DE = 0;
+            al++;
+            if (al != 0)
+            {
+                al--;
+                if (al != 0)
+                {
+//                  ah = 0;
+//                  push(ax);
+                    sub_4BF4A(al);
+                }
+                else
+                {
+                    shouldDoSomething = 0;
+                }
+            }
+            else
+            {
+                shouldDoSomething = 0;
+            }
         }
-        al--;
-        if (al == 0)
-        {
-//            goto loc_4704B;
-        }
-//        ah = 0;
-//        push(ax);
-        sub_4BF4A(al);
-    }
 
+        if (shouldDoSomething)
+        {
 //loc_4701A:              //; CODE XREF: start+3DDj start+433j
-//        byte_5A33F = 1;
-//        byte_51ABE = 1;
-//        prepareLevelDataForCurrentPlayer();
-//        drawPlayerList();
-//        word_58467 = 0;
-//        sound2();
-//        pop(ax);
-//        gCurrentSelectedLevelIndex = ax;
-//        restoreLastMouseAreaBitmap();
-//        drawLevelList();
-//        word_5196C = 0;
-//        byte_5A19B = 0;
-//        goto loc_46F3E;
+            byte_5A33F = 1;
+            byte_51ABE = 1;
+            prepareLevelDataForCurrentPlayer();
+            drawPlayerList();
+            word_58467 = 0;
+            sound2();
+//          pop(ax);
+//          gCurrentSelectedLevelIndex = ax;
+            restoreLastMouseAreaBitmap();
+            drawLevelList();
+            word_5196C = 0;
+            byte_5A19B = 0;
+            continue;
+        }
 
 //loc_4704B:              //; CODE XREF: start+3EEj start+3F2j
         ax = 1;
@@ -1796,16 +1803,11 @@ loc_46FB4:              //; CODE XREF: start+38Fj
         }
         byte_5A2F9 = 0;
         runMainMenu();
-/*
-        if (word_5197A != 0)
-        {
-            goto loc_47067;
-        }
-        goto loc_46F3E;
-*/
+    }
+    while (word_5197A == 0);
+
 //loc_47067:              //; CODE XREF: start+36Bj start+391j ...
-//        si = 0x60D5;
-        fadeToPalette(gBlackPalette);
+        fadeToPalette(gBlackPalette); // 0x60D5
 /*
 doneWithDemoPlayback:           //; CODE XREF: start+375j
         resetint9();
