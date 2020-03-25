@@ -14732,12 +14732,12 @@ void initializeSound() //   proc near       ; CODE XREF: start+2A5p
 //    // assume ds:nothing
 //    bx = 0x200; // 512
 //    [bx] = ax;
-//    ax = seg soundseg;
+//    ax = seg soundseg; // 0x4C33
 //    [bx + 2] = ax;
 //    ax = 0;
 //    bx = 0x204; // 516
 //    [bx] = ax;
-//    ax = seg sound2seg;
+//    ax = seg sound2seg; // 0x4D92
 //    [bx + 2] = ax;
 //    pop(ds);
     // assume ds:data
@@ -14794,7 +14794,7 @@ void activateInternalSamplesSound() // loadBeep2  proc near       ; CODE XREF: r
 
 void activateAdlibSound() // loadAdlib  proc near       ; CODE XREF: readConfig+56p handleOptionsAdlibClickp
 {
-    sound1();
+    sound1(); // 01ED:6D06
     readSound("ADLIB.SND", 0x14EA);
     musType = SoundTypeAdlib;
     sndType = SoundTypeAdlib;
@@ -14853,6 +14853,7 @@ void activateCombinedSound() // loadCombined proc near       ; CODE XREF: readCo
 
 void readSound(char *filename, size_t size) //   proc near       ; CODE XREF: activateInternalStandardSound+9p activateInternalSamplesSound+9p ...
 {
+    // 01ED:6DE4
     FILE *file = fopen(filename, "r");
     if (file == NULL)
     {
@@ -14871,6 +14872,7 @@ void readSound(char *filename, size_t size) //   proc near       ; CODE XREF: ac
 //    int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
 //                ; BX = file handle, CX = number of bytes to read
 //                ; DS:DX -> buffer
+    // It's saving it in soundseg:0000, which is 4C33:0000
     size_t bytes = fread(gSoundBuffer1, 1, size, file);
     if (bytes < size)
     {
@@ -14900,6 +14902,7 @@ void readSound2(char *filename, size_t size) //  proc near       ; CODE XREF: ac
 //        mov ax, seg sound2seg
 //        mov ds, ax
 //        assume ds:sound2seg
+    // It's saving it in sound2seg:0000, which is 4D92:0000
     size_t bytes = fread(gSoundBuffer2, 1, size, file);
     if (bytes < size)
     {
