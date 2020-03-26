@@ -87,6 +87,11 @@ uint8_t byte_5A2F9 = 0;
 uint8_t byte_5A33E = 0;
 uint8_t byte_5A33F = 0;
 uint8_t byte_59B64 = 0;
+uint8_t byte_510AE = 0;
+uint8_t byte_510AF = 0;
+uint8_t byte_510B0 = 0;
+uint8_t byte_510B1 = 0;
+uint8_t byte_510B2 = 0;
 uint8_t byte_510BB = 0;
 uint8_t byte_519B5 = 0;
 uint8_t byte_519B8 = 0;
@@ -108,6 +113,9 @@ uint8_t byte_5988C = 0;
 uint8_t byte_59B94 = 0;
 uint8_t byte_59B96 = 0;
 uint8_t byte_5091A = 0;
+uint8_t byte_5A320 = 0;
+uint8_t byte_5A321 = 0;
+uint8_t byte_5A322 = 0;
 uint8_t gCurrentPlayerIndex = 0; // byte_5981F
 uint8_t byte_59B62 = 0;
 uint8_t byte_5870F = 0;
@@ -989,6 +997,7 @@ void sound1(void);
 void sound2(void);
 void sound3(void);
 void sound4(void);
+void sound11(void);
 void savePlayerListData(void);
 void saveHallOfFameData(void);
 void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonStatus);
@@ -2354,91 +2363,96 @@ void int9handler() // proc far        ; DATA XREF: setint9+1Fo
 
 void int8handler() // proc far        ; DATA XREF: setint8+10o
 {
-    /*
-    push    ds
-    push    dx
-    push    ax
-    mov ax, seg data
-    mov ds, ax
-    inc byte_59B96
-    cmp byte_510AE, 0
-    jz  short loc_473AA
-    al = byte_510AF
-    al++;
-    mov byte_510AF, al
-    cmp al, 32h ; '2'
-    jl  short loc_473AA
-    mov byte_510AF, 0
-    al = byte_510B0
-    al++;
-    mov byte_510B0, al
-    cmp al, 3Ch ; '<'
-    jl  short loc_473AA
-    mov byte_510B0, 0
-    al = byte_510B1
-    al++;
-    mov byte_510B1, al
-    cmp al, 3Ch ; '<'
-    jl  short loc_473AA
-    mov byte_510B1, 0
-    inc byte_510B2
+//    push    ds
+//    push    dx
+//    push    ax
+//    mov ax, seg data
+//    mov ds, ax
+    byte_59B96++;
+    if (byte_510AE != 0)
+    {
+        byte_510AF++;
+        if (byte_510AF >= 0x32) // '2' or 50
+        {
+            byte_510AF = 0;
+            byte_510B0++;
+            if (byte_510B0 >= 0x3C) // '<' or 60
+            {
+                byte_510B0 = 0;
+                byte_510B1++;
+                if (byte_510B1 >= 0x3C) // '<' or 60
+                {
+                    byte_510B1 = 0;
+                    byte_510B2++;
+                }
+            }
+        }
+    }
 
-loc_473AA:              ; CODE XREF: int8handler+11j
-                ; int8handler+1Dj ...
-    cmp soundEnabled, 0
-    jz  short loc_473B4
-    call    sound11
+//loc_473AA:              ; CODE XREF: int8handler+11j
+//                ; int8handler+1Dj ...
+    if (soundEnabled != 0)
+    {
+        sound11();
+    }
 
-loc_473B4:              ; CODE XREF: int8handler+4Fj
-    cmp byte_5988B, 0
-    jz  short loc_473C6
-    dec byte_5988B
-    jnz short loc_473C6
-    mov byte_59889, 0
+//loc_473B4:              ; CODE XREF: int8handler+4Fj
+    if (byte_5988B != 0)
+    {
+        byte_5988B--;
+        if (byte_5988B == 0)
+        {
+            byte_59889 = 0;
+        }
+    }
 
-loc_473C6:              ; CODE XREF: int8handler+59j
-                ; int8handler+5Fj
-    cmp byte_5988C, 0
-    jz  short loc_473D8
-    dec byte_5988C
-    jnz short loc_473D8
-    mov byte_5988A, 0
+//loc_473C6:              ; CODE XREF: int8handler+59j
+//                ; int8handler+5Fj
+    if (byte_5988C != 0)
+    {
+        byte_5988C--;
+        if (byte_5988C == 0)
+        {
+            byte_5988A = 0;
+        }
+    }
 
-loc_473D8:              ; CODE XREF: int8handler+6Bj
-                ; int8handler+71j
-    inc byte_5A320
-    inc byte_5A321
-    cmp byte_5A320, 3
-    jnz short loc_473F0
-    inc byte_5A322
-    mov byte_5A320, 0
-
-loc_473F0:              ; CODE XREF: int8handler+85j
-    cmp byte_5A321, 21h ; '!'
-    jnz short loc_47400
-    inc byte_5A322
-    mov byte_5A321, 0
-
-loc_47400:              ; CODE XREF: int8handler+95j
-    cmp byte_5A322, 0
-    jz  short loc_47414
-    dec byte_5A322
-    pop ax
-    pop dx
-    pushf
-    originalInt8Handler();
-    pop ds
-    iret
-// ; ---------------------------------------------------------------------------
-
-loc_47414:              ; CODE XREF: int8handler+A5j
-    al = 20h ; ' '
-    out 20h, al     ; Interrupt controller, 8259A.
-    pop ax
-    pop dx
-    pop ds
-    iret
-     */
+//loc_473D8:              ; CODE XREF: int8handler+6Bj
+//                ; int8handler+71j
+    byte_5A320++;
+    byte_5A321++;
+    if (byte_5A320 == 3)
+    {
+        byte_5A322++;
+        byte_5A320 = 0;
+    }
+//loc_473F0:              ; CODE XREF: int8handler+85j
+    else if (byte_5A321 == 0x21) // '!' or 33
+    {
+        byte_5A322++;
+        byte_5A321 = 0;
+    }
+//loc_47400:              ; CODE XREF: int8handler+95j
+    else if (byte_5A322 != 0)
+    {
+        byte_5A322--;
+    //    pop ax
+    //    pop dx
+    //    pushf
+    //    originalInt8Handler();
+    //    pop ds
+        return; // iret
+    }
+    else
+    {
+//loc_47414:              ; CODE XREF: int8handler+A5j
+        al = 0x20; // ' ' or 32
+    //    out 20h, al     ; Interrupt controller, 8259A.
+    //    pop ax
+    //    pop dx
+    //    pop ds
+        return; //iret
+    }
 }
 
 
@@ -15290,37 +15304,35 @@ locret_4DE5E:               ; CODE XREF: sound10+21j sound10+36j ...
         return;
 sound10    endp
 
+*/
 
-; =============== S U B R O U T I N E =======================================
-
-
-sound11    proc near       ; CODE XREF: int8handler+51p
-        cmp musType, 1
-        jnz short loc_4DE6C
-        mov ah, 1
-        int 80h     ; LINUX -
-        jmp short locret_4DE87
-// ; ---------------------------------------------------------------------------
-
-loc_4DE6C:              ; CODE XREF: sound11+5j
-        cmp musType, 3
-        jnz short loc_4DE7C
-        mov dx, 388h
-        mov ah, 1
-        int 80h     ; LINUX -
-        jmp short locret_4DE87
-// ; ---------------------------------------------------------------------------
-
-loc_4DE7C:              ; CODE XREF: sound11+12j
-        cmp musType, 5
-        jnz short locret_4DE87
-        mov ah, 1
-        int 80h     ; LINUX -
-
-locret_4DE87:               ; CODE XREF: sound11+Bj sound11+1Bj ...
+void sound11() //    proc near       ; CODE XREF: int8handler+51p
+{
+    if (musType == SoundTypeInternalStandard)
+    {
+//        mov ah, 1
+//        int 80h     ; LINUX -
         return;
-sound11    endp
+    }
 
+//loc_4DE6C:              ; CODE XREF: sound11+5j
+    if (musType == SoundTypeAdlib)
+    {
+//        mov dx, 388h
+//        mov ah, 1
+//        int 80h     ; LINUX -
+        return;
+    }
+
+//loc_4DE7C:              ; CODE XREF: sound11+12j
+    if (musType == SoundTypeRoland)
+    {
+//        mov ah, 1
+//        int 80h     ; LINUX -
+        return;
+    }
+}
+/*
 // ; ---------------------------------------------------------------------------
         db  2Eh ; .
         db  8Bh ; ?
