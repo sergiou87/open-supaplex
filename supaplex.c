@@ -116,11 +116,24 @@ uint8_t byte_5091A = 0;
 uint8_t byte_5A320 = 0;
 uint8_t byte_5A321 = 0;
 uint8_t byte_5A322 = 0;
+uint8_t byte_5195C = 0;
+uint8_t byte_5197C = 0;
+uint8_t byte_510B9 = 0;
+uint8_t byte_510B4 = 0;
+uint8_t byte_510B5 = 0;
+uint8_t byte_510B6 = 0;
+uint8_t byte_510C0 = 0;
+uint8_t byte_5196A = 0;
+uint8_t byte_5196B = 0;
+uint8_t byte_510D7 = 0;
+uint8_t byte_510DB = 0;
+
 uint8_t gCurrentPlayerIndex = 0; // byte_5981F
 uint8_t byte_59B62 = 0;
 uint8_t byte_5870F = 0;
 uint16_t word_58467 = 0;
 uint16_t gCurrentSelectedLevelIndex = 0; // word_51ABC
+uint16_t word_510DC = 0;
 uint16_t word_586FD = 0;
 uint16_t word_586FF = 0;
 uint16_t word_58701 = 0;
@@ -146,6 +159,17 @@ uint16_t gNewPlayerNameLength = 0; // word_58475
 uint16_t word_5195D = 0;
 uint16_t word_51974 = 0;
 uint16_t word_51076 = 0;
+uint16_t word_510BC = 0;
+uint16_t word_510C3 = 0;
+uint16_t word_510BE = 0;
+uint16_t word_510C5 = 0;
+uint16_t word_510CB = 0;
+uint16_t word_510D1 = 0;
+uint16_t word_51978 = 0;
+uint16_t word_510CD = 0;
+uint16_t *word_510B7 = 0;
+uint16_t *word_510C1 = 0;
+uint16_t *word_510D9 = 0;
 uint16_t word_58469 = 0;
 uint16_t word_5846B = 0;
 uint16_t word_5846D = 0;
@@ -246,6 +270,11 @@ uint8_t gCurrentPlayerPaddedLevelData[kNumberOfLevelsWithPadding]; // 0x949C
 
 static const int kCurrentPlayerLevelDataLength = kNumberOfLevels;
 uint8_t *gCurrentPlayerLevelData = &gCurrentPlayerPaddedLevelData[kFirstLevelIndex]; // 0x949E
+
+typedef struct
+{
+
+} Level; // size 1536 = 0x600
 
 // 30 elements...
 int word_599DC[] = { 0x00CE, 0x016A, 0x0146, 0x00CD, 0x024D, 0x012C, 0x01A7, 0x01FB, 0x01D2,
@@ -1041,6 +1070,13 @@ void drawInputOptionsSelection(uint8_t *destBuffer);
 void updateOptionsMenuState(uint8_t *destBuffer);
 void sub_4BF4A(uint8_t number);
 void readLevels(void);
+void sub_48A20(void);
+void sub_4D464(void);
+void sub_48F6D(void);
+void sub_501C0(void);
+void sub_4A2E6(void);
+void sub_4A3BB(void);
+void findMurphy(void);
 
 static const int kWindowWidth = kScreenWidth * 4;
 static const int kWindowHeight = kScreenHeight * 4;
@@ -1675,20 +1711,20 @@ loc_46E75:              //; CODE XREF: start+251j
 //loc_46F3E:              //; CODE XREF: start+428j start+444j
         if (shouldSkipFirstPart == 0)
         {
-            readLevels();
+            readLevels(); // 01ED:02F7
             fadeToPalette(gBlackPalette);
             byte_5A33F = 0;
             drawPlayerList();
             sub_48A20();
             sub_4D464();
             sub_48F6D();
-            sub_501C0();
+            sub_501C0(); // 01ED:0311
             sub_4A2E6();
             sub_4A3BB();
             enableFloppy();
             findMurphy();
-            si = 0x6015;
-            fadeToPalette(gPalettes[1]);
+//            si = 0x6015;
+            fadeToPalette(gPalettes[1]); // At this point the screen fades in and shows the game
             if (isMusicEnabled == 0)
             {
                 sound3();
@@ -2747,7 +2783,6 @@ void enableFloppy() //   proc near       ; CODE XREF: start+341p
 // enableFloppy   endp
 }
 /*
-
 void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
                   //  ; sub_4B159p ...
 {
@@ -5556,52 +5591,45 @@ write_crlf:              ; CODE XREF: writeexitmessage+1Cj
 //         db  8Bh ; ?
 //         db 0C0h ; +
 
-// ; =============== S U B R O U T I N E =======================================
-
-
+*/
 void sub_48A20() //   proc near       ; CODE XREF: start+32Fp
+                // ; runLevel:notFunctionKeyp ...
 {
-                    ; runLevel:notFunctionKeyp ...
-        mov ax, word_510C3
-        mov word_510BC, ax
-        mov ax, word_510C5
-        mov word_510BE, ax
-        xor ax, ax
-        mov word_510CB, ax
-        mov word_510D1, ax
-        mov word_51974, ax
-        mov word_51978, ax
-        mov byte_5195C, 0
-        mov byte_5197C, 0
-        mov word_510CD, 0
-        mov byte ptr word_510B7, 0FFh
-        mov byte ptr word_510B7+1, 0FFh
-        mov byte_510B9, 0FFh
-        mov byte_510AE, 1
-        mov byte_510AF, 0
-        mov byte_510B0, 0
-        mov byte_510B1, 0
-        mov byte_510B2, 0
-        mov byte_510B4, 0
-        mov byte_510B5, 0
-        mov byte_510B6, 0
-        mov byte_510C0, 0
-        mov byte_5196A, 7Fh ; ''
-        mov byte_5196B, 0
-        mov word_5195D, 0
-        mov byte ptr word_510C1, 1
-        mov byte ptr word_510C1+1, 0
-        mov byte_510D7, 0
-        mov gNumberOfDotsToShiftDataLeft, 0
-        mov byte ptr word_510D9, 0
-        mov byte_510DB, 0
-        mov word_510DC, 0
-        return;
+    // 01ED:1DBD
+    word_510BC = word_510C3;
+    word_510BE = word_510C5;
+    ax = 0;
+    word_510CB = 0;
+    word_510D1 = 0;
+    word_51974 = 0;
+    word_51978 = 0;
+    byte_5195C = 0;
+    byte_5197C = 0;
+    word_510CD = 0;
+    *word_510B7 = 0xFFFF;
+    byte_510B9 = 0xFF; // 255
+    byte_510AE = 1;
+    byte_510AF = 0;
+    byte_510B0 = 0;
+    byte_510B1 = 0;
+    byte_510B2 = 0;
+    byte_510B4 = 0;
+    byte_510B5 = 0;
+    byte_510B6 = 0;
+    byte_510C0 = 0;
+    byte_5196A = 0x7F; // 127
+    byte_5196B = 0;
+    word_5195D = 0;
+//    word_510C1[0] = 1;
+//    word_510C1[1] = 0;
+    *word_510C1 = 0x0100;
+    byte_510D7 = 0;
+    gNumberOfDotsToShiftDataLeft = 0;
+    *word_510D9 = 0;
+    byte_510DB = 0;
+    word_510DC = 0;
 }
-
-
-// ; =============== S U B R O U T I N E =======================================
-
+/*
 
 runLevel    proc near       ; CODE XREF: start+35Cp
         cmp byte_510DE, 0
@@ -6237,310 +6265,368 @@ void sub_48E59() //   proc near       ; CODE XREF: waitForKeyMouseOrJoystick:loc
     return;
 }
 
+void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
+{
+    // 01ED:230A
+    /*
+    mov dx, 3CEh
+    al = 5
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; mode register.Data bits:
+                ; 0-1: Write mode 0-2
+                ; 2: test condition
+                ; 3: read mode: 1=color compare, 0=direct
+                ; 4: 1=use odd/even RAM addressing
+                ; 5: 1=use CGA mid-res map (2-bits/pixel)
+    inc dx
+    al = 1
+    out dx, al      ; EGA port: graphics controller data register
+     */
+//    push    ds
+    si = word_5184A;
+    ax = es;
+    ds = ax;
+    di = 0x4D35;
+    cx = 8;
+
+    for (int i = 0; i < 8; ++i)
+    {
+//loc_48F86:              ; CODE XREF: sub_48F6D+20j
+        *si = *di; // movsb
+        si++; di++;
+        si += 0x79; // 121
+        di += 0x79; // 121
+    }
+    di -= 0x3CF; // 975 (this is 121 * 8 + 7, which is related to the loop above)
+//    pop ds
+    si = word_51856;
+//    push    ds
+//    mov ax, es
+//    mov ds, ax
+    dx = 7
+
+    do
+    {
+//loc_48FA0:              ; CODE XREF: sub_48F6D+41j
+        cx = 0x74; // 116
+
+        for (int i = 0; i < 116; ++i)
+        {
+//loc_48FA3:              ; CODE XREF: sub_48F6D+38j
+            *si = *di; // movsb
+            si++; di++;
+            si--;
+        }
+        si += 0x7A; // 122
+        di += 6;
+        dx--;
+    }
+    while (dx != 0);
+
+    cx = 0x74; // 116
+
+    for (int i = 0; i < 116; ++i)
+    {
+//loc_48FB3:              ; CODE XREF: sub_48F6D+48j
+        *si = *di; // movsb
+        si++; di++;
+        si--;
+    }
+    di -= 0x356; // 854
+//    pop ds
+    si = word_5184C;
+//    push    ds
+//    mov ax, es
+//    mov ds, ax
+    cx = 8;
+
+    for (int i = 0; i < 8; ++i)
+    {
+//loc_48FC8:              ; CODE XREF: sub_48F6D+62j
+        *si = *di; // movsb
+        si++; di++;
+        si += 0x79; // 121
+        di += 0x79; // 121
+    }
+//    pop ds
+    si = word_51854;
+//    push    ds
+//    mov ax, es
+//    mov ds, ax
+    dx = 0x2C; // 44
+
+    do
+    {
+//loc_48FDE:              ; CODE XREF: sub_48F6D+82j
+        cx = 8;
+
+        for (int i = 0; i < 8; ++i)
+        {
+//loc_48FE1:              ; CODE XREF: sub_48F6D+7Bj
+            *si = *di; // movsb
+            si++; di++;
+            si += 0x79; // 121
+            di += 0x79; // 121
+        }
+        si -= 0x3D0; // 976
+        dx--;
+    }
+    while (dx != 0);
+//    pop ds
+    si = word_51850;
+//    push    ds
+//    mov ax, es
+//    mov ds, ax
+    cx = 8;
+
+    for (int i = 0; i < 8; ++i)
+    {
+//loc_48FFE:              ; CODE XREF: sub_48F6D+98j
+        *si = *di; // movsb
+        si++; di++;
+        si += 0x79; // 121
+        di += 0x79; // 121
+    }
+    si -= 0x3CE; // 974
+//    pop ds
+    si = word_51858;
+    di -= 0x444; // 1092
+//    push    ds
+//    mov ax, es
+//    mov ds, ax
+    dx = 8;
+
+    do
+    {
+//loc_4901C:              ; CODE XREF: sub_48F6D+BDj
+        cx = 0x74; // 116
+
+        for (int i = 0; i < 116; ++i)
+        {
+//loc_4901F:              ; CODE XREF: sub_48F6D+B4j
+            *si = *di; // movsb
+            si++; di++;
+            si--;
+        }
+        si += 0x7A; // 122
+        di += 6;
+        dx--;
+    }
+    while (dx != 0);
+    cx = 0x74; // 116
+
+    for (int i = 0; i < 116; ++i)
+    {
+//loc_4902F:              ; CODE XREF: sub_48F6D+C4j
+        *si = *di; // movsb
+        si++; di++;
+        si--;
+    }
+    di = 0x356; // 854
+//    pop ds
+    si = word_51852;
+    di = 0x5105;
+//    push    ds
+//    mov ax, es
+//    mov ds, ax
+    dx = 0x2C; // 44
+
+    do
+    {
+//loc_49047:              ; CODE XREF: sub_48F6D+EBj
+        cx = 8;
+
+        for (int i = 0; i < 8; ++i)
+        {
+//loc_4904A:              ; CODE XREF: sub_48F6D+E4j
+            *si = *di; // movsb
+            si++; di++;
+            si += 0x79; // 121
+            di += 0x79; // 121
+        }
+        si -= 0x3D0;
+        dx--;
+    }
+    while (dx != 0);
+//    pop ds
+    si = word_5184E;
+//    push    ds
+//    mov ax, es
+//    mov ds, ax
+    cx = 8;
+
+    for (int i = 0; i < 8; ++i)
+    {
+//loc_49067:              ; CODE XREF: sub_48F6D+101j
+        *si = *di; // movsb
+        si++; di++;
+        si += 0x79; // 121
+        di += 0x79; // 121
+    }
+//    pop ds
+    /*
+    mov dx, 3CEh
+    al = 5
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; mode register.Data bits:
+                ; 0-1: Write mode 0-2
+                ; 2: test condition
+                ; 3: read mode: 1=color compare, 0=direct
+                ; 4: 1=use odd/even RAM addressing
+                ; 5: 1=use CGA mid-res map (2-bits/pixel)
+    // inc dx
+    // al = 0
+    // out dx, al      ; EGA port: graphics controller data register
+    ports[0x3CF] = 0;
+    mov dx, 3CEh
+    al = 1
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; enable set/reset
+    // inc dx
+    // al = 0
+    // out dx, al      ; EGA port: graphics controller data register
+    ports[0x3CF] = 0;
+    // mov dx, 3CEh
+    // al = 8
+    // out dx, al      ; EGA: graph 1 and 2 addr reg:
+    //             ; bit mask
+    //             ; Bits 0-7 select bits to be masked in all planes
+    ports[0x3CE] = 8;
+    inc dx
+    al = 0FFh
+    out dx, al      ; EGA port: graphics controller data register
+     */
+
+//    bx = offset leveldata;
+    di = 0x4D34; // 19764
+    cx = 0x16; // 22
+    bx += 0x76; // 118
+    di += 0x3CE; // 974
+
+    do
+    {
+//loc_4909F:              ; CODE XREF: sub_48F6D+18Ej
+//      push(cx);
+        cx = 0x3A; // 58
+        bx += 4;
+        di += 4;
+
+        do
+        {
+//loc_490A9:              ; CODE XREF: sub_48F6D+184j
+            al = bx[0];
+            if (al > 0x28) // 40
+            {
+                al = 0;
+            }
+
+//loc_490B1:              ; CODE XREF: sub_48F6D+140j
+            bx += 2;
+            ah = 0;
+            ax = ax << 1;
+            si = ax;
+            si += fixedDataBuffer;
+//          push(cx);
+            cx = 0x10; // 16
+
+            for (int i = 0; i < 16; ++i)
+            {
+//loc_490C2:              ; CODE XREF: sub_48F6D+17Aj
+                ah = 1;
+
+//loc_490C4:              ; CODE XREF: sub_48F6D+175j
+    /*
+    mov dx, 3C4h
+    al = 2
+    out dx, al      ; EGA: sequencer address reg
+                ; map mask: data bits 0-3 enable writes to bit planes 0-3
+    inc dx
+    al = ah
+    out dx, al      ; EGA port: sequencer data register
+     */
+                al = si[0]
+//              es:[di] = al;
+                si++;
+                al = si[0];
+//              es:[di] = al;
+                ah = ah << 1;
+                si += 0x4F; // 79
+                if ((ah & 0xF) != 0)
+                {
+                    //jnz short loc_490C4
+                }
+                di += 0x7A; // 122
+            }
+//          pop(cx);
+            di -= 0x79E; // 1950
+            cx--;
+        }
+        while (cx != 0);
+
+//loc_490F3:              ; CODE XREF: sub_48F6D+182j
+//      pop(cx);
+        di += 0x728; // 1832
+        cx--;
+    }
+    while (cx != 0);
+
+//loc_490FD:              ; CODE XREF: sub_48F6D+18Cj
+    /*
+    mov dx, 3C4h
+    al = 2
+    out dx, al      ; EGA: sequencer address reg
+                ; map mask: data bits 0-3 enable writes to bit planes 0-3
+    inc dx
+    al = 0Fh
+    out dx, al      ; EGA port: sequencer data register
+    mov dx, 3CEh
+    al = 1
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; enable set/reset
+    inc dx
+    al = 0Fh
+    out dx, al      ; EGA port: graphics controller data register
+     */
+    bx = word_5195F;
+    cl = 3;
+    bx = bx >> cl;
+    ax = word_51961;
+    cx = 0x7A; // 122
+    ax = ax * cx;
+    bx += ax;
+    bx += 0x4D34; // 19764
+    word_51967 = bx;
+    /*
+    mov dx, 3D4h
+    al = 0Dh
+    out dx, al      ; Video: CRT cntrlr addr
+                ; regen start address (low)
+    inc dx
+    al = bl
+    out dx, al      ; Video: CRT controller internal registers
+    mov dx, 3D4h
+    al = 0Ch
+    out dx, al      ; Video: CRT cntrlr addr
+                ; regen start address (high)
+    inc dx
+    al = bh
+    out dx, al      ; Video: CRT controller internal registers
+    mov dx, 3CEh
+    al = 5
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; mode register.Data bits:
+                ; 0-1: Write mode 0-2
+                ; 2: test condition
+                ; 3: read mode: 1=color compare, 0=direct
+                ; 4: 1=use odd/even RAM addressing
+                ; 5: 1=use CGA mid-res map (2-bits/pixel)
+    inc dx
+    al = 1
+    out dx, al      ; EGA port: graphics controller data register
+     */
+}
+
 /*
-sub_48F6D   proc near       ; CODE XREF: start+335p runLevel+AAp ...
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 1
-        out dx, al      ; EGA port: graphics controller data register
-        push    ds
-        mov si, word_5184A
-        mov ax, es
-        mov ds, ax
-        mov di, 4D35h
-        mov cx, 8
-
-loc_48F86:              ; CODE XREF: sub_48F6D+20j
-        movsb
-        add si, 79h ; 'y'
-        add di, 79h ; 'y'
-        loop    loc_48F86
-        sub di, 3CFh
-        pop ds
-        mov si, word_51856
-        push    ds
-        mov ax, es
-        mov ds, ax
-        mov dx, 7
-
-loc_48FA0:              ; CODE XREF: sub_48F6D+41j
-        mov cx, 74h ; 't'
-
-loc_48FA3:              ; CODE XREF: sub_48F6D+38j
-        movsb
-        dec si
-        loop    loc_48FA3
-        add si, 7Ah ; 'z'
-        add di, 6
-        dec dx
-        jnz short loc_48FA0
-        mov cx, 74h ; 't'
-
-loc_48FB3:              ; CODE XREF: sub_48F6D+48j
-        movsb
-        dec si
-        loop    loc_48FB3
-        sub di, 356h
-        pop ds
-        mov si, word_5184C
-        push    ds
-        mov ax, es
-        mov ds, ax
-        mov cx, 8
-
-loc_48FC8:              ; CODE XREF: sub_48F6D+62j
-        movsb
-        add si, 79h ; 'y'
-        add di, 79h ; 'y'
-        loop    loc_48FC8
-        pop ds
-        mov si, word_51854
-        push    ds
-        mov ax, es
-        mov ds, ax
-        mov dx, 2Ch ; ','
-
-loc_48FDE:              ; CODE XREF: sub_48F6D+82j
-        mov cx, 8
-
-loc_48FE1:              ; CODE XREF: sub_48F6D+7Bj
-        movsb
-        add si, 79h ; 'y'
-        add di, 79h ; 'y'
-        loop    loc_48FE1
-        sub si, 3D0h
-        dec dx
-        jnz short loc_48FDE
-        pop ds
-        mov si, word_51850
-        push    ds
-        mov ax, es
-        mov ds, ax
-        mov cx, 8
-
-loc_48FFE:              ; CODE XREF: sub_48F6D+98j
-        movsb
-        add si, 79h ; 'y'
-        add di, 79h ; 'y'
-        loop    loc_48FFE
-        sub si, 3CEh
-        pop ds
-        mov si, word_51858
-        sub di, 444h
-        push    ds
-        mov ax, es
-        mov ds, ax
-        mov dx, 8
-
-loc_4901C:              ; CODE XREF: sub_48F6D+BDj
-        mov cx, 74h ; 't'
-
-loc_4901F:              ; CODE XREF: sub_48F6D+B4j
-        movsb
-        dec si
-        loop    loc_4901F
-        add si, 7Ah ; 'z'
-        add di, 6
-        dec dx
-        jnz short loc_4901C
-        mov cx, 74h ; 't'
-
-loc_4902F:              ; CODE XREF: sub_48F6D+C4j
-        movsb
-        dec si
-        loop    loc_4902F
-        sub di, 356h
-        pop ds
-        mov si, word_51852
-        mov di, 5105h
-        push    ds
-        mov ax, es
-        mov ds, ax
-        mov dx, 2Ch ; ','
-
-loc_49047:              ; CODE XREF: sub_48F6D+EBj
-        mov cx, 8
-
-loc_4904A:              ; CODE XREF: sub_48F6D+E4j
-        movsb
-        add si, 79h ; 'y'
-        add di, 79h ; 'y'
-        loop    loc_4904A
-        sub si, 3D0h
-        dec dx
-        jnz short loc_49047
-        pop ds
-        mov si, word_5184E
-        push    ds
-        mov ax, es
-        mov ds, ax
-        mov cx, 8
-
-loc_49067:              ; CODE XREF: sub_48F6D+101j
-        movsb
-        add si, 79h ; 'y'
-        add di, 79h ; 'y'
-        loop    loc_49067
-        pop ds
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0;
-        mov dx, 3CEh
-        al = 1
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; enable set/reset
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0;
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        inc dx
-        al = 0FFh
-        out dx, al      ; EGA port: graphics controller data register
-        mov bx, offset leveldata
-        mov di, 4D34h
-        mov cx, 16h
-        add bx, 76h ; 'v'
-        add di, 3CEh
-
-loc_4909F:              ; CODE XREF: sub_48F6D+18Ej
-        push(cx);
-        mov cx, 3Ah ; ':'
-        add bx, 4
-        add di, 4
-
-loc_490A9:              ; CODE XREF: sub_48F6D+184j
-        al = [bx]
-        cmp al, 28h ; '('
-        jbe short loc_490B1
-        xor al, al
-
-loc_490B1:              ; CODE XREF: sub_48F6D+140j
-        add bx, 2
-        xor ah, ah
-        shl ax, 1
-        mov si, ax
-        add si, fixedDataBuffer
-        push(cx);
-        mov cx, 10h
-
-loc_490C2:              ; CODE XREF: sub_48F6D+17Aj
-        mov ah, 1
-
-loc_490C4:              ; CODE XREF: sub_48F6D+175j
-        mov dx, 3C4h
-        al = 2
-        out dx, al      ; EGA: sequencer address reg
-                    ; map mask: data bits 0-3 enable writes to bit planes 0-3
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: sequencer data register
-        al = [si]
-        mov es:[di], al
-        inc si
-        al = [si]
-        mov es:[di+1], al
-        shl ah, 1
-        add si, 4Fh ; 'O'
-        test    ah, 0Fh
-        jnz short loc_490C4
-        add di, 7Ah ; 'z'
-        loop    loc_490C2
-        pop(cx);
-        sub di, 79Eh
-        dec cx
-        jz  short loc_490F3
-        jmp short loc_490A9
-// ; ---------------------------------------------------------------------------
-
-loc_490F3:              ; CODE XREF: sub_48F6D+182j
-        pop(cx);
-        add di, 728h
-        dec cx
-        jz  short loc_490FD
-        jmp short loc_4909F
-// ; ---------------------------------------------------------------------------
-
-loc_490FD:              ; CODE XREF: sub_48F6D+18Cj
-        mov dx, 3C4h
-        al = 2
-        out dx, al      ; EGA: sequencer address reg
-                    ; map mask: data bits 0-3 enable writes to bit planes 0-3
-        inc dx
-        al = 0Fh
-        out dx, al      ; EGA port: sequencer data register
-        mov dx, 3CEh
-        al = 1
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; enable set/reset
-        inc dx
-        al = 0Fh
-        out dx, al      ; EGA port: graphics controller data register
-        mov bx, word_5195F
-        mov cl, 3
-        shr bx, cl
-        mov ax, word_51961
-        mov cx, 7Ah ; 'z'
-        mul cx
-        add bx, ax
-        add bx, 4D34h
-        mov word_51967, bx
-        mov dx, 3D4h
-        al = 0Dh
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (low)
-        inc dx
-        al = bl
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 0Ch
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (high)
-        inc dx
-        al = bh
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 1
-        out dx, al      ; EGA port: graphics controller data register
-        return;
-sub_48F6D   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
 sub_4914A   proc near       ; CODE XREF: sub_4955B+7p
         cmp byte_519C8, 0
         jz  short loc_49159
@@ -13942,137 +14028,139 @@ void loopForVSync() //   proc near       ; CODE XREF: crt?2+55p crt?1+41p ...
 // loopForVSync   endp
 }
 
+void sub_4D464() //   proc near       ; CODE XREF: start+332p sub_4A463+3p
+{
+    // The comments added by IDA say something about split screen, so maybe
+    // this is doing some work to show the bottom panel during a game.
+    /*
+    mov dx, 3CEh
+    al = 1
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; enable set/reset
+    inc dx
+    al = 0Fh
+    out dx, al      ; EGA port: graphics controller data register
+    mov dx, 3CEh
+    al = 5
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; mode register.Data bits:
+                ; 0-1: Write mode 0-2
+                ; 2: test condition
+                ; 3: read mode: 1=color compare, 0=direct
+                ; 4: 1=use odd/even RAM addressing
+                ; 5: 1=use CGA mid-res map (2-bits/pixel)
+    inc dx
+    al = 1
+    out dx, al      ; EGA port: graphics controller data register
+    mov dx, 3C4h
+    al = 2
+    out dx, al      ; EGA: sequencer address reg
+                ; map mask: data bits 0-3 enable writes to bit planes 0-3
+    inc dx
+    al = 0Fh
+    out dx, al      ; EGA port: sequencer data register
+    // mov dx, 3CEh
+    // al = 8
+    // out dx, al      ; EGA: graph 1 and 2 addr reg:
+    //             ; bit mask
+    //             ; Bits 0-7 select bits to be masked in all planes
+    ports[0x3CE] = 8;
+    inc dx
+    al = 0FFh
+    out dx, al      ; EGA port: graphics controller data register
+    mov dx, 3D4h
+    al = 13h
+    out dx, al      ; Video: CRT cntrlr addr
+                ; vertical displayed adjustment
+    inc dx
+    al = 3Dh ; '='
+    out dx, al      ; Video: CRT controller internal registers
+    cmp videoStatusUnk, 1
+    jnz short loc_4D4CF
+    mov dx, 3D4h
+    al = 18h
+    out dx, al      ; Video: CRT cntrlr addr
+                ; line compare (scan line). Used for split screen operations.
+    inc dx
+    al = 5Fh ; '_'
+    out dx, al      ; Video: CRT controller internal registers
+    mov dx, 3D4h
+    al = 7
+    out dx, al      ; Video: CRT cntrlr addr
+                ; bit 8 for certain CRTC regs. Data bits:
+                ; 0: vertical total (Reg 06)
+                ; 1: vert disp'd enable end (Reg 12H)
+                ; 2: vert retrace start (Reg 10H)
+                ; 3: start vert blanking (Reg 15H)
+                ; 4: line compare (Reg 18H)
+                ; 5: cursor location (Reg 0aH)
+    inc dx
+    al = 3Fh ; '?'
+    out dx, al      ; Video: CRT controller internal registers
+    mov dx, 3D4h
+    al = 9
+    out dx, al      ; Video: CRT cntrlr addr
+                ; maximum scan line
+    inc dx
+    al = 80h ; '?'
+    out dx, al      ; Video: CRT controller internal registers
+     */
+    videoloop();
+    /*
+    mov dx, 3DAh
+    cli
+    in  al, dx      ; Video status bits:
+                ; 0: retrace.  1=display is in vert or horiz retrace.
+                ; 1: 1=light pen is triggered; 0=armed
+                ; 2: 1=light pen switch is open; 0=closed
+                ; 3: 1=vertical sync pulse is occurring.
+    mov dx, 3C0h
+    al = 30h ; '0'
+    out dx, al      ; EGA: mode control bits:
+                ; 0: 1=graph modes, 0=text
+                ; 1: 1=MDA
+                ; 2: 1=9th dot=8th dot for line/box chars
+                ;    0=use bkgd colr as 9th dot of char
+                ; 3: 1=enable blink, 0=allow 4-bit bkgd
+    al = 21h ; '!'
+    out dx, al      ; EGA: palette register: select colors for attribute AL:
+                ; 0: RED
+                ; 1: GREEN
+                ; 2: BLUE
+                ; 3: blue
+                ; 4: green
+                ; 5: red
+    sti
+     */
+    return;
 /*
-sub_4D464   proc near       ; CODE XREF: start+332p sub_4A463+3p
-        mov dx, 3CEh
-        al = 1
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; enable set/reset
-        inc dx
-        al = 0Fh
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 1
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3C4h
-        al = 2
-        out dx, al      ; EGA: sequencer address reg
-                    ; map mask: data bits 0-3 enable writes to bit planes 0-3
-        inc dx
-        al = 0Fh
-        out dx, al      ; EGA port: sequencer data register
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        inc dx
-        al = 0FFh
-        out dx, al      ; EGA port: graphics controller data register
-        mov dx, 3D4h
-        al = 13h
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; vertical displayed adjustment
-        inc dx
-        al = 3Dh ; '='
-        out dx, al      ; Video: CRT controller internal registers
-        cmp videoStatusUnk, 1
-        jnz short loc_4D4CF
-        mov dx, 3D4h
-        al = 18h
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; line compare (scan line). Used for split screen operations.
-        inc dx
-        al = 5Fh ; '_'
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 7
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; bit 8 for certain CRTC regs. Data bits:
-                    ; 0: vertical total (Reg 06)
-                    ; 1: vert disp'd enable end (Reg 12H)
-                    ; 2: vert retrace start (Reg 10H)
-                    ; 3: start vert blanking (Reg 15H)
-                    ; 4: line compare (Reg 18H)
-                    ; 5: cursor location (Reg 0aH)
-        inc dx
-        al = 3Fh ; '?'
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 9
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; maximum scan line
-        inc dx
-        al = 80h ; '?'
-        out dx, al      ; Video: CRT controller internal registers
-        call    videoloop
-        mov dx, 3DAh
-        cli
-        in  al, dx      ; Video status bits:
-                    ; 0: retrace.  1=display is in vert or horiz retrace.
-                    ; 1: 1=light pen is triggered; 0=armed
-                    ; 2: 1=light pen switch is open; 0=closed
-                    ; 3: 1=vertical sync pulse is occurring.
-        mov dx, 3C0h
-        al = 30h ; '0'
-        out dx, al      ; EGA: mode control bits:
-                    ; 0: 1=graph modes, 0=text
-                    ; 1: 1=MDA
-                    ; 2: 1=9th dot=8th dot for line/box chars
-                    ;    0=use bkgd colr as 9th dot of char
-                    ; 3: 1=enable blink, 0=allow 4-bit bkgd
-        al = 21h ; '!'
-        out dx, al      ; EGA: palette register: select colors for attribute AL:
-                    ; 0: RED
-                    ; 1: GREEN
-                    ; 2: BLUE
-                    ; 3: blue
-                    ; 4: green
-                    ; 5: red
-        sti
-        jmp short locret_4D4E3
-// ; ---------------------------------------------------------------------------
-
 loc_4D4CF:              ; CODE XREF: sub_4D464+37j
-        mov dx, 3D4h
-        al = 18h
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; line compare (scan line). Used for split screen operations.
-        inc dx
-        al = 0B0h ; '?'
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 7
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; bit 8 for certain CRTC regs. Data bits:
-                    ; 0: vertical total (Reg 06)
-                    ; 1: vert disp'd enable end (Reg 12H)
-                    ; 2: vert retrace start (Reg 10H)
-                    ; 3: start vert blanking (Reg 15H)
-                    ; 4: line compare (Reg 18H)
-                    ; 5: cursor location (Reg 0aH)
-        inc dx
-        al = 1
-        out dx, al      ; Video: CRT controller internal registers
+    mov dx, 3D4h
+    al = 18h
+    out dx, al      ; Video: CRT cntrlr addr
+                ; line compare (scan line). Used for split screen operations.
+    inc dx
+    al = 0B0h ; '?'
+    out dx, al      ; Video: CRT controller internal registers
+    mov dx, 3D4h
+    al = 7
+    out dx, al      ; Video: CRT cntrlr addr
+                ; bit 8 for certain CRTC regs. Data bits:
+                ; 0: vertical total (Reg 06)
+                ; 1: vert disp'd enable end (Reg 12H)
+                ; 2: vert retrace start (Reg 10H)
+                ; 3: start vert blanking (Reg 15H)
+                ; 4: line compare (Reg 18H)
+                ; 5: cursor location (Reg 0aH)
+    inc dx
+    al = 1
+    out dx, al      ; Video: CRT controller internal registers
 
 locret_4D4E3:               ; CODE XREF: sub_4D464+69j
-        return;
-sub_4D464   endp
-
-
-// ; =============== S U B R O U T I N E =======================================
-
-
+ */
+    return;
+}
+/*
 void initializeVideo3() //   proc near       ; CODE XREF: start+2B2p start+2C7p
 {
         // mov dx, 3CEh
@@ -14196,8 +14284,10 @@ void initializeVideo2() //   proc near       ; CODE XREF: start+2AFp
 void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
                     // ; sub_4A463p
 {
+    // 01ED:68E5
     char *filename = "";
     FILE *file = NULL;
+    uint8_t fileLevelData[levelDataLength];
 
     if (byte_510DE != 0
         && *word_599D8 == 0
@@ -14247,23 +14337,24 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
     }
     else
     {
+        if (byte_510DE == 0
+            || byte_599D4 != 0)
+        {
+//loc_4D59F:              ; CODE XREF: readLevels+5j
+//                ; readLevels+13j
+            filename = aLevels_dat_0; // lea dx, aLevels_dat_0 ; "LEVELS.DAT"
+        }
+
         if (byte_510DE != 0
             && *word_599D8 != 0) //cmp byte ptr word_599D8, 0
         {
 //loc_4D599:              ; CODE XREF: readLevels+Cj
             filename = "LEVELS.DAT"; // lea dx, aLevels_dat ; "LEVELS.DAT"
         }
-        else if (byte_510DE == 0
-                 || byte_599D4 != 0)
-        {
-//loc_4D59F:              ; CODE XREF: readLevels+5j
-//                ; readLevels+13j
-            filename = aLevels_dat_0; // lea dx, aLevels_dat_0 ; "LEVELS.DAT"
-        }
 //loc_4D5A3:              ; CODE XREF: readLevels+55j
-        if (byte_599D4 != 0)
+        else if (byte_599D4 != 0)
         {
-//        filename = demoFileName; //    mov dx, offset demoFileName
+//            filename = demoFileName; //    mov dx, offset demoFileName
         }
         else if (word_599DA != 0)
         {
@@ -14277,45 +14368,57 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
             exitWithError("Error opening %s\n", filename);
         }
 
+        uint8_t levelIndex = 0;
+
 //loc_4D5C2:              ; CODE XREF: readLevels+75j
         if (byte_510DE != 0)
         {
-            ax = word_510E6;
+            levelIndex = word_510E6;
         }
         else
         {
 //loc_4D5D1:              ; CODE XREF: readLevels+82j
-            ax = gCurrentSelectedLevelIndex;
+            levelIndex = gCurrentSelectedLevelIndex;
         }
 
 //loc_4D5D4:              ; CODE XREF: readLevels+87j
         if (byte_599D4 != 0)
         {
-            ax = word_599DA;
-            if (ax == 0)
+            levelIndex = word_599DA;
+            if (levelIndex == 0)
             {
-                ax++;
+                levelIndex++;
             }
         }
 
 //loc_4D5E3:              ; CODE XREF: readLevels+91j
 //                ; readLevels+98j
-        ax--;
-        bx = ax;
-        bx = bx << 1;
-        ax += bx;
-        ax = ax << 1;
-        cl = 8;
-        dx = ax;
-        dx = dx << cl;
-        ax = ax >> cl;
-        cx = ax;
+        levelIndex--; // Levels anywhere else are 1-index, we need them to start from 0 here
+        // Seems like all the crap below just end up calculating that the dest
+        // offset is levelIndex * levelDataLength
+        size_t fileOffset = levelIndex * levelDataLength;
+//        levelIndex--;
+//        levelIndex = levelIndex + levelIndex * 2;
+//        levelIndex *= 2;
+//        dx = levelIndex << 8;
+//        cx = levelIndex >> 8;
+//        ax--;
+//        bx = ax;
+//        bx = bx << 1;
+//        ax += bx;
+//        ax = ax << 1;
+//        cl = 8;
+//        dx = ax;
+//        dx = dx << cl;
+//        ax = ax >> cl;
+//        cx = ax;
 //    mov ax, 4200h // 16896
 //    mov bx, lastFileHandle
 //    int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
 //                ; AL = method: offset from beginning of file
-        int result = fseek(file, 0x4200, SEEK_SET);
-        if (result != 0x4200)
+//                ; CX:DX = offset
+        int result = fseek(file, fileOffset, SEEK_SET);
+        if (result != fileOffset)
         {
             exitWithError("Error seeking %s\n", filename);
         }
@@ -14366,15 +14469,14 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 //                ; readLevels+D5j
     if (byte_510DE != 0)
     {
-        ax = word_51076;
-        gTimeOfDay = ax;
+        gTimeOfDay = word_51076;
         di = 0x87DA;
 //      jmp short loc_4D660
     }
     else
     {
 //loc_4D65D:              ; CODE XREF: readLevels+108j
-        di = 0x87A8;
+        di = 0x87A8; // It has the level title WTF
     }
 
 //loc_4D660:              ; CODE XREF: readLevels+113j
@@ -14384,43 +14486,36 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 //    assume es:data
 
 //    cld
-    if (word_599D8 != 0)
+    if (word_599D8 != 0
+        || (byte_599D4 != 0
+            && word_599DA != 0))
     {
-//        jnz short loc_4D679
-    }
-    if (byte_599D4 == 0)
-    {
-//        jz  short loc_4D68C
-    }
-    if (word_599DA == 0)
-    {
-//        jz  short loc_4D682
-    }
-
-//loc_4D679:              ; CODE XREF: readLevels+121j
-    ax = 0x4942;
-//    *di = ax; // stosw
-    ax = 0x4E; // 78
-//    jmp short loc_4D689
-
-//loc_4D682:              ; CODE XREF: readLevels+12Fj
-    ax = 0x532E;
+    //loc_4D679:              ; CODE XREF: readLevels+121j
+        ax = 0x4942;
     //    *di = ax; // stosw
-    ax = 0x50; // 80
-
-//loc_4D689:              ; CODE XREF: readLevels+138j
+        ax = 0x4E; // 78
     //    *di = ax; // stosw
-//    jmp short loc_4D68F
-
+    }
+    else if (byte_599D4 == 0)
+    {
 //loc_4D68C:              ; CODE XREF: readLevels+128j
-    di += 4;
+        di += 4; // Skips the number directly to the title (from pointing "005 ------- EASY DEAL -------" to pointing "------- EASY DEAL -------")
+    }
+    else if (word_599DA == 0)
+    {
+//loc_4D682:              ; CODE XREF: readLevels+12Fj
+        ax = 0x532E;
+        //    *di = ax; // stosw
+        ax = 0x50; // 80
+        //    *di = ax; // stosw
+    }
 
 //loc_4D68F:              ; CODE XREF: readLevels+142j
-    si = 0x0D0E;
+    si = 0x0D0E; // Also has the title? WTF?
     cx = 0x17;
-    memcpy(di, si, 0x17);// rep movsw
-    di -= 0x17; // - or + ? is there a std/cld?
-    si -= 0x17;
+    memcpy(di, si, 0x17);// rep movsw // 01ED:6A32
+    di += 0x17;
+    si += 0x17;
 //    pop es
 //    assume es:nothing
 //    push    es
@@ -14428,12 +14523,12 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 //    pop es
 //    assume es:data
 //    si = offset fileLevelData;
-//    di = offset levelBuffer;
+//    di = offset levelBuffer; // 0x988B
     cx = 0x300;
 //    cld
-    memcpy(di, si, 0x300 * 2);// rep movsw
-    di -= 0x300 * 2;
-    si -= 0x300 * 2;
+    memcpy(di, si, 0x300 * 2);// rep movsw // 01ED:6A42
+    di += 0x300 * 2;
+    si += 0x300 * 2;
 //    pop es
 //    assume es:nothing
 //    push    es
@@ -14442,21 +14537,22 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 //    assume es:data
     cx = levelDataLength;
 //    si = offset fileLevelData;
-//    di = offset leveldata;
+//    di = offset leveldata; // 0x1834
     ah = 0;
 
     for (int i = 0; i < levelDataLength; ++i)
     {
 //loc_4D6B8:              ; CODE XREF: readLevels+172j
+        // This loads a byte, but then stores a word!!
 //    al = *si; // lodsb
         si++;
 //    *di = ax; // stosw
-        di++;
+        di += 2;
     }
-    di = 0x2434;
+    di = 0x2434; // this is leveldata (0x1834) + levelDataLength * 2... useless? when the loop finishes it should already have that value
     al = 0;
-//    cx = levelbytes;
-    memset(di, 0, cx); // rep stosb
+//    cx = levelDataLength;
+    memset(di, 0, levelDataLength); // rep stosb
     di -= cx;
 //    pop es
 //    assume es:nothing
