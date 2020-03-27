@@ -30,6 +30,8 @@ static const int kScreenHeight = 200;
 // title1DataBuffer -> A000:4DAC - A000:CAAC
 // title2DataBuffer -> 0x4DD4 - 0xCAD4
 
+// maps are 58 x 22 tiles
+
 uint8_t fastMode = 0;
 
 static const int levelDataLength = 1536; // exact length of a level file, even of each level inside the LEVELS.DAT file
@@ -118,11 +120,14 @@ uint8_t byte_5A321 = 0;
 uint8_t byte_5A322 = 0;
 uint8_t byte_5195C = 0;
 uint8_t byte_5197C = 0;
+uint8_t byte_51036 = 0;
 uint8_t byte_510B9 = 0;
 uint8_t byte_510B4 = 0;
 uint8_t byte_510B5 = 0;
 uint8_t byte_510B6 = 0;
 uint8_t byte_510C0 = 0;
+uint8_t byte_5195A = 0;
+uint8_t byte_5195B = 0;
 uint8_t byte_5196A = 0;
 uint8_t byte_5196B = 0;
 uint8_t byte_510D7 = 0;
@@ -1090,8 +1095,13 @@ void sub_48F6D(void);
 void sub_501C0(void);
 void sub_4A2E6(void);
 void sub_4A3BB(void);
+void sub_4FD21(void);
+void sub_4FDFD(void);
+void sub_4A2E6(void);
+void sub_4A3BB(void);
 void findMurphy(void);
 void drawGamePanelText(void);
+void sub_5024B(void);
 
 static const int kWindowWidth = kScreenWidth * 4;
 static const int kWindowHeight = kScreenHeight * 4;
@@ -9072,161 +9082,159 @@ sub_4A291   proc near       ; CODE XREF: sub_4955B+686p
         call    videoloop
         return;
 sub_4A291   endp
+*/
+void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
+{
+    bx = 0;
+    dx = 0;
+    cx = 0x5A0; // 1440 = 120 * 12 -> width = 120, height = 12
+//    mov si, offset leveldata
+    uint16_t *levelData = NULL;
+    uint16_t numberOfSomething = 0; // this is bx, probably a return value but I don't see it used anywhere???
 
+    for (int i = 0; i < 1440; ++i)
+    {
+//loc_4A2F0:              ; CODE XREF: sub_4A2E6+D1j
+        uint16_t *currentEntry = &levelData[i];
+        uint16_t value = *currentEntry;
+        uint8_t valueLow = (value & 0xFF);
+        numberOfSomething++;
 
-; =============== S U B R O U T I N E =======================================
+    //    ax = si[0];
+        if (valueLow == 0xF1)
+        {
+//            si[0] = 0x1F;
+            continue; // jmp short loc_4A3B0
+        }
 
+//loc_4A2FC:              ; CODE XREF: sub_4A2E6+Ej
+        if (byte_5A33F != 1)
+        {
+            if (value == 4)
+            {
+//loc_4A33C:              ; CODE XREF: sub_4A2E6+20j
+                dx++;
+                continue; // jmp short loc_4A3B0
+            }
+        }
+        if (byte_5A33F == 1 || value != 0x11) //jz  short loc_4A34B
+        {
+            if (byte_5A33F == 1 || value != 0x18) //jz  short loc_4A379
+            {
+//loc_4A312:              ; CODE XREF: sub_4A2E6+1Bj
+                if (value == 0x1A
+                    || value == 0x1B
+                    || value == 0x26
+                    || value == 0x27)
+                {
+//loc_4A33F:              ; CODE XREF: sub_4A2E6+2Fj
+//                ; sub_4A2E6+34j ...
+                    levelData[i] = 5; // mov word ptr [si], 5
+                    continue; // jmp short loc_4A3B0
+                }
+                if (value >= 0x1C)
+                {
+                    if (value < 0x26)
+                    {
+//loc_4A345:              ; CODE XREF: sub_4A2E6+48j
+                        levelData[i] = 6; // mov word ptr [si], 6
+                        continue; // jmp short loc_4A3B0
+                    }
+                }
 
-sub_4A2E6   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
-        xor bx, bx
-        xor dx, dx
-        mov cx, 5A0h
-        mov si, offset leveldata
+//loc_4A330:              ; CODE XREF: sub_4A2E6+43j
+                if (value >= 0xD
+                    && value < 0x11)
+                {
+//loc_4A3A7:              ; CODE XREF: sub_4A2E6+52j
+                    levelData[i] = 0x0100 + (valueLow - 4);
+//                    si[0] -= 4; // sub byte ptr [si], 4
+//                    si[1] = 1; // mov byte ptr [si+1], 1
+                    // This -- is to compensate that I'm doing the ++ at the beginning of the loop, instead of at
+                    // the end like the original asm code. If I put it at the end, this break would skip the ++,
+                    // but would make the rest of the code much more complex. In any case I don't think that number
+                    // is used anywhere so I'll probably delete it later...
+                    //
+                    numberOfSomething--;
+        //        jmp short $+2 // wtf this was right above loc_4A3B0
+                    break;
+                }
+                else
+                {
+//loc_4A33A:              ; CODE XREF: sub_4A2E6+4Dj
+                    continue; // jmp short loc_4A3B0
+                }
+            }
+        }
+        if (value != 0x18) //jz  short loc_4A379
+        {
+//loc_4A34B:              ; CODE XREF: sub_4A2E6+25j
+            if (levelData[i - 1] == 0) //cmp word ptr [si-2], 0
+            {
+                levelData[i] = 0x0100 + valueLow;
+//                si[1] = 1; //mov byte ptr [si+1], 1
+                continue; // jmp short loc_4A3B0
+            }
+//loc_4A357:              ; CODE XREF: sub_4A2E6+69j
+        // 0x78 = 120
+            if (levelData[i - 60] == 0) //cmp word ptr [si-78h], 0
+            {
+                levelData[i - 60] = 0x1011; // 4113
+                levelData[i] = 0xFFFF; // mov word ptr [si], 0FFFFh
+                continue; // jmp short loc_4A3B0
+            }
+//loc_4A368:              ; CODE XREF: sub_4A2E6+75j
+            if (levelData[i + 1] == 0) //cmp word ptr [si+2], 0
+            {
+                levelData[i + 1] = 0x2811; // mov word ptr [si+2], 2811h
+                levelData[i] = 0xFFFF; // mov word ptr [si], 0FFFFh
+                continue; // jmp short loc_4A3B0
+            }
+        }
+//loc_4A379:              ; CODE XREF: sub_4A2E6+2Aj
+        if (levelData[i - 1] == 0) //cmp word ptr [si-2], 0
+        {
+//          si[1] = 1; //mov byte ptr [si+1], 1
+            continue; // jmp short loc_4A3B0
+        }
+//loc_4A385:              ; CODE XREF: sub_4A2E6+97j
+        if (levelData[i - 60] == 0) //cmp word ptr [si-78h], 0
+        {
+            levelData[i - 60] = 0x1018; // mov word ptr [si-78h], 1018h
+            levelData[i] = 0xFFFF; // mov word ptr [si], 0FFFFh
+            continue; // jmp short loc_4A3B0
+        }
+//loc_4A396:              ; CODE XREF: sub_4A2E6+A3j
+        if (levelData[i + 1] == 0) //cmp word ptr [si+2], 0
+        {
+            levelData[i + 1] = 0x2818; // mov word ptr [si+2], 2818h
+            levelData[i] = 0xFFFF; // mov word ptr [si], 0FFFFh
+            continue; // jmp short loc_4A3B0
+        }
 
-loc_4A2F0:              ; CODE XREF: sub_4A2E6+D1j
-        mov ax, [si]
-        cmp al, 0F1h ; '?'
-        jnz short loc_4A2FC
-        mov byte ptr [si], 1Fh
-        jmp loc_4A3B0
-// ; ---------------------------------------------------------------------------
+//loc_4A3B0:              ; CODE XREF: sub_4A2E6+13j
+//                ; sub_4A2E6:loc_4A33Aj ...
+        bx++;
+    }
 
-loc_4A2FC:              ; CODE XREF: sub_4A2E6+Ej
-        cmp byte_5A33F, 1
-        jz  short loc_4A312
-        cmp ax, 4
-        jz  short loc_4A33C
-        cmp ax, 11h
-        jz  short loc_4A34B
-        cmp ax, 18h
-        jz  short loc_4A379
+//locret_4A3BA:               ; CODE XREF: sub_4A2E6+CFj
+    return;
+}
 
-loc_4A312:              ; CODE XREF: sub_4A2E6+1Bj
-        cmp ax, 1Ah
-        jz  short loc_4A33F
-        cmp ax, 1Bh
-        jz  short loc_4A33F
-        cmp ax, 26h ; '&'
-        jz  short loc_4A33F
-        cmp ax, 27h // ; '''
-        jz  short loc_4A33F
-        cmp ax, 1Ch
-        jl  short loc_4A330
-        cmp ax, 26h ; '&'
-        jl  short loc_4A345
+void sub_4A3BB() //   proc near       ; CODE XREF: start+33Ep sub_4A463+17p
+{
+    if (byte_51036 != 0)
+    {
+        dl = byte_51036;
+    }
 
-loc_4A330:              ; CODE XREF: sub_4A2E6+43j
-        cmp ax, 0Dh
-        jl  short loc_4A33A
-        cmp ax, 11h
-        jl  short loc_4A3A7
+//loc_4A3C6:              ; CODE XREF: sub_4A3BB+5j
+    byte_5195A = dl;
+    byte_5195B = dl;
+    sub_4FD21();
+}
 
-loc_4A33A:              ; CODE XREF: sub_4A2E6+4Dj
-        jmp short loc_4A3B0
-// ; ---------------------------------------------------------------------------
-
-loc_4A33C:              ; CODE XREF: sub_4A2E6+20j
-        inc dx
-        jmp short loc_4A3B0
-// ; ---------------------------------------------------------------------------
-
-loc_4A33F:              ; CODE XREF: sub_4A2E6+2Fj
-                    ; sub_4A2E6+34j ...
-        mov word ptr [si], 5
-        jmp short loc_4A3B0
-// ; ---------------------------------------------------------------------------
-
-loc_4A345:              ; CODE XREF: sub_4A2E6+48j
-        mov word ptr [si], 6
-        jmp short loc_4A3B0
-// ; ---------------------------------------------------------------------------
-
-loc_4A34B:              ; CODE XREF: sub_4A2E6+25j
-        cmp word ptr [si-2], 0
-        jnz short loc_4A357
-        mov byte ptr [si+1], 1
-        jmp short loc_4A3B0
-// ; ---------------------------------------------------------------------------
-
-loc_4A357:              ; CODE XREF: sub_4A2E6+69j
-        cmp word ptr [si-78h], 0
-        jnz short loc_4A368
-        mov word ptr [si-78h], 1011h
-        mov word ptr [si], 0FFFFh
-        jmp short loc_4A3B0
-// ; ---------------------------------------------------------------------------
-
-loc_4A368:              ; CODE XREF: sub_4A2E6+75j
-        cmp word ptr [si+2], 0
-        jnz short loc_4A3B0
-        mov word ptr [si+2], 2811h
-        mov word ptr [si], 0FFFFh
-        jmp short loc_4A3B0
-// ; ---------------------------------------------------------------------------
-
-loc_4A379:              ; CODE XREF: sub_4A2E6+2Aj
-        cmp word ptr [si-2], 0
-        jnz short loc_4A385
-        mov byte ptr [si+1], 1
-        jmp short loc_4A3B0
-// ; ---------------------------------------------------------------------------
-
-loc_4A385:              ; CODE XREF: sub_4A2E6+97j
-        cmp word ptr [si-78h], 0
-        jnz short loc_4A396
-        mov word ptr [si-78h], 1018h
-        mov word ptr [si], 0FFFFh
-        jmp short loc_4A3B0
-// ; ---------------------------------------------------------------------------
-
-loc_4A396:              ; CODE XREF: sub_4A2E6+A3j
-        cmp word ptr [si+2], 0
-        jnz short loc_4A3B0
-        mov word ptr [si+2], 2818h
-        mov word ptr [si], 0FFFFh
-        jmp short loc_4A3B0
-// ; ---------------------------------------------------------------------------
-
-loc_4A3A7:              ; CODE XREF: sub_4A2E6+52j
-        sub byte ptr [si], 4
-        mov byte ptr [si+1], 1
-        jmp short $+2
-// ; ---------------------------------------------------------------------------
-
-loc_4A3B0:              ; CODE XREF: sub_4A2E6+13j
-                    ; sub_4A2E6:loc_4A33Aj ...
-        add si, 2
-        inc bx
-        dec cx
-        jz  short locret_4A3BA
-        jmp loc_4A2F0
-// ; ---------------------------------------------------------------------------
-
-locret_4A3BA:               ; CODE XREF: sub_4A2E6+CFj
-        return;
-sub_4A2E6   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4A3BB   proc near       ; CODE XREF: start+33Ep sub_4A463+17p
-        cmp byte_51036, 0
-        jz  short loc_4A3C6
-        mov dl, byte_51036
-
-loc_4A3C6:              ; CODE XREF: sub_4A3BB+5j
-        mov byte_5195A, dl
-        mov byte_5195B, dl
-        call    sub_4FD21
-        return;
-sub_4A3BB   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4A3D2   proc near       ; CODE XREF: sub_4955B+39Ep
+/*sub_4A3D2   proc near       ; CODE XREF: sub_4955B+39Ep
                     ; sub_4955B+3EBp
         mov byte_599D4, 0
         mov word_599D8, 0
@@ -19687,42 +19695,35 @@ void drawGamePanelText() // sub_4FC20  proc near       ; CODE XREF: somethingsps
 void sub_4FD21() //   proc near       ; CODE XREF: sub_4A3BB+13p
                    // ; update?:loc_4EC90p ...
 {
-    push    si
-    cmp byte_5195A, 1
-    jnb short loc_4FD2E
-    mov byte_5195A, 0
+    // Draws the level number?
+//    push    si
+    if (byte_5195A < 1)
+    {
+        byte_5195A = 0; // WTF?
+    }
 
 //loc_4FD2E:              ; CODE XREF: sub_4FD21+6j
-    al = byte_5195A
-    mov si, 87C5h
-    call    convertNumberTo3DigitStringWithPadding0
-    cmp videoStatusUnk, 1
-    jnz short loc_4FD43
-    mov di, 6CEh
-    jmp short loc_4FD46
-
-//loc_4FD43:              ; CODE XREF: sub_4FD21+1Bj
-    mov di, 952h
+//    al = byte_5195A;
+//    mov si, 87C5h
+    convertNumberTo3DigitStringWithPadding0(byte_5195A, "");
+//    mov di, 6CEh
 
 //loc_4FD46:              ; CODE XREF: sub_4FD21+20j
-    mov si, 87C5h
-    cmp byte_5195A, 0
-    jnz short loc_4FD54
-    mov ah, 6
-    jmp short loc_4FD56
-
+//    mov si, 87C5h
+    if (byte_5195A != 0)
+    {
 //loc_4FD54:              ; CODE XREF: sub_4FD21+2Dj
-    mov ah, 8
+//        mov ah, 8
+    }
+    else
+    {
+//        mov ah, 6
+    }
 
 //loc_4FD56:              ; CODE XREF: sub_4FD21+31j
-    call    drawTextWithChars8Font
-    cmp videoStatusUnk, 2
-    jnz short loc_4FD63
-    call    sub_50103
+    drawTextWithChars8Font(0, 0, ah, "");
 
 //loc_4FD63:              ; CODE XREF: sub_4FD21+3Dj
-    pop si
-    return;
 }
 /*
 sub_4FD65   proc near       ; CODE XREF: runLevel+E9p
@@ -19848,98 +19849,66 @@ loc_4FDF3:              ; CODE XREF: sub_4FDCE+21j
         mov byte_5197C, 46h ; 'F'
         return;
 sub_4FDCE   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-; Attributes: bp-based frame
-
-sub_4FDFD   proc near       ; CODE XREF: runLevel+29p
-                    ; runLevel:noFlashing2p ...
-
-var_2       = word ptr -2
-
-        push    bp
-        mov bp, sp
-        add sp, 0FFFEh
-        mov [bp+var_2], 0
-        al = byte_510B0
-        cmp byte ptr word_510B7, al
-        jz  short loc_4FE36
-        mov byte ptr word_510B7, al
-        mov si, 87CDh
-        call    convertNumberTo3DigitStringWithPadding0
-        mov si, 87CEh
-        cmp videoStatusUnk, 1
-        jnz short loc_4FE29
-        mov di, 188h
-        jmp short loc_4FE2C
-// ; ---------------------------------------------------------------------------
-
-loc_4FE29:              ; CODE XREF: sub_4FDFD+25j
-        mov di, 212h
-
-loc_4FE2C:              ; CODE XREF: sub_4FDFD+2Aj
-        mov ah, 6
-        call    drawTextWithChars8Font
-        mov [bp+var_2], 1
-
-loc_4FE36:              ; CODE XREF: sub_4FDFD+12j
-        al = byte_510B1
-        cmp byte ptr word_510B7+1, al
-        jz  short loc_4FE5F
-        mov byte ptr word_510B7+1, al
-        mov si, 87CDh
-        call    convertNumberTo3DigitStringWithPadding0
-        mov si, 87CEh
-        cmp videoStatusUnk, 1
-        jnz short loc_4FE57
-        mov di, 185h
-        jmp short loc_4FE5A
-// ; ---------------------------------------------------------------------------
-
-loc_4FE57:              ; CODE XREF: sub_4FDFD+53j
-        mov di, 20Fh
-
-loc_4FE5A:              ; CODE XREF: sub_4FDFD+58j
-        mov ah, 6
-        call    drawTextWithChars8Font
-
-loc_4FE5F:              ; CODE XREF: sub_4FDFD+40j
-        al = byte_510B2
-        cmp byte_510B9, al
-        jz  short loc_4FE88
-        mov byte_510B9, al
-        mov si, 87CDh
-        call    convertNumberTo3DigitStringWithPadding0
-        mov si, 87CEh
-        cmp videoStatusUnk, 1
-        jnz short loc_4FE80
-        mov di, 182h
-        jmp short loc_4FE83
-// ; ---------------------------------------------------------------------------
-
-loc_4FE80:              ; CODE XREF: sub_4FDFD+7Cj
-        mov di, 20Ch
-
-loc_4FE83:              ; CODE XREF: sub_4FDFD+81j
-        mov ah, 6
-        call    drawTextWithChars8Font
-
-loc_4FE88:              ; CODE XREF: sub_4FDFD+69j
-        cmp videoStatusUnk, 2
-        jnz short loc_4FE98
-        cmp [bp+var_2], 0
-        jz  short loc_4FE98
-        call    sub_50144
-
-loc_4FE98:              ; CODE XREF: sub_4FDFD+90j
-                    ; sub_4FDFD+96j
-        mov sp, bp
-        pop bp
-        return;
-sub_4FDFD   endp
 */
+void sub_4FDFD() //   proc near       ; CODE XREF: runLevel+29p
+                   // ; runLevel:noFlashing2p ...
+{
+    uint16_t var_2; //       = word ptr -2
+
+//    push    bp
+//    mov bp, sp
+//    add sp, 0FFFEh
+    var_2 = 0;
+    al = byte_510B0;
+    if (*word_510B7 != al) // byte
+    {
+        *word_510B7 = al; // byte
+    //    mov si, 87CDh
+        convertNumberTo3DigitStringWithPadding0(al, "");
+    //    mov si, 87CEh
+    //    mov di, 188h
+//loc_4FE2C:              ; CODE XREF: sub_4FDFD+2Aj
+    //    mov ah, 6
+        drawTextWithChars8Font(0, 0, 6, "");
+        var_2 = 1;
+    }
+
+//loc_4FE36:              ; CODE XREF: sub_4FDFD+12j
+    al = byte_510B1;
+    if (word_510B7[1] == al) // byte
+    {
+        //jz  short loc_4FE5F
+    }
+    word_510B7[1] = al; // byte
+//    mov si, 87CDh
+    convertNumberTo3DigitStringWithPadding0(al, "");
+//    mov si, 87CEh
+//    mov di, 185h
+
+//loc_4FE5A:              ; CODE XREF: sub_4FDFD+58j
+//    mov ah, 6
+    drawTextWithChars8Font(0, 0, 6, "");
+
+//loc_4FE5F:              ; CODE XREF: sub_4FDFD+40j
+    al = byte_510B2;
+    if (byte_510B9 == byte_510B2)
+    {
+        //jz  short loc_4FE88
+    }
+    byte_510B9 = al;
+//    mov si, 87CDh
+    convertNumberTo3DigitStringWithPadding0(byte_510B2, "");
+//    mov si, 87CEh
+//    mov di, 182h
+
+//loc_4FE83:              ; CODE XREF: sub_4FDFD+81j
+//    mov ah, 6
+    drawTextWithChars8Font(0, 0, 6, "");
+
+//loc_4FE98:              ; CODE XREF: sub_4FDFD+90j
+//                ; sub_4FDFD+96j
+}
+
 void drawTextWithChars8Font_method1(size_t destX, size_t destY, uint8_t color, const char *text) //   proc near       ; CODE XREF: drawTextWithChars8Font+7p
 {
     // Parameters:
@@ -19993,120 +19962,7 @@ void drawTextWithChars8Font(size_t destX, size_t destY, uint8_t color, const cha
 {
     drawTextWithChars8Font_method1(destX, destY, color, text);
 }
-/*
-sub_50103   proc near       ; CODE XREF: sub_4FD21+3Fp
-        push    ds
-        push    es
-        mov ax, seg zeg000
-        mov ds, ax
-        assume ds:zeg000
-        mov es, ax
-        assume es:zeg000
-        mov si, 951h
-        mov di, 1911h
-        pushf
-        mov bx, 6
 
-loc_50116:              ; CODE XREF: sub_50103+3Bj
-        mov cx, 1Ch
-
-loc_50119:              ; CODE XREF: sub_50103+30j
-        lodsb
-        rcr al, 1
-        inc di
-        lodsb
-        rcr al, 1
-        stosb
-        lodsb
-        rcr al, 1
-        stosb
-        lodsb
-        rcr al, 1
-        stosb
-        lodsb
-        rcr al, 1
-        stosb
-        add si, 25h ; '%'
-        add di, 25h ; '%'
-        loop    loc_50119
-        add si, 0B28h
-        add di, 0B28h
-        dec bx
-        jnz short loc_50116
-        popf
-        pop es
-        assume es:nothing
-        pop ds
-        assume ds:data
-        return;
-sub_50103   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_50144   proc near       ; CODE XREF: sub_4FDFD+98p
-        push    ds
-        push    es
-        mov ax, seg zeg000
-        mov ds, ax
-        assume ds:zeg000
-        mov es, ax
-        assume es:zeg000
-        mov si, 20Bh
-        mov di, 11CBh
-        pushf
-        mov bx, 6
-
-loc_50157:              ; CODE XREF: sub_50144+4Fj
-        mov cx, 1Ch
-
-loc_5015A:              ; CODE XREF: sub_50144+44j
-        lodsb
-        rcr al, 1
-        inc di
-        lodsb
-        rcr al, 1
-        stosb
-        lodsb
-        rcr al, 1
-        stosb
-        lodsb
-        rcr al, 1
-        stosb
-        lodsb
-        rcr al, 1
-        stosb
-        lodsb
-        rcr al, 1
-        stosb
-        lodsb
-        rcr al, 1
-        stosb
-        lodsb
-        rcr al, 1
-        stosb
-        lodsb
-        rcr al, 1
-        stosb
-        lodsb
-        rcr al, 1
-        stosb
-        add si, 20h ; ' '
-        add di, 20h ; ' '
-        loop    loc_5015A
-        add si, 0B28h
-        add di, 0B28h
-        dec bx
-        jnz short loc_50157
-        popf
-        pop es
-        assume es:nothing
-        pop ds
-        assume ds:data
-        return;
-sub_50144   endp
-*/
 void sub_501C0() //   proc near       ; CODE XREF: start+338p sub_4955B+678p ...
 {
     // In theory videoStatusUnk will always be 1
@@ -20220,110 +20076,111 @@ void sub_501C0() //   proc near       ; CODE XREF: start+338p sub_4955B+678p .
      */
     drawGamePanelText();
 }
+
+void sub_5024B() //   proc near       ; CODE XREF: gameloop?+31p
+                  //  ; sub_501C0+25p
+{
 /*
-sub_5024B   proc near       ; CODE XREF: gameloop?+31p
-                    ; sub_501C0+25p
-        cmp videoStatusUnk, 1
-        jnz short loc_50253
-        return;
-// ; ---------------------------------------------------------------------------
+    cmp videoStatusUnk, 1
+    jnz short loc_50253
+    return;
 
 loc_50253:              ; CODE XREF: sub_5024B+5j
-        mov si, 0
-        mov bl, gNumberOfDotsToShiftDataLeft
-        xor bh, bh
-        mov ax, 0FC0h
-        mul bx
-        add si, ax
-        push    ds
-        mov ax, seg zeg000
-        mov ds, ax
-        assume ds:zeg000
-        mov di, 0
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0;
-        mov dx, 3CEh
-        al = 1
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; enable set/reset
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0;
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        inc dx
-        al = 0FFh
-        out dx, al      ; EGA port: graphics controller data register
-        mov cx, 18h
+    mov si, 0
+    mov bl, gNumberOfDotsToShiftDataLeft
+    xor bh, bh
+    mov ax, 0FC0h
+    mul bx
+    add si, ax
+    push    ds
+    mov ax, seg zeg000
+    mov ds, ax
+    assume ds:zeg000
+    mov di, 0
+    mov dx, 3CEh
+    al = 5
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; mode register.Data bits:
+                ; 0-1: Write mode 0-2
+                ; 2: test condition
+                ; 3: read mode: 1=color compare, 0=direct
+                ; 4: 1=use odd/even RAM addressing
+                ; 5: 1=use CGA mid-res map (2-bits/pixel)
+    // inc dx
+    // al = 0
+    // out dx, al      ; EGA port: graphics controller data register
+    ports[0x3CF] = 0;
+    mov dx, 3CEh
+    al = 1
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; enable set/reset
+    // inc dx
+    // al = 0
+    // out dx, al      ; EGA port: graphics controller data register
+    ports[0x3CF] = 0;
+    // mov dx, 3CEh
+    // al = 8
+    // out dx, al      ; EGA: graph 1 and 2 addr reg:
+    //             ; bit mask
+    //             ; Bits 0-7 select bits to be masked in all planes
+    ports[0x3CE] = 8;
+    inc dx
+    al = 0FFh
+    out dx, al      ; EGA port: graphics controller data register
+    mov cx, 18h
 
 loc_5028D:              ; CODE XREF: sub_5024B+62j
-        push(cx);
-        mov ah, 1
+    push(cx);
+    mov ah, 1
 
 loc_50290:              ; CODE XREF: sub_5024B+5Cj
-        mov dx, 3C4h
-        al = 2
-        out dx, al      ; EGA: sequencer address reg
-                    ; map mask: data bits 0-3 enable writes to bit planes 0-3
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: sequencer data register
-        mov cx, 2Ah ; '*'
-        rep movsb
-        sub di, 2Ah ; '*'
-        shl ah, 1
-        test    ah, 0Fh
-        jnz short loc_50290
-        add di, 7Ah ; 'z'
-        pop(cx);
-        loop    loc_5028D
-        mov dx, 3C4h
-        al = 2
-        out dx, al      ; EGA: sequencer address reg
-                    ; map mask: data bits 0-3 enable writes to bit planes 0-3
-        inc dx
-        al = 0FFh
-        out dx, al      ; EGA port: sequencer data register
-        mov dx, 3CEh
-        al = 1
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; enable set/reset
-        inc dx
-        al = 0Fh
-        out dx, al      ; EGA port: graphics controller data register
-        pop ds
-        assume ds:data
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 1
-        out dx, al      ; EGA port: graphics controller data register
-        return;
-sub_5024B   endp
-*/
+    mov dx, 3C4h
+    al = 2
+    out dx, al      ; EGA: sequencer address reg
+                ; map mask: data bits 0-3 enable writes to bit planes 0-3
+    inc dx
+    al = ah
+    out dx, al      ; EGA port: sequencer data register
+    mov cx, 2Ah ; '*'
+    rep movsb
+    sub di, 2Ah ; '*'
+    shl ah, 1
+    test    ah, 0Fh
+    jnz short loc_50290
+    add di, 7Ah ; 'z'
+    pop(cx);
+    loop    loc_5028D
+    mov dx, 3C4h
+    al = 2
+    out dx, al      ; EGA: sequencer address reg
+                ; map mask: data bits 0-3 enable writes to bit planes 0-3
+    inc dx
+    al = 0FFh
+    out dx, al      ; EGA port: sequencer data register
+    mov dx, 3CEh
+    al = 1
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; enable set/reset
+    inc dx
+    al = 0Fh
+    out dx, al      ; EGA port: graphics controller data register
+    pop ds
+    assume ds:data
+    mov dx, 3CEh
+    al = 5
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; mode register.Data bits:
+                ; 0-1: Write mode 0-2
+                ; 2: test condition
+                ; 3: read mode: 1=color compare, 0=direct
+                ; 4: 1=use odd/even RAM addressing
+                ; 5: 1=use CGA mid-res map (2-bits/pixel)
+    inc dx
+    al = 1
+    out dx, al      ; EGA port: graphics controller data register
+    return;
+ */
+}
 
 void drawSpeedFixTitleAndVersion() //   proc near       ; CODE XREF: start+2E6p
 {
