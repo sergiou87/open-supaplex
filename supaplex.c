@@ -19615,47 +19615,17 @@ void drawGamePanelText() // sub_4FC20  proc near       ; CODE XREF: somethingsps
 {
     if (byte_510E3 != 0)
     {
-        if (videoStatusUnk != 1)
-        {
-//loc_4FC33:              ; CODE XREF: drawGamePanelText+Cj
-            di = 0x201;
-        }
-        else
-        {
-            di = 0x177;
-    //        jmp short loc_4FC36
-        }
-
+        di = 0x177;
 //loc_4FC36:              ; CODE XREF: drawGamePanelText+11j
 //    mov si, 87D1h
 //    mov ah, 8
         drawTextWithChars8Font(0, 0, 8, "");
-        if (videoStatusUnk != 1)
-        {
-//loc_4FC4A:              ; CODE XREF: drawGamePanelText+23j
-            di = 0x932;
-        }
-        else
-        {
-            di = 0x6AE;
-    //      jmp short loc_4FC4D
-        }
-
+        di = 0x6AE;
 //loc_4FC4D:              ; CODE XREF: drawGamePanelText+28j
 //    mov si, 87DAh
 //    mov ah, 8
         drawTextWithChars8Font(0, 0, 8, "");
-        if (videoStatusUnk != 1)
-        {
-//loc_4FC61:              ; CODE XREF: drawGamePanelText+3Aj
-            di = 0x938;
-        }
-        else
-        {
-            di = 0x6B4;
-            //jmp short loc_4FC64
-        }
-
+        di = 0x6B4;
 //loc_4FC64:              ; CODE XREF: drawGamePanelText+3Fj
 //        mov si, 87F6h
 //        mov ah, 8
@@ -19667,110 +19637,44 @@ void drawGamePanelText() // sub_4FC20  proc near       ; CODE XREF: somethingsps
 //loc_4FC6F:              ; CODE XREF: drawGamePanelText+5j
         if (byte_510DE != 0)
         {
-            if (videoStatusUnk != 1)
-            {
-//loc_4FC82:              ; CODE XREF: drawGamePanelText+5Bj
-                di = 0x201;
-            }
-            else
-            {
-                di = 0x177;
-//            jmp short loc_4FC85
-            }
-
+            di = 0x177;
 //loc_4FC85:              ; CODE XREF: drawGamePanelText+60j
 //            mov si, 87D1h
 //            mov ah, 8
             drawTextWithChars8Font(0, 0, 8, "");
-            if (videoStatusUnk != 1)
-            {
-//loc_4FC99:              ; CODE XREF: drawGamePanelText+72j
-                di = 0x932;
-            }
-            else
-            {
-                di = 0x6AE;
-//              jmp short loc_4FC9C
-            }
-
+            di = 0x6AE;
 //loc_4FC9C:              ; CODE XREF: drawGamePanelText+77j
 //          mov si, 87DAh
 //          mov ah, 8
             drawTextWithChars8Font(0, 0, 8, "");
-            if (videoStatusUnk != 1)
-            {
-//loc_4FCB0:              ; CODE XREF: drawGamePanelText+89j
-                di = 0x938;
-            }
-            else
-            {
-                di = 0x6B4;
-//              jmp short loc_4FCB3
-            }
-
+            di = 0x6B4;
 //loc_4FCB3:              ; CODE XREF: drawGamePanelText+8Ej
 //          mov si, 87DEh
 //          mov ah, 8
             drawTextWithChars8Font(0, 0, 8, "");
-//            if (videoStatusUnk == 2)
-//            {
-//                sub_50199();
-//            }
 //        jmp short loc_4FD1A
         }
         else
         {
 
 //loc_4FCC7:              ; CODE XREF: drawGamePanelText+54j
-            if (videoStatusUnk != 1)
-            {
-//loc_4FCD3:              ; CODE XREF: drawGamePanelText+ACj
-                di = 0x201;
-            }
-            else
-            {
-                di = 0x177;
-//          jmp short loc_4FCD6
-            }
-
+            di = 0x177;
 //loc_4FCD6:              ; CODE XREF: drawGamePanelText+B1j
 //          mov si, gPlayerName
 //          mov ah, 6
             drawTextWithChars8Font(0, 0, 6, gPlayerName);
-            if (videoStatusUnk != 1)
-            {
-//loc_4FCEA:              ; CODE XREF: drawGamePanelText+C3j
-                di = 0x932;
-            }
-            else
-            {
-                di = 0x6AE;
-//              jmp short loc_4FCED
-            }
+            di = 0x6AE;
 //loc_4FCED:              ; CODE XREF: drawGamePanelText+C8j
 //          mov si, 87A8h
 //          si[3] = '\0'; // mov byte ptr [si+3], 0
 //          mov ah, 8
             drawTextWithChars8Font(0, 0, 8, "");
-            if (videoStatusUnk != 1)
-            {
-//loc_4FD05:              ; CODE XREF: drawGamePanelText+DEj
-                di = 0x938;
-            }
-            else
-            {
-                di = 0x6B4;
-//              jmp short loc_4FD08
-            }
+            di = 0x6B4;
 
 //loc_4FD08:              ; CODE XREF: drawGamePanelText+E3j
 //          mov si, 87ACh
 //          mov ah, 8
             drawTextWithChars8Font(0, 0, 8, "");
-//            if (videoStatusUnk == 2)
-//            {
-//                sub_50199();
-//            }
         }
     }
 
@@ -19779,53 +19683,48 @@ void drawGamePanelText() // sub_4FC20  proc near       ; CODE XREF: somethingsps
     sub_4FD21();
     sub_4FDFD();
 }
+
+void sub_4FD21() //   proc near       ; CODE XREF: sub_4A3BB+13p
+                   // ; update?:loc_4EC90p ...
+{
+    push    si
+    cmp byte_5195A, 1
+    jnb short loc_4FD2E
+    mov byte_5195A, 0
+
+//loc_4FD2E:              ; CODE XREF: sub_4FD21+6j
+    al = byte_5195A
+    mov si, 87C5h
+    call    convertNumberTo3DigitStringWithPadding0
+    cmp videoStatusUnk, 1
+    jnz short loc_4FD43
+    mov di, 6CEh
+    jmp short loc_4FD46
+
+//loc_4FD43:              ; CODE XREF: sub_4FD21+1Bj
+    mov di, 952h
+
+//loc_4FD46:              ; CODE XREF: sub_4FD21+20j
+    mov si, 87C5h
+    cmp byte_5195A, 0
+    jnz short loc_4FD54
+    mov ah, 6
+    jmp short loc_4FD56
+
+//loc_4FD54:              ; CODE XREF: sub_4FD21+2Dj
+    mov ah, 8
+
+//loc_4FD56:              ; CODE XREF: sub_4FD21+31j
+    call    drawTextWithChars8Font
+    cmp videoStatusUnk, 2
+    jnz short loc_4FD63
+    call    sub_50103
+
+//loc_4FD63:              ; CODE XREF: sub_4FD21+3Dj
+    pop si
+    return;
+}
 /*
-sub_4FD21   proc near       ; CODE XREF: sub_4A3BB+13p
-                    ; update?:loc_4EC90p ...
-        push    si
-        cmp byte_5195A, 1
-        jnb short loc_4FD2E
-        mov byte_5195A, 0
-
-loc_4FD2E:              ; CODE XREF: sub_4FD21+6j
-        al = byte_5195A
-        mov si, 87C5h
-        call    convertNumberTo3DigitStringWithPadding0
-        cmp videoStatusUnk, 1
-        jnz short loc_4FD43
-        mov di, 6CEh
-        jmp short loc_4FD46
-// ; ---------------------------------------------------------------------------
-
-loc_4FD43:              ; CODE XREF: sub_4FD21+1Bj
-        mov di, 952h
-
-loc_4FD46:              ; CODE XREF: sub_4FD21+20j
-        mov si, 87C5h
-        cmp byte_5195A, 0
-        jnz short loc_4FD54
-        mov ah, 6
-        jmp short loc_4FD56
-// ; ---------------------------------------------------------------------------
-
-loc_4FD54:              ; CODE XREF: sub_4FD21+2Dj
-        mov ah, 8
-
-loc_4FD56:              ; CODE XREF: sub_4FD21+31j
-        call    drawTextWithChars8Font
-        cmp videoStatusUnk, 2
-        jnz short loc_4FD63
-        call    sub_50103
-
-loc_4FD63:              ; CODE XREF: sub_4FD21+3Dj
-        pop si
-        return;
-sub_4FD21   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
 sub_4FD65   proc near       ; CODE XREF: runLevel+E9p
         cmp videoStatusUnk, 1
         jz  short loc_4FD6D
@@ -20207,45 +20106,6 @@ loc_5015A:              ; CODE XREF: sub_50144+44j
         assume ds:data
         return;
 sub_50144   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_50199   proc near       ; CODE XREF: drawGamePanelText+A2p
-                    ; drawGamePanelText+F7p
-        push    es
-        mov ax, seg zeg000
-        mov es, ax
-        assume es:zeg000
-        mov di, 0FC0h
-        push    ds
-        mov ax, es
-        mov ds, ax
-        assume ds:zeg000
-        mov si, 0
-        mov bx, 7
-
-loc_501AD:              ; CODE XREF: sub_50199+22j
-        pushf
-        mov cx, 0FC0h
-
-loc_501B1:              ; CODE XREF: sub_50199+1Ej
-        lodsb
-        popf
-        rcr al, 1
-        pushf
-        stosb
-        loop    loc_501B1
-        popf
-        dec bx
-        jnz short loc_501AD
-        pop ds
-        assume ds:data
-        pop es
-        assume es:nothing
-        return;
-sub_50199   endp
 */
 void sub_501C0() //   proc near       ; CODE XREF: start+338p sub_4955B+678p ...
 {
