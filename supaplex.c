@@ -127,6 +127,7 @@ uint8_t byte_5196A = 0;
 uint8_t byte_5196B = 0;
 uint8_t byte_510D7 = 0;
 uint8_t byte_510DB = 0;
+uint8_t byte_510E3 = 0;
 
 uint8_t gCurrentPlayerIndex = 0; // byte_5981F
 uint8_t byte_59B62 = 0;
@@ -170,6 +171,17 @@ uint16_t word_510CD = 0;
 uint16_t *word_510B7 = 0;
 uint16_t *word_510C1 = 0;
 uint16_t *word_510D9 = 0;
+uint16_t word_5184A = 0;
+uint16_t word_5184C = 0;
+uint16_t word_5184E = 0;
+uint16_t word_51850 = 0;
+uint16_t word_51852 = 0;
+uint16_t word_51854 = 0;
+uint16_t word_51856 = 0;
+uint16_t word_51858 = 0;
+uint16_t word_5195F = 0;
+uint16_t word_51961 = 0;
+uint16_t word_51967 = 0;
 uint16_t word_58469 = 0;
 uint16_t word_5846B = 0;
 uint16_t word_5846D = 0;
@@ -1048,6 +1060,8 @@ void drawMouseCursor(void);
 void drawRankings(void);
 void drawTextWithChars6FontWithOpaqueBackground(size_t destX, size_t destY, uint8_t color, const char *text);
 void drawTextWithChars6FontWithTransparentBackground(size_t destX, size_t destY, uint8_t color, const char *text);
+void drawTextWithChars8Font_method1(size_t destX, size_t destY, uint8_t color, const char *text);
+void drawTextWithChars8Font(size_t destX, size_t destY, uint8_t color, const char *text);
 void sub_48E59(void);
 void waitForKeyMouseOrJoystick(void);
 void drawMenuTitleAndDemoLevelResult(void);
@@ -1077,6 +1091,7 @@ void sub_501C0(void);
 void sub_4A2E6(void);
 void sub_4A3BB(void);
 void findMurphy(void);
+void drawGamePanelText(void);
 
 static const int kWindowWidth = kScreenWidth * 4;
 static const int kWindowHeight = kScreenHeight * 4;
@@ -6292,7 +6307,7 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
     for (int i = 0; i < 8; ++i)
     {
 //loc_48F86:              ; CODE XREF: sub_48F6D+20j
-        *si = *di; // movsb
+//        *si = *di; // movsb
         si++; di++;
         si += 0x79; // 121
         di += 0x79; // 121
@@ -6303,7 +6318,7 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
 //    push    ds
 //    mov ax, es
 //    mov ds, ax
-    dx = 7
+    dx = 7;
 
     do
     {
@@ -6313,7 +6328,7 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
         for (int i = 0; i < 116; ++i)
         {
 //loc_48FA3:              ; CODE XREF: sub_48F6D+38j
-            *si = *di; // movsb
+//            *si = *di; // movsb
             si++; di++;
             si--;
         }
@@ -6328,7 +6343,7 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
     for (int i = 0; i < 116; ++i)
     {
 //loc_48FB3:              ; CODE XREF: sub_48F6D+48j
-        *si = *di; // movsb
+//        *si = *di; // movsb
         si++; di++;
         si--;
     }
@@ -6343,7 +6358,7 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
     for (int i = 0; i < 8; ++i)
     {
 //loc_48FC8:              ; CODE XREF: sub_48F6D+62j
-        *si = *di; // movsb
+//        *si = *di; // movsb
         si++; di++;
         si += 0x79; // 121
         di += 0x79; // 121
@@ -6363,7 +6378,7 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
         for (int i = 0; i < 8; ++i)
         {
 //loc_48FE1:              ; CODE XREF: sub_48F6D+7Bj
-            *si = *di; // movsb
+//            *si = *di; // movsb
             si++; di++;
             si += 0x79; // 121
             di += 0x79; // 121
@@ -6382,7 +6397,7 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
     for (int i = 0; i < 8; ++i)
     {
 //loc_48FFE:              ; CODE XREF: sub_48F6D+98j
-        *si = *di; // movsb
+//        *si = *di; // movsb
         si++; di++;
         si += 0x79; // 121
         di += 0x79; // 121
@@ -6404,7 +6419,7 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
         for (int i = 0; i < 116; ++i)
         {
 //loc_4901F:              ; CODE XREF: sub_48F6D+B4j
-            *si = *di; // movsb
+//            *si = *di; // movsb
             si++; di++;
             si--;
         }
@@ -6418,7 +6433,7 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
     for (int i = 0; i < 116; ++i)
     {
 //loc_4902F:              ; CODE XREF: sub_48F6D+C4j
-        *si = *di; // movsb
+//        *si = *di; // movsb
         si++; di++;
         si--;
     }
@@ -6439,7 +6454,7 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
         for (int i = 0; i < 8; ++i)
         {
 //loc_4904A:              ; CODE XREF: sub_48F6D+E4j
-            *si = *di; // movsb
+//            *si = *di; // movsb
             si++; di++;
             si += 0x79; // 121
             di += 0x79; // 121
@@ -6458,7 +6473,7 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
     for (int i = 0; i < 8; ++i)
     {
 //loc_49067:              ; CODE XREF: sub_48F6D+101j
-        *si = *di; // movsb
+//        *si = *di; // movsb
         si++; di++;
         si += 0x79; // 121
         di += 0x79; // 121
@@ -6514,7 +6529,7 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
         do
         {
 //loc_490A9:              ; CODE XREF: sub_48F6D+184j
-            al = bx[0];
+//            al = bx[0];
             if (al > 0x28) // 40
             {
                 al = 0;
@@ -6525,7 +6540,7 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
             ah = 0;
             ax = ax << 1;
             si = ax;
-            si += fixedDataBuffer;
+//            si += fixedDataBuffer;
 //          push(cx);
             cx = 0x10; // 16
 
@@ -6534,6 +6549,8 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
 //loc_490C2:              ; CODE XREF: sub_48F6D+17Aj
                 ah = 1;
 
+                do
+                {
 //loc_490C4:              ; CODE XREF: sub_48F6D+175j
     /*
     mov dx, 3C4h
@@ -6544,17 +6561,16 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
     al = ah
     out dx, al      ; EGA port: sequencer data register
      */
-                al = si[0]
-//              es:[di] = al;
-                si++;
-                al = si[0];
-//              es:[di] = al;
-                ah = ah << 1;
-                si += 0x4F; // 79
-                if ((ah & 0xF) != 0)
-                {
-                    //jnz short loc_490C4
+    //                al = si[0]
+    //              es:[di] = al;
+                    si++;
+    //                al = si[0];
+    //              es:[di] = al;
+                    ah = ah << 1;
+                    si += 0x4F; // 79
                 }
+                while ((ah & 0xF) != 0);
+
                 di += 0x7A; // 122
             }
 //          pop(cx);
@@ -7021,7 +7037,7 @@ loc_49435:              ; CODE XREF: somethingspsig+65j
         mov byte_510DE, 1
 
 loc_4944F:              ; CODE XREF: somethingspsig+EEj
-        call    sub_4FC20
+        call    drawGamePanelText
         mov byte_5A33F, 1
         mov byte_510DE, 0
         return;
@@ -19592,161 +19608,178 @@ loc_4FC1A:              ; CODE XREF: sub_4FB79+99j
         mov byte ptr [si+1835h], 7
         return;
 sub_4FB79   endp
+*/
 
+void drawGamePanelText() // sub_4FC20  proc near       ; CODE XREF: somethingspsig:loc_4944Fp
+                   // ; sub_501C0+22p ...
+{
+    if (byte_510E3 != 0)
+    {
+        if (videoStatusUnk != 1)
+        {
+//loc_4FC33:              ; CODE XREF: drawGamePanelText+Cj
+            di = 0x201;
+        }
+        else
+        {
+            di = 0x177;
+    //        jmp short loc_4FC36
+        }
 
-; =============== S U B R O U T I N E =======================================
+//loc_4FC36:              ; CODE XREF: drawGamePanelText+11j
+//    mov si, 87D1h
+//    mov ah, 8
+        drawTextWithChars8Font(0, 0, 8, "");
+        if (videoStatusUnk != 1)
+        {
+//loc_4FC4A:              ; CODE XREF: drawGamePanelText+23j
+            di = 0x932;
+        }
+        else
+        {
+            di = 0x6AE;
+    //      jmp short loc_4FC4D
+        }
 
+//loc_4FC4D:              ; CODE XREF: drawGamePanelText+28j
+//    mov si, 87DAh
+//    mov ah, 8
+        drawTextWithChars8Font(0, 0, 8, "");
+        if (videoStatusUnk != 1)
+        {
+//loc_4FC61:              ; CODE XREF: drawGamePanelText+3Aj
+            di = 0x938;
+        }
+        else
+        {
+            di = 0x6B4;
+            //jmp short loc_4FC64
+        }
 
-sub_4FC20   proc near       ; CODE XREF: somethingspsig:loc_4944Fp
-                    ; sub_501C0+22p ...
-        cmp byte_510E3, 0
-        jz  short loc_4FC6F
-        cmp videoStatusUnk, 1
-        jnz short loc_4FC33
-        mov di, 177h
-        jmp short loc_4FC36
-// ; ---------------------------------------------------------------------------
+//loc_4FC64:              ; CODE XREF: drawGamePanelText+3Fj
+//        mov si, 87F6h
+//        mov ah, 8
+        drawTextWithChars8Font(0, 0, 8, "");
+//        jmp loc_4FD1A
+    }
+    else
+    {
+//loc_4FC6F:              ; CODE XREF: drawGamePanelText+5j
+        if (byte_510DE != 0)
+        {
+            if (videoStatusUnk != 1)
+            {
+//loc_4FC82:              ; CODE XREF: drawGamePanelText+5Bj
+                di = 0x201;
+            }
+            else
+            {
+                di = 0x177;
+//            jmp short loc_4FC85
+            }
 
-loc_4FC33:              ; CODE XREF: sub_4FC20+Cj
-        mov di, 201h
+//loc_4FC85:              ; CODE XREF: drawGamePanelText+60j
+//            mov si, 87D1h
+//            mov ah, 8
+            drawTextWithChars8Font(0, 0, 8, "");
+            if (videoStatusUnk != 1)
+            {
+//loc_4FC99:              ; CODE XREF: drawGamePanelText+72j
+                di = 0x932;
+            }
+            else
+            {
+                di = 0x6AE;
+//              jmp short loc_4FC9C
+            }
 
-loc_4FC36:              ; CODE XREF: sub_4FC20+11j
-        mov si, 87D1h
-        mov ah, 8
-        call    drawTextWithChars8Font
-        cmp videoStatusUnk, 1
-        jnz short loc_4FC4A
-        mov di, 6AEh
-        jmp short loc_4FC4D
-// ; ---------------------------------------------------------------------------
+//loc_4FC9C:              ; CODE XREF: drawGamePanelText+77j
+//          mov si, 87DAh
+//          mov ah, 8
+            drawTextWithChars8Font(0, 0, 8, "");
+            if (videoStatusUnk != 1)
+            {
+//loc_4FCB0:              ; CODE XREF: drawGamePanelText+89j
+                di = 0x938;
+            }
+            else
+            {
+                di = 0x6B4;
+//              jmp short loc_4FCB3
+            }
 
-loc_4FC4A:              ; CODE XREF: sub_4FC20+23j
-        mov di, 932h
+//loc_4FCB3:              ; CODE XREF: drawGamePanelText+8Ej
+//          mov si, 87DEh
+//          mov ah, 8
+            drawTextWithChars8Font(0, 0, 8, "");
+//            if (videoStatusUnk == 2)
+//            {
+//                sub_50199();
+//            }
+//        jmp short loc_4FD1A
+        }
+        else
+        {
 
-loc_4FC4D:              ; CODE XREF: sub_4FC20+28j
-        mov si, 87DAh
-        mov ah, 8
-        call    drawTextWithChars8Font
-        cmp videoStatusUnk, 1
-        jnz short loc_4FC61
-        mov di, 6B4h
-        jmp short loc_4FC64
-// ; ---------------------------------------------------------------------------
+//loc_4FCC7:              ; CODE XREF: drawGamePanelText+54j
+            if (videoStatusUnk != 1)
+            {
+//loc_4FCD3:              ; CODE XREF: drawGamePanelText+ACj
+                di = 0x201;
+            }
+            else
+            {
+                di = 0x177;
+//          jmp short loc_4FCD6
+            }
 
-loc_4FC61:              ; CODE XREF: sub_4FC20+3Aj
-        mov di, 938h
+//loc_4FCD6:              ; CODE XREF: drawGamePanelText+B1j
+//          mov si, gPlayerName
+//          mov ah, 6
+            drawTextWithChars8Font(0, 0, 6, gPlayerName);
+            if (videoStatusUnk != 1)
+            {
+//loc_4FCEA:              ; CODE XREF: drawGamePanelText+C3j
+                di = 0x932;
+            }
+            else
+            {
+                di = 0x6AE;
+//              jmp short loc_4FCED
+            }
+//loc_4FCED:              ; CODE XREF: drawGamePanelText+C8j
+//          mov si, 87A8h
+//          si[3] = '\0'; // mov byte ptr [si+3], 0
+//          mov ah, 8
+            drawTextWithChars8Font(0, 0, 8, "");
+            if (videoStatusUnk != 1)
+            {
+//loc_4FD05:              ; CODE XREF: drawGamePanelText+DEj
+                di = 0x938;
+            }
+            else
+            {
+                di = 0x6B4;
+//              jmp short loc_4FD08
+            }
 
-loc_4FC64:              ; CODE XREF: sub_4FC20+3Fj
-        mov si, 87F6h
-        mov ah, 8
-        call    drawTextWithChars8Font
-        jmp loc_4FD1A
-// ; ---------------------------------------------------------------------------
+//loc_4FD08:              ; CODE XREF: drawGamePanelText+E3j
+//          mov si, 87ACh
+//          mov ah, 8
+            drawTextWithChars8Font(0, 0, 8, "");
+//            if (videoStatusUnk == 2)
+//            {
+//                sub_50199();
+//            }
+        }
+    }
 
-loc_4FC6F:              ; CODE XREF: sub_4FC20+5j
-        cmp byte_510DE, 0
-        jz  short loc_4FCC7
-        cmp videoStatusUnk, 1
-        jnz short loc_4FC82
-        mov di, 177h
-        jmp short loc_4FC85
-// ; ---------------------------------------------------------------------------
-
-loc_4FC82:              ; CODE XREF: sub_4FC20+5Bj
-        mov di, 201h
-
-loc_4FC85:              ; CODE XREF: sub_4FC20+60j
-        mov si, 87D1h
-        mov ah, 8
-        call    drawTextWithChars8Font
-        cmp videoStatusUnk, 1
-        jnz short loc_4FC99
-        mov di, 6AEh
-        jmp short loc_4FC9C
-// ; ---------------------------------------------------------------------------
-
-loc_4FC99:              ; CODE XREF: sub_4FC20+72j
-        mov di, 932h
-
-loc_4FC9C:              ; CODE XREF: sub_4FC20+77j
-        mov si, 87DAh
-        mov ah, 8
-        call    drawTextWithChars8Font
-        cmp videoStatusUnk, 1
-        jnz short loc_4FCB0
-        mov di, 6B4h
-        jmp short loc_4FCB3
-// ; ---------------------------------------------------------------------------
-
-loc_4FCB0:              ; CODE XREF: sub_4FC20+89j
-        mov di, 938h
-
-loc_4FCB3:              ; CODE XREF: sub_4FC20+8Ej
-        mov si, 87DEh
-        mov ah, 8
-        call    drawTextWithChars8Font
-        cmp videoStatusUnk, 2
-        jnz short loc_4FD1A
-        call    sub_50199
-        jmp short loc_4FD1A
-// ; ---------------------------------------------------------------------------
-
-loc_4FCC7:              ; CODE XREF: sub_4FC20+54j
-        cmp videoStatusUnk, 1
-        jnz short loc_4FCD3
-        mov di, 177h
-        jmp short loc_4FCD6
-// ; ---------------------------------------------------------------------------
-
-loc_4FCD3:              ; CODE XREF: sub_4FC20+ACj
-        mov di, 201h
-
-loc_4FCD6:              ; CODE XREF: sub_4FC20+B1j
-        mov si, gPlayerName
-        mov ah, 6
-        call    drawTextWithChars8Font
-        cmp videoStatusUnk, 1
-        jnz short loc_4FCEA
-        mov di, 6AEh
-        jmp short loc_4FCED
-// ; ---------------------------------------------------------------------------
-
-loc_4FCEA:              ; CODE XREF: sub_4FC20+C3j
-        mov di, 932h
-
-loc_4FCED:              ; CODE XREF: sub_4FC20+C8j
-        mov si, 87A8h
-        mov byte ptr [si+3], 0
-        mov ah, 8
-        call    drawTextWithChars8Font
-        cmp videoStatusUnk, 1
-        jnz short loc_4FD05
-        mov di, 6B4h
-        jmp short loc_4FD08
-// ; ---------------------------------------------------------------------------
-
-loc_4FD05:              ; CODE XREF: sub_4FC20+DEj
-        mov di, 938h
-
-loc_4FD08:              ; CODE XREF: sub_4FC20+E3j
-        mov si, 87ACh
-        mov ah, 8
-        call    drawTextWithChars8Font
-        cmp videoStatusUnk, 2
-        jnz short loc_4FD1A
-        call    sub_50199
-
-loc_4FD1A:              ; CODE XREF: sub_4FC20+4Cj
-                    ; sub_4FC20+A0j ...
-        call    sub_4FD21
-        call    sub_4FDFD
-        return;
-sub_4FC20   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
+//loc_4FD1A:              ; CODE XREF: drawGamePanelText+4Cj
+//                ; drawGamePanelText+A0j ...
+    sub_4FD21();
+    sub_4FDFD();
+}
+/*
 sub_4FD21   proc near       ; CODE XREF: sub_4A3BB+13p
                     ; update?:loc_4EC90p ...
         push    si
@@ -20007,477 +20040,61 @@ loc_4FE98:              ; CODE XREF: sub_4FDFD+90j
         pop bp
         return;
 sub_4FDFD   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-void drawTextWithChars8Font_method1() //   proc near       ; CODE XREF: drawTextWithChars8Font+7p
+*/
+void drawTextWithChars8Font_method1(size_t destX, size_t destY, uint8_t color, const char *text) //   proc near       ; CODE XREF: drawTextWithChars8Font+7p
 {
-        mov byte_51969, ah
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0;
-        mov dx, 3CEh
-        al = 1
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; enable set/reset
-        inc dx
-        al = 0Fh
-        out dx, al      ; EGA port: graphics controller data register
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        // inc dx
-        // al = ah
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = ah;
+    // Parameters:
+    // - di is the destination surface
+    // - si is the text to be rendered
+    // - ah is the color index in the current palette
 
-loc_4FEBE:              ; CODE XREF: drawTextWithChars8Font_method1+1C3j
-        mov bl, [si]
-        cmp bl, 0
-        jnz short loc_4FEC8
-        jmp loc_50062
-// ; ---------------------------------------------------------------------------
+    byte_51969 = color;
 
-loc_4FEC8:              ; CODE XREF: drawTextWithChars8Font_method1+27j
-        cmp bl, 0Ah
-        jnz short loc_4FED0
-        jmp loc_50062
-// ; ---------------------------------------------------------------------------
-
-loc_4FED0:              ; CODE XREF: drawTextWithChars8Font_method1+2Fj
-        inc si
-        sub bl, 20h ; ' '
-        xor bh, bh
-        add bx, chars8DataBuffer
-        mov dx, 3CEh
-        al = 0
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; set/reset.
-                    ; Data bits 0-3 select planes for write mode 00
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0;
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        inc dx
-        al = 0FFh
-        out dx, al      ; EGA port: graphics controller data register
-        *(es:di) = *(es:di) | al;
-        mov dx, 3CEh
-        al = 0
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; set/reset.
-                    ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        al = byte_51969
-        out dx, al      ; EGA port: graphics controller data register
-        mov ah, [bx]
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        // inc dx
-        // al = ah
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = ah;
-        *(es:di) = *(es:di) | al;
-        add di, 7Ah ; 'z'
-        add bx, 40h ; '@'
-        mov dx, 3CEh
-        al = 0
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; set/reset.
-                    ; Data bits 0-3 select planes for write mode 00
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0;
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        inc dx
-        al = 0FFh
-        out dx, al      ; EGA port: graphics controller data register
-        *(es:di) = *(es:di) | al;
-        mov dx, 3CEh
-        al = 0
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; set/reset.
-                    ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        al = byte_51969
-        out dx, al      ; EGA port: graphics controller data register
-        mov ah, [bx]
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        // inc dx
-        // al = ah
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = ah;
-        *(es:di) = *(es:di) | al;
-        add di, 7Ah ; 'z'
-        add bx, 40h ; '@'
-        mov dx, 3CEh
-        al = 0
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; set/reset.
-                    ; Data bits 0-3 select planes for write mode 00
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0;
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        inc dx
-        al = 0FFh
-        out dx, al      ; EGA port: graphics controller data register
-        *(es:di) = *(es:di) | al;
-        mov dx, 3CEh
-        al = 0
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; set/reset.
-                    ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        al = byte_51969
-        out dx, al      ; EGA port: graphics controller data register
-        mov ah, [bx]
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        // inc dx
-        // al = ah
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = ah;
-        *(es:di) = *(es:di) | al;
-        add di, 7Ah ; 'z'
-        add bx, 40h ; '@'
-        mov dx, 3CEh
-        al = 0
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; set/reset.
-                    ; Data bits 0-3 select planes for write mode 00
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0;
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        inc dx
-        al = 0FFh
-        out dx, al      ; EGA port: graphics controller data register
-        *(es:di) = *(es:di) | al;
-        mov dx, 3CEh
-        al = 0
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; set/reset.
-                    ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        al = byte_51969
-        out dx, al      ; EGA port: graphics controller data register
-        mov ah, [bx]
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        // inc dx
-        // al = ah
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = ah;
-        *(es:di) = *(es:di) | al;
-        add di, 7Ah ; 'z'
-        add bx, 40h ; '@'
-        mov dx, 3CEh
-        al = 0
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; set/reset.
-                    ; Data bits 0-3 select planes for write mode 00
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0;
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        inc dx
-        al = 0FFh
-        out dx, al      ; EGA port: graphics controller data register
-        *(es:di) = *(es:di) | al;
-        mov dx, 3CEh
-        al = 0
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; set/reset.
-                    ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        al = byte_51969
-        out dx, al      ; EGA port: graphics controller data register
-        mov ah, [bx]
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        // inc dx
-        // al = ah
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = ah;
-        *(es:di) = *(es:di) | al;
-        add di, 7Ah ; 'z'
-        add bx, 40h ; '@'
-        mov dx, 3CEh
-        al = 0
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; set/reset.
-                    ; Data bits 0-3 select planes for write mode 00
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0;
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        inc dx
-        al = 0FFh
-        out dx, al      ; EGA port: graphics controller data register
-        *(es:di) = *(es:di) | al;
-        mov dx, 3CEh
-        al = 0
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; set/reset.
-                    ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        al = byte_51969
-        out dx, al      ; EGA port: graphics controller data register
-        mov ah, [bx]
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        // inc dx
-        // al = ah
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = ah;
-        *(es:di) = *(es:di) | al;
-        add di, 7Ah ; 'z'
-        add bx, 40h ; '@'
-        mov dx, 3CEh
-        al = 0
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; set/reset.
-                    ; Data bits 0-3 select planes for write mode 00
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0;
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        inc dx
-        al = 0FFh
-        out dx, al      ; EGA port: graphics controller data register
-        *(es:di) = *(es:di) | al;
-        mov dx, 3CEh
-        al = 0
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; set/reset.
-                    ; Data bits 0-3 select planes for write mode 00
-        inc dx
-        al = byte_51969
-        out dx, al      ; EGA port: graphics controller data register
-        mov ah, [bx]
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        // inc dx
-        // al = ah
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = ah;
-        *(es:di) = *(es:di) | al;
-        add di, 7Ah ; 'z'
-        add bx, 40h ; '@'
-        sub di, 355h
-        jmp loc_4FEBE
-// ; ---------------------------------------------------------------------------
-
-loc_50062:              ; CODE XREF: drawTextWithChars8Font_method1+29j
-                    ; drawTextWithChars8Font_method1+31j
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 1
-        out dx, al      ; EGA port: graphics controller data register
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        inc dx
-        al = 0FFh
-        out dx, al      ; EGA port: graphics controller data register
+//loc_4FEBE:              ; CODE XREF: drawTextWithChars8Font_method1+1C3j
+    if (text[0] == '\0')
+    {
         return;
-// drawTextWithChars8Font_method1   endp
+    }
+
+//loc_4FED0:              ; CODE XREF: drawTextWithChars8Font_method1+2Fj
+    long textLength = strlen(text);
+
+    for (long idx = 0; idx < textLength; ++idx)
+    {
+        char character = text[idx];
+
+//loc_4FEC8:              ; CODE XREF: drawTextWithChars8Font_method1+27j
+        if (character == '\n')
+        {
+            return;
+        }
+
+        // ' ' = 0x20 = 32, and is first ascii that can be represented.
+        // This line converts the ascii from the string to the index in the font
+        //
+        uint8_t bitmapCharacterIndex = character - 0x20;
+
+        for (uint8_t y = 0; y < kBitmapFontCharacterHeight; ++y)
+        {
+            for (uint8_t x = 0; x < kBitmapFontCharacterWidth; ++x)
+            {
+                uint8_t bitmapCharacterRow = gChars8BitmapFont[bitmapCharacterIndex + y * kNumberOfCharactersInBitmapFont];
+                uint8_t pixelValue = (bitmapCharacterRow >> (7 - x)) & 0x1;
+
+                // 6 is the wide (in pixels) of this font
+                size_t destAddress = (destY + y) * kScreenWidth + (idx * kBitmapFontCharacterWidth + destX + x);
+                gScreenPixels[destAddress] = color * pixelValue;
+            }
+        }
+    }
 }
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-void drawTextWithChars8Font_method2() //   proc near       ; CODE XREF: drawTextWithChars8Font:loc_500FFp
-{
-        push    es
-        mov ax, seg zeg000
-        mov es, ax
-        assume es:zeg000
-
-loc_5007D:              ; CODE XREF: drawTextWithChars8Font_method2+78j
-        mov bl, [si]
-        cmp bl, 0
-        jnz short loc_50086
-        jmp short loc_500F1
-// ; ---------------------------------------------------------------------------
-
-loc_50086:              ; CODE XREF: drawTextWithChars8Font_method2+Bj
-        cmp bl, 0Ah
-        jnz short loc_5008D
-        jmp short loc_500F1
-// ; ---------------------------------------------------------------------------
-
-loc_5008D:              ; CODE XREF: drawTextWithChars8Font_method2+12j
-        inc si
-        sub bl, 20h ; ' '
-        xor bh, bh
-        add bx, chars8DataBuffer
-        mov ah, [bx]
-        mov es:[di], ah
-        add di, 0A8h ; '?'
-        add bx, 40h ; '@'
-        mov ah, [bx]
-        mov es:[di], ah
-        add di, 0A8h ; '?'
-        add bx, 40h ; '@'
-        mov ah, [bx]
-        mov es:[di], ah
-        add di, 0A8h ; '?'
-        add bx, 40h ; '@'
-        mov ah, [bx]
-        mov es:[di], ah
-        add di, 0A8h ; '?'
-        add bx, 40h ; '@'
-        mov ah, [bx]
-        mov es:[di], ah
-        add di, 0A8h ; '?'
-        add bx, 40h ; '@'
-        mov ah, [bx]
-        mov es:[di], ah
-        add di, 0A8h ; '?'
-        add bx, 40h ; '@'
-        mov ah, [bx]
-        mov es:[di], ah
-        add di, 0A8h ; '?'
-        add bx, 40h ; '@'
-        sub di, 497h
-        jmp short loc_5007D
-// ; ---------------------------------------------------------------------------
-
-loc_500F1:              ; CODE XREF: drawTextWithChars8Font_method2+Dj
-                    ; drawTextWithChars8Font_method2+14j
-        pop es
-        assume es:nothing
-        return;
-// drawTextWithChars8Font_method2   endp
-}
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-void drawTextWithChars8Font() //   proc near       ; CODE XREF: sub_4955B+446p
+void drawTextWithChars8Font(size_t destX, size_t destY, uint8_t color, const char *text) //   proc near       ; CODE XREF: sub_4955B+446p
                     // ; sub_4955B+6AFp ...
 {
-    if (videoStatusUnk != 1)
-    {
-        goto loc_500FF;
-    }
-    drawTextWithChars8Font_method1();
-    goto locret_50102;
-// ; ---------------------------------------------------------------------------
-
-loc_500FF:             // ; CODE XREF: drawTextWithChars8Font+5j
-        drawTextWithChars8Font_method2();
-
-locret_50102:              // ; CODE XREF: drawTextWithChars8Font+Aj
-        return
-// drawTextWithChars8Font   endp
+    drawTextWithChars8Font_method1(destX, destY, color, text);
 }
-
-
-; =============== S U B R O U T I N E =======================================
-
-
+/*
 sub_50103   proc near       ; CODE XREF: sub_4FD21+3Fp
         push    ds
         push    es
@@ -20595,8 +20212,8 @@ sub_50144   endp
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_50199   proc near       ; CODE XREF: sub_4FC20+A2p
-                    ; sub_4FC20+F7p
+sub_50199   proc near       ; CODE XREF: drawGamePanelText+A2p
+                    ; drawGamePanelText+F7p
         push    es
         mov ax, seg zeg000
         mov es, ax
@@ -20629,115 +20246,121 @@ loc_501B1:              ; CODE XREF: sub_50199+1Ej
         assume es:nothing
         return;
 sub_50199   endp
+*/
+void sub_501C0() //   proc near       ; CODE XREF: start+338p sub_4955B+678p ...
+{
+    // In theory videoStatusUnk will always be 1
+    if (videoStatusUnk != 2)
+    {
+//        push    es
+//        mov ax, seg zeg000
+//        mov es, ax
+//        assume es:zeg000
+        di = 0;
+//        si = panelDataBuffer;
+        dx = 0x60; // 96
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_501C0   proc near       ; CODE XREF: start+338p sub_4955B+678p ...
-        cmp videoStatusUnk, 2
-        jnz short loc_501EA
-        push    es
-        mov ax, seg zeg000
-        mov es, ax
-        assume es:zeg000
-        mov di, 0
-        mov si, panelDataBuffer
-        mov dx, 60h ; '`'
-
-loc_501D6:              ; CODE XREF: sub_501C0+1Fj
-        mov cx, 28h ; '('
-        rep movsb
-        add di, 2
-        dec dx
-        jnz short loc_501D6
-        pop es
-        assume es:nothing
-        call    sub_4FC20
-        call    sub_5024B
-        jmp short locret_5024A
-// ; ---------------------------------------------------------------------------
-
-loc_501EA:              ; CODE XREF: sub_501C0+5j
-        mov si, panelDataBuffer
-        mov di, 0
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0;
-        mov dx, 3CEh
-        al = 1
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; enable set/reset
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0;
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8;
-        inc dx
-        al = 0FFh
-        out dx, al      ; EGA port: graphics controller data register
-        mov cx, 18h
-
-loc_50211:              ; CODE XREF: sub_501C0+71j
-        push(cx);
-        mov ah, 1
-
-loc_50214:              ; CODE XREF: sub_501C0+6Bj
-        mov dx, 3C4h
-        al = 2
-        out dx, al      ; EGA: sequencer address reg
-                    ; map mask: data bits 0-3 enable writes to bit planes 0-3
-        inc dx
-        al = ah
-        out dx, al      ; EGA port: sequencer data register
-        mov cx, 28h ; '('
-        rep movsb
-        sub di, 28h ; '('
-        shl ah, 1
-        test    ah, 0Fh
-        jnz short loc_50214
-        add di, 7Ah ; 'z'
-        pop(cx);
-        loop    loc_50211
-        mov dx, 3C4h
-        al = 2
-        out dx, al      ; EGA: sequencer address reg
-                    ; map mask: data bits 0-3 enable writes to bit planes 0-3
-        inc dx
-        al = 0FFh
-        out dx, al      ; EGA port: sequencer data register
-        mov dx, 3CEh
-        al = 1
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; enable set/reset
-        inc dx
-        al = 0Fh
-        out dx, al      ; EGA port: graphics controller data register
-        call    sub_4FC20
-
-locret_5024A:               ; CODE XREF: sub_501C0+28j
+        do
+        {
+//loc_501D6:              ; CODE XREF: sub_501C0+1Fj
+            cx = 0x28; // 40
+            memcpy(di, si, 0x28); // rep movsb
+            di += 0x28; si += 0x28;
+            di += 2;
+            dx--;
+        }
+        while (dx != 0);
+//        pop es
+//        assume es:nothing
+        drawGamePanelText();
+        sub_5024B();
         return;
-sub_501C0   endp
+    }
 
+//loc_501EA:              ; CODE XREF: sub_501C0+5j
+    di = 0;
+//    si = panelDataBuffer;
+    /*
+    mov dx, 3CEh
+    al = 5
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; mode register.Data bits:
+                ; 0-1: Write mode 0-2
+                ; 2: test condition
+                ; 3: read mode: 1=color compare, 0=direct
+                ; 4: 1=use odd/even RAM addressing
+                ; 5: 1=use CGA mid-res map (2-bits/pixel)
+    // inc dx
+    // al = 0
+    // out dx, al      ; EGA port: graphics controller data register
+    ports[0x3CF] = 0;
+    mov dx, 3CEh
+    al = 1
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; enable set/reset
+    // inc dx
+    // al = 0
+    // out dx, al      ; EGA port: graphics controller data register
+    ports[0x3CF] = 0;
+    // mov dx, 3CEh
+    // al = 8
+    // out dx, al      ; EGA: graph 1 and 2 addr reg:
+    //             ; bit mask
+    //             ; Bits 0-7 select bits to be masked in all planes
+    ports[0x3CE] = 8;
+    inc dx
+    al = 0FFh
+    out dx, al      ; EGA port: graphics controller data register
+     */
+    cx = 0x18; // 24
 
-; =============== S U B R O U T I N E =======================================
+    for (int i = 0; i < 24; ++i)
+    {
+//loc_50211:              ; CODE XREF: sub_501C0+71j
+//        push(cx);
+        ah = 1;
 
-
+        do
+        {
+//loc_50214:              ; CODE XREF: sub_501C0+6Bj
+            /*
+            mov dx, 3C4h
+            al = 2
+            out dx, al      ; EGA: sequencer address reg
+                        ; map mask: data bits 0-3 enable writes to bit planes 0-3
+            inc dx
+            al = ah
+            out dx, al      ; EGA port: sequencer data register
+             */
+            cx = 0x28; // 40
+            memcpy(di, si, 0x28);
+            di += 0x28; si += 0x28;
+            di -= 0x28;
+            ah = ah << 1;
+        }
+        while ((ah & 0xF) != 0);
+        di += 0x7A; // 122
+//        pop(cx);
+    }
+    /*
+    mov dx, 3C4h
+    al = 2
+    out dx, al      ; EGA: sequencer address reg
+                ; map mask: data bits 0-3 enable writes to bit planes 0-3
+    inc dx
+    al = 0FFh
+    out dx, al      ; EGA port: sequencer data register
+    mov dx, 3CEh
+    al = 1
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; enable set/reset
+    inc dx
+    al = 0Fh
+    out dx, al      ; EGA port: graphics controller data register
+     */
+    drawGamePanelText();
+}
+/*
 sub_5024B   proc near       ; CODE XREF: gameloop?+31p
                     ; sub_501C0+25p
         cmp videoStatusUnk, 1
