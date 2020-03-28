@@ -374,7 +374,10 @@ uint8_t gChars6BitmapFont[kBitmapFontLength];
 uint8_t gChars8BitmapFont[kBitmapFontLength];
 
 // This is a 320x24 bitmap
-uint8_t gPanelBitmapData[3840];
+static const int kPanelBitmapWidth = 320;
+static const int kPanelBitmapHeight = 24;
+static const int kPanelBitmapY = kScreenHeight - kPanelBitmapHeight;
+uint8_t gPanelDecodedBitmapData[kPanelBitmapWidth * kPanelBitmapHeight];
 
 static const size_t kFullScreenBitmapLength = kScreenWidth * kScreenHeight / 2; // They use 4 bits to encode pixels
 
@@ -1153,7 +1156,7 @@ void readLevels(void);
 void sub_48A20(void);
 void sub_4D464(void);
 void drawFixedLevel(void);
-void sub_501C0(void);
+void drawGamePanel(void);
 void sub_4A2E6(void);
 void sub_4A3BB(void);
 void sub_4FD21(void);
@@ -1807,8 +1810,8 @@ loc_46E75:              //; CODE XREF: start+251j
             drawPlayerList();
             sub_48A20();
             sub_4D464(); // configures the viewport for the bottom panel, which is not very useful to this re-implementation?
-            drawFixedLevel(); // draws the tiles?
-            sub_501C0(); // 01ED:0311
+            drawFixedLevel();
+            drawGamePanel(); // 01ED:0311
 //            sub_4A2E6();
 //            sub_4A3BB();
 //            enableFloppy();
@@ -3604,10 +3607,35 @@ void readPanelDat() //    proc near       ; CODE XREF: readPanelDat+14j
     }
 
 //loc_47B0A:             // ; CODE XREF: readPanelDat+8j
-    size_t bytes = fread(gPanelBitmapData, sizeof(uint8_t), sizeof(gPanelBitmapData), file);
-    if (bytes < sizeof(gPanelBitmapData))
+    uint8_t bitmapData[kPanelBitmapWidth * kPanelBitmapHeight / 2];
+    size_t bytes = fread(bitmapData, 1, sizeof(bitmapData), file);
+    if (bytes < sizeof(bitmapData))
     {
         exitWithError("Error reading PANEL.DAT\n");
+    }
+
+    for (int y = 0; y < kPanelBitmapHeight; ++y)
+    {
+        for (int x = 0; x < kPanelBitmapWidth; ++x)
+        {
+            uint32_t destPixelAddress = y * kPanelBitmapWidth + x;
+
+            uint16_t sourcePixelAddress = y * kPanelBitmapWidth / 2 + x / 8;
+            uint8_t sourcePixelBitPosition = 7 - (x % 8);
+
+            uint8_t b = (bitmapData[sourcePixelAddress + 0] >> sourcePixelBitPosition) & 0x1;
+            uint8_t g = (bitmapData[sourcePixelAddress + 40] >> sourcePixelBitPosition) & 0x1;
+            uint8_t r = (bitmapData[sourcePixelAddress + 80] >> sourcePixelBitPosition) & 0x1;
+            uint8_t i = (bitmapData[sourcePixelAddress + 120] >> sourcePixelBitPosition) & 0x1;
+
+            uint8_t finalColor = ((b << 0)
+                                  | (g << 1)
+                                  | (r << 2)
+                                  | (i << 3));
+
+            // Store a copy of the decoded value in a buffer with 4bit per pixel
+            gPanelDecodedBitmapData[destPixelAddress] = finalColor;
+        }
     }
 
 //loc_47B21:              // ; CODE XREF: readPanelDat+2Bj
@@ -7962,7 +7990,7 @@ loc_49B84:              ; CODE XREF: sub_4955B+619j
         mov si, 60D5h
         call    setPalette
         call    drawFixedLevel
-        call    sub_501C0
+        call    drawGamePanel
         call    sub_4A2E6
         mov si, murphyloc
         mov ax, si
@@ -9201,7 +9229,7 @@ sub_4A463   proc near       ; CODE XREF: sub_4945D:loc_4953Bp
         call    readLevels
         call    sub_4D464
         call    drawFixedLevel
-        call    sub_501C0
+        call    drawGamePanel
         neg byte_5A33F
         call    sub_4A2E6
         neg byte_5A33F
@@ -19491,7 +19519,7 @@ sub_4FB79   endp
 */
 
 void drawGamePanelText() // sub_4FC20  proc near       ; CODE XREF: somethingspsig:loc_4944Fp
-                   // ; sub_501C0+22p ...
+                   // ; drawGamePanel+22p ...
 {
     if (byte_510E3 != 0)
     {
@@ -19835,122 +19863,25 @@ void drawTextWithChars8Font(size_t destX, size_t destY, uint8_t color, const cha
     drawTextWithChars8Font_method1(destX, destY, color, text);
 }
 
-void sub_501C0() //   proc near       ; CODE XREF: start+338p sub_4955B+678p ...
+void drawGamePanel() // sub_501C0   proc near       ; CODE XREF: start+338p sub_4955B+678p ...
 {
-    // In theory videoStatusUnk will always be 1
-    if (videoStatusUnk != 2)
+    for (int y = kPanelBitmapY; y < kScreenHeight; ++y)
     {
-//        push    es
-//        mov ax, seg zeg000
-//        mov es, ax
-//        assume es:zeg000
-        di = 0;
-//        si = panelDataBuffer;
-        dx = 0x60; // 96
-
-        do
+        for (int x = 0; x < kScreenWidth; ++x)
         {
-//loc_501D6:              ; CODE XREF: sub_501C0+1Fj
-            cx = 0x28; // 40
-            memcpy(di, si, 0x28); // rep movsb
-            di += 0x28; si += 0x28;
-            di += 2;
-            dx--;
+            uint32_t destPixelAddress = y * kScreenWidth + x;
+            uint32_t srcPixelAddress = (y - kPanelBitmapY) * kPanelBitmapWidth + x;
+
+            gScreenPixels[destPixelAddress] = gPanelDecodedBitmapData[srcPixelAddress];
         }
-        while (dx != 0);
-//        pop es
-//        assume es:nothing
-        drawGamePanelText();
-        sub_5024B();
-        return;
     }
 
-//loc_501EA:              ; CODE XREF: sub_501C0+5j
-    di = 0;
-//    si = panelDataBuffer;
-    /*
-    mov dx, 3CEh
-    al = 5
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; mode register.Data bits:
-                ; 0-1: Write mode 0-2
-                ; 2: test condition
-                ; 3: read mode: 1=color compare, 0=direct
-                ; 4: 1=use odd/even RAM addressing
-                ; 5: 1=use CGA mid-res map (2-bits/pixel)
-    // inc dx
-    // al = 0
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = 0;
-    mov dx, 3CEh
-    al = 1
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; enable set/reset
-    // inc dx
-    // al = 0
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = 0;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    inc dx
-    al = 0FFh
-    out dx, al      ; EGA port: graphics controller data register
-     */
-    cx = 0x18; // 24
-
-    for (int i = 0; i < 24; ++i)
-    {
-//loc_50211:              ; CODE XREF: sub_501C0+71j
-//        push(cx);
-        ah = 1;
-
-        do
-        {
-//loc_50214:              ; CODE XREF: sub_501C0+6Bj
-            /*
-            mov dx, 3C4h
-            al = 2
-            out dx, al      ; EGA: sequencer address reg
-                        ; map mask: data bits 0-3 enable writes to bit planes 0-3
-            inc dx
-            al = ah
-            out dx, al      ; EGA port: sequencer data register
-             */
-            cx = 0x28; // 40
-            memcpy(di, si, 0x28);
-            di += 0x28; si += 0x28;
-            di -= 0x28;
-            ah = ah << 1;
-        }
-        while ((ah & 0xF) != 0);
-        di += 0x7A; // 122
-//        pop(cx);
-    }
-    /*
-    mov dx, 3C4h
-    al = 2
-    out dx, al      ; EGA: sequencer address reg
-                ; map mask: data bits 0-3 enable writes to bit planes 0-3
-    inc dx
-    al = 0FFh
-    out dx, al      ; EGA port: sequencer data register
-    mov dx, 3CEh
-    al = 1
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; enable set/reset
-    inc dx
-    al = 0Fh
-    out dx, al      ; EGA port: graphics controller data register
-     */
     drawGamePanelText();
+    sub_5024B();
 }
 
 void sub_5024B() //   proc near       ; CODE XREF: gameloop?+31p
-                  //  ; sub_501C0+25p
+                  //  ; drawGamePanel+25p
 {
 /*
     cmp videoStatusUnk, 1
