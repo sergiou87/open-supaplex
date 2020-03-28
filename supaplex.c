@@ -335,7 +335,8 @@ char *gCurrentLevelName[kLevelNameLength]; // 0x87A8
 
 typedef struct
 {
-    uint8_t unknown1[1446];
+    uint8_t tiles[1440]; // of LevelTileType
+    uint8_t unknown0[6];
     char name[kLevelNameLength];
     uint8_t unknown2[62];
 } Level; // size 1536 = 0x600
@@ -400,8 +401,8 @@ uint8_t gTitle2DecodedBitmapData[kFullScreenFramebufferLength];
 uint8_t gScrollDestinationScreenBitmapData[kFullScreenFramebufferLength];
 
 static const int kTileSize = 16;
-static const int kLevelBitmapWidth = kTileSize * 58 + 8 + 8;
-static const int kLevelBitmapHeight = kTileSize * 22 + 8 + 8;
+static const int kLevelBitmapWidth = kTileSize * kLevelWidth + 8 + 8;
+static const int kLevelBitmapHeight = kTileSize * kLevelHeight + 8 + 8;
 uint8_t gLevelBitmapData[kLevelBitmapWidth * kLevelBitmapHeight];
 
 typedef struct
@@ -6566,14 +6567,14 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
         }
     }
 
-    for (int tileY = 0; tileY < 22; ++tileY)
+    for (int tileY = 0; tileY < kLevelHeight; ++tileY)
     {
-        for (int tileX = 0; tileX < 58; ++tileX)
+        for (int tileX = 0; tileX < kLevelWidth; ++tileX)
         {
 //            size_t startDstAddress = (kLevelEdgeSize + tileY * kTileSize) * kLevelBitmapWidth + tileX * kTileSize;
             size_t startDstX = kLevelEdgeSize + tileX * kTileSize;
             size_t startDstY = kLevelEdgeSize + tileY * kTileSize;
-            uint16_t tileValue = gCurrentLevelWord[tileY * 58 + tileX];
+            uint16_t tileValue = gCurrentLevel.tiles[tileY * kLevelWidth + tileX];
             size_t startSrcX = tileValue * kTileSize;
 
             for (int y = 0; y < kTileSize; ++y)
