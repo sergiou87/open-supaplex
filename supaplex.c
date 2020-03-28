@@ -182,14 +182,14 @@ uint16_t word_59B92 = 0;
 uint16_t word_510B7 = 0;
 uint16_t word_510C1 = 0;
 uint16_t word_510D9 = 0;
-uint16_t word_5184A = 0;
-uint16_t word_5184C = 0;
-uint16_t word_5184E = 0;
-uint16_t word_51850 = 0;
-uint16_t word_51852 = 0;
-uint16_t word_51854 = 0;
-uint16_t word_51856 = 0;
-uint16_t word_51858 = 0;
+uint16_t word_5184A = 0x2A66;
+uint16_t word_5184C = 0x2A67;
+uint16_t word_5184E = 0x2E36;
+uint16_t word_51850 = 0x2E37;
+uint16_t word_51852 = 0x2A68;
+uint16_t word_51854 = 0x2A69;
+uint16_t word_51856 = 0x2E38;
+uint16_t word_51858 = 0x2E39;
 uint16_t word_5195F = 0;
 uint16_t word_51961 = 0;
 uint16_t word_51967 = 0;
@@ -398,6 +398,11 @@ static const size_t kFullScreenFramebufferLength = kScreenWidth * kScreenHeight;
 uint8_t gTitle2DecodedBitmapData[kFullScreenFramebufferLength];
 
 uint8_t gScrollDestinationScreenBitmapData[kFullScreenFramebufferLength];
+
+static const int kTileSize = 16;
+static const int kLevelBitmapWidth = kTileSize * 58 + 8 + 8;
+static const int kLevelBitmapHeight = kTileSize * 22 + 8 + 8;
+uint8_t gLevelBitmapData[kLevelBitmapWidth * kLevelBitmapHeight];
 
 typedef struct
 {
@@ -1051,7 +1056,7 @@ SDL_Surface *gTextureSurface = NULL;
 
 static const uint16_t kFixedBitmapWidth = 640;
 static const uint16_t kFixedBitmapHeight = 16;
-uint8_t gFixedBitmapData[kFixedBitmapWidth * kFixedBitmapHeight / 2];
+uint8_t gFixedDecodedBitmapData[kFixedBitmapWidth * kFixedBitmapHeight];
 
 static const uint16_t kMovingBitmapWidth = 320;
 static const uint16_t kMovingBitmapHeight = 462;
@@ -1799,7 +1804,7 @@ loc_46E75:              //; CODE XREF: start+251j
             byte_5A33F = 0;
             drawPlayerList();
             sub_48A20();
-            sub_4D464();
+            sub_4D464(); // configures the viewport for the bottom panel, which is not very useful to this re-implementation?
             sub_48F6D(); // draws the tiles?
 //            sub_501C0(); // 01ED:0311
 //            sub_4A2E6();
@@ -1808,6 +1813,7 @@ loc_46E75:              //; CODE XREF: start+251j
 //            findMurphy();
 //            si = 0x6015;
             fadeToPalette(gPalettes[1]); // At this point the screen fades in and shows the game
+            SDL_Delay(5000); // TODO: remove
             if (isMusicEnabled == 0)
             {
                 sound3();
@@ -3527,10 +3533,35 @@ void loadMurphySprites() //  proc near       ; CODE XREF: start:isFastModep
     }
 
 //loc_47ABE:              //; CODE XREF: loadMurphySprites+D2j
-    size_t bytes = fread(gFixedBitmapData, 1, sizeof(gFixedBitmapData), file);
-    if (bytes < sizeof(gFixedBitmapData))
+    uint8_t bitmapData[kFixedBitmapWidth * kFixedBitmapHeight / 2];
+    size_t bytes = fread(bitmapData, 1, sizeof(bitmapData), file);
+    if (bytes < sizeof(bitmapData))
     {
         exitWithError("Error reading FIXED.DAT\n");
+    }
+
+    for (int y = 0; y < kFixedBitmapHeight; ++y)
+    {
+        for (int x = 0; x < kFixedBitmapWidth; ++x)
+        {
+            uint32_t destPixelAddress = y * kFixedBitmapWidth + x;
+
+            uint16_t sourcePixelAddress = y * kFixedBitmapWidth / 2 + x / 8;
+            uint8_t sourcePixelBitPosition = 7 - (x % 8);
+
+            uint8_t b = (bitmapData[sourcePixelAddress + 0] >> sourcePixelBitPosition) & 0x1;
+            uint8_t g = (bitmapData[sourcePixelAddress + 80] >> sourcePixelBitPosition) & 0x1;
+            uint8_t r = (bitmapData[sourcePixelAddress + 160] >> sourcePixelBitPosition) & 0x1;
+            uint8_t i = (bitmapData[sourcePixelAddress + 240] >> sourcePixelBitPosition) & 0x1;
+
+            uint8_t finalColor = ((b << 0)
+                                  | (g << 1)
+                                  | (r << 2)
+                                  | (i << 3));
+
+            // Store a copy of the decoded value in a buffer with 4bit per pixel
+            gFixedDecodedBitmapData[destPixelAddress] = finalColor;
+        }
     }
 
 //loc_47AD5:              //; CODE XREF: loadMurphySprites+E9j
@@ -6371,42 +6402,53 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
     di = 0x4D35;
     cx = 8;
 
-    for (int i = 0; i < 8; ++i)
-    {
-//loc_48F86:              ; CODE XREF: sub_48F6D+20j
-//        *si = *di; // movsb
-        si++; di++;
-        si += 0x79; // 121
-        di += 0x79; // 121
-    }
-    di -= 0x3CF; // 975 (this is 121 * 8 + 7, which is related to the loop above)
-//    pop ds
-    si = word_51856;
-//    push    ds
-//    mov ax, es
-//    mov ds, ax
-    dx = 7;
+    static const uint16_t kLevelEdgeSize = 8;
+    static const uint16_t kMovingBitmapTopLeftCornerX = 288;
+    static const uint16_t kMovingBitmapTopLeftCornerY = 388;
+    static const uint16_t kMovingBitmapTopRightCornerX = 296;
+    static const uint16_t kMovingBitmapTopRightCornerY = 388;
+    static const uint16_t kMovingBitmapBottomRightCornerX = 296;
+    static const uint16_t kMovingBitmapBottomRightCornerY = 396;
+    static const uint16_t kMovingBitmapBottomLeftCornerX = 288;
+    static const uint16_t kMovingBitmapBottomLeftCornerY = 396;
+    static const uint16_t kMovingBitmapTopEdgeX = 304;
+    static const uint16_t kMovingBitmapTopEdgeY = 396;
+    static const uint16_t kMovingBitmapRightEdgeX = 304;
+    static const uint16_t kMovingBitmapRightEdgeY = 388;
+    static const uint16_t kMovingBitmapBottomEdgeX = 304;
+    static const uint16_t kMovingBitmapBottomEdgeY = 396;
+    static const uint16_t kMovingBitmapLeftEdgeX = 312;
+    static const uint16_t kMovingBitmapLeftEdgeY = 388;
 
-    do
+    // Draws top-left corner
+    for (int y = 0; y < kLevelEdgeSize; ++y)
+    {
+        for (int x = 0; x < kLevelEdgeSize; ++x)
+        {
+//loc_48F86:              ; CODE XREF: sub_48F6D+20j
+            size_t srcAddress = (kMovingBitmapTopLeftCornerY + y) * kMovingBitmapWidth + kMovingBitmapTopLeftCornerX + x;
+            size_t dstAddress = (y * kLevelBitmapWidth) + x;
+            gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
+        }
+    }
+
+    // Draws top edge
+    for (int y = 0; y < kLevelEdgeSize; ++y)
     {
 //loc_48FA0:              ; CODE XREF: sub_48F6D+41j
-        cx = 0x74; // 116
-
-        for (int i = 0; i < 116; ++i)
+        for (int x = kLevelEdgeSize - 1; x < kLevelBitmapWidth - kLevelEdgeSize; ++x)
         {
 //loc_48FA3:              ; CODE XREF: sub_48F6D+38j
-//            *si = *di; // movsb
-            si++; di++;
-            si--;
+            size_t srcAddress = (kMovingBitmapTopEdgeY + y) * kMovingBitmapWidth + kMovingBitmapTopEdgeX + (x % kLevelEdgeSize);
+            size_t dstAddress = (y * kLevelBitmapWidth) + x;
+            gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
         }
-        si += 0x7A; // 122
-        di += 6;
-        dx--;
     }
-    while (dx != 0);
 
+/*
     cx = 0x74; // 116
 
+    // ?? no idea
     for (int i = 0; i < 116; ++i)
     {
 //loc_48FB3:              ; CODE XREF: sub_48F6D+48j
@@ -6421,82 +6463,70 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
 //    mov ax, es
 //    mov ds, ax
     cx = 8;
+*/
 
-    for (int i = 0; i < 8; ++i)
+    // Top-right corner
+    for (int y = 0; y < kLevelEdgeSize; ++y)
     {
-//loc_48FC8:              ; CODE XREF: sub_48F6D+62j
-//        *si = *di; // movsb
-        si++; di++;
-        si += 0x79; // 121
-        di += 0x79; // 121
-    }
-//    pop ds
-    si = word_51854;
-//    push    ds
-//    mov ax, es
-//    mov ds, ax
-    dx = 0x2C; // 44
-
-    do
-    {
-//loc_48FDE:              ; CODE XREF: sub_48F6D+82j
-        cx = 8;
-
-        for (int i = 0; i < 8; ++i)
+        for (int x = kLevelBitmapWidth - 1; x >= kLevelBitmapWidth - kLevelEdgeSize; --x)
         {
-//loc_48FE1:              ; CODE XREF: sub_48F6D+7Bj
-//            *si = *di; // movsb
-            si++; di++;
-            si += 0x79; // 121
-            di += 0x79; // 121
+//loc_48FC8:              ; CODE XREF: sub_48F6D+62j
+            int srcX = x - kLevelBitmapWidth + kLevelEdgeSize;
+            size_t srcAddress = (kMovingBitmapTopRightCornerY + y) * kMovingBitmapWidth + kMovingBitmapTopRightCornerX + srcX;
+            size_t dstAddress = (y * kLevelBitmapWidth) + x;
+            gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
         }
-        si -= 0x3D0; // 976
-        dx--;
     }
-    while (dx != 0);
-//    pop ds
-    si = word_51850;
-//    push    ds
-//    mov ax, es
-//    mov ds, ax
-    cx = 8;
 
-    for (int i = 0; i < 8; ++i)
+    // Right edge
+    for (int y = kLevelEdgeSize - 1; y < kLevelBitmapHeight - kLevelEdgeSize; ++y)
     {
-//loc_48FFE:              ; CODE XREF: sub_48F6D+98j
-//        *si = *di; // movsb
-        si++; di++;
-        si += 0x79; // 121
-        di += 0x79; // 121
+//loc_48FA0:              ; CODE XREF: sub_48F6D+41j
+        for (int x = kLevelBitmapWidth - 1; x >= kLevelBitmapWidth - kLevelEdgeSize; --x)
+        {
+//loc_48FA3:              ; CODE XREF: sub_48F6D+38j
+            int srcX = x - kLevelBitmapWidth + kLevelEdgeSize;
+            int srcY = y % kLevelEdgeSize;
+            size_t srcAddress = (kMovingBitmapRightEdgeY + srcY) * kMovingBitmapWidth + kMovingBitmapRightEdgeX + srcX;
+            size_t dstAddress = (y * kLevelBitmapWidth) + x;
+            gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
+        }
     }
-    si -= 0x3CE; // 974
-//    pop ds
-    si = word_51858;
-    di -= 0x444; // 1092
-//    push    ds
-//    mov ax, es
-//    mov ds, ax
-    dx = 8;
 
-    do
+    // Bottom-right corner
+    for (int y = kLevelBitmapHeight - 1; y >= kLevelBitmapHeight - kLevelEdgeSize; --y)
+    {
+        for (int x = kLevelBitmapWidth - 1; x >= kLevelBitmapWidth - kLevelEdgeSize; --x)
+        {
+//loc_48FFE:              ; CODE XREF: sub_48F6D+98j
+            int srcX = x - kLevelBitmapWidth + kLevelEdgeSize;
+            int srcY = y - kLevelBitmapHeight + kLevelEdgeSize;
+            size_t srcAddress = (kMovingBitmapBottomRightCornerY + srcY) * kMovingBitmapWidth + kMovingBitmapBottomRightCornerX + srcX;
+            size_t dstAddress = (y * kLevelBitmapWidth) + x;
+            gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
+        }
+    }
+
+    // Bottom edge
+    for (int y = kLevelBitmapHeight - 1; y >= kLevelBitmapHeight - kLevelEdgeSize; --y)
     {
 //loc_4901C:              ; CODE XREF: sub_48F6D+BDj
-        cx = 0x74; // 116
-
-        for (int i = 0; i < 116; ++i)
+        for (int x = kLevelEdgeSize - 1; x < kLevelBitmapWidth - kLevelEdgeSize; ++x)
         {
 //loc_4901F:              ; CODE XREF: sub_48F6D+B4j
-//            *si = *di; // movsb
-            si++; di++;
-            si--;
+            int srcX = x % kLevelEdgeSize;
+            int srcY = y - kLevelBitmapHeight + kLevelEdgeSize;
+            size_t srcAddress = (kMovingBitmapBottomEdgeY + srcY) * kMovingBitmapWidth + kMovingBitmapBottomEdgeX + srcX;
+            size_t dstAddress = (y * kLevelBitmapWidth) + x;
+            assert(dstAddress < kLevelBitmapWidth * kLevelBitmapHeight);
+            gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
         }
-        si += 0x7A; // 122
-        di += 6;
-        dx--;
     }
-    while (dx != 0);
+
+    /*
     cx = 0x74; // 116
 
+    // ?? no idea
     for (int i = 0; i < 116; ++i)
     {
 //loc_4902F:              ; CODE XREF: sub_48F6D+C4j
@@ -6504,48 +6534,86 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
         si++; di++;
         si--;
     }
-    di = 0x356; // 854
-//    pop ds
-    si = word_51852;
-    di = 0x5105;
-//    push    ds
-//    mov ax, es
-//    mov ds, ax
-    dx = 0x2C; // 44
+     */
 
-    do
+    // Draws left edge
+    for (int y = kLevelEdgeSize - 1; y < kLevelBitmapHeight - kLevelEdgeSize; ++y)
     {
 //loc_49047:              ; CODE XREF: sub_48F6D+EBj
-        cx = 8;
-
-        for (int i = 0; i < 8; ++i)
+        for (int x = 0; x < kLevelEdgeSize; ++x)
         {
 //loc_4904A:              ; CODE XREF: sub_48F6D+E4j
-//            *si = *di; // movsb
-            si++; di++;
-            si += 0x79; // 121
-            di += 0x79; // 121
-        }
-        si -= 0x3D0;
-        dx--;
-    }
-    while (dx != 0);
-//    pop ds
-    si = word_5184E;
-//    push    ds
-//    mov ax, es
-//    mov ds, ax
-    cx = 8;
+            int srcY = y % kLevelEdgeSize;
 
-    for (int i = 0; i < 8; ++i)
-    {
-//loc_49067:              ; CODE XREF: sub_48F6D+101j
-//        *si = *di; // movsb
-        si++; di++;
-        si += 0x79; // 121
-        di += 0x79; // 121
+            size_t srcAddress = (kMovingBitmapLeftEdgeY + srcY) * kMovingBitmapWidth + kMovingBitmapLeftEdgeX + x;
+            size_t dstAddress = (y * kLevelBitmapWidth) + x;
+            assert(dstAddress < kLevelBitmapWidth * kLevelBitmapHeight);
+            gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
+        }
     }
-//    pop ds
+
+    // Bottom-left corner
+    for (int y = kLevelBitmapHeight - 1; y >= kLevelBitmapHeight - kLevelEdgeSize; --y)
+    {
+        for (int x = 0; x < kLevelEdgeSize; ++x)
+        {
+//loc_49067:              ; CODE XREF: sub_48F6D+101j
+            int srcY = y - kLevelBitmapHeight + kLevelEdgeSize;
+            size_t srcAddress = (kMovingBitmapBottomLeftCornerY + srcY) * kMovingBitmapWidth + kMovingBitmapBottomLeftCornerX + x;
+            size_t dstAddress = (y * kLevelBitmapWidth) + x;
+            assert(dstAddress < kLevelBitmapWidth * kLevelBitmapHeight);
+            gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
+        }
+    }
+
+    for (int tileY = 0; tileY < 22; ++tileY)
+    {
+        for (int tileX = 0; tileX < 58; ++tileX)
+        {
+//            size_t startDstAddress = (kLevelEdgeSize + tileY * kTileSize) * kLevelBitmapWidth + tileX * kTileSize;
+            size_t startDstX = kLevelEdgeSize + tileX * kTileSize;
+            size_t startDstY = kLevelEdgeSize + tileY * kTileSize;
+            uint16_t tileValue = gCurrentLevelWord[tileY * 58 + tileX];
+            size_t startSrcX = tileValue * kTileSize;
+
+            for (int y = 0; y < kTileSize; ++y)
+            {
+                for (int x = 0; x < kTileSize; ++x)
+                {
+                    size_t dstAddress = (startDstY + y) * kLevelBitmapWidth + startDstX + x;
+                    size_t srcAddress = (y * kFixedBitmapWidth) + startSrcX + x;
+                    gLevelBitmapData[dstAddress] = gFixedDecodedBitmapData[srcAddress];
+                }
+            }
+        }
+    }
+/*
+
+    // TODO: refactor, this draws the viewport on the screen
+    for (int y = 0; y < kFixedBitmapHeight; ++y)
+    {
+        for (int x = 0; x < kScreenWidth; ++x)
+        {
+            gScreenPixels[y * kScreenWidth + x] = gFixedDecodedBitmapData[y * kFixedBitmapWidth + x];
+        }
+    }
+    videoloop(); // TODO: Remove
+    return;
+*/
+
+    // TODO: refactor, this draws the viewport on the screen
+    int scrollX = 0;//kLevelBitmapWidth - kScreenWidth;
+    int scrollY = 0;//kLevelBitmapHeight - kScreenHeight;
+    for (int y = 0; y < kScreenHeight; ++y)
+    {
+        for (int x = 0; x < kScreenWidth; ++x)
+        {
+            gScreenPixels[y * kScreenWidth + x] = gLevelBitmapData[(scrollY + y) * kLevelBitmapWidth + x + scrollX];
+        }
+    }
+    videoloop(); // TODO: Remove
+    return;
+
     /*
     mov dx, 3CEh
     al = 5
@@ -6607,7 +6675,7 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
             ah = 0;
             ax = ax << 1;
             si = ax;
-//            si += fixedDataBuffer;
+//            si += fixedDataBuffer; // 0x3815
 //          push(cx);
             cx = 0x10; // 16
 
@@ -6629,10 +6697,10 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
     out dx, al      ; EGA port: sequencer data register
      */
     //                al = si[0]
-    //              es:[di] = al;
+    //              es:[di] = al; // left half of a tile
                     si++;
     //                al = si[0];
-    //              es:[di] = al;
+    //              es:[di+1] = al; // right half of a tile
                     ah = ah << 1;
                     si += 0x4F; // 79
                 }
