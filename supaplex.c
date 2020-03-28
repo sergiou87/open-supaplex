@@ -400,9 +400,10 @@ uint8_t gTitle2DecodedBitmapData[kFullScreenFramebufferLength];
 
 uint8_t gScrollDestinationScreenBitmapData[kFullScreenFramebufferLength];
 
+static const uint16_t kLevelEdgeSize = 8;
 static const int kTileSize = 16;
-static const int kLevelBitmapWidth = kTileSize * kLevelWidth + 8 + 8;
-static const int kLevelBitmapHeight = kTileSize * kLevelHeight + 8 + 8;
+static const int kLevelBitmapWidth = kTileSize * (kLevelWidth - 2) + kLevelEdgeSize + kLevelEdgeSize;
+static const int kLevelBitmapHeight = kTileSize * (kLevelHeight - 2) + kLevelEdgeSize + kLevelEdgeSize;
 uint8_t gLevelBitmapData[kLevelBitmapWidth * kLevelBitmapHeight];
 
 typedef struct
@@ -6403,7 +6404,6 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
     di = 0x4D35;
     cx = 8;
 
-    static const uint16_t kLevelEdgeSize = 8;
     static const uint16_t kMovingBitmapTopLeftCornerX = 288;
     static const uint16_t kMovingBitmapTopLeftCornerY = 388;
     static const uint16_t kMovingBitmapTopRightCornerX = 296;
@@ -6567,13 +6567,15 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
         }
     }
 
-    for (int tileY = 0; tileY < kLevelHeight; ++tileY)
+    for (int tileY = 1; tileY < kLevelHeight - 1; ++tileY)
     {
-        for (int tileX = 0; tileX < kLevelWidth; ++tileX)
+        for (int tileX = 1; tileX < kLevelWidth - 1; ++tileX)
         {
-//            size_t startDstAddress = (kLevelEdgeSize + tileY * kTileSize) * kLevelBitmapWidth + tileX * kTileSize;
-            size_t startDstX = kLevelEdgeSize + tileX * kTileSize;
-            size_t startDstY = kLevelEdgeSize + tileY * kTileSize;
+            int bitmapTileX = tileX - 1;
+            int bitmapTileY = tileY - 1;
+
+            size_t startDstX = kLevelEdgeSize + bitmapTileX * kTileSize;
+            size_t startDstY = kLevelEdgeSize + bitmapTileY * kTileSize;
             uint16_t tileValue = gCurrentLevel.tiles[tileY * kLevelWidth + tileX];
             size_t startSrcX = tileValue * kTileSize;
 
@@ -6588,23 +6590,10 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
             }
         }
     }
-/*
 
     // TODO: refactor, this draws the viewport on the screen
-    for (int y = 0; y < kFixedBitmapHeight; ++y)
-    {
-        for (int x = 0; x < kScreenWidth; ++x)
-        {
-            gScreenPixels[y * kScreenWidth + x] = gFixedDecodedBitmapData[y * kFixedBitmapWidth + x];
-        }
-    }
-    videoloop(); // TODO: Remove
-    return;
-*/
-
-    // TODO: refactor, this draws the viewport on the screen
-    int scrollX = 0;//kLevelBitmapWidth - kScreenWidth;
-    int scrollY = 0;//kLevelBitmapHeight - kScreenHeight;
+    int scrollX = kLevelBitmapWidth - kScreenWidth;
+    int scrollY = kLevelBitmapHeight - kScreenHeight;
     for (int y = 0; y < kScreenHeight; ++y)
     {
         for (int x = 0; x < kScreenWidth; ++x)
@@ -6614,39 +6603,6 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
     }
     videoloop(); // TODO: Remove
     return;
-
-    /*
-    mov dx, 3CEh
-    al = 5
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; mode register.Data bits:
-                ; 0-1: Write mode 0-2
-                ; 2: test condition
-                ; 3: read mode: 1=color compare, 0=direct
-                ; 4: 1=use odd/even RAM addressing
-                ; 5: 1=use CGA mid-res map (2-bits/pixel)
-    // inc dx
-    // al = 0
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = 0;
-    mov dx, 3CEh
-    al = 1
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; enable set/reset
-    // inc dx
-    // al = 0
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = 0;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    inc dx
-    al = 0FFh
-    out dx, al      ; EGA port: graphics controller data register
-     */
 
 //    bx = offset leveldata;
     di = 0x4D34; // 19764
