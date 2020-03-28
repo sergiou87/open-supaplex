@@ -1152,7 +1152,7 @@ void sub_4BF4A(uint8_t number);
 void readLevels(void);
 void sub_48A20(void);
 void sub_4D464(void);
-void sub_48F6D(void);
+void drawFixedLevel(void);
 void sub_501C0(void);
 void sub_4A2E6(void);
 void sub_4A3BB(void);
@@ -1807,8 +1807,8 @@ loc_46E75:              //; CODE XREF: start+251j
             drawPlayerList();
             sub_48A20();
             sub_4D464(); // configures the viewport for the bottom panel, which is not very useful to this re-implementation?
-            sub_48F6D(); // draws the tiles?
-//            sub_501C0(); // 01ED:0311
+            drawFixedLevel(); // draws the tiles?
+            sub_501C0(); // 01ED:0311
 //            sub_4A2E6();
 //            sub_4A3BB();
 //            enableFloppy();
@@ -5818,7 +5818,7 @@ loc_48B4A:              ; CODE XREF: runLevel+89j
     jnz short loc_48B6B
     mov byte_59B7A, 0Ah
     call    levelScanThing
-    call    sub_48F6D
+    call    drawFixedLevel
     call    sub_4A2E6
 
 loc_48B6B:              ; CODE XREF: runLevel+82j runLevel+94j ...
@@ -6380,29 +6380,10 @@ void sub_48E59() //   proc near       ; CODE XREF: waitForKeyMouseOrJoystick:loc
     return;
 }
 
-void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
+// Draws the fixed stuff from the level (edges of the screen + tiles from FIXED.DAT)
+void drawFixedLevel() // sub_48F6D   proc near       ; CODE XREF: start+335p runLevel+AAp ...
 {
     // 01ED:230A
-    /*
-    mov dx, 3CEh
-    al = 5
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; mode register.Data bits:
-                ; 0-1: Write mode 0-2
-                ; 2: test condition
-                ; 3: read mode: 1=color compare, 0=direct
-                ; 4: 1=use odd/even RAM addressing
-                ; 5: 1=use CGA mid-res map (2-bits/pixel)
-    inc dx
-    al = 1
-    out dx, al      ; EGA port: graphics controller data register
-     */
-//    push    ds
-    si = word_5184A;
-    ax = es;
-    ds = ax;
-    di = 0x4D35;
-    cx = 8;
 
     static const uint16_t kMovingBitmapTopLeftCornerX = 288;
     static const uint16_t kMovingBitmapTopLeftCornerY = 388;
@@ -6426,7 +6407,7 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
     {
         for (int x = 0; x < kLevelEdgeSize; ++x)
         {
-//loc_48F86:              ; CODE XREF: sub_48F6D+20j
+//loc_48F86:              ; CODE XREF: drawFixedLevel+20j
             size_t srcAddress = (kMovingBitmapTopLeftCornerY + y) * kMovingBitmapWidth + kMovingBitmapTopLeftCornerX + x;
             size_t dstAddress = (y * kLevelBitmapWidth) + x;
             gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
@@ -6436,42 +6417,22 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
     // Draws top edge
     for (int y = 0; y < kLevelEdgeSize; ++y)
     {
-//loc_48FA0:              ; CODE XREF: sub_48F6D+41j
+//loc_48FA0:              ; CODE XREF: drawFixedLevel+41j
         for (int x = kLevelEdgeSize - 1; x < kLevelBitmapWidth - kLevelEdgeSize; ++x)
         {
-//loc_48FA3:              ; CODE XREF: sub_48F6D+38j
+//loc_48FA3:              ; CODE XREF: drawFixedLevel+38j
             size_t srcAddress = (kMovingBitmapTopEdgeY + y) * kMovingBitmapWidth + kMovingBitmapTopEdgeX + (x % kLevelEdgeSize);
             size_t dstAddress = (y * kLevelBitmapWidth) + x;
             gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
         }
     }
 
-/*
-    cx = 0x74; // 116
-
-    // ?? no idea
-    for (int i = 0; i < 116; ++i)
-    {
-//loc_48FB3:              ; CODE XREF: sub_48F6D+48j
-//        *si = *di; // movsb
-        si++; di++;
-        si--;
-    }
-    di -= 0x356; // 854
-//    pop ds
-    si = word_5184C;
-//    push    ds
-//    mov ax, es
-//    mov ds, ax
-    cx = 8;
-*/
-
     // Top-right corner
     for (int y = 0; y < kLevelEdgeSize; ++y)
     {
         for (int x = kLevelBitmapWidth - 1; x >= kLevelBitmapWidth - kLevelEdgeSize; --x)
         {
-//loc_48FC8:              ; CODE XREF: sub_48F6D+62j
+//loc_48FC8:              ; CODE XREF: drawFixedLevel+62j
             int srcX = x - kLevelBitmapWidth + kLevelEdgeSize;
             size_t srcAddress = (kMovingBitmapTopRightCornerY + y) * kMovingBitmapWidth + kMovingBitmapTopRightCornerX + srcX;
             size_t dstAddress = (y * kLevelBitmapWidth) + x;
@@ -6482,10 +6443,10 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
     // Right edge
     for (int y = kLevelEdgeSize - 1; y < kLevelBitmapHeight - kLevelEdgeSize; ++y)
     {
-//loc_48FA0:              ; CODE XREF: sub_48F6D+41j
+//loc_48FA0:              ; CODE XREF: drawFixedLevel+41j
         for (int x = kLevelBitmapWidth - 1; x >= kLevelBitmapWidth - kLevelEdgeSize; --x)
         {
-//loc_48FA3:              ; CODE XREF: sub_48F6D+38j
+//loc_48FA3:              ; CODE XREF: drawFixedLevel+38j
             int srcX = x - kLevelBitmapWidth + kLevelEdgeSize;
             int srcY = y % kLevelEdgeSize;
             size_t srcAddress = (kMovingBitmapRightEdgeY + srcY) * kMovingBitmapWidth + kMovingBitmapRightEdgeX + srcX;
@@ -6499,7 +6460,7 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
     {
         for (int x = kLevelBitmapWidth - 1; x >= kLevelBitmapWidth - kLevelEdgeSize; --x)
         {
-//loc_48FFE:              ; CODE XREF: sub_48F6D+98j
+//loc_48FFE:              ; CODE XREF: drawFixedLevel+98j
             int srcX = x - kLevelBitmapWidth + kLevelEdgeSize;
             int srcY = y - kLevelBitmapHeight + kLevelEdgeSize;
             size_t srcAddress = (kMovingBitmapBottomRightCornerY + srcY) * kMovingBitmapWidth + kMovingBitmapBottomRightCornerX + srcX;
@@ -6511,10 +6472,10 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
     // Bottom edge
     for (int y = kLevelBitmapHeight - 1; y >= kLevelBitmapHeight - kLevelEdgeSize; --y)
     {
-//loc_4901C:              ; CODE XREF: sub_48F6D+BDj
+//loc_4901C:              ; CODE XREF: drawFixedLevel+BDj
         for (int x = kLevelEdgeSize - 1; x < kLevelBitmapWidth - kLevelEdgeSize; ++x)
         {
-//loc_4901F:              ; CODE XREF: sub_48F6D+B4j
+//loc_4901F:              ; CODE XREF: drawFixedLevel+B4j
             int srcX = x % kLevelEdgeSize;
             int srcY = y - kLevelBitmapHeight + kLevelEdgeSize;
             size_t srcAddress = (kMovingBitmapBottomEdgeY + srcY) * kMovingBitmapWidth + kMovingBitmapBottomEdgeX + srcX;
@@ -6524,26 +6485,13 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
         }
     }
 
-    /*
-    cx = 0x74; // 116
-
-    // ?? no idea
-    for (int i = 0; i < 116; ++i)
-    {
-//loc_4902F:              ; CODE XREF: sub_48F6D+C4j
-//        *si = *di; // movsb
-        si++; di++;
-        si--;
-    }
-     */
-
     // Draws left edge
     for (int y = kLevelEdgeSize - 1; y < kLevelBitmapHeight - kLevelEdgeSize; ++y)
     {
-//loc_49047:              ; CODE XREF: sub_48F6D+EBj
+//loc_49047:              ; CODE XREF: drawFixedLevel+EBj
         for (int x = 0; x < kLevelEdgeSize; ++x)
         {
-//loc_4904A:              ; CODE XREF: sub_48F6D+E4j
+//loc_4904A:              ; CODE XREF: drawFixedLevel+E4j
             int srcY = y % kLevelEdgeSize;
 
             size_t srcAddress = (kMovingBitmapLeftEdgeY + srcY) * kMovingBitmapWidth + kMovingBitmapLeftEdgeX + x;
@@ -6558,7 +6506,7 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
     {
         for (int x = 0; x < kLevelEdgeSize; ++x)
         {
-//loc_49067:              ; CODE XREF: sub_48F6D+101j
+//loc_49067:              ; CODE XREF: drawFixedLevel+101j
             int srcY = y - kLevelBitmapHeight + kLevelEdgeSize;
             size_t srcAddress = (kMovingBitmapBottomLeftCornerY + srcY) * kMovingBitmapWidth + kMovingBitmapBottomLeftCornerX + x;
             size_t dstAddress = (y * kLevelBitmapWidth) + x;
@@ -6591,6 +6539,18 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
         }
     }
 
+//loc_490FD:              ; CODE XREF: drawFixedLevel+18Cj
+    // No idea what's this yet...
+    bx = word_5195F;
+    cl = 3;
+    bx = bx >> cl;
+    ax = word_51961;
+    cx = 0x7A; // 122
+    ax = ax * cx;
+    bx += ax;
+    bx += 0x4D34; // 19764
+    word_51967 = bx;
+
     // TODO: refactor, this draws the viewport on the screen
     int scrollX = kLevelBitmapWidth - kScreenWidth;
     int scrollY = kLevelBitmapHeight - kScreenHeight;
@@ -6601,139 +6561,7 @@ void sub_48F6D() //   proc near       ; CODE XREF: start+335p runLevel+AAp ...
             gScreenPixels[y * kScreenWidth + x] = gLevelBitmapData[(scrollY + y) * kLevelBitmapWidth + x + scrollX];
         }
     }
-    videoloop(); // TODO: Remove
-    return;
-
-//    bx = offset leveldata;
-    di = 0x4D34; // 19764
-    cx = 0x16; // 22
-    bx += 0x76; // 118
-    di += 0x3CE; // 974
-
-    do
-    {
-//loc_4909F:              ; CODE XREF: sub_48F6D+18Ej
-//      push(cx);
-        cx = 0x3A; // 58
-        bx += 4;
-        di += 4;
-
-        do
-        {
-//loc_490A9:              ; CODE XREF: sub_48F6D+184j
-//            al = bx[0];
-            if (al > 0x28) // 40
-            {
-                al = 0;
-            }
-
-//loc_490B1:              ; CODE XREF: sub_48F6D+140j
-            bx += 2;
-            ah = 0;
-            ax = ax << 1;
-            si = ax;
-//            si += fixedDataBuffer; // 0x3815
-//          push(cx);
-            cx = 0x10; // 16
-
-            for (int i = 0; i < 16; ++i)
-            {
-//loc_490C2:              ; CODE XREF: sub_48F6D+17Aj
-                ah = 1;
-
-                do
-                {
-//loc_490C4:              ; CODE XREF: sub_48F6D+175j
-    /*
-    mov dx, 3C4h
-    al = 2
-    out dx, al      ; EGA: sequencer address reg
-                ; map mask: data bits 0-3 enable writes to bit planes 0-3
-    inc dx
-    al = ah
-    out dx, al      ; EGA port: sequencer data register
-     */
-    //                al = si[0]
-    //              es:[di] = al; // left half of a tile
-                    si++;
-    //                al = si[0];
-    //              es:[di+1] = al; // right half of a tile
-                    ah = ah << 1;
-                    si += 0x4F; // 79
-                }
-                while ((ah & 0xF) != 0);
-
-                di += 0x7A; // 122
-            }
-//          pop(cx);
-            di -= 0x79E; // 1950
-            cx--;
-        }
-        while (cx != 0);
-
-//loc_490F3:              ; CODE XREF: sub_48F6D+182j
-//      pop(cx);
-        di += 0x728; // 1832
-        cx--;
-    }
-    while (cx != 0);
-
-//loc_490FD:              ; CODE XREF: sub_48F6D+18Cj
-    /*
-    mov dx, 3C4h
-    al = 2
-    out dx, al      ; EGA: sequencer address reg
-                ; map mask: data bits 0-3 enable writes to bit planes 0-3
-    inc dx
-    al = 0Fh
-    out dx, al      ; EGA port: sequencer data register
-    mov dx, 3CEh
-    al = 1
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; enable set/reset
-    inc dx
-    al = 0Fh
-    out dx, al      ; EGA port: graphics controller data register
-     */
-    bx = word_5195F;
-    cl = 3;
-    bx = bx >> cl;
-    ax = word_51961;
-    cx = 0x7A; // 122
-    ax = ax * cx;
-    bx += ax;
-    bx += 0x4D34; // 19764
-    word_51967 = bx;
-    /*
-    mov dx, 3D4h
-    al = 0Dh
-    out dx, al      ; Video: CRT cntrlr addr
-                ; regen start address (low)
-    inc dx
-    al = bl
-    out dx, al      ; Video: CRT controller internal registers
-    mov dx, 3D4h
-    al = 0Ch
-    out dx, al      ; Video: CRT cntrlr addr
-                ; regen start address (high)
-    inc dx
-    al = bh
-    out dx, al      ; Video: CRT controller internal registers
-    mov dx, 3CEh
-    al = 5
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; mode register.Data bits:
-                ; 0-1: Write mode 0-2
-                ; 2: test condition
-                ; 3: read mode: 1=color compare, 0=direct
-                ; 4: 1=use odd/even RAM addressing
-                ; 5: 1=use CGA mid-res map (2-bits/pixel)
-    inc dx
-    al = 1
-    out dx, al      ; EGA port: graphics controller data register
-     */
 }
-
 /*
 sub_4914A   proc near       ; CODE XREF: sub_4955B+7p
         cmp byte_519C8, 0
@@ -8133,7 +7961,7 @@ loc_49B84:              ; CODE XREF: sub_4955B+619j
         call    sub_4A1AE
         mov si, 60D5h
         call    setPalette
-        call    sub_48F6D
+        call    drawFixedLevel
         call    sub_501C0
         call    sub_4A2E6
         mov si, murphyloc
@@ -9086,7 +8914,7 @@ loc_4A259:              ; CODE XREF: sub_4A23C+11j
         inc si
         loop    loc_4A242
         call    sub_49D53
-        call    sub_48F6D
+        call    drawFixedLevel
         call    sub_4A2E6
         mov byte_510B3, 0
         mov byte_5A2F9, 1
@@ -9372,7 +9200,7 @@ sub_4A463   proc near       ; CODE XREF: sub_4945D:loc_4953Bp
                     ; sub_4A3E9+43p
         call    readLevels
         call    sub_4D464
-        call    sub_48F6D
+        call    drawFixedLevel
         call    sub_501C0
         neg byte_5A33F
         call    sub_4A2E6
