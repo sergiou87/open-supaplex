@@ -179,9 +179,9 @@ uint16_t word_510EA = 0;
 uint16_t word_5157E = 0;
 uint16_t word_59B90 = 0;
 uint16_t word_59B92 = 0;
-uint16_t *word_510B7 = 0;
-uint16_t *word_510C1 = 0;
-uint16_t *word_510D9 = 0;
+uint16_t word_510B7 = 0;
+uint16_t word_510C1 = 0;
+uint16_t word_510D9 = 0;
 uint16_t word_5184A = 0;
 uint16_t word_5184C = 0;
 uint16_t word_5184E = 0;
@@ -307,11 +307,11 @@ static const int kNumberOfLevels = 111;
 static const int kNumberOfLevelsWithPadding = kNumberOfLevels + 5;
 static const int kFirstLevelIndex = 2;
 static const int kLastLevelIndex = kFirstLevelIndex + kNumberOfLevels;
-static const int kLevelEntryLength = 28; // In the list of levels, every level is 28 bytes long and looks like "001                        \n"
-uint8_t gPaddedLevelListData[kNumberOfLevelsWithPadding * kLevelEntryLength];
+static const int kLevelNameLength = 28; // In the list of levels, every level is 28 bytes long and looks like "001                        \n"
+uint8_t gPaddedLevelListData[kNumberOfLevelsWithPadding * kLevelNameLength];
 
-static const int kLevelListDataLength = kNumberOfLevels * kLevelEntryLength;
-uint8_t *gLevelListData = &gPaddedLevelListData[kFirstLevelIndex * kLevelEntryLength];
+static const int kLevelListDataLength = kNumberOfLevels * kLevelNameLength;
+uint8_t *gLevelListData = &gPaddedLevelListData[kFirstLevelIndex * kLevelNameLength];
 
 static const int kNotCompletedLevelEntryColor = 2;
 static const int kCompletedLevelEntryColor = 4;
@@ -331,10 +331,21 @@ uint8_t gCurrentPlayerPaddedLevelData[kNumberOfLevelsWithPadding]; // 0x949C
 static const int kCurrentPlayerLevelDataLength = kNumberOfLevels;
 uint8_t *gCurrentPlayerLevelData = &gCurrentPlayerPaddedLevelData[kFirstLevelIndex]; // 0x949E
 
+char *gCurrentLevelName[kLevelNameLength]; // 0x87A8
+
 typedef struct
 {
-
+    uint8_t unknown1[1446];
+    char name[kLevelNameLength];
+    uint8_t unknown2[62];
 } Level; // size 1536 = 0x600
+
+Level gCurrentLevel; // 0x988B
+
+// Stores the same info as gCurrentLevel but with each byte separated by 0x00, it's done in readLevels for some unknown reason
+uint16_t gCurrentLevelWord[levelDataLength]; // 0x1834
+// And this is initialized to 0 in readLevels, and in memory it's supposed to exist right after gCurrentLevelWord
+Level gCurrentLevelAfterWord; // 0x2434
 
 // 30 elements...
 int word_599DC[] = { 0x00CE, 0x016A, 0x0146, 0x00CD, 0x024D, 0x012C, 0x01A7, 0x01FB, 0x01D2,
@@ -1789,12 +1800,12 @@ loc_46E75:              //; CODE XREF: start+251j
             drawPlayerList();
             sub_48A20();
             sub_4D464();
-            sub_48F6D();
-            sub_501C0(); // 01ED:0311
-            sub_4A2E6();
-            sub_4A3BB();
-            enableFloppy();
-            findMurphy();
+            sub_48F6D(); // draws the tiles?
+//            sub_501C0(); // 01ED:0311
+//            sub_4A2E6();
+//            sub_4A3BB();
+//            enableFloppy();
+//            findMurphy();
 //            si = 0x6015;
             fadeToPalette(gPalettes[1]); // At this point the screen fades in and shows the game
             if (isMusicEnabled == 0)
@@ -3732,17 +3743,17 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
     // 01ED:1038
 
 //    memset(gLevelListData, 0, sizeof(gLevelListData));
-    char paddingEntryText[kLevelEntryLength] = "                           ";
+    char paddingEntryText[kLevelNameLength] = "                           ";
     for (int i = 0; i < kNumberOfLevelsWithPadding; ++i)
     {
-        memcpy(&gPaddedLevelListData[i * kLevelEntryLength], paddingEntryText, sizeof(paddingEntryText));
+        memcpy(&gPaddedLevelListData[i * kLevelNameLength], paddingEntryText, sizeof(paddingEntryText));
     }
-    memcpy(&gPaddedLevelListData[kLastLevelIndex * kLevelEntryLength],
+    memcpy(&gPaddedLevelListData[kLastLevelIndex * kLevelNameLength],
            "- REPLAY SKIPPED LEVELS!! -",
-           kLevelEntryLength);
-    memcpy(&gPaddedLevelListData[(kLastLevelIndex + 1) * kLevelEntryLength],
+           kLevelNameLength);
+    memcpy(&gPaddedLevelListData[(kLastLevelIndex + 1) * kLevelNameLength],
            "---- UNBELIEVEABLE!!!! ----",
-           kLevelEntryLength);
+           kLevelNameLength);
 
     FILE *file = fopen("LEVEL.LST", "r");
     if (file == NULL)
@@ -3772,8 +3783,8 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
             char number[5];
             sprintf(number, "%03d ", i + 1);
 
-            memcpy(gLevelListData + i * kLevelEntryLength, number, sizeof(number) - 1);
-            gLevelListData[i * kLevelEntryLength + kLevelEntryLength - 1] = '\n';
+            memcpy(gLevelListData + i * kLevelNameLength, number, sizeof(number) - 1);
+            gLevelListData[i * kLevelNameLength + kLevelNameLength - 1] = '\n';
     //loc_47CE4:            //  ; CODE XREF: readLevelsLst+3Aj
         }
 
@@ -3784,7 +3795,7 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
             int seekOffset = 0x5A6 + i * levelDataLength;
 
             fseek(file, seekOffset, SEEK_SET); // position 1446
-            size_t bytes = fread(gLevelListData + i * kLevelEntryLength + 4, 1, 23, file);
+            size_t bytes = fread(gLevelListData + i * kLevelNameLength + 4, 1, 23, file);
 
             if (bytes < 23)
             {
@@ -5676,7 +5687,7 @@ void sub_48A20() //   proc near       ; CODE XREF: start+32Fp
     byte_5195C = 0;
     byte_5197C = 0;
     word_510CD = 0;
-    *word_510B7 = 0xFFFF;
+    word_510B7 = 0xFFFF;
     byte_510B9 = 0xFF; // 255
     byte_510AE = 1;
     byte_510AF = 0;
@@ -5690,12 +5701,12 @@ void sub_48A20() //   proc near       ; CODE XREF: start+32Fp
     byte_5196A = 0x7F; // 127
     byte_5196B = 0;
     word_5195D = 0;
-//    word_510C1[0] = 1;
-//    word_510C1[1] = 0;
-    *word_510C1 = 0x0100;
+//    mov byte ptr word_510C1, 1
+//    mov byte ptr word_510C1+1, 0
+    word_510C1 = 0x0001;
     byte_510D7 = 0;
     gNumberOfDotsToShiftDataLeft = 0;
-    *word_510D9 = 0;
+    word_510D9 &= 0xFF00; // mov byte ptr word_510D9, 0
     byte_510DB = 0;
     word_510DC = 0;
 }
@@ -11913,13 +11924,15 @@ void drawLevelList() // sub_4C141  proc near       ; CODE XREF: start+41Ap sub_
     byte_59822 = gCurrentPlayerLevelData[gCurrentSelectedLevelIndex - 1];
     byte_59823 = gCurrentPlayerLevelData[gCurrentSelectedLevelIndex];
 
-    char *previousLevelName = (char *)&gLevelListData[(gCurrentSelectedLevelIndex - 2) * kLevelEntryLength];
+    char *previousLevelName = (char *)&gLevelListData[(gCurrentSelectedLevelIndex - 2) * kLevelNameLength];
     drawTextWithChars6FontWithOpaqueBackground(144, 155, byte_59821, previousLevelName);
 
-    char *currentLevelName = (char *)&gLevelListData[(gCurrentSelectedLevelIndex - 1) * kLevelEntryLength];
+    char *currentLevelName = (char *)&gLevelListData[(gCurrentSelectedLevelIndex - 1) * kLevelNameLength];
     drawTextWithChars6FontWithOpaqueBackground(144, 164, byte_59822, currentLevelName);
 
-    char *nextLevelName = (char *)&gLevelListData[gCurrentSelectedLevelIndex * kLevelEntryLength];
+    memcpy(gCurrentLevelName, currentLevelName, kLevelNameLength);
+
+    char *nextLevelName = (char *)&gLevelListData[gCurrentSelectedLevelIndex * kLevelNameLength];
     drawTextWithChars6FontWithOpaqueBackground(144, 173, byte_59823, nextLevelName);
 }
 
@@ -14350,7 +14363,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
     // 01ED:68E5
     char *filename = "";
     FILE *file = NULL;
-    uint8_t fileLevelData[levelDataLength];
+    Level fileLevelData;
 
     if (byte_510DE != 0
         && (word_599D8 & 0xFF) == 0
@@ -14457,29 +14470,8 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 //loc_4D5E3:              ; CODE XREF: readLevels+91j
 //                ; readLevels+98j
         levelIndex--; // Levels anywhere else are 1-index, we need them to start from 0 here
-        // Seems like all the crap below just end up calculating that the dest
-        // offset is levelIndex * levelDataLength
         size_t fileOffset = levelIndex * levelDataLength;
-//        levelIndex--;
-//        levelIndex = levelIndex + levelIndex * 2;
-//        levelIndex *= 2;
-//        dx = levelIndex << 8;
-//        cx = levelIndex >> 8;
-//        ax--;
-//        bx = ax;
-//        bx = bx << 1;
-//        ax += bx;
-//        ax = ax << 1;
-//        cl = 8;
-//        dx = ax;
-//        dx = dx << cl;
-//        ax = ax >> cl;
-//        cx = ax;
-//    mov ax, 4200h // 16896
-//    mov bx, lastFileHandle
-//    int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
-//                ; AL = method: offset from beginning of file
-//                ; CX:DX = offset
+        // 01ED:699A
         int result = fseek(file, fileOffset, SEEK_SET);
         if (result != 0)
         {
@@ -14487,14 +14479,8 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
         }
 
 //loc_4D604:              ; CODE XREF: readLevels+B7j
-    //    mov ax, 3F00h
-    //    mov bx, lastFileHandle
-    //    mov cx, levelDataLength
-    //    mov dx, offset fileLevelData
-    //    int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-    //                ; BX = file handle, CX = number of bytes to read
-    //                ; DS:DX -> buffer
-        size_t bytes = fread(fileLevelData, 1, levelDataLength, file);
+        // 01ED:69AE
+        size_t bytes = fread(&fileLevelData, 1, levelDataLength, file);
         if (bytes < levelDataLength)
         {
             exitWithError("Error reading %s\n", filename);
@@ -14528,6 +14514,8 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
         }
     }
 
+    char *levelName = "";
+
 //loc_4D64B:              ; CODE XREF: readLevels+4Ej
 //                ; readLevels+D5j
     if (byte_510DE != 0)
@@ -14539,7 +14527,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
     else
     {
 //loc_4D65D:              ; CODE XREF: readLevels+108j
-        di = 0x87A8; // It has the level title WTF
+        levelName = gCurrentLevelName;
     }
 
 //loc_4D660:              ; CODE XREF: readLevels+113j
@@ -14562,7 +14550,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
     else if (byte_599D4 == 0)
     {
 //loc_4D68C:              ; CODE XREF: readLevels+128j
-        di += 4; // Skips the number directly to the title (from pointing "005 ------- EASY DEAL -------" to pointing "------- EASY DEAL -------")
+        levelName += 4; // Skips the number directly to the title (from pointing "005 ------- EASY DEAL -------" to pointing "------- EASY DEAL -------")
     }
     else if (word_599DA == 0)
     {
@@ -14574,11 +14562,13 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
     }
 
 //loc_4D68F:              ; CODE XREF: readLevels+142j
-    si = 0x0D0E; // Also has the title? WTF?
-    cx = 0x17;
-    memcpy(di, si, 0x17);// rep movsw // 01ED:6A32
-    di += 0x17;
-    si += 0x17;
+//    si = 0x0D0E; // this is fileLevelData (buffer where data was read) + 1446 -> going to the title read from LEVELS.DAT
+//    cx = 0x17;
+//    memcpy(di, si, 0x17);// rep movsw // 01ED:6A32
+//    di += 0x17;
+//    si += 0x17;
+    memcpy(filename, fileLevelData.name, sizeof(fileLevelData.name) - 5);
+
 //    pop es
 //    assume es:nothing
 //    push    es
@@ -14587,11 +14577,13 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 //    assume es:data
 //    si = offset fileLevelData;
 //    di = offset levelBuffer; // 0x988B
-    cx = 0x300;
+
+//    cx = 0x300;
 //    cld
-    memcpy(di, si, 0x300 * 2);// rep movsw // 01ED:6A42
-    di += 0x300 * 2;
-    si += 0x300 * 2;
+//    memcpy(di, si, 0x300 * 2);// rep movsw // 01ED:6A42
+//    di += 0x300 * 2;
+//    si += 0x300 * 2;
+    memcpy(&gCurrentLevel, &fileLevelData, sizeof(gCurrentLevel));
 //    pop es
 //    assume es:nothing
 //    push    es
@@ -14607,16 +14599,13 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
     {
 //loc_4D6B8:              ; CODE XREF: readLevels+172j
         // This loads a byte, but then stores a word!!
-//    al = *si; // lodsb
-        si++;
-//    *di = ax; // stosw
-        di += 2;
+        gCurrentLevelWord[i] = ((uint8_t *)&fileLevelData)[i];
     }
-    di = 0x2434; // this is leveldata (0x1834) + levelDataLength * 2... useless? when the loop finishes it should already have that value
-    al = 0;
+//    di = 0x2434; // this is leveldata (0x1834) + levelDataLength * 2... useless? when the loop finishes it should already have that value
+//    al = 0;
 //    cx = levelDataLength;
-    memset(di, 0, levelDataLength); // rep stosb
-    di -= cx;
+    memset(&gCurrentLevelAfterWord, 0, sizeof(gCurrentLevelAfterWord)); // rep stosb
+//    di += levelDataLength;
 //    pop es
 //    assume es:nothing
     if (byte_510DE == 0
@@ -19890,9 +19879,9 @@ void sub_4FDFD() //   proc near       ; CODE XREF: runLevel+29p
 //    add sp, 0FFFEh
     var_2 = 0;
     al = byte_510B0;
-    if (*word_510B7 != al) // byte
+    if ((word_510B7 & 0xFF) != al) // byte
     {
-        *word_510B7 = al; // byte
+        word_510B7 = (word_510B7 & 0xFF00) + al; // byte
     //    mov si, 87CDh
         convertNumberTo3DigitStringWithPadding0(al, "");
     //    mov si, 87CEh
@@ -19905,11 +19894,11 @@ void sub_4FDFD() //   proc near       ; CODE XREF: runLevel+29p
 
 //loc_4FE36:              ; CODE XREF: sub_4FDFD+12j
     al = byte_510B1;
-    if (word_510B7[1] == al) // byte
+    if ((word_510B7 >> 8) == al) // byte
     {
         //jz  short loc_4FE5F
     }
-    word_510B7[1] = al; // byte
+    word_510B7 = (al << 8) + (word_510B7 & 0x00FF); // byte
 //    mov si, 87CDh
     convertNumberTo3DigitStringWithPadding0(al, "");
 //    mov si, 87CEh
