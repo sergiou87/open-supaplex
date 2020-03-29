@@ -166,16 +166,16 @@ uint16_t word_5195D = 0;
 uint16_t word_51974 = 0;
 uint16_t word_51076 = 0;
 uint16_t word_510BC = 0;
-uint16_t word_510C3 = 0;
+uint16_t gMurphyTileX = 0; // word_510C3
 uint16_t word_510BE = 0;
-uint16_t word_510C5 = 0;
+uint16_t gMurphyTileY = 0; // word_510C5
 uint16_t word_510CB = 0;
 uint16_t word_510D1 = 0;
 uint16_t word_51978 = 0;
 uint16_t word_510CD = 0;
-uint16_t word_510E8 = 0;
-uint16_t word_510EA = 0;
-uint16_t word_5157E = 0;
+uint16_t gMurphyPositionX = 0; // word_510E8
+uint16_t gMurphyPositionY = 0; // word_510EA
+uint16_t word_5157E = 0x4A80;
 uint16_t word_59B90 = 0;
 uint16_t word_59B92 = 0;
 uint16_t gLastDrawnMinutesAndSeconds = 0; // word_510B7
@@ -1169,7 +1169,7 @@ void findMurphy(void);
 void drawGamePanelText(void);
 void sub_5024B(void);
 void sub_4A291(void);
-void sub_4F200(void);
+void drawStillMurphyFrame(uint16_t srcX, uint16_t srcY);
 void runLevel(void);
 void slideDownGameDash(void);
 
@@ -1756,7 +1756,7 @@ loc_46E75:              //; CODE XREF: start+251j
     }
 
 //isFastMode:              //; CODE XREF: start+2ADj
-    loadMurphySprites();
+    loadMurphySprites(); // 01ED:029D
 //    initializeVideo3();
     // Conditions to whether show
     al = byte_59B6B;
@@ -1814,13 +1814,26 @@ loc_46E75:              //; CODE XREF: start+251j
             sub_4D464(); // configures the viewport for the bottom panel, which is not very useful to this re-implementation?
             drawFixedLevel();
             drawGamePanel(); // 01ED:0311
-//            sub_4A2E6();
+//            sub_4A2E6(); // No idea what it does yet
             resetNumberOfInfotrons();
 //            enableFloppy();
-//            findMurphy();
+            findMurphy();
 //            si = 0x6015;
             fadeToPalette(gPalettes[1]); // At this point the screen fades in and shows the game
-            SDL_Delay(5000); // TODO: remove
+
+            // TODO: refactor, this draws the viewport on the screen
+            int scrollX = 0;//kLevelBitmapWidth - kScreenWidth;
+            int scrollY = 0;//kLevelBitmapHeight - kScreenHeight;
+            for (int y = 0; y < kScreenHeight; ++y)
+            {
+                for (int x = 0; x < kScreenWidth; ++x)
+                {
+                    gScreenPixels[y * kScreenWidth + x] = gLevelBitmapData[(scrollY + y) * kLevelBitmapWidth + x + scrollX];
+                }
+            }
+
+            waitForKeyMouseOrJoystick();
+            exitWithError("Exiting blahblah");
             if (isMusicEnabled == 0)
             {
                 sound3();
@@ -3392,9 +3405,10 @@ void loadScreen2() // proc near       ; CODE XREF: start:loc_46F00p
 // loadScreen2 endp ; sp-analysis failed
 }
 
-void loadMurphySprites() //  proc near       ; CODE XREF: start:isFastModep
+void loadMurphySprites() // readMoving  proc near       ; CODE XREF: start:isFastModep
                     //; start+382p ...
 {
+    // 01ED:0D84
 //    int baseDestAddress;      // = word ptr -6
 //    int y;      // = word ptr -4
 //    char component;      // = byte ptr -1
@@ -5740,8 +5754,8 @@ void sub_48A20() //   proc near       ; CODE XREF: start+32Fp
                 // ; runLevel:notFunctionKeyp ...
 {
     // 01ED:1DBD
-    word_510BC = word_510C3;
-    word_510BE = word_510C5;
+    word_510BC = gMurphyTileX;
+    word_510BE = gMurphyTileY;
     ax = 0;
     word_510CB = 0;
     word_510D1 = 0;
@@ -6580,17 +6594,6 @@ void drawFixedLevel() // sub_48F6D   proc near       ; CODE XREF: start+335p ru
     bx += ax;
     bx += 0x4D34; // 19764
     word_51967 = bx;
-
-    // TODO: refactor, this draws the viewport on the screen
-    int scrollX = kLevelBitmapWidth - kScreenWidth;
-    int scrollY = kLevelBitmapHeight - kScreenHeight;
-    for (int y = 0; y < kScreenHeight; ++y)
-    {
-        for (int x = 0; x < kScreenWidth; ++x)
-        {
-            gScreenPixels[y * kScreenWidth + x] = gLevelBitmapData[(scrollY + y) * kLevelBitmapWidth + x + scrollX];
-        }
-    }
 }
 /*
 sub_4914A   proc near       ; CODE XREF: sub_4955B+7p
@@ -8414,8 +8417,8 @@ void sub_49EBE() //   proc near       ; CODE XREF: runLevel+109p
     mov dx, ax
 
 //loc_49ECC:              ; CODE XREF: sub_49EBE+7j
-    mov bx, word_510E8
-    mov ax, word_510EA
+    mov bx, gMurphyPositionX
+    mov ax, gMurphyPositionY
     sub bx, 98h ; '?'
     cmp bx, 8
     jge short loc_49EDF
@@ -8953,9 +8956,10 @@ sub_4A23C   endp
 */
 void findMurphy() //   proc near       ; CODE XREF: start+344p sub_4A463+22p
 {
+    // 01ED:360E
     for (int i = 0; i < kLevelSize; ++i)
     {
-        if (gLevelData[i] == LevelTileTypeMurphy)
+        if (gCurrentLevel.tiles[i] == LevelTileTypeMurphy)
         {
             gMurphyLocation = i;
             break;
@@ -8967,23 +8971,26 @@ void findMurphy() //   proc near       ; CODE XREF: start+344p sub_4A463+22p
 
 void sub_4A291() //   proc near       ; CODE XREF: sub_4955B+686p
 {
+    // 01ED:362E
     // Parameters:
-    // si: murphy location?
-    bl = 0x3C; // 60
-    al = al / bl;
-    bl = ah;
-    bh = 0;
-    word_510C3 = bx;
-    ah = 0;
-    word_510C5 = ax;
-    cl = 4;
-    ax = ax << cl;
-    bx = bx << cl;
-    word_510E8 = bx;
-    word_510EA = ax;
+    // - si: murphy location * 2
+    // - al: murphy location
+//    bl = kLevelWidth; // 60
+//    al = ax / bl; // calculates coords: Y
+//    ah = ax % bl; // X
+//    bl = ah;
+//    bh = 0;
+    gMurphyTileX = gMurphyLocation % kLevelWidth; // stores X coord
+//    ah = 0;
+    gMurphyTileY = gMurphyLocation / kLevelWidth; // stores Y coord
+//    cl = 4;
+//    ax = gMurphyTileY * kTileSize;
+//    bx = gMurphyTileX * kTileSize;
+    gMurphyPositionX = gMurphyTileX * kTileSize;
+    gMurphyPositionY = gMurphyTileY * kTileSize;
 //    di = si[0x6155];
-    si = word_5157E;
-    sub_4F200();
+//    si = word_5157E;
+    drawStillMurphyFrame(304, 132);
     sub_49EBE();
     ax = word_51961;
     word_59B92 = word_51961;
@@ -8991,6 +8998,7 @@ void sub_4A291() //   proc near       ; CODE XREF: sub_4955B+686p
     word_59B90 = word_5195F;
     al = al & 7;
     gNumberOfDotsToShiftDataLeft = al;
+    // centers the scroll on Murphy?
     /*
     mov dx, 3D4h
     al = 0Dh
@@ -10023,7 +10031,7 @@ sub_4A910   proc near       ; CODE XREF: runLevel:noFlashing3p
 loc_4A932:              ; CODE XREF: sub_4A910+1Aj
         mov di, [si+6155h]
         mov si, word_5177E
-        call    sub_4F200
+        call    drawStillMurphyFrame
         inc byte_510DB
         cmp byte_510DB, 28h ; '('
         jl  short loc_4A954
@@ -15437,7 +15445,7 @@ loc_4DF05:              ; CODE XREF: update?+72j
         push    si
         mov di, [si+6155h]
         mov si, word_5157E
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         return;
 // ; ---------------------------------------------------------------------------
@@ -15459,7 +15467,7 @@ loc_4DF27:              ; CODE XREF: update?+94j
         shr bx, 1
         shl bx, 1
         mov si, [bx+si]
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         return;
 // ; ---------------------------------------------------------------------------
@@ -15481,7 +15489,7 @@ loc_4DF53:              ; CODE XREF: update?+C0j
         shr bx, 1
         shl bx, 1
         mov si, [bx+si]
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         return;
 // ; ---------------------------------------------------------------------------
@@ -15503,7 +15511,7 @@ loc_4DF7F:              ; CODE XREF: update?+ECj
         shr bx, 1
         shl bx, 1
         mov si, [bx+si]
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         return;
 // ; ---------------------------------------------------------------------------
@@ -15533,7 +15541,7 @@ loc_4DFBF:              ; CODE XREF: update?+11Fj
         shr bx, 1
         shl bx, 1
         mov si, [bx+si]
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         return;
 // ; ---------------------------------------------------------------------------
@@ -15550,7 +15558,7 @@ loc_4DFE0:              ; CODE XREF: update?+126j
         shr bx, 1
         shl bx, 1
         mov si, [bx+si]
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         return;
 // ; ---------------------------------------------------------------------------
@@ -16328,7 +16336,7 @@ loc_4E4BD:              ; CODE XREF: update?+3D9j
         push    si
         mov di, [si+6155h]
         mov si, word_51840
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         call    sound9
         mov dx, 0ECEh
@@ -16350,7 +16358,7 @@ loc_4E4E9:              ; CODE XREF: update?+409j
         push    si
         mov di, [si+6155h]
         mov si, word_51842
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         call    sound9
         mov dx, 0EDEh
@@ -16372,7 +16380,7 @@ loc_4E515:              ; CODE XREF: update?+433j
         push    si
         mov di, [si+6155h]
         mov si, word_51844
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         call    sound9
         mov dx, 0EEEh
@@ -16394,7 +16402,7 @@ loc_4E541:              ; CODE XREF: update?+463j
         push    si
         mov di, [si+6155h]
         mov si, word_51846
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         call    sound9
         mov dx, 0EFEh
@@ -16468,7 +16476,7 @@ loc_4E5F4:              ; CODE XREF: update?+3E8j
         push    si
         mov di, [si+6155h]
         mov si, word_51840
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         call    sound5
         mov dx, 0F6Eh
@@ -16481,7 +16489,7 @@ loc_4E614:              ; CODE XREF: update?+418j
         push    si
         mov di, [si+6155h]
         mov si, word_51842
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         call    sound5
         mov dx, 0F7Eh
@@ -16494,7 +16502,7 @@ loc_4E634:              ; CODE XREF: update?+442j
         push    si
         mov di, [si+6155h]
         mov si, word_51844
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         call    sound5
         mov dx, 0F8Eh
@@ -16507,7 +16515,7 @@ loc_4E654:              ; CODE XREF: update?+472j
         push    si
         mov di, [si+6155h]
         mov si, word_51846
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         call    sound5
         mov dx, 0F9Eh
@@ -16556,7 +16564,7 @@ loc_4E6C4:              ; CODE XREF: update?+831j
         push    si
         mov di, [si+6155h]
         mov si, word_5157A
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         mov dx, 0FAEh
         mov byte ptr [si+1835h], 0Eh
@@ -16582,7 +16590,7 @@ loc_4E6F5:              ; CODE XREF: update?+862j
         push    si
         mov di, [si+6155h]
         mov si, word_5157C
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         mov dx, 0FBEh
         mov byte ptr [si+1835h], 0Fh
@@ -16593,7 +16601,7 @@ loc_4E712:              ; CODE XREF: update?+249j update?+3EFj
         push    si
         mov di, [si+6155h]
         mov si, word_51840
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         cmp byte_5196B, 0
         jz  short loc_4E72D
@@ -16605,7 +16613,7 @@ loc_4E72D:              ; CODE XREF: update?+894j
         push    si
         mov di, [si+60DDh]
         mov si, word_51848
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         jmp short loc_4E7B8
 // ; ---------------------------------------------------------------------------
@@ -16614,7 +16622,7 @@ loc_4E73C:              ; CODE XREF: update?+2B9j update?+41Fj
         push    si
         mov di, [si+6155h]
         mov si, word_51842
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         cmp byte_5196B, 0
         jz  short loc_4E757
@@ -16626,7 +16634,7 @@ loc_4E757:              ; CODE XREF: update?+8BEj
         push    si
         mov di, [si+6153h]
         mov si, word_51848
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         jmp short loc_4E7B8
 // ; ---------------------------------------------------------------------------
@@ -16635,7 +16643,7 @@ loc_4E766:              ; CODE XREF: update?+325j update?+449j
         push    si
         mov di, [si+6155h]
         mov si, word_51844
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         cmp byte_5196B, 0
         jz  short loc_4E781
@@ -16647,7 +16655,7 @@ loc_4E781:              ; CODE XREF: update?+8E8j
         push    si
         mov di, [si+61CDh]
         mov si, word_51848
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         jmp short loc_4E7B8
 // ; ---------------------------------------------------------------------------
@@ -16656,7 +16664,7 @@ loc_4E790:              ; CODE XREF: update?+395j update?+479j
         push    si
         mov di, [si+6155h]
         mov si, word_51846
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         cmp byte_5196B, 0
         jz  short loc_4E7AB
@@ -16668,7 +16676,7 @@ loc_4E7AB:              ; CODE XREF: update?+912j
         push    si
         mov di, [si+6157h]
         mov si, word_51848
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
 
 loc_4E7B8:              ; CODE XREF: update?+8AAj update?+8D4j ...
@@ -16845,7 +16853,7 @@ loc_4E903:              ; CODE XREF: update?+A70j
         push    si
         mov di, [si+6155h]
         mov si, word_5157C
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         mov dx, 10AEh
         mov byte ptr [si+1835h], 24h ; '$'
@@ -16864,7 +16872,7 @@ loc_4E92A:              ; CODE XREF: update?+A97j
         push    si
         mov di, [si+6155h]
         mov si, word_5157A
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         mov dx, 10BEh
         mov byte ptr [si+1835h], 25h ; '%'
@@ -16883,7 +16891,7 @@ loc_4E951:              ; CODE XREF: update?+ABEj
         push    si
         mov di, [si+6155h]
         mov si, word_5157C
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         mov dx, 10CEh
         mov byte ptr [si+1835h], 27h ; '''
@@ -16902,7 +16910,7 @@ loc_4E977:              ; CODE XREF: update?+AE4j
         push    si
         mov di, [si+6155h]
         mov si, word_5157C
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         mov dx, 10DEh
         mov byte ptr [si+1835h], 26h ; '&'
@@ -16921,7 +16929,7 @@ loc_4E99D:              ; CODE XREF: update?+B0Aj
         push    si
         mov di, [si+6155h]
         mov si, word_5157A
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         mov dx, 10EEh
         mov byte ptr [si+1835h], 28h ; '('
@@ -16947,7 +16955,7 @@ loc_4E9CD:              ; CODE XREF: update?+B3Aj
         push    si
         mov di, [si+6155h]
         mov si, word_5157C
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         mov dx, 10FEh
         mov byte ptr [si+1835h], 29h ; ')'
@@ -17047,9 +17055,9 @@ loc_4EA6B:              ; CODE XREF: update?+B83j
         push    si
         push(di);
         mov ax, word_510FA
-        add word_510E8, ax
+        add gMurphyPositionX, ax
         mov ax, word_510FC
-        add word_510EA, ax
+        add gMurphyPositionY, ax
         mov di, [si+6155h]
         add di, word_510F0
         mov si, word_510F8
@@ -17129,8 +17137,8 @@ loc_4EB10:              ; CODE XREF: update?+C7Bj
         shr ax, 1
         mov bx, word_510FC
         shr bx, 1
-        add word_510C3, ax
-        add word_510C5, bx
+        add gMurphyTileX, ax
+        add gMurphyTileY, bx
         mov bl, [si+1835h]
         mov byte ptr [si+1835h], 0
         cmp bl, 1
@@ -17514,7 +17522,7 @@ loc_4ED73:              ; CODE XREF: update?+EDBj
         push    si
         mov di, [si+6155h]
         mov si, word_5157E
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         return;
 // ; ---------------------------------------------------------------------------
@@ -17539,7 +17547,7 @@ loc_4EDAB:              ; CODE XREF: update?+F13j
         push    si
         mov di, [si+6155h]
         mov si, word_5157E
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         return;
 // ; ---------------------------------------------------------------------------
@@ -17564,7 +17572,7 @@ loc_4EDE3:              ; CODE XREF: update?+F4Bj
         push    si
         mov di, [si+6155h]
         mov si, word_5157E
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         return;
 // ; ---------------------------------------------------------------------------
@@ -17589,7 +17597,7 @@ loc_4EE1B:              ; CODE XREF: update?+F83j
         push    si
         mov di, [si+6155h]
         mov si, word_5157E
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         return;
 // ; ---------------------------------------------------------------------------
@@ -17614,7 +17622,7 @@ loc_4EE53:              ; CODE XREF: update?+FBBj
         push    si
         mov di, [si+6155h]
         mov si, word_5157E
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         return;
 // ; ---------------------------------------------------------------------------
@@ -17639,7 +17647,7 @@ loc_4EE8B:              ; CODE XREF: update?+FF3j
         push    si
         mov di, [si+6155h]
         mov si, word_5157E
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         return;
 // ; ---------------------------------------------------------------------------
@@ -17665,7 +17673,7 @@ loc_4EEC3:              ; CODE XREF: update?+102Bj
         push    si
         mov di, [si+6155h]
         mov si, word_5157E
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         return;
 // ; ---------------------------------------------------------------------------
@@ -17691,7 +17699,7 @@ loc_4EEFB:              ; CODE XREF: update?+1063j
         push    si
         mov di, [si+6155h]
         mov si, word_5157E
-        call    sub_4F200
+        call    drawStillMurphyFrame
         pop si
         return;
 // ; ---------------------------------------------------------------------------
@@ -17705,7 +17713,7 @@ loc_4EF09:              ; CODE XREF: update?+BD7j
         push    si
         mov di, [si+6155h]
         mov si, word_51790
-        call    sub_4F200
+        call    drawStillMurphyFrame
         mov byte_510DB, 1
         pop si
 
@@ -17718,7 +17726,7 @@ loc_4EF2C:              ; CODE XREF: update?+1080j
         mov word ptr leveldata[si], 3
         mov di, [si+6155h]
         mov si, word_5157E
-        call    sub_4F200
+        call    drawStillMurphyFrame
         mov byte_510DB, 0
         pop si
         return;
@@ -18057,23 +18065,24 @@ loc_4F1EA:              ; CODE XREF: update?+DEBj
         return;
 ; END OF FUNCTION CHUNK FOR update?
 */
-void sub_4F200() //   proc near       ; CODE XREF: sub_4A291+26p
+
+// srcX and srcY are the coordinates of the frame to draw in MOVING.DAT
+void drawStillMurphyFrame(uint16_t srcX, uint16_t srcY) // sub_4F200   proc near       ; CODE XREF: sub_4A291+26p
                    // ; sub_4A910+2Ap ...
 {
-    // Draws Murphy on the screen?
+    // 01ED:859D
+    // Draws Murphy idle (from MOVING.DAT) on the screen
     // Parameters:
     // - di: coordinates on the screen
     // - si: coordinates on the MOVING.DAT bitmap to draw from?
-    for (int i = 0; i < 16; ++i)
+    for (int y = 0; y < kTileSize; ++y)
     {
-//loc_4F208:              ; CODE XREF: sub_4F200+1Bj
-//        *di = *si; di++; si++; // movsb
-//        *di = *si; di++; si++; // movsb
-        si += 0x78; // 120
-        di += 0x78; // 120
-        if (si >= 0x4D34)
+        for (int x = 0; x < kTileSize; ++x)
         {
-            si -= 0x4D0C;
+//loc_4F208:              ; CODE XREF: drawStillMurphyFrame+1Bj
+            size_t srcAddress = (srcY + y) * kMovingBitmapWidth + srcX + x;
+            size_t dstAddress = (gMurphyPositionY + y - kLevelEdgeSize) * kLevelBitmapWidth + gMurphyPositionX + x - kLevelEdgeSize;
+            gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
         }
     }
 }
