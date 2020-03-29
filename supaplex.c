@@ -35,68 +35,35 @@ static const int kScreenHeight = 200;
 uint8_t fastMode = 0;
 
 static const int levelDataLength = 1536; // exact length of a level file, even of each level inside the LEVELS.DAT file
-uint8_t gPlayerListDownButtonPressed = 0; // byte_50910
-uint8_t gPlayerListUpButtonPressed = 0; // byte_50911
-uint8_t gPlayerListButtonPressed = 0; // byte_50912
-uint8_t gRankingListDownButtonPressed = 0; // byte_50913
-uint8_t gRankingListUpButtonPressed = 0; // byte_50914
-uint8_t gRankingListButtonPressed = 0; // byte_50915
-uint8_t gLevelListDownButtonPressed = 0; // byte_50916
-uint8_t gLevelListUpButtonPressed = 0; // byte_50917
-uint8_t gLevelListButtonPressed = 0; // byte_50918
+uint8_t byte_50919 = 0;
+uint8_t byte_5091A = 0;
 uint8_t byte_50941 = 0;
 uint8_t byte_50946 = 0;
 uint8_t byte_50953 = 0;
 uint8_t byte_50954 = 0;
-uint8_t byte_50919 = 0;
-uint8_t gNumberOfDotsToShiftDataLeft = 0; // byte_510A6 Used for the scroll effect
+uint8_t byte_51036 = 0;
 uint8_t byte_510AB = 0;
-uint8_t byte_510B3 = 0;
-uint8_t byte_510BA = 0;
-uint8_t gIsPlayingDemo = 0; // byte_510DE
-uint8_t byte_51969 = 0;
-uint8_t byte_5197E = 0;
-uint8_t byte_51999 = 0;
-uint8_t byte_519B6 = 0;
-uint8_t byte_519C3 = 0;
-uint8_t byte_519C5 = 0;
-uint8_t byte_519C8 = 0;
-uint8_t byte_519CA = 0;
-uint8_t byte_519CD = 0;
-uint8_t byte_519F4 = 0;
-uint8_t byte_519F5 = 0;
-uint8_t byte_519F6 = 0;
-uint8_t byte_519F7 = 0;
-uint8_t byte_519F8 = 0;
-uint8_t byte_519F9 = 0;
-uint8_t byte_51ABE = 0;
-uint8_t gIsMouseAvailable = 0; // byte_58487
-uint8_t byte_58D46 = 0;
-uint8_t byte_58D47 = 0;
-uint8_t gNewPlayerEntryIndex = 0; // byte_59820
-uint8_t byte_59821 = 0;
-uint8_t byte_59822 = 0;
-uint8_t byte_59823 = 0;
-uint8_t byte_599D4 = 0;
-uint8_t byte_59B6B = 0;
-uint8_t byte_59B71 = 0;
-uint8_t byte_59B83 = 0;
-uint8_t byte_59B84 = 0;
-uint8_t byte_59B85 = 0;
-uint8_t byte_59B86 = 0;
-uint8_t byte_5A19B = 0;
-uint8_t byte_5A19C = 0;
-uint8_t byte_5A2F9 = 0;
-uint8_t byte_5A33E = 0;
-uint8_t byte_5A33F = 0;
-uint8_t byte_59B64 = 0;
 uint8_t byte_510AE = 0;
 uint8_t byte_510AF = 0;
-uint8_t gGameSeconds = 0; // byte_510B0
-uint8_t gGameMinutes = 0; // byte_510B1
-uint8_t gGameHours = 0; // byte_510B2
+uint8_t byte_510B3 = 0;
+uint8_t byte_510B4 = 0;
+uint8_t byte_510B5 = 0;
+uint8_t byte_510B6 = 0;
+uint8_t byte_510BA = 0;
 uint8_t byte_510BB = 0;
+uint8_t byte_510C0 = 0;
+uint8_t byte_510D7 = 0;
+uint8_t byte_510DB = 0;
+uint8_t byte_5195B = 0;
+uint8_t byte_5195C = 0;
+uint8_t byte_51969 = 0;
+uint8_t byte_5196A = 0;
+uint8_t byte_5196B = 0;
+uint8_t byte_5197C = 0;
+uint8_t byte_5197E = 0;
+uint8_t byte_51999 = 0;
 uint8_t byte_519B5 = 0;
+uint8_t byte_519B6 = 0;
 uint8_t byte_519B8 = 0;
 uint8_t byte_519B9 = 0;
 uint8_t byte_519BA = 0;
@@ -107,80 +74,100 @@ uint8_t byte_519BE = 0;
 uint8_t byte_519BF = 0;
 uint8_t byte_519C0 = 0;
 uint8_t byte_519C1 = 0;
+uint8_t byte_519C3 = 0;
+uint8_t byte_519C5 = 0;
+uint8_t byte_519C8 = 0;
+uint8_t byte_519C9 = 0;
+uint8_t byte_519CA = 0;
+uint8_t byte_519CD = 0;
 uint8_t byte_519D4 = 0;
 uint8_t byte_519D5 = 0;
+uint8_t byte_519F4 = 0;
+uint8_t byte_519F5 = 0;
+uint8_t byte_519F6 = 0;
+uint8_t byte_519F7 = 0;
+uint8_t byte_519F8 = 0;
+uint8_t byte_519F9 = 0;
+uint8_t byte_51ABE = 0;
+uint8_t byte_5870F = 0;
+uint8_t byte_58D46 = 0;
+uint8_t byte_58D47 = 0;
+uint8_t byte_59821 = 0;
+uint8_t byte_59822 = 0;
+uint8_t byte_59823 = 0;
 uint8_t byte_59889 = 0;
 uint8_t byte_5988A = 0;
 uint8_t byte_5988B = 0;
 uint8_t byte_5988C = 0;
+uint8_t byte_599D4 = 0;
+uint8_t byte_59B62 = 0;
+uint8_t byte_59B64 = 0;
+uint8_t byte_59B6B = 0;
+uint8_t byte_59B6C = 0;
+uint8_t byte_59B6D = 0;
+uint8_t byte_59B71 = 0;
+uint8_t byte_59B72 = 0;
+uint8_t byte_59B83 = 0;
+uint8_t byte_59B84 = 0;
+uint8_t byte_59B85 = 0;
+uint8_t byte_59B86 = 0;
 uint8_t byte_59B94 = 0;
 uint8_t byte_59B96 = 0;
-uint8_t byte_5091A = 0;
+uint8_t byte_5A19B = 0;
+uint8_t byte_5A19C = 0;
+uint8_t byte_5A2F9 = 0;
 uint8_t byte_5A320 = 0;
 uint8_t byte_5A321 = 0;
 uint8_t byte_5A322 = 0;
-uint8_t byte_5195C = 0;
-uint8_t byte_5197C = 0;
-uint8_t byte_51036 = 0;
-uint8_t gLastDrawnHours = 0; // byte_510B9
-uint8_t byte_510B4 = 0;
-uint8_t byte_510B5 = 0;
-uint8_t byte_510B6 = 0;
-uint8_t byte_510C0 = 0;
-uint8_t gNumberOfRemainingInfotrons = 0; // byte_5195A
-uint8_t byte_5195B = 0;
-uint8_t byte_5196A = 0;
-uint8_t byte_5196B = 0;
-uint8_t byte_510D7 = 0;
-uint8_t byte_510DB = 0;
-uint8_t gIsRecordingDemo = 0; // byte_510E3
+uint8_t byte_5A33E = 0;
+uint8_t byte_5A33F = 0;
 uint8_t gCurrentPlayerIndex = 0; // byte_5981F
-uint8_t byte_59B62 = 0;
-uint8_t byte_5870F = 0;
-uint16_t word_58467 = 0;
+uint8_t gGameHours = 0; // byte_510B2
+uint8_t gGameMinutes = 0; // byte_510B1
+uint8_t gGameSeconds = 0; // byte_510B0
+uint8_t gIsMouseAvailable = 0; // byte_58487
+uint8_t gIsPlayingDemo = 0; // byte_510DE
+uint8_t gIsRecordingDemo = 0; // byte_510E3
+uint8_t gLastDrawnHours = 0; // byte_510B9
+uint8_t gLevelListButtonPressed = 0; // byte_50918
+uint8_t gLevelListDownButtonPressed = 0; // byte_50916
+uint8_t gLevelListUpButtonPressed = 0; // byte_50917
+uint8_t gNewPlayerEntryIndex = 0; // byte_59820
+uint8_t gNumberOfDotsToShiftDataLeft = 0; // byte_510A6 Used for the scroll effect
+uint8_t gNumberOfRemainingInfotrons = 0; // byte_5195A
+uint8_t gPlayerListButtonPressed = 0; // byte_50912
+uint8_t gPlayerListDownButtonPressed = 0; // byte_50910
+uint8_t gPlayerListUpButtonPressed = 0; // byte_50911
+uint8_t gRankingListButtonPressed = 0; // byte_50915
+uint8_t gRankingListDownButtonPressed = 0; // byte_50913
+uint8_t gRankingListUpButtonPressed = 0; // byte_50914
 uint16_t gCurrentSelectedLevelIndex = 0; // word_51ABC
-uint16_t word_510DC = 0;
-uint16_t word_586FD = 0;
-uint16_t word_586FF = 0;
-uint16_t word_58701 = 0;
-uint16_t word_58703 = 0;
-uint16_t word_5870D = 0;
-uint16_t word_58710 = 0;
-uint16_t word_58712 = 0;
-uint16_t word_58714 = 0;
-uint16_t word_586FB = 0;
-uint16_t word_50942 = 0;
-uint16_t word_50944 = 0;
-uint16_t word_5094F = 0;
-uint16_t word_50951 = 0;
-uint16_t word_510A2 = 0;
-uint16_t word_510E6 = 0;
-uint16_t word_5196C = 0;
-uint16_t word_51970 = 0;
-uint16_t word_5197A = 0;
-uint16_t word_599D8 = 0;
-uint16_t word_58463 = 0;
-uint16_t word_58465 = 0;
-uint16_t gNewPlayerNameLength = 0; // word_58475
-uint16_t word_5195D = 0;
-uint16_t word_51974 = 0;
-uint16_t word_51076 = 0;
-uint16_t word_510BC = 0;
-uint16_t gMurphyTileX = 0; // word_510C3
-uint16_t word_510BE = 0;
-uint16_t gMurphyTileY = 0; // word_510C5
-uint16_t word_510CB = 0;
-uint16_t word_510D1 = 0;
-uint16_t word_51978 = 0;
-uint16_t word_510CD = 0;
+uint16_t gCursorX = 0; // word_58481
+uint16_t gCursorY = 0; // word_58485
+uint16_t gLastDrawnMinutesAndSeconds = 0; // word_510B7
 uint16_t gMurphyPositionX = 0; // word_510E8
 uint16_t gMurphyPositionY = 0; // word_510EA
-uint16_t word_5157E = 0x4A80;
-uint16_t word_59B90 = 0;
-uint16_t word_59B92 = 0;
-uint16_t gLastDrawnMinutesAndSeconds = 0; // word_510B7
+uint16_t gMurphyTileX = 0; // word_510C3
+uint16_t gMurphyTileY = 0; // word_510C5
+uint16_t gNewPlayerNameLength = 0; // word_58475
+uint16_t word_50942 = 0;
+uint16_t word_50944 = 0;
+uint16_t word_5094B = 0;
+uint16_t word_5094D = 0;
+uint16_t word_5094F = 0;
+uint16_t word_50951 = 0;
+uint16_t word_51076 = 0;
+uint16_t word_510A2 = 0;
+uint16_t word_510BC = 0;
+uint16_t word_510BE = 0;
 uint16_t word_510C1 = 0;
+uint16_t word_510CB = 0;
+uint16_t word_510CD = 0;
+uint16_t word_510D1 = 0;
 uint16_t word_510D9 = 0;
+uint16_t word_510DC = 0;
+uint16_t word_510E6 = 0;
+uint16_t word_5157E = 0x4A80;
 uint16_t word_5184A = 0x2A66;
 uint16_t word_5184C = 0x2A67;
 uint16_t word_5184E = 0x2E36;
@@ -189,24 +176,46 @@ uint16_t word_51852 = 0x2A68;
 uint16_t word_51854 = 0x2A69;
 uint16_t word_51856 = 0x2E38;
 uint16_t word_51858 = 0x2E39;
+uint16_t word_5195D = 0;
 uint16_t word_5195F = 0;
 uint16_t word_51961 = 0;
+uint16_t word_51963 = 0;
+uint16_t word_51965 = 0;
 uint16_t word_51967 = 0;
+uint16_t word_5196C = 0;
+uint16_t word_51970 = 0;
+uint16_t word_51974 = 0;
+uint16_t word_51978 = 0;
+uint16_t word_5197A = 0;
+uint16_t word_51A01 = 0;
+uint16_t word_58463 = 0;
+uint16_t word_58465 = 0;
+uint16_t word_58467 = 0;
 uint16_t word_58469 = 0;
 uint16_t word_5846B = 0;
 uint16_t word_5846D = 0;
 uint16_t word_5846F = 0;
 uint16_t word_58471 = 0;
 uint16_t word_58473 = 0;
+uint16_t word_586FB = 0;
+uint16_t word_586FD = 0;
+uint16_t word_586FF = 0;
+uint16_t word_58701 = 0;
+uint16_t word_58703 = 0;
+uint16_t word_5870D = 0;
+uint16_t word_58710 = 0;
+uint16_t word_58712 = 0;
+uint16_t word_58714 = 0;
+uint16_t word_599D6 = 0;
+uint16_t word_599D8 = 0;
+uint16_t word_599DA = 0;
+uint16_t word_59B88 = 0;
+uint16_t word_59B8A = 0;
 uint16_t word_59B8C = 0;
 uint16_t word_59B8E = 0;
-uint16_t word_599D6 = 0;
-uint16_t gCursorX = 0; // word_58481
-uint16_t gCursorY = 0; // word_58485
-uint16_t *dword_58488 = 0;
-uint16_t word_5094B = 0;
-uint16_t word_599DA = 0;
-uint16_t word_5094D = 0;
+uint16_t word_59B90 = 0;
+uint16_t word_59B92 = 0;
+uint32_t dword_58488 = 0;
 uint8_t fileIsDemo = 0;
 uint8_t isJoystickEnabled = 0; // byte_50940
 uint8_t isMusicEnabled = 0; // byte_59886
@@ -1172,6 +1181,8 @@ void sub_4A291(void);
 void drawStillMurphyFrame(uint16_t srcX, uint16_t srcY);
 void runLevel(void);
 void slideDownGameDash(void);
+void sub_49EBE(void);
+void sub_4A1AE(void);
 
 static const int kWindowWidth = kScreenWidth * 4;
 static const int kWindowHeight = kScreenHeight * 4;
@@ -8409,162 +8420,205 @@ gameloop?   endp
 void sub_49EBE() //   proc near       ; CODE XREF: runLevel+109p
                    // ; sub_4A291+29p
 {
-    /*
-    xor dx, dx
-    cmp byte_510C0, 0
-    jz  short loc_49ECC
-    call    sub_4A1AE
-    mov dx, ax
+    dx = 0;
+    if (byte_510C0 != 0)
+    {
+        sub_4A1AE();
+        dx = ax;
+    }
 
 //loc_49ECC:              ; CODE XREF: sub_49EBE+7j
-    mov bx, gMurphyPositionX
-    mov ax, gMurphyPositionY
-    sub bx, 98h ; '?'
-    cmp bx, 8
-    jge short loc_49EDF
-    mov bx, 8
+    bx = gMurphyPositionX;
+    ax = gMurphyPositionY;
+    bx -= 0x98; // 152
+    if (bx < 8)
+    {
+        bx = 8;
+    }
 
 //loc_49EDF:              ; CODE XREF: sub_49EBE+1Cj
-    cmp bx, 278h
-    jbe short loc_49EE8
-    mov bx, 278h
+    if (bx > 0x278) // 632
+    {
+        bx = 0x278; // 632
+    }
 
 //loc_49EE8:              ; CODE XREF: sub_49EBE+25j
-    cmp byte ptr word_510C1, 0
-    jz  short loc_49EF4
-    sub ax, 58h ; 'X'
-    jmp short loc_49EF7
-
+    if ((word_510C1 & 0xFF) == 0)
+    {
 //loc_49EF4:              ; CODE XREF: sub_49EBE+2Fj
-    sub ax, 64h ; 'd'
+        ax -= 0x64; // 100
+    }
+    else
+    {
+        ax -= 0x58; // 88
+//      jmp short loc_49EF7
+    }
 
 //loc_49EF7:              ; CODE XREF: sub_49EBE+34j
-    cmp ax, 0
-    jge short loc_49EFE
-    xor ax, ax
+    if (ax < 0)
+    {
+        ax = 0;
+    }
 
 //loc_49EFE:              ; CODE XREF: sub_49EBE+3Cj
-    cmp byte ptr word_510C1, 0
-    jz  short loc_49F0F
-    cmp ax, 0C0h ; '?'
-    jle short loc_49F0D
-    mov ax, 0C0h ; '?'
+    if ((word_510C1 & 0xFF) == 0)
+    {
+        //loc_49F0F:              ; CODE XREF: sub_49EBE+45j
+        if (ax > 0xA8) // 168
+        {
+            ax = 0xA8; // 168
+        }
+    }
+    else
+    {
+        if (ax > 0xC0) // 192
+        {
+            ax = 0xC0; // 192
+        }
 
 //loc_49F0D:              ; CODE XREF: sub_49EBE+4Aj
-    jmp short loc_49F17
-
-//loc_49F0F:              ; CODE XREF: sub_49EBE+45j
-    cmp ax, 0A8h ; '?'
-    jle short loc_49F17
-    mov ax, 0A8h ; '?'
+//        jmp short loc_49F17
+    }
 
 //loc_49F17:              ; CODE XREF: sub_49EBE:loc_49F0Dj
 //                ; sub_49EBE+54j
-    cmp word_51A01, 0
-    jz  short loc_49F25
-    cmp byte_519C9, 0
-    jz  short loc_49F2E
-
+    if (word_51A01 == 0
+        || byte_519C9 != 0)
+    {
 //loc_49F25:              ; CODE XREF: sub_49EBE+5Ej
-    mov word_59B88, bx
-    mov word_59B8A, ax
-    jmp short loc_49FA9
-
+        word_59B88 = bx;
+        word_59B8A = ax;
+    //    jmp short loc_49FA9
+    }
+    else
+    {
 //loc_49F2E:              ; CODE XREF: sub_49EBE+65j
-    mov bx, word_59B88
-    mov ax, word_59B8A
-    mov cx, bx
-    add bx, word_51963
-    cmp bx, 8
-    jge short loc_49F56
-    cmp byte_59B6C, 0
-    jnz short loc_49F4C
-    mov bx, 8
-    jmp short loc_49F66
-
+        bx = word_59B88;
+        ax = word_59B8A;
+        cx = bx;
+        bx += word_51963;
+        if (bx < 8)
+        {
+            if (byte_59B6C == 0)
+            {
 //loc_49F4C:              ; CODE XREF: sub_49EBE+87j
-    add bx, 3D0h
-    dec word_51965
-    jmp short loc_49F66
-
-//loc_49F56:              ; CODE XREF: sub_49EBE+80j
-    cmp byte_59B6C, 0
-    jnz short loc_49F6E
-    cmp bx, 278h
-    jbe short loc_49F6E
-    mov bx, 278h
+                bx += 0x3D0; // 976
+                word_51965--;
+            //    jmp short loc_49F66
+            }
+            else
+            {
+                bx = 8;
+                //jmp short loc_49F66
+            }
 
 //loc_49F66:              ; CODE XREF: sub_49EBE+8Cj
 //                ; sub_49EBE+96j
-    sub cx, bx
-    neg cx
-    mov word_51963, cx
+            cx -= bx;
+            cx = -cx;
+            word_51963 = cx;
+        }
+        else
+        {
+//loc_49F56:              ; CODE XREF: sub_49EBE+80j
+            if (byte_59B6C == 0
+                && bx > 0x278) // 632
+            {
+                bx = 0x278; // 632
+
+//loc_49F66:              ; CODE XREF: sub_49EBE+8Cj
+//                ; sub_49EBE+96j
+                cx -= bx;
+                cx = -cx;
+                word_51963 = cx;
+            }
+        }
 
 //loc_49F6E:              ; CODE XREF: sub_49EBE+9Dj
 //                ; sub_49EBE+A3j
-    mov cx, ax
-    add ax, word_51965
-    jge short loc_49F81
-    cmp byte_59B6C, 0
-    jnz short loc_49FA9
-    xor ax, ax
-    jmp short loc_49FA1
-
-//loc_49F81:              ; CODE XREF: sub_49EBE+B6j
-    cmp byte_59B6C, 0
-    jnz short loc_49FA9
-    cmp byte ptr word_510C1, 0
-    jz  short loc_49F99
-    cmp ax, 0C0h ; '?'
-    jbe short loc_49FA9
-    mov ax, 0C0h ; '?'
-    jmp short loc_49FA1
-
-//loc_49F99:              ; CODE XREF: sub_49EBE+CFj
-    cmp ax, 0A8h ; '?'
-    jbe short loc_49FA9
-    mov ax, 0A8h ; '?'
+        cx = ax;
+        ax += word_51965;
+        if (ax < 0) // in asm there wasn't a explicit "cmp", just the "add" above
+        {
+            if (byte_59B6C == 0)
+            {
+                ax = 0;
 
 //loc_49FA1:              ; CODE XREF: sub_49EBE+C1j
 //                ; sub_49EBE+D9j
-    sub cx, ax
-    neg cx
-    mov word_51965, cx
+                cx -= ax;
+                cx = -cx;
+                word_51965 = cx;
+            }
+        }
+        else
+        {
+//loc_49F81:              ; CODE XREF: sub_49EBE+B6j
+            if (byte_59B6C != 0
+                || (word_510C1 & 0xFF) == 0)
+            {
+//loc_49F99:              ; CODE XREF: sub_49EBE+CFj
+                if (ax > 0xA8) // 168
+                {
+                    ax = 0xA8; // 168
+
+//loc_49FA1:              ; CODE XREF: sub_49EBE+C1j
+//                ; sub_49EBE+D9j
+                    cx -= ax;
+                    cx = -cx;
+                    word_51965 = cx;
+                }
+            }
+            else
+            {
+                if (ax > 0xC0) // 192
+                {
+                    ax = 0xC0; // 192
+
+//loc_49FA1:              ; CODE XREF: sub_49EBE+C1j
+//                ; sub_49EBE+D9j
+                    cx -= ax;
+                    cx = -cx;
+                    word_51965 = cx;
+                }
+            }
+        }
+    }
 
 //loc_49FA9:              ; CODE XREF: sub_49EBE+6Ej
 //                ; sub_49EBE+BDj ...
-    cmp byte_59B72, 0
-    jnz short loc_49FBE
-    cmp byte_59B6D, 0
-    jnz short loc_49FD2
-    cmp byte ptr word_51978, 0
-    jz  short loc_49FD2
-
+    if (byte_59B72 != 0
+        || (byte_59B6D == 0
+            && (word_51978 & 0xFF) != 0))
+    {
 //loc_49FBE:              ; CODE XREF: sub_49EBE+F0j
-    xor cx, cx
-    and dx, 101h
-    xchg    cl, dh
-    add ax, cx
-    cmp bx, 13Ch
-    jbe short loc_49FD0
-    neg dx
+        cx = 0;
+        dx = dx & 0x101;
+//        xchg    cl, dh
+        uint8_t aux = cl;
+        cl = dh;
+        dh = aux;
+        ax += cx;
+        if (bx > 0x13C) // 316
+        {
+            dx = -dx;
+        }
 
 //loc_49FD0:              ; CODE XREF: sub_49EBE+10Ej
-    add bx, dx
+        bx += dx;
+    }
 
 //loc_49FD2:              ; CODE XREF: sub_49EBE+F7j
 //                ; sub_49EBE+FEj
-    mov word_5195F, bx
-    mov word_51961, ax
-    mov cl, 3
-    shr bx, cl
-    mov cx, 7Ah ; 'z'
-    mul cx
-    add bx, ax
-    add bx, 4D34h
-    mov word_51967, bx
-    return;
-     */
+    word_5195F = bx;
+    word_51961 = ax;
+    cl = 3;
+    bx = bx >> cl;
+    cx = 0x7A; // 122
+    ax = ax * cx;
+    bx += ax;
+    bx += 0x4D34;
+    word_51967 = bx;
 }
 
 void waitForJoystickKey() // sub_49FED  proc near       ; CODE XREF: sub_48E59+2Cp
@@ -8847,18 +8901,16 @@ void getTime() //     proc near       ; CODE XREF: start:doesNotHaveCommandLine
     gTimeOfDay = (uint32_t)time(NULL);
 }
 
-/*
-sub_4A1AE   proc near       ; CODE XREF: sub_4955B+66Cp
-                    ; sub_49EBE+9p ...
-        mov ax, gTimeOfDay
-        mov bx, 5E5h
-        mul bx
-        add ax, 31h ; '1'
-        mov gTimeOfDay, ax
-        shr ax, 1
-        return;
-sub_4A1AE   endp
-*/
+void sub_4A1AE() //   proc near       ; CODE XREF: sub_4955B+66Cp
+                   // ; sub_49EBE+9p ...
+{
+    ax = gTimeOfDay;
+    bx = 0x5E5; // 1509
+    ax = ax * bx;
+    ax += 0x31; // '1' or 49
+    gTimeOfDay = ax;
+    ax = ax / 2;
+}
 
 void sub_4A1BF() //   proc near       ; CODE XREF: sub_4955B+13p
                    // ; runMainMenu+BDp ...
@@ -13727,7 +13779,7 @@ void initializeMouse() //   proc near       ; CODE XREF: start+299p
 //                ; initializeMouse+16j ...
             gCursorX = 0xA0; // '?' 160
             gCursorY = 0x64; // 'd' 100
-            *dword_58488 = 1; //mov word ptr dword_58488, 1
+            dword_58488 = (dword_58488 & 0xFFFF0000) + 1; //mov word ptr dword_58488, 1
             //    pop es
         }
     }
@@ -13798,7 +13850,7 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
 //loc_4D376:              ; CODE XREF: getMouseStatus+22j
     cx = 1;
     // This might be something like the cursor speed?
-    ax = *dword_58488; // mov ax, word ptr dword_58488
+    ax = (dword_58488 & 0xFFFF); // mov ax, word ptr dword_58488
     ax = ax / 8;
     ax++;
     if (byte_519C5 == 1)
@@ -13832,18 +13884,20 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
     // Maybe this makes the speed higher as you keep the joystick or whatever pressed
     if (cx == 0)
     {
-        (*dword_58488)++; //inc word ptr dword_58488
+        uint16_t lowValue = (dword_58488 & 0xFFFF);
+        lowValue++;
+        dword_58488 = (dword_58488 & 0xFFFF0000) + lowValue; //inc word ptr dword_58488
     }
     else
     {
-        *dword_58488 = 1; //mov word ptr dword_58488, 1
+        dword_58488 = (dword_58488 & 0xFFFF0000) + 1; //mov word ptr dword_58488, 1
     }
 
 //loc_4D3C7:              ; CODE XREF: getMouseStatus+70j
     // With a maximum of 64 pixels
-    if (*dword_58488 > 0x40) // 64 or '@'
+    if ((dword_58488 & 0xFFFF) > 0x40) // 64 or '@'
     {
-        *dword_58488 = 0x40; //mov word ptr dword_58488, 40h ; '@'
+        dword_58488 = (dword_58488 & 0xFFFF0000) + 0x40; //mov word ptr dword_58488, 40h ; '@'
     }
 
 //loc_4D3D4:              ; CODE XREF: getMouseStatus+7Dj
