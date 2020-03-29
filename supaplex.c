@@ -107,18 +107,23 @@ uint8_t byte_59B6C = 0;
 uint8_t byte_59B6D = 0;
 uint8_t byte_59B71 = 0;
 uint8_t byte_59B72 = 0;
+uint8_t byte_59B7A = 0;
+uint8_t byte_59B7B = 1;
 uint8_t byte_59B83 = 0;
 uint8_t byte_59B84 = 0;
 uint8_t byte_59B85 = 0;
 uint8_t byte_59B86 = 0;
 uint8_t byte_59B94 = 0;
+uint8_t byte_59B95 = 0;
 uint8_t byte_59B96 = 0;
 uint8_t byte_5A19B = 0;
 uint8_t byte_5A19C = 0;
+uint8_t byte_5A2F8 = 0;
 uint8_t byte_5A2F9 = 0;
 uint8_t byte_5A320 = 0;
 uint8_t byte_5A321 = 0;
 uint8_t byte_5A322 = 0;
+uint8_t byte_5A323 = 0;
 uint8_t byte_5A33E = 0;
 uint8_t byte_5A33F = 0;
 uint8_t gCurrentPlayerIndex = 0; // byte_5981F
@@ -188,6 +193,7 @@ uint16_t word_51974 = 0;
 uint16_t word_51978 = 0;
 uint16_t word_5197A = 0;
 uint16_t word_51A01 = 0;
+uint16_t word_51A07 = 1;
 uint16_t word_58463 = 0;
 uint16_t word_58465 = 0;
 uint16_t word_58467 = 0;
@@ -222,11 +228,12 @@ uint8_t isMusicEnabled = 0; // byte_59886
 uint8_t isFXEnabled = 0; // byte_59885
 uint8_t videoStatusUnk = 0;
 SDL_Scancode keyPressed = 0;
-int8_t speed1 = 0;
+uint8_t speed1 = 0xFF;
 int8_t speed2 = 0;
-int8_t speed3 = 0;
-int8_t gameSpeed = 0;
+int8_t speed3 = 0xFF;
+int8_t gameSpeed = 5;
 uint8_t demoFileName = 0; // Probably should be another type but whatever for now
+uint32_t flashingbackgroundon = 0;
 
 // This points to the address on the screen where the mouse cursor was
 // drawn the last time, used to clear the cursor before redrawing it again
@@ -1183,6 +1190,9 @@ void runLevel(void);
 void slideDownGameDash(void);
 void sub_49EBE(void);
 void sub_4A1AE(void);
+void sub_4955B(void);
+void levelScanThing(void);
+void gameloop(void);
 
 static const int kWindowWidth = kScreenWidth * 4;
 static const int kWindowHeight = kScreenHeight * 4;
@@ -5801,50 +5811,45 @@ void sub_48A20() //   proc near       ; CODE XREF: start+32Fp
 
 void runLevel() //    proc near       ; CODE XREF: start+35Cp
 {
+    // 01ED:1E58
     if (gIsPlayingDemo == 0)
     {
-        //jz  short loc_48ACE
-    }
-    byte_5A19C = 1;
-    byte_510BA = 0;
-//    jmp short loc_48AD8
-
 //loc_48ACE:              ; CODE XREF: runLevel+5j
-    byte_5A19C = 0;
-    byte_510BA = 1;
+        byte_5A19C = 0;
+        byte_510BA = 1;
+    }
+    else
+    {
+        byte_5A19C = 1;
+        byte_510BA = 0;
+    }
 
 //loc_48AD8:              ; CODE XREF: runLevel+11j
-    if (byte_5A2F8 != 1)
+    if (byte_5A2F8 == 1)
     {
-        //jnz short loc_48B09
-    }
-
 //loc_48ADF:              ; CODE XREF: runLevel+BAj
-    byte_5A2F8 = 0;
-    drawGameTime();
+        byte_5A2F8 = 0;
+        drawGameTime();
 
+        do
+        {
 //isFunctionKey:              ; CODE XREF: runLevel+35j
-    al = keyPressed;
-    if (al < 0x3B) // F1
-    {
-        //jb  short notFunctionKey
-    }
-    if (al <= 0x44) // F10
-    {
-        // jbe short isFunctionKey
-    }
+            int9handler();
+        }
+        while (keyPressed >= SDL_SCANCODE_F1
+               && keyPressed <= SDL_SCANCODE_F10);
 
 //notFunctionKey:             ; CODE XREF: runLevel+31j
-    sub_48A20();
-    if (isMusicEnabled != 0)
-    {
-        //jnz short loc_48AFF
-    }
-    sound3();
+        sub_48A20();
+        if (isMusicEnabled == 0)
+        {
+            sound3();
+        }
 
 //loc_48AFF:              ; CODE XREF: runLevel+3Fj
-    byte_5A19C = 0;
-    byte_510BA = 1;
+        byte_5A19C = 0;
+        byte_510BA = 1;
+    }
 
 //loc_48B09:              ; CODE XREF: runLevel+22j
     byte_510DB = 0;
@@ -5857,7 +5862,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 //                ; runLevel+345j
         if (gIsPlayingDemo == 0)
         {
-            sub_48E59();
+            sub_48E59(); // 01ED:1EBD
         }
 
         uint16_t mouseButtonsStatus;
@@ -5871,31 +5876,31 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         }
 
 //loc_48B38:              ; CODE XREF: runLevel+6Ej runLevel+75j
-        if (word_51970 == 0)
+        if (word_51970 != 0)
         {
-            //jz  short loc_48B6B
-        }
-        if (byte_59B7A != 0)
-        {
-            byte_59B7A--;
-        }
+            if (byte_59B7A != 0)
+            {
+                byte_59B7A--;
+            }
 
 //loc_48B4A:              ; CODE XREF: runLevel+89j
-        if (byte_51999 == 0
-            && mouseButtonsStatus == 1 //cmp bx, 1
-            && byte_59B7A == 0)
-        {
-            byte_59B7A = 0xA;
-            levelScanThing();
-            drawFixedLevel();
-            sub_4A2E6();
+            if (byte_51999 == 0
+                && mouseButtonsStatus == 1 //cmp bx, 1
+                && byte_59B7A == 0)
+            {
+                byte_59B7A = 0xA;
+                levelScanThing(); // 01ED:1EFF
+                drawFixedLevel();
+                sub_4A2E6();
+            }
         }
 
 //loc_48B6B:              ; CODE XREF: runLevel+82j runLevel+94j ...
-        sub_4955B();
+        sub_4955B(); // 01ED:1F08
         if (byte_5A2F8 == 1)
         {
             // This goes back to the beginning of this function WTF
+            // Maybe it just restarts the demo? Seems to be related to playing demos
 //            jmp loc_48ADF
         }
 
@@ -6107,7 +6112,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
             //jl  short loc_48D38
         }
         ax = word_51961;
-        a -= word_59B92;
+        ax -= word_59B92;
         if (ax > 0x10)
         {
             //jg  short loc_48D38
@@ -6146,9 +6151,9 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         word_59B92 += ax;
         ax = dx;
 //        idiv    cl
-        uint8_t topBit = ah >> 7;
+        uint8_t topBit2 = ah >> 7;
         ah = ah << 1;
-        if (topBit != 0) // jnb -> cf==0 -> in shl, cf will be the MSB of the operand
+        if (topBit2 != 0) // jnb -> cf==0 -> in shl, cf will be the MSB of the operand
         {
             //jnb short loc_48D10
         }
@@ -6158,7 +6163,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
             //jb  short loc_48D16
         }
         al--;
-        jmp short loc_48D16
+        //jmp short loc_48D16
 
 //loc_48D10:              ; CODE XREF: runLevel+249j
         if (ah >= cl)
@@ -7216,579 +7221,543 @@ void prepareSomeKindOfLevelIdentifier() // sub_49544  proc near       ; CODE XRE
     a00s0010_sp[1] = char9;
 }
 
+void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
+                   // ; runLevel+30Cp
+{
+    // 01ED:28F8
+
+// ; FUNCTION CHUNK AT 2DA8 SIZE 0000038B BYTES
+
+    if (word_51A01 != 0)
+    {
+        sub_4914A();
+    }
+//loc_49567:              ; CODE XREF: sub_4955B+5j
+    else if (gIsPlayingDemo == 0)
+    {
+        sub_4A1BF();
+        if (gIsRecordingDemo != 0)
+        {
+            sub_492F1();
+        }
+    }
+
+//loc_4957B:              ; CODE XREF: sub_4955B+Aj
+//                ; sub_4955B+11j ...
+    if (gIsPlayingDemo != 0)
+    {
+        sub_492A8();
+    }
+
+//loc_49585:              ; CODE XREF: sub_4955B+25j
+    if (byte_519A1 != 0)
+    {
+        sub_4921B();
+    }
+
+//loc_4958F:              ; CODE XREF: sub_4955B+2Fj
+    if ((word_510C1 >> 8) != 0) // cmp byte ptr word_510C1+1, 0
+    {
+        uint8_t highValue = (word_510C1 >> 8);
+        highValue--;
+        word_510C1 = (highValue << 8) + (word_510C1 & 0xFF);
+    }
+
+//loc_4959A:              ; CODE XREF: sub_4955B+39j
+    if (byte_51999 == 0)
+    {
+        word_510C1 = word_510C1 & 0xFF; // mov byte ptr word_510C1+1, 0
+    }
+//loc_495A9:              ; CODE XREF: sub_4955B+44j
+    else if ((word_510C1 >> 8) == 0)
+    {
+//loc_495B3:              ; CODE XREF: sub_4955B+53j
+        word_510C1 = 0x2000 + (word_510C1 & 0xFF); // mov byte ptr word_510C1+1, 20h ; ' '
+        if ((word_510C1 & 0xFF) != 0)
+        {
+            word_510C1 = (word_510C1 & 0xFF00); // mov byte ptr word_510C1, 0
+            cl = 0x90; // 144
+            {
+//            mov dx, 3D4h
+//            al = 18h
+//            out dx, al      ; Video: CRT cntrlr addr
+//            ; line compare (scan line). Used for split screen operations.
+//                inc dx
+//                al = cl
+//                out dx, al      ; Video: CRT controller internal registers
+//            mov dx, 3D4h
+//            al = 7
+//            out dx, al      ; Video: CRT cntrlr addr
+//            ; bit 8 for certain CRTC regs. Data bits:
+//                ; 0: vertical total (Reg 06)
+//            ; 1: vert disp'd enable end (Reg 12H)
+//            ; 2: vert retrace start (Reg 10H)
+//            ; 3: start vert blanking (Reg 15H)
+//            ; 4: line compare (Reg 18H)
+//            ; 5: cursor location (Reg 0aH)
+//            inc dx
+//            al = 3Fh ; '?'
+//            out dx, al      ; Video: CRT controller internal registers
+//            mov dx, 3D4h
+//            al = 9
+//            out dx, al      ; Video: CRT cntrlr addr
+//            ; maximum scan line
+//            inc dx
+//            al = 80h ; '?'
+//            out dx, al      ; Video: CRT controller internal registers
+            }
+        }
+        else
+        {
+//loc_495FB:              ; CODE XREF: sub_4955B+62j
+            word_510C1 = (word_510C1 & 0xFF00) + 1; // mov byte ptr word_510C1, 1
+            cl = 0x5F; // 95
+            {
+//            mov dx, 3D4h
+//            al = 18h
+//            out dx, al      ; Video: CRT cntrlr addr
+//            ; line compare (scan line). Used for split screen operations.
+//                inc dx
+//                al = cl
+//                out dx, al      ; Video: CRT controller internal registers
+//            mov dx, 3D4h
+//            al = 7
+//            out dx, al      ; Video: CRT cntrlr addr
+//            ; bit 8 for certain CRTC regs. Data bits:
+//                ; 0: vertical total (Reg 06)
+//            ; 1: vert disp'd enable end (Reg 12H)
+//            ; 2: vert retrace start (Reg 10H)
+//            ; 3: start vert blanking (Reg 15H)
+//            ; 4: line compare (Reg 18H)
+//            ; 5: cursor location (Reg 0aH)
+//            inc dx
+//            al = 3Fh ; '?'
+//            out dx, al      ; Video: CRT controller internal registers
+//            mov dx, 3D4h
+//            al = 9
+//            out dx, al      ; Video: CRT cntrlr addr
+//            ; maximum scan line
+//            inc dx
+//            al = 80h ; '?'
+//            out dx, al      ; Video: CRT controller internal registers
+            }
+        }
+    }
+
+//loc_49635:              ; CODE XREF: sub_4955B+4Bj
+//                ; sub_4955B+55j ...
+    if (word_51970 != 1)
+    {
+        //jmp loc_49949
+    }
+
+//loc_4963F:              ; CODE XREF: sub_4955B+DFj
+    if (gIsRecordingDemo != 0)
+    {
+        //jmp loc_49742
+    }
+
+//loc_49649:              ; CODE XREF: sub_4955B+E9j
+    if ((dword_519AF & 0xFF) != 0) // cmp byte ptr dword_519AF, 0
+    {
+        word_51A01 = 1;
+    }
+
+//loc_49656:              ; CODE XREF: sub_4955B+F3j
+    if (byte_5199D != 0)
+    {
+        flashingbackgroundon = (flashingbackgroundon & 0xFFFF0000) + 1; // mov word ptr flashingbackgroundon, 1
+    }
+
+//loc_49663:              ; CODE XREF: sub_4955B+100j
+    if ((word_519A9 & 0xFF) != 0) // cmp byte ptr word_519A9, 0
+    {
+        ah = 1;
+        sub_4A23C();
+    }
+
+//loc_4966F:              ; CODE XREF: sub_4955B+10Dj
+    if ((word_519AD & 0xFF) != 0) // cmp byte ptr word_519AD, 0
+    {
+        ah = 2;
+        sub_4A23C();
+    }
+
+//loc_4967B:              ; CODE XREF: sub_4955B+119j
+    if (byte_519A0 != 0)
+    {
+        ah = 6;
+        sub_4A23C();
+    }
+
+//loc_49687:              ; CODE XREF: sub_4955B+125j
+    if ((word_519AB & 0xFF) != 0) // cmp byte ptr word_519AB, 0
+    {
+        ah = 5;
+        sub_4A23C();
+    }
+
+//loc_49693:              ; CODE XREF: sub_4955B+131j
+    if (byte_5199C != 0)
+    {
+        ah = 0x11;
+        sub_4A23C();
+    }
+
+//loc_4969F:              ; CODE XREF: sub_4955B+13Dj
+    if (byte_51990 != 0)
+    {
+        videoloop();
+        sub_4A3E9();
+    }
+
+//loc_496AC:              ; CODE XREF: sub_4955B+149j
+    if (gIsPlayingDemo != 0)
+    {
+//        jmp loc_49742
+    }
+
+//loc_496B6:              ; CODE XREF: sub_4955B+156j
+    if (speed3 < 0)
+    {
+        //jmp loc_49742
+    }
+
+//loc_496C0:              ; CODE XREF: sub_4955B+160j
+    if (byte_5197F != 0)
+    {
+        word_51A07 = 1;
+    }
+
+//loc_496CD:              ; CODE XREF: sub_4955B+16Aj
+    if (byte_51980 != 0)
+    {
+        word_51A07 = 2;
+    }
+
+//loc_496DA:              ; CODE XREF: sub_4955B+177j
+    if (byte_51981 != 0)
+    {
+        word_51A07 = 3;
+    }
+
+//loc_496E7:              ; CODE XREF: sub_4955B+184j
+    if (byte_51982 != 0)
+    {
+        word_51A07 = 4;
+    }
+
+//loc_496F4:              ; CODE XREF: sub_4955B+191j
+    if (byte_51983 != 0)
+    {
+        word_51A07 = 6;
+    }
+
+//loc_49701:              ; CODE XREF: sub_4955B+19Ej
+    if (byte_51984 != 0)
+    {
+        word_51A07 = 8;
+    }
+
+//loc_4970E:              ; CODE XREF: sub_4955B+1ABj
+    if (byte_51985 != 0)
+    {
+        word_51A07 = 0xC;
+    }
+
+//loc_4971B:              ; CODE XREF: sub_4955B+1B8j
+    if (byte_51986 != 0)
+    {
+        word_51A07 = 0x10;
+    }
+
+//loc_49728:              ; CODE XREF: sub_4955B+1C5j
+    if (byte_51987 != 0)
+    {
+        word_51A07 = 0x18;
+    }
+
+//loc_49735:              ; CODE XREF: sub_4955B+1D2j
+    if (byte_51988 != 0)
+    {
+        word_51A07 = 0x20;
+    }
+
+//loc_49742:              ; CODE XREF: sub_4955B+EBj
+//                ; sub_4955B+158j ...
+    if (byte_5199A == 1)
+    {
+//        jmp loc_497D1
+    }
+
+//loc_4974C:              ; CODE XREF: sub_4955B+1ECj
+    mov ax, word_5195D
+    and ax, 7
+    jz  short loc_49757
+    jmp loc_4988E
+
+//loc_49757:              ; CODE XREF: sub_4955B+1F7j
+    cmp gIsRecordingDemo, 0
+    jz  short loc_49761
+    jmp loc_4988E
+
+//loc_49761:              ; CODE XREF: sub_4955B+201j
+    cmp byte_519B8, 0
+    jnz short loc_4976F
+    mov byte_59B7C, 0
+    jmp short loc_49786
+
+//loc_4976F:              ; CODE XREF: sub_4955B+20Bj
+    cmp byte_59B7C, 0
+    jnz short loc_49786
+    dec byte_59B7C
+    and byte_5101C, 1
+    xor byte_5101C, 1
+    jmp short loc_497CE
+
+//loc_49786:              ; CODE XREF: sub_4955B+212j
+                ; sub_4955B+219j
+    cmp byte_519B9, 0
+    jnz short loc_49794
+    mov byte_59B7D, 0
+    jmp short loc_497AB
+
+//loc_49794:              ; CODE XREF: sub_4955B+230j
+    cmp byte_59B7D, 0
+    jnz short loc_497AB
+    dec byte_59B7D
+    and byte_51035, 2
+    xor byte_51035, 2
+    jmp short loc_497CE
+
+//loc_497AB:              ; CODE XREF: sub_4955B+237j
+//                ; sub_4955B+23Ej
+    cmp byte_519BA, 0
+    jnz short loc_497B9
+    mov byte_59B7E, 0
+    jmp short loc_497CE
+
+//loc_497B9:              ; CODE XREF: sub_4955B+255j
+    cmp byte_59B7E, 0
+    jnz short loc_497CE
+    dec byte_59B7E
+    and byte_510D7, 1
+    xor byte_510D7, 1
+
+//loc_497CE:              ; CODE XREF: sub_4955B+229j
+//                ; sub_4955B+24Ej ...
+    jmp loc_4988E
+
+//loc_497D1:              ; CODE XREF: sub_4955B+1EEj
+    cmp gIsPlayingDemo, 0
+    jz  short loc_497DB
+    jmp loc_4988E
+
+//loc_497DB:              ; CODE XREF: sub_4955B+27Bj
+    cmp speed3, 0
+    jge short loc_497E5
+    jmp loc_4988E
+
+//loc_497E5:              ; CODE XREF: sub_4955B+285j
+    cmp byte_519B8, 1
+    jnz short loc_497F5
+    mov ax, 0
+    call    sub_4945D
+    jmp loc_4988E
+
+//loc_497F5:              ; CODE XREF: sub_4955B+28Fj
+    cmp byte_519B9, 1
+    jnz short loc_49805
+    mov ax, 1
+    call    sub_4945D
+    jmp loc_4988E
+
+//loc_49805:              ; CODE XREF: sub_4955B+29Fj
+    cmp byte_519BA, 1
+    jnz short loc_49814
+    mov ax, 2
+    call    sub_4945D
+    jmp short loc_4988E
+
+//loc_49814:              ; CODE XREF: sub_4955B+2AFj
+    cmp byte_519BB, 1
+    jnz short loc_49823
+    mov ax, 3
+    call    sub_4945D
+    jmp short loc_4988E
+
+//loc_49823:              ; CODE XREF: sub_4955B+2BEj
+    cmp byte_519BC, 1
+    jnz short loc_49832
+    mov ax, 4
+    call    sub_4945D
+    jmp short loc_4988E
+
+//loc_49832:              ; CODE XREF: sub_4955B+2CDj
+    cmp byte_519BD, 1
+    jnz short loc_49841
+    mov ax, 5
+    call    sub_4945D
+    jmp short loc_4988E
+
+//loc_49841:              ; CODE XREF: sub_4955B+2DCj
+    cmp byte_519BE, 1
+    jnz short loc_49850
+    mov ax, 6
+    call    sub_4945D
+    jmp short loc_4988E
+
+//loc_49850:              ; CODE XREF: sub_4955B+2EBj
+    cmp byte_519BF, 1
+    jnz short loc_4985F
+    mov ax, 7
+    call    sub_4945D
+    jmp short loc_4988E
+
+//loc_4985F:              ; CODE XREF: sub_4955B+2FAj
+    cmp byte_519C0, 1
+    jnz short loc_4986E
+    mov ax, 8
+    call    sub_4945D
+    jmp short loc_4988E
+
+//loc_4986E:              ; CODE XREF: sub_4955B+309j
+    cmp byte_519C1, 1
+    jnz short loc_4987D
+    mov ax, 9
+    call    sub_4945D
+    jmp short loc_4988E
+
+//loc_4987D:              ; CODE XREF: sub_4955B+318j
+    cmp byte_519D5, 1
+    jnz short loc_4988E
+    cmp gIsRecordingDemo, 0
+    jz  short loc_4988E
+    call    somethingspsig
+
+//loc_4988E:              ; CODE XREF: sub_4955B+1F9j
+//                ; sub_4955B+203j ...
+    cmp gIsRecordingDemo, 0
+    jz  short loc_49898
+    jmp loc_49949
+
+//loc_49898:              ; CODE XREF: sub_4955B+338j
+    cmp gIsPlayingDemo, 0
+    jz  short loc_498A2
+    jmp loc_49949
+
+//loc_498A2:              ; CODE XREF: sub_4955B+342j
+    cmp byte_51989, 0
+    jnz short loc_498B5
+    mov byte_59B7F, 0
+    mov byte_59B80, 5
+    jmp short loc_498FC
+
+//loc_498B5:              ; CODE XREF: sub_4955B+34Cj
+    cmp byte_59B7F, 0
+    jz  short loc_498C2
+    dec byte_59B7F
+    jmp short loc_498FC
+
+//loc_498C2:              ; CODE XREF: sub_4955B+35Fj
+    cmp byte_59B80, 0
+    jz  short loc_498D2
+    dec byte_59B80
+    mov byte_59B7F, 10h
+
+//loc_498D2:              ; CODE XREF: sub_4955B+36Cj
+    cmp gCurrentSelectedLevelIndex, 1
+    ja  short loc_498DF
+    mov gCurrentSelectedLevelIndex, 2
+
+//loc_498DF:              ; CODE XREF: sub_4955B+37Cj
+    dec gCurrentSelectedLevelIndex
+    cmp gCurrentSelectedLevelIndex, 6Fh ; 'o'
+    jbe short loc_498F0
+    mov gCurrentSelectedLevelIndex, 6Fh ; 'o'
+
+//loc_498F0:              ; CODE XREF: sub_4955B+38Dj
+    mov ax, gCurrentSelectedLevelIndex
+    call    sub_4BF4A
+    call    drawLevelList
+    call    sub_4A3D2
+
+//loc_498FC:              ; CODE XREF: sub_4955B+358j
+//                ; sub_4955B+365j
+    cmp byte_5198A, 0
+    jnz short loc_4990F
+    mov byte_59B81, 0
+    mov byte_59B82, 5
+    jmp short loc_49949
+
+//loc_4990F:              ; CODE XREF: sub_4955B+3A6j
+    cmp byte_59B81, 0
+    jz  short loc_4991C
+    dec byte_59B81
+    jmp short loc_49949
+
+//loc_4991C:              ; CODE XREF: sub_4955B+3B9j
+    cmp byte_59B82, 0
+    jz  short loc_4992C
+    dec byte_59B82
+    mov byte_59B81, 10h
+
+//loc_4992C:              ; CODE XREF: sub_4955B+3C6j
+    cmp gCurrentSelectedLevelIndex, 6Fh ; 'o'
+    jb  short loc_49939
+    mov gCurrentSelectedLevelIndex, 6Eh ; 'n'
+
+//loc_49939:              ; CODE XREF: sub_4955B+3D6j
+    inc gCurrentSelectedLevelIndex
+    mov ax, gCurrentSelectedLevelIndex
+    call    sub_4BF4A
+    call    drawLevelList
+    call    sub_4A3D2
+
+//loc_49949:              ; CODE XREF: sub_4955B+E1j
+//                ; sub_4955B+33Aj ...
+    cmp byte_59B6B, 0
+    mov byte_59B6B, 0
+    jz  short loc_49958
+    jmp loc_49A89
+
+//loc_49958:              ; CODE XREF: sub_4955B+3F8j
+    cmp byte_5199A, 1
+    jz  short loc_49962
+    jmp loc_49C41
+
+//loc_49962:              ; CODE XREF: sub_4955B+402j
+    cmp byte_519D5, 1
+    jnz short loc_49984
+    cmp gIsPlayingDemo, 0
+    jz  short loc_49984
+    mov gIsPlayingDemo, 0
+    mov byte_510B3, 0
+    mov byte_5A2F9, 1
+    mov byte_5A33E, 1
+
+//loc_49984:              ; CODE XREF: sub_4955B+40Cj
+//                ; sub_4955B+413j
+    cmp byte_519C3, 1
+    jnz short loc_499AA
+    mov word_51970, 1
+    cmp videoStatusUnk, 1
+    jnz short loc_499AA
+    mov di, 6D2h
+    mov ah, 6
+    push    si
+    mov si, 0A00Ah
+    call    drawTextWithChars8Font
+    pop si
+    mov byte_5197C, 46h ; 'F'
+
+//loc_499AA:              ; CODE XREF: sub_4955B+42Ej
+//                ; sub_4955B+43Bj
+    cmp byte_5198E, 1
+    jz  short loc_499C8
+    jmp loc_49A7F
+}
 /*
-
-sub_4955B   proc near       ; CODE XREF: runLevel:loc_48B6Bp
-                    ; runLevel+30Cp
-
-; FUNCTION CHUNK AT 2DA8 SIZE 0000038B BYTES
-
-        cmp word_51A01, 0
-        jz  short loc_49567
-        call    sub_4914A
-        jmp short loc_4957B
-// ; ---------------------------------------------------------------------------
-
-loc_49567:              ; CODE XREF: sub_4955B+5j
-        cmp gIsPlayingDemo, 0
-        jnz short loc_4957B
-        call    sub_4A1BF
-        cmp gIsRecordingDemo, 0
-        jz  short loc_4957B
-        call    sub_492F1
-
-loc_4957B:              ; CODE XREF: sub_4955B+Aj
-                    ; sub_4955B+11j ...
-        cmp gIsPlayingDemo, 0
-        jz  short loc_49585
-        call    sub_492A8
-
-loc_49585:              ; CODE XREF: sub_4955B+25j
-        cmp byte_519A1, 0
-        jz  short loc_4958F
-        call    sub_4921B
-
-loc_4958F:              ; CODE XREF: sub_4955B+2Fj
-        cmp byte ptr word_510C1+1, 0
-        jz  short loc_4959A
-        dec byte ptr word_510C1+1
-
-loc_4959A:              ; CODE XREF: sub_4955B+39j
-        cmp byte_51999, 0
-        jnz short loc_495A9
-        mov byte ptr word_510C1+1, 0
-        jmp loc_49635
-// ; ---------------------------------------------------------------------------
-
-loc_495A9:              ; CODE XREF: sub_4955B+44j
-        cmp byte ptr word_510C1+1, 0
-        jz  short loc_495B3
-        jmp loc_49635
-// ; ---------------------------------------------------------------------------
-
-loc_495B3:              ; CODE XREF: sub_4955B+53j
-        mov byte ptr word_510C1+1, 20h ; ' '
-        cmp byte ptr word_510C1, 0
-        jz  short loc_495FB
-        mov byte ptr word_510C1, 0
-        cmp videoStatusUnk, 1
-        jnz short loc_495ED
-        mov cl, 90h ; '?'
-        mov dx, 3D4h
-        al = 18h
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; line compare (scan line). Used for split screen operations.
-        inc dx
-        al = cl
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 7
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; bit 8 for certain CRTC regs. Data bits:
-                    ; 0: vertical total (Reg 06)
-                    ; 1: vert disp'd enable end (Reg 12H)
-                    ; 2: vert retrace start (Reg 10H)
-                    ; 3: start vert blanking (Reg 15H)
-                    ; 4: line compare (Reg 18H)
-                    ; 5: cursor location (Reg 0aH)
-        inc dx
-        al = 3Fh ; '?'
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 9
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; maximum scan line
-        inc dx
-        al = 80h ; '?'
-        out dx, al      ; Video: CRT controller internal registers
-        jmp short loc_49635
-// ; ---------------------------------------------------------------------------
-
-loc_495ED:              ; CODE XREF: sub_4955B+6Ej
-        mov cl, 0C8h ; '?'
-        mov dx, 3D4h
-        al = 18h
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; line compare (scan line). Used for split screen operations.
-        inc dx
-        al = cl
-        out dx, al      ; Video: CRT controller internal registers
-        jmp short loc_49635
-// ; ---------------------------------------------------------------------------
-
-loc_495FB:              ; CODE XREF: sub_4955B+62j
-        mov byte ptr word_510C1, 1
-        cmp videoStatusUnk, 1
-        jnz short loc_49629
-        mov cl, 5Fh ; '_'
-        mov dx, 3D4h
-        al = 18h
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; line compare (scan line). Used for split screen operations.
-        inc dx
-        al = cl
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 7
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; bit 8 for certain CRTC regs. Data bits:
-                    ; 0: vertical total (Reg 06)
-                    ; 1: vert disp'd enable end (Reg 12H)
-                    ; 2: vert retrace start (Reg 10H)
-                    ; 3: start vert blanking (Reg 15H)
-                    ; 4: line compare (Reg 18H)
-                    ; 5: cursor location (Reg 0aH)
-        inc dx
-        al = 3Fh ; '?'
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 9
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; maximum scan line
-        inc dx
-        al = 80h ; '?'
-        out dx, al      ; Video: CRT controller internal registers
-        jmp short loc_49635
-// ; ---------------------------------------------------------------------------
-
-loc_49629:              ; CODE XREF: sub_4955B+AAj
-        mov cl, 0B0h ; '?'
-        mov dx, 3D4h
-        al = 18h
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; line compare (scan line). Used for split screen operations.
-        inc dx
-        al = cl
-        out dx, al      ; Video: CRT controller internal registers
-
-loc_49635:              ; CODE XREF: sub_4955B+4Bj
-                    ; sub_4955B+55j ...
-        cmp word_51970, 1
-        jz  short loc_4963F
-        jmp loc_49949
-// ; ---------------------------------------------------------------------------
-
-loc_4963F:              ; CODE XREF: sub_4955B+DFj
-        cmp gIsRecordingDemo, 0
-        jz  short loc_49649
-        jmp loc_49742
-// ; ---------------------------------------------------------------------------
-
-loc_49649:              ; CODE XREF: sub_4955B+E9j
-        cmp byte ptr dword_519AF, 0
-        jz  short loc_49656
-        mov word_51A01, 1
-
-loc_49656:              ; CODE XREF: sub_4955B+F3j
-        cmp byte_5199D, 0
-        jz  short loc_49663
-        mov word ptr flashingbackgroundon, 1
-
-loc_49663:              ; CODE XREF: sub_4955B+100j
-        cmp byte ptr word_519A9, 0
-        jz  short loc_4966F
-        mov ah, 1
-        call    sub_4A23C
-
-loc_4966F:              ; CODE XREF: sub_4955B+10Dj
-        cmp byte ptr word_519AD, 0
-        jz  short loc_4967B
-        mov ah, 2
-        call    sub_4A23C
-
-loc_4967B:              ; CODE XREF: sub_4955B+119j
-        cmp byte_519A0, 0
-        jz  short loc_49687
-        mov ah, 6
-        call    sub_4A23C
-
-loc_49687:              ; CODE XREF: sub_4955B+125j
-        cmp byte ptr word_519AB, 0
-        jz  short loc_49693
-        mov ah, 5
-        call    sub_4A23C
-
-loc_49693:              ; CODE XREF: sub_4955B+131j
-        cmp byte_5199C, 0
-        jz  short loc_4969F
-        mov ah, 11h
-        call    sub_4A23C
-
-loc_4969F:              ; CODE XREF: sub_4955B+13Dj
-        cmp byte_51990, 0
-        jz  short loc_496AC
-        call    videoloop
-        call    sub_4A3E9
-
-loc_496AC:              ; CODE XREF: sub_4955B+149j
-        cmp gIsPlayingDemo, 0
-        jz  short loc_496B6
-        jmp loc_49742
-// ; ---------------------------------------------------------------------------
-
-loc_496B6:              ; CODE XREF: sub_4955B+156j
-        cmp speed3, 0
-        jge short loc_496C0
-        jmp loc_49742
-// ; ---------------------------------------------------------------------------
-
-loc_496C0:              ; CODE XREF: sub_4955B+160j
-        cmp byte_5197F, 0
-        jz  short loc_496CD
-        mov word_51A07, 1
-
-loc_496CD:              ; CODE XREF: sub_4955B+16Aj
-        cmp byte_51980, 0
-        jz  short loc_496DA
-        mov word_51A07, 2
-
-loc_496DA:              ; CODE XREF: sub_4955B+177j
-        cmp byte_51981, 0
-        jz  short loc_496E7
-        mov word_51A07, 3
-
-loc_496E7:              ; CODE XREF: sub_4955B+184j
-        cmp byte_51982, 0
-        jz  short loc_496F4
-        mov word_51A07, 4
-
-loc_496F4:              ; CODE XREF: sub_4955B+191j
-        cmp byte_51983, 0
-        jz  short loc_49701
-        mov word_51A07, 6
-
-loc_49701:              ; CODE XREF: sub_4955B+19Ej
-        cmp byte_51984, 0
-        jz  short loc_4970E
-        mov word_51A07, 8
-
-loc_4970E:              ; CODE XREF: sub_4955B+1ABj
-        cmp byte_51985, 0
-        jz  short loc_4971B
-        mov word_51A07, 0Ch
-
-loc_4971B:              ; CODE XREF: sub_4955B+1B8j
-        cmp byte_51986, 0
-        jz  short loc_49728
-        mov word_51A07, 10h
-
-loc_49728:              ; CODE XREF: sub_4955B+1C5j
-        cmp byte_51987, 0
-        jz  short loc_49735
-        mov word_51A07, 18h
-
-loc_49735:              ; CODE XREF: sub_4955B+1D2j
-        cmp byte_51988, 0
-        jz  short loc_49742
-        mov word_51A07, 20h ; ' '
-
-loc_49742:              ; CODE XREF: sub_4955B+EBj
-                    ; sub_4955B+158j ...
-        cmp byte_5199A, 1
-        jnz short loc_4974C
-        jmp loc_497D1
-// ; ---------------------------------------------------------------------------
-
-loc_4974C:              ; CODE XREF: sub_4955B+1ECj
-        mov ax, word_5195D
-        and ax, 7
-        jz  short loc_49757
-        jmp loc_4988E
-// ; ---------------------------------------------------------------------------
-
-loc_49757:              ; CODE XREF: sub_4955B+1F7j
-        cmp gIsRecordingDemo, 0
-        jz  short loc_49761
-        jmp loc_4988E
-// ; ---------------------------------------------------------------------------
-
-loc_49761:              ; CODE XREF: sub_4955B+201j
-        cmp byte_519B8, 0
-        jnz short loc_4976F
-        mov byte_59B7C, 0
-        jmp short loc_49786
-// ; ---------------------------------------------------------------------------
-
-loc_4976F:              ; CODE XREF: sub_4955B+20Bj
-        cmp byte_59B7C, 0
-        jnz short loc_49786
-        dec byte_59B7C
-        and byte_5101C, 1
-        xor byte_5101C, 1
-        jmp short loc_497CE
-// ; ---------------------------------------------------------------------------
-
-loc_49786:              ; CODE XREF: sub_4955B+212j
-                    ; sub_4955B+219j
-        cmp byte_519B9, 0
-        jnz short loc_49794
-        mov byte_59B7D, 0
-        jmp short loc_497AB
-// ; ---------------------------------------------------------------------------
-
-loc_49794:              ; CODE XREF: sub_4955B+230j
-        cmp byte_59B7D, 0
-        jnz short loc_497AB
-        dec byte_59B7D
-        and byte_51035, 2
-        xor byte_51035, 2
-        jmp short loc_497CE
-// ; ---------------------------------------------------------------------------
-
-loc_497AB:              ; CODE XREF: sub_4955B+237j
-                    ; sub_4955B+23Ej
-        cmp byte_519BA, 0
-        jnz short loc_497B9
-        mov byte_59B7E, 0
-        jmp short loc_497CE
-// ; ---------------------------------------------------------------------------
-
-loc_497B9:              ; CODE XREF: sub_4955B+255j
-        cmp byte_59B7E, 0
-        jnz short loc_497CE
-        dec byte_59B7E
-        and byte_510D7, 1
-        xor byte_510D7, 1
-
-loc_497CE:              ; CODE XREF: sub_4955B+229j
-                    ; sub_4955B+24Ej ...
-        jmp loc_4988E
-// ; ---------------------------------------------------------------------------
-
-loc_497D1:              ; CODE XREF: sub_4955B+1EEj
-        cmp gIsPlayingDemo, 0
-        jz  short loc_497DB
-        jmp loc_4988E
-// ; ---------------------------------------------------------------------------
-
-loc_497DB:              ; CODE XREF: sub_4955B+27Bj
-        cmp speed3, 0
-        jge short loc_497E5
-        jmp loc_4988E
-// ; ---------------------------------------------------------------------------
-
-loc_497E5:              ; CODE XREF: sub_4955B+285j
-        cmp byte_519B8, 1
-        jnz short loc_497F5
-        mov ax, 0
-        call    sub_4945D
-        jmp loc_4988E
-// ; ---------------------------------------------------------------------------
-
-loc_497F5:              ; CODE XREF: sub_4955B+28Fj
-        cmp byte_519B9, 1
-        jnz short loc_49805
-        mov ax, 1
-        call    sub_4945D
-        jmp loc_4988E
-// ; ---------------------------------------------------------------------------
-
-loc_49805:              ; CODE XREF: sub_4955B+29Fj
-        cmp byte_519BA, 1
-        jnz short loc_49814
-        mov ax, 2
-        call    sub_4945D
-        jmp short loc_4988E
-// ; ---------------------------------------------------------------------------
-
-loc_49814:              ; CODE XREF: sub_4955B+2AFj
-        cmp byte_519BB, 1
-        jnz short loc_49823
-        mov ax, 3
-        call    sub_4945D
-        jmp short loc_4988E
-// ; ---------------------------------------------------------------------------
-
-loc_49823:              ; CODE XREF: sub_4955B+2BEj
-        cmp byte_519BC, 1
-        jnz short loc_49832
-        mov ax, 4
-        call    sub_4945D
-        jmp short loc_4988E
-// ; ---------------------------------------------------------------------------
-
-loc_49832:              ; CODE XREF: sub_4955B+2CDj
-        cmp byte_519BD, 1
-        jnz short loc_49841
-        mov ax, 5
-        call    sub_4945D
-        jmp short loc_4988E
-// ; ---------------------------------------------------------------------------
-
-loc_49841:              ; CODE XREF: sub_4955B+2DCj
-        cmp byte_519BE, 1
-        jnz short loc_49850
-        mov ax, 6
-        call    sub_4945D
-        jmp short loc_4988E
-// ; ---------------------------------------------------------------------------
-
-loc_49850:              ; CODE XREF: sub_4955B+2EBj
-        cmp byte_519BF, 1
-        jnz short loc_4985F
-        mov ax, 7
-        call    sub_4945D
-        jmp short loc_4988E
-// ; ---------------------------------------------------------------------------
-
-loc_4985F:              ; CODE XREF: sub_4955B+2FAj
-        cmp byte_519C0, 1
-        jnz short loc_4986E
-        mov ax, 8
-        call    sub_4945D
-        jmp short loc_4988E
-// ; ---------------------------------------------------------------------------
-
-loc_4986E:              ; CODE XREF: sub_4955B+309j
-        cmp byte_519C1, 1
-        jnz short loc_4987D
-        mov ax, 9
-        call    sub_4945D
-        jmp short loc_4988E
-// ; ---------------------------------------------------------------------------
-
-loc_4987D:              ; CODE XREF: sub_4955B+318j
-        cmp byte_519D5, 1
-        jnz short loc_4988E
-        cmp gIsRecordingDemo, 0
-        jz  short loc_4988E
-        call    somethingspsig
-
-loc_4988E:              ; CODE XREF: sub_4955B+1F9j
-                    ; sub_4955B+203j ...
-        cmp gIsRecordingDemo, 0
-        jz  short loc_49898
-        jmp loc_49949
-// ; ---------------------------------------------------------------------------
-
-loc_49898:              ; CODE XREF: sub_4955B+338j
-        cmp gIsPlayingDemo, 0
-        jz  short loc_498A2
-        jmp loc_49949
-// ; ---------------------------------------------------------------------------
-
-loc_498A2:              ; CODE XREF: sub_4955B+342j
-        cmp byte_51989, 0
-        jnz short loc_498B5
-        mov byte_59B7F, 0
-        mov byte_59B80, 5
-        jmp short loc_498FC
-// ; ---------------------------------------------------------------------------
-
-loc_498B5:              ; CODE XREF: sub_4955B+34Cj
-        cmp byte_59B7F, 0
-        jz  short loc_498C2
-        dec byte_59B7F
-        jmp short loc_498FC
-// ; ---------------------------------------------------------------------------
-
-loc_498C2:              ; CODE XREF: sub_4955B+35Fj
-        cmp byte_59B80, 0
-        jz  short loc_498D2
-        dec byte_59B80
-        mov byte_59B7F, 10h
-
-loc_498D2:              ; CODE XREF: sub_4955B+36Cj
-        cmp gCurrentSelectedLevelIndex, 1
-        ja  short loc_498DF
-        mov gCurrentSelectedLevelIndex, 2
-
-loc_498DF:              ; CODE XREF: sub_4955B+37Cj
-        dec gCurrentSelectedLevelIndex
-        cmp gCurrentSelectedLevelIndex, 6Fh ; 'o'
-        jbe short loc_498F0
-        mov gCurrentSelectedLevelIndex, 6Fh ; 'o'
-
-loc_498F0:              ; CODE XREF: sub_4955B+38Dj
-        mov ax, gCurrentSelectedLevelIndex
-        call    sub_4BF4A
-        call    drawLevelList
-        call    sub_4A3D2
-
-loc_498FC:              ; CODE XREF: sub_4955B+358j
-                    ; sub_4955B+365j
-        cmp byte_5198A, 0
-        jnz short loc_4990F
-        mov byte_59B81, 0
-        mov byte_59B82, 5
-        jmp short loc_49949
-// ; ---------------------------------------------------------------------------
-
-loc_4990F:              ; CODE XREF: sub_4955B+3A6j
-        cmp byte_59B81, 0
-        jz  short loc_4991C
-        dec byte_59B81
-        jmp short loc_49949
-// ; ---------------------------------------------------------------------------
-
-loc_4991C:              ; CODE XREF: sub_4955B+3B9j
-        cmp byte_59B82, 0
-        jz  short loc_4992C
-        dec byte_59B82
-        mov byte_59B81, 10h
-
-loc_4992C:              ; CODE XREF: sub_4955B+3C6j
-        cmp gCurrentSelectedLevelIndex, 6Fh ; 'o'
-        jb  short loc_49939
-        mov gCurrentSelectedLevelIndex, 6Eh ; 'n'
-
-loc_49939:              ; CODE XREF: sub_4955B+3D6j
-        inc gCurrentSelectedLevelIndex
-        mov ax, gCurrentSelectedLevelIndex
-        call    sub_4BF4A
-        call    drawLevelList
-        call    sub_4A3D2
-
-loc_49949:              ; CODE XREF: sub_4955B+E1j
-                    ; sub_4955B+33Aj ...
-        cmp byte_59B6B, 0
-        mov byte_59B6B, 0
-        jz  short loc_49958
-        jmp loc_49A89
-// ; ---------------------------------------------------------------------------
-
-loc_49958:              ; CODE XREF: sub_4955B+3F8j
-        cmp byte_5199A, 1
-        jz  short loc_49962
-        jmp loc_49C41
-// ; ---------------------------------------------------------------------------
-
-loc_49962:              ; CODE XREF: sub_4955B+402j
-        cmp byte_519D5, 1
-        jnz short loc_49984
-        cmp gIsPlayingDemo, 0
-        jz  short loc_49984
-        mov gIsPlayingDemo, 0
-        mov byte_510B3, 0
-        mov byte_5A2F9, 1
-        mov byte_5A33E, 1
-
-loc_49984:              ; CODE XREF: sub_4955B+40Cj
-                    ; sub_4955B+413j
-        cmp byte_519C3, 1
-        jnz short loc_499AA
-        mov word_51970, 1
-        cmp videoStatusUnk, 1
-        jnz short loc_499AA
-        mov di, 6D2h
-        mov ah, 6
-        push    si
-        mov si, 0A00Ah
-        call    drawTextWithChars8Font
-        pop si
-        mov byte_5197C, 46h ; 'F'
-
-loc_499AA:              ; CODE XREF: sub_4955B+42Ej
-                    ; sub_4955B+43Bj
-        cmp byte_5198E, 1
-        jz  short loc_499C8
-        jmp loc_49A7F
-sub_4955B   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
 readFromFh1 proc near       ; CODE XREF: sub_4955B+54Ep
                     ; sub_4955B+57Cp ...
         mov ax, 3F00h
@@ -8260,241 +8229,257 @@ locret_49D52:               ; CODE XREF: sub_4955B+7F2j
 sub_49D53   proc near       ; CODE XREF: sub_4955B+626p
                     ; sub_4A23C+21p
         mov byte_59B7B, 0
+        call    levelScanThing // added by me, seems like code continues from here?
 sub_49D53   endp ; sp-analysis failed
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-levelScanThing   proc near       ; CODE XREF: runLevel+A7p
-        push    es
-        push    ds
-        pop es
-        assume es:data
-        cld
-        mov cx, 5A0h
-        mov di, offset leveldata
-        mov ax, 0F11Fh
-
-loc_49D65:              ; CODE XREF: levelScanThing+18j
-        cmp es:[di], al
-        jnz short loc_49D6D
-        mov es:[di], ah
-
-loc_49D6D:              ; CODE XREF: levelScanThing+10j
-        inc di
-        inc di
-        dec cx
-        jnz short loc_49D65
-        cmp byte_59B7B, 0
-        mov byte_59B7B, 0
-        jnz short loc_49DDE
-        mov cx, 5A0h
-        mov di, offset leveldata
-
-loc_49D84:              ; CODE XREF: levelScanThing+4Cj
-        mov ax, 6
-        repne scasw
-        jnz short loc_49DA6
-        mov bx, 59Fh
-        sub bx, cx
-        al = [bx-6775h]
-        cmp ax, 1Ch
-        jb  short loc_49DA2
-        cmp ax, 25h ; '%'
-        ja  short loc_49DA2
-        mov es:[di-2], ax
-
-loc_49DA2:              ; CODE XREF: levelScanThing+3Fj
-                    ; levelScanThing+44j
-        or  cx, cx
-        jnz short loc_49D84
-
-loc_49DA6:              ; CODE XREF: levelScanThing+31j
-        mov cx, 5A0h
-        mov di, offset leveldata
-
-loc_49DAC:              ; CODE XREF: levelScanThing+7Fj
-        mov ax, 5
-        repne scasw
-        jnz short loc_49DD9
-        mov bx, 59Fh
-        sub bx, cx
-        al = [bx-6775h]
-        cmp ax, 1Ah
-        jb  short loc_49DD5
-        cmp ax, 27h //; '''
-        ja  short loc_49DD5
-        sub ax, 1Ch
-        cmp ax, 0Ah
-        jb  short loc_49DD5
-        add ax, 1Ch
-        mov es:[di-2], ax
-
-loc_49DD5:              ; CODE XREF: levelScanThing+67j
-                    ; levelScanThing+6Cj ...
-        or  cx, cx
-        jnz short loc_49DAC
-
-loc_49DD9:              ; CODE XREF: levelScanThing+59j
-        mov byte_59B7B, 1
-
-loc_49DDE:              ; CODE XREF: levelScanThing+24j
-        pop es
-        assume es:nothing
-        return;
-levelScanThing   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-gameloop   proc near       ; CODE XREF: runLevel:noFlashingp
-
-        ; set graphics write mode = 1
-        mov dx, 3CEh
-        al = 5
-        out dx, al
-        inc dx
-        al = 1
-        out dx, al
-
-        mov si, murphyloc
-        call    update?
-        mov murphyloc, si
-
-        cmp word ptr flashingbackgroundon, 0
-        jz  short loc_49E0A
-
-        ; flashes background
-        ; set palette ix 0 = #3f2121 (maroon)
-        mov dx, 3C8h
-        xor al, al
-        out dx, al
-        inc dx
-        al = 3Fh
-        out dx, al
-        out dx, al
-        al = 21h
-        out dx, al
-
-loc_49E0A:
-        cmp byte ptr word_510C1, 0
-        jz  short loc_49E14
-        call    sub_5024B
-
-loc_49E14:
-        ; set graphics write mode = 1
-        mov dx, 3CEh
-        al = 5
-        out dx, al
-        inc dx
-        al = 1
-        out dx, al
-
-        cmp word ptr flashingbackgroundon, 0
-        jz  short loc_49E33
-        
-        ; flashes background
-        ; set palette ix 0 = #3f2121 (maroon)
-        mov dx, 3C8h
-        xor al, al
-        out dx, al
-        inc dx
-        al = 3Fh
-        out dx, al
-        al = 21h
-        out dx, al
-        out dx, al
-
-loc_49E33:
-        mov di, offset movingObjects?
-        mov si, 7Ah ; level width in words + 2 (index of first gamefiled cell)
-        mov cx, 526h ; unsure count
-        xor dx, dx
-        xor bh, bh
-
-checkCellForMovingObject:              ; CODE XREF: gameloop+84j
-        mov bl, byte ptr leveldata[si]
-
-        test    bl, 0Dh
-        jz  short moveToNextCell
-
-        cmp bl, 20h
-        jnb short moveToNextCell
-
-        ; multiply by 2 to go from byte to word
-        shl bx, 1
-        mov ax, movingFunctions[bx]
-        or  ax, ax
-        jz  short moveToNextCell
-
-        ; log moving object for call
-        ; each index has 2 bytes for index and 2 bytes as fn ptr to call
-        inc dx
-        mov [di], si
-        mov [di+2], ax
-        add di, 4
-
-moveToNextCell:
-
-        add si, 2
-        loop    checkCellForMovingObject
-
-        cmp dx, 0
-        jz  short doneWithGameLoop ; not a single moving object
-        mov cx, dx ; cx = number of moving objects
-        mov di, offset movingObjects?
-
-; call moving functions one by one
-callNextMovingFunction:
-        push(di);
-        push(cx);
-        mov si, [di]    ; the cell for the moving object
-        mov ax, [di+2]  ; the function to call
-        call    ax
-        pop(cx);
-        pop(di);
-        add di, 4
-        loop    callNextMovingFunction
-
-doneWithGameLoop:
-        ; set graphics write mode = 0
-        mov dx, 3CEh
-        al = 5
-        out dx, al
-        inc dx
-        al = 0
-        out dx, al
-
-        cmp word_510D1, 1
-        jz  short loc_49E99
-        cmp word_510CF, 0
-        jz  short loc_49E99
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_49E99:              ; CODE XREF: gameloop+AFj
-                    ; gameloop+B6j
-        cmp word_51978, 0
-        jnz short loc_49EB3
-        mov word_510D1, 0
-        mov si, word_510C7
-        call    sub_4A61F
-        mov word_51978, 40h ; '@'
-
-loc_49EB3:
-        ; set graphics write mode = 0
-        mov dx, 3CEh
-        al = 5
-        out dx, al
-        inc dx
-        al = 1
-        out dx, al
-
-        return;
-gameloop   endp
 */
+void levelScanThing() //   proc near       ; CODE XREF: runLevel+A7p
+{
+    // No idea what function does exactly yet, but seems to iterate through
+    // gCurrentLevelWord instead of gCurrentLevel.tiles. I wonder if they (or the speed fix authors)
+    // used the extra padding in that struct to store additional info for each
+    // tile.
+    assert(0);
+    return;
+/*
+//    push    es
+//    push    ds
+//    pop es
+//    assume es:data
+//    cld
+    cx = 0x5A0; // 01ED:30F9
+//    mov di, offset leveldata // 0x1834 (gCurrentLevelWord)
+    ax = 0xF11F; // 61727
+
+    for (int i = 0; i < kLevelSize; ++i)
+    {
+//loc_49D65:              ; CODE XREF: levelScanThing+18j
+        if (gCurrentLevel.tiles[i] == 0x1F)
+        {
+            gCurrentLevel.tiles[i] = 0xF1;
+        }
+//        if (es:[di] == 0x1F) // 31
+//        {
+//            es:[di] = 0xF1; // 241
+//        }
+
+//loc_49D6D:              ; CODE XREF: levelScanThing+10j
+//        di++;
+//        di++;
+    }
+    uint8_t was_byte_59B7B_NonZero = (byte_59B7B != 0);
+    byte_59B7B = 0;
+    if (was_byte_59B7B_NonZero)
+    {
+        return;
+    }
+//    mov cx, 5A0h
+//    mov di, offset leveldata
+
+    for (int i = 0; i < kLevelSize; ++i)
+    {
+//loc_49D84:              ; CODE XREF: levelScanThing+4Cj
+        if (gCurrentLevel.tiles[i] != LevelTileTypeHardware)
+        {
+            continue;
+        }
+//        ax = 6;
+//        repne scasw
+//        if (not found)
+//        {
+//            break;
+//        }
+        bx = kLevelSize - 1; // 0x59F; // 1439
+        bx = bx - cx;
+//        al = [bx-6775h]
+        if (ax >= 0x1C // 28
+            && ax <= 0x25) // 37
+        {
+            //es:[di-2] = ax;
+        }
+    }
+
+//loc_49DA6:              ; CODE XREF: levelScanThing+31j
+//    mov cx, 5A0h
+//    mov di, offset leveldata
+
+    for (int i = 0; i < kLevelSize; ++i)
+    {
+//loc_49DAC:              ; CODE XREF: levelScanThing+7Fj
+        if (gCurrentLevel.tiles[i] != LevelTileTypeChip)
+        {
+            continue;
+        }
+//        mov ax, 5
+//        repne scasw
+//        jnz short loc_49DD9
+//        mov bx, 59Fh
+//        sub bx, cx
+//        al = [bx-6775h]
+        if (ax >= 0x1A // 26
+            && ax <= 0x27) // 39
+        {
+            ax -= 0x1C; // 28
+            if (ax >= 0xA) // 10
+            {
+                ax += 0x1C; // 28
+//                es:[di-2] = ax;
+            }
+        }
+    }
+
+//loc_49DD9:              ; CODE XREF: levelScanThing+59j
+    byte_59B7B = 1;
+ */
+}
+
+void gameloop() //   proc near       ; CODE XREF: runLevel:noFlashingp
+{
+    /*
+//    ; set graphics write mode = 1
+    mov dx, 3CEh
+    al = 5
+    out dx, al
+    inc dx
+    al = 1
+    out dx, al
+
+    mov si, murphyloc
+    call    update?
+    mov murphyloc, si
+
+    cmp word ptr flashingbackgroundon, 0
+    jz  short loc_49E0A
+
+//    ; flashes background
+//    ; set palette ix 0 = #3f2121 (maroon)
+    mov dx, 3C8h
+    xor al, al
+    out dx, al
+    inc dx
+    al = 3Fh
+    out dx, al
+    out dx, al
+    al = 21h
+    out dx, al
+
+//loc_49E0A:
+    cmp byte ptr word_510C1, 0
+    jz  short loc_49E14
+    call    sub_5024B
+
+//loc_49E14:
+//    ; set graphics write mode = 1
+    mov dx, 3CEh
+    al = 5
+    out dx, al
+    inc dx
+    al = 1
+    out dx, al
+
+    cmp word ptr flashingbackgroundon, 0
+    jz  short loc_49E33
+
+//    ; flashes background
+//    ; set palette ix 0 = #3f2121 (maroon)
+    mov dx, 3C8h
+    xor al, al
+    out dx, al
+    inc dx
+    al = 3Fh
+    out dx, al
+    al = 21h
+    out dx, al
+    out dx, al
+
+//loc_49E33:
+    mov di, offset movingObjects?
+    mov si, 7Ah ; level width in words + 2 (index of first gamefiled cell)
+    mov cx, 526h ; unsure count
+    xor dx, dx
+    xor bh, bh
+
+//checkCellForMovingObject:              ; CODE XREF: gameloop+84j
+    mov bl, byte ptr leveldata[si]
+
+    test    bl, 0Dh
+    jz  short moveToNextCell
+
+    cmp bl, 20h
+    jnb short moveToNextCell
+
+    ; multiply by 2 to go from byte to word
+    shl bx, 1
+    mov ax, movingFunctions[bx]
+    or  ax, ax
+    jz  short moveToNextCell
+
+    ; log moving object for call
+    ; each index has 2 bytes for index and 2 bytes as fn ptr to call
+    inc dx
+    mov [di], si
+    mov [di+2], ax
+    add di, 4
+
+//moveToNextCell:
+
+    add si, 2
+    loop    checkCellForMovingObject
+
+    cmp dx, 0
+    jz  short doneWithGameLoop ; not a single moving object
+    mov cx, dx ; cx = number of moving objects
+    mov di, offset movingObjects?
+
+//; call moving functions one by one
+//callNextMovingFunction:
+    push(di);
+    push(cx);
+    mov si, [di]    ; the cell for the moving object
+    mov ax, [di+2]  ; the function to call
+    call    ax
+    pop(cx);
+    pop(di);
+    add di, 4
+    loop    callNextMovingFunction
+
+//doneWithGameLoop:
+    ; set graphics write mode = 0
+    mov dx, 3CEh
+    al = 5
+    out dx, al
+    inc dx
+    al = 0
+    out dx, al
+
+    cmp word_510D1, 1
+    jz  short loc_49E99
+    cmp word_510CF, 0
+    jz  short loc_49E99
+    return;
+
+//loc_49E99:              ; CODE XREF: gameloop+AFj
+//                ; gameloop+B6j
+    cmp word_51978, 0
+    jnz short loc_49EB3
+    mov word_510D1, 0
+    mov si, word_510C7
+    call    sub_4A61F
+    mov word_51978, 40h ; '@'
+
+//loc_49EB3:
+    ; set graphics write mode = 0
+    mov dx, 3CEh
+    al = 5
+    out dx, al
+    inc dx
+    al = 1
+    out dx, al
+
+    return;
+     */
+}
+
 void sub_49EBE() //   proc near       ; CODE XREF: runLevel+109p
                    // ; sub_4A291+29p
 {
