@@ -53,7 +53,7 @@ uint8_t gNumberOfDotsToShiftDataLeft = 0; // byte_510A6 Used for the scroll effe
 uint8_t byte_510AB = 0;
 uint8_t byte_510B3 = 0;
 uint8_t byte_510BA = 0;
-uint8_t byte_510DE = 0;
+uint8_t gIsPlayingDemo = 0; // byte_510DE
 uint8_t byte_51969 = 0;
 uint8_t byte_5197E = 0;
 uint8_t byte_51999 = 0;
@@ -92,9 +92,9 @@ uint8_t byte_5A33F = 0;
 uint8_t byte_59B64 = 0;
 uint8_t byte_510AE = 0;
 uint8_t byte_510AF = 0;
-uint8_t byte_510B0 = 0;
-uint8_t byte_510B1 = 0;
-uint8_t byte_510B2 = 0;
+uint8_t gGameSeconds = 0; // byte_510B0
+uint8_t gGameMinutes = 0; // byte_510B1
+uint8_t gGameHours = 0; // byte_510B2
 uint8_t byte_510BB = 0;
 uint8_t byte_519B5 = 0;
 uint8_t byte_519B8 = 0;
@@ -122,19 +122,18 @@ uint8_t byte_5A322 = 0;
 uint8_t byte_5195C = 0;
 uint8_t byte_5197C = 0;
 uint8_t byte_51036 = 0;
-uint8_t byte_510B9 = 0;
+uint8_t gLastDrawnHours = 0; // byte_510B9
 uint8_t byte_510B4 = 0;
 uint8_t byte_510B5 = 0;
 uint8_t byte_510B6 = 0;
 uint8_t byte_510C0 = 0;
-uint8_t byte_5195A = 0;
+uint8_t gNumberOfRemainingInfotrons = 0; // byte_5195A
 uint8_t byte_5195B = 0;
 uint8_t byte_5196A = 0;
 uint8_t byte_5196B = 0;
 uint8_t byte_510D7 = 0;
 uint8_t byte_510DB = 0;
-uint8_t byte_510E3 = 0;
-
+uint8_t gIsRecordingDemo = 0; // byte_510E3
 uint8_t gCurrentPlayerIndex = 0; // byte_5981F
 uint8_t byte_59B62 = 0;
 uint8_t byte_5870F = 0;
@@ -179,7 +178,7 @@ uint16_t word_510EA = 0;
 uint16_t word_5157E = 0;
 uint16_t word_59B90 = 0;
 uint16_t word_59B92 = 0;
-uint16_t word_510B7 = 0;
+uint16_t gLastDrawnMinutesAndSeconds = 0; // word_510B7
 uint16_t word_510C1 = 0;
 uint16_t word_510D9 = 0;
 uint16_t word_5184A = 0x2A66;
@@ -331,7 +330,7 @@ uint8_t gCurrentPlayerPaddedLevelData[kNumberOfLevelsWithPadding]; // 0x949C
 static const int kCurrentPlayerLevelDataLength = kNumberOfLevels;
 uint8_t *gCurrentPlayerLevelData = &gCurrentPlayerPaddedLevelData[kFirstLevelIndex]; // 0x949E
 
-char *gCurrentLevelName[kLevelNameLength]; // 0x87A8
+char gCurrentLevelName[kLevelNameLength]; // 0x87A8
 
 typedef struct
 {
@@ -366,7 +365,8 @@ typedef SDL_Color ColorPalette[kNumberOfColors];
 typedef uint8_t ColorPaletteData[kPaleteDataSize];
 
 static const size_t kBitmapFontCharacterHeight = 7;
-static const size_t kBitmapFontCharacterWidth = 6;
+static const size_t kBitmapFontCharacter6Width = 6;
+static const size_t kBitmapFontCharacter8Width = 8;
 static const size_t kNumberOfCharactersInBitmapFont = 64;
 static const size_t kBitmapFontLength = kNumberOfCharactersInBitmapFont * 8; // The size of the bitmap is a round number, not 100% related to the size font, there is some padding :shrug:
 
@@ -1159,8 +1159,8 @@ void drawFixedLevel(void);
 void drawGamePanel(void);
 void sub_4A2E6(void);
 void sub_4A3BB(void);
-void sub_4FD21(void);
-void sub_4FDFD(void);
+void drawgNumberOfRemainingInfotrons(void);
+void drawGameTime(void);
 void sub_4A2E6(void);
 void sub_4A3BB(void);
 void findMurphy(void);
@@ -1881,7 +1881,7 @@ loc_46E75:              //; CODE XREF: start+251j
             else
             {
 //loc_46FDF:              //; CODE XREF: start+3B5j
-                byte_510DE = 0;
+                gIsPlayingDemo = 0;
             }
 
 //loc_46FE4:              //; CODE XREF: start+3BDj
@@ -1899,7 +1899,7 @@ loc_46E75:              //; CODE XREF: start+251j
 //loc_46FFF:              //; CODE XREF: start+3A9j
             al = byte_59B84;
             byte_59B84 = 0;
-            byte_510DE = 0;
+            gIsPlayingDemo = 0;
             al++;
             if (al != 0)
             {
@@ -2503,15 +2503,15 @@ void int8handler() // proc far        ; DATA XREF: setint8+10o
         if (byte_510AF >= 0x32) // '2' or 50
         {
             byte_510AF = 0;
-            byte_510B0++;
-            if (byte_510B0 >= 0x3C) // '<' or 60
+            gGameSeconds++;
+            if (gGameSeconds >= 0x3C) // '<' or 60
             {
-                byte_510B0 = 0;
-                byte_510B1++;
-                if (byte_510B1 >= 0x3C) // '<' or 60
+                gGameSeconds = 0;
+                gGameMinutes++;
+                if (gGameMinutes >= 0x3C) // '<' or 60
                 {
-                    byte_510B1 = 0;
-                    byte_510B2++;
+                    gGameMinutes = 0;
+                    gGameHours++;
                 }
             }
         }
@@ -5748,13 +5748,13 @@ void sub_48A20() //   proc near       ; CODE XREF: start+32Fp
     byte_5195C = 0;
     byte_5197C = 0;
     word_510CD = 0;
-    word_510B7 = 0xFFFF;
-    byte_510B9 = 0xFF; // 255
+    gLastDrawnMinutesAndSeconds = 0xFFFF;
+    gLastDrawnHours = 0xFF; // 255
     byte_510AE = 1;
     byte_510AF = 0;
-    byte_510B0 = 0;
-    byte_510B1 = 0;
-    byte_510B2 = 0;
+    gGameSeconds = 0;
+    gGameMinutes = 0;
+    gGameHours = 0;
     byte_510B4 = 0;
     byte_510B5 = 0;
     byte_510B6 = 0;
@@ -5775,7 +5775,7 @@ void sub_48A20() //   proc near       ; CODE XREF: start+32Fp
 void runLevel() //    proc near       ; CODE XREF: start+35Cp
 {
 /*
-    cmp byte_510DE, 0
+    cmp gIsPlayingDemo, 0
     jz  short loc_48ACE
     mov byte_5A19C, 1
     mov byte_510BA, 0
@@ -5792,7 +5792,7 @@ loc_48AD8:              ; CODE XREF: runLevel+11j
 
 loc_48ADF:              ; CODE XREF: runLevel+BAj
     mov byte_5A2F8, 0
-    call    sub_4FDFD
+    call    drawGameTime
 
 isFunctionKey:              ; CODE XREF: runLevel+35j
     al = keyPressed
@@ -5818,7 +5818,7 @@ loc_48B09:              ; CODE XREF: runLevel+22j
 
 gamelooprep:                ; CODE XREF: runLevel+33Cj
                 ; runLevel+345j
-    cmp byte_510DE, 0
+    cmp gIsPlayingDemo, 0
     jnz short loc_48B23
     call    sub_48E59
 
@@ -5882,7 +5882,7 @@ noFlashing:              ; CODE XREF: runLevel+C2j
     out dx, al
 
 noFlashing2:              ; CODE XREF: runLevel+D8j
-    call    sub_4FDFD
+    call    drawGameTime
     call    sub_4FD65
     cmp word ptr flashingbackgroundon, 0
     jz  short noFlashing3
@@ -6213,7 +6213,7 @@ loc_48DFA:              ; CODE XREF: runLevel+33Aj
 loc_48E03:              ; CODE XREF: runLevel+328j
                 ; runLevel+333j ...
     mov word_510A2, 0
-    cmp byte_510E3, 0
+    cmp gIsRecordingDemo, 0
     jz  short loc_48E13
     call    somethingspsig
 
@@ -6979,15 +6979,15 @@ loc_49435:              ; CODE XREF: somethingspsig+65j
         mov bx, word_510E4
         int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                     ; BX = file handle
-        mov byte_510E3, 0
+        mov gIsRecordingDemo, 0
         cmp byte_5A33E, 0
         jz  short loc_4944F
-        mov byte_510DE, 1
+        mov gIsPlayingDemo, 1
 
 loc_4944F:              ; CODE XREF: somethingspsig+EEj
         call    drawGamePanelText
         mov byte_5A33F, 1
-        mov byte_510DE, 0
+        mov gIsPlayingDemo, 0
         return;
 somethingspsig  endp
 
@@ -7010,7 +7010,7 @@ sub_4945D   proc near       ; CODE XREF: sub_4955B+294p
         out dx, al
         out dx, al
         out dx, al
-        cmp byte_510E3, 0
+        cmp gIsRecordingDemo, 0
         jz  short loc_49490
         call    somethingspsig
 
@@ -7063,7 +7063,7 @@ loc_494B8:              ; CODE XREF: sub_4945D+56j
         jb  short locret_49543
         mov byte_510E1, 0
         mov byte_5A2F8, 1
-        mov byte_510DE, 0
+        mov gIsPlayingDemo, 0
         mov byte_510E2, 0FEh ; '?'
         mov word_51A07, 1
         cmp byte_599D4, 0
@@ -7075,14 +7075,14 @@ loc_494B8:              ; CODE XREF: sub_4945D+56j
         mov word_58AEC, ax
 
 loc_4952A:              ; CODE XREF: sub_4945D+BCj
-        mov byte_510E3, 1
+        mov gIsRecordingDemo, 1
         cmp byte_5A33E, 0
         jz  short loc_4953B
-        mov byte_510DE, 1
+        mov gIsPlayingDemo, 1
 
 loc_4953B:              ; CODE XREF: sub_4945D+D7j
         call    sub_4A463
-        mov byte_510DE, 0
+        mov gIsPlayingDemo, 0
 
 locret_49543:               ; CODE XREF: sub_4945D+58j
                     ; sub_4945D+82j ...
@@ -7136,16 +7136,16 @@ sub_4955B   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 // ; ---------------------------------------------------------------------------
 
 loc_49567:              ; CODE XREF: sub_4955B+5j
-        cmp byte_510DE, 0
+        cmp gIsPlayingDemo, 0
         jnz short loc_4957B
         call    sub_4A1BF
-        cmp byte_510E3, 0
+        cmp gIsRecordingDemo, 0
         jz  short loc_4957B
         call    sub_492F1
 
 loc_4957B:              ; CODE XREF: sub_4955B+Aj
                     ; sub_4955B+11j ...
-        cmp byte_510DE, 0
+        cmp gIsPlayingDemo, 0
         jz  short loc_49585
         call    sub_492A8
 
@@ -7275,7 +7275,7 @@ loc_49635:              ; CODE XREF: sub_4955B+4Bj
 // ; ---------------------------------------------------------------------------
 
 loc_4963F:              ; CODE XREF: sub_4955B+DFj
-        cmp byte_510E3, 0
+        cmp gIsRecordingDemo, 0
         jz  short loc_49649
         jmp loc_49742
 // ; ---------------------------------------------------------------------------
@@ -7327,7 +7327,7 @@ loc_4969F:              ; CODE XREF: sub_4955B+13Dj
         call    sub_4A3E9
 
 loc_496AC:              ; CODE XREF: sub_4955B+149j
-        cmp byte_510DE, 0
+        cmp gIsPlayingDemo, 0
         jz  short loc_496B6
         jmp loc_49742
 // ; ---------------------------------------------------------------------------
@@ -7403,7 +7403,7 @@ loc_4974C:              ; CODE XREF: sub_4955B+1ECj
 // ; ---------------------------------------------------------------------------
 
 loc_49757:              ; CODE XREF: sub_4955B+1F7j
-        cmp byte_510E3, 0
+        cmp gIsRecordingDemo, 0
         jz  short loc_49761
         jmp loc_4988E
 // ; ---------------------------------------------------------------------------
@@ -7462,7 +7462,7 @@ loc_497CE:              ; CODE XREF: sub_4955B+229j
 // ; ---------------------------------------------------------------------------
 
 loc_497D1:              ; CODE XREF: sub_4955B+1EEj
-        cmp byte_510DE, 0
+        cmp gIsPlayingDemo, 0
         jz  short loc_497DB
         jmp loc_4988E
 // ; ---------------------------------------------------------------------------
@@ -7556,19 +7556,19 @@ loc_4986E:              ; CODE XREF: sub_4955B+309j
 loc_4987D:              ; CODE XREF: sub_4955B+318j
         cmp byte_519D5, 1
         jnz short loc_4988E
-        cmp byte_510E3, 0
+        cmp gIsRecordingDemo, 0
         jz  short loc_4988E
         call    somethingspsig
 
 loc_4988E:              ; CODE XREF: sub_4955B+1F9j
                     ; sub_4955B+203j ...
-        cmp byte_510E3, 0
+        cmp gIsRecordingDemo, 0
         jz  short loc_49898
         jmp loc_49949
 // ; ---------------------------------------------------------------------------
 
 loc_49898:              ; CODE XREF: sub_4955B+338j
-        cmp byte_510DE, 0
+        cmp gIsPlayingDemo, 0
         jz  short loc_498A2
         jmp loc_49949
 // ; ---------------------------------------------------------------------------
@@ -7662,9 +7662,9 @@ loc_49958:              ; CODE XREF: sub_4955B+3F8j
 loc_49962:              ; CODE XREF: sub_4955B+402j
         cmp byte_519D5, 1
         jnz short loc_49984
-        cmp byte_510DE, 0
+        cmp gIsPlayingDemo, 0
         jz  short loc_49984
-        mov byte_510DE, 0
+        mov gIsPlayingDemo, 0
         mov byte_510B3, 0
         mov byte_5A2F9, 1
         mov byte_5A33E, 1
@@ -7750,7 +7750,7 @@ loc_499E9:              ; CODE XREF: sub_4955B+489j
 // ; ---------------------------------------------------------------------------
 
 loc_499F7:              ; CODE XREF: sub_4955B+497j
-        cmp byte_510DE, 0
+        cmp gIsPlayingDemo, 0
         jnz short loc_49A03
         mov dx, 87A8h
         jmp short loc_49A06
@@ -7774,7 +7774,7 @@ loc_49A13:              ; CODE XREF: sub_4955B+4B3j
         mov ax, word ptr aLevels_dat_0+8 ; "AT"
         mov word_5988E, ax
         al = [bx]
-        cmp byte_510DE, 0
+        cmp gIsPlayingDemo, 0
         jz  short loc_49A2C
         or  al, 80h
 
@@ -7847,7 +7847,7 @@ loc_49A89:              ; CODE XREF: sub_4955B+3FAj
 
 loc_49A96:              ; CODE XREF: sub_4955B+536j
         mov fh1, ax
-        cmp byte_510E3, 0
+        cmp gIsRecordingDemo, 0
         jz  short loc_49AA3
         call    somethingspsig
 
@@ -7970,8 +7970,8 @@ loc_49B84:              ; CODE XREF: sub_4955B+619j
         mov bx, fh1
         int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                     ; BX = file handle
-        mov byte_510DE, 0
-        mov byte_510E3, 0
+        mov gIsPlayingDemo, 0
+        mov gIsRecordingDemo, 0
         mov byte_50941, 0
         mov word_51A01, 0
         mov word_51963, 0
@@ -7997,11 +7997,11 @@ loc_49B84:              ; CODE XREF: sub_4955B+619j
         shr ax, 1
         call    sub_4A291
         mov ax, 0FFFFh
-        mov word_510B7, ax
-        mov byte_510B9, al
-        call    sub_4FDFD
+        mov gLastDrawnMinutesAndSeconds, ax
+        mov gLastDrawnHours, al
+        call    drawGameTime
         mov byte_5A2F9, 1
-        mov byte_510E3, 0
+        mov gIsRecordingDemo, 0
         push    si
         mov si, 0A004h
         cmp videoStatusUnk, 1
@@ -8019,7 +8019,7 @@ loc_49C12:              ; CODE XREF: sub_4955B+6A8j
 
 loc_49C1A:              ; CODE XREF: sub_4955B+553j
                     ; sub_4955B+581j ...
-        mov byte_510E3, 0
+        mov gIsRecordingDemo, 0
 
 loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
                     ; sub_4955B+499j ...
@@ -9155,9 +9155,9 @@ void sub_4A3BB() //   proc near       ; CODE XREF: start+33Ep sub_4A463+17p
     }
 
 //loc_4A3C6:              ; CODE XREF: sub_4A3BB+5j
-    byte_5195A = dl;
+    gNumberOfRemainingInfotrons = dl;
     byte_5195B = dl;
-    sub_4FD21();
+    drawgNumberOfRemainingInfotrons();
 }
 
 /*sub_4A3D2   proc near       ; CODE XREF: sub_4955B+39Ep
@@ -9194,7 +9194,7 @@ loc_4A3F3:              ; CODE XREF: sub_4A3D2+15j
         out dx, al
         cmp byte_5A33E, 0
         jz  short loc_4A427
-        mov byte_510DE, 1
+        mov gIsPlayingDemo, 1
 
 loc_4A427:              ; CODE XREF: sub_4A3E9+37j
         mov byte_5A33F, 0
@@ -9202,14 +9202,14 @@ loc_4A427:              ; CODE XREF: sub_4A3E9+37j
         mov byte_5A33F, 1
         cmp byte_5A33E, 1
         jb  short loc_4A446
-        mov byte_510DE, 0
+        mov gIsPlayingDemo, 0
         jnz short loc_4A446
         inc byte_5A33E
 
 loc_4A446:              ; CODE XREF: sub_4A3E9+50j
                     ; sub_4A3E9+57j
         mov byte_50941, 0
-        cmp byte_510DE, 0
+        cmp gIsPlayingDemo, 0
         jz  short locret_4A462
         mov bx, word_5A33C
         mov word_510DF, bx
@@ -10051,13 +10051,13 @@ sub_4A910   endp
 
 sub_4A95F   proc near       ; CODE XREF: runLevel+372p
                     ; sub_4A3E9+7p ...
-        al = byte_510B0
+        al = gGameSeconds
         mov byte_510B4, al
-        al = byte_510B1
+        al = gGameMinutes
         mov byte_510B5, al
-        al = byte_510B2
+        al = gGameHours
         mov byte_510B6, al
-        cmp byte_510DE, 0
+        cmp gIsPlayingDemo, 0
         jnz short locret_4A97F
         cmp byte_599D4, 0
         jz  short loc_4A980
@@ -10947,7 +10947,7 @@ void sub_4B159() //   proc near       ; CODE XREF: runMainMenu+6Fp
 
 loc_4B163:              ; CODE XREF: sub_4B159+5j
         mov word_5196C, 1
-        mov byte_510DE, 1
+        mov gIsPlayingDemo, 1
         push    es
         mov ax, seg demoseg
         mov es, ax
@@ -10978,7 +10978,7 @@ loc_4B188:              ; CODE XREF: sub_4B159+2Aj
         cmp bx, 0FFFFh
         jnz short loc_4B1AE
         mov word_5196C, 0
-        mov byte_510DE, 0
+        mov gIsPlayingDemo, 0
 
 loc_4B1AE:              ; CODE XREF: sub_4B159+48j
         al = es:[bx]
@@ -11028,7 +11028,7 @@ demoSomething  proc near       ; CODE XREF: start+3BAp
         mov gTimeOfDay, ax
         pop ax
         mov word_5196C, 1
-        mov byte_510DE, 1
+        mov gIsPlayingDemo, 1
         push    es
         mov dx, seg demoseg
         mov es, dx
@@ -11040,7 +11040,7 @@ demoSomething  proc near       ; CODE XREF: start+3BAp
         cmp bx, 0FFFFh
         jnz short loc_4B22F
         mov word_5196C, 0
-        mov byte_510DE, 0
+        mov gIsPlayingDemo, 0
 
 loc_4B22F:              ; CODE XREF: demoSomething+30j
         mov word_599D8, 0
@@ -11255,7 +11255,7 @@ void handleOkButtonClick() // sub_4B375  proc near       ; CODE XREF: runMainMen
         return;
     }
     word_5196C = 1;
-    byte_510DE = 0;
+    gIsPlayingDemo = 0;
 
     if (currentLevelColor == kCompletedLevelEntryColor)
     {
@@ -11561,13 +11561,13 @@ void drawTextWithChars6FontWithOpaqueBackground(size_t destX, size_t destY, uint
 
         for (uint8_t y = 0; y < kBitmapFontCharacterHeight; ++y)
         {
-            for (uint8_t x = 0; x < kBitmapFontCharacterWidth; ++x)
+            for (uint8_t x = 0; x < kBitmapFontCharacter6Width; ++x)
             {
                 uint8_t bitmapCharacterRow = gChars6BitmapFont[bitmapCharacterIndex + y * kNumberOfCharactersInBitmapFont];
                 uint8_t pixelValue = (bitmapCharacterRow >> (7 - x)) & 0x1;
 
                 // 6 is the wide (in pixels) of this font
-                size_t destAddress = (destY + y) * kScreenWidth + (idx * kBitmapFontCharacterWidth + destX + x);
+                size_t destAddress = (destY + y) * kScreenWidth + (idx * kBitmapFontCharacter6Width + destX + x);
                 gScreenPixels[destAddress] = color * pixelValue;
             }
         }
@@ -11612,7 +11612,7 @@ void drawTextWithChars6FontWithTransparentBackground(size_t destX, size_t destY,
 
         for (uint8_t y = 0; y < kBitmapFontCharacterHeight; ++y)
         {
-            for (uint8_t x = 0; x < kBitmapFontCharacterWidth; ++x)
+            for (uint8_t x = 0; x < kBitmapFontCharacter6Width; ++x)
             {
                 uint8_t bitmapCharacterRow = gChars6BitmapFont[bitmapCharacterIndex + y * kNumberOfCharactersInBitmapFont];
                 uint8_t pixelValue = (bitmapCharacterRow >> (7 - x)) & 0x1;
@@ -11620,7 +11620,7 @@ void drawTextWithChars6FontWithTransparentBackground(size_t destX, size_t destY,
                 if (pixelValue == 1)
                 {
                     // 6 is the wide (in pixels) of this font
-                    size_t destAddress = (destY + y) * kScreenWidth + (idx * kBitmapFontCharacterWidth + destX + x);
+                    size_t destAddress = (destY + y) * kScreenWidth + (idx * kBitmapFontCharacter6Width + destX + x);
                     gScreenPixels[destAddress] = color;
                 }
             }
@@ -12224,7 +12224,7 @@ sub_4C4F9   proc near       ; CODE XREF: sub_4C407+11p
         mov di, 6A2Ch
         mov ah, 0Fh
         call    drawTextWithChars6FontWithTransparentBackground
-        cmp byte_5195A, 0
+        cmp gNumberOfRemainingInfotrons, 0
         jnz short loc_4C52C
         mov si, 8582h
         mov di, 73A9h
@@ -12240,7 +12240,7 @@ sub_4C4F9   proc near       ; CODE XREF: sub_4C407+11p
 loc_4C52C:              ; CODE XREF: sub_4C4F9+19j
         mov si, 85DCh
         al = byte_5195B
-        sub al, byte_5195A
+        sub al, gNumberOfRemainingInfotrons
         mov ah, 20h ; ' '
         call    convertNumberTo3DigitPaddedString
         mov si, 85EBh
@@ -12708,7 +12708,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
         {
             byte_599D4 = 1;
             word_5196C = 1;
-            byte_510DE = 0;
+            gIsPlayingDemo = 0;
             byte_510B3 = 0;
             byte_5A2F9 = 1;
             prepareSomeKindOfLevelIdentifier();
@@ -13425,7 +13425,7 @@ void drawMainMenuButtonBorders() // sub_4D0AD  proc near       ; CODE XREF: runM
 void updateHallOfFameEntries() // sub_4D1B6  proc near       ; CODE XREF: changePlayerCurrentLevelState+2Ep
 {
     // 01ED:6553
-    if (byte_510DE != 0)
+    if (gIsPlayingDemo != 0)
     {
         return;
     }
@@ -13531,7 +13531,7 @@ void changePlayerCurrentLevelState() // sub_4D24D  proc near       ; CODE XREF: 
 //                    ; update?:loc_4E6A4p
 {
     // 01ED:65EA
-    if (byte_510DE != 0)
+    if (gIsPlayingDemo != 0)
     {
         return;
     }
@@ -14246,7 +14246,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
     FILE *file = NULL;
     Level fileLevelData;
 
-    if (byte_510DE != 0
+    if (gIsPlayingDemo != 0
         && (word_599D8 & 0xFF) == 0
         && byte_599D4 == 0)
     {
@@ -14294,7 +14294,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
     }
     else
     {
-        if (byte_510DE == 0
+        if (gIsPlayingDemo == 0
             || byte_599D4 != 0)
         {
 //loc_4D59F:              ; CODE XREF: readLevels+5j
@@ -14302,7 +14302,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
             filename = aLevels_dat_0; // lea dx, aLevels_dat_0 ; "LEVELS.DAT"
         }
 
-        if (byte_510DE != 0
+        if (gIsPlayingDemo != 0
             && (word_599D8 & 0xFF) != 0) //cmp byte ptr word_599D8, 0
         {
 //loc_4D599:              ; CODE XREF: readLevels+Cj
@@ -14328,7 +14328,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
         uint8_t levelIndex = 0;
 
 //loc_4D5C2:              ; CODE XREF: readLevels+75j
-        if (byte_510DE != 0)
+        if (gIsPlayingDemo != 0)
         {
             levelIndex = word_510E6;
         }
@@ -14399,7 +14399,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 
 //loc_4D64B:              ; CODE XREF: readLevels+4Ej
 //                ; readLevels+D5j
-    if (byte_510DE != 0)
+    if (gIsPlayingDemo != 0)
     {
         gTimeOfDay = word_51076;
         di = 0x87DA;
@@ -14448,7 +14448,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 //    memcpy(di, si, 0x17);// rep movsw // 01ED:6A32
 //    di += 0x17;
 //    si += 0x17;
-    memcpy(filename, fileLevelData.name, sizeof(fileLevelData.name) - 5);
+    memcpy(levelName, fileLevelData.name, sizeof(fileLevelData.name) - 5);
 
 //    pop es
 //    assume es:nothing
@@ -14489,7 +14489,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 //    di += levelDataLength;
 //    pop es
 //    assume es:nothing
-    if (byte_510DE == 0
+    if (gIsPlayingDemo == 0
         || (word_599D8 & 0xFF) != 0
         || byte_599D4 != 0)
     {
@@ -16514,7 +16514,7 @@ loc_4E654:              ; CODE XREF: update?+472j
 // ; ---------------------------------------------------------------------------
 
 loc_4E674:              ; CODE XREF: update?+242j update?+2AAj ...
-        cmp byte_5195A, 0
+        cmp gNumberOfRemainingInfotrons, 0
         jnz short locret_4E6B9
         call    sound10
         push    si
@@ -17387,12 +17387,12 @@ loc_4EC7E:              ; CODE XREF: update?+DE9j
 // ; ---------------------------------------------------------------------------
 
 loc_4EC85:              ; CODE XREF: update?+CE3j
-        cmp byte_5195A, 0
+        cmp gNumberOfRemainingInfotrons, 0
         jbe short loc_4EC90
-        dec byte_5195A
+        dec gNumberOfRemainingInfotrons
 
 loc_4EC90:              ; CODE XREF: update?+DFAj
-        call    sub_4FD21
+        call    drawgNumberOfRemainingInfotrons
 
 loc_4EC93:              ; CODE XREF: update?+CA3j update?+CC3j
         mov word ptr leveldata[si], 3
@@ -17403,12 +17403,12 @@ loc_4EC93:              ; CODE XREF: update?+CA3j update?+CC3j
 // ; ---------------------------------------------------------------------------
 
 loc_4ECA3:              ; CODE XREF: update?+CEBj
-        cmp byte_5195A, 0
+        cmp gNumberOfRemainingInfotrons, 0
         jbe short loc_4ECAE
-        dec byte_5195A
+        dec gNumberOfRemainingInfotrons
 
 loc_4ECAE:              ; CODE XREF: update?+E18j
-        call    sub_4FD21
+        call    drawgNumberOfRemainingInfotrons
 
 loc_4ECB1:              ; CODE XREF: update?+CABj update?+CCBj
         mov word ptr leveldata[si], 3
@@ -17419,12 +17419,12 @@ loc_4ECB1:              ; CODE XREF: update?+CABj update?+CCBj
 // ; ---------------------------------------------------------------------------
 
 loc_4ECC1:              ; CODE XREF: update?+CF3j
-        cmp byte_5195A, 0
+        cmp gNumberOfRemainingInfotrons, 0
         jbe short loc_4ECCC
-        dec byte_5195A
+        dec gNumberOfRemainingInfotrons
 
 loc_4ECCC:              ; CODE XREF: update?+E36j
-        call    sub_4FD21
+        call    drawgNumberOfRemainingInfotrons
 
 loc_4ECCF:              ; CODE XREF: update?+CB3j update?+CD3j
         cmp byte ptr [si+17BCh], 1Fh
@@ -17722,12 +17722,12 @@ loc_4EF2C:              ; CODE XREF: update?+1080j
 // ; ---------------------------------------------------------------------------
 
 loc_4EF45:              ; CODE XREF: update?+CFBj
-        cmp byte_5195A, 0
+        cmp gNumberOfRemainingInfotrons, 0
         jbe short loc_4EF50
-        dec byte_5195A
+        dec gNumberOfRemainingInfotrons
 
 loc_4EF50:              ; CODE XREF: update?+10BAj
-        call    sub_4FD21
+        call    drawgNumberOfRemainingInfotrons
 
 loc_4EF53:              ; CODE XREF: update?+CBBj update?+CDBj
         sub si, 2
@@ -17738,12 +17738,12 @@ loc_4EF53:              ; CODE XREF: update?+CBBj update?+CDBj
 // ; ---------------------------------------------------------------------------
 
 loc_4EF63:              ; CODE XREF: update?+D33j
-        cmp byte_5195A, 0
+        cmp gNumberOfRemainingInfotrons, 0
         jbe short loc_4EF6E
-        dec byte_5195A
+        dec gNumberOfRemainingInfotrons
 
 loc_4EF6E:              ; CODE XREF: update?+10D8j
-        call    sub_4FD21
+        call    drawgNumberOfRemainingInfotrons
 
 loc_4EF71:              ; CODE XREF: update?+D13j
         cmp byte ptr [si+17BCh], 1Fh
@@ -17755,12 +17755,12 @@ locret_4EF7E:               ; CODE XREF: update?+10E6j
 // ; ---------------------------------------------------------------------------
 
 loc_4EF7F:              ; CODE XREF: update?+D3Bj
-        cmp byte_5195A, 0
+        cmp gNumberOfRemainingInfotrons, 0
         jbe short loc_4EF8A
-        dec byte_5195A
+        dec gNumberOfRemainingInfotrons
 
 loc_4EF8A:              ; CODE XREF: update?+10F4j
-        call    sub_4FD21
+        call    drawgNumberOfRemainingInfotrons
 
 loc_4EF8D:              ; CODE XREF: update?+D1Bj
         cmp byte ptr [si+1832h], 1Fh
@@ -17772,12 +17772,12 @@ locret_4EF9A:               ; CODE XREF: update?+1102j
 // ; ---------------------------------------------------------------------------
 
 loc_4EF9B:              ; CODE XREF: update?+D4Bj
-        cmp byte_5195A, 0
+        cmp gNumberOfRemainingInfotrons, 0
         jbe short loc_4EFA6
-        dec byte_5195A
+        dec gNumberOfRemainingInfotrons
 
 loc_4EFA6:              ; CODE XREF: update?+1110j
-        call    sub_4FD21
+        call    drawgNumberOfRemainingInfotrons
 
 loc_4EFA9:              ; CODE XREF: update?+D2Bj
         cmp byte ptr [si+18ACh], 1Fh
@@ -17789,12 +17789,12 @@ locret_4EFB6:               ; CODE XREF: update?+111Ej
 // ; ---------------------------------------------------------------------------
 
 loc_4EFB7:              ; CODE XREF: update?+D43j
-        cmp byte_5195A, 0
+        cmp gNumberOfRemainingInfotrons, 0
         jbe short loc_4EFC2
-        dec byte_5195A
+        dec gNumberOfRemainingInfotrons
 
 loc_4EFC2:              ; CODE XREF: update?+112Cj
-        call    sub_4FD21
+        call    drawgNumberOfRemainingInfotrons
 
 loc_4EFC5:              ; CODE XREF: update?+D23j
         cmp byte ptr [si+1836h], 1Fh
@@ -19521,109 +19521,59 @@ sub_4FB79   endp
 void drawGamePanelText() // sub_4FC20  proc near       ; CODE XREF: somethingspsig:loc_4944Fp
                    // ; drawGamePanel+22p ...
 {
-    if (byte_510E3 != 0)
+    if (gIsRecordingDemo != 0) // Recording demo?
     {
-        di = 0x177;
-//loc_4FC36:              ; CODE XREF: drawGamePanelText+11j
-//    mov si, 87D1h
-//    mov ah, 8
-        drawTextWithChars8Font(0, 0, 8, "");
-        di = 0x6AE;
-//loc_4FC4D:              ; CODE XREF: drawGamePanelText+28j
-//    mov si, 87DAh
-//    mov ah, 8
-        drawTextWithChars8Font(0, 0, 8, "");
-        di = 0x6B4;
-//loc_4FC64:              ; CODE XREF: drawGamePanelText+3Fj
-//        mov si, 87F6h
-//        mov ah, 8
-        drawTextWithChars8Font(0, 0, 8, "");
-//        jmp loc_4FD1A
+//    mov si, 87D1h // "  DEMO  "
+        drawTextWithChars8Font(72, 179, 8, "  DEMO  ");
+//    mov si, 87DAh // "000"
+        drawTextWithChars8Font(16, 190, 8, "000");
+//        mov si, 87F6h // "--- RECORDING DEMO0 ---"
+        drawTextWithChars8Font(64, 190, 8, "--- RECORDING DEMO0 ---");
+    }
+//loc_4FC6F:              ; CODE XREF: drawGamePanelText+5j
+    else if (gIsPlayingDemo != 0) // Playing demo?
+    {
+        drawTextWithChars8Font(72, 179, 8, "  DEMO  ");
+//      mov si, 87DAh // "000"
+        drawTextWithChars8Font(16, 190, 8, "000");
+//      mov si, 87DEh // "----- DEMO LEVEL! -----"
+        drawTextWithChars8Font(64, 190, 8, "----- DEMO LEVEL! -----");
     }
     else
     {
-//loc_4FC6F:              ; CODE XREF: drawGamePanelText+5j
-        if (byte_510DE != 0)
-        {
-            di = 0x177;
-//loc_4FC85:              ; CODE XREF: drawGamePanelText+60j
-//            mov si, 87D1h
-//            mov ah, 8
-            drawTextWithChars8Font(0, 0, 8, "");
-            di = 0x6AE;
-//loc_4FC9C:              ; CODE XREF: drawGamePanelText+77j
-//          mov si, 87DAh
-//          mov ah, 8
-            drawTextWithChars8Font(0, 0, 8, "");
-            di = 0x6B4;
-//loc_4FCB3:              ; CODE XREF: drawGamePanelText+8Ej
-//          mov si, 87DEh
-//          mov ah, 8
-            drawTextWithChars8Font(0, 0, 8, "");
-//        jmp short loc_4FD1A
-        }
-        else
-        {
-
-//loc_4FCC7:              ; CODE XREF: drawGamePanelText+54j
-            di = 0x177;
 //loc_4FCD6:              ; CODE XREF: drawGamePanelText+B1j
-//          mov si, gPlayerName
-//          mov ah, 6
-            drawTextWithChars8Font(0, 0, 6, gPlayerName);
-            di = 0x6AE;
-//loc_4FCED:              ; CODE XREF: drawGamePanelText+C8j
-//          mov si, 87A8h
-//          si[3] = '\0'; // mov byte ptr [si+3], 0
-//          mov ah, 8
-            drawTextWithChars8Font(0, 0, 8, "");
-            di = 0x6B4;
-
-//loc_4FD08:              ; CODE XREF: drawGamePanelText+E3j
-//          mov si, 87ACh
-//          mov ah, 8
-            drawTextWithChars8Font(0, 0, 8, "");
-        }
+        drawTextWithChars8Font(72, 179, 6, gPlayerName);
+        char levelNumber[4] = "000";
+        memcpy(levelNumber, gCurrentLevelName, 3);
+        drawTextWithChars8Font(16, 190, 8, levelNumber);
+        drawTextWithChars8Font(64, 190, 8, &gCurrentLevelName[4]);
     }
 
 //loc_4FD1A:              ; CODE XREF: drawGamePanelText+4Cj
 //                ; drawGamePanelText+A0j ...
-    sub_4FD21();
-    sub_4FDFD();
+    drawgNumberOfRemainingInfotrons();
+    drawGameTime();
 }
 
-void sub_4FD21() //   proc near       ; CODE XREF: sub_4A3BB+13p
+void drawgNumberOfRemainingInfotrons() // sub_4FD21   proc near       ; CODE XREF: sub_4A3BB+13p
                    // ; update?:loc_4EC90p ...
 {
-    // Draws the level number?
-//    push    si
-    if (byte_5195A < 1)
+    if (gNumberOfRemainingInfotrons < 1)
     {
-        byte_5195A = 0; // WTF?
+        gNumberOfRemainingInfotrons = 0; // WTF? Can this be negative? In theory not...
     }
 
-//loc_4FD2E:              ; CODE XREF: sub_4FD21+6j
-//    al = byte_5195A;
-//    mov si, 87C5h
-    convertNumberTo3DigitStringWithPadding0(byte_5195A, "");
-//    mov di, 6CEh
+//loc_4FD2E:              ; CODE XREF: drawgNumberOfRemainingInfotrons+6j
+    char number[4] = "000";
+    convertNumberTo3DigitStringWithPadding0(gNumberOfRemainingInfotrons, number);
 
-//loc_4FD46:              ; CODE XREF: sub_4FD21+20j
-//    mov si, 87C5h
-    if (byte_5195A != 0)
-    {
-//loc_4FD54:              ; CODE XREF: sub_4FD21+2Dj
-//        mov ah, 8
-    }
-    else
-    {
-//        mov ah, 6
-    }
+//loc_4FD46:              ; CODE XREF: drawgNumberOfRemainingInfotrons+20j
+    uint8_t color = (gNumberOfRemainingInfotrons == 0
+                     ? 6
+                     : 8);
 
-//loc_4FD56:              ; CODE XREF: sub_4FD21+31j
-    drawTextWithChars8Font(0, 0, ah, "");
-
-//loc_4FD63:              ; CODE XREF: sub_4FD21+3Dj
+//loc_4FD56:              ; CODE XREF: drawgNumberOfRemainingInfotrons+31j
+    drawTextWithChars8Font(272, 190, color, number);
 }
 /*
 sub_4FD65   proc near       ; CODE XREF: runLevel+E9p
@@ -19750,63 +19700,35 @@ loc_4FDF3:              ; CODE XREF: sub_4FDCE+21j
         return;
 sub_4FDCE   endp
 */
-void sub_4FDFD() //   proc near       ; CODE XREF: runLevel+29p
+void drawGameTime() // sub_4FDFD   proc near       ; CODE XREF: runLevel+29p
                    // ; runLevel:noFlashing2p ...
 {
-    uint16_t var_2; //       = word ptr -2
+    // Only the 2 last digits will be printed, hence why it will be used with &number[1] everywhere
+    char number[4] = "000";
 
-//    push    bp
-//    mov bp, sp
-//    add sp, 0FFFEh
-    var_2 = 0;
-    al = byte_510B0;
-    if ((word_510B7 & 0xFF) != al) // byte
+    if ((gLastDrawnMinutesAndSeconds & 0xFF) != gGameSeconds) // byte
     {
-        word_510B7 = (word_510B7 & 0xFF00) + al; // byte
-    //    mov si, 87CDh
-        convertNumberTo3DigitStringWithPadding0(al, "");
-    //    mov si, 87CEh
-    //    mov di, 188h
-//loc_4FE2C:              ; CODE XREF: sub_4FDFD+2Aj
-    //    mov ah, 6
-        drawTextWithChars8Font(0, 0, 6, "");
-        var_2 = 1;
+        gLastDrawnMinutesAndSeconds = (gLastDrawnMinutesAndSeconds & 0xFF00) + gGameSeconds; // byte
+        convertNumberTo3DigitStringWithPadding0(gGameSeconds, number);
+//loc_4FE2C:              ; CODE XREF: drawGameTime+2Aj
+        drawTextWithChars8Font(208, 179, 6, &number[1]); // seconds
     }
 
-//loc_4FE36:              ; CODE XREF: sub_4FDFD+12j
-    al = byte_510B1;
-    if ((word_510B7 >> 8) == al) // byte
+//loc_4FE36:              ; CODE XREF: drawGameTime+12j
+    if ((gLastDrawnMinutesAndSeconds >> 8) != gGameMinutes) // byte
     {
-        //jz  short loc_4FE5F
+        gLastDrawnMinutesAndSeconds = (gGameMinutes << 8) + (gLastDrawnMinutesAndSeconds & 0x00FF); // byte
+        convertNumberTo3DigitStringWithPadding0(gGameMinutes, number);
+        drawTextWithChars8Font(184, 179, 6, &number[1]); // minutes
     }
-    word_510B7 = (al << 8) + (word_510B7 & 0x00FF); // byte
-//    mov si, 87CDh
-    convertNumberTo3DigitStringWithPadding0(al, "");
-//    mov si, 87CEh
-//    mov di, 185h
 
-//loc_4FE5A:              ; CODE XREF: sub_4FDFD+58j
-//    mov ah, 6
-    drawTextWithChars8Font(0, 0, 6, "");
-
-//loc_4FE5F:              ; CODE XREF: sub_4FDFD+40j
-    al = byte_510B2;
-    if (byte_510B9 == byte_510B2)
+//loc_4FE5F:              ; CODE XREF: drawGameTime+40j
+    if (gLastDrawnHours != gGameHours)
     {
-        //jz  short loc_4FE88
+        gLastDrawnHours = gGameHours;
+        convertNumberTo3DigitStringWithPadding0(gGameHours, number);
+        drawTextWithChars8Font(160, 179, 6, &number[1]); // hours
     }
-    byte_510B9 = al;
-//    mov si, 87CDh
-    convertNumberTo3DigitStringWithPadding0(byte_510B2, "");
-//    mov si, 87CEh
-//    mov di, 182h
-
-//loc_4FE83:              ; CODE XREF: sub_4FDFD+81j
-//    mov ah, 6
-    drawTextWithChars8Font(0, 0, 6, "");
-
-//loc_4FE98:              ; CODE XREF: sub_4FDFD+90j
-//                ; sub_4FDFD+96j
 }
 
 void drawTextWithChars8Font_method1(size_t destX, size_t destY, uint8_t color, const char *text) //   proc near       ; CODE XREF: drawTextWithChars8Font+7p
@@ -19844,13 +19766,13 @@ void drawTextWithChars8Font_method1(size_t destX, size_t destY, uint8_t color, c
 
         for (uint8_t y = 0; y < kBitmapFontCharacterHeight; ++y)
         {
-            for (uint8_t x = 0; x < kBitmapFontCharacterWidth; ++x)
+            for (uint8_t x = 0; x < kBitmapFontCharacter8Width; ++x)
             {
                 uint8_t bitmapCharacterRow = gChars8BitmapFont[bitmapCharacterIndex + y * kNumberOfCharactersInBitmapFont];
                 uint8_t pixelValue = (bitmapCharacterRow >> (7 - x)) & 0x1;
 
                 // 6 is the wide (in pixels) of this font
-                size_t destAddress = (destY + y) * kScreenWidth + (idx * kBitmapFontCharacterWidth + destX + x);
+                size_t destAddress = (destY + y) * kScreenWidth + (idx * kBitmapFontCharacter8Width + destX + x);
                 gScreenPixels[destAddress] = color * pixelValue;
             }
         }
