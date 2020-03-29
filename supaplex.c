@@ -306,11 +306,11 @@ static const int kNumberOfLevels = 111;
 static const int kNumberOfLevelsWithPadding = kNumberOfLevels + 5;
 static const int kFirstLevelIndex = 2;
 static const int kLastLevelIndex = kFirstLevelIndex + kNumberOfLevels;
-static const int kLevelNameLength = 28; // In the list of levels, every level is 28 bytes long and looks like "001                        \n"
-uint8_t gPaddedLevelListData[kNumberOfLevelsWithPadding * kLevelNameLength];
+static const int kListLevelNameLength = 28; // In the list of levels, every level is 28 bytes long and looks like "001                        \n"
+uint8_t gPaddedLevelListData[kNumberOfLevelsWithPadding * kListLevelNameLength];
 
-static const int kLevelListDataLength = kNumberOfLevels * kLevelNameLength;
-uint8_t *gLevelListData = &gPaddedLevelListData[kFirstLevelIndex * kLevelNameLength];
+static const int kLevelListDataLength = kNumberOfLevels * kListLevelNameLength;
+uint8_t *gLevelListData = &gPaddedLevelListData[kFirstLevelIndex * kListLevelNameLength];
 
 static const int kNotCompletedLevelEntryColor = 2;
 static const int kCompletedLevelEntryColor = 4;
@@ -330,16 +330,20 @@ uint8_t gCurrentPlayerPaddedLevelData[kNumberOfLevelsWithPadding]; // 0x949C
 static const int kCurrentPlayerLevelDataLength = kNumberOfLevels;
 uint8_t *gCurrentPlayerLevelData = &gCurrentPlayerPaddedLevelData[kFirstLevelIndex]; // 0x949E
 
-char gCurrentLevelName[kLevelNameLength]; // 0x87A8
+char gCurrentLevelName[kListLevelNameLength]; // 0x87A8
+
+static const int kLevelNameLength = 24;
 
 typedef struct
 {
-    uint8_t tiles[1440]; // of LevelTileType
+    uint8_t tiles[1440]; // [0-0x59F] of LevelTileType
     uint8_t unknown0[6];
     char name[kLevelNameLength];
-    uint8_t unknown2[62];
+    uint8_t numberOfInfotrons;
+    uint8_t unknown1[65];
 } Level; // size 1536 = 0x600
 
+// fileLevelData starts at 0x768, when it contains a level goes to 0xD67
 Level gCurrentLevel; // 0x988B
 
 // Stores the same info as gCurrentLevel but with each byte separated by 0x00, it's done in readLevels for some unknown reason
@@ -1157,12 +1161,10 @@ void sub_48A20(void);
 void sub_4D464(void);
 void drawFixedLevel(void);
 void drawGamePanel(void);
-void sub_4A2E6(void);
-void sub_4A3BB(void);
 void drawgNumberOfRemainingInfotrons(void);
 void drawGameTime(void);
 void sub_4A2E6(void);
-void sub_4A3BB(void);
+void resetNumberOfInfotrons(void);
 void findMurphy(void);
 void drawGamePanelText(void);
 void sub_5024B(void);
@@ -1813,7 +1815,7 @@ loc_46E75:              //; CODE XREF: start+251j
             drawFixedLevel();
             drawGamePanel(); // 01ED:0311
 //            sub_4A2E6();
-//            sub_4A3BB();
+            resetNumberOfInfotrons();
 //            enableFloppy();
 //            findMurphy();
 //            si = 0x6015;
@@ -3804,17 +3806,17 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
     // 01ED:1038
 
 //    memset(gLevelListData, 0, sizeof(gLevelListData));
-    char paddingEntryText[kLevelNameLength] = "                           ";
+    char paddingEntryText[kListLevelNameLength] = "                           ";
     for (int i = 0; i < kNumberOfLevelsWithPadding; ++i)
     {
-        memcpy(&gPaddedLevelListData[i * kLevelNameLength], paddingEntryText, sizeof(paddingEntryText));
+        memcpy(&gPaddedLevelListData[i * kListLevelNameLength], paddingEntryText, sizeof(paddingEntryText));
     }
-    memcpy(&gPaddedLevelListData[kLastLevelIndex * kLevelNameLength],
+    memcpy(&gPaddedLevelListData[kLastLevelIndex * kListLevelNameLength],
            "- REPLAY SKIPPED LEVELS!! -",
-           kLevelNameLength);
-    memcpy(&gPaddedLevelListData[(kLastLevelIndex + 1) * kLevelNameLength],
+           kListLevelNameLength);
+    memcpy(&gPaddedLevelListData[(kLastLevelIndex + 1) * kListLevelNameLength],
            "---- UNBELIEVEABLE!!!! ----",
-           kLevelNameLength);
+           kListLevelNameLength);
 
     FILE *file = fopen("LEVEL.LST", "r");
     if (file == NULL)
@@ -3844,8 +3846,8 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
             char number[5];
             sprintf(number, "%03d ", i + 1);
 
-            memcpy(gLevelListData + i * kLevelNameLength, number, sizeof(number) - 1);
-            gLevelListData[i * kLevelNameLength + kLevelNameLength - 1] = '\n';
+            memcpy(gLevelListData + i * kListLevelNameLength, number, sizeof(number) - 1);
+            gLevelListData[i * kListLevelNameLength + kListLevelNameLength - 1] = '\n';
     //loc_47CE4:            //  ; CODE XREF: readLevelsLst+3Aj
         }
 
@@ -3856,7 +3858,7 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
             int seekOffset = 0x5A6 + i * levelDataLength;
 
             fseek(file, seekOffset, SEEK_SET); // position 1446
-            size_t bytes = fread(gLevelListData + i * kLevelNameLength + 4, 1, 23, file);
+            size_t bytes = fread(gLevelListData + i * kListLevelNameLength + 4, 1, 23, file);
 
             if (bytes < 23)
             {
@@ -9147,16 +9149,17 @@ void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
     return;
 }
 
-void sub_4A3BB() //   proc near       ; CODE XREF: start+33Ep sub_4A463+17p
+void resetNumberOfInfotrons() // sub_4A3BB   proc near       ; CODE XREF: start+33Ep sub_4A463+17p
 {
-    if (byte_51036 != 0)
+    uint8_t numberOfInfotrons = 0;
+    if (gCurrentLevel.numberOfInfotrons != 0)
     {
-        dl = byte_51036;
+        numberOfInfotrons = gCurrentLevel.numberOfInfotrons;
     }
 
-//loc_4A3C6:              ; CODE XREF: sub_4A3BB+5j
-    gNumberOfRemainingInfotrons = dl;
-    byte_5195B = dl;
+//loc_4A3C6:              ; CODE XREF: resetNumberOfInfotrons+5j
+    gNumberOfRemainingInfotrons = numberOfInfotrons;
+    byte_5195B = numberOfInfotrons;
     drawgNumberOfRemainingInfotrons();
 }
 
@@ -9233,7 +9236,7 @@ sub_4A463   proc near       ; CODE XREF: sub_4945D:loc_4953Bp
         neg byte_5A33F
         call    sub_4A2E6
         neg byte_5A33F
-        call    sub_4A3BB
+        call    resetNumberOfInfotrons
         mov byte_59B7B, 1
         call    sub_48A20
         call    findMurphy
@@ -11805,15 +11808,15 @@ void drawLevelList() // sub_4C141  proc near       ; CODE XREF: start+41Ap sub_
     byte_59822 = gCurrentPlayerLevelData[gCurrentSelectedLevelIndex - 1];
     byte_59823 = gCurrentPlayerLevelData[gCurrentSelectedLevelIndex];
 
-    char *previousLevelName = (char *)&gLevelListData[(gCurrentSelectedLevelIndex - 2) * kLevelNameLength];
+    char *previousLevelName = (char *)&gLevelListData[(gCurrentSelectedLevelIndex - 2) * kListLevelNameLength];
     drawTextWithChars6FontWithOpaqueBackground(144, 155, byte_59821, previousLevelName);
 
-    char *currentLevelName = (char *)&gLevelListData[(gCurrentSelectedLevelIndex - 1) * kLevelNameLength];
+    char *currentLevelName = (char *)&gLevelListData[(gCurrentSelectedLevelIndex - 1) * kListLevelNameLength];
     drawTextWithChars6FontWithOpaqueBackground(144, 164, byte_59822, currentLevelName);
 
-    memcpy(gCurrentLevelName, currentLevelName, kLevelNameLength);
+    memcpy(gCurrentLevelName, currentLevelName, kListLevelNameLength);
 
-    char *nextLevelName = (char *)&gLevelListData[gCurrentSelectedLevelIndex * kLevelNameLength];
+    char *nextLevelName = (char *)&gLevelListData[gCurrentSelectedLevelIndex * kListLevelNameLength];
     drawTextWithChars6FontWithOpaqueBackground(144, 173, byte_59823, nextLevelName);
 }
 
@@ -14448,7 +14451,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 //    memcpy(di, si, 0x17);// rep movsw // 01ED:6A32
 //    di += 0x17;
 //    si += 0x17;
-    memcpy(levelName, fileLevelData.name, sizeof(fileLevelData.name) - 5);
+    memcpy(levelName, fileLevelData.name, sizeof(fileLevelData.name) - 1);
 
 //    pop es
 //    assume es:nothing
@@ -19555,7 +19558,7 @@ void drawGamePanelText() // sub_4FC20  proc near       ; CODE XREF: somethingsps
     drawGameTime();
 }
 
-void drawgNumberOfRemainingInfotrons() // sub_4FD21   proc near       ; CODE XREF: sub_4A3BB+13p
+void drawgNumberOfRemainingInfotrons() // sub_4FD21   proc near       ; CODE XREF: resetNumberOfInfotrons+13p
                    // ; update?:loc_4EC90p ...
 {
     if (gNumberOfRemainingInfotrons < 1)
