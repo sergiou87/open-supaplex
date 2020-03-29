@@ -5801,475 +5801,553 @@ void sub_48A20() //   proc near       ; CODE XREF: start+32Fp
 
 void runLevel() //    proc near       ; CODE XREF: start+35Cp
 {
-/*
-    cmp gIsPlayingDemo, 0
-    jz  short loc_48ACE
-    mov byte_5A19C, 1
-    mov byte_510BA, 0
-    jmp short loc_48AD8
-// ; ---------------------------------------------------------------------------
+    if (gIsPlayingDemo == 0)
+    {
+        //jz  short loc_48ACE
+    }
+    byte_5A19C = 1;
+    byte_510BA = 0;
+//    jmp short loc_48AD8
 
-loc_48ACE:              ; CODE XREF: runLevel+5j
-    mov byte_5A19C, 0
-    mov byte_510BA, 1
+//loc_48ACE:              ; CODE XREF: runLevel+5j
+    byte_5A19C = 0;
+    byte_510BA = 1;
 
-loc_48AD8:              ; CODE XREF: runLevel+11j
-    cmp byte_5A2F8, 1
-    jnz short loc_48B09
+//loc_48AD8:              ; CODE XREF: runLevel+11j
+    if (byte_5A2F8 != 1)
+    {
+        //jnz short loc_48B09
+    }
 
-loc_48ADF:              ; CODE XREF: runLevel+BAj
-    mov byte_5A2F8, 0
-    call    drawGameTime
+//loc_48ADF:              ; CODE XREF: runLevel+BAj
+    byte_5A2F8 = 0;
+    drawGameTime();
 
-isFunctionKey:              ; CODE XREF: runLevel+35j
-    al = keyPressed
-    cmp al, 3Bh ; ';'   ; F1
-    jb  short notFunctionKey
-    cmp al, 44h ; 'D'   ; F10
-    jbe short isFunctionKey
+//isFunctionKey:              ; CODE XREF: runLevel+35j
+    al = keyPressed;
+    if (al < 0x3B) // F1
+    {
+        //jb  short notFunctionKey
+    }
+    if (al <= 0x44) // F10
+    {
+        // jbe short isFunctionKey
+    }
 
-notFunctionKey:             ; CODE XREF: runLevel+31j
-    call    sub_48A20
-    cmp isMusicEnabled, 0
-    jnz short loc_48AFF
-    call    sound3
+//notFunctionKey:             ; CODE XREF: runLevel+31j
+    sub_48A20();
+    if (isMusicEnabled != 0)
+    {
+        //jnz short loc_48AFF
+    }
+    sound3();
 
-loc_48AFF:              ; CODE XREF: runLevel+3Fj
-    mov byte_5A19C, 0
-    mov byte_510BA, 1
+//loc_48AFF:              ; CODE XREF: runLevel+3Fj
+    byte_5A19C = 0;
+    byte_510BA = 1;
 
-loc_48B09:              ; CODE XREF: runLevel+22j
-    mov byte_510DB, 0
-    mov byte_5A323, 0
-    mov word_510A2, 1
+//loc_48B09:              ; CODE XREF: runLevel+22j
+    byte_510DB = 0;
+    byte_5A323 = 0;
+    word_510A2 = 1;
 
-gamelooprep:                ; CODE XREF: runLevel+33Cj
-                ; runLevel+345j
-    cmp gIsPlayingDemo, 0
-    jnz short loc_48B23
-    call    sub_48E59
+    do
+    {
+//gamelooprep:                ; CODE XREF: runLevel+33Cj
+//                ; runLevel+345j
+        if (gIsPlayingDemo == 0)
+        {
+            sub_48E59();
+        }
 
-loc_48B23:              ; CODE XREF: runLevel+63j
-    call    getMouseStatus
-    cmp bx, 2
-    jnz short loc_48B38
-    cmp word_51978, 0
-    jg  short loc_48B38
-    mov word_510D1, 1
+        uint16_t mouseButtonsStatus;
 
-loc_48B38:              ; CODE XREF: runLevel+6Ej runLevel+75j
-    cmp word_51970, 0
-    jz  short loc_48B6B
-    cmp byte_59B7A, 0
-    jz  short loc_48B4A
-    dec byte_59B7A
+//loc_48B23:              ; CODE XREF: runLevel+63j
+        getMouseStatus(NULL, NULL, &mouseButtonsStatus);
+        if (mouseButtonsStatus == 2
+            && word_51978 <= 0)
+        {
+            word_510D1 = 1;
+        }
 
-loc_48B4A:              ; CODE XREF: runLevel+89j
-    cmp byte_51999, 0
-    jnz short loc_48B6B
-    cmp bx, 1
-    jnz short loc_48B6B
-    cmp byte_59B7A, 0
-    jnz short loc_48B6B
-    mov byte_59B7A, 0Ah
-    call    levelScanThing
-    call    drawFixedLevel
-    call    sub_4A2E6
+//loc_48B38:              ; CODE XREF: runLevel+6Ej runLevel+75j
+        if (word_51970 == 0)
+        {
+            //jz  short loc_48B6B
+        }
+        if (byte_59B7A != 0)
+        {
+            byte_59B7A--;
+        }
 
-loc_48B6B:              ; CODE XREF: runLevel+82j runLevel+94j ...
-    call    sub_4955B
-    cmp byte_5A2F8, 1
-    jnz short loc_48B78
-    jmp loc_48ADF
-// ; ---------------------------------------------------------------------------
+//loc_48B4A:              ; CODE XREF: runLevel+89j
+        if (byte_51999 == 0
+            && mouseButtonsStatus == 1 //cmp bx, 1
+            && byte_59B7A == 0)
+        {
+            byte_59B7A = 0xA;
+            levelScanThing();
+            drawFixedLevel();
+            sub_4A2E6();
+        }
 
-loc_48B78:              ; CODE XREF: runLevel+B8j
-    cmp word ptr flashingbackgroundon, 0
-    jz  short noFlashing
-    mov dx, 3C8h
-    xor al, al
-    out dx, al
-    inc dx
-    al = 35h ; '5'
-    out dx, al
-    out dx, al
-    out dx, al
+//loc_48B6B:              ; CODE XREF: runLevel+82j runLevel+94j ...
+        sub_4955B();
+        if (byte_5A2F8 == 1)
+        {
+            // This goes back to the beginning of this function WTF
+//            jmp loc_48ADF
+        }
 
-noFlashing:              ; CODE XREF: runLevel+C2j
-    call    gameloop?
-    cmp word ptr flashingbackgroundon, 0
-    jz  short noFlashing2
-    mov dx, 3C8h
-    xor al, al
-    out dx, al
-    inc dx
-    al = 21h ; '!'
-    out dx, al
-    out dx, al
-    out dx, al
+//loc_48B78:              ; CODE XREF: runLevel+B8j
+        if ((flashingbackgroundon & 0xFFFF) != 0) // cmp word ptr flashingbackgroundon, 0
+        {
+            /*
+            mov dx, 3C8h
+            xor al, al
+            out dx, al
+            inc dx
+            al = 35h ; '5'
+            out dx, al
+            out dx, al
+            out dx, al
+             */
+        }
 
-noFlashing2:              ; CODE XREF: runLevel+D8j
-    call    drawGameTime
-    call    sub_4FD65
-    cmp word ptr flashingbackgroundon, 0
-    jz  short noFlashing3
-    mov dx, 3C8h
-    xor al, al
-    out dx, al
-    inc dx
-    al = 2Dh ; '-'
-    out dx, al
-    al = 21h ; '!'
-    out dx, al
-    al = 0Fh
-    out dx, al
+//noFlashing:              ; CODE XREF: runLevel+C2j
+        gameloop();
+        if ((flashingbackgroundon & 0xFFFF) != 0) //cmp word ptr flashingbackgroundon, 0
+        {
+            /*
+            mov dx, 3C8h
+            xor al, al
+            out dx, al
+            inc dx
+            al = 21h ; '!'
+            out dx, al
+            out dx, al
+            out dx, al
+             */
+        }
 
-noFlashing3:              ; CODE XREF: runLevel+F1j
-    call    sub_4A910
-    call    sub_4A5E0
-    call    sub_49EBE
-    mov ax, word_5195F
-    and al, 7
-    mov gNumberOfDotsToShiftDataLeft, al
-    test    speed3, 40h
-    jnz short loc_48BED
-    test    speed3, 80h
-    jz  short loc_48BED
-    al = gameSpeed
-    xchg    al, speed3
-    cmp al, 0BFh ; '?'
-    jz  short loc_48BED
-    and al, 0Fh
-    mov gameSpeed, al
+//noFlashing2:              ; CODE XREF: runLevel+D8j
+        drawGameTime();
+        sub_4FD65();
+        if ((flashingbackgroundon & 0xFFFF) != 0) //cmp word ptr flashingbackgroundon, 0
+        {
+            /*
+            mov dx, 3C8h
+            xor al, al
+            out dx, al
+            inc dx
+            al = 2Dh ; '-'
+            out dx, al
+            al = 21h ; '!'
+            out dx, al
+            al = 0Fh
+            out dx, al
+             */
+        }
 
-loc_48BED:              ; CODE XREF: runLevel+119j
-                ; runLevel+120j ...
-    cmp speed1, 0
-    jnz short loc_48BF7
-    jmp loc_48C86
-// ; ---------------------------------------------------------------------------
+//noFlashing3:              ; CODE XREF: runLevel+F1j
+        sub_4A910();
+        sub_4A5E0();
+        sub_49EBE();
+        ax = word_5195F;
+        al &= 7;
+        gNumberOfDotsToShiftDataLeft = al;
+        if ((speed3 & 0x40) == 0)
+        {
+            if ((speed3 & 0x80) != 0)
+            {
+                al = gameSpeed;
+        //      xchg    al, speed3
+                if (al != 0xBF) // 191
+                {
+                    al &= 0xF;
+                    gameSpeed = al;
+                }
+            }
+        }
 
-loc_48BF7:              ; CODE XREF: runLevel+137j
-    inc byte_59B94
-    cmp byte_59B96, 0Ah
-    jnb short loc_48C05
-    jmp loc_48C86
-// ; ---------------------------------------------------------------------------
+//loc_48BED:              ; CODE XREF: runLevel+119j
+//                ; runLevel+120j ...
+        if (speed1 == 0)
+        {
+    //      jmp loc_48C86
+        }
 
-loc_48C05:              ; CODE XREF: runLevel+145j
-    mov byte_59B96, 0
-    cmp byte_59B94, 8
-    ja  short loc_48C1A
-    cmp byte_59B94, 6
-    jb  short loc_48C1A
-    cmp al, al
+//loc_48BF7:              ; CODE XREF: runLevel+137j
+        byte_59B94++;
+        if (byte_59B96 < 0xA)
+        {
+    //      jmp loc_48C86
+        }
 
-loc_48C1A:              ; CODE XREF: runLevel+154j
-                ; runLevel+15Bj
-    mov byte_59B94, 0
-    ja  short loc_48C79
-    jb  short loc_48C5F
-    dec speed1
-    cmp speed1, 0FEh ; '?'
-    ja  short loc_48C86
-    and speed3, 0BFh
-    mov speed1, 0
-    cmp gameSpeed, 4
-    jz  short loc_48C4F
-    cmp gameSpeed, 6
-    jz  short loc_48C6C
-    cmp gameSpeed, 9
-    jz  short loc_48C4F
-    jmp short loc_48C86
-// ; ---------------------------------------------------------------------------
+//loc_48C05:              ; CODE XREF: runLevel+145j
+        byte_59B96 = 0;
+        if (byte_59B94 <= 8
+            && byte_59B94 >= 6)
+        {
+//            cmp al, al
+        }
 
-loc_48C4F:              ; CODE XREF: runLevel+182j
-                ; runLevel+190j
-    cmp gameSpeed, 0Ah
-    jb  short loc_48C59
-    jmp loc_48D59
-// ; ---------------------------------------------------------------------------
+//loc_48C1A:              ; CODE XREF: runLevel+154j
+//                ; runLevel+15Bj
+        byte_59B94 = 0;
+//        ja  short loc_48C79
+//        jb  short loc_48C5F
+        speed1--;
+        if (speed1 > 0xFE) // 254
+        {
+            //ja  short loc_48C86
+        }
+        speed3 &= 0xBF; // 191
+        speed1 = 0;
+        if (gameSpeed == 4)
+        {
+            //jz  short loc_48C4F
+        }
+        if (gameSpeed == 6)
+        {
+            //jz  short loc_48C6C
+        }
+        if (gameSpeed == 9)
+        {
+            //jz  short loc_48C4F
+        }
+//        jmp short loc_48C86
 
-loc_48C59:              ; CODE XREF: runLevel+199j
-                ; runLevel+1A9j
-    inc gameSpeed
-    jmp short loc_48C86
-// ; ---------------------------------------------------------------------------
+//loc_48C4F:              ; CODE XREF: runLevel+182j
+//                ; runLevel+190j
+        if (gameSpeed < 0xA)
+        {
+            //jb  short loc_48C59
+        }
+//        jmp loc_48D59
 
-loc_48C5F:              ; CODE XREF: runLevel+166j
-    cmp gameSpeed, 0Ah
-    jb  short loc_48C59
-    dec speed1
-    jmp short loc_48C86
-// ; ---------------------------------------------------------------------------
+//loc_48C59:              ; CODE XREF: runLevel+199j
+//                ; runLevel+1A9j
+        gameSpeed++;
+//        jmp short loc_48C86
 
-loc_48C6C:              ; CODE XREF: runLevel+189j
-    cmp gameSpeed, 0
-    jz  short loc_48C86
+//loc_48C5F:              ; CODE XREF: runLevel+166j
+        if (gameSpeed < 0xA)
+        {
+            //jb  short loc_48C59
+        }
+        speed1--;
+//        jmp short loc_48C86
 
-loc_48C73:              ; CODE XREF: runLevel+1C3j
-    dec gameSpeed
-    jmp short loc_48C86
-// ; ---------------------------------------------------------------------------
+//loc_48C6C:              ; CODE XREF: runLevel+189j
+        if (gameSpeed == 0)
+        {
+            //jz  short loc_48C86
+        }
 
-loc_48C79:              ; CODE XREF: runLevel+164j
-    cmp gameSpeed, 0
-    ja  short loc_48C73
-    dec speed1
-    jmp short $+2
-// ; ---------------------------------------------------------------------------
+//loc_48C73:              ; CODE XREF: runLevel+1C3j
+        gameSpeed--;
+//        jmp short loc_48C86
 
-loc_48C86:              ; CODE XREF: runLevel+139j
-                ; runLevel+147j ...
-    cmp fastMode, 1
-    jnz short isNotFastMode4
-    jmp loc_48D59
-// ; ---------------------------------------------------------------------------
+//loc_48C79:              ; CODE XREF: runLevel+164j
+        if (gameSpeed > 0)
+        {
+            //ja  short loc_48C73
+        }
+        speed1--;
+//        jmp short $+2
 
-isNotFastMode4:              ; CODE XREF: runLevel+1D0j
-    cmp gameSpeed, 0Ah
-    jb  short loc_48C9A
-    jmp loc_48D59
-// ; ---------------------------------------------------------------------------
+//loc_48C86:              ; CODE XREF: runLevel+139j
+//                ; runLevel+147j ...
+        if (fastMode != 1)
+        {
+            //jnz short isNotFastMode4
+        }
+//        jmp loc_48D59
 
-loc_48C9A:              ; CODE XREF: runLevel+1DAj
-    mov cx, 6
-    sub cl, gameSpeed
-    jg  short loc_48CBD
-    al = gameSpeed
-    inc byte_59B95
-    sub al, 5
-    cmp al, byte_59B95
-    jb  short loc_48CB5
-    jmp loc_48D59
-// ; ---------------------------------------------------------------------------
+//isNotFastMode4:              ; CODE XREF: runLevel+1D0j
+        if (gameSpeed < 0xA)
+        {
+            //jb  short loc_48C9A
+        }
+//        jmp loc_48D59
 
-loc_48CB5:              ; CODE XREF: runLevel+1F5j
-    mov byte_59B95, 0
-    mov cx, 1
+//loc_48C9A:              ; CODE XREF: runLevel+1DAj
+        cx = 6;
+        cl -= gameSpeed;
+        if (cl > 0)
+        {
+            //jg  short loc_48CBD
+        }
+        al = gameSpeed;
+        byte_59B95++;
+        al -= 5;
+        if (al < byte_59B95)
+        {
+            //jb  short loc_48CB5
+        }
+//        jmp loc_48D59
 
-loc_48CBD:              ; CODE XREF: runLevel+1E6j
-    push    bx
+//loc_48CB5:              ; CODE XREF: runLevel+1F5j
+        byte_59B95 = 0;
+        cx = 1;
 
-loc_48CBE:              ; CODE XREF: runLevel+29Aj
-    mov dx, word_5195F
-    sub dx, word_59B90
-    cmp dx, 10h
-    jg  short loc_48D38
-    cmp dx, 0FFF0h
-    jl  short loc_48D38
-    mov ax, word_51961
-    sub ax, word_59B92
-    cmp ax, 10h
-    jg  short loc_48D38
-    cmp ax, 0FFF0h
-    jl  short loc_48D38
-    push(cx);
-    inc cx
-    idiv    cl
-    shl ah, 1
-    jnb short loc_48CF3
-    neg ah
-    cmp ah, cl
-    jb  short loc_48CF9
-    dec al
-    jmp short loc_48CF9
-// ; ---------------------------------------------------------------------------
+//loc_48CBD:              ; CODE XREF: runLevel+1E6j
+//        push    bx
 
-loc_48CF3:              ; CODE XREF: runLevel+22Cj
-    cmp ah, cl
-    jb  short loc_48CF9
-    al++;
+//loc_48CBE:              ; CODE XREF: runLevel+29Aj
+        dx = word_5195F;
+        dx -= word_59B90;
+        if (dx > 0x10)
+        {
+            //jg  short loc_48D38
+        }
+        if (dx < 0xFFF0)
+        {
+            //jl  short loc_48D38
+        }
+        ax = word_51961;
+        a -= word_59B92;
+        if (ax > 0x10)
+        {
+            //jg  short loc_48D38
+        }
+        if (ax < 0xFFF0)
+        {
+            //jl  short loc_48D38
+        }
+//        push(cx);
+        cx++;
+//        idiv    cl
+        uint8_t topBit = ah >> 7;
+        ah = ah << 1;
+        if (topBit != 0) // jnb -> cf==0 -> in shl, cf will be the MSB of the operand
+        {
+            //jnb short loc_48CF3
+        }
+        ah = -ah;
+        if (ah < cl)
+        {
+            //jb  short loc_48CF9
+        }
+        al--;
+//        jmp short loc_48CF9
 
-loc_48CF9:              ; CODE XREF: runLevel+232j
-                ; runLevel+236j ...
-    cbw
-    add word_59B92, ax
-    mov ax, dx
-    idiv    cl
-    shl ah, 1
-    jnb short loc_48D10
-    neg ah
-    cmp ah, cl
-    jb  short loc_48D16
-    dec al
-    jmp short loc_48D16
-// ; ---------------------------------------------------------------------------
+//loc_48CF3:              ; CODE XREF: runLevel+22Cj
+        if (ah < cl)
+        {
+            //jb  short loc_48CF9
+        }
+        al++;
 
-loc_48D10:              ; CODE XREF: runLevel+249j
-    cmp ah, cl
-    jb  short loc_48D16
-    al++;
+//loc_48CF9:              ; CODE XREF: runLevel+232j
+//                ; runLevel+236j ...
+//        cbw
+        word_59B92 += ax;
+        ax = dx;
+//        idiv    cl
+        uint8_t topBit = ah >> 7;
+        ah = ah << 1;
+        if (topBit != 0) // jnb -> cf==0 -> in shl, cf will be the MSB of the operand
+        {
+            //jnb short loc_48D10
+        }
+        ah = -ah;
+        if (ah < cl)
+        {
+            //jb  short loc_48D16
+        }
+        al--;
+        jmp short loc_48D16
 
-loc_48D16:              ; CODE XREF: runLevel+24Fj
-                ; runLevel+253j ...
-    cbw
-    add word_59B90, ax
-    mov ax, word_59B90
-    mov bx, ax
-    and al, 7
-    mov gNumberOfDotsToShiftDataLeft, al
-    mov cl, 3
-    shr bx, cl
-    mov ax, word_59B92
-    mov cx, 7Ah ; 'z'
-    mul cx
-    add bx, ax
-    add bx, 4D34h
-    pop(cx);
+//loc_48D10:              ; CODE XREF: runLevel+249j
+        if (ah >= cl)
+        {
+            al++;
+        }
 
-loc_48D38:              ; CODE XREF: runLevel+20Ej
-                ; runLevel+213j ...
-    mov dx, 3D4h
-    al = 0Dh
-    out dx, al      ; Video: CRT cntrlr addr
-                ; regen start address (low)
-    inc dx
-    al = bl
-    out dx, al      ; Video: CRT controller internal registers
-    mov dx, 3D4h
-    al = 0Ch
-    out dx, al      ; Video: CRT cntrlr addr
-                ; regen start address (high)
-    inc dx
-    al = bh
-    out dx, al      ; Video: CRT controller internal registers
-    call    videoloop
-    call    loopForVSync
-    dec cx
-    jz  short loc_48D58
-    jmp loc_48CBE
-// ; ---------------------------------------------------------------------------
+//loc_48D16:              ; CODE XREF: runLevel+24Fj
+//                ; runLevel+253j ...
+//        cbw
+        word_59B90 += ax;
+        ax = word_59B90;
+        bx = ax;
+        al &= 7;
+        gNumberOfDotsToShiftDataLeft = al;
+        cl = 3;
+        bx = bx >> cl;
+        ax = word_59B92;
+        cx = 0x7A; // 122
+        ax = ax * cx;
+        bx += ax;
+        bx += 0x4D34;
+//        pop(cx);
 
-loc_48D58:              ; CODE XREF: runLevel+298j
-    pop bx
+//loc_48D38:              ; CODE XREF: runLevel+20Ej
+//                ; runLevel+213j ...
+//        mov dx, 3D4h
+//        al = 0Dh
+//        out dx, al      ; Video: CRT cntrlr addr
+//                    ; regen start address (low)
+//        inc dx
+//        al = bl
+//        out dx, al      ; Video: CRT controller internal registers
+//        mov dx, 3D4h
+//        al = 0Ch
+//        out dx, al      ; Video: CRT cntrlr addr
+//                    ; regen start address (high)
+//        inc dx
+//        al = bh
+//        out dx, al      ; Video: CRT controller internal registers
+        videoloop();
+        loopForVSync();
+        cx--;
+        if (cx == 0)
+        {
+            //jz  short loc_48D58
+        }
+//        jmp loc_48CBE -> loop?
 
-loc_48D59:              ; CODE XREF: runLevel+19Bj
-                ; runLevel+1D2j ...
-    mov ax, word_51961
-    mov word_59B92, ax
-    mov ax, word_5195F
-    mov word_59B90, ax
-    and al, 7
-    mov gNumberOfDotsToShiftDataLeft, al
-    mov dx, 3D4h
-    al = 0Dh
-    out dx, al      ; Video: CRT cntrlr addr
-                ; regen start address (low)
-    inc dx
-    al = bl
-    out dx, al      ; Video: CRT controller internal registers
-    mov dx, 3D4h
-    al = 0Ch
-    out dx, al      ; Video: CRT cntrlr addr
-                ; regen start address (high)
-    inc dx
-    al = bh
-    out dx, al      ; Video: CRT controller internal registers
-    mov cx, word_5195F
-    mov ah, cl
-    and ah, 7
-    cmp word ptr flashingbackgroundon, 0
-    jz  short noFlashing4
-    mov dx, 3C8h
-    xor al, al
-    out dx, al
-    inc dx
-    al = 3Fh ; '?'
-    out dx, al
-    out dx, al
-    out dx, al
+//loc_48D58:              ; CODE XREF: runLevel+298j
+//        pop bx
 
-noFlashing4:              ; CODE XREF: runLevel+2D1j
-    mov gNumberOfDotsToShiftDataLeft, ah
-    cmp fastMode, 1
-    jz  short isFastMode2
-    call    videoloop
+//loc_48D59:              ; CODE XREF: runLevel+19Bj
+//                ; runLevel+1D2j ...
+//        ax = word_51961;
+        word_59B92 = word_51961;
+//        ax = word_5195F;
+        word_59B90 = word_5195F;
+        al &= 7;
+        gNumberOfDotsToShiftDataLeft = al;
+//        mov dx, 3D4h
+//        al = 0Dh
+//        out dx, al      ; Video: CRT cntrlr addr
+//                    ; regen start address (low)
+//        inc dx
+//        al = bl
+//        out dx, al      ; Video: CRT controller internal registers
+//        mov dx, 3D4h
+//        al = 0Ch
+//        out dx, al      ; Video: CRT cntrlr addr
+//                    ; regen start address (high)
+//        inc dx
+//        al = bh
+//        out dx, al      ; Video: CRT controller internal registers
+//        mov cx, word_5195F
+//        mov ah, cl
+//        and ah, 7
+        if ((flashingbackgroundon & 0xFFFF) != 0) //cmp word ptr flashingbackgroundon, 0
+        {
+//            mov dx, 3C8h
+//            xor al, al
+//            out dx, al
+//            inc dx
+//            al = 3Fh ; '?'
+//            out dx, al
+//            out dx, al
+//            out dx, al
+        }
 
-isFastMode2:              ; CODE XREF: runLevel+2E8j
-    cmp word_51A07, 1
-    jbe short loc_48DB2
-    call    sound9
+//noFlashing4:              ; CODE XREF: runLevel+2D1j
+        gNumberOfDotsToShiftDataLeft = ah;
+        if (fastMode != 1)
+        {
+            videoloop();
+        }
 
-loc_48DB2:              ; CODE XREF: runLevel+2F2j
-    mov cx, word_51A07
+//isFastMode2:              ; CODE XREF: runLevel+2E8j
+        if (word_51A07 > 1)
+        {
+            sound9();
+        }
 
-loc_48DB6:              ; CODE XREF: runLevel+310j
-    dec cx
-    jz  short loc_48DCD
-    cmp fastMode, 1
-    jz  short isFastMode3
-    call    loopForVSync
-    call    videoloop
+//loc_48DB2:              ; CODE XREF: runLevel+2F2j
+        cx = word_51A07;
 
-isFastMode3:              ; CODE XREF: runLevel+303j
-    push(cx);
-    call    sub_4955B
-    pop(cx);
-    jmp short loc_48DB6
-// ; ---------------------------------------------------------------------------
+        // This loop starts in 1 because the original code (check loc_48DB6) decremented and checked cx at the begining
+        // of the iteration
+        for (int i = 1; i < word_51A07; ++i)
+        {
+//loc_48DB6:              ; CODE XREF: runLevel+310j
+            if (fastMode != 1)
+            {
+                loopForVSync();
+                videoloop();
+            }
 
-loc_48DCD:              ; CODE XREF: runLevel+2FCj
-    cmp word ptr flashingbackgroundon, 0
-    jz  short noFlashing5
-    mov dx, 3C8h
-    xor al, al
-    out dx, al
-    inc dx
-    out dx, al
-    out dx, al
-    out dx, al
+//isFastMode3:              ; CODE XREF: runLevel+303j
+            sub_4955B();
+        }
 
-noFlashing5:              ; CODE XREF: runLevel+317j
-    cmp word_5197A, 0
-    jnz short loc_48E03
-    inc word_5195D
-    cmp word_51974, 1
-    jz  short loc_48E03
-    cmp word_51978, 0
-    jnz short loc_48DFA
-    jmp gamelooprep
-// ; ---------------------------------------------------------------------------
+//loc_48DCD:              ; CODE XREF: runLevel+2FCj
+    if ((flashingbackgroundon & 0xFFFF) != 0) //cmp word ptr flashingbackgroundon, 0
+    {
+//        mov dx, 3C8h
+//        xor al, al
+//        out dx, al
+//        inc dx
+//        out dx, al
+//        out dx, al
+//        out dx, al
+    }
 
-loc_48DFA:              ; CODE XREF: runLevel+33Aj
-    dec word_51978
-    jz  short loc_48E03
-    jmp gamelooprep
-// ; ---------------------------------------------------------------------------
+//noFlashing5:              ; CODE XREF: runLevel+317j
+        if (word_5197A != 0)
+        {
+            break;
+        }
+        word_5195D++;
+        if (word_51974 == 1)
+        {
+            break;
+        }
+        if (word_51978 == 0)
+        {
+            continue;
+        }
 
-loc_48E03:              ; CODE XREF: runLevel+328j
-                ; runLevel+333j ...
-    mov word_510A2, 0
-    cmp gIsRecordingDemo, 0
-    jz  short loc_48E13
-    call    somethingspsig
+//loc_48DFA:              ; CODE XREF: runLevel+33Aj
+        word_51978--;
+        if (word_51978 == 0)
+        {
+            break;
+        }
+    }
+    while(1);
 
-loc_48E13:              ; CODE XREF: runLevel+353j
-    cmp byte_5A2F9, 0
-    mov byte_5A2F9, 0
-    jnz short loc_48E30
-    cmp byte_510B3, 0
-    jz  short loc_48E30
-    cmp byte_5A323, 0
-    jnz short loc_48E30
-    call    sub_4A95F
+//loc_48E03:              ; CODE XREF: runLevel+328j
+//                ; runLevel+333j ...
+    word_510A2 = 0;
+    if (gIsRecordingDemo != 0)
+    {
+        somethingspsig();
+    }
 
-loc_48E30:              ; CODE XREF: runLevel+362j
-                ; runLevel+369j ...
-    mov word_51A01, 0
-    mov word_51963, 0
-    mov word_51965, 0
-    mov word ptr flashingbackgroundon, 0
-    mov word_51A07, 1
-    mov dx, 3C8h
-    xor al, al
-    out dx, al
-    inc dx
-    out dx, al
-    out dx, al
-    out dx, al
+//loc_48E13:              ; CODE XREF: runLevel+353j
+    uint8_t was_byte_5A2F9_Zero = (byte_5A2F9 == 0);
+    byte_5A2F9 = 0;
+    if (was_byte_5A2F9_Zero
+        && byte_510B3 != 0
+        && byte_5A323 == 0)
+    {
+        sub_4A95F();
+    }
+
+//loc_48E30:              ; CODE XREF: runLevel+362j
+//                ; runLevel+369j ...
+    word_51A01 = 0;
+    word_51963 = 0;
+    word_51965 = 0;
+    flashingbackgroundon = (flashingbackgroundon & 0xFFFF0000) + 0; // mov word ptr flashingbackgroundon, 0
+    word_51A07 = 1;
+//    mov dx, 3C8h
+//    xor al, al
+//    out dx, al
+//    inc dx
+//    out dx, al
+//    out dx, al
+//    out dx, al
     return;
-    */
 }
 
 void sub_48E59() //   proc near       ; CODE XREF: waitForKeyMouseOrJoystick:loc_47EB8p
@@ -8271,7 +8349,7 @@ levelScanThing   endp
 ; =============== S U B R O U T I N E =======================================
 
 
-gameloop?   proc near       ; CODE XREF: runLevel:noFlashingp
+gameloop   proc near       ; CODE XREF: runLevel:noFlashingp
 
         ; set graphics write mode = 1
         mov dx, 3CEh
@@ -8336,7 +8414,7 @@ loc_49E33:
         xor dx, dx
         xor bh, bh
 
-checkCellForMovingObject:              ; CODE XREF: gameloop?+84j
+checkCellForMovingObject:              ; CODE XREF: gameloop+84j
         mov bl, byte ptr leveldata[si]
 
         test    bl, 0Dh
@@ -8396,8 +8474,8 @@ doneWithGameLoop:
         return;
 // ; ---------------------------------------------------------------------------
 
-loc_49E99:              ; CODE XREF: gameloop?+AFj
-                    ; gameloop?+B6j
+loc_49E99:              ; CODE XREF: gameloop+AFj
+                    ; gameloop+B6j
         cmp word_51978, 0
         jnz short loc_49EB3
         mov word_510D1, 0
@@ -8415,7 +8493,7 @@ loc_49EB3:
         out dx, al
 
         return;
-gameloop?   endp
+gameloop   endp
 */
 void sub_49EBE() //   proc near       ; CODE XREF: runLevel+109p
                    // ; sub_4A291+29p
@@ -15440,7 +15518,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 ; =============== S U B R O U T I N E =======================================
 
 
-update?     proc near       ; CODE XREF: gameloop?+Ep
+update?     proc near       ; CODE XREF: gameloop+Ep
 
         cmp byte ptr leveldata[si], 3
         jz  short hasValidMurphy
@@ -19868,7 +19946,7 @@ void drawGamePanel() // sub_501C0   proc near       ; CODE XREF: start+338p sub
     sub_5024B();
 }
 
-void sub_5024B() //   proc near       ; CODE XREF: gameloop?+31p
+void sub_5024B() //   proc near       ; CODE XREF: gameloop+31p
                   //  ; drawGamePanel+25p
 {
 /*
