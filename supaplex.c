@@ -7221,6 +7221,25 @@ void prepareSomeKindOfLevelIdentifier() // sub_49544  proc near       ; CODE XRE
     a00s0010_sp[1] = char9;
 }
 
+void readFromFh1() // proc near       ; CODE XREF: sub_4955B+54Ep
+                    //; sub_4955B+57Cp ...
+{
+//    mov ax, 3F00h
+//    mov bx, fh1
+//    int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+//                ; BX = file handle, CX = number of bytes to read
+//                ; DS:DX -> buffer
+}
+
+void writeToFh1() //  proc near       ; CODE XREF: sub_4955B+486p
+                    // ; sub_4955B+494p ...
+{
+//    mov ax, 4000h
+//    mov bx, fh1
+//    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
+//                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
+}
+
 void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
                    // ; runLevel+30Cp
 {
@@ -7491,747 +7510,800 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     }
 
 //loc_4974C:              ; CODE XREF: sub_4955B+1ECj
-    mov ax, word_5195D
-    and ax, 7
-    jz  short loc_49757
-    jmp loc_4988E
+    ax = word_5195D;
+    ax &= 7;
+    if (ax != 0)
+    {
+//        jmp loc_4988E
+    }
 
 //loc_49757:              ; CODE XREF: sub_4955B+1F7j
-    cmp gIsRecordingDemo, 0
-    jz  short loc_49761
-    jmp loc_4988E
+    if (gIsRecordingDemo != 0)
+    {
+//        jmp loc_4988E
+    }
 
 //loc_49761:              ; CODE XREF: sub_4955B+201j
-    cmp byte_519B8, 0
-    jnz short loc_4976F
-    mov byte_59B7C, 0
-    jmp short loc_49786
+    if (byte_519B8 == 0)
+    {
+        byte_59B7C = 0;
+//        jmp short loc_49786
+    }
 
 //loc_4976F:              ; CODE XREF: sub_4955B+20Bj
-    cmp byte_59B7C, 0
-    jnz short loc_49786
-    dec byte_59B7C
-    and byte_5101C, 1
-    xor byte_5101C, 1
-    jmp short loc_497CE
+    if (byte_59B7C == 0)
+    {
+        byte_59B7C--;
+        byte_5101C &= 1;
+        byte_5101C = byte_5101C ^ 1;
+//        jmp short loc_497CE
+    }
 
 //loc_49786:              ; CODE XREF: sub_4955B+212j
-                ; sub_4955B+219j
-    cmp byte_519B9, 0
-    jnz short loc_49794
-    mov byte_59B7D, 0
-    jmp short loc_497AB
+//                ; sub_4955B+219j
+    if (byte_519B9 == 0)
+    {
+        byte_59B7D = 0;
+//        jmp short loc_497AB
+    }
 
 //loc_49794:              ; CODE XREF: sub_4955B+230j
-    cmp byte_59B7D, 0
-    jnz short loc_497AB
-    dec byte_59B7D
-    and byte_51035, 2
-    xor byte_51035, 2
-    jmp short loc_497CE
+    if (byte_59B7D == 0)
+    {
+        byte_59B7D--;
+        byte_51035 &= 2;
+        byte_51035 = byte_51035 ^ 2;
+//        jmp short loc_497CE
+    }
 
 //loc_497AB:              ; CODE XREF: sub_4955B+237j
 //                ; sub_4955B+23Ej
-    cmp byte_519BA, 0
-    jnz short loc_497B9
-    mov byte_59B7E, 0
-    jmp short loc_497CE
+    if (byte_519BA == 0)
+    {
+        byte_59B7E = 0;
+//        jmp short loc_497CE
+    }
 
 //loc_497B9:              ; CODE XREF: sub_4955B+255j
-    cmp byte_59B7E, 0
-    jnz short loc_497CE
-    dec byte_59B7E
-    and byte_510D7, 1
-    xor byte_510D7, 1
+    if (byte_59B7E == 0)
+    {
+        byte_59B7E--;
+        byte_510D7 &= 1;
+        byte_510D7 = byte_510D7 ^ 1;
+    }
 
 //loc_497CE:              ; CODE XREF: sub_4955B+229j
 //                ; sub_4955B+24Ej ...
-    jmp loc_4988E
+//    jmp loc_4988E
 
 //loc_497D1:              ; CODE XREF: sub_4955B+1EEj
-    cmp gIsPlayingDemo, 0
-    jz  short loc_497DB
-    jmp loc_4988E
+    if (gIsPlayingDemo != 0)
+    {
+//        jmp loc_4988E
+    }
 
 //loc_497DB:              ; CODE XREF: sub_4955B+27Bj
-    cmp speed3, 0
-    jge short loc_497E5
-    jmp loc_4988E
+    if (speed3 < 0)
+    {
+//        jmp loc_4988E
+    }
 
 //loc_497E5:              ; CODE XREF: sub_4955B+285j
-    cmp byte_519B8, 1
-    jnz short loc_497F5
-    mov ax, 0
-    call    sub_4945D
-    jmp loc_4988E
+    if (byte_519B8 == 1)
+    {
+        ax = 0;
+        sub_4945D();
+//        jmp loc_4988E
+    }
 
 //loc_497F5:              ; CODE XREF: sub_4955B+28Fj
-    cmp byte_519B9, 1
-    jnz short loc_49805
-    mov ax, 1
-    call    sub_4945D
-    jmp loc_4988E
+    if (byte_519B9 == 1)
+    {
+        ax = 1;
+        sub_4945D();
+//        jmp loc_4988E
+    }
 
 //loc_49805:              ; CODE XREF: sub_4955B+29Fj
-    cmp byte_519BA, 1
-    jnz short loc_49814
-    mov ax, 2
-    call    sub_4945D
-    jmp short loc_4988E
+    if (byte_519BA == 1)
+    {
+        ax = 2;
+        sub_4945D();
+//        jmp loc_4988E
+    }
 
 //loc_49814:              ; CODE XREF: sub_4955B+2AFj
-    cmp byte_519BB, 1
-    jnz short loc_49823
-    mov ax, 3
-    call    sub_4945D
-    jmp short loc_4988E
+    if (byte_519BB == 1)
+    {
+        ax = 3;
+        sub_4945D();
+//        jmp loc_4988E
+    }
 
 //loc_49823:              ; CODE XREF: sub_4955B+2BEj
-    cmp byte_519BC, 1
-    jnz short loc_49832
-    mov ax, 4
-    call    sub_4945D
-    jmp short loc_4988E
+    if (byte_519BC == 1)
+    {
+        ax = 4;
+        sub_4945D();
+//        jmp loc_4988E
+    }
 
 //loc_49832:              ; CODE XREF: sub_4955B+2CDj
-    cmp byte_519BD, 1
-    jnz short loc_49841
-    mov ax, 5
-    call    sub_4945D
-    jmp short loc_4988E
+    if (byte_519BD == 1)
+    {
+        ax = 5;
+        sub_4945D();
+//        jmp loc_4988E
+    }
 
 //loc_49841:              ; CODE XREF: sub_4955B+2DCj
-    cmp byte_519BE, 1
-    jnz short loc_49850
-    mov ax, 6
-    call    sub_4945D
-    jmp short loc_4988E
+    if (byte_519BE == 1)
+    {
+        ax = 6;
+        sub_4945D();
+//        jmp loc_4988E
+    }
 
 //loc_49850:              ; CODE XREF: sub_4955B+2EBj
-    cmp byte_519BF, 1
-    jnz short loc_4985F
-    mov ax, 7
-    call    sub_4945D
-    jmp short loc_4988E
+    if (byte_519BF == 1)
+    {
+        ax = 7;
+        sub_4945D();
+//        jmp loc_4988E
+    }
 
 //loc_4985F:              ; CODE XREF: sub_4955B+2FAj
-    cmp byte_519C0, 1
-    jnz short loc_4986E
-    mov ax, 8
-    call    sub_4945D
-    jmp short loc_4988E
+    if (byte_519C0 == 1)
+    {
+        ax = 8;
+        sub_4945D();
+//        jmp loc_4988E
+    }
 
 //loc_4986E:              ; CODE XREF: sub_4955B+309j
-    cmp byte_519C1, 1
-    jnz short loc_4987D
-    mov ax, 9
-    call    sub_4945D
-    jmp short loc_4988E
+    if (byte_519C1 == 1)
+    {
+        ax = 9;
+        sub_4945D();
+//        jmp loc_4988E
+    }
 
 //loc_4987D:              ; CODE XREF: sub_4955B+318j
-    cmp byte_519D5, 1
-    jnz short loc_4988E
-    cmp gIsRecordingDemo, 0
-    jz  short loc_4988E
-    call    somethingspsig
+    if (byte_519D5 == 1
+        && gIsRecordingDemo != 0)
+    {
+        somethingspsig();
+    }
 
 //loc_4988E:              ; CODE XREF: sub_4955B+1F9j
 //                ; sub_4955B+203j ...
-    cmp gIsRecordingDemo, 0
-    jz  short loc_49898
-    jmp loc_49949
+    if (gIsRecordingDemo != 0)
+    {
+//        jmp loc_49949
+    }
 
 //loc_49898:              ; CODE XREF: sub_4955B+338j
-    cmp gIsPlayingDemo, 0
-    jz  short loc_498A2
-    jmp loc_49949
+    if (gIsPlayingDemo != 0)
+    {
+//        jmp loc_49949
+    }
 
 //loc_498A2:              ; CODE XREF: sub_4955B+342j
-    cmp byte_51989, 0
-    jnz short loc_498B5
-    mov byte_59B7F, 0
-    mov byte_59B80, 5
-    jmp short loc_498FC
+    if (byte_51989 == 0)
+    {
+        byte_59B7F = 0;
+        byte_59B80 = 5;
+//        jmp short loc_498FC
+    }
 
 //loc_498B5:              ; CODE XREF: sub_4955B+34Cj
-    cmp byte_59B7F, 0
-    jz  short loc_498C2
-    dec byte_59B7F
-    jmp short loc_498FC
+    if (byte_59B7F != 0)
+    {
+        byte_59B7F--;
+//        jmp short loc_498FC
+    }
 
 //loc_498C2:              ; CODE XREF: sub_4955B+35Fj
-    cmp byte_59B80, 0
-    jz  short loc_498D2
-    dec byte_59B80
-    mov byte_59B7F, 10h
+    if (byte_59B80 != 0)
+    {
+        byte_59B80--;
+        byte_59B7F = 0x10;
+    }
 
 //loc_498D2:              ; CODE XREF: sub_4955B+36Cj
-    cmp gCurrentSelectedLevelIndex, 1
-    ja  short loc_498DF
-    mov gCurrentSelectedLevelIndex, 2
+    if (gCurrentSelectedLevelIndex <= 1)
+    {
+        gCurrentSelectedLevelIndex = 2;
+    }
 
 //loc_498DF:              ; CODE XREF: sub_4955B+37Cj
-    dec gCurrentSelectedLevelIndex
-    cmp gCurrentSelectedLevelIndex, 6Fh ; 'o'
-    jbe short loc_498F0
-    mov gCurrentSelectedLevelIndex, 6Fh ; 'o'
+    gCurrentSelectedLevelIndex--;
+    if (gCurrentSelectedLevelIndex > kNumberOfLevels)
+    {
+        gCurrentSelectedLevelIndex = kNumberOfLevels;
+    }
 
 //loc_498F0:              ; CODE XREF: sub_4955B+38Dj
-    mov ax, gCurrentSelectedLevelIndex
-    call    sub_4BF4A
-    call    drawLevelList
-    call    sub_4A3D2
+    ax = gCurrentSelectedLevelIndex;
+    sub_4BF4A();
+    drawLevelList();
+    sub_4A3D2();
 
 //loc_498FC:              ; CODE XREF: sub_4955B+358j
 //                ; sub_4955B+365j
-    cmp byte_5198A, 0
-    jnz short loc_4990F
-    mov byte_59B81, 0
-    mov byte_59B82, 5
-    jmp short loc_49949
+    if (byte_5198A == 0)
+    {
+        mov byte_59B81, 0
+        mov byte_59B82, 5
+//        jmp short loc_49949
+    }
 
 //loc_4990F:              ; CODE XREF: sub_4955B+3A6j
-    cmp byte_59B81, 0
-    jz  short loc_4991C
-    dec byte_59B81
-    jmp short loc_49949
+    if (byte_59B81 != 0)
+    {
+        dec byte_59B81
+//        jmp short loc_49949
+    }
 
 //loc_4991C:              ; CODE XREF: sub_4955B+3B9j
-    cmp byte_59B82, 0
-    jz  short loc_4992C
-    dec byte_59B82
-    mov byte_59B81, 10h
+    if (byte_59B82 != 0)
+    {
+        dec byte_59B82
+        mov byte_59B81, 10h
+    }
 
 //loc_4992C:              ; CODE XREF: sub_4955B+3C6j
-    cmp gCurrentSelectedLevelIndex, 6Fh ; 'o'
-    jb  short loc_49939
-    mov gCurrentSelectedLevelIndex, 6Eh ; 'n'
+    if (gCurrentSelectedLevelIndex >= kNumberOfLevels)
+    {
+        gCurrentSelectedLevelIndex = kNumberOfLevels;
+    }
 
 //loc_49939:              ; CODE XREF: sub_4955B+3D6j
-    inc gCurrentSelectedLevelIndex
-    mov ax, gCurrentSelectedLevelIndex
-    call    sub_4BF4A
-    call    drawLevelList
-    call    sub_4A3D2
+    gCurrentSelectedLevelIndex++;
+    ax = gCurrentSelectedLevelIndex;
+    sub_4BF4A();
+    drawLevelList();
+    sub_4A3D2();
 
 //loc_49949:              ; CODE XREF: sub_4955B+E1j
 //                ; sub_4955B+33Aj ...
-    cmp byte_59B6B, 0
-    mov byte_59B6B, 0
-    jz  short loc_49958
-    jmp loc_49A89
+    uint8_t was_byte_59B6B_NonZero = (byte_59B6B != 0);
+    byte_59B6B = 0;
+    if (was_byte_59B6B_NonZero)
+    {
+//        jmp loc_49A89
+    }
 
 //loc_49958:              ; CODE XREF: sub_4955B+3F8j
-    cmp byte_5199A, 1
-    jz  short loc_49962
-    jmp loc_49C41
+    if (byte_5199A != 1)
+    {
+//        jmp loc_49C41
+    }
 
 //loc_49962:              ; CODE XREF: sub_4955B+402j
-    cmp byte_519D5, 1
-    jnz short loc_49984
-    cmp gIsPlayingDemo, 0
-    jz  short loc_49984
-    mov gIsPlayingDemo, 0
-    mov byte_510B3, 0
-    mov byte_5A2F9, 1
-    mov byte_5A33E, 1
+    if (byte_519D5 == 1
+        && gIsPlayingDemo != 0)
+    {
+        gIsPlayingDemo = 0;
+        byte_510B3 = 0;
+        byte_5A2F9 = 1;
+        byte_5A33E = 1;
+    }
 
 //loc_49984:              ; CODE XREF: sub_4955B+40Cj
 //                ; sub_4955B+413j
-    cmp byte_519C3, 1
-    jnz short loc_499AA
-    mov word_51970, 1
-    cmp videoStatusUnk, 1
-    jnz short loc_499AA
-    mov di, 6D2h
-    mov ah, 6
-    push    si
-    mov si, 0A00Ah
-    call    drawTextWithChars8Font
-    pop si
-    mov byte_5197C, 46h ; 'F'
+    if (byte_519C3 == 1)
+    {
+        word_51970 = 1;
+        if (videoStatusUnk == 1)
+        {
+//            mov di, 6D2h
+//            mov ah, 6
+//            push    si
+//            mov si, 0A00Ah
+            drawTextWithChars8Font(0, 0, 6, "");
+            byte_5197C = 0x46, // 70
+        }
+    }
 
 //loc_499AA:              ; CODE XREF: sub_4955B+42Ej
 //                ; sub_4955B+43Bj
-    cmp byte_5198E, 1
-    jz  short loc_499C8
-    jmp loc_49A7F
+    if (byte_5198E != 1)
+    {
+//        jmp loc_49A7F
+    }
+
+//loc_499C8:              ; CODE XREF: sub_4955B+454j
+    FILE *file = fopen("SAVEGAME.SAV", "w");
+    if (file == NULL)
+    {
+//        jmp loc_49C28
+    }
+
+//loc_499D8:              ; CODE XREF: sub_4955B+478j
+//    mov dx, 9FF9h // address of data to write
+    size_t bytes = fwrite(NULL, 1, 4, file);
+    if (bytes < 4)
+    {
+//        jmp loc_49C1F
+    }
+
+//loc_499E9:              ; CODE XREF: sub_4955B+489j
+//    mov cx, 1238h
+//    mov dx, offset leveldata // address of data to write
+    bytes = fwrite(NULL, 1, 0x1238, file);
+    if (bytes < 0x1238)
+    {
+//        jmp loc_49C1F
+    }
+
+//loc_499F7:              ; CODE XREF: sub_4955B+497j
+    if (gIsPlayingDemo == 0)
+    {
+//        mov dx, 87A8h
+    }
+    else
+    {
+//loc_49A03:              ; CODE XREF: sub_4955B+4A1j
+//        mov dx, 87DAh
+    }
+
+//loc_49A06:              ; CODE XREF: sub_4955B+4A6j
+//    mov cx, 1Ch
+//    push    dx
+    bytes = fwrite(NULL, 1, 0x1C, file); // 28, level name?
+//    pop bx // recovers dx and stores it into bx
+    if (bytes < 0x1C)
+    {
+//        jmp loc_49C1F
+    }
+
+//loc_49A13:              ; CODE XREF: sub_4955B+4B3j
+    cx = 6;
+    byte_5988D = 0x63; // 99 or 'c'
+    ax = "AT"; // mov ax, word ptr aLevels_dat_0+8 ; "AT"
+    word_5988E = ax;
+//    al = [bx] // bx here is the value dx took from loc_499F7 or loc_49A03
+    if (gIsPlayingDemo != 0)
+    {
+        al |= 0x80;
+    }
+
+//loc_49A2C:              ; CODE XREF: sub_4955B+4CDj
+    byte_59890 = al;
+//    ax = [bx+1];
+    word_59891 = ax;
+//    mov dx, 957Dh
+    bytes = fwrite(NULL, 1, 6, file);
+    if (bytes < 6)
+    {
+//        jmp loc_49C1F
+    }
+
+//loc_49A40:              ; CODE XREF: sub_4955B+4E0j
+//    mov cx, 0E6h ; '?'
+//    mov dx, 0D08h
+//    call    writeToFh1
+    bytes = fwrite(NULL, 1, 0xE6, file); // 230
+    if (bytes < 0xE6)
+    {
+//        jmp loc_49C1F
+    }
+
+//loc_49A4E:              ; CODE XREF: sub_4955B+4EEj
+//    mov cx, 23h ; '#'
+//    mov dx, 164Ah
+    bytes = fwrite(NULL, 1, 0x23, file); // 35
+    if (bytes < 0x23)
+    {
+//        jmp loc_49C1F
+    }
+
+//loc_49A5C:              ; CODE XREF: sub_4955B+4FCj
+//    mov cx, levelDataLength
+//    mov dx, offset levelBuffer
+//    call    writeToFh1
+    bytes = fwrite(NULL, 1, levelDataLength, file); // 35
+    if (bytes < levelDataLength)
+    {
+//        jmp loc_49C1F
+    }
+
+//loc_49A6A:              ; CODE XREF: sub_4955B+50Aj
+    if (fclose(file) != 0)
+    {
+//        jmp loc_49C28
+    }
+
+//loc_49A78:              ; CODE XREF: sub_4955B+518j
+//    push    si
+    si = 0xA001;
+//    jmp loc_49C2C
+
+//loc_49A7F:              ; CODE XREF: sub_4955B+456j
+    if ((dword_519A3 & 0xFF) != 1)
+    {
+//        jmp loc_49C41
+    }
+
+//loc_49A89:              ; CODE XREF: sub_4955B+3FAj
+//                    ; sub_4955B+529j
+    file = fopen("SAVEGAME.SAV", "r");
+    if (file == NULL)
+    {
+//        jmp loc_49C28
+    }
+
+//loc_49A96:              ; CODE XREF: sub_4955B+536j
+//    mov fh1, ax
+    if (gIsRecordingDemo != 0)
+    {
+        somethingspsig();
+    }
+
+//loc_49AA3:              ; CODE XREF: sub_4955B+543j
+//    mov cx, 4
+//    mov dx, 9FFDh
+//    call    readFromFh1
+    bytes = fread(NULL, 1, 4, file);
+    if (bytes < 4)
+    {
+//        jmp loc_49C1A
+    }
+
+//loc_49AB1:              ; CODE XREF: sub_4955B+551j
+    cx = word_5A30D;
+    if (cx == word_5A309)
+    {
+        cx = word_5A30F;
+        if (cx == word_5A30B)
+        {
+//loc_49AD1:              ; CODE XREF: sub_4955B+568j
+//            mov cx, 1238h
+//            mov dx, offset leveldata
+//            call    readFromFh1
+            bytes = fread(NULL, 1, 0x1238, file);
+            if (bytes < 0x1238)
+            {
+//              jmp loc_49C1A
+            }
+        }
+        else
+        {
+//loc_49AC5:              ; CODE XREF: sub_4955B+55Ej
+            fclose(file);
+//          jmp loc_49C28
+        }
+    }
+    else
+    {
+//loc_49AC5:              ; CODE XREF: sub_4955B+55Ej
+        fclose(file);
+//      jmp loc_49C28
+    }
+
+//loc_49ADF:              ; CODE XREF: sub_4955B+57Fj
+//    mov cx, 1Ch
+//    mov dx, 87A8h
+//    call    readFromFh1
+    bytes = fread(NULL, 1, 0x1C, file);
+    if (bytes < 0x1C)
+    {
+//      jmp loc_49C1A
+    }
+
+//loc_49AED:              ; CODE XREF: sub_4955B+58Dj
+    mov cx, 6
+    mov dx, 957Dh
+//    call    readFromFh1
+    bytes = fread(NULL, 1, 6, file);
+    if (bytes < 6)
+    {
+//      jmp loc_49C1A
+    }
+
+//loc_49AFB:              ; CODE XREF: sub_4955B+59Bj
+//    mov cx, 84h ; '?'
+//    mov dx, 0D08h
+//    call    readFromFh1
+    bytes = fread(NULL, 1, 0x84, file);
+    if (bytes < 0x84)
+    {
+//      jmp loc_49C1A
+    }
+
+//loc_49B09:              ; CODE XREF: sub_4955B+5A9j
+//    mov cx, 4
+//    mov dx, 0D9Bh
+//    call    readFromFh1
+    bytes = fread(NULL, 1, 4, file);
+    if (bytes < 4)
+    {
+//      jmp loc_49C1A
+    }
+
+//loc_49B17:              ; CODE XREF: sub_4955B+5B7j
+//    mov cx, 7
+//    mov dx, 0D90h
+//    call    readFromFh1
+    bytes = fread(NULL, 1, 7, file);
+    if (bytes < 7)
+    {
+//      jmp loc_49C1A
+    }
+
+//loc_49B25:              ; CODE XREF: sub_4955B+5C5j
+//    mov cx, 4
+//    mov dx, 0D9Bh
+//    call    readFromFh1
+    bytes = fread(NULL, 1, 4, file);
+    if (bytes < 4)
+    {
+//      jmp loc_49C1A
+    }
+
+//loc_49B33:              ; CODE XREF: sub_4955B+5D3j
+//    mov cx, 53h ; 'S'
+//    mov dx, 0D9Bh
+//    push    word_510C1
+//    call    readFromFh1
+    bytes = fread(NULL, 1, 0x53, file); // 83
+//    pop word_510C1
+    if (bytes < 0x53)
+    {
+//      jmp loc_49C1A
+    }
+
+//loc_49B49:              ; CODE XREF: sub_4955B+5E9j
+//    mov cx, 23h ; '#'
+//    mov dx, 164Ah
+//    push    word_51961
+//    push    word_51967
+//    push    word_51970
+//    call    readFromFh1
+    bytes = fread(NULL, 1, 0x23, file); // 35
+//    pop word_51970
+//    pop word_51967
+//    pop word_51961
+    if (bytes < 0x23)
+    {
+//      jmp loc_49C1A
+    }
+
+//loc_49B6F:              ; CODE XREF: sub_4955B+60Fj
+    if (byte_5988D != 0)
+    {
+//        mov cx, levelDataLength
+//        mov dx, offset levelBuffer
+//        call    readFromFh1
+        bytes = fread(NULL, 1, levelDataLength, file); // 35
+        if (bytes == levelDataLength)
+        {
+            sub_49D53();
+        }
+    }
+
+//loc_49B84:              ; CODE XREF: sub_4955B+619j
+//                    ; sub_4955B+624j
+    fclose(file);
+    gIsPlayingDemo = 0;
+    gIsRecordingDemo = 0;
+    byte_50941 = 0;
+    word_51A01 = 0;
+    word_51963 = 0;
+    word_51965 = 0;
+    flashingbackgroundon = (flashingbackgroundon & 0xFFFF0000);
+    word_51A07 = 1;
+//    mov dx, 3C8h
+//    xor al, al
+//    out dx, al
+//    inc dx
+//    out dx, al
+//    out dx, al
+//    out dx, al
+    getTime();
+    sub_4A1AE();
+//    mov si, 60D5h
+    setPalette(gBlackPalette);
+    drawFixedLevel();
+    drawGamePanel();
+    sub_4A2E6();
+    si = murphyloc;
+    ax = si;
+    ax = ax >> 1;
+    sub_4A291();
+    ax = 0xFFFF;
+    gLastDrawnMinutesAndSeconds = ax;
+    gLastDrawnHours = al;
+    drawGameTime();
+    byte_5A2F9 = 1;
+    gIsRecordingDemo = 0;
+//    push    si
+//    mov si, 0A004h
+    if (videoStatusUnk == 1)
+    {
+//        mov di, 6D2h
+//        mov ah, 6
+        drawTextWithChars8Font(0, 0, 6, "");
+        byte_5197C = 0x46; // 70 or '&'
+    }
+
+//loc_49C12:              ; CODE XREF: sub_4955B+6A8j
+//    mov si, 6015h
+    fadeToPalette(gPalettes[1]);
+//    jmp short loc_49C40
+
+//loc_49C1A:              ; CODE XREF: sub_4955B+553j
+//                    ; sub_4955B+581j ...
+    gIsRecordingDemo = 0;
+
+//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
+//                    ; sub_4955B+499j ...
+    fclose(file);
+
+//loc_49C28:              ; CODE XREF: sub_4955B+47Aj
+//                    ; sub_4955B+51Aj ...
+//    push    si
+//    mov si, 0A007h
+
+//loc_49C2C:              ; CODE XREF: sub_4955B+521j
+    if (videoStatusUnk == 1)
+    {
+//        mov di, 6D2h
+//        mov ah, 6
+        drawTextWithChars8Font(0, 0, 6, "");
+        byte_5197C = 0x46; // 70 or '&'
+    }
+
+//loc_49C40:              ; CODE XREF: sub_4955B+6BDj
+//                    ; sub_4955B+6D6j
+//    pop si
+
+//loc_49C41:              ; CODE XREF: sub_4955B+404j
+//                    ; sub_4955B+52Bj
+    if (byte_519B5 == 1
+        && byte_519C3 == 1)
+    {
+        word_51970 = 0;
+        word_51A01 = 0;
+        word_51963 = 0;
+        word_51965 = 0;
+        flashingbackgroundon = (flashingbackgroundon & 0xFFFF0000);
+        word_51A07 = 1;
+//        mov dx, 3C8h
+//        xor al, al
+//        out dx, al
+//        inc dx
+//        out dx, al
+//        out dx, al
+//        out dx, al
+        if (videoStatusUnk == 1)
+        {
+//            mov di, 6D2h
+//            mov ah, 6
+//            push    si
+//            mov si, 0A00Dh
+            drawTextWithChars8Font(0, 0, 6, "");
+//            pop si
+            byte_5197C = 0x46; // 70 or '&'
+        }
+    }
+
+//loc_49C96:              ; CODE XREF: sub_4955B+6EBj
+//                    ; sub_4955B+6F2j ...
+    if (byte_51996 != 0)
+    {
+        byte_510AE = 0;
+//        mov si, 6095h
+        fadeToPalette(gPalettes[3]);
+
+//loc_49CA8:              ; CODE XREF: sub_4955B+752j
+        if (byte_51996 != 1)
+        {
+            do
+            {
+//loc_49CAF:              ; CODE XREF: sub_4955B+759j
+                assert(0); // WTF is this infinite loop???
+            }
+            while (byte_51996 == 0);
+
+            do
+            {
+//loc_49CB6:              ; CODE XREF: sub_4955B+760j
+                assert(0); // WTF is this infinite loop???
+            }
+            while (byte_51996 == 1);
+//            mov si, 6015h
+            fadeToPalette(gPalettes[1]);
+            byte_510AE = 1;
+        }
+    }
+
+//loc_49CC8:              ; CODE XREF: sub_4955B+740j
+    if (byte_519C2 != 0)
+    {
+        byte_510AE = 0;
+//        mov si, 6095h
+        fadeToPalette(gPalettes[3]);
+
+        do
+        {
+//loc_49CDA:              ; CODE XREF: sub_4955B+784j
+            assert(0); // WTF is this infinite loop???
+        }
+        while (byte_519C2 == 1);
+
+//        mov si, 179Ah
+
+        do
+        {
+//loc_49CE4:              ; CODE XREF: sub_4955B+7A6j
+//          bx = [si];
+            if (bx == 0xFFFF)
+            {
+                word_51970 = 0;
+                break;
+            }
+            else
+            {
+//loc_49CF3:              ; CODE XREF: sub_4955B+78Ej
+                if (bx[0x166D] != 0) // cmp byte ptr [bx+166Dh], 0
+                {
+                    si++;
+                    si++;
+                }
+
+//loc_49CFC:              ; CODE XREF: sub_4955B+79Dj
+                if (byte_519C2 != 0)
+                {
+                    break;
+                }
+            }
+        }
+        while (1);
+
+        do
+        {
+//loc_49D03:              ; CODE XREF: sub_4955B+796j
+//                    ; sub_4955B+7ADj
+            assert(0); // WTF?? infinite loop??
+        }
+        while (byte_519C2 == 1);
+//        mov si, 6015h
+        fadeToPalette(gPalettes[1]);
+        byte_510AE = 1;
+    }
+
+//loc_49D15:              ; CODE XREF: sub_4955B+772j
+    if (byte_5197E != 0
+        && word_51978 <= 0)
+    {
+        word_510D1 = 1;
+    }
+
+//loc_49D29:              ; CODE XREF: sub_4955B+7BFj
+//                    ; sub_4955B+7C6j
+    if (byte_5198D != 0)
+    {
+        word_51A01 = 0;
+        word_51963 = 0;
+        word_51965 = 0;
+        flashingbackgroundon = (flashingbackgroundon & 0xFFFF0000);
+    }
+
+//loc_49D48:              ; CODE XREF: sub_4955B+7D3j
+    if ((word_519B3 & 0xFF) != 0)
+    {
+        sub_4FDCE();
+    }
 }
+
 /*
-readFromFh1 proc near       ; CODE XREF: sub_4955B+54Ep
-                    ; sub_4955B+57Cp ...
-        mov ax, 3F00h
-        mov bx, fh1
-        int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to read
-                    ; DS:DX -> buffer
-        return;
-readFromFh1 endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-writeToFh1  proc near       ; CODE XREF: sub_4955B+486p
-                    ; sub_4955B+494p ...
-        mov ax, 4000h
-        mov bx, fh1
-        int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
-        return;
-writeToFh1  endp
-
-// ; ---------------------------------------------------------------------------
-; START OF FUNCTION CHUNK FOR sub_4955B
-
-loc_499C8:              ; CODE XREF: sub_4955B+454j
-        mov cx, 0
-        mov dx, offset aSavegame_sav ; "SAVEGAME.SAV"
-        mov ax, 3C00h
-        int 21h     ; DOS - 2+ - CREATE A FILE WITH HANDLE (CREAT)
-                    ; CX = attributes for file
-                    ; DS:DX -> ASCIZ filename (may include drive and path)
-        jnb short loc_499D8
-        jmp loc_49C28
-// ; ---------------------------------------------------------------------------
-
-loc_499D8:              ; CODE XREF: sub_4955B+478j
-        mov fh1, ax
-        mov cx, 4
-        mov dx, 9FF9h
-        call    writeToFh1
-        jnb short loc_499E9
-        jmp loc_49C1F
-// ; ---------------------------------------------------------------------------
-
-loc_499E9:              ; CODE XREF: sub_4955B+489j
-        mov cx, 1238h
-        mov dx, offset leveldata
-        call    writeToFh1
-        jnb short loc_499F7
-        jmp loc_49C1F
-// ; ---------------------------------------------------------------------------
-
-loc_499F7:              ; CODE XREF: sub_4955B+497j
-        cmp gIsPlayingDemo, 0
-        jnz short loc_49A03
-        mov dx, 87A8h
-        jmp short loc_49A06
-// ; ---------------------------------------------------------------------------
-
-loc_49A03:              ; CODE XREF: sub_4955B+4A1j
-        mov dx, 87DAh
-
-loc_49A06:              ; CODE XREF: sub_4955B+4A6j
-        mov cx, 1Ch
-        push    dx
-        call    writeToFh1
-        pop bx
-        jnb short loc_49A13
-        jmp loc_49C1F
-// ; ---------------------------------------------------------------------------
-
-loc_49A13:              ; CODE XREF: sub_4955B+4B3j
-        mov cx, 6
-        mov byte_5988D, 63h ; 'c'
-        mov ax, word ptr aLevels_dat_0+8 ; "AT"
-        mov word_5988E, ax
-        al = [bx]
-        cmp gIsPlayingDemo, 0
-        jz  short loc_49A2C
-        or  al, 80h
-
-loc_49A2C:              ; CODE XREF: sub_4955B+4CDj
-        mov byte_59890, al
-        mov ax, [bx+1]
-        mov word_59891, ax
-        mov dx, 957Dh
-        call    writeToFh1
-        jnb short loc_49A40
-        jmp loc_49C1F
-// ; ---------------------------------------------------------------------------
-
-loc_49A40:              ; CODE XREF: sub_4955B+4E0j
-        mov cx, 0E6h ; '?'
-        mov dx, 0D08h
-        call    writeToFh1
-        jnb short loc_49A4E
-        jmp loc_49C1F
-// ; ---------------------------------------------------------------------------
-
-loc_49A4E:              ; CODE XREF: sub_4955B+4EEj
-        mov cx, 23h ; '#'
-        mov dx, 164Ah
-        call    writeToFh1
-        jnb short loc_49A5C
-        jmp loc_49C1F
-// ; ---------------------------------------------------------------------------
-
-loc_49A5C:              ; CODE XREF: sub_4955B+4FCj
-        mov cx, levelDataLength
-        mov dx, offset levelBuffer
-        call    writeToFh1
-        jnb short loc_49A6A
-        jmp loc_49C1F
-// ; ---------------------------------------------------------------------------
-
-loc_49A6A:              ; CODE XREF: sub_4955B+50Aj
-        mov ax, 3E00h
-        mov bx, fh1
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-        jnb short loc_49A78
-        jmp loc_49C28
-// ; ---------------------------------------------------------------------------
-
-loc_49A78:              ; CODE XREF: sub_4955B+518j
-        push    si
-        mov si, 0A001h
-        jmp loc_49C2C
-// ; ---------------------------------------------------------------------------
-
-loc_49A7F:              ; CODE XREF: sub_4955B+456j
-        cmp byte ptr dword_519A3, 1
-        jz  short loc_49A89
-        jmp loc_49C41
-// ; ---------------------------------------------------------------------------
-
-loc_49A89:              ; CODE XREF: sub_4955B+3FAj
-                    ; sub_4955B+529j
-        mov ax, 3D00h
-        mov dx, offset aSavegame_sav ; "SAVEGAME.SAV"
-        int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-                    ; DS:DX -> ASCIZ filename
-                    ; AL = access mode
-                    ; 0 - read
-        jnb short loc_49A96
-        jmp loc_49C28
-// ; ---------------------------------------------------------------------------
-
-loc_49A96:              ; CODE XREF: sub_4955B+536j
-        mov fh1, ax
-        cmp gIsRecordingDemo, 0
-        jz  short loc_49AA3
-        call    somethingspsig
-
-loc_49AA3:              ; CODE XREF: sub_4955B+543j
-        mov cx, 4
-        mov dx, 9FFDh
-        call    readFromFh1
-        jnb short loc_49AB1
-        jmp loc_49C1A
-// ; ---------------------------------------------------------------------------
-
-loc_49AB1:              ; CODE XREF: sub_4955B+551j
-        mov cx, word_5A30D
-        cmp cx, word_5A309
-        jnz short loc_49AC5
-        mov cx, word_5A30F
-        cmp cx, word_5A30B
-        jz  short loc_49AD1
-
-loc_49AC5:              ; CODE XREF: sub_4955B+55Ej
-        mov ax, 3E00h
-        mov bx, fh1
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-        jmp loc_49C28
-// ; ---------------------------------------------------------------------------
-
-loc_49AD1:              ; CODE XREF: sub_4955B+568j
-        mov cx, 1238h
-        mov dx, offset leveldata
-        call    readFromFh1
-        jnb short loc_49ADF
-        jmp loc_49C1A
-// ; ---------------------------------------------------------------------------
-
-loc_49ADF:              ; CODE XREF: sub_4955B+57Fj
-        mov cx, 1Ch
-        mov dx, 87A8h
-        call    readFromFh1
-        jnb short loc_49AED
-        jmp loc_49C1A
-// ; ---------------------------------------------------------------------------
-
-loc_49AED:              ; CODE XREF: sub_4955B+58Dj
-        mov cx, 6
-        mov dx, 957Dh
-        call    readFromFh1
-        jnb short loc_49AFB
-        jmp loc_49C1A
-// ; ---------------------------------------------------------------------------
-
-loc_49AFB:              ; CODE XREF: sub_4955B+59Bj
-        mov cx, 84h ; '?'
-        mov dx, 0D08h
-        call    readFromFh1
-        jnb short loc_49B09
-        jmp loc_49C1A
-// ; ---------------------------------------------------------------------------
-
-loc_49B09:              ; CODE XREF: sub_4955B+5A9j
-        mov cx, 4
-        mov dx, 0D9Bh
-        call    readFromFh1
-        jnb short loc_49B17
-        jmp loc_49C1A
-// ; ---------------------------------------------------------------------------
-
-loc_49B17:              ; CODE XREF: sub_4955B+5B7j
-        mov cx, 7
-        mov dx, 0D90h
-        call    readFromFh1
-        jnb short loc_49B25
-        jmp loc_49C1A
-// ; ---------------------------------------------------------------------------
-
-loc_49B25:              ; CODE XREF: sub_4955B+5C5j
-        mov cx, 4
-        mov dx, 0D9Bh
-        call    readFromFh1
-        jnb short loc_49B33
-        jmp loc_49C1A
-// ; ---------------------------------------------------------------------------
-
-loc_49B33:              ; CODE XREF: sub_4955B+5D3j
-        mov cx, 53h ; 'S'
-        mov dx, 0D9Bh
-        push    word_510C1
-        call    readFromFh1
-        pop word_510C1
-        jnb short loc_49B49
-        jmp loc_49C1A
-// ; ---------------------------------------------------------------------------
-
-loc_49B49:              ; CODE XREF: sub_4955B+5E9j
-        mov cx, 23h ; '#'
-        mov dx, 164Ah
-        push    word_51961
-        push    word_51967
-        push    word_51970
-        call    readFromFh1
-        pop word_51970
-        pop word_51967
-        pop word_51961
-        jnb short loc_49B6F
-        jmp loc_49C1A
-// ; ---------------------------------------------------------------------------
-
-loc_49B6F:              ; CODE XREF: sub_4955B+60Fj
-        cmp byte_5988D, 0
-        jz  short loc_49B84
-        mov cx, levelDataLength
-        mov dx, offset levelBuffer
-        call    readFromFh1
-        jb  short loc_49B84
-        call    sub_49D53
-
-loc_49B84:              ; CODE XREF: sub_4955B+619j
-                    ; sub_4955B+624j
-        mov ax, 3E00h
-        mov bx, fh1
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-        mov gIsPlayingDemo, 0
-        mov gIsRecordingDemo, 0
-        mov byte_50941, 0
-        mov word_51A01, 0
-        mov word_51963, 0
-        mov word_51965, 0
-        mov word ptr flashingbackgroundon, 0
-        mov word_51A07, 1
-        mov dx, 3C8h
-        xor al, al
-        out dx, al
-        inc dx
-        out dx, al
-        out dx, al
-        out dx, al
-        call    getTime
-        call    sub_4A1AE
-        mov si, 60D5h
-        call    setPalette
-        call    drawFixedLevel
-        call    drawGamePanel
-        call    sub_4A2E6
-        mov si, murphyloc
-        mov ax, si
-        shr ax, 1
-        call    sub_4A291
-        mov ax, 0FFFFh
-        mov gLastDrawnMinutesAndSeconds, ax
-        mov gLastDrawnHours, al
-        call    drawGameTime
-        mov byte_5A2F9, 1
-        mov gIsRecordingDemo, 0
-        push    si
-        mov si, 0A004h
-        cmp videoStatusUnk, 1
-        jnz short loc_49C12
-        mov di, 6D2h
-        mov ah, 6
-        call    drawTextWithChars8Font
-        mov byte_5197C, 46h ; 'F'
-
-loc_49C12:              ; CODE XREF: sub_4955B+6A8j
-        mov si, 6015h
-        call    fade
-        jmp short loc_49C40
-// ; ---------------------------------------------------------------------------
-
-loc_49C1A:              ; CODE XREF: sub_4955B+553j
-                    ; sub_4955B+581j ...
-        mov gIsRecordingDemo, 0
-
-loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
-                    ; sub_4955B+499j ...
-        mov ax, 3E00h
-        mov bx, fh1
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-
-loc_49C28:              ; CODE XREF: sub_4955B+47Aj
-                    ; sub_4955B+51Aj ...
-        push    si
-        mov si, 0A007h
-
-loc_49C2C:              ; CODE XREF: sub_4955B+521j
-        cmp videoStatusUnk, 1
-        jnz short loc_49C40
-        mov di, 6D2h
-        mov ah, 6
-        call    drawTextWithChars8Font
-        mov byte_5197C, 46h ; 'F'
-
-loc_49C40:              ; CODE XREF: sub_4955B+6BDj
-                    ; sub_4955B+6D6j
-        pop si
-
-loc_49C41:              ; CODE XREF: sub_4955B+404j
-                    ; sub_4955B+52Bj
-        cmp byte_519B5, 1
-        jnz short loc_49C96
-        cmp byte_519C3, 1
-        jnz short loc_49C96
-        mov word_51970, 0
-        mov word_51A01, 0
-        mov word_51963, 0
-        mov word_51965, 0
-        mov word ptr flashingbackgroundon, 0
-        mov word_51A07, 1
-        mov dx, 3C8h
-        xor al, al
-        out dx, al
-        inc dx
-        out dx, al
-        out dx, al
-        out dx, al
-        cmp videoStatusUnk, 1
-        jnz short loc_49C96
-        mov di, 6D2h
-        mov ah, 6
-        push    si
-        mov si, 0A00Dh
-        call    drawTextWithChars8Font
-        pop si
-        mov byte_5197C, 46h ; 'F'
-
-loc_49C96:              ; CODE XREF: sub_4955B+6EBj
-                    ; sub_4955B+6F2j ...
-        cmp byte_51996, 0
-        jz  short loc_49CC8
-        mov byte_510AE, 0
-        mov si, 6095h
-        call    fade
-
-loc_49CA8:              ; CODE XREF: sub_4955B+752j
-        cmp byte_51996, 1
-        jz  short loc_49CA8
-
-loc_49CAF:              ; CODE XREF: sub_4955B+759j
-        cmp byte_51996, 0
-        jz  short loc_49CAF
-
-loc_49CB6:              ; CODE XREF: sub_4955B+760j
-        cmp byte_51996, 1
-        jz  short loc_49CB6
-        mov si, 6015h
-        call    fade
-        mov byte_510AE, 1
-
-loc_49CC8:              ; CODE XREF: sub_4955B+740j
-        cmp byte_519C2, 0
-        jz  short loc_49D15
-        mov byte_510AE, 0
-        mov si, 6095h
-        call    fade
-
-loc_49CDA:              ; CODE XREF: sub_4955B+784j
-        cmp byte_519C2, 1
-        jz  short loc_49CDA
-        mov si, 179Ah
-
-loc_49CE4:              ; CODE XREF: sub_4955B+7A6j
-        mov bx, [si]
-        cmp bx, 0FFFFh
-        jnz short loc_49CF3
-        mov word_51970, 0
-        jmp short loc_49D03
-// ; ---------------------------------------------------------------------------
-
-loc_49CF3:              ; CODE XREF: sub_4955B+78Ej
-        cmp byte ptr [bx+166Dh], 0
-        jz  short loc_49CFC
-        inc si
-        inc si
-
-loc_49CFC:              ; CODE XREF: sub_4955B+79Dj
-        cmp byte_519C2, 0
-        jz  short loc_49CE4
-
-loc_49D03:              ; CODE XREF: sub_4955B+796j
-                    ; sub_4955B+7ADj
-        cmp byte_519C2, 1
-        jz  short loc_49D03
-        mov si, 6015h
-        call    fade
-        mov byte_510AE, 1
-
-loc_49D15:              ; CODE XREF: sub_4955B+772j
-        cmp byte_5197E, 0
-        jz  short loc_49D29
-        cmp word_51978, 0
-        jg  short loc_49D29
-        mov word_510D1, 1
-
-loc_49D29:              ; CODE XREF: sub_4955B+7BFj
-                    ; sub_4955B+7C6j
-        cmp byte_5198D, 0
-        jz  short loc_49D48
-        mov word_51A01, 0
-        mov word_51963, 0
-        mov word_51965, 0
-        mov word ptr flashingbackgroundon, 0
-
-loc_49D48:              ; CODE XREF: sub_4955B+7D3j
-        cmp byte ptr word_519B3, 0
-        jz  short locret_49D52
-        call    sub_4FDCE
-
-locret_49D52:               ; CODE XREF: sub_4955B+7F2j
-        return;
-; END OF FUNCTION CHUNK FOR sub_4955B
-
-; =============== S U B R O U T I N E =======================================
-
-
 sub_49D53   proc near       ; CODE XREF: sub_4955B+626p
                     ; sub_4A23C+21p
         mov byte_59B7B, 0
         call    levelScanThing // added by me, seems like code continues from here?
 sub_49D53   endp ; sp-analysis failed
-
 */
 void levelScanThing() //   proc near       ; CODE XREF: runLevel+A7p
 {
