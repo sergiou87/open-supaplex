@@ -1172,6 +1172,7 @@ void sound1(void);
 void sound2(void);
 void sound3(void);
 void sound4(void);
+void sound9(void);
 void sound11(void);
 void savePlayerListData(void);
 void saveHallOfFameData(void);
@@ -1238,6 +1239,21 @@ void sub_4A1AE(void);
 void sub_4955B(void);
 void levelScanThing(void);
 void gameloop(void);
+void sub_4914A(void);
+void sub_4A1BF(void);
+void sub_492F1(void);
+void sub_492A8(void);
+void sub_4A23C(void);
+void sub_4A3E9(void);
+void sub_4945D(void);
+void somethingspsig(void);
+void sub_4A3D2(void);
+void sub_49D53(void);
+void sub_4FDCE(void);
+void sub_4FD65(void);
+void sub_4A910(void);
+void sub_4A5E0(void);
+void sub_4A95F(void);
 
 static const int kWindowWidth = kScreenWidth * 4;
 static const int kWindowHeight = kScreenHeight * 4;
@@ -6734,96 +6750,95 @@ void drawFixedLevel() // sub_48F6D   proc near       ; CODE XREF: start+335p ru
     bx += 0x4D34; // 19764
     word_51967 = bx;
 }
-/*
-sub_4914A   proc near       ; CODE XREF: sub_4955B+7p
-        cmp byte_519C8, 0
-        jz  short loc_49159
-        dec word_51963
-        dec word_51963
+
+void sub_4914A() //   proc near       ; CODE XREF: sub_4955B+7p
+{
+    /*
+    cmp byte_519C8, 0
+    jz  short loc_49159
+    dec word_51963
+    dec word_51963
 
 loc_49159:              ; CODE XREF: sub_4914A+5j
-        cmp byte_519CA, 0
-        jz  short loc_49168
-        inc word_51963
-        inc word_51963
+    cmp byte_519CA, 0
+    jz  short loc_49168
+    inc word_51963
+    inc word_51963
 
 loc_49168:              ; CODE XREF: sub_4914A+14j
-        cmp byte_519C5, 0
-        jz  short loc_49177
-        dec word_51965
-        dec word_51965
+    cmp byte_519C5, 0
+    jz  short loc_49177
+    dec word_51965
+    dec word_51965
 
 loc_49177:              ; CODE XREF: sub_4914A+23j
-        cmp byte_519CD, 0
-        jz  short loc_49186
-        inc word_51965
-        inc word_51965
+    cmp byte_519CD, 0
+    jz  short loc_49186
+    inc word_51965
+    inc word_51965
 
 loc_49186:              ; CODE XREF: sub_4914A+32j
-        cmp byte_519C9, 0
-        jz  short loc_49199
-        mov word_51963, 0
-        mov word_51965, 0
+    cmp byte_519C9, 0
+    jz  short loc_49199
+    mov word_51963, 0
+    mov word_51965, 0
 
 loc_49199:              ; CODE XREF: sub_4914A+41j
-        mov bx, 8
-        sub bx, word_59B88
-        mov ax, word_59B8A
-        neg ax
-        cmp byte_519CF, 0
-        jz  short loc_491B3
-        mov word_51963, bx
-        mov word_51965, ax
+    mov bx, 8
+    sub bx, word_59B88
+    mov ax, word_59B8A
+    neg ax
+    cmp byte_519CF, 0
+    jz  short loc_491B3
+    mov word_51963, bx
+    mov word_51965, ax
 
 loc_491B3:              ; CODE XREF: sub_4914A+60j
-        add bx, 138h
-        cmp byte_519C4, 0
-        jz  short loc_491C5
-        mov word_51963, bx
-        mov word_51965, ax
+    add bx, 138h
+    cmp byte_519C4, 0
+    jz  short loc_491C5
+    mov word_51963, bx
+    mov word_51965, ax
 
 loc_491C5:              ; CODE XREF: sub_4914A+72j
-        add bx, 138h
-        cmp byte_519C6, 0
-        jz  short loc_491D7
-        mov word_51963, bx
-        mov word_51965, ax
+    add bx, 138h
+    cmp byte_519C6, 0
+    jz  short loc_491D7
+    mov word_51963, bx
+    mov word_51965, ax
 
 loc_491D7:              ; CODE XREF: sub_4914A+84j
-        sub bx, 270h
-        add ax, 0A8h ; '?'
-        cmp byte ptr word_510C1, 0
-        jz  short loc_491E8
-        add ax, 18h
+    sub bx, 270h
+    add ax, 0A8h ; '?'
+    cmp byte ptr word_510C1, 0
+    jz  short loc_491E8
+    add ax, 18h
 
 loc_491E8:              ; CODE XREF: sub_4914A+99j
-        cmp byte_519D0, 0
-        jz  short loc_491F6
-        mov word_51963, bx
-        mov word_51965, ax
+    cmp byte_519D0, 0
+    jz  short loc_491F6
+    mov word_51963, bx
+    mov word_51965, ax
 
 loc_491F6:              ; CODE XREF: sub_4914A+A3j
-        add bx, 138h
-        cmp byte_519CC, 0
-        jz  short loc_49208
-        mov word_51963, bx
-        mov word_51965, ax
+    add bx, 138h
+    cmp byte_519CC, 0
+    jz  short loc_49208
+    mov word_51963, bx
+    mov word_51965, ax
 
 loc_49208:              ; CODE XREF: sub_4914A+B5j
-        add bx, 138h
-        cmp byte_519CE, 0
-        jz  short locret_4921A
-        mov word_51963, bx
-        mov word_51965, ax
+    add bx, 138h
+    cmp byte_519CE, 0
+    jz  short locret_4921A
+    mov word_51963, bx
+    mov word_51965, ax
 
 locret_4921A:               ; CODE XREF: sub_4914A+C7j
-        return;
-sub_4914A   endp
+    return;
+    */
+}
 
-
-; =============== S U B R O U T I N E =======================================
-
-*/
 void sub_4921B() //   proc near       ; CODE XREF: readConfig+8Cp
                    // ; sub_4955B+31p ...
 {
@@ -6895,345 +6910,339 @@ loc_492A6:              ; CODE XREF: sub_4921B+19j
      */
 }
 
-/*
-; =============== S U B R O U T I N E =======================================
-
-
-sub_492A8   proc near       ; CODE XREF: sub_4955B+27p
-                    ; sub_4A3E9+76p
-        al = byte_510E2
-        dec al
-        jz  short loc_492B3
-        mov byte_510E2, al
-        return;
+void sub_492A8() //   proc near       ; CODE XREF: sub_4955B+27p
+                   // ; sub_4A3E9+76p
+{
+    /*
+    al = byte_510E2
+    dec al
+    jz  short loc_492B3
+    mov byte_510E2, al
+    return;
 // ; ---------------------------------------------------------------------------
 
 loc_492B3:              ; CODE XREF: sub_492A8+5j
-        push    es
-        mov ax, seg demoseg
-        mov es, ax
-        assume es:demoseg
-        mov bx, word_510DF
-        al = es:[bx]
-        inc bx
-        pop es
-        assume es:nothing
-        cmp al, 0FFh
-        jz  short loc_492E3
-        mov word_510DF, bx
+    push    es
+    mov ax, seg demoseg
+    mov es, ax
+    assume es:demoseg
+    mov bx, word_510DF
+    al = es:[bx]
+    inc bx
+    pop es
+    assume es:nothing
+    cmp al, 0FFh
+    jz  short loc_492E3
+    mov word_510DF, bx
 
 loc_492CA:              ; CODE XREF: sub_492A8+47j
-        mov ah, al
-        and ah, 0Fh
-        mov byte_50941, ah
-        and al, 0F0h
-        shr al, 1
-        shr al, 1
-        shr al, 1
-        shr al, 1
-        al++;
-        mov byte_510E2, al
-        return;
+    mov ah, al
+    and ah, 0Fh
+    mov byte_50941, ah
+    and al, 0F0h
+    shr al, 1
+    shr al, 1
+    shr al, 1
+    shr al, 1
+    al++;
+    mov byte_510E2, al
+    return;
 // ; ---------------------------------------------------------------------------
 
 loc_492E3:              ; CODE XREF: sub_492A8+1Cj
-        mov word_51978, 64h ; 'd'
-        mov word_51974, 1
-        jmp short loc_492CA
-sub_492A8   endp
+    mov word_51978, 64h ; 'd'
+    mov word_51974, 1
+    jmp short loc_492CA
+    */
+}
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_492F1   proc near       ; CODE XREF: sub_4955B+1Dp
-        inc byte_510E2
-        mov bl, byte_50941
-        cmp byte_510E2, 0FFh
-        jnz short loc_49311
-        mov byte_510E1, bl
-        mov ax, gTimeOfDay
-        mov word_5A199, ax
-        mov byte_59B5F, ah
-        mov byte_59B5C, al
+void sub_492F1() //   proc near       ; CODE XREF: sub_4955B+1Dp
+{
+    /*
+    inc byte_510E2
+    mov bl, byte_50941
+    cmp byte_510E2, 0FFh
+    jnz short loc_49311
+    mov byte_510E1, bl
+    mov ax, gTimeOfDay
+    mov word_5A199, ax
+    mov byte_59B5F, ah
+    mov byte_59B5C, al
 
 loc_49311:              ; CODE XREF: sub_492F1+Dj
-        cmp byte_510E1, bl
-        jnz short loc_4931E
-        cmp byte_510E2, 0Fh
-        jnz short locret_49359
+    cmp byte_510E1, bl
+    jnz short loc_4931E
+    cmp byte_510E2, 0Fh
+    jnz short locret_49359
 
 loc_4931E:              ; CODE XREF: sub_492F1+24j
-        al = byte_510E1
-        mov ah, byte_510E2
-        shl ah, 1
-        shl ah, 1
-        shl ah, 1
-        shl ah, 1
-        or  al, ah
-        mov byte_510E1, al
-        al = byte_510E2
-        add byte_59B5C, al
-        inc byte_59B5C
-        mov ax, 4000h
-        mov bx, word_510E4
-        mov cx, 1
-        mov dx, 0DD1h
-        int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
-        mov byte_510E2, 0FFh
-        mov bl, byte_50941
-        mov byte_510E1, bl
+    al = byte_510E1
+    mov ah, byte_510E2
+    shl ah, 1
+    shl ah, 1
+    shl ah, 1
+    shl ah, 1
+    or  al, ah
+    mov byte_510E1, al
+    al = byte_510E2
+    add byte_59B5C, al
+    inc byte_59B5C
+    mov ax, 4000h
+    mov bx, word_510E4
+    mov cx, 1
+    mov dx, 0DD1h
+    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
+                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
+    mov byte_510E2, 0FFh
+    mov bl, byte_50941
+    mov byte_510E1, bl
 
 locret_49359:               ; CODE XREF: sub_492F1+2Bj
-        return;
-sub_492F1   endp
+    return;
+    */
+}
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-somethingspsig  proc near       ; CODE XREF: runLevel+355p
-                    ; sub_4945D+30p ...
-        al = speed2
-        xor al, byte_59B5F
-        mov byte_59B5D, al
-        xor al, byte_59B5C
-        mov byte_59B5E, al
-        mov ah, 42h ; 'B'
-        mov bx, word_510E4
-        xor cx, cx
-        xor al, al
-        mov dx, 5FCh
-        int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
-                    ; AL = method: offset from beginning of file
-        mov ax, 4000h
-        mov bx, word_510E4
-        mov cx, 2
-        mov dx, 984Dh
-        int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
-        mov ax, 4000h
-        mov bx, word_510E4
-        mov cx, 2
-        mov dx, 9E89h
-        int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
-        mov ah, 42h ; 'B'
-        mov bx, word_510E4
-        xor cx, cx
-        xor dx, dx
-        al = 2
-        int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
-                    ; AL = method: offset from end of file
-        mov byte_510E1, 0FFh
-        mov ax, 4000h
-        mov bx, word_510E4
-        mov cx, 1
-        mov dx, 0DD1h
-        int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
-        cmp byte_5A19B, 0
-        jz  short loc_49435
-        mov ax, 3D00h
-        mov dx, offset aMyspsig_txt ; "MYSPSIG.TXT"
-        int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-                    ; DS:DX -> ASCIZ filename
-                    ; AL = access mode
-                    ; 0 - read
-        jb  short loc_49435
-        mov bx, ax
-        push    bx
-        mov ax, 4202h
-        xor cx, cx
-        mov dx, cx
-        int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
-                    ; AL = method: offset from end of file
-        pop bx
-        jb  short loc_49430
-        mov cx, 1FFh
-        or  dx, dx
-        jnz short loc_493EB
-        or  ax, ax
-        jz  short loc_49430
-        cmp ax, cx
-        ja  short loc_493EB
-        mov cx, ax
+void somethingspsig() //  proc near       ; CODE XREF: runLevel+355p
+                     // ; sub_4945D+30p ...
+{
+    /*
+    al = speed2
+    xor al, byte_59B5F
+    mov byte_59B5D, al
+    xor al, byte_59B5C
+    mov byte_59B5E, al
+    mov ah, 42h ; 'B'
+    mov bx, word_510E4
+    xor cx, cx
+    xor al, al
+    mov dx, 5FCh
+    int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
+                ; AL = method: offset from beginning of file
+    mov ax, 4000h
+    mov bx, word_510E4
+    mov cx, 2
+    mov dx, 984Dh
+    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
+                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
+    mov ax, 4000h
+    mov bx, word_510E4
+    mov cx, 2
+    mov dx, 9E89h
+    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
+                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
+    mov ah, 42h ; 'B'
+    mov bx, word_510E4
+    xor cx, cx
+    xor dx, dx
+    al = 2
+    int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
+                ; AL = method: offset from end of file
+    mov byte_510E1, 0FFh
+    mov ax, 4000h
+    mov bx, word_510E4
+    mov cx, 1
+    mov dx, 0DD1h
+    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
+                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
+    cmp byte_5A19B, 0
+    jz  short loc_49435
+    mov ax, 3D00h
+    mov dx, offset aMyspsig_txt ; "MYSPSIG.TXT"
+    int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
+                ; DS:DX -> ASCIZ filename
+                ; AL = access mode
+                ; 0 - read
+    jb  short loc_49435
+    mov bx, ax
+    push    bx
+    mov ax, 4202h
+    xor cx, cx
+    mov dx, cx
+    int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
+                ; AL = method: offset from end of file
+    pop bx
+    jb  short loc_49430
+    mov cx, 1FFh
+    or  dx, dx
+    jnz short loc_493EB
+    or  ax, ax
+    jz  short loc_49430
+    cmp ax, cx
+    ja  short loc_493EB
+    mov cx, ax
 
 loc_493EB:              ; CODE XREF: somethingspsig+85j
-                    ; somethingspsig+8Dj
-        push    bx
-        push(cx);
-        mov ax, 4200h
-        xor cx, cx
-        mov dx, cx
-        int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
-                    ; AL = method: offset from beginning of file
-        pop(cx);
-        pop bx
-        jb  short loc_49430
-        push    bx
-        push(cx);
-        mov ax, 3F00h
-        mov dx, offset fileLevelData
-        int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to read
-                    ; DS:DX -> buffer
-        pop(cx);
-        pop bx
-        jb  short loc_49430
-        push    bx
-        push    es
-        push    ds
-        pop es
-        assume es:data
-        push(di);
-        push(cx);
-        mov di, offset fileLevelData
-        al = 0FFh
-        cld
-        repne scasb
-        jz  short loc_4941C
-        dec cx
-        mov byte ptr [di], 0FFh
+                ; somethingspsig+8Dj
+    push    bx
+    push(cx);
+    mov ax, 4200h
+    xor cx, cx
+    mov dx, cx
+    int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
+                ; AL = method: offset from beginning of file
+    pop(cx);
+    pop bx
+    jb  short loc_49430
+    push    bx
+    push(cx);
+    mov ax, 3F00h
+    mov dx, offset fileLevelData
+    int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+                ; BX = file handle, CX = number of bytes to read
+                ; DS:DX -> buffer
+    pop(cx);
+    pop bx
+    jb  short loc_49430
+    push    bx
+    push    es
+    push    ds
+    pop es
+    assume es:data
+    push(di);
+    push(cx);
+    mov di, offset fileLevelData
+    al = 0FFh
+    cld
+    repne scasb
+    jz  short loc_4941C
+    dec cx
+    mov byte ptr [di], 0FFh
 
 loc_4941C:              ; CODE XREF: somethingspsig+BCj
-        pop ax
-        pop(di);
-        pop es
-        assume es:nothing
-        sub cx, ax
-        neg cx
-        mov ax, 4000h
-        mov bx, word_510E4
-        mov dx, offset fileLevelData
-        int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
-        pop bx
+    pop ax
+    pop(di);
+    pop es
+    assume es:nothing
+    sub cx, ax
+    neg cx
+    mov ax, 4000h
+    mov bx, word_510E4
+    mov dx, offset fileLevelData
+    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
+                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
+    pop bx
 
 loc_49430:              ; CODE XREF: somethingspsig+7Ej
-                    ; somethingspsig+89j ...
-        mov ax, 3E00h
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
+                ; somethingspsig+89j ...
+    mov ax, 3E00h
+    int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
+                ; BX = file handle
 
 loc_49435:              ; CODE XREF: somethingspsig+65j
-                    ; somethingspsig+6Fj
-        mov ax, 3E00h
-        mov bx, word_510E4
-        int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                    ; BX = file handle
-        mov gIsRecordingDemo, 0
-        cmp byte_5A33E, 0
-        jz  short loc_4944F
-        mov gIsPlayingDemo, 1
+                ; somethingspsig+6Fj
+    mov ax, 3E00h
+    mov bx, word_510E4
+    int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
+                ; BX = file handle
+    mov gIsRecordingDemo, 0
+    cmp byte_5A33E, 0
+    jz  short loc_4944F
+    mov gIsPlayingDemo, 1
 
 loc_4944F:              ; CODE XREF: somethingspsig+EEj
-        call    drawGamePanelText
-        mov byte_5A33F, 1
-        mov gIsPlayingDemo, 0
-        return;
-somethingspsig  endp
+    call    drawGamePanelText
+    mov byte_5A33F, 1
+    mov gIsPlayingDemo, 0
+    return;
+     */
+}
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4945D   proc near       ; CODE XREF: sub_4955B+294p
-                    ; sub_4955B+2A4p ...
-        mov word_51A01, 0
-        mov word_51963, 0
-        mov word_51965, 0
-        mov word ptr flashingbackgroundon, 0
-        mov word_51A07, 1
-        push    ax
-        mov dx, 3C8h
-        xor al, al
-        out dx, al
-        inc dx
-        out dx, al
-        out dx, al
-        out dx, al
-        cmp gIsRecordingDemo, 0
-        jz  short loc_49490
-        call    somethingspsig
+void sub_4945D() //   proc near       ; CODE XREF: sub_4955B+294p
+                   // ; sub_4955B+2A4p ...
+{
+    /*
+    mov word_51A01, 0
+    mov word_51963, 0
+    mov word_51965, 0
+    mov word ptr flashingbackgroundon, 0
+    mov word_51A07, 1
+    push    ax
+    mov dx, 3C8h
+    xor al, al
+    out dx, al
+    inc dx
+    out dx, al
+    out dx, al
+    out dx, al
+    cmp gIsRecordingDemo, 0
+    jz  short loc_49490
+    call    somethingspsig
 
 loc_49490:              ; CODE XREF: sub_4945D+2Ej
-        pop ax
-        mov bx, 380Ah
-        add al, 30h ; '0'
-        mov [bx+4], al
-        cmp byte ptr word_59B6E, 0
-        jnz short loc_494A6
-        mov bx, 0A014h
-        mov [bx+7], al
+    pop ax
+    mov bx, 380Ah
+    add al, 30h ; '0'
+    mov [bx+4], al
+    cmp byte ptr word_59B6E, 0
+    jnz short loc_494A6
+    mov bx, 0A014h
+    mov [bx+7], al
 
 loc_494A6:              ; CODE XREF: sub_4945D+41j
-        mov byte ptr aRecordingDemo0+12h, al ; "0 ---"
-        mov cx, 0
-        mov dx, bx
-        mov ax, 3C00h
-        int 21h     ; DOS - 2+ - CREATE A FILE WITH HANDLE (CREAT)
-                    ; CX = attributes for file
-                    ; DS:DX -> ASCIZ filename (may include drive and path)
-        jnb short loc_494B8
-        jmp locret_49543
+    mov byte ptr aRecordingDemo0+12h, al ; "0 ---"
+    mov cx, 0
+    mov dx, bx
+    mov ax, 3C00h
+    int 21h     ; DOS - 2+ - CREATE A FILE WITH HANDLE (CREAT)
+                ; CX = attributes for file
+                ; DS:DX -> ASCIZ filename (may include drive and path)
+    jnb short loc_494B8
+    jmp locret_49543
 // ; ---------------------------------------------------------------------------
 
 loc_494B8:              ; CODE XREF: sub_4945D+56j
-        mov word_510E4, ax
-        mov byte_5A140, 83h ; '?'
-        mov bl, speed3
-        mov cl, 4
-        shl bl, cl
-        or  bl, gameSpeed
-        mov speed2, bl
-        mov bx, word_510E4
-        mov ax, 4000h
-        mov cx, levelDataLength
-        mov dx, offset levelBuffer
-        int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
-        jb  short locret_49543
-        mov ax, gCurrentSelectedLevelIndex
-        or  al, 80h
-        mov byte_510E2, al
-        mov ax, 4000h
-        mov bx, word_510E4
-        mov cx, 1
-        mov dx, 0DD2h
-        int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
-                    ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
-        jb  short locret_49543
-        mov byte_510E1, 0
-        mov byte_5A2F8, 1
-        mov gIsPlayingDemo, 0
-        mov byte_510E2, 0FEh ; '?'
-        mov word_51A07, 1
-        cmp byte_599D4, 0
-        jnz short loc_4952A
-        mov ax, word_58AB8
-        mov word_58AEA, ax
-        mov ax, word_58ABA
-        and ax, 0FFh
-        mov word_58AEC, ax
+    mov word_510E4, ax
+    mov byte_5A140, 83h ; '?'
+    mov bl, speed3
+    mov cl, 4
+    shl bl, cl
+    or  bl, gameSpeed
+    mov speed2, bl
+    mov bx, word_510E4
+    mov ax, 4000h
+    mov cx, levelDataLength
+    mov dx, offset levelBuffer
+    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
+                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
+    jb  short locret_49543
+    mov ax, gCurrentSelectedLevelIndex
+    or  al, 80h
+    mov byte_510E2, al
+    mov ax, 4000h
+    mov bx, word_510E4
+    mov cx, 1
+    mov dx, 0DD2h
+    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
+                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
+    jb  short locret_49543
+    mov byte_510E1, 0
+    mov byte_5A2F8, 1
+    mov gIsPlayingDemo, 0
+    mov byte_510E2, 0FEh ; '?'
+    mov word_51A07, 1
+    cmp byte_599D4, 0
+    jnz short loc_4952A
+    mov ax, word_58AB8
+    mov word_58AEA, ax
+    mov ax, word_58ABA
+    and ax, 0FFh
+    mov word_58AEC, ax
 
 loc_4952A:              ; CODE XREF: sub_4945D+BCj
-        mov gIsRecordingDemo, 1
-        cmp byte_5A33E, 0
-        jz  short loc_4953B
-        mov gIsPlayingDemo, 1
+    mov gIsRecordingDemo, 1
+    cmp byte_5A33E, 0
+    jz  short loc_4953B
+    mov gIsPlayingDemo, 1
 
 loc_4953B:              ; CODE XREF: sub_4945D+D7j
-        call    sub_4A463
-        mov gIsPlayingDemo, 0
+    call    sub_4A463
+    mov gIsPlayingDemo, 0
 
 locret_49543:               ; CODE XREF: sub_4945D+58j
-                    ; sub_4945D+82j ...
-        return;
-sub_4945D   endp
-
-*/
+                ; sub_4945D+82j ...
+    return;
+    */
+}
 
 void prepareSomeKindOfLevelIdentifier() // sub_49544  proc near       ; CODE XREF: start+3A1p
                    // ; handleOkButtonClick:loc_4B40Fp ...
@@ -7769,8 +7778,8 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     }
 
 //loc_498F0:              ; CODE XREF: sub_4955B+38Dj
-    ax = gCurrentSelectedLevelIndex;
-    sub_4BF4A();
+//    ax = gCurrentSelectedLevelIndex;
+    sub_4BF4A(gCurrentSelectedLevelIndex);
     drawLevelList();
     sub_4A3D2();
 
@@ -7805,8 +7814,8 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 
 //loc_49939:              ; CODE XREF: sub_4955B+3D6j
     gCurrentSelectedLevelIndex++;
-    ax = gCurrentSelectedLevelIndex;
-    sub_4BF4A();
+//    ax = gCurrentSelectedLevelIndex;
+    sub_4BF4A(gCurrentSelectedLevelIndex);
     drawLevelList();
     sub_4A3D2();
 
@@ -7906,7 +7915,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 //loc_49A13:              ; CODE XREF: sub_4955B+4B3j
     cx = 6;
     byte_5988D = 0x63; // 99 or 'c'
-    ax = "AT"; // mov ax, word ptr aLevels_dat_0+8 ; "AT"
+//    ax = "AT"; // mov ax, word ptr aLevels_dat_0+8 ; "AT"
     word_5988E = ax;
 //    al = [bx] // bx here is the value dx took from loc_499F7 or loc_49A03
     if (gIsPlayingDemo != 0)
@@ -8343,13 +8352,13 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     }
 }
 
-/*
-sub_49D53   proc near       ; CODE XREF: sub_4955B+626p
-                    ; sub_4A23C+21p
-        mov byte_59B7B, 0
-        call    levelScanThing // added by me, seems like code continues from here?
-sub_49D53   endp ; sp-analysis failed
-*/
+void sub_49D53() //   proc near       ; CODE XREF: sub_4955B+626p
+                   // ; sub_4A23C+21p
+{
+//        mov byte_59B7B, 0
+//        call    levelScanThing // added by me, seems like code continues from here? see what happens with the debugger
+}
+
 void levelScanThing() //   proc near       ; CODE XREF: runLevel+A7p
 {
     // No idea what function does exactly yet, but seems to iterate through
@@ -9155,37 +9164,40 @@ void sub_4A1BF() //   proc near       ; CODE XREF: sub_4955B+13p
 //                ; sub_4A1BF+75j
     return;
 }
-/*
-sub_4A23C   proc near       ; CODE XREF: sub_4955B+111p
-                    ; sub_4955B+11Dp ...
-        mov si, 0
-        mov cx, 5A0h
+
+void sub_4A23C() //   proc near       ; CODE XREF: sub_4955B+111p
+                   // ; sub_4955B+11Dp ...
+{
+    /*
+    mov si, 0
+    mov cx, 5A0h
 
 loc_4A242:              ; CODE XREF: sub_4A23C+1Fj
-        al = [si+1834h]
-        cmp al, ah
-        jz  short loc_4A253
-        cmp ah, 11h
-        jnz short loc_4A259
-        cmp al, 0BBh ; '?'
-        jnz short loc_4A259
+    al = [si+1834h]
+    cmp al, ah
+    jz  short loc_4A253
+    cmp ah, 11h
+    jnz short loc_4A259
+    cmp al, 0BBh ; '?'
+    jnz short loc_4A259
 
 loc_4A253:              ; CODE XREF: sub_4A23C+Cj
-        mov word ptr leveldata[si], 0
+    mov word ptr leveldata[si], 0
 
 loc_4A259:              ; CODE XREF: sub_4A23C+11j
-                    ; sub_4A23C+15j
-        inc si
-        inc si
-        loop    loc_4A242
-        call    sub_49D53
-        call    drawFixedLevel
-        call    sub_4A2E6
-        mov byte_510B3, 0
-        mov byte_5A2F9, 1
-        return;
-sub_4A23C   endp
-*/
+                ; sub_4A23C+15j
+    inc si
+    inc si
+    loop    loc_4A242
+    call    sub_49D53
+    call    drawFixedLevel
+    call    sub_4A2E6
+    mov byte_510B3, 0
+    mov byte_5A2F9, 1
+    return;
+     */
+}
+
 void findMurphy() //   proc near       ; CODE XREF: start+344p sub_4A463+22p
 {
     // 01ED:360E
@@ -9403,70 +9415,69 @@ void resetNumberOfInfotrons() // sub_4A3BB   proc near       ; CODE XREF: start+
     drawgNumberOfRemainingInfotrons();
 }
 
-/*sub_4A3D2   proc near       ; CODE XREF: sub_4955B+39Ep
-                    ; sub_4955B+3EBp
-        mov byte_599D4, 0
-        mov word_599D8, 0
-        cmp byte_5A33E, 0
-        mov byte_5A33E, 0
-        jnz short $+12
-sub_4A3D2   endp ; sp-analysis failed
+void sub_4A3D2() //   proc near       ; CODE XREF: sub_4955B+39Ep
+                   // ; sub_4955B+3EBp
+{
+//    mov byte_599D4, 0
+//    mov word_599D8, 0
+//    cmp byte_5A33E, 0
+//    mov byte_5A33E, 0
+//    jnz short $+12
 
+    // continues with sub_4A3E9 ? or where does that jump lead? check with debugger
+//sub_4A3D2   endp ; sp-analysis failed
+}
 
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4A3E9   proc near       ; CODE XREF: sub_4955B+14Ep
-        cmp byte_5A33E, 0
-        jnz short loc_4A3F3
-        call    sub_4A95F
+void sub_4A3E9() //   proc near       ; CODE XREF: sub_4955B+14Ep
+{
+    /*
+    cmp byte_5A33E, 0
+    jnz short loc_4A3F3
+    call    sub_4A95F
 
 loc_4A3F3:              ; CODE XREF: sub_4A3D2+15j
-                    ; sub_4A3E9+5j
-        mov word_51A01, 0
-        mov word_51963, 0
-        mov word_51965, 0
-        mov word ptr flashingbackgroundon, 0
-        mov word_51A07, 1
-        mov dx, 3C8h
-        xor al, al
-        out dx, al
-        inc dx
-        out dx, al
-        out dx, al
-        out dx, al
-        cmp byte_5A33E, 0
-        jz  short loc_4A427
-        mov gIsPlayingDemo, 1
+                ; sub_4A3E9+5j
+    mov word_51A01, 0
+    mov word_51963, 0
+    mov word_51965, 0
+    mov word ptr flashingbackgroundon, 0
+    mov word_51A07, 1
+    mov dx, 3C8h
+    xor al, al
+    out dx, al
+    inc dx
+    out dx, al
+    out dx, al
+    out dx, al
+    cmp byte_5A33E, 0
+    jz  short loc_4A427
+    mov gIsPlayingDemo, 1
 
 loc_4A427:              ; CODE XREF: sub_4A3E9+37j
-        mov byte_5A33F, 0
-        call    sub_4A463
-        mov byte_5A33F, 1
-        cmp byte_5A33E, 1
-        jb  short loc_4A446
-        mov gIsPlayingDemo, 0
-        jnz short loc_4A446
-        inc byte_5A33E
+    mov byte_5A33F, 0
+    call    sub_4A463
+    mov byte_5A33F, 1
+    cmp byte_5A33E, 1
+    jb  short loc_4A446
+    mov gIsPlayingDemo, 0
+    jnz short loc_4A446
+    inc byte_5A33E
 
 loc_4A446:              ; CODE XREF: sub_4A3E9+50j
-                    ; sub_4A3E9+57j
-        mov byte_50941, 0
-        cmp gIsPlayingDemo, 0
-        jz  short locret_4A462
-        mov bx, word_5A33C
-        mov word_510DF, bx
-        mov byte_510E2, 1
-        call    sub_492A8
+                ; sub_4A3E9+57j
+    mov byte_50941, 0
+    cmp gIsPlayingDemo, 0
+    jz  short locret_4A462
+    mov bx, word_5A33C
+    mov word_510DF, bx
+    mov byte_510E2, 1
+    call    sub_492A8
 
 locret_4A462:               ; CODE XREF: sub_4A3E9+67j
-        return;
-sub_4A3E9   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
+    return;
+    */
+}
+/*
 sub_4A463   proc near       ; CODE XREF: sub_4945D:loc_4953Bp
                     ; sub_4A3E9+43p
         call    readLevels
@@ -9675,53 +9686,52 @@ loc_4A5D4:              ; CODE XREF: code:39BCj
         return;
 
 ; =============== S U B R O U T I N E =======================================
+*/
 
-
-sub_4A5E0   proc near       ; CODE XREF: runLevel+106p
-        mov si, 0
-        mov bx, 0
-        mov cx, 5A0h
+void sub_4A5E0() //   proc near       ; CODE XREF: runLevel+106p
+{
+    /*
+    mov si, 0
+    mov bx, 0
+    mov cx, 5A0h
 
 loc_4A5E9:              ; CODE XREF: sub_4A5E0+25j
-        cmp byte ptr [bx+2434h], 0
-        jz  short loc_4A601
-        jl  short loc_4A608
-        dec byte ptr [bx+2434h]
-        jnz short loc_4A601
-        push    si
-        push(cx);
-        push    bx
-        call    sub_4A61F
-        pop bx
-        pop(cx);
-        pop si
+    cmp byte ptr [bx+2434h], 0
+    jz  short loc_4A601
+    jl  short loc_4A608
+    dec byte ptr [bx+2434h]
+    jnz short loc_4A601
+    push    si
+    push(cx);
+    push    bx
+    call    sub_4A61F
+    pop bx
+    pop(cx);
+    pop si
 
 loc_4A601:              ; CODE XREF: sub_4A5E0+Ej
-                    ; sub_4A5E0+16j ...
-        add si, 2
-        inc bx
-        loop    loc_4A5E9
-        return;
+                ; sub_4A5E0+16j ...
+    add si, 2
+    inc bx
+    loop    loc_4A5E9
+    return;
 // ; ---------------------------------------------------------------------------
 
 loc_4A608:              ; CODE XREF: sub_4A5E0+10j
-        inc byte ptr [bx+2434h]
-        jnz short loc_4A601
-        push    si
-        push(cx);
-        push    bx
-        mov word ptr leveldata[si], 0FF18h
-        call    sub_4A61F
-        pop bx
-        pop(cx);
-        pop si
-        jmp short loc_4A601
-sub_4A5E0   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
+    inc byte ptr [bx+2434h]
+    jnz short loc_4A601
+    push    si
+    push(cx);
+    push    bx
+    mov word ptr leveldata[si], 0FF18h
+    call    sub_4A61F
+    pop bx
+    pop(cx);
+    pop si
+    jmp short loc_4A601
+    */
+}
+/*
 sub_4A61F   proc near       ; CODE XREF: movefun+271p
                     ; movefun2+20Fp ...
         cmp byte ptr leveldata[si], 6
@@ -10234,127 +10244,122 @@ loc_4A90B:              ; CODE XREF: sub_4A61F:loc_4A8F5j
         call    sound4
         return;
 sub_4A61F   endp
+*/
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4A910   proc near       ; CODE XREF: runLevel:noFlashing3p
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 1
-        out dx, al      ; EGA port: graphics controller data register
-        al = byte_510DB
-        cmp al, 1
-        jle short loc_4A954
-        mov si, word_510DC
-        cmp word ptr leveldata[si], 0
-        jnz short loc_4A932
-        mov word ptr leveldata[si], 14h
+void sub_4A910() //   proc near       ; CODE XREF: runLevel:noFlashing3p
+{
+    /*
+    mov dx, 3CEh
+    al = 5
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; mode register.Data bits:
+                ; 0-1: Write mode 0-2
+                ; 2: test condition
+                ; 3: read mode: 1=color compare, 0=direct
+                ; 4: 1=use odd/even RAM addressing
+                ; 5: 1=use CGA mid-res map (2-bits/pixel)
+    inc dx
+    al = 1
+    out dx, al      ; EGA port: graphics controller data register
+    al = byte_510DB
+    cmp al, 1
+    jle short loc_4A954
+    mov si, word_510DC
+    cmp word ptr leveldata[si], 0
+    jnz short loc_4A932
+    mov word ptr leveldata[si], 14h
 
 loc_4A932:              ; CODE XREF: sub_4A910+1Aj
-        mov di, [si+6155h]
-        mov si, word_5177E
-        call    drawStillMurphyFrame
-        inc byte_510DB
-        cmp byte_510DB, 28h ; '('
-        jl  short loc_4A954
-        mov si, word_510DC
-        call    sub_4A61F
-        mov byte_510DB, 0
+    mov di, [si+6155h]
+    mov si, word_5177E
+    call    drawStillMurphyFrame
+    inc byte_510DB
+    cmp byte_510DB, 28h ; '('
+    jl  short loc_4A954
+    mov si, word_510DC
+    call    sub_4A61F
+    mov byte_510DB, 0
 
 loc_4A954:              ; CODE XREF: sub_4A910+Fj
-                    ; sub_4A910+36j
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 1
-        out dx, al      ; EGA port: graphics controller data register
-        return;
-sub_4A910   endp
+                ; sub_4A910+36j
+    mov dx, 3CEh
+    al = 5
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; mode register.Data bits:
+                ; 0-1: Write mode 0-2
+                ; 2: test condition
+                ; 3: read mode: 1=color compare, 0=direct
+                ; 4: 1=use odd/even RAM addressing
+                ; 5: 1=use CGA mid-res map (2-bits/pixel)
+    inc dx
+    al = 1
+    out dx, al      ; EGA port: graphics controller data register
+    return;
+     */
+}
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4A95F   proc near       ; CODE XREF: runLevel+372p
-                    ; sub_4A3E9+7p ...
-        al = gGameSeconds
-        mov byte_510B4, al
-        al = gGameMinutes
-        mov byte_510B5, al
-        al = gGameHours
-        mov byte_510B6, al
-        cmp gIsPlayingDemo, 0
-        jnz short locret_4A97F
-        cmp byte_599D4, 0
-        jz  short loc_4A980
+void sub_4A95F() //   proc near       ; CODE XREF: runLevel+372p
+                   // ; sub_4A3E9+7p ...
+{
+    /*
+    al = gGameSeconds
+    mov byte_510B4, al
+    al = gGameMinutes
+    mov byte_510B5, al
+    al = gGameHours
+    mov byte_510B6, al
+    cmp gIsPlayingDemo, 0
+    jnz short locret_4A97F
+    cmp byte_599D4, 0
+    jz  short loc_4A980
 
 locret_4A97F:               ; CODE XREF: sub_4A95F+17j
-        return;
+    return;
 // ; ---------------------------------------------------------------------------
 
 loc_4A980:              ; CODE XREF: sub_4A95F+1Ej
-        mov bh, gCurrentPlayerIndex
-        xor bl, bl
-        shr bx, 1
-        mov si, bx
-        add si, gPlayerListData
-        al = byte_510B4
-        add al, [si+0Bh]
+    mov bh, gCurrentPlayerIndex
+    xor bl, bl
+    shr bx, 1
+    mov si, bx
+    add si, gPlayerListData
+    al = byte_510B4
+    add al, [si+0Bh]
 
 loc_4A994:              ; CODE XREF: sub_4A95F+3Ej
-        cmp al, 3Ch ; '<'
-        jl  short loc_4A99F
-        sub al, 3Ch ; '<'
-        inc byte ptr [si+0Ah]
-        jmp short loc_4A994
+    cmp al, 3Ch ; '<'
+    jl  short loc_4A99F
+    sub al, 3Ch ; '<'
+    inc byte ptr [si+0Ah]
+    jmp short loc_4A994
 // ; ---------------------------------------------------------------------------
 
 loc_4A99F:              ; CODE XREF: sub_4A95F+37j
-        mov [si+0Bh], al
-        al = byte_510B5
-        add al, [si+0Ah]
+    mov [si+0Bh], al
+    al = byte_510B5
+    add al, [si+0Ah]
 
 loc_4A9A8:              ; CODE XREF: sub_4A95F+52j
-        cmp al, 3Ch ; '<'
-        jl  short loc_4A9B3
-        sub al, 3Ch ; '<'
-        inc byte ptr [si+9]
-        jmp short loc_4A9A8
+    cmp al, 3Ch ; '<'
+    jl  short loc_4A9B3
+    sub al, 3Ch ; '<'
+    inc byte ptr [si+9]
+    jmp short loc_4A9A8
 // ; ---------------------------------------------------------------------------
 
 loc_4A9B3:              ; CODE XREF: sub_4A95F+4Bj
-        mov [si+0Ah], al
-        al = byte_510B6
-        add al, [si+9]
-        jnb short loc_4A9C0
-        al = 0FFh
+    mov [si+0Ah], al
+    al = byte_510B6
+    add al, [si+9]
+    jnb short loc_4A9C0
+    al = 0FFh
 
 loc_4A9C0:              ; CODE XREF: sub_4A95F+5Dj
-        mov [si+9], al
-        return;
-sub_4A95F   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
+    mov [si+9], al
+    return;
+     */
+}
+/*
 sub_4A9C4   proc near       ; CODE XREF: sub_4A61F+81p
                     ; sub_4A61F+D8p ...
         mov [si+1834h], cx
@@ -15441,76 +15446,72 @@ loc_4DD77:              ; CODE XREF: sound8+53j
 locret_4DD83:               ; CODE XREF: sound8+26j sound8+3Bj ...
         return;
 sound8     endp
+*/
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-sound9     proc near       ; CODE XREF: runLevel+2F4p
-                    ; update?:loc_4E3E1p ...
-        cmp isFXEnabled, 1
-        jz  short xxxxxxxxdcdc
-        return;
+void sound9() //     proc near       ; CODE XREF: runLevel+2F4p
+                //    ; update?:loc_4E3E1p ...
+{
+    /*
+    cmp isFXEnabled, 1
+    jz  short xxxxxxxxdcdc
+    return;
 // ; ---------------------------------------------------------------------------
 
 xxxxxxxxdcdc:               ; CODE XREF: sound9+5j
-        cmp byte_59889, 1
-        jl  short loc_4DD94
-        return;
+    cmp byte_59889, 1
+    jl  short loc_4DD94
+    return;
 // ; ---------------------------------------------------------------------------
 
 loc_4DD94:              ; CODE XREF: sound9+Dj
-        mov byte_5988B, 3
-        mov byte_59889, 1
-        cmp sndType, 1
-        jnz short loc_4DDAC
-        mov ax, 405h
-        int 80h     ; LINUX -
-        jmp short locret_4DDEC
+    mov byte_5988B, 3
+    mov byte_59889, 1
+    cmp sndType, 1
+    jnz short loc_4DDAC
+    mov ax, 405h
+    int 80h     ; LINUX -
+    jmp short locret_4DDEC
 // ; ---------------------------------------------------------------------------
 
 loc_4DDAC:              ; CODE XREF: sound9+1Fj
-        cmp sndType, 2
-        jnz short loc_4DDC1
-        mov dx, 5D38h
-        mov ah, 3
-        int 81h
-        mov ax, 5
-        int 81h
-        jmp short locret_4DDEC
+    cmp sndType, 2
+    jnz short loc_4DDC1
+    mov dx, 5D38h
+    mov ah, 3
+    int 81h
+    mov ax, 5
+    int 81h
+    jmp short locret_4DDEC
 // ; ---------------------------------------------------------------------------
 
 loc_4DDC1:              ; CODE XREF: sound9+2Dj
-        cmp sndType, 3
-        jnz short loc_4DDD2
-        mov ax, 405h
-        mov dx, 388h
-        int 80h     ; LINUX -
-        jmp short locret_4DDEC
+    cmp sndType, 3
+    jnz short loc_4DDD2
+    mov ax, 405h
+    mov dx, 388h
+    int 80h     ; LINUX -
+    jmp short locret_4DDEC
 // ; ---------------------------------------------------------------------------
 
 loc_4DDD2:              ; CODE XREF: sound9+42j
-        cmp sndType, 4
-        jnz short loc_4DDE0
-        mov ax, 5
-        int 81h
-        jmp short locret_4DDEC
+    cmp sndType, 4
+    jnz short loc_4DDE0
+    mov ax, 5
+    int 81h
+    jmp short locret_4DDEC
 // ; ---------------------------------------------------------------------------
 
 loc_4DDE0:              ; CODE XREF: sound9+53j
-        cmp sndType, 5
-        jnz short locret_4DDEC
-        mov ax, 405h
-        int 80h     ; LINUX -
+    cmp sndType, 5
+    jnz short locret_4DDEC
+    mov ax, 405h
+    int 80h     ; LINUX -
 
 locret_4DDEC:               ; CODE XREF: sound9+26j sound9+3Bj ...
-        return;
-sound9     endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
+    return;
+    */
+}
+/*
 sound10    proc near       ; CODE XREF: update?+7EBp
         cmp isFXEnabled, 1
         jz  short loc_4DDF5
@@ -19821,71 +19822,74 @@ void drawgNumberOfRemainingInfotrons() // sub_4FD21   proc near       ; CODE XRE
 //loc_4FD56:              ; CODE XREF: drawgNumberOfRemainingInfotrons+31j
     drawTextWithChars8Font(272, 190, color, number);
 }
-/*
-sub_4FD65   proc near       ; CODE XREF: runLevel+E9p
-        cmp videoStatusUnk, 1
-        jz  short loc_4FD6D
-        return;
+
+void sub_4FD65() //   proc near       ; CODE XREF: runLevel+E9p
+{
+    /*
+    cmp videoStatusUnk, 1
+    jz  short loc_4FD6D
+    return;
 // ; ---------------------------------------------------------------------------
 
 loc_4FD6D:              ; CODE XREF: sub_4FD65+5j
-        al = byte_5197C
-        cmp al, 0
-        jnz short loc_4FD75
-        return;
+    al = byte_5197C
+    cmp al, 0
+    jnz short loc_4FD75
+    return;
 // ; ---------------------------------------------------------------------------
 
 loc_4FD75:              ; CODE XREF: sub_4FD65+Dj
-        dec al
-        jz  short loc_4FD7D
-        mov byte_5197C, al
-        return;
+    dec al
+    jz  short loc_4FD7D
+    mov byte_5197C, al
+    return;
 // ; ---------------------------------------------------------------------------
 
 loc_4FD7D:              ; CODE XREF: sub_4FD65+12j
-        mov byte_5197C, al
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 1
-        out dx, al      ; EGA port: graphics controller data register
-        push    ds
-        mov si, word_5182E
-        mov di, 6D2h
-        mov ax, es
-        mov ds, ax
-        mov cx, 7
+    mov byte_5197C, al
+    mov dx, 3CEh
+    al = 5
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; mode register.Data bits:
+                ; 0-1: Write mode 0-2
+                ; 2: test condition
+                ; 3: read mode: 1=color compare, 0=direct
+                ; 4: 1=use odd/even RAM addressing
+                ; 5: 1=use CGA mid-res map (2-bits/pixel)
+    inc dx
+    al = 1
+    out dx, al      ; EGA port: graphics controller data register
+    push    ds
+    mov si, word_5182E
+    mov di, 6D2h
+    mov ax, es
+    mov ds, ax
+    mov cx, 7
 
 loc_4FD99:              ; CODE XREF: sub_4FD65+3Cj
-        movsb
-        movsb
-        add si, 78h ; 'x'
-        add di, 78h ; 'x'
-        loop    loc_4FD99
-        pop ds
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0;
-        return;
-sub_4FD65   endp
-
+    movsb
+    movsb
+    add si, 78h ; 'x'
+    add di, 78h ; 'x'
+    loop    loc_4FD99
+    pop ds
+    mov dx, 3CEh
+    al = 5
+    out dx, al      ; EGA: graph 1 and 2 addr reg:
+                ; mode register.Data bits:
+                ; 0-1: Write mode 0-2
+                ; 2: test condition
+                ; 3: read mode: 1=color compare, 0=direct
+                ; 4: 1=use odd/even RAM addressing
+                ; 5: 1=use CGA mid-res map (2-bits/pixel)
+    // inc dx
+    // al = 0
+    // out dx, al      ; EGA port: graphics controller data register
+    ports[0x3CF] = 0;
+    return;
+    */
+}
+/*
 // ; ---------------------------------------------------------------------------
 ; START OF FUNCTION CHUNK FOR update?
 
@@ -19914,38 +19918,41 @@ sub_4FDB5   endp ; sp-analysis failed
 
 
 ; =============== S U B R O U T I N E =======================================
+*/
 
-
-sub_4FDCE   proc near       ; CODE XREF: sub_4955B+7F4p
-                    ; update?+1369p
-        cmp videoStatusUnk, 1
-        jz  short loc_4FDD6
-        return;
+void sub_4FDCE() //   proc near       ; CODE XREF: sub_4955B+7F4p
+                   // ; update?+1369p
+{
+    /*
+    cmp videoStatusUnk, 1
+    jz  short loc_4FDD6
+    return;
 // ; ---------------------------------------------------------------------------
 
 loc_4FDD6:              ; CODE XREF: sub_4FDCE+5j
-        push    si
-        al = byte_5195C
-        mov si, 87C9h
-        call    convertNumberTo3DigitStringWithPadding0
-        mov di, 6D2h
-        mov si, 87CAh
-        cmp byte_5195C, 0
-        jnz short loc_4FDF1
-        mov ah, 8
-        jmp short loc_4FDF3
+    push    si
+    al = byte_5195C
+    mov si, 87C9h
+    call    convertNumberTo3DigitStringWithPadding0
+    mov di, 6D2h
+    mov si, 87CAh
+    cmp byte_5195C, 0
+    jnz short loc_4FDF1
+    mov ah, 8
+    jmp short loc_4FDF3
 // ; ---------------------------------------------------------------------------
 
 loc_4FDF1:              ; CODE XREF: sub_4FDCE+1Dj
-        mov ah, 6
+    mov ah, 6
 
 loc_4FDF3:              ; CODE XREF: sub_4FDCE+21j
-        call    drawTextWithChars8Font
-        pop si
-        mov byte_5197C, 46h ; 'F'
-        return;
-sub_4FDCE   endp
-*/
+    call    drawTextWithChars8Font
+    pop si
+    mov byte_5197C, 46h ; 'F'
+    return;
+     */
+}
+
 void drawGameTime() // sub_4FDFD   proc near       ; CODE XREF: runLevel+29p
                    // ; runLevel:noFlashing2p ...
 {
