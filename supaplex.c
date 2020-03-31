@@ -43,7 +43,7 @@ uint8_t byte_50953 = 0;
 uint8_t byte_50954 = 0;
 uint8_t byte_5101C = 0;
 uint8_t byte_51035 = 0;
-uint8_t byte_51036 = 0;
+uint8_t gNumberOfInfoTronsInCurrentLevel = 0; // byte_51036 -> this seems to be _inside_ of fileLevelData when a level is read
 uint8_t byte_510AB = 0;
 uint8_t byte_510AE = 0;
 uint8_t byte_510AF = 0;
@@ -97,7 +97,7 @@ uint8_t byte_519BE = 0;
 uint8_t byte_519BF = 0;
 uint8_t byte_519C0 = 0;
 uint8_t byte_519C1 = 0;
-uint8_t byte_519C2 = 0;
+uint8_t byte_519C2 = 0; // -> 16B2
 uint8_t byte_519C3 = 0;
 uint8_t byte_519C5 = 0;
 uint8_t byte_519C8 = 0;
@@ -164,8 +164,8 @@ uint8_t gGameHours = 0; // byte_510B2
 uint8_t gGameMinutes = 0; // byte_510B1
 uint8_t gGameSeconds = 0; // byte_510B0
 uint8_t gIsMouseAvailable = 0; // byte_58487
-uint8_t gIsPlayingDemo = 0; // byte_510DE
-uint8_t gIsRecordingDemo = 0; // byte_510E3
+uint8_t gIsPlayingDemo = 0; // byte_510DE -> 0DCE
+uint8_t gIsRecordingDemo = 0; // byte_510E3 -> 0DD3
 uint8_t gLastDrawnHours = 0; // byte_510B9
 uint8_t gLevelListButtonPressed = 0; // byte_50918
 uint8_t gLevelListDownButtonPressed = 0; // byte_50916
@@ -198,7 +198,7 @@ uint16_t word_51076 = 0;
 uint16_t word_510A2 = 0;
 uint16_t word_510BC = 0;
 uint16_t word_510BE = 0;
-uint16_t word_510C1 = 0;
+uint16_t word_510C1 = 0; // -> 0DB1
 uint16_t word_510CB = 0;
 uint16_t word_510CD = 0;
 uint16_t word_510D1 = 0;
@@ -1239,6 +1239,7 @@ void sub_4A1AE(void);
 void sub_4955B(void);
 void levelScanThing(void);
 void gameloop(void);
+void update(void);
 void sub_4914A(void);
 void sub_4A1BF(void);
 void sub_492F1(void);
@@ -1254,6 +1255,7 @@ void sub_4FD65(void);
 void sub_4A910(void);
 void sub_4A5E0(void);
 void sub_4A95F(void);
+void drawLevelViewport(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
 
 static const int kWindowWidth = kScreenWidth * 4;
 static const int kWindowHeight = kScreenHeight * 4;
@@ -1900,22 +1902,12 @@ loc_46E75:              //; CODE XREF: start+251j
             resetNumberOfInfotrons();
 //            enableFloppy();
             findMurphy();
+            drawLevelViewport(0, 0, kScreenWidth, kScreenHeight); // Added by me
 //            si = 0x6015;
             fadeToPalette(gPalettes[1]); // At this point the screen fades in and shows the game
 
-            // TODO: refactor, this draws the viewport on the screen
-            int scrollX = 0;//kLevelBitmapWidth - kScreenWidth;
-            int scrollY = 0;//kLevelBitmapHeight - kScreenHeight;
-            for (int y = 0; y < kScreenHeight; ++y)
-            {
-                for (int x = 0; x < kScreenWidth; ++x)
-                {
-                    gScreenPixels[y * kScreenWidth + x] = gLevelBitmapData[(scrollY + y) * kLevelBitmapWidth + x + scrollX];
-                }
-            }
-
-            waitForKeyMouseOrJoystick();
-            exitWithError("Exiting blahblah");
+//            waitForKeyMouseOrJoystick();
+//            exitWithError("Exiting blahblah");
             if (isMusicEnabled == 0)
             {
                 sound3();
@@ -5981,7 +5973,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         }
 
 //noFlashing:              ; CODE XREF: runLevel+C2j
-        gameloop();
+        gameloop(); // 01ED:1F28
         if ((flashingbackgroundon & 0xFFFF) != 0) //cmp word ptr flashingbackgroundon, 0
         {
             /*
@@ -7297,21 +7289,22 @@ void writeToFh1() //  proc near       ; CODE XREF: sub_4955B+486p
 void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
                    // ; runLevel+30Cp
 {
+    // No idea what this method does yet but doesn't respond to user input
     // 01ED:28F8
 
 // ; FUNCTION CHUNK AT 2DA8 SIZE 0000038B BYTES
 
     if (word_51A01 != 0)
     {
-        sub_4914A();
+        sub_4914A(); // 01ED:28FF
     }
 //loc_49567:              ; CODE XREF: sub_4955B+5j
     else if (gIsPlayingDemo == 0)
     {
-        sub_4A1BF();
+        sub_4A1BF(); // 01ED:290B
         if (gIsRecordingDemo != 0)
         {
-            sub_492F1();
+            sub_492F1(); // 01ED:2915
         }
     }
 
@@ -7319,7 +7312,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 //                ; sub_4955B+11j ...
     if (gIsPlayingDemo != 0)
     {
-        sub_492A8();
+        sub_492A8(); // 01ED:2929
     }
 
 //loc_49585:              ; CODE XREF: sub_4955B+25j
@@ -7331,6 +7324,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 //loc_4958F:              ; CODE XREF: sub_4955B+2Fj
     if ((word_510C1 >> 8) != 0) // cmp byte ptr word_510C1+1, 0
     {
+        // 01ED:293E
         uint8_t highValue = (word_510C1 >> 8);
         highValue--;
         word_510C1 = (highValue << 8) + (word_510C1 & 0xFF);
@@ -7342,7 +7336,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
         word_510C1 = word_510C1 & 0xFF; // mov byte ptr word_510C1+1, 0
     }
 //loc_495A9:              ; CODE XREF: sub_4955B+44j
-    else if ((word_510C1 >> 8) == 0)
+    else if ((word_510C1 >> 8) == 0) // 01ED:2946
     {
 //loc_495B3:              ; CODE XREF: sub_4955B+53j
         word_510C1 = 0x2000 + (word_510C1 & 0xFF); // mov byte ptr word_510C1+1, 20h ; ' '
@@ -7425,7 +7419,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     }
 
 //loc_4963F:              ; CODE XREF: sub_4955B+DFj
-    if (gIsRecordingDemo != 0)
+    if (gIsRecordingDemo != 0) // 01ED:29DC
     {
         //jmp loc_49742
     }
@@ -7815,10 +7809,11 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 //loc_49939:              ; CODE XREF: sub_4955B+3D6j
     gCurrentSelectedLevelIndex++;
 //    ax = gCurrentSelectedLevelIndex;
-    sub_4BF4A(gCurrentSelectedLevelIndex);
+    sub_4BF4A(gCurrentSelectedLevelIndex); // 01ED:2CDD
     drawLevelList();
     sub_4A3D2();
 
+    // 01ED:2CE6
 //loc_49949:              ; CODE XREF: sub_4955B+E1j
 //                ; sub_4955B+33Aj ...
     uint8_t was_byte_59B6B_NonZero = (byte_59B6B != 0);
@@ -8218,6 +8213,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     if (byte_519B5 == 1
         && byte_519C3 == 1)
     {
+        // 01ED:2FEC
         word_51970 = 0;
         word_51A01 = 0;
         word_51963 = 0;
@@ -8247,6 +8243,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 //                    ; sub_4955B+6F2j ...
     if (byte_51996 != 0)
     {
+        // 01ED:303A
         byte_510AE = 0;
 //        mov si, 6095h
         fadeToPalette(gPalettes[3]);
@@ -8276,6 +8273,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 //loc_49CC8:              ; CODE XREF: sub_4955B+740j
     if (byte_519C2 != 0)
     {
+        // 01ED:306C
         byte_510AE = 0;
 //        mov si, 6095h
         fadeToPalette(gPalettes[3]);
@@ -8332,13 +8330,15 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     if (byte_5197E != 0
         && word_51978 <= 0)
     {
-        word_510D1 = 1;
+        // This is called when I press ESC to exit the game, but not when I die
+        word_510D1 = 1; // 01ED:30C0
     }
 
 //loc_49D29:              ; CODE XREF: sub_4955B+7BFj
 //                    ; sub_4955B+7C6j
     if (byte_5198D != 0)
     {
+        // 01ED:30CD
         word_51A01 = 0;
         word_51963 = 0;
         word_51965 = 0;
@@ -8348,7 +8348,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 //loc_49D48:              ; CODE XREF: sub_4955B+7D3j
     if ((word_519B3 & 0xFF) != 0)
     {
-        sub_4FDCE();
+        sub_4FDCE(); // 01ED:30EC
     }
 }
 
@@ -8461,96 +8461,109 @@ void levelScanThing() //   proc near       ; CODE XREF: runLevel+A7p
 
 void gameloop() //   proc near       ; CODE XREF: runLevel:noFlashingp
 {
-    /*
+    // 01ED:317D
+
 //    ; set graphics write mode = 1
-    mov dx, 3CEh
-    al = 5
-    out dx, al
-    inc dx
-    al = 1
-    out dx, al
+//    mov dx, 3CEh
+//    al = 5
+//    out dx, al
+//    inc dx
+//    al = 1
+//    out dx, al
 
-    mov si, murphyloc
-    call    update?
-    mov murphyloc, si
+//    mov si, murphyloc
+    update(); // 01ED:318B
+//    mov murphyloc, si
 
-    cmp word ptr flashingbackgroundon, 0
-    jz  short loc_49E0A
-
+    if ((flashingbackgroundon & 0xFFFF) != 0) // cmp word ptr flashingbackgroundon, 0
+    {
 //    ; flashes background
 //    ; set palette ix 0 = #3f2121 (maroon)
-    mov dx, 3C8h
-    xor al, al
-    out dx, al
-    inc dx
-    al = 3Fh
-    out dx, al
-    out dx, al
-    al = 21h
-    out dx, al
+//        mov dx, 3C8h
+//        xor al, al
+//        out dx, al
+//        inc dx
+//        al = 3Fh
+//        out dx, al
+//        out dx, al
+//        al = 21h
+//        out dx, al
+    }
 
 //loc_49E0A:
-    cmp byte ptr word_510C1, 0
-    jz  short loc_49E14
-    call    sub_5024B
+    if ((word_510C1 & 0xFF) != 0) //cmp byte ptr word_510C1, 0
+    {
+        sub_5024B();
+    }
 
 //loc_49E14:
 //    ; set graphics write mode = 1
-    mov dx, 3CEh
-    al = 5
-    out dx, al
-    inc dx
-    al = 1
-    out dx, al
+//    mov dx, 3CEh
+//    al = 5
+//    out dx, al
+//    inc dx
+//    al = 1
+//    out dx, al
 
-    cmp word ptr flashingbackgroundon, 0
-    jz  short loc_49E33
-
+    if ((flashingbackgroundon & 0xFFFF) != 0) // cmp word ptr flashingbackgroundon, 0
+    {
 //    ; flashes background
 //    ; set palette ix 0 = #3f2121 (maroon)
-    mov dx, 3C8h
-    xor al, al
-    out dx, al
-    inc dx
-    al = 3Fh
-    out dx, al
-    al = 21h
-    out dx, al
-    out dx, al
+//        mov dx, 3C8h
+//        xor al, al
+//        out dx, al
+//        inc dx
+//        al = 3Fh
+//        out dx, al
+//        al = 21h
+//        out dx, al
+//        out dx, al
+    }
 
 //loc_49E33:
-    mov di, offset movingObjects?
-    mov si, 7Ah ; level width in words + 2 (index of first gamefiled cell)
-    mov cx, 526h ; unsure count
-    xor dx, dx
-    xor bh, bh
+//    mov di, offset movingObjects?
+    si = 0x7A; // 122: level width in words + 2 (index of first gamefiled cell)
+    cx = 0x526; // 1318 = 1440 - 122 (rest of the tiles
+    dx = 0;
+    bh = 0;
 
+    for (int i = 122; i < 1440; ++i) // starts from si, ends in si + cx
+    {
 //checkCellForMovingObject:              ; CODE XREF: gameloop+84j
-    mov bl, byte ptr leveldata[si]
+        LevelTileType tile = gCurrentLevel.tiles[i];
 
-    test    bl, 0Dh
-    jz  short moveToNextCell
+        // Does this check filter out values except like 0, 2, 16 and 18??
+        if ((tile & LevelTileTypeSportRight) == 0)
+        {
+            continue;
+        }
 
-    cmp bl, 20h
-    jnb short moveToNextCell
+        if (tile >= 0x20) // 32?? There are only 25 tiles!! WTF
+        {
+            continue;
+        }
 
-    ; multiply by 2 to go from byte to word
-    shl bx, 1
-    mov ax, movingFunctions[bx]
-    or  ax, ax
-    jz  short moveToNextCell
+//        ; multiply by 2 to go from byte to word
+        bx = bx * 2;
+        ax = movingFunctions[bx];
+        if (ax != 0)
+        {
+            //        ; log moving object for call
+            //        ; each index has 2 bytes for index and 2 bytes as fn ptr to call
+            dx++;
+//            di[i] = ax;
+//            mov [di], si
+//            mov [di+2], ax
+//            add di, 4
 
-    ; log moving object for call
-    ; each index has 2 bytes for index and 2 bytes as fn ptr to call
-    inc dx
-    mov [di], si
-    mov [di+2], ax
-    add di, 4
+            // Seems like there is a list of predefined moving functions
+            // and this is going through every tile assigning one of those functions,
+            // creating an alternative matrix of tiles with just function pointers
+        }
+
 
 //moveToNextCell:
-
-    add si, 2
-    loop    checkCellForMovingObject
+    }
 
     cmp dx, 0
     jz  short doneWithGameLoop ; not a single moving object
@@ -8603,7 +8616,6 @@ void gameloop() //   proc near       ; CODE XREF: runLevel:noFlashingp
     out dx, al
 
     return;
-     */
 }
 
 void sub_49EBE() //   proc near       ; CODE XREF: runLevel+109p
@@ -9104,6 +9116,8 @@ void sub_4A1AE() //   proc near       ; CODE XREF: sub_4955B+66Cp
 void sub_4A1BF() //   proc near       ; CODE XREF: sub_4955B+13p
                    // ; runMainMenu+BDp ...
 {
+    // 01ED:355C
+
     ah = 0;
 
     if (byte_519C5 != 0
@@ -15619,10 +15633,12 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
         db 0C0h ; +
 
 ; =============== S U B R O U T I N E =======================================
+*/
 
-
-update?     proc near       ; CODE XREF: gameloop+Ep
-
+void update() // update?     proc near       ; CODE XREF: gameloop+Ep
+{
+    // 01ED:722D
+    /*
         cmp byte ptr leveldata[si], 3
         jz  short hasValidMurphy
         mov word_510CF, 0
@@ -17708,12 +17724,11 @@ loc_4ED13:              ; CODE XREF: update?+E7Bj
         call    sub_4ED29
         sub si, 2
         return;
-update?     endp ; sp-analysis failed
+ */
+//update?     endp ; sp-analysis failed
+}
 
-
-; =============== S U B R O U T I N E =======================================
-
-
+/*
 sub_4ED29   proc near       ; CODE XREF: update?+E6Fp update?+E92p
         cmp byte ptr [si+18ACh], 11h
         jz  short loc_4ED38
@@ -20196,4 +20211,18 @@ void exitWithError(const char *format, ...)
     vfprintf(stderr, format, argptr);
     va_end(argptr);
     exit(errno);
+}
+
+void drawLevelViewport(uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+{
+    int scrollX = MAX(0, MIN(x, kLevelBitmapWidth - width));
+    int scrollY = MAX(0, MIN(y, kLevelBitmapHeight - height));
+
+    for (int y = 0; y < height; ++y)
+    {
+        for (int x = 0; x < width; ++x)
+        {
+            gScreenPixels[y * kScreenWidth + x] = gLevelBitmapData[(scrollY + y) * kLevelBitmapWidth + x + scrollX];
+        }
+    }
 }
