@@ -199,12 +199,15 @@ uint16_t word_510A2 = 0;
 uint16_t word_510BC = 0;
 uint16_t word_510BE = 0;
 uint16_t word_510C1 = 0; // -> 0DB1
+uint16_t word_510C7 = 0;
 uint16_t word_510CB = 0;
 uint16_t word_510CD = 0;
+uint16_t word_510CF = 0;
 uint16_t word_510D1 = 0;
 uint16_t word_510D9 = 0;
 uint16_t word_510DC = 0;
 uint16_t word_510E6 = 0;
+uint16_t word_515A2 = 0x32A2;
 uint16_t word_5157E = 0x4A80;
 uint16_t word_5184A = 0x2A66;
 uint16_t word_5184C = 0x2A67;
@@ -1115,6 +1118,51 @@ ColorPaletteData gTitle2PaletteData = {
     0x0A, 0x0A, 0x0A, 0x07, 0x0B, 0x0B, 0x0B, 0x07, 0x0E, 0x01, 0x01, 0x04, 0x09, 0x09, 0x09, 0x07,
     0x01, 0x03, 0x07, 0x00, 0x08, 0x08, 0x08, 0x08, 0x09, 0x00, 0x00, 0x04, 0x0B, 0x00, 0x00, 0x0C,
     0x00, 0x02, 0x0A, 0x01, 0x05, 0x05, 0x05, 0x08, 0x06, 0x06, 0x06, 0x08, 0x08, 0x08, 0x08, 0x07,
+};
+
+typedef void (*MovingFunction)(uint16_t);
+
+void movefun(uint16_t position);
+//void movefun2(void);
+//void movefun3(void);
+//void movefun4(void);
+//void movefun5(void);
+//void movefun6(void);
+//void movefun7(void);
+//void loc_4A543(void);
+
+static const MovingFunction movingFunctions[31] = {
+    movefun,
+    NULL,
+    NULL,
+    NULL, //movefun2,
+    NULL,
+    NULL,
+    NULL,
+    NULL, //movefun3,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL, //movefun4,
+    NULL,
+    NULL, //movefun5,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL, //movefun6,
+    NULL, //movefun7,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL, //loc_4A543,
 };
 
 SDL_Surface *gScreenSurface = NULL;
@@ -4293,644 +4341,615 @@ loc_47F5E:              ; CODE XREF: recoverFilesFromFloppyDisk+1Bj
 
 // ; ---------------------------------------------------------------------------
         nop
+*/
 
-; =============== S U B R O U T I N E =======================================
-
-
-movefun   proc near       ; DATA XREF: data:160Co
-        cmp byte ptr leveldata[si], 1
-        jz  short loc_47F98
+void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
+{
+    if ((gCurrentLevelWord[position] & 0xFF) != 1) // cmp byte ptr leveldata[si], 1
+    {
         return;
-// ; ---------------------------------------------------------------------------
+    }
 
-loc_47F98:              ; CODE XREF: movefun+5j
-        mov ax, leveldata[si]
-        cmp ax, 1
-        jz  short loc_47FA4
-        jmp loc_48035
-// ; ---------------------------------------------------------------------------
+//loc_47F98:              ; CODE XREF: movefun+5j
+    if (gCurrentLevelWord[position] != 1)
+    {
+//        jmp loc_48035
+    }
 
-loc_47FA4:              ; CODE XREF: movefun+Fj
-        cmp byte_51035, 2
-        jnz short loc_47FAC
+//loc_47FA4:              ; CODE XREF: movefun+Fj
+    if (byte_51035 == 2)
+    {
         return;
-// ; ---------------------------------------------------------------------------
+    }
 
-loc_47FAC:              ; CODE XREF: movefun+19j
-        mov ax, leveldata[si+78h]
-        cmp ax, 0
-        jz  short loc_47FF4
-        cmp ax, 1
-        jz  short loc_47FC5
-        cmp ax, 4
-        jz  short loc_47FC5
-        cmp ax, 5
-        jz  short loc_47FC5
+//loc_47FAC:              ; CODE XREF: movefun+19j
+    uint16_t objectBelow = gCurrentLevelWord[position + kLevelWidth];
+    if (objectBelow == 0)
+    {
+//loc_47FF4:              ; CODE XREF: movefun+23j
+        gCurrentLevelWord[position] = (gCurrentLevelWord[position] & 0xFF) + 0x4000; // 64 -> mov byte ptr leveldata[si+1], 40h ; '@'
+//        jmp short loc_48035
+    }
+    else
+    {
+        if (objectBelow != 1
+            && objectBelow != 4
+            && objectBelow != 5)
+        {
+            return;
+        }
+
+//loc_47FC5:              ; CODE XREF: movefun+28j
+//                ; movefun+2Dj ...
+        uint16_t objectBelowLeft = gCurrentLevelWord[position + kLevelWidth - 1];
+        if (objectBelowLeft == 0
+            || objectBelowLeft == 0x8888
+            || objectBelowLeft == 0xAAAA)
+        {
+//loc_47FFB:              ; CODE XREF: movefun+3Aj
+//                ; movefun+42j ...
+            uint16_t objectLeft = gCurrentLevelWord[position - 1];
+            if (objectLeft == 0)
+            {
+//loc_48004:              ; CODE XREF: movefun+70j
+                gCurrentLevelWord[position] = (gCurrentLevelWord[position] & 0xFF) + 0x5000; // 80 mov byte ptr leveldata[si+1], 50h ; 'P'
+                gCurrentLevelWord[position - 1] = 0x8888;
+            //    jmp short loc_48035
+            }
+        }
+    }
+
+    uint16_t objectLeft = 0;
+
+    do
+    {
+//loc_47FDC:              ; CODE XREF: movefun+72j
+//                ; movefun+1F1j
+        uint16_t objectBelowRight = gCurrentLevelWord[position + kLevelWidth + 1];
+        if (objectBelowRight != 0
+            && objectBelowRight != 0x8888
+            && objectBelowRight != 0xAAAA)
+        {
+            return;
+        }
+        else
+        {
+//loc_48011:              ; CODE XREF: movefun+51j
+//                ; movefun+59j ...
+            uint16_t objectRight = gCurrentLevelWord[position + 1];
+            uint16_t objectAboveRight = gCurrentLevelWord[position - kLevelWidth + 1];
+            if (objectRight != 0
+                || objectRight != 0x9999
+                || objectAboveRight != 1)
+            {
+                return;
+            }
+
+//loc_48028:              ; CODE XREF: movefun+86j
+//                ; movefun+95j
+            gCurrentLevelWord[position] = (gCurrentLevelWord[position] & 0xFF) + 0x6000; // 96 mov byte ptr leveldata[si+1], 60h ; '`'
+            gCurrentLevelWord[position + 1] = 0x8888;
+//            jmp short $+2 -> jump to loc_48035 probably
+        }
+
+//loc_48035:              ; CODE XREF: movefun+11j
+//                ; movefun+69j ...
+        bl = (gCurrentLevelWord[position] >> 8); // mov bl, byte ptr leveldata[si+1]
+        bh = 0;
+        al = bl;
+        al &= 0xF0;
+        if (al == 0x10) // 16
+        {
+//            jmp short loc_48078
+        }
+//loc_48045:              ; CODE XREF: movefun+B1j
+        else if (al == 0x20) // 32
+        {
+//loc_48212:              ; CODE XREF: movefun+B9j
+//            and bl, 7
+//            shl bl, 1
+//            xor bh, bh
+//            mov di, [si+6155h]
+//            push    si
+//            mov si, 1294h
+//            mov si, [bx+si]
+//            push    ds
+//            mov ax, es
+//            mov ds, ax
+
+//loc_48228:
+//            mov cx, 10h
+
+            for (int i = 0; i < 16; ++i)
+            {
+//loc_4822B:              ; CODE XREF: movefun+2A5j
+//                movsb
+//                movsb
+//                movsb
+//                movsb
+//                add si, 76h ; 'v'
+//                add di, 76h ; 'v'
+            }
+//            pop ds
+//            pop si
+//            mov bl, [si+1835h]
+//            inc bl
+            if (bl == 0x24) // 36
+            {
+    //          mov word ptr [si+1836h], 0AAAAh
+            }
+//loc_4824A:              ; CODE XREF: movefun+2B2j
+            else if (bl == 0x26) // 38
+            {
+        //        mov [si+1835h], bl
+        //        add si, 2
+        //        sub_488DC();
+        //        sub si, 2
+                return;
+            }
+//loc_4825D:              ; CODE XREF: movefun+2BDj
+            else if (bl < 0x28) // 40
+            {
+        //        mov [si+1835h], bl
+                return;
+            }
+//loc_48267:              ; CODE XREF: movefun+2D0j
+            else
+            {
+        //        mov word ptr leveldata[si], 0FFFFh
+        //        add si, 78h ; 'x'
+        //        mov word ptr leveldata[si], 1001h
+                return;
+            }
+        }
+//loc_4804C:              ; CODE XREF: movefun+B7j
+        else if (al == 0x30) // 48
+        {
+//            jmp loc_48277
+        }
+//loc_48053:              ; CODE XREF: movefun+BEj
+        else if (byte_51035 == 2)
+        {
+            return;
+        }
+//loc_4805B:              ; CODE XREF: movefun+C8j
+        else if (al == 0x40) // 64
+        {
+//            jmp loc_482DC
+        }
+//loc_48062:              ; CODE XREF: movefun+CDj
+        else if (al == 0x50) // 80
+        {
+//            jmp loc_4830A
+        }
+//loc_48069:              ; CODE XREF: movefun+D4j
+        else if (al == 0x60) // 96
+        {
+//            jmp loc_48378
+        }
+//loc_48070:              ; CODE XREF: movefun+DBj
+        else if (al == 0x70) // 112
+        {
+//            jmp loc_483E6
+        }
+//locret_48077:               ; CODE XREF: movefun+E2j
+        else
+        {
+            return;
+        }
+
+//loc_48078:              ; CODE XREF: movefun+B3j
+//                ; movefun+475j
+        bh = 0;
+        bl *= 2;
+        bl *= 2;
+        bl &= 0x1F;
+//        mov di, [si+60DDh]
+//        add di, [bx+6C95h]
+//        push    si
+        si = word_515A2;
+//        push    ds
+//        mov ax, es
+//        mov ds, ax
+        cx = 0x12; // 18
+
+        for (int i = 0; i < 18; ++i)
+        {
+//loc_48096:              ; CODE XREF: movefun+10Ej
+//            *di = *si; di++; si++; //movsb
+//            *di = *si; di++; si++; //movsb
+//            add si, 78h ; 'x'
+//            add di, 78h ; 'x'
+        }
+//        pop ds
+//        pop si
+//        bl = si[0x1835];
+        bl++;
+        if (bl == 0x16) // 22
+        {
+//            si[0x1835] = bl;
+//            sub si, 78h ; 'x'
+            sub_488DC();
+//            add si, 78h ; 'x'
+            return;
+        }
+//loc_480BB:              ; CODE XREF: movefun+11Bj
+        else if (bl < 0x18) // 24
+        {
+//            si[0x1835] = bl;
+            return;
+        }
+
+//loc_480C5:              ; CODE XREF: movefun+12Ej
+//        si[0x1835] = 0; //mov byte ptr [si+1835h], 0
+        if (byte_51035 == 2)
+        {
+            return;
+        }
+/*
+//loc_480D2:              ; CODE XREF: movefun+13Fj
+        if (si[0x18AC] == 0) // cmp word ptr [si+18ACh], 0
+        {
+//loc_4816D:              ; CODE XREF: movefun+149j
+//                ; movefun+154j
+            gCurrentLevelWord[position] = 0x7001; // mov word ptr leveldata[si], 7001h
+    //        mov word ptr [si+18ACh], 9999h
+            return;
+        }
+
+//loc_480DC:              ; CODE XREF: movefun+147j
+        if (si[0x18AC] == 0x9999) // cmp word ptr [si+18ACh], 9999h
+        {
+//loc_4816D:              ; CODE XREF: movefun+149j
+    //                ; movefun+154j
+            gCurrentLevelWord[position] = 0x7001; // mov word ptr leveldata[si], 7001h
+    //        mov word ptr [si+18ACh], 9999h
+            return;
+        }
+
+//loc_480E7:              ; CODE XREF: movefun+152j
+        if (si[0x18AC] == 3) // cmp word ptr [si+18ACh], 3
+        {
+            jmp loc_481A4
+        }
+
+//loc_480F1:              ; CODE XREF: movefun+15Cj
+        if (si[0x18AC] == 0x11) // cmp byte ptr [si+18ACh], 11h
+        {
+            jmp loc_481FE
+        }
+
+//loc_480FB:              ; CODE XREF: movefun+166j
+        if (si[0x18AC] == 0x2BB) // cmp word ptr [si+18ACh], 2BBh
+        {
+            jmp loc_481C6
+        }
+
+//loc_48106:              ; CODE XREF: movefun+171j
+        if (si[0x18AC] == 0x4BB) // cmp word ptr [si+18ACh], 4BBh
+        {
+            jmp loc_481E2
+        }
+
+//loc_48111:              ; CODE XREF: movefun+17Cj
+        if (si[0x18AC] == 0x18) // cmp byte ptr [si+18ACh], 18h
+        {
+            jmp loc_481FE
+        }
+
+//loc_4811B:              ; CODE XREF: movefun+186j
+        if (si[0x18AC] == 8) // cmp word ptr [si+18ACh], 8
+        {
+//loc_48205:              ; CODE XREF: movefun+192j
+            // add si, 78h ; 'x'
+            // mov bx, si
+            // shr bx, 1
+            // mov byte ptr [bx+2434h], 6
+            return;
+        }
+
+//loc_48125:              ; CODE XREF: movefun+190j
+        sound7();
+        if (si[0x18AC] != 1 // cmp word ptr [si+18ACh], 1
+            && si[0x18AC] != 4 // cmp word ptr [si+18ACh], 4
+            && si[0x18AC] != 5) // cmp word ptr [si+18ACh], 5
+        {
+            return;
+        }
+*/
+//loc_4813E:              ; CODE XREF: movefun+19Dj
+//                ; movefun+1A4j ...
+        if (si[0x18AA] == 0 // cmp word ptr [si+18AAh], 0
+            || si[0x18AA] == 0x8888 // cmp word ptr [si+18AAh], 8888h
+            || si[0x18AA] == 0xAAAA) // cmp word ptr [si+18AAh], 0AAAAh
+        {
+//loc_4817A:              ; CODE XREF: movefun+1B3j
+//                ; movefun+1BBj ...
+            if (si[0x1832] == 0) //cmp word ptr [si+1832h], 0
+            {
+//loc_48184:              ; CODE XREF: movefun+1EFj
+            //    mov byte ptr [si+1835h], 50h ; 'P'
+            //    mov word ptr [si+1832h], 8888h
+                return;
+            }
+            else
+            {
+                continue;
+//                jmp loc_47FDC
+            }
+        }
+        if (si[0x18AE] == 0 // cmp word ptr [si+18AEh], 0
+            || si[0x18AE] == 0x8888 // cmp word ptr [si+18AEh], 8888h
+            || si[0x18AE] == 0xAAAA) // cmp word ptr [si+18AEh], 0AAAAh
+        {
+//loc_48190:              ; CODE XREF: movefun+1CAj
+//                ; movefun+1D2j ...
+            if (si[0x1836] == 0) //cmp word ptr [si+1836h], 0
+            {
+//loc_48198:              ; CODE XREF: movefun+205j
+//                mov byte ptr [si+1835h], 60h ; '`'
+//                mov word ptr [si+1836h], 8888h
+                return;
+            }
+            else
+            {
+                return;
+            }
+        }
+
         return;
-// ; ---------------------------------------------------------------------------
 
-loc_47FC5:              ; CODE XREF: movefun+28j
-                    ; movefun+2Dj ...
-        cmp leveldata[si+78h-2], 0
-        jz  short loc_47FFB
-        cmp leveldata[si+78h-2], 8888h
-        jz  short loc_47FFB
-        cmp leveldata[si+78h-2], 0AAAAh
-        jz  short loc_47FFB
+    }
+    while (1);
 
-loc_47FDC:              ; CODE XREF: movefun+72j
-                    ; movefun+1F1j
-        cmp leveldata[si+78h+2], 0
-        jz  short loc_48011
-        cmp leveldata[si+78h+2], 8888h
-        jz  short loc_48011
-        cmp leveldata[si+78h+2], 0AAAAh
-        jz  short loc_48011
+//loc_481A4:              ; CODE XREF: movefun+15Ej
+    bl = si[0x18AD]; //mov bl, [si+18ADh]
+    if (bl == 0xE
+        || bl == 0xF
+        || bl == 0x28
+        || bl == 0x29
+        || bl == 0x25
+        || bl == 0x26)
+    {
         return;
-// ; ---------------------------------------------------------------------------
+    }
 
-loc_47FF4:              ; CODE XREF: movefun+23j
-        mov byte ptr leveldata[si+1], 40h ; '@'
-        jmp short loc_48035
-// ; ---------------------------------------------------------------------------
-
-loc_47FFB:              ; CODE XREF: movefun+3Aj
-                    ; movefun+42j ...
-        cmp leveldata[si-2], 0
-        jz  short loc_48004
-        jmp short loc_47FDC
-// ; ---------------------------------------------------------------------------
-
-loc_48004:              ; CODE XREF: movefun+70j
-        mov byte ptr leveldata[si+1], 50h ; 'P'
-        mov leveldata[si-2], 8888h
-        jmp short loc_48035
-// ; ---------------------------------------------------------------------------
-
-loc_48011:              ; CODE XREF: movefun+51j
-                    ; movefun+59j ...
-        cmp leveldata[si+2], 0
-        jz  short loc_48028
-        cmp leveldata[si+2], 9999h
-        jnz short locret_48027
-        cmp leveldata[si-78h+2h], 1
-        jz  short loc_48028
-
-locret_48027:               ; CODE XREF: movefun+8Ej
+//loc_481C6:              ; CODE XREF: movefun+173j
+    if (si[0x18AA] == 0x18) // cmp byte ptr [si+18AAh], 18h
+    {
+//        mov word ptr [si+18ACh], 18h
+    }
+//loc_481D3:              ; CODE XREF: movefun+23Bj
+    else if (si[0x18AA] != 0x1F) // cmp byte ptr [si+18AAh], 1Fh
+    {
+//        mov word ptr [si+18AAh], 0
+    }
+//loc_481E0:              ; CODE XREF: movefun+248j
+    else
+    {
+//loc_481FE:              ; CODE XREF: movefun+168j
+//                ; movefun+188j ...
+//      add si, 78h ; 'x' // 120 = width * 2
+        sub_4A61F();
         return;
-// ; ---------------------------------------------------------------------------
+    }
 
-loc_48028:              ; CODE XREF: movefun+86j
-                    ; movefun+95j
-        mov byte ptr leveldata[si+1], 60h ; '`'
-        mov leveldata[si+2], 8888h
-        jmp short $+2
-// ; ---------------------------------------------------------------------------
-
-loc_48035:              ; CODE XREF: movefun+11j
-                    ; movefun+69j ...
-        mov bl, byte ptr leveldata[si+1]
-        xor bh, bh
-        al = bl
-        and al, 0F0h
-        cmp al, 10h
-        jnz short loc_48045
-        jmp short loc_48078
-// ; ---------------------------------------------------------------------------
-
-loc_48045:              ; CODE XREF: movefun+B1j
-        cmp al, 20h ; ' '
-        jnz short loc_4804C
-        jmp loc_48212
-// ; ---------------------------------------------------------------------------
-
-loc_4804C:              ; CODE XREF: movefun+B7j
-        cmp al, 30h ; '0'
-        jnz short loc_48053
-        jmp loc_48277
-// ; ---------------------------------------------------------------------------
-
-loc_48053:              ; CODE XREF: movefun+BEj
-        cmp byte_51035, 2
-        jnz short loc_4805B
+//loc_481E2:              ; CODE XREF: movefun+17Ej
+    if (si[0x18AE] == 0x18) // cmp byte ptr [si+18AEh], 18h
+    {
+//        mov word ptr [si+18ACh], 18h
+    }
+//loc_481EF:              ; CODE XREF: movefun+257j
+    else if (si[0x18AE] != 0x1F) // cmp byte ptr [si+18AEh], 1Fh
+    {
+//        mov word ptr [si+18AEh], 0
+    }
+//loc_481FC:              ; CODE XREF: movefun+264j
+    else
+    {
+//loc_481FE:              ; CODE XREF: movefun+168j
+//                ; movefun+188j ...
+//      add si, 78h ; 'x' // 120 = width * 2
+        sub_4A61F();
         return;
-// ; ---------------------------------------------------------------------------
-
-loc_4805B:              ; CODE XREF: movefun+C8j
-        cmp al, 40h ; '@'
-        jnz short loc_48062
-        jmp loc_482DC
-// ; ---------------------------------------------------------------------------
-
-loc_48062:              ; CODE XREF: movefun+CDj
-        cmp al, 50h ; 'P'
-        jnz short loc_48069
-        jmp loc_4830A
-// ; ---------------------------------------------------------------------------
-
-loc_48069:              ; CODE XREF: movefun+D4j
-        cmp al, 60h ; '`'
-        jnz short loc_48070
-        jmp loc_48378
-// ; ---------------------------------------------------------------------------
-
-loc_48070:              ; CODE XREF: movefun+DBj
-        cmp al, 70h ; 'p'
-        jnz short locret_48077
-        jmp loc_483E6
-// ; ---------------------------------------------------------------------------
-
-locret_48077:               ; CODE XREF: movefun+E2j
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_48078:              ; CODE XREF: movefun+B3j
-                    ; movefun+475j
-        xor bh, bh
-        shl bl, 1
-        shl bl, 1
-        and bl, 1Fh
-        mov di, [si+60DDh]
-        add di, [bx+6C95h]
-        push    si
-        mov si, word_515A2
-        push    ds
-        mov ax, es
-        mov ds, ax
-        mov cx, 12h
-
-loc_48096:              ; CODE XREF: movefun+10Ej
-        movsb
-        movsb
-        add si, 78h ; 'x'
-        add di, 78h ; 'x'
-        loop    loc_48096
-        pop ds
-        pop si
-        mov bl, [si+1835h]
-        inc bl
-        cmp bl, 16h
-        jnz short loc_480BB
-        mov [si+1835h], bl
-        sub si, 78h ; 'x'
-        call    sub_488DC
-        add si, 78h ; 'x'
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_480BB:              ; CODE XREF: movefun+11Bj
-        cmp bl, 18h
-        jge short loc_480C5
-        mov [si+1835h], bl
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_480C5:              ; CODE XREF: movefun+12Ej
-        mov byte ptr [si+1835h], 0
-        cmp byte_51035, 2
-        jnz short loc_480D2
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_480D2:              ; CODE XREF: movefun+13Fj
-        cmp word ptr [si+18ACh], 0
-        jnz short loc_480DC
-        jmp loc_4816D
-// ; ---------------------------------------------------------------------------
-
-loc_480DC:              ; CODE XREF: movefun+147j
-        cmp word ptr [si+18ACh], 9999h
-        jnz short loc_480E7
-        jmp loc_4816D
-// ; ---------------------------------------------------------------------------
-
-loc_480E7:              ; CODE XREF: movefun+152j
-        cmp byte ptr [si+18ACh], 3
-        jnz short loc_480F1
-        jmp loc_481A4
-// ; ---------------------------------------------------------------------------
-
-loc_480F1:              ; CODE XREF: movefun+15Cj
-        cmp byte ptr [si+18ACh], 11h
-        jnz short loc_480FB
-        jmp loc_481FE
-// ; ---------------------------------------------------------------------------
-
-loc_480FB:              ; CODE XREF: movefun+166j
-        cmp word ptr [si+18ACh], 2BBh
-        jnz short loc_48106
-        jmp loc_481C6
-// ; ---------------------------------------------------------------------------
-
-loc_48106:              ; CODE XREF: movefun+171j
-        cmp word ptr [si+18ACh], 4BBh
-        jnz short loc_48111
-        jmp loc_481E2
-// ; ---------------------------------------------------------------------------
-
-loc_48111:              ; CODE XREF: movefun+17Cj
-        cmp byte ptr [si+18ACh], 18h
-        jnz short loc_4811B
-        jmp loc_481FE
-// ; ---------------------------------------------------------------------------
-
-loc_4811B:              ; CODE XREF: movefun+186j
-        cmp word ptr [si+18ACh], 8
-        jnz short loc_48125
-        jmp loc_48205
-// ; ---------------------------------------------------------------------------
-
-loc_48125:              ; CODE XREF: movefun+190j
-        call    sound7
-        cmp word ptr [si+18ACh], 1
-        jz  short loc_4813E
-        cmp word ptr [si+18ACh], 4
-        jz  short loc_4813E
-        cmp word ptr [si+18ACh], 5
-        jz  short loc_4813E
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_4813E:              ; CODE XREF: movefun+19Dj
-                    ; movefun+1A4j ...
-        cmp word ptr [si+18AAh], 0
-        jz  short loc_4817A
-        cmp word ptr [si+18AAh], 8888h
-        jz  short loc_4817A
-        cmp word ptr [si+18AAh], 0AAAAh
-        jz  short loc_4817A
-        cmp word ptr [si+18AEh], 0
-        jz  short loc_48190
-        cmp word ptr [si+18AEh], 8888h
-        jz  short loc_48190
-        cmp word ptr [si+18AEh], 0AAAAh
-
-loc_4816A:
-        jz  short loc_48190
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_4816D:              ; CODE XREF: movefun+149j
-                    ; movefun+154j
-        mov word ptr leveldata[si], 7001h
-        mov word ptr [si+18ACh], 9999h
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_4817A:              ; CODE XREF: movefun+1B3j
-                    ; movefun+1BBj ...
-        cmp word ptr [si+1832h], 0
-        jz  short loc_48184
-        jmp loc_47FDC
-// ; ---------------------------------------------------------------------------
-
-loc_48184:              ; CODE XREF: movefun+1EFj
-        mov byte ptr [si+1835h], 50h ; 'P'
-        mov word ptr [si+1832h], 8888h
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_48190:              ; CODE XREF: movefun+1CAj
-                    ; movefun+1D2j ...
-        cmp word ptr [si+1836h], 0
-        jz  short loc_48198
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_48198:              ; CODE XREF: movefun+205j
-        mov byte ptr [si+1835h], 60h ; '`'
-        mov word ptr [si+1836h], 8888h
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_481A4:              ; CODE XREF: movefun+15Ej
-        mov bl, [si+18ADh]
-        cmp bl, 0Eh
-        jz  short locret_48211
-        cmp bl, 0Fh
-        jz  short locret_48211
-        cmp bl, 28h ; '('
-        jz  short locret_48211
-        cmp bl, 29h ; ')'
-        jz  short locret_48211
-        cmp bl, 25h ; '%'
-        jz  short locret_48211
-        cmp bl, 26h ; '&'
-        jz  short locret_48211
-
-loc_481C6:              ; CODE XREF: movefun+173j
-        cmp byte ptr [si+18AAh], 18h
-        jnz short loc_481D3
-        mov word ptr [si+18ACh], 18h
-
-loc_481D3:              ; CODE XREF: movefun+23Bj
-        cmp byte ptr [si+18AAh], 1Fh
-        jz  short loc_481E0
-        mov word ptr [si+18AAh], 0
-
-loc_481E0:              ; CODE XREF: movefun+248j
-        jmp short loc_481FE
-// ; ---------------------------------------------------------------------------
-
-loc_481E2:              ; CODE XREF: movefun+17Ej
-        cmp byte ptr [si+18AEh], 18h
-        jnz short loc_481EF
-        mov word ptr [si+18ACh], 18h
-
-loc_481EF:              ; CODE XREF: movefun+257j
-        cmp byte ptr [si+18AEh], 1Fh
-        jz  short loc_481FC
-        mov word ptr [si+18AEh], 0
-
-loc_481FC:              ; CODE XREF: movefun+264j
-        jmp short $+2
-// ; ---------------------------------------------------------------------------
-
-loc_481FE:              ; CODE XREF: movefun+168j
-                    ; movefun+188j ...
-        add si, 78h ; 'x'
-        call    sub_4A61F
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_48205:              ; CODE XREF: movefun+192j
-        add si, 78h ; 'x'
-        mov bx, si
-        shr bx, 1
-        mov byte ptr [bx+2434h], 6
-
-locret_48211:               ; CODE XREF: movefun+21Bj
-                    ; movefun+220j ...
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_48212:              ; CODE XREF: movefun+B9j
-        and bl, 7
-        shl bl, 1
-        xor bh, bh
-        mov di, [si+6155h]
-        push    si
-        mov si, 1294h
-        mov si, [bx+si]
-        push    ds
-        mov ax, es
-        mov ds, ax
-
-loc_48228:
-        mov cx, 10h
-
-loc_4822B:              ; CODE XREF: movefun+2A5j
-        movsb
-        movsb
-        movsb
-        movsb
-        add si, 76h ; 'v'
-        add di, 76h ; 'v'
-        loop    loc_4822B
-        pop ds
-        pop si
-        mov bl, [si+1835h]
-        inc bl
-        cmp bl, 24h ; '$'
-        jnz short loc_4824A
-        mov word ptr [si+1836h], 0AAAAh
-
-loc_4824A:              ; CODE XREF: movefun+2B2j
-        cmp bl, 26h ; '&'
-        jnz short loc_4825D
-        mov [si+1835h], bl
-        add si, 2
-        call    sub_488DC
-        sub si, 2
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_4825D:              ; CODE XREF: movefun+2BDj
-        cmp bl, 28h ; '('
-        jge short loc_48267
-        mov [si+1835h], bl
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_48267:              ; CODE XREF: movefun+2D0j
-        mov word ptr leveldata[si], 0FFFFh
-        add si, 78h ; 'x'
-        mov word ptr leveldata[si], 1001h
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_48277:              ; CODE XREF: movefun+C0j
-        and bl, 7
-        shl bl, 1
-        xor bh, bh
-        mov di, [si+6153h]
-        push    si
-        mov si, 12A4h
-        mov si, [bx+si]
-        push    ds
-        mov ax, es
-        mov ds, ax
-
-loc_4828D:
-        mov cx, 10h
-
-loc_48290:              ; CODE XREF: movefun+30Aj
-        movsb
-        movsb
-        movsb
-        movsb
-        add si, 76h ; 'v'
-        add di, 76h ; 'v'
-        loop    loc_48290
-        pop ds
-        pop si
-        mov bl, [si+1835h]
-        inc bl
-        cmp bl, 34h ; '4'
-        jnz short loc_482AF
-        mov word ptr [si+1832h], 0AAAAh
-
-loc_482AF:              ; CODE XREF: movefun+317j
-        cmp bl, 36h ; '6'
-        jnz short loc_482C2
-        mov [si+1835h], bl
-        sub si, 2
-        call    sub_488DC
-        add si, 2
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_482C2:              ; CODE XREF: movefun+322j
-        cmp bl, 38h ; '8'
-        jge short loc_482CC
-        mov [si+1835h], bl
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_482CC:              ; CODE XREF: movefun+335j
-        mov word ptr leveldata[si], 0FFFFh
-        add si, 78h ; 'x'
-        mov word ptr leveldata[si], 1001h
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_482DC:              ; CODE XREF: movefun+CFj
-        inc bl
-        cmp bl, 42h ; 'B'
-        jge short loc_482E8
-        mov [si+1835h], bl
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_482E8:              ; CODE XREF: movefun+351j
-        cmp word ptr [si+18ACh], 0
-        jz  short loc_482F6
-        dec bl
-        mov [si+1835h], bl
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_482F6:              ; CODE XREF: movefun+35Dj
-        mov word ptr leveldata[si], 0FFFFh
-        add si, 78h ; 'x'
-        mov byte ptr leveldata[si], 1
-        mov byte ptr [si+1835h], 10h
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_4830A:              ; CODE XREF: movefun+D6j
-        xor bh, bh
-        and bl, 0Fh
-        shl bl, 1
-        mov di, [si+6153h]
-        push    si
-        mov si, 1294h
-        mov si, [bx+si]
-        push    ds
-        mov ax, es
-        mov ds, ax
-        mov cx, 10h
-
-loc_48323:              ; CODE XREF: movefun+39Dj
-        movsb
-        movsb
-        movsb
-        movsb
-        add si, 76h ; 'v'
-        add di, 76h ; 'v'
-        loop    loc_48323
-        pop ds
-        pop si
-        mov bl, [si+1835h]
-        inc bl
-        cmp bl, 52h ; 'R'
-        jge short loc_48341
-        mov [si+1835h], bl
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_48341:              ; CODE XREF: movefun+3AAj
-        cmp word ptr [si+18AAh], 0
-        jnz short loc_48371
-        cmp word ptr [si+1832h], 0
-        jz  short loc_48357
-        cmp word ptr [si+1832h], 8888h
-        jnz short loc_48371
-
-loc_48357:              ; CODE XREF: movefun+3BDj
-        mov leveldata[si], 0FFFFh
-        sub si, 2
-        mov byte ptr leveldata[si], 1
-        mov byte ptr [si+1835h], 22h ; '"'
-        mov word ptr [si+18ACh], 0FFFFh
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_48371:              ; CODE XREF: movefun+3B6j
-                    ; movefun+3C5j
-        dec bl
-        mov [si+1835h], bl
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_48378:              ; CODE XREF: movefun+DDj
-        xor bh, bh
-        and bl, 7
-        shl bl, 1
-        mov di, [si+6155h]
-        push    si
-        mov si, 12A4h
-        mov si, [bx+si]
-        push    ds
-        mov ax, es
-        mov ds, ax
-        mov cx, 10h
-
-loc_48391:              ; CODE XREF: movefun+40Bj
-        movsb
-        movsb
-        movsb
-        movsb
-        add si, 76h ; 'v'
-        add di, 76h ; 'v'
-        loop    loc_48391
-        pop ds
-        pop si
-        mov bl, [si+1835h]
-        inc bl
-        cmp bl, 62h ; 'b'
-        jge short loc_483AF
-        mov [si+1835h], bl
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_483AF:              ; CODE XREF: movefun+418j
-        cmp word ptr [si+18AEh], 0
-        jnz short loc_483DF
-        cmp word ptr [si+1836h], 0
-        jz  short loc_483C5
-        cmp word ptr [si+1836h], 8888h
-        jnz short loc_483DF
-
-loc_483C5:              ; CODE XREF: movefun+42Bj
-        mov word ptr leveldata[si], 0FFFFh
-        add si, 2
-        mov byte ptr leveldata[si], 1
-        mov byte ptr [si+1835h], 32h ; '2'
-
-loc_483D8:
-        mov word ptr [si+18ACh], 0FFFFh
-
-locret_483DE:
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_483DF:              ; CODE XREF: movefun+424j
-                    ; movefun+433j
-        dec bl
-        mov [si+1835h], bl
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_483E6:              ; CODE XREF: movefun+E4j
-        cmp word ptr [si+18ACh], 0
-        jz  short loc_483F6
-        cmp word ptr [si+18ACh], 9999h
-        jz  short loc_483F6
-        return;
-// ; ---------------------------------------------------------------------------
-
-loc_483F6:              ; CODE XREF: movefun+45Bj
-                    ; movefun+463j
-        mov word ptr leveldata[si], 0FFFFh
-        add si, 78h ; 'x'
-        mov word ptr leveldata[si], 1001h
-        jmp loc_48078
-movefun   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
+    }
+
+//loc_48277:              ; CODE XREF: movefun+C0j
+    and bl, 7
+    shl bl, 1
+    xor bh, bh
+    mov di, [si+6153h]
+    push    si
+    mov si, 12A4h
+    mov si, [bx+si]
+    push    ds
+    mov ax, es
+    mov ds, ax
+
+//loc_4828D:
+    mov cx, 10h
+
+//loc_48290:              ; CODE XREF: movefun+30Aj
+    movsb
+    movsb
+    movsb
+    movsb
+    add si, 76h ; 'v'
+    add di, 76h ; 'v'
+    loop    loc_48290
+    pop ds
+    pop si
+    mov bl, [si+1835h]
+    inc bl
+    cmp bl, 34h ; '4'
+    jnz short loc_482AF
+    mov word ptr [si+1832h], 0AAAAh
+
+//loc_482AF:              ; CODE XREF: movefun+317j
+    cmp bl, 36h ; '6'
+    jnz short loc_482C2
+    mov [si+1835h], bl
+    sub si, 2
+    call    sub_488DC
+    add si, 2
+    return;
+
+//loc_482C2:              ; CODE XREF: movefun+322j
+    cmp bl, 38h ; '8'
+    jge short loc_482CC
+    mov [si+1835h], bl
+    return;
+
+//loc_482CC:              ; CODE XREF: movefun+335j
+    mov word ptr leveldata[si], 0FFFFh
+    add si, 78h ; 'x'
+    mov word ptr leveldata[si], 1001h
+    return;
+
+//loc_482DC:              ; CODE XREF: movefun+CFj
+    inc bl
+    cmp bl, 42h ; 'B'
+    jge short loc_482E8
+    mov [si+1835h], bl
+    return;
+
+//loc_482E8:              ; CODE XREF: movefun+351j
+    cmp word ptr [si+18ACh], 0
+    jz  short loc_482F6
+    dec bl
+    mov [si+1835h], bl
+    return;
+
+//loc_482F6:              ; CODE XREF: movefun+35Dj
+    mov word ptr leveldata[si], 0FFFFh
+    add si, 78h ; 'x'
+    mov byte ptr leveldata[si], 1
+    mov byte ptr [si+1835h], 10h
+    return;
+
+//loc_4830A:              ; CODE XREF: movefun+D6j
+    xor bh, bh
+    and bl, 0Fh
+    shl bl, 1
+    mov di, [si+6153h]
+    push    si
+    mov si, 1294h
+    mov si, [bx+si]
+    push    ds
+    mov ax, es
+    mov ds, ax
+    mov cx, 10h
+
+//loc_48323:              ; CODE XREF: movefun+39Dj
+    movsb
+    movsb
+    movsb
+    movsb
+    add si, 76h ; 'v'
+    add di, 76h ; 'v'
+    loop    loc_48323
+    pop ds
+    pop si
+    mov bl, [si+1835h]
+    inc bl
+    cmp bl, 52h ; 'R'
+    jge short loc_48341
+    mov [si+1835h], bl
+    return;
+
+//loc_48341:              ; CODE XREF: movefun+3AAj
+    cmp word ptr [si+18AAh], 0
+    jnz short loc_48371
+    cmp word ptr [si+1832h], 0
+    jz  short loc_48357
+    cmp word ptr [si+1832h], 8888h
+    jnz short loc_48371
+
+//loc_48357:              ; CODE XREF: movefun+3BDj
+    mov leveldata[si], 0FFFFh
+    sub si, 2
+    mov byte ptr leveldata[si], 1
+    mov byte ptr [si+1835h], 22h ; '"'
+    mov word ptr [si+18ACh], 0FFFFh
+    return;
+
+//loc_48371:              ; CODE XREF: movefun+3B6j
+//                ; movefun+3C5j
+    dec bl
+    mov [si+1835h], bl
+    return;
+
+//loc_48378:              ; CODE XREF: movefun+DDj
+    xor bh, bh
+    and bl, 7
+    shl bl, 1
+    mov di, [si+6155h]
+    push    si
+    mov si, 12A4h
+    mov si, [bx+si]
+    push    ds
+    mov ax, es
+    mov ds, ax
+    mov cx, 10h
+
+//loc_48391:              ; CODE XREF: movefun+40Bj
+    movsb
+    movsb
+    movsb
+    movsb
+    add si, 76h ; 'v'
+    add di, 76h ; 'v'
+    loop    loc_48391
+    pop ds
+    pop si
+    mov bl, [si+1835h]
+    inc bl
+    cmp bl, 62h ; 'b'
+    jge short loc_483AF
+    mov [si+1835h], bl
+    return;
+
+//loc_483AF:              ; CODE XREF: movefun+418j
+    cmp word ptr [si+18AEh], 0
+    jnz short loc_483DF
+    cmp word ptr [si+1836h], 0
+    jz  short loc_483C5
+    cmp word ptr [si+1836h], 8888h
+    jnz short loc_483DF
+
+//loc_483C5:              ; CODE XREF: movefun+42Bj
+    mov word ptr leveldata[si], 0FFFFh
+    add si, 2
+    mov byte ptr leveldata[si], 1
+    mov byte ptr [si+1835h], 32h ; '2'
+
+//loc_483D8:
+    mov word ptr [si+18ACh], 0FFFFh
+
+//locret_483DE:
+    return;
+
+//loc_483DF:              ; CODE XREF: movefun+424j
+//                ; movefun+433j
+    dec bl
+    mov [si+1835h], bl
+    return;
+
+//loc_483E6:              ; CODE XREF: movefun+E4j
+    cmp word ptr [si+18ACh], 0
+    jz  short loc_483F6
+    cmp word ptr [si+18ACh], 9999h
+    jz  short loc_483F6
+    return;
+
+//loc_483F6:              ; CODE XREF: movefun+45Bj
+//                ; movefun+463j
+    mov word ptr leveldata[si], 0FFFFh
+    add si, 78h ; 'x'
+    mov word ptr leveldata[si], 1001h
+    jmp loc_48078
+}
+/*
 
 movefun2  proc near       ; DATA XREF: data:1612o
         cmp byte ptr leveldata[si], 4
@@ -8522,15 +8541,25 @@ void gameloop() //   proc near       ; CODE XREF: runLevel:noFlashingp
 
 //loc_49E33:
 //    mov di, offset movingObjects?
-    si = 0x7A; // 122: level width in words + 2 (index of first gamefiled cell)
-    cx = 0x526; // 1318 = 1440 - 122 (rest of the tiles
-    dx = 0;
-    bh = 0;
+//    si = 0x7A; // 122: level width in words + 2 (index of first gamefiled cell)
+//    cx = 0x526; // 1318 = 1440 - 122 (rest of the tiles)
+//    dx = 0; // number of tiles with function?
+//    bh = 0;
 
-    for (int i = 122; i < 1440; ++i) // starts from si, ends in si + cx
+    uint16_t numberOfMovingObjects = 0;
+
+    typedef struct {
+        MovingFunction function;
+        LevelTileType tile;
+    } MovingObject;
+
+    MovingObject movingObjects[kLevelSize];
+
+    for (int i = kLevelWidth + 1; i < kLevelSize; ++i) // starts from si, ends in si + cx
     {
 //checkCellForMovingObject:              ; CODE XREF: gameloop+84j
-        LevelTileType tile = gCurrentLevel.tiles[i];
+        // leveldata is not gCurrentLevel.tiles, but gCurrentLevelWord, which has another byte of info for each tile, probably the moving object!
+        LevelTileType tile = gCurrentLevel.tiles[i]; //         mov bl, byte ptr leveldata[si]
 
         // Does this check filter out values except like 0, 2, 16 and 18??
         if ((tile & LevelTileTypeSportRight) == 0)
@@ -8538,82 +8567,76 @@ void gameloop() //   proc near       ; CODE XREF: runLevel:noFlashingp
             continue;
         }
 
-        if (tile >= 0x20) // 32?? There are only 25 tiles!! WTF
+        if (tile >= 0x20) // 32 because there are 32 moving functions, which means this is about moving objects (scissors, the infotrons, etc.)
         {
             continue;
         }
 
-//        ; multiply by 2 to go from byte to word
-        bx = bx * 2;
-        ax = movingFunctions[bx];
-        if (ax != 0)
+        MovingFunction function = movingFunctions[tile];
+
+        if (function != NULL)
         {
-            //        ; log moving object for call
-            //        ; each index has 2 bytes for index and 2 bytes as fn ptr to call
-            dx++;
-//            di[i] = ax;
-//            mov [di], si
-//            mov [di+2], ax
-//            add di, 4
-
-            // Seems like there is a list of predefined moving functions
-            // and this is going through every tile assigning one of those functions,
-            // creating an alternative matrix of tiles with just function pointers
+            // There is a list of predefined functions, one per object, and this goes through
+            // every tile, looking for objects with a moving function, and then putting the
+            // tile and the function in a list that will be iterated later to update those objects.
+            //
+            MovingObject *object = &movingObjects[numberOfMovingObjects];
+            object->function = function;
+            object->tile = tile;
+            numberOfMovingObjects++; //dx++;
         }
-
-
 //moveToNextCell:
     }
 
-    cmp dx, 0
-    jz  short doneWithGameLoop ; not a single moving object
-    mov cx, dx ; cx = number of moving objects
-    mov di, offset movingObjects?
+    if (numberOfMovingObjects != 0)
+    {
+    //    mov di, offset movingObjects?
 
+        // Call all the moving functions
+        for (uint16_t i = 0; i < numberOfMovingObjects; ++i)
+        {
 //; call moving functions one by one
 //callNextMovingFunction:
-    push(di);
-    push(cx);
-    mov si, [di]    ; the cell for the moving object
-    mov ax, [di+2]  ; the function to call
-    call    ax
-    pop(cx);
-    pop(di);
-    add di, 4
-    loop    callNextMovingFunction
+//            mov si, [di]    ; the tile number for the moving object
+//            mov ax, [di+2]  ; the function to call
+//            call    ax
+            movingObjects[i].function(); // the tile number is probably a parameter
+        }
+    }
 
 //doneWithGameLoop:
-    ; set graphics write mode = 0
-    mov dx, 3CEh
-    al = 5
-    out dx, al
-    inc dx
-    al = 0
-    out dx, al
+//    ; set graphics write mode = 0
+//    mov dx, 3CEh
+//    al = 5
+//    out dx, al
+//    inc dx
+//    al = 0
+//    out dx, al
 
-    cmp word_510D1, 1
-    jz  short loc_49E99
-    cmp word_510CF, 0
-    jz  short loc_49E99
-    return;
+    if (word_510D1 != 1
+        && word_510CF != 0)
+    {
+        return;
+    }
 
 //loc_49E99:              ; CODE XREF: gameloop+AFj
 //                ; gameloop+B6j
-    cmp word_51978, 0
-    jnz short loc_49EB3
-    mov word_510D1, 0
-    mov si, word_510C7
-    call    sub_4A61F
-    mov word_51978, 40h ; '@'
+    if (word_51978 == 0)
+    {
+        word_510D1 = 0;
+        si = word_510C7;
+//        sub_4A61F(); // 1500 lines of code I want to die
+        word_51978 = 0x40; // 64
+    }
 
 //loc_49EB3:
-    ; set graphics write mode = 0
-    mov dx, 3CEh
-    al = 5
-    out dx, al
-    inc dx
-    al = 1
-    out dx, al
+//    ; set graphics write mode = 0
+//    mov dx, 3CEh
+//    al = 5
+//    out dx, al
+//    inc dx
+//    al = 1
+//    out dx, al
 
     return;
 }
