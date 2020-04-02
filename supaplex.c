@@ -350,6 +350,20 @@ typedef enum
     LevelTileTypePort4Way = 23,
     LevelTileTypeElectron = 24,
     LevelTileTypeBug = 25,
+    LevelTileTypeHorizontalChipLeft = 26,
+    LevelTileTypeHorizontalChipRight = 27,
+    LevelTileTypeHardware2 = 28,
+    LevelTileTypeHardware3 = 29,
+    LevelTileTypeHardware4 = 30,
+    LevelTileTypeHardware5 = 31,
+    LevelTileTypeHardware6 = 32,
+    LevelTileTypeHardware7 = 33,
+    LevelTileTypeHardware8 = 34,
+    LevelTileTypeHardware9 = 35,
+    LevelTileTypeHardware10 = 36,
+    LevelTileTypeHardware11 = 37,
+    LevelTileTypeHorizontalChipTop = 38,
+    LevelTileTypeHorizontalChipBottom = 39,
 } LevelTileType;
 
 static const size_t kLevelWidth = 60; // 3Ch
@@ -410,8 +424,13 @@ typedef struct
 // fileLevelData starts at 0x768, when it contains a level goes to 0xD67
 Level gCurrentLevel; // 0x988B
 
+typedef struct {
+    uint8_t tile; // of LevelTileType
+    uint8_t movingObject;
+} MovingLevelTile;
+
 // Stores the same info as gCurrentLevel but with each byte separated by 0x00, it's done in readLevels for some unknown reason
-uint16_t gCurrentLevelWord[levelDataLength]; // 0x1834
+MovingLevelTile gCurrentLevelWord[levelDataLength]; // 0x1834
 // And this is initialized to 0 in readLevels, and in memory it's supposed to exist right after gCurrentLevelWord
 Level gCurrentLevelAfterWord; // 0x2434
 
@@ -1131,7 +1150,8 @@ void movefun(uint16_t position);
 //void movefun7(void);
 //void loc_4A543(void);
 
-static const MovingFunction movingFunctions[31] = {
+static const MovingFunction movingFunctions[32] = {
+    NULL,
     movefun,
     NULL,
     NULL,
@@ -1946,7 +1966,7 @@ loc_46E75:              //; CODE XREF: start+251j
             sub_4D464(); // configures the viewport for the bottom panel, which is not very useful to this re-implementation?
             drawFixedLevel();
             drawGamePanel(); // 01ED:0311
-//            sub_4A2E6(); // No idea what it does yet
+            sub_4A2E6();
             resetNumberOfInfotrons();
 //            enableFloppy();
             findMurphy();
@@ -1954,8 +1974,8 @@ loc_46E75:              //; CODE XREF: start+251j
 //            si = 0x6015;
             fadeToPalette(gPalettes[1]); // At this point the screen fades in and shows the game
 
-//            waitForKeyMouseOrJoystick();
-//            exitWithError("Exiting blahblah");
+            waitForKeyMouseOrJoystick();
+            exitWithError("Exiting blahblah");
             if (isMusicEnabled == 0)
             {
                 sound3();
@@ -4345,6 +4365,7 @@ loc_47F5E:              ; CODE XREF: recoverFilesFromFloppyDisk+1Bj
 
 void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
 {
+    /*
     if ((gCurrentLevelWord[position] & 0xFF) != 1) // cmp byte ptr leveldata[si], 1
     {
         return;
@@ -4586,6 +4607,7 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
         {
             return;
         }
+     */
 /*
 //loc_480D2:              ; CODE XREF: movefun+13Fj
         if (si[0x18AC] == 0) // cmp word ptr [si+18ACh], 0
@@ -4657,6 +4679,7 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
             return;
         }
 */
+    /*
 //loc_4813E:              ; CODE XREF: movefun+19Dj
 //                ; movefun+1A4j ...
         if (si[0x18AA] == 0 // cmp word ptr [si+18AAh], 0
@@ -4948,6 +4971,7 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
     add si, 78h ; 'x'
     mov word ptr leveldata[si], 1001h
     jmp loc_48078
+    */
 }
 /*
 
@@ -7308,6 +7332,7 @@ void writeToFh1() //  proc near       ; CODE XREF: sub_4955B+486p
 void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
                    // ; runLevel+30Cp
 {
+    return;
     // No idea what this method does yet but doesn't respond to user input
     // 01ED:28F8
 
@@ -8374,19 +8399,13 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 void sub_49D53() //   proc near       ; CODE XREF: sub_4955B+626p
                    // ; sub_4A23C+21p
 {
-//        mov byte_59B7B, 0
+//    byte_59B7B == 0;
 //        call    levelScanThing // added by me, seems like code continues from here? see what happens with the debugger
 }
 
 void levelScanThing() //   proc near       ; CODE XREF: runLevel+A7p
 {
-    // No idea what function does exactly yet, but seems to iterate through
-    // gCurrentLevelWord instead of gCurrentLevel.tiles. I wonder if they (or the speed fix authors)
-    // used the extra padding in that struct to store additional info for each
-    // tile.
-    assert(0);
-    return;
-/*
+    /*
 //    push    es
 //    push    ds
 //    pop es
@@ -8399,18 +8418,11 @@ void levelScanThing() //   proc near       ; CODE XREF: runLevel+A7p
     for (int i = 0; i < kLevelSize; ++i)
     {
 //loc_49D65:              ; CODE XREF: levelScanThing+18j
-        if (gCurrentLevel.tiles[i] == 0x1F)
+        MovingLevelTile *tile = &gCurrentLevelWord[i];
+        if (tile->tile == LevelTileTypeHardware5) // 31
         {
-            gCurrentLevel.tiles[i] = 0xF1;
+            tile->tile = 0xF1; // 241
         }
-//        if (es:[di] == 0x1F) // 31
-//        {
-//            es:[di] = 0xF1; // 241
-//        }
-
-//loc_49D6D:              ; CODE XREF: levelScanThing+10j
-//        di++;
-//        di++;
     }
     uint8_t was_byte_59B7B_NonZero = (byte_59B7B != 0);
     byte_59B7B = 0;
@@ -8424,7 +8436,8 @@ void levelScanThing() //   proc near       ; CODE XREF: runLevel+A7p
     for (int i = 0; i < kLevelSize; ++i)
     {
 //loc_49D84:              ; CODE XREF: levelScanThing+4Cj
-        if (gCurrentLevel.tiles[i] != LevelTileTypeHardware)
+        MovingLevelTile *tile = &gCurrentLevelWord[i];
+        if (tile->movingObject != 0 || tile->tile != LevelTileTypeHardware)
         {
             continue;
         }
@@ -8434,12 +8447,16 @@ void levelScanThing() //   proc near       ; CODE XREF: runLevel+A7p
 //        {
 //            break;
 //        }
+        // Up to this is implemented in the lines above
         bx = kLevelSize - 1; // 0x59F; // 1439
         bx = bx - cx;
 //        al = [bx-6775h]
-        if (ax >= 0x1C // 28
-            && ax <= 0x25) // 37
+        if (ax >= LevelTileTypeHardware2 // 28
+            && ax <= LevelTileTypeHardware11) // 37
         {
+            MovingLevelTile *previousTile = &gCurrentLevelWord[i - 1];
+            previousTile->tile = ax;
+            previousTile->movingObject = 0; // if ax is between 0x1C and 0x25, ah must be 0
             //es:[di-2] = ax;
         }
     }
@@ -8451,23 +8468,27 @@ void levelScanThing() //   proc near       ; CODE XREF: runLevel+A7p
     for (int i = 0; i < kLevelSize; ++i)
     {
 //loc_49DAC:              ; CODE XREF: levelScanThing+7Fj
-        if (gCurrentLevel.tiles[i] != LevelTileTypeChip)
+        MovingLevelTile *tile = &gCurrentLevelWord[i];
+        if (tile->movingObject != 0 || tile->tile != LevelTileTypeChip)
         {
             continue;
         }
 //        mov ax, 5
 //        repne scasw
-//        jnz short loc_49DD9
+//        jnz short loc_49DD9 // Up to this is implemented in the lines above
 //        mov bx, 59Fh
 //        sub bx, cx
-//        al = [bx-6775h]
-        if (ax >= 0x1A // 26
-            && ax <= 0x27) // 39
+//        al = [bx-6775h] // wtf is this??
+        if (ax >= LevelTileTypeHorizontalChipLeft // 26
+            && ax <= LevelTileTypeHorizontalChipBottom) // 39
         {
             ax -= 0x1C; // 28
-            if (ax >= 0xA) // 10
+            if (ax >= LevelTileTypePortDown) // 10
             {
                 ax += 0x1C; // 28
+                MovingLevelTile *previousTile = &gCurrentLevelWord[i - 1];
+                previousTile->tile = ax;
+                previousTile->movingObject = 0; // if ax is between 0x1C and 0x25, ah must be 0
 //                es:[di-2] = ax;
             }
         }
@@ -8550,16 +8571,15 @@ void gameloop() //   proc near       ; CODE XREF: runLevel:noFlashingp
 
     typedef struct {
         MovingFunction function;
-        LevelTileType tile;
+        uint16_t tilePosition;
     } MovingObject;
 
     MovingObject movingObjects[kLevelSize];
 
-    for (int i = kLevelWidth + 1; i < kLevelSize; ++i) // starts from si, ends in si + cx
+    for (uint16_t i = kLevelWidth + 1; i < kLevelSize; ++i) // starts from si, ends in si + cx
     {
 //checkCellForMovingObject:              ; CODE XREF: gameloop+84j
-        // leveldata is not gCurrentLevel.tiles, but gCurrentLevelWord, which has another byte of info for each tile, probably the moving object!
-        LevelTileType tile = gCurrentLevel.tiles[i]; //         mov bl, byte ptr leveldata[si]
+        LevelTileType tile = gCurrentLevelWord[i].tile; //         mov bl, byte ptr leveldata[si]
 
         // Does this check filter out values except like 0, 2, 16 and 18??
         if ((tile & LevelTileTypeSportRight) == 0)
@@ -8582,7 +8602,7 @@ void gameloop() //   proc near       ; CODE XREF: runLevel:noFlashingp
             //
             MovingObject *object = &movingObjects[numberOfMovingObjects];
             object->function = function;
-            object->tile = tile;
+            object->tilePosition = i;
             numberOfMovingObjects++; //dx++;
         }
 //moveToNextCell:
@@ -8600,7 +8620,7 @@ void gameloop() //   proc near       ; CODE XREF: runLevel:noFlashingp
 //            mov si, [di]    ; the tile number for the moving object
 //            mov ax, [di+2]  ; the function to call
 //            call    ax
-            movingObjects[i].function(); // the tile number is probably a parameter
+            movingObjects[i].function(movingObjects[i].tilePosition); // the tile number is probably a parameter
         }
     }
 
@@ -9302,130 +9322,143 @@ void sub_4A291() //   proc near       ; CODE XREF: sub_4955B+686p
 
 void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
 {
+    // 01ED:3683
     bx = 0;
-    dx = 0;
+    uint16_t numberOfInfotrons = 0;
     cx = 0x5A0; // 1440 = 120 * 12 -> width = 120, height = 12
 //    mov si, offset leveldata
-    uint16_t *levelData = NULL;
-    uint16_t numberOfSomething = 0; // this is bx, probably a return value but I don't see it used anywhere???
+    uint16_t numberOfSomething = 0; // this is bx, just counts the number of tiles so technically is same as cx at this point… probably a return value but I don't see it used anywhere???
 
-    for (int i = 0; i < 1440; ++i)
+    for (int i = 0; i < kLevelSize; ++i)
     {
 //loc_4A2F0:              ; CODE XREF: sub_4A2E6+D1j
-        uint16_t *currentEntry = &levelData[i];
-        uint16_t value = *currentEntry;
-        uint8_t valueLow = (value & 0xFF);
+        MovingLevelTile *currentTile = &gCurrentLevelWord[i];
         numberOfSomething++;
 
-    //    ax = si[0];
-        if (valueLow == 0xF1)
+        if (currentTile->tile == 0xF1)
         {
-//            si[0] = 0x1F;
+            currentTile->tile = LevelTileTypeHardware5;
             continue; // jmp short loc_4A3B0
         }
 
 //loc_4A2FC:              ; CODE XREF: sub_4A2E6+Ej
         if (byte_5A33F != 1)
         {
-            if (value == 4)
+            if (currentTile->tile == LevelTileTypeInfotron)
             {
 //loc_4A33C:              ; CODE XREF: sub_4A2E6+20j
-                dx++;
+                numberOfInfotrons++;
                 continue; // jmp short loc_4A3B0
             }
         }
-        if (byte_5A33F == 1 || value != 0x11) //jz  short loc_4A34B
+        if (byte_5A33F == 1 || currentTile->tile != LevelTileTypeSnikSnak) //jz  short loc_4A34B
         {
-            if (byte_5A33F == 1 || value != 0x18) //jz  short loc_4A379
+            if (byte_5A33F == 1 || currentTile->tile != LevelTileTypeElectron) //jz  short loc_4A379
             {
 //loc_4A312:              ; CODE XREF: sub_4A2E6+1Bj
-                if (value == 0x1A
-                    || value == 0x1B
-                    || value == 0x26
-                    || value == 0x27)
+                if (currentTile->tile == LevelTileTypeHorizontalChipLeft
+                    || currentTile->tile == LevelTileTypeHorizontalChipRight
+                    || currentTile->tile == LevelTileTypeHorizontalChipTop
+                    || currentTile->tile == LevelTileTypeHorizontalChipBottom)
                 {
 //loc_4A33F:              ; CODE XREF: sub_4A2E6+2Fj
 //                ; sub_4A2E6+34j ...
-                    levelData[i] = 5; // mov word ptr [si], 5
+                    currentTile->tile = LevelTileTypeChip; // mov word ptr [si], 5
+                    currentTile->movingObject = 0;
                     continue; // jmp short loc_4A3B0
                 }
-                if (value >= 0x1C)
+                if (currentTile->tile >= LevelTileTypeHardware2
+                    && currentTile->tile <= LevelTileTypeHardware11)
                 {
-                    if (value < 0x26)
-                    {
 //loc_4A345:              ; CODE XREF: sub_4A2E6+48j
-                        levelData[i] = 6; // mov word ptr [si], 6
-                        continue; // jmp short loc_4A3B0
-                    }
+                    currentTile->tile = LevelTileTypeHardware; // mov word ptr [si], 6
+                    currentTile->movingObject = 0;
+                    continue; // jmp short loc_4A3B0
                 }
 
 //loc_4A330:              ; CODE XREF: sub_4A2E6+43j
-                if (value >= 0xD
-                    && value < 0x11)
+                if (currentTile->tile >= LevelTileTypeSportRight
+                    && currentTile->tile <= LevelTileTypeSportUp)
                 {
 //loc_4A3A7:              ; CODE XREF: sub_4A2E6+52j
-                    levelData[i] = 0x0100 + (valueLow - 4);
+                    currentTile->tile -= 4; // Converts Sport[Direction] to Port[Direction]
+                    currentTile->movingObject = 1;
 //                    si[0] -= 4; // sub byte ptr [si], 4
 //                    si[1] = 1; // mov byte ptr [si+1], 1
-                    // This -- is to compensate that I'm doing the ++ at the beginning of the loop, instead of at
-                    // the end like the original asm code. If I put it at the end, this break would skip the ++,
-                    // but would make the rest of the code much more complex. In any case I don't think that number
-                    // is used anywhere so I'll probably delete it later...
-                    //
-                    numberOfSomething--;
         //        jmp short $+2 // wtf this was right above loc_4A3B0
-                    break;
+                    continue;
                 }
-                else
-                {
+
 //loc_4A33A:              ; CODE XREF: sub_4A2E6+4Dj
-                    continue; // jmp short loc_4A3B0
-                }
+                continue; // jmp short loc_4A3B0
             }
         }
-        if (value != 0x18) //jz  short loc_4A379
+
+        MovingLevelTile *leftTile = &gCurrentLevelWord[i - 1];
+        MovingLevelTile *aboveTile = &gCurrentLevelWord[i - kLevelWidth];
+        MovingLevelTile *rightTile = &gCurrentLevelWord[i + 1];
+
+        if (currentTile->tile != LevelTileTypeElectron) //jz  short loc_4A379
         {
 //loc_4A34B:              ; CODE XREF: sub_4A2E6+25j
-            if (levelData[i - 1] == 0) //cmp word ptr [si-2], 0
+            if (leftTile->tile == 0 && leftTile->movingObject == 0) //cmp word ptr [si-2], 0
             {
-                levelData[i] = 0x0100 + valueLow;
+                currentTile->movingObject = 1;
 //                si[1] = 1; //mov byte ptr [si+1], 1
                 continue; // jmp short loc_4A3B0
             }
 //loc_4A357:              ; CODE XREF: sub_4A2E6+69j
         // 0x78 = 120
-            if (levelData[i - 60] == 0) //cmp word ptr [si-78h], 0
+            if (aboveTile->tile == 0 && aboveTile->movingObject == 0) //cmp word ptr [si-78h], 0
             {
-                levelData[i - 60] = 0x1011; // 4113
-                levelData[i] = 0xFFFF; // mov word ptr [si], 0FFFFh
+                // mov word ptr [si-78h], 1011h
+                aboveTile->movingObject = 0x10;
+                aboveTile->tile = LevelTileTypeSnikSnak;
+                // mov word ptr [si], 0FFFFh
+                currentTile->movingObject = 0xFF;
+                currentTile->tile = 0xFF;
                 continue; // jmp short loc_4A3B0
             }
 //loc_4A368:              ; CODE XREF: sub_4A2E6+75j
-            if (levelData[i + 1] == 0) //cmp word ptr [si+2], 0
+            if (rightTile->tile == 0 && rightTile->movingObject == 0) //cmp word ptr [si+2], 0
             {
-                levelData[i + 1] = 0x2811; // mov word ptr [si+2], 2811h
-                levelData[i] = 0xFFFF; // mov word ptr [si], 0FFFFh
+                // mov word ptr [si+2], 2811h
+                rightTile->movingObject = 0x28;
+                rightTile->tile = LevelTileTypeSnikSnak;
+                // mov word ptr [si], 0FFFFh
+                currentTile->movingObject = 0xFF;
+                currentTile->tile = 0xFF;
                 continue; // jmp short loc_4A3B0
             }
+
+            continue;
         }
 //loc_4A379:              ; CODE XREF: sub_4A2E6+2Aj
-        if (levelData[i - 1] == 0) //cmp word ptr [si-2], 0
+        if (leftTile->tile == 0 && leftTile->movingObject == 0) //cmp word ptr [si-2], 0
         {
-//          si[1] = 1; //mov byte ptr [si+1], 1
+            currentTile->movingObject = 1; //mov byte ptr [si+1], 1
             continue; // jmp short loc_4A3B0
         }
 //loc_4A385:              ; CODE XREF: sub_4A2E6+97j
-        if (levelData[i - 60] == 0) //cmp word ptr [si-78h], 0
+        if (aboveTile->tile == 0 && aboveTile->movingObject == 0) //cmp word ptr [si-78h], 0
         {
-            levelData[i - 60] = 0x1018; // mov word ptr [si-78h], 1018h
-            levelData[i] = 0xFFFF; // mov word ptr [si], 0FFFFh
+            // mov word ptr [si-78h], 1018h
+            aboveTile->movingObject = 0x10;
+            aboveTile->tile = LevelTileTypeElectron;
+            // mov word ptr [si], 0FFFFh
+            currentTile->movingObject = 0xFF;
+            currentTile->tile = 0xFF;
             continue; // jmp short loc_4A3B0
         }
 //loc_4A396:              ; CODE XREF: sub_4A2E6+A3j
-        if (levelData[i + 1] == 0) //cmp word ptr [si+2], 0
+        if (rightTile->tile == 0 && rightTile->movingObject == 0) //cmp word ptr [si+2], 0
         {
-            levelData[i + 1] = 0x2818; // mov word ptr [si+2], 2818h
-            levelData[i] = 0xFFFF; // mov word ptr [si], 0FFFFh
+            // mov word ptr [si+2], 2818h
+            rightTile->movingObject = 0x28;
+            rightTile->tile = LevelTileTypeElectron;
+            // mov word ptr [si], 0FFFFh
+            currentTile->movingObject = 0xFF;
+            currentTile->tile = 0xFF;
             continue; // jmp short loc_4A3B0
         }
 
@@ -14766,8 +14799,9 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
     for (int i = 0; i < levelDataLength; ++i)
     {
 //loc_4D6B8:              ; CODE XREF: readLevels+172j
-        // This loads a byte, but then stores a word!!
-        gCurrentLevelWord[i] = ((uint8_t *)&fileLevelData)[i];
+        MovingLevelTile *tile = &gCurrentLevelWord[i];
+        tile->tile = fileLevelData.tiles[i];
+        tile->movingObject = 0;
     }
 //    di = 0x2434; // this is leveldata (0x1834) + levelDataLength * 2... useless? when the loop finishes it should already have that value
 //    al = 0;
