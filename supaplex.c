@@ -1240,6 +1240,7 @@ void sound1(void);
 void sound2(void);
 void sound3(void);
 void sound4(void);
+void sound7(void);
 void sound9(void);
 void sound11(void);
 void savePlayerListData(void);
@@ -4365,14 +4366,22 @@ loc_47F5E:              ; CODE XREF: recoverFilesFromFloppyDisk+1Bj
 
 void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
 {
-    /*
-    if ((gCurrentLevelWord[position] & 0xFF) != 1) // cmp byte ptr leveldata[si], 1
+    MovingLevelTile *currentTile = &gCurrentLevelWord[position];
+    MovingLevelTile *belowTile = &gCurrentLevelWord[position + kLevelWidth];
+    MovingLevelTile *belowLeftTile = &gCurrentLevelWord[position + kLevelWidth - 1];
+    MovingLevelTile *leftTile = &gCurrentLevelWord[position - 1];
+    MovingLevelTile *belowRightTile = &gCurrentLevelWord[position + kLevelWidth + 1];
+    MovingLevelTile *rightTile = &gCurrentLevelWord[position + 1];
+    MovingLevelTile *aboveRightTile = &gCurrentLevelWord[position - kLevelWidth + 1];
+
+    if (currentTile->tile != LevelTileTypeZonk) // cmp byte ptr leveldata[si], 1
     {
         return;
     }
 
 //loc_47F98:              ; CODE XREF: movefun+5j
-    if (gCurrentLevelWord[position] != 1)
+    if (currentTile->tile != LevelTileTypeZonk
+        || currentTile->movingObject != 0)
     {
 //        jmp loc_48035
     }
@@ -4384,37 +4393,36 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
     }
 
 //loc_47FAC:              ; CODE XREF: movefun+19j
-    uint16_t objectBelow = gCurrentLevelWord[position + kLevelWidth];
-    if (objectBelow == 0)
+    if (belowTile->tile == 0 && belowTile->movingObject == 0)
     {
 //loc_47FF4:              ; CODE XREF: movefun+23j
-        gCurrentLevelWord[position] = (gCurrentLevelWord[position] & 0xFF) + 0x4000; // 64 -> mov byte ptr leveldata[si+1], 40h ; '@'
+        currentTile->movingObject = 0x40; // 64 -> mov byte ptr leveldata[si+1], 40h ; '@'
 //        jmp short loc_48035
     }
     else
     {
-        if (objectBelow != 1
-            && objectBelow != 4
-            && objectBelow != 5)
+        if (belowTile->movingObject != 0
+            || (belowTile->tile != LevelTileTypeZonk
+                && belowTile->tile != LevelTileTypeInfotron
+                && belowTile->tile != LevelTileTypeChip))
         {
             return;
         }
 
 //loc_47FC5:              ; CODE XREF: movefun+28j
 //                ; movefun+2Dj ...
-        uint16_t objectBelowLeft = gCurrentLevelWord[position + kLevelWidth - 1];
-        if (objectBelowLeft == 0
-            || objectBelowLeft == 0x8888
-            || objectBelowLeft == 0xAAAA)
+        if ((belowLeftTile->tile == 0 && belowLeftTile->movingObject == 0)
+            || (belowLeftTile->tile == 0x88 && belowLeftTile->movingObject == 0x88)
+            || (belowLeftTile->tile == 0xAA && belowLeftTile->movingObject == 0xAA))
         {
 //loc_47FFB:              ; CODE XREF: movefun+3Aj
 //                ; movefun+42j ...
-            uint16_t objectLeft = gCurrentLevelWord[position - 1];
-            if (objectLeft == 0)
+            if (leftTile->movingObject == 0 && leftTile->tile == 0)
             {
 //loc_48004:              ; CODE XREF: movefun+70j
-                gCurrentLevelWord[position] = (gCurrentLevelWord[position] & 0xFF) + 0x5000; // 80 mov byte ptr leveldata[si+1], 50h ; 'P'
-                gCurrentLevelWord[position - 1] = 0x8888;
+                currentTile->movingObject = 0x50;// 80 mov byte ptr leveldata[si+1], 50h ; 'P'
+                leftTile->movingObject = 0x88;
+                leftTile->tile = 0x88;
             //    jmp short loc_48035
             }
         }
@@ -4426,10 +4434,9 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
     {
 //loc_47FDC:              ; CODE XREF: movefun+72j
 //                ; movefun+1F1j
-        uint16_t objectBelowRight = gCurrentLevelWord[position + kLevelWidth + 1];
-        if (objectBelowRight != 0
-            && objectBelowRight != 0x8888
-            && objectBelowRight != 0xAAAA)
+        if ((belowRightTile->movingObject != 0 || belowRightTile->tile != 0)
+            && (belowRightTile->movingObject != 0x88 || belowRightTile->tile != 0x88)
+            && (belowRightTile->movingObject != 0xAA || belowRightTile->tile != 0xAA))
         {
             return;
         }
@@ -4437,28 +4444,27 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
         {
 //loc_48011:              ; CODE XREF: movefun+51j
 //                ; movefun+59j ...
-            uint16_t objectRight = gCurrentLevelWord[position + 1];
-            uint16_t objectAboveRight = gCurrentLevelWord[position - kLevelWidth + 1];
-            if (objectRight != 0
-                || objectRight != 0x9999
-                || objectAboveRight != 1)
+            if ((rightTile->movingObject != 0 || rightTile->tile != 0)
+                || (rightTile->movingObject != 0x99 || rightTile->tile != 0x99)
+                || (aboveRightTile->movingObject != 0 || aboveRightTile->tile != 1))
             {
                 return;
             }
 
 //loc_48028:              ; CODE XREF: movefun+86j
 //                ; movefun+95j
-            gCurrentLevelWord[position] = (gCurrentLevelWord[position] & 0xFF) + 0x6000; // 96 mov byte ptr leveldata[si+1], 60h ; '`'
-            gCurrentLevelWord[position + 1] = 0x8888;
+            currentTile->movingObject = 0x96; // 96 mov byte ptr leveldata[si+1], 60h ; '`'
+            rightTile->movingObject = 0x88;
+            rightTile->tile = 0x88;
 //            jmp short $+2 -> jump to loc_48035 probably
         }
 
 //loc_48035:              ; CODE XREF: movefun+11j
 //                ; movefun+69j ...
-        bl = (gCurrentLevelWord[position] >> 8); // mov bl, byte ptr leveldata[si+1]
+        bl = currentTile->movingObject; // mov bl, byte ptr leveldata[si+1]
         bh = 0;
         al = bl;
-        al &= 0xF0;
+        al &= 0xF0; // 240 -> only multiples of 16? so it's like al = (al / 16) * 16:
         if (al == 0x10) // 16
         {
 //            jmp short loc_48078
@@ -4493,33 +4499,39 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
             }
 //            pop ds
 //            pop si
-//            mov bl, [si+1835h]
+            currentTile->movingObject = bl; // mov bl, [si+1835h]
 //            inc bl
             if (bl == 0x24) // 36
             {
-    //          mov word ptr [si+1836h], 0AAAAh
+                // mov word ptr [si+1836h], 0AAAAh
+                rightTile->movingObject = 0xAA;
+                rightTile->tile = 0xAA;
             }
 //loc_4824A:              ; CODE XREF: movefun+2B2j
             else if (bl == 0x26) // 38
             {
-        //        mov [si+1835h], bl
+                currentTile->movingObject = bl; // mov [si+1835h], bl
         //        add si, 2
-        //        sub_488DC();
+        //        sub_488DC(); -> call with position + 1?
         //        sub si, 2
                 return;
             }
 //loc_4825D:              ; CODE XREF: movefun+2BDj
             else if (bl < 0x28) // 40
             {
-        //        mov [si+1835h], bl
+                currentTile->movingObject = bl; // mov [si+1835h], bl
                 return;
             }
 //loc_48267:              ; CODE XREF: movefun+2D0j
             else
             {
-        //        mov word ptr leveldata[si], 0FFFFh
-        //        add si, 78h ; 'x'
-        //        mov word ptr leveldata[si], 1001h
+//                mov word ptr leveldata[si], 0FFFFh
+                currentTile->movingObject = 0xFF;
+                currentTile->tile = 0xFF;
+//                add si, 78h ; 'x'
+//                mov word ptr leveldata[si], 1001h
+                belowTile->movingObject = 0x10;
+                belowTile->tile = LevelTileTypeZonk;
                 return;
             }
         }
@@ -4584,83 +4596,77 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
         }
 //        pop ds
 //        pop si
-//        bl = si[0x1835];
+        bl = currentTile->movingObject; // bl = si[0x1835];
         bl++;
         if (bl == 0x16) // 22
         {
-//            si[0x1835] = bl;
+            currentTile->movingObject = bl; // si[0x1835] = bl;
 //            sub si, 78h ; 'x'
-            sub_488DC();
+//            sub_488DC(); -> call with position - kLevelWidth?
 //            add si, 78h ; 'x'
             return;
         }
 //loc_480BB:              ; CODE XREF: movefun+11Bj
         else if (bl < 0x18) // 24
         {
-//            si[0x1835] = bl;
+            currentTile->movingObject = bl; // si[0x1835] = bl;
             return;
         }
 
 //loc_480C5:              ; CODE XREF: movefun+12Ej
-//        si[0x1835] = 0; //mov byte ptr [si+1835h], 0
+        currentTile->movingObject = 0; // mov byte ptr [si+1835h], 0
         if (byte_51035 == 2)
         {
             return;
         }
-     */
-/*
-//loc_480D2:              ; CODE XREF: movefun+13Fj
-        if (si[0x18AC] == 0) // cmp word ptr [si+18ACh], 0
-        {
-//loc_4816D:              ; CODE XREF: movefun+149j
-//                ; movefun+154j
-            gCurrentLevelWord[position] = 0x7001; // mov word ptr leveldata[si], 7001h
-    //        mov word ptr [si+18ACh], 9999h
-            return;
-        }
 
-//loc_480DC:              ; CODE XREF: movefun+147j
-        if (si[0x18AC] == 0x9999) // cmp word ptr [si+18ACh], 9999h
+//loc_480D2:              ; CODE XREF: movefun+13Fj
+        if ((belowTile->tile == 0 && belowTile->movingObject == 0) // cmp word ptr [si+18ACh], 0
+            || (belowTile->tile == 0x99 && belowTile->movingObject == 0x99)) // cmp word ptr [si+18ACh], 9999h
         {
 //loc_4816D:              ; CODE XREF: movefun+149j
     //                ; movefun+154j
-            gCurrentLevelWord[position] = 0x7001; // mov word ptr leveldata[si], 7001h
-    //        mov word ptr [si+18ACh], 9999h
+            // mov word ptr leveldata[si], 7001h
+            currentTile->movingObject = 0x70;
+            currentTile->tile = LevelTileTypeZonk;
+            // mov word ptr [si+18ACh], 9999h
+            belowTile->movingObject = 0x99;
+            belowTile->tile = 0x99;
             return;
         }
 
 //loc_480E7:              ; CODE XREF: movefun+152j
-        if (si[0x18AC] == 3) // cmp word ptr [si+18ACh], 3
+        if (belowTile->tile == LevelTileTypeMurphy && belowTile->movingObject == 0) // cmp word ptr [si+18ACh], 3
         {
-            jmp loc_481A4
+//            jmp loc_481A4
         }
 
 //loc_480F1:              ; CODE XREF: movefun+15Cj
-        if (si[0x18AC] == 0x11) // cmp byte ptr [si+18ACh], 11h
+        if (belowTile->tile == LevelTileTypeSnikSnak && belowTile->movingObject == 0) // cmp byte ptr [si+18ACh], 11h
         {
-            jmp loc_481FE
+//            jmp loc_481FE
         }
 
 //loc_480FB:              ; CODE XREF: movefun+166j
-        if (si[0x18AC] == 0x2BB) // cmp word ptr [si+18ACh], 2BBh
+        if (belowTile->tile == 0xBB && belowTile->movingObject == 0x2) // cmp word ptr [si+18ACh], 2BBh
         {
-            jmp loc_481C6
+//            jmp loc_481C6
         }
 
 //loc_48106:              ; CODE XREF: movefun+171j
-        if (si[0x18AC] == 0x4BB) // cmp word ptr [si+18ACh], 4BBh
+        if (belowTile->tile == 0xBB && belowTile->movingObject == 0x4) // cmp word ptr [si+18ACh], 4BBh
         {
-            jmp loc_481E2
+//            jmp loc_481E2
         }
 
 //loc_48111:              ; CODE XREF: movefun+17Cj
-        if (si[0x18AC] == 0x18) // cmp byte ptr [si+18ACh], 18h
+        if (belowTile->tile == LevelTileTypeElectron && belowTile->movingObject == 0) // cmp byte ptr [si+18ACh], 18h
         {
-            jmp loc_481FE
+//            jmp loc_481FE
         }
 
 //loc_4811B:              ; CODE XREF: movefun+186j
-        if (si[0x18AC] == 8) // cmp word ptr [si+18ACh], 8
+        if (belowTile->tile == LevelTileTypeOrangeDisk && belowTile->movingObject == 0) // cmp word ptr [si+18ACh], 8
         {
 //loc_48205:              ; CODE XREF: movefun+192j
             // add si, 78h ; 'x'
@@ -4672,27 +4678,28 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
 
 //loc_48125:              ; CODE XREF: movefun+190j
         sound7();
-        if (si[0x18AC] != 1 // cmp word ptr [si+18ACh], 1
-            && si[0x18AC] != 4 // cmp word ptr [si+18ACh], 4
-            && si[0x18AC] != 5) // cmp word ptr [si+18ACh], 5
+        if ((belowTile->tile != LevelTileTypeZonk || belowTile->movingObject != 0) // cmp word ptr [si+18ACh], 1
+            && (belowTile->tile != LevelTileTypeInfotron || belowTile->movingObject != 0) // cmp word ptr [si+18ACh], 4
+            && (belowTile->tile != LevelTileTypeChip || belowTile->movingObject != 0)) // cmp word ptr [si+18ACh], 5
         {
             return;
         }
-*/
-    /*
+
 //loc_4813E:              ; CODE XREF: movefun+19Dj
 //                ; movefun+1A4j ...
-        if (si[0x18AA] == 0 // cmp word ptr [si+18AAh], 0
-            || si[0x18AA] == 0x8888 // cmp word ptr [si+18AAh], 8888h
-            || si[0x18AA] == 0xAAAA) // cmp word ptr [si+18AAh], 0AAAAh
+        if ((belowLeftTile->movingObject == 0 && belowLeftTile->tile == 0) // cmp word ptr [si+18AAh], 0
+            || (belowLeftTile->movingObject == 0x88 && belowLeftTile->tile == 0x88) // cmp word ptr [si+18AAh], 8888h
+            || (belowLeftTile->movingObject == 0xAA && belowLeftTile->tile == 0xAA)) // cmp word ptr [si+18AAh], 0AAAAh
         {
 //loc_4817A:              ; CODE XREF: movefun+1B3j
 //                ; movefun+1BBj ...
-            if (si[0x1832] == 0) //cmp word ptr [si+1832h], 0
+            if (leftTile->movingObject == 0 && leftTile->tile == 0) //cmp word ptr [si+1832h], 0
             {
 //loc_48184:              ; CODE XREF: movefun+1EFj
-            //    mov byte ptr [si+1835h], 50h ; 'P'
-            //    mov word ptr [si+1832h], 8888h
+                currentTile->movingObject = 0x50; // mov byte ptr [si+1835h], 50h ; 'P'
+//                mov word ptr [si+1832h], 8888h
+                leftTile->movingObject = 0x88;
+                leftTile->tile = 0x88;
                 return;
             }
             else
@@ -4701,17 +4708,19 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
 //                jmp loc_47FDC
             }
         }
-        if (si[0x18AE] == 0 // cmp word ptr [si+18AEh], 0
-            || si[0x18AE] == 0x8888 // cmp word ptr [si+18AEh], 8888h
-            || si[0x18AE] == 0xAAAA) // cmp word ptr [si+18AEh], 0AAAAh
+        if ((belowRightTile->movingObject == 0 && belowRightTile->tile == 0) // cmp word ptr [si+18AEh], 0
+            || (belowRightTile->movingObject == 0x88 && belowRightTile->tile == 0x88) // cmp word ptr [si+18AEh], 8888h
+            || (belowRightTile->movingObject == 0xAA && belowRightTile->tile == 0xAA)) // cmp word ptr [si+18AEh], 0AAAAh
         {
 //loc_48190:              ; CODE XREF: movefun+1CAj
 //                ; movefun+1D2j ...
-            if (si[0x1836] == 0) //cmp word ptr [si+1836h], 0
+            if (rightTile->tile == 0 && rightTile->movingObject == 0) //cmp word ptr [si+1836h], 0
             {
 //loc_48198:              ; CODE XREF: movefun+205j
-//                mov byte ptr [si+1835h], 60h ; '`'
+                currentTile->movingObject = 0x60; // mov byte ptr [si+1835h], 60h ; '`'
 //                mov word ptr [si+1836h], 8888h
+                rightTile->movingObject = 0x88;
+                rightTile->tile = 0x88;
                 return;
             }
             else
@@ -4724,9 +4733,9 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
 
     }
     while (1);
-
+/*
 //loc_481A4:              ; CODE XREF: movefun+15Ej
-    bl = si[0x18AD]; //mov bl, [si+18ADh]
+    bl = belowTile->movingObject; // si[0x18AD]; //mov bl, [si+18ADh]
     if (bl == 0xE
         || bl == 0xF
         || bl == 0x28
@@ -4813,7 +4822,7 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
     jnz short loc_482C2
     mov [si+1835h], bl
     sub si, 2
-    call    sub_488DC
+    call    sub_488DC -> call with position + 1?
     add si, 2
     return;
 
@@ -15388,13 +15397,11 @@ loc_4DCA5:              ; CODE XREF: sound6+53j
 locret_4DCB1:               ; CODE XREF: sound6+26j sound6+3Bj ...
         return;
 sound6     endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-sound7     proc near       ; CODE XREF: movefun:loc_48125p
-                    ; movefun2:loc_48573p
+*/
+void sound7() //     proc near       ; CODE XREF: movefun:loc_48125p
+//                    ; movefun2:loc_48573p
+{
+    /*
         cmp isFXEnabled, 1
         jz  short loc_4DCBA
         return;
@@ -15452,12 +15459,9 @@ loc_4DD0E:              ; CODE XREF: sound7+53j
 
 locret_4DD1A:               ; CODE XREF: sound7+26j sound7+3Bj ...
         return;
-sound7     endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
+     */
+}
+/*
 sound8     proc near       ; CODE XREF: movefun7:loc_4A0ABp
         cmp isFXEnabled, 1
         jz  short loc_4DD23
