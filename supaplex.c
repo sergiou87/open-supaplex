@@ -209,6 +209,7 @@ uint16_t word_510D1 = 0;
 uint16_t word_510D9 = 0;
 uint16_t word_510DC = 0;
 uint16_t word_510E6 = 0;
+uint16_t word_510EE = 0;
 uint16_t word_515A2 = 0x32A2;
 uint16_t word_5157E = 0x4A80;
 uint16_t word_51580 = 0x1AB2;
@@ -16404,94 +16405,102 @@ void update() // update?     proc near       ; CODE XREF: gameloop+Ep
 //    jmp loc_4E8E3
 
 //loc_4E314:              ; CODE XREF: update?+211j
-    cmp byte_5195C, 0
-    jz  short locret_4E343
-    cmp byte_510DB, 0
-    jnz short locret_4E343
-    cmp byte_510D3, 1
-    jnz short locret_4E343
-    mov byte ptr [si+1835h], 2Ah ; '*'
-    mov word_510EE, 40h ; '@'
-    mov dx, 110Eh
-    mov byte_510DB, 1
-    mov word_510DC, si
-    jmp loc_4E9F3
+    if (byte_5195C == 0
+        || byte_510DB != 0
+        || byte_510D3 != 1)
+    {
+        return;
+    }
+    murphyTile->movingObject = 0x2A;
+    word_510EE = 0x40; // 64
+    dx = 0x110E;
+    byte_510DB = 1;
+    word_510DC = si;
+//    jmp loc_4E9F3
 
-locret_4E343:               ; CODE XREF: update?+489j update?+490j ...
-    return;
+//loc_4E344:              ; CODE XREF: update?+223j
+    if (word_510CB == 0)
+    {
+        //jz  short loc_4E350
+    }
+    dx = 0x0DFE;
+//    jmp short loc_4E353
 
-loc_4E344:              ; CODE XREF: update?+223j
-    cmp word_510CB, 0
-    jz  short loc_4E350
-    mov dx, 0DFEh
-    jmp short loc_4E353
+//loc_4E350:              ; CODE XREF: update?+4B9j
+    dx = 0x0E0E;
 
-loc_4E350:              ; CODE XREF: update?+4B9j
-    mov dx, 0E0Eh
+//loc_4E353:              ; CODE XREF: update?+4BEj
+    aboveTile->movingObject = 1;
+    aboveTile->tile = LevelTileTypeMurphy;
+    murphyTile->movingObject = 3;
+    murphyTile->tile = LevelTileTypeSpace;
 
-loc_4E353:              ; CODE XREF: update?+4BEj
-    mov byte ptr [si+17BDh], 1
-    mov byte ptr [si+17BCh], 3
-    mov byte ptr [si+1835h], 3
-    mov byte ptr leveldata[si], 0
-    sub si, 78h ; 'x'
-    jmp loc_4E8F0
+    //sub si, 78h ; 'x' // TODO: update all tile variables to move them up 1 line
+//    jmp loc_4E8F0
 
-loc_4E36D:              ; CODE XREF: update?+28Bj
-    mov dx, 0E1Eh
-    mov byte ptr [si+1833h], 2
-    mov byte ptr [si+1832h], 3
-    mov byte ptr [si+1835h], 3
-    mov byte ptr leveldata[si], 0
-    sub si, 2
-    jmp loc_4E8F0
+//loc_4E36D:              ; CODE XREF: update?+28Bj
+    dx = 0x0E1E;
+    leftTile->movingObject = 2;
+    leftTile->tile = LevelTileTypeMurphy;
+    murphyTile->movingObject = 3;
+    murphyTile->tile = LevelTileTypeSpace;
+//    sub si, 2 // TODO: update all tile variables to move them left 1 column
+//    jmp loc_4E8F0
 
-loc_4E38A:              ; CODE XREF: update?+69j update?+2FFj
-    cmp word_510CB, 0
-    jz  short loc_4E396
-    mov dx, 0E2Eh
-    jmp short loc_4E399
+//loc_4E38A:              ; CODE XREF: update?+69j update?+2FFj
+    if (word_510CB == 0)
+    {
+        //jz  short loc_4E396
+    }
+    dx = 0x0E2E;
+//    jmp short loc_4E399
 
-loc_4E396:              ; CODE XREF: update?+4FFj
-    mov dx, 0E3Eh
+//loc_4E396:              ; CODE XREF: update?+4FFj
+    dx = 0x0E3E;
 
-loc_4E399:              ; CODE XREF: update?+504j
-    mov byte ptr [si+18ADh], 3
-    mov byte ptr [si+18ACh], 3
-    mov byte ptr [si+1835h], 3
-    mov byte ptr leveldata[si], 0
-    add si, 78h ; 'x'
-    jmp loc_4E8F0
+//loc_4E399:              ; CODE XREF: update?+504j
+    belowTile->movingObject = 3;
+    belowTile->tile = LevelTileTypeMurphy;
+    murphyTile->movingObject = 3;
+    murphyTile->tile = LevelTileTypeSpace;
+//    add si, 78h ; 'x' // TODO: update all tile variables to move them down 1 line
+//    jmp loc_4E8F0
 
-loc_4E3B3:              ; CODE XREF: update?+367j
-    mov dx, 0E4Eh
-    mov byte ptr [si+1837h], 4
-    mov byte ptr [si+1836h], 3
-    mov byte ptr [si+1835h], 3
-    mov byte ptr leveldata[si], 0
-    add si, 2
-    jmp loc_4E8F0
+//loc_4E3B3:              ; CODE XREF: update?+367j
+    dx = 0x0E4E;
+    rightTile->movingObject = 4;
+    rightTile->tile = LevelTileTypeMurphy;
+    murphyTile->movingObject = 3;
+    murphyTile->tile = LevelTileTypeSpace;
+//    add si, 2 // TODO: update all tile variables to move them right 1 column
+//    jmp loc_4E8F0
 
-loc_4E3D0:              ; CODE XREF: update?+232j
-    cmp byte ptr [si+17BDh], 0
-    jl  short loc_4E3DB
-    call    sub_4A61F
-    return;
+//loc_4E3D0:              ; CODE XREF: update?+232j
+    //    cmp byte ptr [si+17BDh], 0
+    //    jl  short loc_4E3DB
+    if (aboveTile->movingObject >= 0) // should movingObject be signed?
+    {
+        sub_4A61F(si); // si must represent the new position which could change... gMurphyLocation hasn't change yet according to the original code
+        return;
+    }
 
-loc_4E3DB:              ; CODE XREF: update?+545j
-    mov word ptr [si+17BCh], 2
+//loc_4E3DB:              ; CODE XREF: update?+545j
+    aboveTile->movingObject = 0;
+    aboveTile->tile = LevelTileTypeBase;
 
-loc_4E3E1:              ; CODE XREF: update?+22Bj
-    call    sound9
-    cmp word_510CB, 0
-    jz  short loc_4E3F0
-    mov dx, 0E6Eh
-    jmp short loc_4E3F3
+//loc_4E3E1:              ; CODE XREF: update?+22Bj
+    sound9();
+    if (word_510CB == 0)
+    {
+        //jz  short loc_4E3F0
+    }
+    dx = 0x0E6E;
+//    jmp short loc_4E3F3
 
-loc_4E3F0:              ; CODE XREF: update?+559j
-    mov dx, 0E7Eh
+//loc_4E3F0:              ; CODE XREF: update?+559j
+    dx = 0x0E7E;
 
-loc_4E3F3:              ; CODE XREF: update?+55Ej
+//loc_4E3F3:              ; CODE XREF: update?+55Ej
     mov byte ptr [si+17BDh], 5
     mov byte ptr [si+17BCh], 3
     mov byte ptr [si+1835h], 3
@@ -16499,16 +16508,16 @@ loc_4E3F3:              ; CODE XREF: update?+55Ej
     sub si, 78h ; 'x'
     jmp loc_4E8F0
 
-loc_4E40D:              ; CODE XREF: update?+29Aj
+//loc_4E40D:              ; CODE XREF: update?+29Aj
     cmp byte ptr [si+1833h], 0
     jl  short loc_4E418
     call    sub_4A61F
     return;
 
-loc_4E418:              ; CODE XREF: update?+582j
+//loc_4E418:              ; CODE XREF: update?+582j
     mov word ptr [si+1832h], 2
 
-loc_4E41E:              ; CODE XREF: update?+293j
+//loc_4E41E:              ; CODE XREF: update?+293j
     call    sound9
     mov dx, 0E8Eh
     mov byte ptr [si+1833h], 2
