@@ -209,6 +209,7 @@ uint16_t word_510DC = 0;
 uint16_t word_510E6 = 0;
 uint16_t word_515A2 = 0x32A2;
 uint16_t word_5157E = 0x4A80;
+uint16_t word_51580 = 0x1AB2;
 uint16_t word_5184A = 0x2A66;
 uint16_t word_5184C = 0x2A67;
 uint16_t word_5184E = 0x2E36;
@@ -1326,6 +1327,9 @@ void sub_4A5E0(void);
 void sub_4A95F(void);
 void sub_488DC(uint16_t position);
 void sub_4A61F(uint16_t position);
+void sub_4A9C4(uint16_t position, uint8_t movingObject, uint8_t tile);
+void sub_4AA34(uint16_t position, uint8_t movingObject, uint8_t tile);
+void sub_4AAB4(uint16_t position);
 void drawLevelViewport(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
 void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, uint16_t dstX, uint16_t dstY);
 
@@ -9799,6 +9803,10 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     MovingLevelTile *belowLeftTile = &gCurrentLevelWord[position + kLevelWidth - 1];
     MovingLevelTile *belowRightTile = &gCurrentLevelWord[position + kLevelWidth + 1];
 
+    uint8_t movingObject = 0;
+    uint8_t tile = 0;
+    uint8_t afterWordTile = 0;
+
     if (currentTile->movingObject == 0 && currentTile->tile == LevelTileTypeHardware)
     {
         return;
@@ -9814,14 +9822,18 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
 //loc_4A639:              ; CODE XREF: sub_4A61F+12j
     if (currentTile->movingObject == 0 && currentTile->tile == LevelTileTypeElectron)
     {
-        cx = 0x0801F;
-        dl = 0xF3; // 243
+        // cx = 0x0801F;
+        movingObject = 0x08;
+        tile = LevelTileTypeHardware5;
+        afterWordTile = 0xF3; // 243
     }
     else
     {
 //loc_4A647:              ; CODE XREF: sub_4A61F+1Fj
-        cx = 0x1F; // 31
-        dl = 0x0D; // 13
+        // cx = 0x1F; // 31
+        movingObject = 0;
+        tile = LevelTileTypeHardware5;
+        afterWordTile = LevelTileTypeSportRight; // 13
     }
 
 //loc_4A64C:              ; CODE XREF: sub_4A61F+26j
@@ -9846,8 +9858,10 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     }
     else if (aboveLeftTile->tile == LevelTileTypeElectron)
     {
-        dh = -dh;
-        cx = 0x801F;
+        afterWordTile = 256 - afterWordTile; // dh = -dh;
+        // cx = 0x0801F;
+        movingObject = 0x08;
+        tile = LevelTileTypeHardware5;
 //        jmp short loc_4A680
     }
 //loc_4A676:              ; CODE XREF: sub_4A61F+4Ej
@@ -9863,7 +9877,7 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     {
         // jz  short loc_4A688
     }
-//    mov [bx+23F7h], dh
+    gCurrentLevelAfterWord.tiles[position - kLevelWidth - 1] = afterWordTile; // mov [bx+23F7h], dh
 
 //loc_4A688:              ; CODE XREF: sub_4A61F+59j
 //                ; sub_4A61F+63j
@@ -9872,24 +9886,18 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         // jz  short loc_4A690
     }
     // mov [si+17BAh], cx
-    aboveLeftTile->movingObject = ch;
-    aboveLeftTile->tile = cl;
+    aboveLeftTile->movingObject = movingObject;
+    aboveLeftTile->tile = tile;
 
 //loc_4A690:              ; CODE XREF: sub_4A61F+6Bj
     // jmp short loc_4A6A6
 
 //loc_4A692:              ; CODE XREF: sub_4A61F+4Aj
-//    push    si
-//    add si, 0FF86h
-    sub_4AA34();
-//    pop si
+    sub_4AA34(position - kLevelWidth - 1, movingObject, tile);
     // jmp short loc_4A6A6
 
 //loc_4A69C:              ; CODE XREF: sub_4A61F+46j
-//    push    si
-//    add si, 0FF86h
-    sub_4A9C4();
-//    pop si
+    sub_4A9C4(position - kLevelWidth - 1, movingObject, tile);
 //    jmp short $+2 // jmp loc_4A6A6 ??
 
 //loc_4A6A6:              ; CODE XREF: sub_4A61F:loc_4A690j
@@ -9913,8 +9921,10 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     }
     else if (aboveTile->tile == LevelTileTypeElectron)
     {
-        dh = -dh;
-        cx = 0x801F;
+        afterWordTile = 256 - afterWordTile; // dh = -dh;
+        // cx = 0x0801F;
+        movingObject = 0x08;
+        tile = LevelTileTypeHardware5;
 //        jmp short loc_4A6D7
     }
 
@@ -9931,7 +9941,7 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     {
         // jz  short loc_4A6DF
     }
-//    mov [bx+23F8h], dh
+    gCurrentLevelAfterWord.tiles[position - kLevelWidth] = afterWordTile; // mov [bx+23F8h], dh
 
 //loc_4A6DF:              ; CODE XREF: sub_4A61F+B0j
 //                ; sub_4A61F+BAj
@@ -9939,30 +9949,23 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     {
         // jz  short loc_4A6E7
     }
-//    mov [si+17BCh], cx
+    // mov [si+17BCh], cx
+    aboveTile->movingObject = movingObject;
+    aboveTile->tile = tile;
 
 //loc_4A6E7:              ; CODE XREF: sub_4A61F+C2j
 //    jmp short loc_4A6FD
 
 //loc_4A6E9:              ; CODE XREF: sub_4A61F+A1j
-//    push    si
-//    add si, 0FF88h
-    sub_4AA34();
-//    pop si
+    sub_4AA34(position - kLevelWidth, movingObject, tile);
 //    jmp short loc_4A6FD
 
 //loc_4A6F3:              ; CODE XREF: sub_4A61F+9Dj
-//    push    si
-//    add si, 0FF88h
-    sub_4A9C4();
-//    pop si
+    sub_4A9C4(position - kLevelWidth, movingObject, tile);
     // jmp short $+2 // jmp loc_4A6FD ??
 
 //loc_4A6FD:              ; CODE XREF: sub_4A61F:loc_4A6E7j
 //                ; sub_4A61F+D2j ...
-//    pop(cx);
-    dh = dl;
-//    push(cx);
     if (aboveRightTile->tile == LevelTileTypeOrangeDisk
         || aboveRightTile->tile == LevelTileTypeYellowDisk
         || aboveRightTile->tile == LevelTileTypeSnikSnak)
@@ -9979,8 +9982,10 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     }
     else if (aboveRightTile->tile == LevelTileTypeElectron)
     {
-        dh = -dh;
-        cx = 0x801F;
+        afterWordTile = 256 - afterWordTile; // dh = -dh;
+        // cx = 0x0801F;
+        movingObject = 0x08;
+        tile = LevelTileTypeHardware5;
 //        jmp short loc_4A72E
     }
 
@@ -9997,7 +10002,7 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     {
         // jz  short loc_4A736
     }
-//    mov [bx+23F9h], dh
+    gCurrentLevelAfterWord.tiles[position - kLevelWidth + 1] = afterWordTile; // mov [bx+23F9h], dh
 
 //loc_4A736:              ; CODE XREF: sub_4A61F+107j
 //                ; sub_4A61F+111j
@@ -10006,33 +10011,22 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         // jz  short loc_4A73E
     }
     // mov [si+17BEh], cx
-    aboveRightTile->movingObject = ch;
-    aboveRightTile->tile = cl;
+    aboveRightTile->movingObject = movingObject;
+    aboveRightTile->tile = tile;
 
 //loc_4A73E:              ; CODE XREF: sub_4A61F+119j
 //    jmp short loc_4A754
 
 //loc_4A740:              ; CODE XREF: sub_4A61F+F8j
-//    push    si
-//    add si, 0FF8Ah
-    sub_4AA34();
-//    pop si
+    sub_4AA34(position - kLevelWidth + 1, movingObject, tile);
 //    jmp short loc_4A754
 
 //loc_4A74A:              ; CODE XREF: sub_4A61F+F4j
-//    push    si
-//    add si, 0FF8Ah
-    sub_4A9C4();
-//    pop si
+    sub_4A9C4(position - kLevelWidth + 1, movingObject, tile);
     // jmp short $+2 // jmp loc_4A754 ??
 
 //loc_4A754:              ; CODE XREF: sub_4A61F:loc_4A73Ej
 //                ; sub_4A61F+129j ...
-    bx = position;
-    bx /= 2;
-    dh = dl;
-//    push(cx);
-
     if (leftTile->tile == LevelTileTypeOrangeDisk
         || leftTile->tile == LevelTileTypeYellowDisk
         || leftTile->tile == LevelTileTypeSnikSnak)
@@ -10049,8 +10043,10 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     }
     else if (leftTile->tile == LevelTileTypeElectron)
     {
-        dh = -dh;
-        cx = 0x801F;
+        afterWordTile = 256 - afterWordTile; // dh = -dh;
+        // cx = 0x0801F;
+        movingObject = 0x08;
+        tile = LevelTileTypeHardware5;
 //        jmp short loc_4A785
     }
 //loc_4A77B:              ; CODE XREF: sub_4A61F+153j
@@ -10066,7 +10062,7 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     {
         // jz  short loc_4A78D
     }
-//    mov [bx+2433h], dh // gCurrentLevelAfterWord ??
+    gCurrentLevelAfterWord.tiles[position - 1] = afterWordTile; // mov [bx+2433h], dh
 
 //loc_4A78D:              ; CODE XREF: sub_4A61F+15Ej
 //                ; sub_4A61F+168j
@@ -10075,34 +10071,25 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         // jz  short loc_4A795
     }
     // mov [si+1832h], cx
-    leftTile->movingObject = ch;
-    leftTile->tile = cl;
+    leftTile->movingObject = movingObject;
+    leftTile->tile = tile;
 
 //loc_4A795:              ; CODE XREF: sub_4A61F+170j
 //    jmp short loc_4A7AB
 
 //loc_4A797:              ; CODE XREF: sub_4A61F+14Fj
-//    push    si
-//    add si, 0FFFEh
-    sub_4AA34();
-//    pop si
+    sub_4AA34(position - 1, movingObject, tile);
 //    jmp short loc_4A7AB
 
 //loc_4A7A1:              ; CODE XREF: sub_4A61F+14Bj
-//    push    si
-//    add si, 0FFFEh
-    sub_4A9C4();
-//    pop si
+    sub_4A9C4(position - 1, movingObject, tile);
     // jmp short $+2 // jmp loc_4A7AB ??
 
 //loc_4A7AB:              ; CODE XREF: sub_4A61F:loc_4A795j
 //                ; sub_4A61F+180j ...
-//    pop(cx);
     // mov [si+1834h], cx
-    currentTile->movingObject = ch;
-    currentTile->tile = cl;
-    dh = dl;
-//    push(cx);
+    currentTile->movingObject = movingObject;
+    currentTile->tile = tile;
 
     if (rightTile->tile == LevelTileTypeOrangeDisk
         || rightTile->tile == LevelTileTypeYellowDisk
@@ -10120,8 +10107,10 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     }
     else if (rightTile->tile == LevelTileTypeElectron)
     {
-        dh = -dh;
-        cx = 0x801F;
+        afterWordTile = 256 - afterWordTile; // dh = -dh;
+        // cx = 0x0801F;
+        movingObject = 0x08;
+        tile = LevelTileTypeHardware5;
 //        jmp short loc_4A7E0
     }
 
@@ -10138,7 +10127,7 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     {
         // jz  short loc_4A7E8
     }
-    //mov [bx+2435h], dh
+    gCurrentLevelAfterWord.tiles[position + 1] = afterWordTile; // mov [bx+2435h], dh
 
 //loc_4A7E8:              ; CODE XREF: sub_4A61F+1B9j
 //                ; sub_4A61F+1C3j
@@ -10147,30 +10136,22 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         // jz  short loc_4A7F0
     }
     // mov [si+1836h], cx
-    rightTile->movingObject = ch;
-    rightTile->tile = cl;
+    rightTile->movingObject = movingObject;
+    rightTile->tile = tile;
 
 //loc_4A7F0:              ; CODE XREF: sub_4A61F+1CBj
 //    jmp short loc_4A806
 
 //loc_4A7F2:              ; CODE XREF: sub_4A61F+1AAj
-//    push    si
-//    add si, 2
-    sub_4AA34();
-//    pop si
+    sub_4AA34(position + 1, movingObject, tile);
 //    jmp short loc_4A806
 
 //loc_4A7FC:              ; CODE XREF: sub_4A61F+1A6j
-//    push    si
-//    add si, 2
-    sub_4A9C4();
-//    pop si
+    sub_4A9C4(position + 1, movingObject, tile);
 //    jmp short $+2 // jmp loc_4A806 ??
 
 //loc_4A806:              ; CODE XREF: sub_4A61F:loc_4A7F0j
 //                ; sub_4A61F+1DBj ...
-    dh = dl;
-//    push(cx);
 
     if (belowLeftTile->tile == LevelTileTypeOrangeDisk
         || belowLeftTile->tile == LevelTileTypeYellowDisk
@@ -10188,8 +10169,10 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     }
     else if (belowLeftTile->tile == LevelTileTypeElectron)
     {
-        dh = -dh;
-        cx = 0x801F;
+        afterWordTile = 256 - afterWordTile; // dh = -dh;
+        // cx = 0x0801F;
+        movingObject = 0x08;
+        tile = LevelTileTypeHardware5;
 //        jmp short loc_4A837
     }
 //loc_4A82D:              ; CODE XREF: sub_4A61F+205j
@@ -10205,7 +10188,7 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     {
         // jz  short loc_4A83F
     }
-//    mov [bx+246Fh], dh
+    gCurrentLevelAfterWord.tiles[position + kLevelWidth - 1] = afterWordTile; // mov [bx+246Fh], dh
 
 //loc_4A83F:              ; CODE XREF: sub_4A61F+210j
 //                ; sub_4A61F+21Aj
@@ -10214,31 +10197,22 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         // jz  short loc_4A847
     }
     // mov [si+18AAh], cx
-    belowLeftTile->movingObject = ch;
-    belowLeftTile->tile = cl;
+    belowLeftTile->movingObject = movingObject;
+    belowLeftTile->tile = tile;
 
 //loc_4A847:              ; CODE XREF: sub_4A61F+222j
 //    jmp short loc_4A85D
 
 //loc_4A849:              ; CODE XREF: sub_4A61F+201j
-//    push    si
-//    add si, 76h ; 'v'
-    sub_4AA34();
-//    pop si
+    sub_4AA34(position + kLevelWidth - 1, movingObject, tile);
 //    jmp short loc_4A85D
 
 //loc_4A853:              ; CODE XREF: sub_4A61F+1FDj
-//    push    si
-//    add si, 76h ; 'v'
-    sub_4A9C4();
-//    pop si
+    sub_4A9C4(position + kLevelWidth - 1, movingObject, tile);
 //    jmp short $+2 // jmp loc_4A85D
 
 //loc_4A85D:              ; CODE XREF: sub_4A61F:loc_4A847j
 //                ; sub_4A61F+232j ...
-//    pop(cx);
-    dh = dl;
-//    push(cx);
 
     if (belowTile->tile == LevelTileTypeOrangeDisk
         || belowTile->tile == LevelTileTypeYellowDisk
@@ -10256,8 +10230,10 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     }
     else if (belowTile->tile == LevelTileTypeElectron)
     {
-        dh = -dh;
-        cx = 0x801F;
+        afterWordTile = 256 - afterWordTile; // dh = -dh;
+        // cx = 0x0801F;
+        movingObject = 0x08;
+        tile = LevelTileTypeHardware5;
 //        jmp short loc_4A88E
     }
 
@@ -10274,7 +10250,7 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     {
         // jz  short loc_4A896
     }
-//    mov [bx+2470h], dh
+    gCurrentLevelAfterWord.tiles[position + kLevelWidth] = afterWordTile; // mov [bx+2470h], dh
 
 //loc_4A896:              ; CODE XREF: sub_4A61F+267j
 //                ; sub_4A61F+271j
@@ -10290,24 +10266,15 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
 //    jmp short loc_4A8B4
 
 //loc_4A8A0:              ; CODE XREF: sub_4A61F+258j
-//    push    si
-//    add si, 78h ; 'x'
-    sub_4AA34();
-//    pop si
+    sub_4AA34(position + kLevelWidth, movingObject, tile);
 //    jmp short loc_4A8B4
 
 //loc_4A8AA:              ; CODE XREF: sub_4A61F+254j
-//    push    si
-//    add si, 78h ; 'x'
-    sub_4A9C4();
-//    pop si
+    sub_4A9C4(position + kLevelWidth, movingObject, tile);
 //    jmp short $+2 // jmp loc_4A8B4 ??
 
 //loc_4A8B4:              ; CODE XREF: sub_4A61F:loc_4A89Ej
 //                ; sub_4A61F+289j ...
-    pop(cx);
-    dh = dl;
-//    push(cx);
 
     if (belowRightTile->tile == LevelTileTypeOrangeDisk
         || belowRightTile->tile == LevelTileTypeYellowDisk
@@ -10325,8 +10292,10 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     }
     else if (belowRightTile->tile == LevelTileTypeElectron)
     {
-        dh = -dh;
-        cx = 0x801F;
+        afterWordTile = 256 - afterWordTile; // dh = -dh;
+        // cx = 0x0801F;
+        movingObject = 0x08;
+        tile = LevelTileTypeHardware5;
 //        jmp short loc_4A8E5
     }
 
@@ -10343,7 +10312,7 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     {
         // jz  short loc_4A8ED
     }
-//    mov [bx+2471h], dh
+    gCurrentLevelAfterWord.tiles[position + kLevelWidth + 1] = afterWordTile; // mov [bx+2471h], dh
 
 //loc_4A8ED:              ; CODE XREF: sub_4A61F+2BEj
 //                ; sub_4A61F+2C8j
@@ -10359,22 +10328,15 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
 //    jmp short loc_4A90B
 
 //loc_4A8F7:              ; CODE XREF: sub_4A61F+2AFj
-//    push    si
-//    add si, 7Ah ; 'z'
-    sub_4AA34();
-//    pop si
+    sub_4AA34(position + kLevelWidth + 1, movingObject, tile);
 //    jmp short loc_4A90B
 
 //loc_4A901:              ; CODE XREF: sub_4A61F+2ABj
-//    push    si
-//    add si, 7Ah ; 'z'
-    sub_4A9C4();
-//    pop si
+    sub_4A9C4(position + kLevelWidth + 1, movingObject, tile);
 //    jmp short $+2 // jmp loc_4A90B ??
 
 //loc_4A90B:              ; CODE XREF: sub_4A61F:loc_4A8F5j
 //                ; sub_4A61F+2E0j ...
-//    pop(cx);
     sound4();
     return;
 }
@@ -10489,172 +10451,149 @@ loc_4A9C0:              ; CODE XREF: sub_4A95F+5Dj
     return;
      */
 }
-/*
-sub_4A9C4   proc near       ; CODE XREF: sub_4A61F+81p
-                    ; sub_4A61F+D8p ...
-        mov [si+1834h], cx
-        and ah, 0F0h
-        cmp ah, 10h
-        jz  short loc_4A9EF
-        cmp ah, 70h ; 'p'
-        jz  short loc_4A9EF
-        cmp ah, 20h ; ' '
-        jz  short loc_4AA05
-        cmp ah, 30h ; '0'
-        jz  short loc_4AA12
-        cmp ah, 50h ; 'P'
-        jz  short loc_4AA1F
-        cmp ah, 60h ; '`'
-        jz  short loc_4AA26
-        cmp ah, 70h ; 'p'
-        jz  short loc_4AA2D
+
+void sub_4A9C4(uint16_t position, uint8_t movingObject, uint8_t tile) //   proc near       ; CODE XREF: sub_4A61F+81p
+                  //  ; sub_4A61F+D8p ...
+{
+    MovingLevelTile *currentTile = &gCurrentLevelWord[position];
+    MovingLevelTile *belowTile = &gCurrentLevelWord[position + kLevelWidth];
+
+    ah = currentTile->movingObject & 0xF0;
+
+    if (ah == 0x10
+        || ah == 0x70)
+    {
+//loc_4A9EF:              ; CODE XREF: sub_4A9C4+Aj sub_4A9C4+Fj
+        sub_4AAB4(position - kLevelWidth);
+        if (belowTile->movingObject == 0x99 && belowTile->tile == 0x99)
+        {
+            sub_4AAB4(position + kLevelWidth);
+        }
+    }
+    else if (ah == 0x20)
+    {
+//loc_4AA05:              ; CODE XREF: sub_4A9C4+14j
+        sub_4AAB4(position + 1);
+        sub_4AAB4(position + kLevelWidth);
+    }
+    else if (ah == 0x30)
+    {
+//loc_4AA12:              ; CODE XREF: sub_4A9C4+19j
+        sub_4AAB4(position - 1);
+        sub_4AAB4(position + kLevelWidth);
+    }
+    else if (ah == 0x50)
+    {
+//loc_4AA1F:              ; CODE XREF: sub_4A9C4+1Ej
+        sub_4AAB4(position - 1);
+    }
+    else if (ah == 0x60)
+    {
+//loc_4AA26:              ; CODE XREF: sub_4A9C4+23j
+        sub_4AAB4(position + 1);
+    }
+    else if (ah == 0x70)
+    {
+//loc_4AA2D:              ; CODE XREF: sub_4A9C4+28j
+        sub_4AAB4(position + kLevelWidth);
+    }
+}
+
+void sub_4AA34(uint16_t position, uint8_t movingObject, uint8_t tile) //   proc near       ; CODE XREF: sub_4A61F+77p
+                   // ; sub_4A61F+CEp ...
+{
+    // Parameters:
+    // - si: position
+    // - cx: movingObject (ch) and tile (cl)
+
+    MovingLevelTile *currentTile = &gCurrentLevelWord[position];
+    MovingLevelTile *belowTile = &gCurrentLevelWord[position + kLevelWidth];
+
+    currentTile->movingObject = movingObject;
+    currentTile->tile = tile;
+
+    ah = currentTile->movingObject & 0xF0;
+
+    if (ah == 0x10
+        || ah == 0x70)
+    {
+//loc_4AA5F:              ; CODE XREF: sub_4AA34+Aj sub_4AA34+Fj
+        sub_4AAB4(position - kLevelWidth);
+        if (belowTile->movingObject == 0x99 && belowTile->tile == 0x99)
+        {
+            sub_4AAB4(position + kLevelWidth);
+        }
+    }
+    else if (ah == 0x20)
+    {
+//loc_4AA75:              ; CODE XREF: sub_4AA34+14j
+        sub_4AAB4(position + 1);
+        if (belowTile->movingObject == 0x99 && belowTile->tile == 0x99)
+        {
+            sub_4AAB4(position + kLevelWidth);
+        }
+    }
+    else if (ah == 0x30)
+    {
+//loc_4AA8A:              ; CODE XREF: sub_4AA34+19j
+        sub_4AAB4(position - 1);
+        if (belowTile->movingObject == 0x99 && belowTile->tile == 0x99)
+        {
+            sub_4AAB4(position + kLevelWidth);
+        }
+    }
+    else if (ah == 0x50)
+    {
+//loc_4AA9F:              ; CODE XREF: sub_4AA34+1Ej
+        sub_4AAB4(position - 1);
+    }
+    else if (ah == 0x60)
+    {
+//loc_4AAA6:              ; CODE XREF: sub_4AA34+23j
+        sub_4AAB4(position + 1);
+    }
+    else if (ah == 0x70)
+    {
+//loc_4AAAD:              ; CODE XREF: sub_4AA34+28j
+        sub_4AAB4(position + kLevelWidth);
+    }
+}
+
+void sub_4AAB4(uint16_t position) //   proc near       ; CODE XREF: sub_4A9C4+2Ep
+                   // ; sub_4A9C4+3Dp ...
+{
+    MovingLevelTile *currentTile = &gCurrentLevelWord[position];
+
+    if (currentTile->tile == LevelTileTypeHardware5)
+    {
         return;
+    }
 
-loc_4A9EF:              ; CODE XREF: sub_4A9C4+Aj sub_4A9C4+Fj
-        sub si, 78h ; 'x'
-        call    sub_4AAB4
-        add si, 0F0h ; '?'
-        cmp word ptr leveldata[si], 9999h
-        jnz short locret_4AA04
-        call    sub_4AAB4
+//loc_4AABC:              ; CODE XREF: sub_4AAB4+5j
+    currentTile->movingObject = 0;
+    currentTile->tile = LevelTileTypeSpace;
 
-locret_4AA04:               ; CODE XREF: sub_4A9C4+3Bj
-        return;
+//    push    si
+//    push    ds
+//    mov di, [si+6155h]
+    si = word_51580; // probably point to the coordinates of the frame in MOVING.DAT
+    drawMovingSpriteFrameInLevel(0, 0, 0, 0, 0);
+    /*
+    mov ax, es
+    mov ds, ax
+    mov cx, 10h
 
-loc_4AA05:              ; CODE XREF: sub_4A9C4+14j
-        add si, 2
-        call    sub_4AAB4
-        add si, 76h ; 'v'
-        call    sub_4AAB4
-        return;
-
-loc_4AA12:              ; CODE XREF: sub_4A9C4+19j
-        sub si, 2
-        call    sub_4AAB4
-        add si, 7Ah ; 'z'
-        call    sub_4AAB4
-        return;
-
-loc_4AA1F:              ; CODE XREF: sub_4A9C4+1Ej
-        sub si, 2
-        call    sub_4AAB4
-        return;
-
-loc_4AA26:              ; CODE XREF: sub_4A9C4+23j
-        add si, 2
-        call    sub_4AAB4
-        return;
-
-loc_4AA2D:              ; CODE XREF: sub_4A9C4+28j
-        add si, 78h ; 'x'
-        call    sub_4AAB4
-        return;
-sub_4A9C4   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4AA34   proc near       ; CODE XREF: sub_4A61F+77p
-                    ; sub_4A61F+CEp ...
-        mov leveldata[si], cx
-        and ah, 0F0h
-        cmp ah, 10h
-        jz  short loc_4AA5F
-        cmp ah, 70h ; 'p'
-        jz  short loc_4AA5F
-        cmp ah, 20h ; ' '
-        jz  short loc_4AA75
-        cmp ah, 30h ; '0'
-        jz  short loc_4AA8A
-        cmp ah, 50h ; 'P'
-        jz  short loc_4AA9F
-        cmp ah, 60h ; '`'
-        jz  short loc_4AAA6
-        cmp ah, 70h ; 'p'
-        jz  short loc_4AAAD
-        return;
-
-loc_4AA5F:              ; CODE XREF: sub_4AA34+Aj sub_4AA34+Fj
-        sub si, 78h ; 'x'
-        call    sub_4AAB4
-        add si, 0F0h ; '?'
-        cmp leveldata[si], 9999h
-        jnz short locret_4AA74
-        call    sub_4AAB4
-
-locret_4AA74:               ; CODE XREF: sub_4AA34+3Bj
-        return;
-
-loc_4AA75:              ; CODE XREF: sub_4AA34+14j
-        add si, 2
-        call    sub_4AAB4
-        add si, 76h ; 'v'
-        cmp leveldata[si], 9999h
-        jnz short locret_4AA89
-        call    sub_4AAB4
-
-locret_4AA89:               ; CODE XREF: sub_4AA34+50j
-        return;
-
-loc_4AA8A:              ; CODE XREF: sub_4AA34+19j
-        sub si, 2
-        call    sub_4AAB4
-        add si, 7Ah ; 'z'
-        cmp word ptr leveldata[si], 9999h
-        jnz short locret_4AA9E
-        call    sub_4AAB4
-
-locret_4AA9E:               ; CODE XREF: sub_4AA34+65j
-        return;
-
-loc_4AA9F:              ; CODE XREF: sub_4AA34+1Ej
-        sub si, 2
-        call    sub_4AAB4
-        return;
-
-loc_4AAA6:              ; CODE XREF: sub_4AA34+23j
-        add si, 2
-        call    sub_4AAB4
-        return;
-
-loc_4AAAD:              ; CODE XREF: sub_4AA34+28j
-        add si, 78h ; 'x'
-        call    sub_4AAB4
-        return;
-sub_4AA34   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4AAB4   proc near       ; CODE XREF: sub_4A9C4+2Ep
-                    ; sub_4A9C4+3Dp ...
-        cmp byte ptr leveldata[si], 1Fh
-        jnz short loc_4AABC
-        return;
-
-loc_4AABC:              ; CODE XREF: sub_4AAB4+5j
-        mov word ptr leveldata[si], 0
-        push    si
-        push    ds
-        mov di, [si+6155h]
-        mov si, word_51580
-        mov ax, es
-        mov ds, ax
-        mov cx, 10h
-
-loc_4AAD3:              ; CODE XREF: sub_4AAB4+27j
-        movsb
-        movsb
-        add si, 78h ; 'x'
-        add di, 78h ; 'x'
-        loop    loc_4AAD3
-        pop ds
-        pop si
-        return;
-sub_4AAB4   endp
-*/
+//loc_4AAD3:              ; CODE XREF: sub_4AAB4+27j
+    movsb
+    movsb
+    add si, 78h ; 'x'
+    add di, 78h ; 'x'
+    loop    loc_4AAD3
+    pop ds
+    pop si
+     */
+    return;
+}
 
 void readMenuDat() // proc near       ; CODE XREF: readEverything+9p
 {
