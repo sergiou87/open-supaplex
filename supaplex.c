@@ -9837,24 +9837,30 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     }
 
 //loc_4A64C:              ; CODE XREF: sub_4A61F+26j
-    bx = position;
-    bx /= 2;
-    dh = dl;
-//    push(cx);
+    uint8_t skipHardwareCheck7 = 0;
 
     if (aboveLeftTile->tile == LevelTileTypeOrangeDisk
         || aboveLeftTile->tile == LevelTileTypeYellowDisk
         || aboveLeftTile->tile == LevelTileTypeSnikSnak)
     {
-        // jz  short loc_4A680
+//loc_4A680:              ; CODE XREF: sub_4A61F+3Aj
+//                ; sub_4A61F+3Ej ...
+        if (aboveLeftTile->tile != LevelTileTypeHardware)
+        {
+            gCurrentLevelAfterWord.tiles[position - kLevelWidth - 1] = afterWordTile; // mov [bx+23F7h], dh
+        }
     }
     else if (aboveLeftTile->tile == LevelTileTypeZonk)
     {
-        // jz  short loc_4A69C
+//loc_4A69C:              ; CODE XREF: sub_4A61F+46j
+        sub_4A9C4(position - kLevelWidth - 1, movingObject, tile);
+        skipHardwareCheck7 = 1; // to emulate jmp loc_4A6A6
     }
     else if (aboveLeftTile->tile == LevelTileTypeInfotron)
     {
-        // jz  short loc_4A692
+//loc_4A692:              ; CODE XREF: sub_4A61F+4Aj
+        sub_4AA34(position - kLevelWidth - 1, movingObject, tile);
+        skipHardwareCheck7 = 1; // to emulate jmp loc_4A6A6
     }
     else if (aboveLeftTile->tile == LevelTileTypeElectron)
     {
@@ -9862,62 +9868,64 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         // cx = 0x0801F;
         movingObject = 0x08;
         tile = LevelTileTypeHardware5;
-//        jmp short loc_4A680
+//loc_4A680:              ; CODE XREF: sub_4A61F+3Aj
+//                ; sub_4A61F+3Ej ...
+        if (aboveLeftTile->tile != LevelTileTypeHardware)
+        {
+            gCurrentLevelAfterWord.tiles[position - kLevelWidth - 1] = afterWordTile; // mov [bx+23F7h], dh
+        }
     }
 //loc_4A676:              ; CODE XREF: sub_4A61F+4Ej
-    if (aboveLeftTile->tile != LevelTileTypeMurphy)
+    if (aboveLeftTile->tile == LevelTileTypeMurphy)
     {
-        // jnz short loc_4A688
-    }
-    word_510D1 = 1;
+        word_510D1 = 1;
 
 //loc_4A680:              ; CODE XREF: sub_4A61F+3Aj
 //                ; sub_4A61F+3Ej ...
-    if (aboveLeftTile->tile == LevelTileTypeHardware)
-    {
-        // jz  short loc_4A688
+        if (aboveLeftTile->tile != LevelTileTypeHardware)
+        {
+            gCurrentLevelAfterWord.tiles[position - kLevelWidth - 1] = afterWordTile; // mov [bx+23F7h], dh
+        }
     }
-    gCurrentLevelAfterWord.tiles[position - kLevelWidth - 1] = afterWordTile; // mov [bx+23F7h], dh
 
+    if (skipHardwareCheck7 == 0)
+    {
 //loc_4A688:              ; CODE XREF: sub_4A61F+59j
 //                ; sub_4A61F+63j
-    if (aboveLeftTile->tile == LevelTileTypeHardware)
-    {
-        // jz  short loc_4A690
+        if (aboveLeftTile->tile != LevelTileTypeHardware)
+        {
+            // mov [si+17BAh], cx
+            aboveLeftTile->movingObject = movingObject;
+            aboveLeftTile->tile = tile;
+        }
     }
-    // mov [si+17BAh], cx
-    aboveLeftTile->movingObject = movingObject;
-    aboveLeftTile->tile = tile;
-
-//loc_4A690:              ; CODE XREF: sub_4A61F+6Bj
-    // jmp short loc_4A6A6
-
-//loc_4A692:              ; CODE XREF: sub_4A61F+4Aj
-    sub_4AA34(position - kLevelWidth - 1, movingObject, tile);
-    // jmp short loc_4A6A6
-
-//loc_4A69C:              ; CODE XREF: sub_4A61F+46j
-    sub_4A9C4(position - kLevelWidth - 1, movingObject, tile);
-//    jmp short $+2 // jmp loc_4A6A6 ??
 
 //loc_4A6A6:              ; CODE XREF: sub_4A61F:loc_4A690j
 //                ; sub_4A61F+7Bj ...
-//    pop(cx);
-    dh = dl;
-//    push(cx);
+    uint8_t skipHardwareCheck6 = 0;
+
     if (aboveTile->tile == LevelTileTypeOrangeDisk
         || aboveTile->tile == LevelTileTypeYellowDisk
         || aboveTile->tile == LevelTileTypeSnikSnak)
     {
-        // jz  short loc_4A6D7
+//loc_4A6D7:              ; CODE XREF: sub_4A61F+91j
+//                ; sub_4A61F+95j ...
+        if (aboveTile->tile != LevelTileTypeHardware)
+        {
+            gCurrentLevelAfterWord.tiles[position - kLevelWidth] = afterWordTile; // mov [bx+23F8h], dh
+        }
     }
     else if (aboveTile->tile == LevelTileTypeZonk)
     {
-        // jz  short loc_4A6F3
+//loc_4A6F3:              ; CODE XREF: sub_4A61F+9Dj
+        sub_4A9C4(position - kLevelWidth, movingObject, tile);
+        skipHardwareCheck6 = 1; // to emulate jmp loc_4A6FD
     }
     else if (aboveTile->tile == LevelTileTypeInfotron)
     {
-        // jz  short loc_4A6E9
+//loc_4A6E9:              ; CODE XREF: sub_4A61F+A1j
+        sub_4AA34(position - kLevelWidth, movingObject, tile);
+        skipHardwareCheck6 = 1; // to emulate jmp loc_4A6FD
     }
     else if (aboveTile->tile == LevelTileTypeElectron)
     {
@@ -9925,60 +9933,65 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         // cx = 0x0801F;
         movingObject = 0x08;
         tile = LevelTileTypeHardware5;
-//        jmp short loc_4A6D7
+//loc_4A6D7:              ; CODE XREF: sub_4A61F+91j
+//                ; sub_4A61F+95j ...
+        if (aboveTile->tile != LevelTileTypeHardware)
+        {
+            gCurrentLevelAfterWord.tiles[position - kLevelWidth] = afterWordTile; // mov [bx+23F8h], dh
+        }
     }
 
 //loc_4A6CD:              ; CODE XREF: sub_4A61F+A5j
-    if (aboveTile->tile != LevelTileTypeMurphy)
+    if (aboveTile->tile == LevelTileTypeMurphy)
     {
-        // jnz short loc_4A6DF
-    }
-    word_510D1 = 1;
+        word_510D1 = 1;
 
 //loc_4A6D7:              ; CODE XREF: sub_4A61F+91j
 //                ; sub_4A61F+95j ...
-    if (aboveTile->tile == LevelTileTypeHardware)
-    {
-        // jz  short loc_4A6DF
+        if (aboveTile->tile != LevelTileTypeHardware)
+        {
+            gCurrentLevelAfterWord.tiles[position - kLevelWidth] = afterWordTile; // mov [bx+23F8h], dh
+        }
     }
-    gCurrentLevelAfterWord.tiles[position - kLevelWidth] = afterWordTile; // mov [bx+23F8h], dh
 
+    if (skipHardwareCheck6 == 0)
+    {
 //loc_4A6DF:              ; CODE XREF: sub_4A61F+B0j
 //                ; sub_4A61F+BAj
-    if (aboveTile->tile == LevelTileTypeHardware)
-    {
-        // jz  short loc_4A6E7
+        if (aboveTile->tile != LevelTileTypeHardware)
+        {
+            // mov [si+17BCh], cx
+            aboveTile->movingObject = movingObject;
+            aboveTile->tile = tile;
+        }
     }
-    // mov [si+17BCh], cx
-    aboveTile->movingObject = movingObject;
-    aboveTile->tile = tile;
-
-//loc_4A6E7:              ; CODE XREF: sub_4A61F+C2j
-//    jmp short loc_4A6FD
-
-//loc_4A6E9:              ; CODE XREF: sub_4A61F+A1j
-    sub_4AA34(position - kLevelWidth, movingObject, tile);
-//    jmp short loc_4A6FD
-
-//loc_4A6F3:              ; CODE XREF: sub_4A61F+9Dj
-    sub_4A9C4(position - kLevelWidth, movingObject, tile);
-    // jmp short $+2 // jmp loc_4A6FD ??
 
 //loc_4A6FD:              ; CODE XREF: sub_4A61F:loc_4A6E7j
 //                ; sub_4A61F+D2j ...
+    uint8_t skipHardwareCheck5 = 0;
+
     if (aboveRightTile->tile == LevelTileTypeOrangeDisk
         || aboveRightTile->tile == LevelTileTypeYellowDisk
         || aboveRightTile->tile == LevelTileTypeSnikSnak)
     {
-        // jz  short loc_4A72E
+//loc_4A72E:              ; CODE XREF: sub_4A61F+E8j
+//                ; sub_4A61F+ECj ...
+        if (aboveRightTile->tile != LevelTileTypeHardware)
+        {
+            gCurrentLevelAfterWord.tiles[position - kLevelWidth + 1] = afterWordTile; // mov [bx+23F9h], dh
+        }
     }
     else if (aboveRightTile->tile == LevelTileTypeZonk)
     {
-        // jz  short loc_4A74A
+//loc_4A74A:              ; CODE XREF: sub_4A61F+F4j
+        sub_4A9C4(position - kLevelWidth + 1, movingObject, tile);
+        skipHardwareCheck5 = 1; // to emulate jmp loc_4A754
     }
     else if (aboveRightTile->tile == LevelTileTypeInfotron)
     {
-        // jz  short loc_4A740
+//loc_4A740:              ; CODE XREF: sub_4A61F+F8j
+        sub_4AA34(position - kLevelWidth + 1, movingObject, tile);
+        skipHardwareCheck5 = 1; // to emulate jmp loc_4A754
     }
     else if (aboveRightTile->tile == LevelTileTypeElectron)
     {
@@ -9986,60 +9999,65 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         // cx = 0x0801F;
         movingObject = 0x08;
         tile = LevelTileTypeHardware5;
-//        jmp short loc_4A72E
+//loc_4A72E:              ; CODE XREF: sub_4A61F+E8j
+//                ; sub_4A61F+ECj ...
+        if (aboveRightTile->tile != LevelTileTypeHardware)
+        {
+            gCurrentLevelAfterWord.tiles[position - kLevelWidth + 1] = afterWordTile; // mov [bx+23F9h], dh
+        }
     }
 
 //loc_4A724:              ; CODE XREF: sub_4A61F+FCj
     if (aboveRightTile->tile != LevelTileTypeMurphy)
     {
-        // jnz short loc_4A736
-    }
-    word_510D1 = 1;
+        word_510D1 = 1;
 
 //loc_4A72E:              ; CODE XREF: sub_4A61F+E8j
 //                ; sub_4A61F+ECj ...
-    if (aboveRightTile->tile == LevelTileTypeHardware)
-    {
-        // jz  short loc_4A736
+        if (aboveRightTile->tile != LevelTileTypeHardware)
+        {
+            gCurrentLevelAfterWord.tiles[position - kLevelWidth + 1] = afterWordTile; // mov [bx+23F9h], dh
+        }
     }
-    gCurrentLevelAfterWord.tiles[position - kLevelWidth + 1] = afterWordTile; // mov [bx+23F9h], dh
 
+    if (skipHardwareCheck5 == 0)
+    {
 //loc_4A736:              ; CODE XREF: sub_4A61F+107j
 //                ; sub_4A61F+111j
-    if (aboveRightTile->tile == LevelTileTypeHardware)
-    {
-        // jz  short loc_4A73E
+        if (aboveRightTile->tile != LevelTileTypeHardware)
+        {
+            // mov [si+17BEh], cx
+            aboveRightTile->movingObject = movingObject;
+            aboveRightTile->tile = tile;
+        }
     }
-    // mov [si+17BEh], cx
-    aboveRightTile->movingObject = movingObject;
-    aboveRightTile->tile = tile;
-
-//loc_4A73E:              ; CODE XREF: sub_4A61F+119j
-//    jmp short loc_4A754
-
-//loc_4A740:              ; CODE XREF: sub_4A61F+F8j
-    sub_4AA34(position - kLevelWidth + 1, movingObject, tile);
-//    jmp short loc_4A754
-
-//loc_4A74A:              ; CODE XREF: sub_4A61F+F4j
-    sub_4A9C4(position - kLevelWidth + 1, movingObject, tile);
-    // jmp short $+2 // jmp loc_4A754 ??
 
 //loc_4A754:              ; CODE XREF: sub_4A61F:loc_4A73Ej
 //                ; sub_4A61F+129j ...
+    uint8_t skipHardwareCheck4 = 0;
+
     if (leftTile->tile == LevelTileTypeOrangeDisk
         || leftTile->tile == LevelTileTypeYellowDisk
         || leftTile->tile == LevelTileTypeSnikSnak)
     {
-        // jz  short loc_4A785
+//loc_4A785:              ; CODE XREF: sub_4A61F+13Fj
+//                ; sub_4A61F+143j ...
+        if (leftTile->tile != LevelTileTypeHardware)
+        {
+            gCurrentLevelAfterWord.tiles[position - 1] = afterWordTile; // mov [bx+2433h], dh
+        }
     }
     else if (leftTile->tile == LevelTileTypeZonk)
     {
-        // jz  short loc_4A7A1
+//loc_4A7A1:              ; CODE XREF: sub_4A61F+14Bj
+        sub_4A9C4(position - 1, movingObject, tile);
+        skipHardwareCheck4 = 1; // to emulate jmp loc_4A7AB
     }
     else if (leftTile->tile == LevelTileTypeInfotron)
     {
-        // jz  short loc_4A797
+//loc_4A797:              ; CODE XREF: sub_4A61F+14Fj
+        sub_4AA34(position - 1, movingObject, tile);
+        skipHardwareCheck4 = 1; // to emulate jmp loc_4A7AB
     }
     else if (leftTile->tile == LevelTileTypeElectron)
     {
@@ -10047,43 +10065,37 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         // cx = 0x0801F;
         movingObject = 0x08;
         tile = LevelTileTypeHardware5;
-//        jmp short loc_4A785
+//loc_4A785:              ; CODE XREF: sub_4A61F+13Fj
+//                ; sub_4A61F+143j ...
+        if (leftTile->tile != LevelTileTypeHardware)
+        {
+            gCurrentLevelAfterWord.tiles[position - 1] = afterWordTile; // mov [bx+2433h], dh
+        }
     }
 //loc_4A77B:              ; CODE XREF: sub_4A61F+153j
-    if (leftTile->tile != LevelTileTypeMurphy)
+    else if (leftTile->tile == LevelTileTypeMurphy)
     {
-        // jnz short loc_4A78D
-    }
-    word_510D1 = 1;
+        word_510D1 = 1;
 
 //loc_4A785:              ; CODE XREF: sub_4A61F+13Fj
 //                ; sub_4A61F+143j ...
-    if (leftTile->tile == LevelTileTypeHardware)
-    {
-        // jz  short loc_4A78D
+        if (leftTile->tile != LevelTileTypeHardware)
+        {
+            gCurrentLevelAfterWord.tiles[position - 1] = afterWordTile; // mov [bx+2433h], dh
+        }
     }
-    gCurrentLevelAfterWord.tiles[position - 1] = afterWordTile; // mov [bx+2433h], dh
 
+    if (skipHardwareCheck4 == 0)
+    {
 //loc_4A78D:              ; CODE XREF: sub_4A61F+15Ej
 //                ; sub_4A61F+168j
-    if (leftTile->tile == LevelTileTypeHardware)
-    {
-        // jz  short loc_4A795
+        if (leftTile->tile != LevelTileTypeHardware)
+        {
+            // mov [si+1832h], cx
+            leftTile->movingObject = movingObject;
+            leftTile->tile = tile;
+        }
     }
-    // mov [si+1832h], cx
-    leftTile->movingObject = movingObject;
-    leftTile->tile = tile;
-
-//loc_4A795:              ; CODE XREF: sub_4A61F+170j
-//    jmp short loc_4A7AB
-
-//loc_4A797:              ; CODE XREF: sub_4A61F+14Fj
-    sub_4AA34(position - 1, movingObject, tile);
-//    jmp short loc_4A7AB
-
-//loc_4A7A1:              ; CODE XREF: sub_4A61F+14Bj
-    sub_4A9C4(position - 1, movingObject, tile);
-    // jmp short $+2 // jmp loc_4A7AB ??
 
 //loc_4A7AB:              ; CODE XREF: sub_4A61F:loc_4A795j
 //                ; sub_4A61F+180j ...
@@ -10091,19 +10103,30 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     currentTile->movingObject = movingObject;
     currentTile->tile = tile;
 
+    uint8_t skipHardwareCheck3 = 0;
+
     if (rightTile->tile == LevelTileTypeOrangeDisk
         || rightTile->tile == LevelTileTypeYellowDisk
         || rightTile->tile == LevelTileTypeSnikSnak)
     {
-        // jz  short loc_4A7E0
+//loc_4A7E0:              ; CODE XREF: sub_4A61F+19Aj
+//                ; sub_4A61F+19Ej ...
+        if (rightTile->tile != LevelTileTypeHardware)
+        {
+            gCurrentLevelAfterWord.tiles[position + 1] = afterWordTile; // mov [bx+2435h], dh
+        }
     }
     else if (rightTile->tile == LevelTileTypeZonk)
     {
-        // jz  short loc_4A7FC
+//loc_4A7FC:              ; CODE XREF: sub_4A61F+1A6j
+        sub_4A9C4(position + 1, movingObject, tile);
+        skipHardwareCheck3 = 1; // to emulate jmp loc_4A806
     }
     else if (rightTile->tile == LevelTileTypeInfotron)
     {
-        // jz  short loc_4A7F2
+//loc_4A7F2:              ; CODE XREF: sub_4A61F+1AAj
+        sub_4AA34(position + 1, movingObject, tile);
+        skipHardwareCheck3 = 1; // to emulate jmp loc_4A806
     }
     else if (rightTile->tile == LevelTileTypeElectron)
     {
@@ -10111,61 +10134,65 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         // cx = 0x0801F;
         movingObject = 0x08;
         tile = LevelTileTypeHardware5;
-//        jmp short loc_4A7E0
+//loc_4A7E0:              ; CODE XREF: sub_4A61F+19Aj
+//                ; sub_4A61F+19Ej ...
+        if (rightTile->tile != LevelTileTypeHardware)
+        {
+            gCurrentLevelAfterWord.tiles[position + 1] = afterWordTile; // mov [bx+2435h], dh
+        }
     }
-
 //loc_4A7D6:              ; CODE XREF: sub_4A61F+1AEj
-    if (rightTile->tile != LevelTileTypeMurphy)
+    else if (rightTile->tile == LevelTileTypeMurphy)
     {
-        // jnz short loc_4A7E8
-    }
-    word_510D1 = 1;
+        word_510D1 = 1;
 
 //loc_4A7E0:              ; CODE XREF: sub_4A61F+19Aj
 //                ; sub_4A61F+19Ej ...
-    if (rightTile->tile == LevelTileTypeHardware)
-    {
-        // jz  short loc_4A7E8
+        if (rightTile->tile != LevelTileTypeHardware)
+        {
+            gCurrentLevelAfterWord.tiles[position + 1] = afterWordTile; // mov [bx+2435h], dh
+        }
     }
-    gCurrentLevelAfterWord.tiles[position + 1] = afterWordTile; // mov [bx+2435h], dh
 
+    if (skipHardwareCheck3 == 0)
+    {
 //loc_4A7E8:              ; CODE XREF: sub_4A61F+1B9j
 //                ; sub_4A61F+1C3j
-    if (rightTile->tile == LevelTileTypeHardware)
-    {
-        // jz  short loc_4A7F0
+        if (rightTile->tile != LevelTileTypeHardware)
+        {
+            // mov [si+1836h], cx
+            rightTile->movingObject = movingObject;
+            rightTile->tile = tile;
+        }
     }
-    // mov [si+1836h], cx
-    rightTile->movingObject = movingObject;
-    rightTile->tile = tile;
-
-//loc_4A7F0:              ; CODE XREF: sub_4A61F+1CBj
-//    jmp short loc_4A806
-
-//loc_4A7F2:              ; CODE XREF: sub_4A61F+1AAj
-    sub_4AA34(position + 1, movingObject, tile);
-//    jmp short loc_4A806
-
-//loc_4A7FC:              ; CODE XREF: sub_4A61F+1A6j
-    sub_4A9C4(position + 1, movingObject, tile);
-//    jmp short $+2 // jmp loc_4A806 ??
 
 //loc_4A806:              ; CODE XREF: sub_4A61F:loc_4A7F0j
 //                ; sub_4A61F+1DBj ...
+
+    uint8_t skipHardwareCheck2 = 0;
 
     if (belowLeftTile->tile == LevelTileTypeOrangeDisk
         || belowLeftTile->tile == LevelTileTypeYellowDisk
         || belowLeftTile->tile == LevelTileTypeSnikSnak)
     {
-        // jz  short loc_4A837
+//loc_4A837:              ; CODE XREF: sub_4A61F+1F1j
+//                ; sub_4A61F+1F5j ...
+        if (belowLeftTile->tile != LevelTileTypeHardware)
+        {
+            gCurrentLevelAfterWord.tiles[position + kLevelWidth - 1] = afterWordTile; // mov [bx+246Fh], dh
+        }
     }
     else if (belowLeftTile->tile == LevelTileTypeZonk)
     {
-        // jz  short loc_4A853
+//loc_4A853:              ; CODE XREF: sub_4A61F+1FDj
+        sub_4A9C4(position + kLevelWidth - 1, movingObject, tile);
+        skipHardwareCheck2 = 1; // to emulate jmp loc_4A85D
     }
     else if (belowLeftTile->tile == LevelTileTypeInfotron)
     {
-        // jz  short loc_4A849
+//loc_4A849:              ; CODE XREF: sub_4A61F+201j
+        sub_4AA34(position + kLevelWidth - 1, movingObject, tile);
+        skipHardwareCheck2 = 1; // to emulate jmp loc_4A85D
     }
     else if (belowLeftTile->tile == LevelTileTypeElectron)
     {
@@ -10173,60 +10200,64 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         // cx = 0x0801F;
         movingObject = 0x08;
         tile = LevelTileTypeHardware5;
-//        jmp short loc_4A837
-    }
-//loc_4A82D:              ; CODE XREF: sub_4A61F+205j
-    if (belowLeftTile->tile != LevelTileTypeMurphy)
-    {
-        // jnz short loc_4A83F
-    }
-    word_510D1 = 1;
-
 //loc_4A837:              ; CODE XREF: sub_4A61F+1F1j
 //                ; sub_4A61F+1F5j ...
-    if (belowLeftTile->tile == LevelTileTypeHardware)
-    {
-        // jz  short loc_4A83F
+        if (belowLeftTile->tile != LevelTileTypeHardware)
+        {
+            gCurrentLevelAfterWord.tiles[position + kLevelWidth - 1] = afterWordTile; // mov [bx+246Fh], dh
+        }
     }
-    gCurrentLevelAfterWord.tiles[position + kLevelWidth - 1] = afterWordTile; // mov [bx+246Fh], dh
+//loc_4A82D:              ; CODE XREF: sub_4A61F+205j
+    else if (belowLeftTile->tile == LevelTileTypeMurphy)
+    {
+        word_510D1 = 1;
+//loc_4A837:              ; CODE XREF: sub_4A61F+1F1j
+//                ; sub_4A61F+1F5j ...
+        if (belowLeftTile->tile != LevelTileTypeHardware)
+        {
+            gCurrentLevelAfterWord.tiles[position + kLevelWidth - 1] = afterWordTile; // mov [bx+246Fh], dh
+        }
+    }
 
+    if (skipHardwareCheck2 == 0)
+    {
 //loc_4A83F:              ; CODE XREF: sub_4A61F+210j
 //                ; sub_4A61F+21Aj
-    if (belowLeftTile->tile == LevelTileTypeHardware)
-    {
-        // jz  short loc_4A847
+        if (belowLeftTile->tile != LevelTileTypeHardware)
+        {
+            // mov [si+18AAh], cx
+            belowLeftTile->movingObject = movingObject;
+            belowLeftTile->tile = tile;
+        }
     }
-    // mov [si+18AAh], cx
-    belowLeftTile->movingObject = movingObject;
-    belowLeftTile->tile = tile;
-
-//loc_4A847:              ; CODE XREF: sub_4A61F+222j
-//    jmp short loc_4A85D
-
-//loc_4A849:              ; CODE XREF: sub_4A61F+201j
-    sub_4AA34(position + kLevelWidth - 1, movingObject, tile);
-//    jmp short loc_4A85D
-
-//loc_4A853:              ; CODE XREF: sub_4A61F+1FDj
-    sub_4A9C4(position + kLevelWidth - 1, movingObject, tile);
-//    jmp short $+2 // jmp loc_4A85D
 
 //loc_4A85D:              ; CODE XREF: sub_4A61F:loc_4A847j
 //                ; sub_4A61F+232j ...
+
+    uint8_t skipHardwareCheck1 = 0;
 
     if (belowTile->tile == LevelTileTypeOrangeDisk
         || belowTile->tile == LevelTileTypeYellowDisk
         || belowTile->tile == LevelTileTypeSnikSnak)
     {
-        // jz  short loc_4A88E
+//loc_4A88E:              ; CODE XREF: sub_4A61F+248j
+//                ; sub_4A61F+24Cj ...
+        if (belowTile->tile != LevelTileTypeHardware)
+        {
+            gCurrentLevelAfterWord.tiles[position + kLevelWidth] = afterWordTile; // mov [bx+2470h], dh
+        }
     }
     else if (belowTile->tile == LevelTileTypeZonk)
     {
-        // jz  short loc_4A8AA
+//loc_4A8AA:              ; CODE XREF: sub_4A61F+254j
+        sub_4A9C4(position + kLevelWidth, movingObject, tile);
+        skipHardwareCheck1 = 1; // to emulate jmp loc_4A8B4
     }
     else if (belowTile->tile == LevelTileTypeInfotron)
     {
-        // jz  short loc_4A8A0
+//loc_4A8A0:              ; CODE XREF: sub_4A61F+258j
+        sub_4AA34(position + kLevelWidth, movingObject, tile);
+        skipHardwareCheck1 = 1; // to emulate jmp loc_4A8B4
     }
     else if (belowTile->tile == LevelTileTypeElectron)
     {
@@ -10234,44 +10265,37 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         // cx = 0x0801F;
         movingObject = 0x08;
         tile = LevelTileTypeHardware5;
-//        jmp short loc_4A88E
+//loc_4A88E:              ; CODE XREF: sub_4A61F+248j
+//                ; sub_4A61F+24Cj ...
+        if (belowTile->tile != LevelTileTypeHardware)
+        {
+            gCurrentLevelAfterWord.tiles[position + kLevelWidth] = afterWordTile; // mov [bx+2470h], dh
+        }
     }
-
 //loc_4A884:              ; CODE XREF: sub_4A61F+25Cj
-    if (belowTile->tile != LevelTileTypeMurphy)
+    else if (belowTile->tile == LevelTileTypeMurphy)
     {
-        // jnz short loc_4A896
-    }
-    word_510D1 = 1;
+        word_510D1 = 1;
 
 //loc_4A88E:              ; CODE XREF: sub_4A61F+248j
 //                ; sub_4A61F+24Cj ...
-    if (belowTile->tile == LevelTileTypeHardware)
-    {
-        // jz  short loc_4A896
+        if (belowTile->tile != LevelTileTypeHardware)
+        {
+            gCurrentLevelAfterWord.tiles[position + kLevelWidth] = afterWordTile; // mov [bx+2470h], dh
+        }
     }
-    gCurrentLevelAfterWord.tiles[position + kLevelWidth] = afterWordTile; // mov [bx+2470h], dh
 
+    if (skipHardwareCheck1 == 0) // to emulate jmp loc_4A8B4
+    {
 //loc_4A896:              ; CODE XREF: sub_4A61F+267j
 //                ; sub_4A61F+271j
-    if (belowTile->tile == LevelTileTypeHardware)
-    {
-        // jz  short loc_4A89E
+        if (belowTile->tile != LevelTileTypeHardware)
+        {
+            // mov [si+18ACh], cx
+            belowTile->movingObject = movingObject;
+            belowTile->tile = tile;
+        }
     }
-    // mov [si+18ACh], cx
-    belowTile->movingObject = ch;
-    belowTile->tile = cl;
-
-//loc_4A89E:              ; CODE XREF: sub_4A61F+279j
-//    jmp short loc_4A8B4
-
-//loc_4A8A0:              ; CODE XREF: sub_4A61F+258j
-    sub_4AA34(position + kLevelWidth, movingObject, tile);
-//    jmp short loc_4A8B4
-
-//loc_4A8AA:              ; CODE XREF: sub_4A61F+254j
-    sub_4A9C4(position + kLevelWidth, movingObject, tile);
-//    jmp short $+2 // jmp loc_4A8B4 ??
 
 //loc_4A8B4:              ; CODE XREF: sub_4A61F:loc_4A89Ej
 //                ; sub_4A61F+289j ...
@@ -10280,15 +10304,30 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         || belowRightTile->tile == LevelTileTypeYellowDisk
         || belowRightTile->tile == LevelTileTypeSnikSnak)
     {
-        // jz  short loc_4A8E5
+//loc_4A8E5:              ; CODE XREF: sub_4A61F+29Fj
+//                ; sub_4A61F+2A3j ...
+        if (belowRightTile->tile != LevelTileTypeHardware)
+        {
+            gCurrentLevelAfterWord.tiles[position + kLevelWidth + 1] = afterWordTile; // mov [bx+2471h], dh
+        }
     }
     else if (belowRightTile->tile == LevelTileTypeZonk)
     {
-        // jz  short loc_4A901
+//loc_4A901:              ; CODE XREF: sub_4A61F+2ABj
+        sub_4A9C4(position + kLevelWidth + 1, movingObject, tile);
+//loc_4A90B:              ; CODE XREF: sub_4A61F:loc_4A8F5j
+//                ; sub_4A61F+2E0j ...
+        sound4();
+        return;
     }
     else if (belowRightTile->tile == LevelTileTypeInfotron)
     {
-        // jz  short loc_4A8F7
+//loc_4A8F7:              ; CODE XREF: sub_4A61F+2AFj
+        sub_4AA34(position + kLevelWidth + 1, movingObject, tile);
+//loc_4A90B:              ; CODE XREF: sub_4A61F:loc_4A8F5j
+//                ; sub_4A61F+2E0j ...
+        sound4();
+        return;
     }
     else if (belowRightTile->tile == LevelTileTypeElectron)
     {
@@ -10296,49 +10335,38 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         // cx = 0x0801F;
         movingObject = 0x08;
         tile = LevelTileTypeHardware5;
-//        jmp short loc_4A8E5
+//loc_4A8E5:              ; CODE XREF: sub_4A61F+29Fj
+//                ; sub_4A61F+2A3j ...
+        if (belowRightTile->tile != LevelTileTypeHardware)
+        {
+            gCurrentLevelAfterWord.tiles[position + kLevelWidth + 1] = afterWordTile; // mov [bx+2471h], dh
+        }
     }
-
 //loc_4A8DB:              ; CODE XREF: sub_4A61F+2B3j
-    if (belowRightTile->tile != LevelTileTypeMurphy)
+    else if (belowRightTile->tile == LevelTileTypeMurphy)
     {
-        // jnz short loc_4A8ED
-    }
-    word_510D1 = 1;
+        word_510D1 = 1;
 
 //loc_4A8E5:              ; CODE XREF: sub_4A61F+29Fj
 //                ; sub_4A61F+2A3j ...
-    if (belowRightTile->tile == LevelTileTypeHardware)
-    {
-        // jz  short loc_4A8ED
+        if (belowRightTile->tile != LevelTileTypeHardware)
+        {
+            gCurrentLevelAfterWord.tiles[position + kLevelWidth + 1] = afterWordTile; // mov [bx+2471h], dh
+        }
     }
-    gCurrentLevelAfterWord.tiles[position + kLevelWidth + 1] = afterWordTile; // mov [bx+2471h], dh
 
 //loc_4A8ED:              ; CODE XREF: sub_4A61F+2BEj
 //                ; sub_4A61F+2C8j
-    if (belowRightTile->tile == LevelTileTypeHardware)
+    if (belowRightTile->tile != LevelTileTypeHardware)
     {
-        // jz  short loc_4A8F5
+        // mov [si+18AEh], cx
+        belowRightTile->movingObject = ch;
+        belowRightTile->tile = cl;
     }
-    // mov [si+18AEh], cx
-    belowRightTile->movingObject = ch;
-    belowRightTile->tile = cl;
-
-//loc_4A8F5:              ; CODE XREF: sub_4A61F+2D0j
-//    jmp short loc_4A90B
-
-//loc_4A8F7:              ; CODE XREF: sub_4A61F+2AFj
-    sub_4AA34(position + kLevelWidth + 1, movingObject, tile);
-//    jmp short loc_4A90B
-
-//loc_4A901:              ; CODE XREF: sub_4A61F+2ABj
-    sub_4A9C4(position + kLevelWidth + 1, movingObject, tile);
-//    jmp short $+2 // jmp loc_4A90B ??
 
 //loc_4A90B:              ; CODE XREF: sub_4A61F:loc_4A8F5j
 //                ; sub_4A61F+2E0j ...
     sound4();
-    return;
 }
 
 void sub_4A910() //   proc near       ; CODE XREF: runLevel:noFlashing3p
