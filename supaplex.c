@@ -268,33 +268,854 @@ uint16_t word_510D9 = 0;
 uint16_t word_510DC = 0;
 uint16_t word_510E6 = 0;
 uint16_t word_510EE = 0;
-uint16_t word_510F0 = 0;
-uint16_t word_510F2 = 0;
-uint16_t word_510F4 = 0;
-uint16_t word_510F6 = 0;
-uint16_t word_510F8 = 0;
-uint16_t word_510FA = 0;
-uint16_t word_510FC = 0;
-uint16_t word_515A2 = 0x32A2;
-uint16_t word_5157A = 0x4A62;
+
+typedef struct {
+    uint16_t word_510F0; // value1;
+    uint16_t word_510F2; // value2;
+    uint16_t word_510F4; // value3;
+    uint16_t word_510F6; // value4;
+    uint16_t word_510F8; // value5;
+    uint16_t word_510FA; // value6; -> applied to Murphy X position... speedX?
+    uint16_t word_510FC; // value7; -> applied to Murphy Y position... speedY?
+    uint16_t unknown1;
+} SomeUnknownMurphyData;
+
+SomeUnknownMurphyData gSomeUnknownMurphyData; // -> starts at 0x0DE0
+//uint16_t word_510F0 = 0; // -> 0x0DE0 value1
+//uint16_t word_510F2 = 0; // value2
+//uint16_t word_510F4 = 0; // value3
+//uint16_t word_510F6 = 0; // value4
+//uint16_t word_510F8 = 0; // value5
+//uint16_t word_510FA = 0; // value6
+//uint16_t word_510FC = 0; // value7
+
+uint8_t someBinaryData_510FE[16] = {
+    0, // -> 0xdee
+    0, // -> 0xdef
+    0, // -> 0xdf0
+    0, // -> 0xdf1
+    0, // -> 0xdf2
+    0, // -> 0xdf3
+    0, // -> 0xdf4
+    0, // -> 0xdf5
+    0, // -> 0xdf6
+    0, // -> 0xdf7
+    0, // -> 0xdf8
+    0, // -> 0xdf9
+    0, // -> 0xdfa
+    0, // -> 0xdfb
+    0, // -> 0xdfc
+    0, // -> 0xdfd
+};
+
+SomeUnknownMurphyData someBinaryData_5110E[50] = {
+{ // 0
+    0x6ac, // -> 0xdfe
+    0xffc, // -> 0xe00
+    0x02, // -> 0xe02
+    0x012, // -> 0xe04
+    0x111e, // -> 0xe06
+    0x00, // -> 0xe08
+    0xfffe, // -> 0xe0a
+    0x00, // -> 0xe0c
+}, { // 1
+    0x6ac, // -> 0xe0e
+    0xffc, // -> 0xe10
+    0x02, // -> 0xe12
+    0x012, // -> 0xe14
+    0x1130, // -> 0xe16
+    0x00, // -> 0xe18
+    0xfffe, // -> 0xe1a
+    0x00, // -> 0xe1c
+}, { // 2
+    0x00, // -> 0xe1e
+    0x00, // -> 0xe20
+    0x04, // -> 0xe22
+    0x010, // -> 0xe24
+    0x1166, // -> 0xe26
+    0xfffe, // -> 0xe28
+    0x00, // -> 0xe2a
+    0x00, // -> 0xe2c
+}, { // 3
+    0xf860, // -> 0xe2e
+    0x0f4, // -> 0xe30
+    0x02, // -> 0xe32
+    0x012, // -> 0xe34
+    0x1142, // -> 0xe36
+    0x00, // -> 0xe38
+    0x02, // -> 0xe3a
+    0x00, // -> 0xe3c
+}, { // 4
+    0xf860, // -> 0xe3e
+    0x0f4, // -> 0xe40
+    0x02, // -> 0xe42
+    0x012, // -> 0xe44
+    0x1154, // -> 0xe46
+    0x00, // -> 0xe48
+    0x02, // -> 0xe4a
+    0x00, // -> 0xe4c
+}, { // 5
+    0xfffe, // -> 0xe4e
+    0x00, // -> 0xe50
+    0x04, // -> 0xe52
+    0x010, // -> 0xe54
+    0x1178, // -> 0xe56
+    0x02, // -> 0xe58
+    0x00, // -> 0xe5a
+    0x00, // -> 0xe5c
+}, { // 6
+    0x00, // -> 0xe5e
+    0x00, // -> 0xe60
+    0x02, // -> 0xe62
+    0x010, // -> 0xe64
+    0x118a, // -> 0xe66
+    0x00, // -> 0xe68
+    0x00, // -> 0xe6a
+    0x00, // -> 0xe6c
+}, { // 7
+    0x6ac, // -> 0xe6e
+    0xffc, // -> 0xe70
+    0x02, // -> 0xe72
+    0x012, // -> 0xe74
+    0x111e, // -> 0xe76
+    0x00, // -> 0xe78
+    0xfffe, // -> 0xe7a
+    0x00, // -> 0xe7c
+}, { // 8
+    0x6ac, // -> 0xe7e
+    0xffc, // -> 0xe80
+    0x02, // -> 0xe82
+    0x012, // -> 0xe84
+    0x1130, // -> 0xe86
+    0x00, // -> 0xe88
+    0xfffe, // -> 0xe8a
+    0x00, // -> 0xe8c
+}, { // 9
+    0x00, // -> 0xe8e
+    0x00, // -> 0xe90
+    0x04, // -> 0xe92
+    0x010, // -> 0xe94
+    0x11dc, // -> 0xe96
+    0xfffe, // -> 0xe98
+    0x00, // -> 0xe9a
+    0x00, // -> 0xe9c
+}, { // 10
+    0xf860, // -> 0xe9e
+    0x0f4, // -> 0xea0
+    0x02, // -> 0xea2
+    0x012, // -> 0xea4
+    0x1142, // -> 0xea6
+    0x00, // -> 0xea8
+    0x02, // -> 0xeaa
+    0x00, // -> 0xeac
+}, { // 11
+    0xf860, // -> 0xeae
+    0x0f4, // -> 0xeb0
+    0x02, // -> 0xeb2
+    0x012, // -> 0xeb4
+    0x1154, // -> 0xeb6
+    0x00, // -> 0xeb8
+    0x02, // -> 0xeba
+    0x00, // -> 0xebc
+}, { // 12
+    0xfffe, // -> 0xebe
+    0x00, // -> 0xec0
+    0x04, // -> 0xec2
+    0x010, // -> 0xec4
+    0x11ee, // -> 0xec6
+    0x02, // -> 0xec8
+    0x00, // -> 0xeca
+    0x00, // -> 0xecc
+}, { // 13
+    0xf860, // -> 0xece
+    0x00, // -> 0xed0
+    0x02, // -> 0xed2
+    0x010, // -> 0xed4
+    0x120, // -> 0xed6
+    0x00, // -> 0xed8
+    0x00, // -> 0xeda
+    0x00, // -> 0xedc
+}, { // 14
+    0xfffe, // -> 0xede
+    0x00, // -> 0xee0
+    0x02, // -> 0xee2
+    0x010, // -> 0xee4
+    0x120, // -> 0xee6
+    0x00, // -> 0xee8
+    0x00, // -> 0xeea
+    0x00, // -> 0xeec
+}, { // 15
+    0x7a0, // -> 0xeee
+    0x00, // -> 0xef0
+    0x02, // -> 0xef2
+    0x010, // -> 0xef4
+    0x120, // -> 0xef6
+    0x00, // -> 0xef8
+    0x00, // -> 0xefa
+    0x00, // -> 0xefc
+}, { // 16
+    0x02, // -> 0xefe
+    0x00, // -> 0xf00
+    0x02, // -> 0xf02
+    0x010, // -> 0xf04
+    0x120, // -> 0xf06
+    0x00, // -> 0xf08
+    0x00, // -> 0xf0a
+    0x00, // -> 0xf0c
+}, { // 17
+    0x6ac, // -> 0xf0e
+    0xffc, // -> 0xf10
+    0x02, // -> 0xf12
+    0x012, // -> 0xf14
+    0x111e, // -> 0xf16
+    0x00, // -> 0xf18
+    0xfffe, // -> 0xf1a
+    0x00, // -> 0xf1c
+}, { // 18
+    0x6ac, // -> 0xf1e
+    0xffc, // -> 0xf20
+    0x02, // -> 0xf22
+    0x012, // -> 0xf24
+    0x1130, // -> 0xf26
+    0x00, // -> 0xf28
+    0xfffe, // -> 0xf2a
+    0x00, // -> 0xf2c
+}, { // 19
+    0x00, // -> 0xf2e
+    0x00, // -> 0xf30
+    0x04, // -> 0xf32
+    0x010, // -> 0xf34
+    0x1212, // -> 0xf36
+    0xfffe, // -> 0xf38
+    0x00, // -> 0xf3a
+    0x00, // -> 0xf3c
+}, { // 20
+    0xf860, // -> 0xf3e
+    0x0f4, // -> 0xf40
+    0x02, // -> 0xf42
+    0x012, // -> 0xf44
+    0x1142, // -> 0xf46
+    0x00, // -> 0xf48
+    0x02, // -> 0xf4a
+    0x00, // -> 0xf4c
+}, { // 21
+    0xf860, // -> 0xf4e
+    0x0f4, // -> 0xf50
+    0x02, // -> 0xf52
+    0x012, // -> 0xf54
+    0x1154, // -> 0xf56
+    0x00, // -> 0xf58
+    0x02, // -> 0xf5a
+    0x00, // -> 0xf5c
+}, { // 22
+    0xfffe, // -> 0xf5e
+    0x00, // -> 0xf60
+    0x04, // -> 0xf62
+    0x010, // -> 0xf64
+    0x1224, // -> 0xf66
+    0x02, // -> 0xf68
+    0x00, // -> 0xf6a
+    0x00, // -> 0xf6c
+}, { // 23
+    0xf860, // -> 0xf6e
+    0x00, // -> 0xf70
+    0x02, // -> 0xf72
+    0x010, // -> 0xf74
+    0x1236, // -> 0xf76
+    0x00, // -> 0xf78
+    0x00, // -> 0xf7a
+    0x00, // -> 0xf7c
+}, { // 24
+    0xfffe, // -> 0xf7e
+    0x00, // -> 0xf80
+    0x02, // -> 0xf82
+    0x010, // -> 0xf84
+    0x1236, // -> 0xf86
+    0x00, // -> 0xf88
+    0x00, // -> 0xf8a
+    0x00, // -> 0xf8c
+}, { // 25
+    0x7a0, // -> 0xf8e
+    0x00, // -> 0xf90
+    0x02, // -> 0xf92
+    0x010, // -> 0xf94
+    0x1236, // -> 0xf96
+    0x00, // -> 0xf98
+    0x00, // -> 0xf9a
+    0x00, // -> 0xf9c
+}, { // 26
+    0x02, // -> 0xf9e
+    0x00, // -> 0xfa0
+    0x02, // -> 0xfa2
+    0x010, // -> 0xfa4
+    0x1236, // -> 0xfa6
+    0x00, // -> 0xfa8
+    0x00, // -> 0xfaa
+    0x00, // -> 0xfac
+}, { // 27
+    0xfffc, // -> 0xfae
+    0x00, // -> 0xfb0
+    0x06, // -> 0xfb2
+    0x010, // -> 0xfb4
+    0x1246, // -> 0xfb6
+    0xfffe, // -> 0xfb8
+    0x00, // -> 0xfba
+    0x00, // -> 0xfbc
+}, { // 28
+    0x00, // -> 0xfbe
+    0x00, // -> 0xfc0
+    0x06, // -> 0xfc2
+    0x010, // -> 0xfc4
+    0x1258, // -> 0xfc6
+    0x02, // -> 0xfc8
+    0x00, // -> 0xfca
+    0x00, // -> 0xfcc
+}, { // 29
+    0x00, // -> 0xfce
+    0xf0c0, // -> 0xfd0
+    0x02, // -> 0xfd2
+    0x010, // -> 0xfd4
+    0x1340, // -> 0xfd6
+    0x00, // -> 0xfd8
+    0xfffc, // -> 0xfda
+    0x00, // -> 0xfdc
+}, { // 30
+    0x00, // -> 0xfde
+    0xfffc, // -> 0xfe0
+    0x02, // -> 0xfe2
+    0x010, // -> 0xfe4
+    0x12f8, // -> 0xfe6
+    0xfffc, // -> 0xfe8
+    0x00, // -> 0xfea
+    0x00, // -> 0xfec
+}, { // 31
+    0x00, // -> 0xfee
+    0xf40, // -> 0xff0
+    0x02, // -> 0xff2
+    0x010, // -> 0xff4
+    0x1364, // -> 0xff6
+    0x00, // -> 0xff8
+    0x04, // -> 0xffa
+    0x00, // -> 0xffc
+}, { // 32
+    0x00, // -> 0xffe
+    0x04, // -> 0x1000
+    0x02, // -> 0x1002
+    0x010, // -> 0x1004
+    0x131c, // -> 0x1006
+    0x04, // -> 0x1008
+    0x00, // -> 0x100a
+    0x00, // -> 0x100c
+}, { // 33
+    0xffc, // -> 0x100e
+    0xffc, // -> 0x1010
+    0x02, // -> 0x1012
+    0x012, // -> 0x1014
+    0x111e, // -> 0x1016
+    0x00, // -> 0x1018
+    0xfffe, // -> 0x101a
+    0x00, // -> 0x101c
+}, { // 34
+    0xffc, // -> 0x101e
+    0xffc, // -> 0x1020
+    0x02, // -> 0x1022
+    0x012, // -> 0x1024
+    0x1130, // -> 0x1026
+    0x00, // -> 0x1028
+    0xfffe, // -> 0x102a
+    0x00, // -> 0x102c
+}, { // 35
+    0x00, // -> 0x102e
+    0x00, // -> 0x1030
+    0x04, // -> 0x1032
+    0x010, // -> 0x1034
+    0x1448, // -> 0x1036
+    0xfffe, // -> 0x1038
+    0x00, // -> 0x103a
+    0x00, // -> 0x103c
+}, { // 36
+    0x00, // -> 0x103e
+    0x0f4, // -> 0x1040
+    0x02, // -> 0x1042
+    0x012, // -> 0x1044
+    0x1142, // -> 0x1046
+    0x00, // -> 0x1048
+    0x02, // -> 0x104a
+    0x00, // -> 0x104c
+}, { // 37
+    0x00, // -> 0x104e
+    0x0f4, // -> 0x1050
+    0x02, // -> 0x1052
+    0x012, // -> 0x1054
+    0x1154, // -> 0x1056
+    0x00, // -> 0x1058
+    0x02, // -> 0x105a
+    0x00, // -> 0x105c
+}, { // 38
+    0xfffe, // -> 0x105e
+    0x00, // -> 0x1060
+    0x04, // -> 0x1062
+    0x010, // -> 0x1064
+    0x145a, // -> 0x1066
+    0x02, // -> 0x1068
+    0x00, // -> 0x106a
+    0x00, // -> 0x106c
+}, { // 39
+    0xf860, // -> 0x106e
+    0x00, // -> 0x1070
+    0x02, // -> 0x1072
+    0x010, // -> 0x1074
+    0x146e, // -> 0x1076
+    0x00, // -> 0x1078
+    0x00, // -> 0x107a
+    0x00, // -> 0x107c
+}, { // 40
+    0xfffe, // -> 0x107e
+    0x00, // -> 0x1080
+    0x02, // -> 0x1082
+    0x010, // -> 0x1084
+    0x146e, // -> 0x1086
+    0x00, // -> 0x1088
+    0x00, // -> 0x108a
+    0x00, // -> 0x108c
+}, { // 41
+    0x7a0, // -> 0x108e
+    0x00, // -> 0x1090
+    0x02, // -> 0x1092
+    0x010, // -> 0x1094
+    0x146e, // -> 0x1096
+    0x00, // -> 0x1098
+    0x00, // -> 0x109a
+    0x00, // -> 0x109c
+}, { // 42
+    0x02, // -> 0x109e
+    0x00, // -> 0x10a0
+    0x02, // -> 0x10a2
+    0x010, // -> 0x10a4
+    0x146e, // -> 0x10a6
+    0x00, // -> 0x10a8
+    0x00, // -> 0x10aa
+    0x00, // -> 0x10ac
+}, { // 43
+    0xf76c, // -> 0x10ae
+    0xffc, // -> 0x10b0
+    0x02, // -> 0x10b2
+    0x022, // -> 0x10b4
+    0x1488, // -> 0x10b6
+    0x00, // -> 0x10b8
+    0xfffe, // -> 0x10ba
+    0x00, // -> 0x10bc
+}, { // 44
+    0xfffc, // -> 0x10be
+    0x00, // -> 0x10c0
+    0x06, // -> 0x10c2
+    0x010, // -> 0x10c4
+    0x149a, // -> 0x10c6
+    0xfffe, // -> 0x10c8
+    0x00, // -> 0x10ca
+    0x00, // -> 0x10cc
+}, { // 45
+    0x00, // -> 0x10ce
+    0x0f4, // -> 0x10d0
+    0x02, // -> 0x10d2
+    0x022, // -> 0x10d4
+    0x14ac, // -> 0x10d6
+    0x00, // -> 0x10d8
+    0x02, // -> 0x10da
+    0x00, // -> 0x10dc
+}, { // 46
+    0x00, // -> 0x10de
+    0x00, // -> 0x10e0
+    0x06, // -> 0x10e2
+    0x010, // -> 0x10e4
+    0x14be, // -> 0x10e6
+    0x02, // -> 0x10e8
+    0x00, // -> 0x10ea
+    0x00, // -> 0x10ec
+}, { // 47
+    0xfffc, // -> 0x10ee
+    0x00, // -> 0x10f0
+    0x06, // -> 0x10f2
+    0x010, // -> 0x10f4
+    0x14d0, // -> 0x10f6
+    0xfffe, // -> 0x10f8
+    0x00, // -> 0x10fa
+    0x00, // -> 0x10fc
+}, { // 48
+    0x00, // -> 0x10fe
+    0x00, // -> 0x1100
+    0x06, // -> 0x1102
+    0x010, // -> 0x1104
+    0x14e2, // -> 0x1106
+    0x02, // -> 0x1108
+    0x00, // -> 0x110a
+    0x00, // -> 0x110c
+}, { // 49
+    0x00, // -> 0x110e
+    0x00, // -> 0x1110
+    0x02, // -> 0x1112
+    0x010, // -> 0x1114
+    0x1484, // -> 0x1116
+    0x00, // -> 0x1118
+    0x00, // -> 0x111a
+    0x00, // -> 0x111c
+}
+};
+
+uint8_t someBinaryData_5142E[] = {
+    230, // -> 0x111e
+    42, // -> 0x111f
+    230, // -> 0x1120
+    42, // -> 0x1121
+    232, // -> 0x1122
+    42, // -> 0x1123
+    232, // -> 0x1124
+    42, // -> 0x1125
+    234, // -> 0x1126
+    42, // -> 0x1127
+    234, // -> 0x1128
+    42, // -> 0x1129
+    232, // -> 0x112a
+    42, // -> 0x112b
+    232, // -> 0x112c
+    42, // -> 0x112d
+    255, // -> 0x112e
+    255, // -> 0x112f
+    236, // -> 0x1130
+    42, // -> 0x1131
+    236, // -> 0x1132
+    42, // -> 0x1133
+    238, // -> 0x1134
+    42, // -> 0x1135
+    238, // -> 0x1136
+    42, // -> 0x1137
+    240, // -> 0x1138
+    42, // -> 0x1139
+    240, // -> 0x113a
+    42, // -> 0x113b
+    238, // -> 0x113c
+    42, // -> 0x113d
+    238, // -> 0x113e
+    42, // -> 0x113f
+    255, // -> 0x1140
+    255, // -> 0x1141
+    242, // -> 0x1142
+    41, // -> 0x1143
+    242, // -> 0x1144
+    41, // -> 0x1145
+    244, // -> 0x1146
+    41, // -> 0x1147
+    244, // -> 0x1148
+    41, // -> 0x1149
+    246, // -> 0x114a
+    41, // -> 0x114b
+    246, // -> 0x114c
+    41, // -> 0x114d
+    244, // -> 0x114e
+    41, // -> 0x114f
+    244, // -> 0x1150
+    41, // -> 0x1151
+    255, // -> 0x1152
+    255, // -> 0x1153
+    248, // -> 0x1154
+    41, // -> 0x1155
+    248, // -> 0x1156
+    41, // -> 0x1157
+    250, // -> 0x1158
+    41, // -> 0x1159
+    250, // -> 0x115a
+    41, // -> 0x115b
+    252, // -> 0x115c
+    41, // -> 0x115d
+    252, // -> 0x115e
+    41, // -> 0x115f
+    250, // -> 0x1160
+    41, // -> 0x1161
+    250, // -> 0x1162
+    41, // -> 0x1163
+    255, // -> 0x1164
+    255, // -> 0x1165
+    182, // -> 0x1166
+    26, // -> 0x1167
+    186, // -> 0x1168
+    26, // -> 0x1169
+    190, // -> 0x116a
+    26, // -> 0x116b
+    194, // -> 0x116c
+    26, // -> 0x116d
+    198, // -> 0x116e
+    26, // -> 0x116f
+    202, // -> 0x1170
+    26, // -> 0x1171
+    206, // -> 0x1172
+    26, // -> 0x1173
+    210, // -> 0x1174
+    26, // -> 0x1175
+    255, // -> 0x1176
+    255, // -> 0x1177
+    214, // -> 0x1178
+    26, // -> 0x1179
+    82, // -> 0x117a
+    34, // -> 0x117b
+    86, // -> 0x117c
+    34, // -> 0x117d
+    90, // -> 0x117e
+    34, // -> 0x117f
+    94, // -> 0x1180
+    34, // -> 0x1181
+    98, // -> 0x1182
+    34, // -> 0x1183
+    102, // -> 0x1184
+    34, // -> 0x1185
+    106, // -> 0x1186
+    34, // -> 0x1187
+    255, // -> 0x1188
+    255, // -> 0x1189
+    6, // -> 0x118a
+    42, // -> 0x118b
+    6, // -> 0x118c
+    42, // -> 0x118d
+    6, // -> 0x118e
+    42, // -> 0x118f
+    6, // -> 0x1190
+    42, // -> 0x1191
+    8, // -> 0x1192
+    42, // -> 0x1193
+    8, // -> 0x1194
+    42, // -> 0x1195
+    8, // -> 0x1196
+    42, // -> 0x1197
+    8, // -> 0x1198
+    42, // -> 0x1199
+    10, // -> 0x119a
+    42, // -> 0x119b
+    10, // -> 0x119c
+    42, // -> 0x119d
+    10, // -> 0x119e
+    42, // -> 0x119f
+    10, // -> 0x11a0
+    42, // -> 0x11a1
+    12, // -> 0x11a2
+    42, // -> 0x11a3
+    12, // -> 0x11a4
+    42, // -> 0x11a5
+    12, // -> 0x11a6
+    42, // -> 0x11a7
+    12, // -> 0x11a8
+    42, // -> 0x11a9
+    14, // -> 0x11aa
+    42, // -> 0x11ab
+    14, // -> 0x11ac
+    42, // -> 0x11ad
+    14, // -> 0x11ae
+    42, // -> 0x11af
+    14, // -> 0x11b0
+    42, // -> 0x11b1
+    16, // -> 0x11b2
+    42, // -> 0x11b3
+    16, // -> 0x11b4
+    42, // -> 0x11b5
+    16, // -> 0x11b6
+    42, // -> 0x11b7
+    16, // -> 0x11b8
+    42, // -> 0x11b9
+    18, // -> 0x11ba
+    42, // -> 0x11bb
+    18, // -> 0x11bc
+    42, // -> 0x11bd
+    18, // -> 0x11be
+    42, // -> 0x11bf
+    18, // -> 0x11c0
+    42, // -> 0x11c1
+    20, // -> 0x11c2
+    42, // -> 0x11c3
+    20, // -> 0x11c4
+    42, // -> 0x11c5
+    20, // -> 0x11c6
+    42, // -> 0x11c7
+    20, // -> 0x11c8
+    42, // -> 0x11c9
+    22, // -> 0x11ca
+    42, // -> 0x11cb
+    22, // -> 0x11cc
+    42, // -> 0x11cd
+    22, // -> 0x11ce
+    42, // -> 0x11cf
+    22, // -> 0x11d0
+    42, // -> 0x11d1
+    144, // -> 0x11d2
+    11, // -> 0x11d3
+    144, // -> 0x11d4
+    11, // -> 0x11d5
+    144, // -> 0x11d6
+    11, // -> 0x11d7
+    144, // -> 0x11d8
+    11, // -> 0x11d9
+    255, // -> 0x11da
+    255, // -> 0x11db
+    114, // -> 0x11dc
+    11, // -> 0x11dd
+    118, // -> 0x11de
+    11, // -> 0x11df
+    122, // -> 0x11e0
+    11, // -> 0x11e1
+    126, // -> 0x11e2
+    11, // -> 0x11e3
+    130, // -> 0x11e4
+    11, // -> 0x11e5
+    134, // -> 0x11e6
+    11, // -> 0x11e7
+    138, // -> 0x11e8
+    11, // -> 0x11e9
+    142, // -> 0x11ea
+    11, // -> 0x11eb
+    255, // -> 0x11ec
+    255, // -> 0x11ed
+    146, // -> 0x11ee
+    11, // -> 0x11ef
+    150, // -> 0x11f0
+    11, // -> 0x11f1
+    18, // -> 0x11f2
+    19, // -> 0x11f3
+    22, // -> 0x11f4
+    19, // -> 0x11f5
+    26, // -> 0x11f6
+    19, // -> 0x11f7
+    30, // -> 0x11f8
+    19, // -> 0x11f9
+    34, // -> 0x11fa
+    19, // -> 0x11fb
+    38, // -> 0x11fc
+    19, // -> 0x11fd
+    255, // -> 0x11fe
+    255, // -> 0x11ff
+    154, // -> 0x1200
+    51, // -> 0x1201
+    156, // -> 0x1202
+    51, // -> 0x1203
+    158, // -> 0x1204
+    51, // -> 0x1205
+    160, // -> 0x1206
+    51, // -> 0x1207
+    58, // -> 0x1208
+    59, // -> 0x1209
+    60, // -> 0x120a
+    59, // -> 0x120b
+    62, // -> 0x120c
+    59, // -> 0x120d
+    20, // -> 0x120e
+    5, // -> 0x120f
+    255, // -> 0x1210
+    255, // -> 0x1211
+    110, // -> 0x1212
+    35, // -> 0x1213
+    114, // -> 0x1214
+    35, // -> 0x1215
+    118, // -> 0x1216
+    35, // -> 0x1217
+    122, // -> 0x1218
+    35, // -> 0x1219
+    126, // -> 0x121a
+    35, // -> 0x121b
+    130, // -> 0x121c
+    35, // -> 0x121d
+    134, // -> 0x121e
+    35, // -> 0x121f
+    138, // -> 0x1220
+    35, // -> 0x1221
+    255, // -> 0x1222
+    255, // -> 0x1223
+    142, // -> 0x1224
+    35, // -> 0x1225
+    146, // -> 0x1226
+    35, // -> 0x1227
+    14, // -> 0x1228
+    43, // -> 0x1229
+    18, // -> 0x122a
+    43, // -> 0x122b
+    22, // -> 0x122c
+    43, // -> 0x122d
+    26, // -> 0x122e
+    43, // -> 0x122f
+    30, // -> 0x1230
+    43, // -> 0x1231
+    34, // -> 0x1232
+    43, // -> 0x1233
+    255, // -> 0x1234
+    255, // -> 0x1235
+    6, // -> 0x1236
+    5, // -> 0x1237
+    8, // -> 0x1238
+    5, // -> 0x1239
+    10, // -> 0x123a
+    5, // -> 0x123b
+    14, // -> 0x123c
+    5, // -> 0x123d
+    16, // -> 0x123e
+    5, // -> 0x123f
+    18, // -> 0x1240
+    5, // -> 0x1241
+    20, // -> 0x1242
+    5, // -> 0x1243
+    255, // -> 0x1244
+    255, // -> 0x1245
+    186, // -> 0x1246
+    66, // -> 0x1247
+    192, // -> 0x1248
+    66, // -> 0x1249
+    198, // -> 0x124a
+    66, // -> 0x124b
+    204, // -> 0x124c
+    66, // -> 0x124d
+    210, // -> 0x124e
+    66, // -> 0x124f
+    216, // -> 0x1250
+    66, // -> 0x1251
+    90, // -> 0x1252
+    74, // -> 0x1253
+    96, // -> 0x1254
+    74, // -> 0x1255
+    255, // -> 0x1256
+    255, // -> 0x1257
+    102, // -> 0x1258
+    74, // -> 0x1259
+    108, // -> 0x125a
+    74, // -> 0x125b
+    114, // -> 0x125c
+    74, // -> 0x125d
+    120, // -> 0x125e
+    74, // -> 0x125f
+    238, // -> 0x1260
+    4, // -> 0x1261
+    244, // -> 0x1262
+    4, // -> 0x1263
+    250, // -> 0x1264
+    4, // -> 0x1265
+    0, // -> 0x1266
+    5, // -> 0x1267
+    255, // -> 0x1268
+    255, // -> 0x1269
+};
+uint16_t word_515A2 = 0x32A2; // (224, 82) ??
+uint16_t word_5157A = 0x4A62; // (64, 132) ??
 uint16_t word_5157C = 0x0502;
-uint16_t word_5157E = 0x4A80;
-uint16_t word_51580 = 0x1AB2;
-uint16_t word_51790 = 0x4A7E;
-uint16_t word_51840 = 0x2A06;
-uint16_t word_51842 = 0x132C;
-uint16_t word_51844 = 0x2A08;
-uint16_t word_51846 = 0x132A;
-uint16_t word_51848 = 0x2A62;
-uint16_t word_5184A = 0x2A66;
-uint16_t word_5184C = 0x2A67;
-uint16_t word_5184E = 0x2E36;
-uint16_t word_51850 = 0x2E37;
-uint16_t word_51852 = 0x2A68;
-uint16_t word_51854 = 0x2A69;
-uint16_t word_51856 = 0x2E38;
-uint16_t word_51858 = 0x2E39;
-uint16_t word_5195D = 0xF000;
+uint16_t word_5157E = 0x4A80; // still frame: (304, 132)
+uint16_t word_51580 = 0x1AB2; // (0, 32)
+uint16_t word_51790 = 0x4A7E; // (288, 132)
+uint16_t word_51840 = 0x2A06; // (160, 64)
+uint16_t word_51842 = 0x132C; // (208, 16)
+uint16_t word_51844 = 0x2A08; // (176, 64)
+uint16_t word_51846 = 0x132A; // (192, 16)
+uint16_t word_51848 = 0x2A62; // (896, 64)
+uint16_t word_5184A = 0x2A66; // (
+uint16_t word_5184C = 0x2A67; // (
+uint16_t word_5184E = 0x2E36; // (
+uint16_t word_51850 = 0x2E37; // (
+uint16_t word_51852 = 0x2A68; // (
+uint16_t word_51854 = 0x2A69; // (
+uint16_t word_51856 = 0x2E38; // (
+uint16_t word_51858 = 0x2E39; // (
+uint16_t word_5195D = 0xF000; // (
 uint16_t word_5195F = 0;
 uint16_t word_51961 = 0;
 uint16_t word_51963 = 0;
@@ -1387,7 +2208,7 @@ void levelScanThing(void);
 void gameloop(void);
 uint16_t update(uint16_t position);
 uint16_t updateMurphy2(uint16_t position);
-uint16_t updateMurphy3(uint16_t position);
+uint16_t updateMurphy3(uint16_t position, SomeUnknownMurphyData unknownMurphyData);
 uint16_t updateMurphy4(uint16_t position);
 uint16_t updateMurphy5(uint16_t position);
 uint16_t updateMurphy7(uint16_t position);
@@ -2061,8 +2882,6 @@ loc_46E75:              //; CODE XREF: start+251j
 //            si = 0x6015;
             fadeToPalette(gPalettes[1]); // At this point the screen fades in and shows the game
 
-            waitForKeyMouseOrJoystick();
-            exitWithError("Exiting blahblah");
             if (isMusicEnabled == 0)
             {
                 sound3();
@@ -6050,6 +6869,8 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 
     do
     {
+        int9handler();
+
 //gamelooprep:                ; CODE XREF: runLevel+33Cj
 //                ; runLevel+345j
         if (gIsPlayingDemo == 0)
@@ -7407,7 +8228,6 @@ void writeToFh1() //  proc near       ; CODE XREF: sub_4955B+486p
 void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
                    // ; runLevel+30Cp
 {
-    return;
     // No idea what this method does yet but doesn't respond to user input
     // 01ED:28F8
 
@@ -7426,6 +8246,8 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
             sub_492F1(); // 01ED:2915
         }
     }
+
+    return;
 
 //loc_4957B:              ; CODE XREF: sub_4955B+Aj
 //                ; sub_4955B+11j ...
@@ -9229,7 +10051,6 @@ void updateUserInput() // sub_4A1BF   proc near       ; CODE XREF: sub_4955B+13
                    // ; runMainMenu+BDp ...
 {
     // 01ED:355C
-
     uint8_t directionKeyWasPressed = 0;
 
     if (gIsUpKeyPressed != 0
@@ -15770,15 +16591,16 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
         byte_510D3 =  1;
         if (byte_510D8 != 0)
         {
+            SomeUnknownMurphyData unknownMurphyData;
 //loc_4E38A:              ; CODE XREF: update?+69j update?+2FFj
             if (word_510CB != 0)
             {
-                dx = 0x0E2E;
+                unknownMurphyData = someBinaryData_5110E[3]; // dx = 0x0E2E;
             }
             else
             {
 //loc_4E396:              ; CODE XREF: update?+4FFj
-                dx = 0x0E3E;
+                unknownMurphyData = someBinaryData_5110E[4]; // dx = 0x0E3E;
             }
 
 //loc_4E399:              ; CODE XREF: update?+504j
@@ -15788,7 +16610,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
             murphyTile->tile = LevelTileTypeSpace;
             word_510EE = 0;
             word_510D9 = 0;
-            return updateMurphy3(position + kLevelWidth);
+            return updateMurphy3(position + kLevelWidth, unknownMurphyData);
         }
 
 //loc_4DEFC:              ; CODE XREF: update?+67j
@@ -15923,17 +16745,17 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
         && (belowTile->movingObject == 0 && belowTile->tile == LevelTileTypeSpace))
     {
         if (gCurrentUserInput != UserInputUp
-                 || (aboveTile->movingObject != 0 || aboveTile->tile != LevelTileTypeBase))
+            || (aboveTile->movingObject != 0 || aboveTile->tile != LevelTileTypeBase))
         {
-//loc_4E01B:              ; CODE XREF: update?+182j
+            //loc_4E01B:              ; CODE XREF: update?+182j
             if (gCurrentUserInput != UserInputLeft
                 || (leftTile->movingObject != 0 || leftTile->tile != LevelTileTypeBase))
             {
-//loc_4E027:              ; CODE XREF: update?+18Ej
+                //loc_4E027:              ; CODE XREF: update?+18Ej
                 if (gCurrentUserInput != UserInputRight
                     || (rightTile->movingObject != 0 || rightTile->tile != LevelTileTypeBase))
                 {
-//loc_4E033:              ; CODE XREF: update?+19Aj
+                    //loc_4E033:              ; CODE XREF: update?+19Aj
                     gCurrentUserInput = UserInputDown;
                 }
             }
@@ -15979,11 +16801,11 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
             drawStillMurphyFrame(304, 132); // TODO: fix coordinates
         //    pop si
             sound9();
-            dx = 0x0ECE;
+//            dx = 0x0ECE;
             murphyTile->movingObject = 0x10;
             word_510EE = 0;
             word_510D9 = 0;
-            return updateMurphy3(position);
+            return updateMurphy3(position, someBinaryData_5110E[13]);
         }
 //loc_4E26C:              ; CODE XREF: update?+3D7j
         else if (aboveTile->tile == LevelTileTypeBug)
@@ -16005,11 +16827,11 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
             drawStillMurphyFrame(304, 132); // TODO: fix coordinates
         //    pop si
             sound9();
-            dx = 0x0ECE;
+//            dx = 0x0ECE;
             murphyTile->movingObject = 0x10;
             word_510EE = 0;
             word_510D9 = 0;
-            return updateMurphy3(position);
+            return updateMurphy3(position, someBinaryData_5110E[13]);
         }
 //loc_4E273:              ; CODE XREF: update?+3DEj
         else if (aboveTile->movingObject == 0 && aboveTile->tile == LevelTileTypeInfotron)
@@ -16021,12 +16843,12 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
             drawStillMurphyFrame(304, 132); // TODO: fix coordinates
         //    pop si
             sound5();
-            dx = 0x0F6E;
+//            dx = 0x0F6E;
             murphyTile->movingObject = 0x14;
             aboveTile->movingObject = 0xFF;
             word_510EE = 0;
             word_510D9 = 0;
-            return updateMurphy3(position);
+            return updateMurphy3(position, someBinaryData_5110E[23]);
         }
 //loc_4E27B:              ; CODE XREF: update?+3E6j
         else if (aboveTile->tile == LevelTileTypeTerminal)
@@ -16056,12 +16878,12 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
         else if (aboveTile->tile == LevelTileTypeRedDisk)
         {
 //loc_4E8B6:              ; CODE XREF: update?+3F6j
-            dx = 0x106E;
+//            dx = 0x106E;
             murphyTile->movingObject = 0x20;
             aboveTile->movingObject = 3;
             word_510EE = 0;
             word_510D9 = 0;
-            return updateMurphy3(position);
+            return updateMurphy3(position, someBinaryData_5110E[39]);
         }
         else
         {
@@ -16084,11 +16906,11 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
             drawStillMurphyFrame(304, 132); // TODO: fix coordinates
         //    pop si
             sound9();
-            dx = 0x0EDE;
+//            dx = 0x0EDE;
             murphyTile->movingObject = 0x11;
             word_510EE = 0;
             word_510D9 = 0;
-            return updateMurphy3(position);
+            return updateMurphy3(position, someBinaryData_5110E[14]);
         }
 //loc_4E29C:              ; CODE XREF: update?+407j
         else if (leftTile->tile == LevelTileTypeBug)
@@ -16114,7 +16936,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
             murphyTile->movingObject = 0x11;
             word_510EE = 0;
             word_510D9 = 0;
-            return updateMurphy3(position);
+            return updateMurphy3(position, someBinaryData_5110E[14]);
         }
 //loc_4E2A3:              ; CODE XREF: update?+40Ej
         else if (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeInfotron)
@@ -16126,12 +16948,12 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
             drawStillMurphyFrame(304, 132); // TODO: fix coordinates
         //    pop si
             sound5();
-            dx = 0x0F7E;
+//            dx = 0x0F7E;
             murphyTile->movingObject = 0x15;
             leftTile->movingObject = 0xFF;
             word_510EE = 0;
             word_510D9 = 0;
-            return updateMurphy3(position);
+            return updateMurphy3(position, someBinaryData_5110E[24]);
         }
 //loc_4E2AB:              ; CODE XREF: update?+416j
         else if (leftTile->tile == LevelTileTypeTerminal)
@@ -16161,12 +16983,12 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
         else if (leftTile->tile == LevelTileTypeRedDisk)
         {
 //loc_4E8C5:              ; CODE XREF: update?+426j
-            dx = 0x107E;
+//            dx = 0x107E;
             murphyTile->movingObject = 0x21;
             leftTile->movingObject = 3;
             word_510EE = 0;
             word_510D9 = 0;
-            return updateMurphy3(position);
+            return updateMurphy3(position, someBinaryData_5110E[40]);
         }
         else
         {
@@ -16188,11 +17010,11 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
             drawStillMurphyFrame(304, 132); // TODO: fix coordinates
         //    pop si
             sound9();
-            dx = 0x0EEE;
+//            dx = 0x0EEE;
             murphyTile->movingObject = 0x12;
             word_510EE = 0;
             word_510D9 = 0;
-            return updateMurphy3(position);
+            return updateMurphy3(position, someBinaryData_5110E[15]);
         }
 //loc_4E2C6:              ; CODE XREF: update?+431j
         else if (belowTile->tile == LevelTileTypeBug)
@@ -16214,11 +17036,11 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
             drawStillMurphyFrame(304, 132); // TODO: fix coordinates
         //    pop si
             sound9();
-            dx = 0x0EEE;
+//            dx = 0x0EEE;
             murphyTile->movingObject = 0x12;
             word_510EE = 0;
             word_510D9 = 0;
-                return updateMurphy3(position);
+            return updateMurphy3(position, someBinaryData_5110E[15]);
         }
 //loc_4E2CD:              ; CODE XREF: update?+438j
         else if (belowTile->movingObject == 0 && belowTile->tile == LevelTileTypeInfotron)
@@ -16230,12 +17052,12 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
             drawStillMurphyFrame(304, 132); // TODO: fix coordinates
         //    pop si
             sound5();
-            dx = 0x0F8E;
+//            dx = 0x0F8E;
             murphyTile->movingObject = 0x16;
             belowTile->movingObject = 0xFF;
             word_510EE = 0;
             word_510D9 = 0;
-            return updateMurphy3(position);
+            return updateMurphy3(position, someBinaryData_5110E[25]);
         }
 //loc_4E2D5:              ; CODE XREF: update?+440j
         else if (belowTile->tile == LevelTileTypeTerminal)
@@ -16265,12 +17087,12 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
         else if (belowTile->tile == LevelTileTypeRedDisk)
         {
 //loc_4E8D4:              ; CODE XREF: update?+450j
-            dx = 0x108E;
+//            dx = 0x108E;
             murphyTile->movingObject = 0x22;
             belowTile->movingObject = 3;
             word_510EE = 0;
             word_510D9 = 0;
-            return updateMurphy3(position);
+            return updateMurphy3(position, someBinaryData_5110E[41]);
         }
         else
         {
@@ -16293,11 +17115,11 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
             drawStillMurphyFrame(304, 132); // TODO: fix coordinates
         //    pop si
             sound9();
-            dx = 0x0EFE;
+//            dx = 0x0EFE;
             murphyTile->movingObject = 0x13;
             word_510EE = 0;
             word_510D9 = 0;
-            return updateMurphy3(position);
+            return updateMurphy3(position, someBinaryData_5110E[16]);
         }
 //loc_4E2F6:              ; CODE XREF: update?+461j
         else if (rightTile->tile == LevelTileTypeBug)
@@ -16319,11 +17141,11 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
             drawStillMurphyFrame(304, 132); // TODO: fix coordinates
         //    pop si
             sound9();
-            dx = 0x0EFE;
+//            dx = 0x0EFE;
             murphyTile->movingObject = 0x13;
             word_510EE = 0;
             word_510D9 = 0;
-            return updateMurphy3(position);
+            return updateMurphy3(position, someBinaryData_5110E[16]);
         }
 //loc_4E2FD:              ; CODE XREF: update?+468j
         else if (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeInfotron)
@@ -16335,12 +17157,12 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
             drawStillMurphyFrame(304, 132); // TODO: fix coordinates
         //    pop si
             sound5();
-            dx = 0x0F9E;
+//            dx = 0x0F9E;
             murphyTile->movingObject = 0x17;
             rightTile->movingObject = 0xFF;
             word_510EE = 0;
             word_510D9 = 0;
-            return updateMurphy3(position);
+            return updateMurphy3(position, someBinaryData_5110E[26]);
         }
 //loc_4E305:              ; CODE XREF: update?+470j
         else if (rightTile->tile != LevelTileTypeTerminal)
@@ -16351,14 +17173,14 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
                 return position;
             }
 //loc_4E8E3:              ; CODE XREF: update?+480j
-            dx = 0x109E;
+//            dx = 0x109E;
             murphyTile->movingObject = 0x23;
             rightTile->movingObject = 3;
 
 //loc_4E8F0:              ; CODE XREF: update?+4DAj update?+4F7j ...
             word_510EE = 0;
             word_510D9 = 0;
-            return updateMurphy3(position);
+            return updateMurphy3(position, someBinaryData_5110E[42]);
         }
         else
         {
@@ -16397,10 +17219,10 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
         }
         murphyTile->movingObject = 0x2A;
         word_510EE = 0x40; // 64
-        dx = 0x110E;
+//        dx = 0x110E;
         byte_510DB = 1;
         word_510DC = si;
-        return updateMurphy3(position);
+        return updateMurphy3(position, someBinaryData_5110E[49]);
     }
     else
     {
@@ -16421,15 +17243,17 @@ uint16_t updateMurphy8(uint16_t position)
 //loc_4E0AA:              ; CODE XREF: update?+1AFj update?+279j
     if (aboveTile->movingObject == 0 && aboveTile->tile == LevelTileTypeSpace)
     {
+        SomeUnknownMurphyData unknownMurphyData;
+
 //loc_4E344:              ; CODE XREF: update?+223j
         if (word_510CB != 0)
         {
-            dx = 0x0DFE;
+            unknownMurphyData = someBinaryData_5110E[0]; // dx = 0x0DFE;
         }
         else
         {
 //loc_4E350:              ; CODE XREF: update?+4B9j
-            dx = 0x0E0E;
+            unknownMurphyData = someBinaryData_5110E[1]; // dx = 0x0E0E;
         }
 
 //loc_4E353:              ; CODE XREF: update?+4BEj
@@ -16440,21 +17264,23 @@ uint16_t updateMurphy8(uint16_t position)
 
         word_510EE = 0;
         word_510D9 = 0;
-        return updateMurphy3(position - kLevelWidth);
+        return updateMurphy3(position - kLevelWidth, unknownMurphyData);
     }
 //loc_4E0B6:              ; CODE XREF: update?+221j
     else if (aboveTile->movingObject == 0 && aboveTile->tile == LevelTileTypeZonk)
     {
+        SomeUnknownMurphyData unknownMurphyData;
+
 //loc_4E3E1:              ; CODE XREF: update?+22Bj
         sound9();
         if (word_510CB != 0)
         {
-            dx = 0x0E6E;
+            unknownMurphyData = someBinaryData_5110E[7]; // dx = 0x0E6E;
         }
         else
         {
 //loc_4E3F0:              ; CODE XREF: update?+559j
-            dx = 0x0E7E;
+            unknownMurphyData = someBinaryData_5110E[8]; // dx = 0x0E7E;
         }
 
 //loc_4E3F3:              ; CODE XREF: update?+55Ej
@@ -16465,7 +17291,7 @@ uint16_t updateMurphy8(uint16_t position)
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
         word_510D9 = 0;
-        return updateMurphy3(position - kLevelWidth);
+        return updateMurphy3(position - kLevelWidth, unknownMurphyData);
     }
 //loc_4E0BE:              ; CODE XREF: update?+229j
     else if (aboveTile->tile == LevelTileTypeBug)
@@ -16495,28 +17321,30 @@ uint16_t updateMurphy8(uint16_t position)
 
 //loc_4E48C:              ; CODE XREF: update?+36Fj
         sound9();
-        dx = 0x0EBE;
+//        dx = 0x0EBE;
         rightTile->movingObject = 8;
         rightTile->tile = LevelTileTypeMurphy;
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
         word_510D9 = 0;
-        return updateMurphy3(position + 1);
+        return updateMurphy3(position + 1, someBinaryData_5110E[12]);
     }
 //loc_4E0C5:              ; CODE XREF: update?+230j
     else if (aboveTile->movingObject == 0 && aboveTile->tile == LevelTileTypeInfotron)
     {
+        SomeUnknownMurphyData unknownMurphyData;
+
 //loc_4E55C:              ; CODE XREF: update?+23Aj
         sound5();
         if (word_510CB != 0)
         {
-            dx = 0x0F0E;
+            unknownMurphyData = someBinaryData_5110E[17]; // dx = 0x0F0E;
         }
         else
         {
 //loc_4E56B:              ; CODE XREF: update?+6D4j
-            dx = 0x0F1E;
+            unknownMurphyData = someBinaryData_5110E[18]; // dx = 0x0F1E;
         }
 
 //loc_4E56E:              ; CODE XREF: update?+6D9j
@@ -16526,7 +17354,7 @@ uint16_t updateMurphy8(uint16_t position)
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
         word_510D9 = 0;
-        return updateMurphy3(position - kLevelWidth);
+        return updateMurphy3(position - kLevelWidth, unknownMurphyData);
     }
 //loc_4E0CD:              ; CODE XREF: update?+238j
     else if (aboveTile->movingObject == 0 && aboveTile->tile == LevelTileTypeExit)
@@ -16552,11 +17380,11 @@ uint16_t updateMurphy8(uint16_t position)
         changePlayerCurrentLevelState();
         word_51978 = 0x40;
     //    pop si
-        dx = 0x0E5E;
+//        dx = 0x0E5E;
         murphyTile->movingObject = 0xD;
         word_510EE = 0;
         word_510D9 = 0;
-        return updateMurphy3(position);
+        return updateMurphy3(position, someBinaryData_5110E[6]);
     }
 //loc_4E0D5:              ; CODE XREF: update?+240j
     else if (aboveTile->tile == LevelTileTypeTerminal)
@@ -16594,25 +17422,27 @@ uint16_t updateMurphy8(uint16_t position)
         }
 
 //loc_4E7E6:              ; CODE XREF: update?+953j
-        dx = 0x0FCE;
+//        dx = 0x0FCE;
         murphyTile->movingObject = 0x18;
         aboveAboveTile->movingObject = 3;
         word_510EE = 0;
         word_510D9 = 1;
-        return updateMurphy3(position);
+        return updateMurphy3(position, someBinaryData_5110E[29]);
     }
 //loc_4E0F1:              ; CODE XREF: update?+25Cj
     else if (aboveTile->tile == LevelTileTypeRedDisk)
     {
+        SomeUnknownMurphyData unknownMurphyData;
+
 //loc_4E847:              ; CODE XREF: update?+265j
         if (word_510CB != 0)
         {
-            dx = 0x100E;
+            unknownMurphyData = someBinaryData_5110E[33]; // dx = 0x100E;
         }
         else
         {
 //loc_4E853:              ; CODE XREF: update?+9BCj
-            dx = 0x101E;
+            unknownMurphyData = someBinaryData_5110E[34]; // dx = 0x101E;
         }
 
 //loc_4E856:              ; CODE XREF: update?+9C1j
@@ -16620,7 +17450,7 @@ uint16_t updateMurphy8(uint16_t position)
         aboveTile->movingObject = 3;
         word_510EE = 0;
         word_510D9 = 0;
-        return updateMurphy3(position);
+        return updateMurphy3(position, unknownMurphyData);
     }
 //loc_4E0F8:              ; CODE XREF: update?+263j
     else if (aboveTile->tile == LevelTileTypeYellowDisk)
@@ -16638,11 +17468,11 @@ uint16_t updateMurphy8(uint16_t position)
         si = word_5157C;
         drawStillMurphyFrame(304, 132); // TODO: fix coordinates
     //    pop si
-        dx = 0x10AE;
+//        dx = 0x10AE;
         murphyTile->movingObject = 0x24;
         word_510EE = 8;
         word_510D9 = 0;
-        return updateMurphy3(position);
+        return updateMurphy3(position, someBinaryData_5110E[43]);
     }
 //loc_4E0FF:              ; CODE XREF: update?+26Aj
     else if (sub_4F21F(position - kLevelWidth) != 1)
@@ -16667,28 +17497,28 @@ uint16_t updateMurphy7(uint16_t position)
     if (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeSpace)
     {
 //loc_4E36D:              ; CODE XREF: update?+28Bj
-        dx = 0x0E1E;
+//        dx = 0x0E1E;
         leftTile->movingObject = 2;
         leftTile->tile = LevelTileTypeMurphy;
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
         word_510D9 = 0;
-        return updateMurphy3(position - 1);
+        return updateMurphy3(position - 1, someBinaryData_5110E[2]);
     }
 //loc_4E11E:              ; CODE XREF: update?+289j
-    else if (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeZonk)
+    else if (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeBase)
     {
 //loc_4E41E:              ; CODE XREF: update?+293j
         sound9();
-        dx = 0x0E8E;
+//        dx = 0x0E8E;
         leftTile->movingObject = 2;
         leftTile->tile = LevelTileTypeMurphy;
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
         word_510D9 = 0;
-        return updateMurphy3(position - 1);
+        return updateMurphy3(position - 1, someBinaryData_5110E[9]);
     }
 //loc_4E126:              ; CODE XREF: update?+291j
     else if (leftTile->tile == LevelTileTypeBug)
@@ -16706,28 +17536,28 @@ uint16_t updateMurphy7(uint16_t position)
 
 //loc_4E41E:              ; CODE XREF: update?+293j
         sound9();
-        dx = 0x0E8E;
+//        dx = 0x0E8E;
         leftTile->movingObject = 2;
         leftTile->tile = LevelTileTypeMurphy;
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
         word_510D9 = 0;
-        return updateMurphy3(position - 1);
+        return updateMurphy3(position - 1, someBinaryData_5110E[9]);
     }
 //loc_4E12D:              ; CODE XREF: update?+298j
     else if (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeInfotron)
     {
 //loc_4E588:              ; CODE XREF: update?+2A2j
         sound5();
-        dx = 0x0F2E;
+//        dx = 0x0F2E;
         leftTile->movingObject = 10;
         leftTile->tile = LevelTileTypeMurphy;
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
         word_510D9 = 0;
-        return updateMurphy3(position - 1);
+        return updateMurphy3(position - 1, someBinaryData_5110E[19]);
     }
 //loc_4E135:              ; CODE XREF: update?+2A0j
     else if (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeExit)
@@ -16753,11 +17583,11 @@ uint16_t updateMurphy7(uint16_t position)
         changePlayerCurrentLevelState();
         word_51978 = 0x40;
     //    pop si
-        dx = 0x0E5E;
+//        dx = 0x0E5E;
         murphyTile->movingObject = 0xD;
         word_510EE = 0;
         word_510D9 = 0;
-        return updateMurphy3(position);
+        return updateMurphy3(position, someBinaryData_5110E[6]);
     }
 //loc_4E13D:              ; CODE XREF: update?+2A8j
     else if (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeZonk)
@@ -16776,11 +17606,11 @@ uint16_t updateMurphy7(uint16_t position)
         si = word_5157A;
         drawStillMurphyFrame(304, 132); // TODO: fix coordinates
     //    pop si
-        dx = 0x0FAE;
+//        dx = 0x0FAE;
         murphyTile->movingObject = 0xE;
         word_510EE = 8;
         word_510D9 = 0;
-        return updateMurphy3(position);
+        return updateMurphy3(position, someBinaryData_5110E[27]);
     }
 //loc_4E145:              ; CODE XREF: update?+2B0j
     else if (leftTile->tile == LevelTileTypeTerminal)
@@ -16818,25 +17648,25 @@ uint16_t updateMurphy7(uint16_t position)
         }
 
 //loc_4E7FD:              ; CODE XREF: update?+96Aj
-        dx = 0x0FDE;
+//        dx = 0x0FDE;
         murphyTile->movingObject = 0x19;
         leftLeftTile->movingObject = 3;
         word_510EE = 0;
         word_510D9 = 1;
-        return updateMurphy3(position);
+        return updateMurphy3(position, someBinaryData_5110E[30]);
     }
 //loc_4E161:              ; CODE XREF: update?+2CCj
     else if (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeRedDisk)
     {
 //loc_4E863:              ; CODE XREF: update?+2D6j
-        dx = 0x102E;
+//        dx = 0x102E;
         leftTile->movingObject = 0x1D;
         leftTile->tile = LevelTileTypeMurphy;
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
         word_510D9 = 0;
-        return updateMurphy3(position - 1);
+        return updateMurphy3(position - 1, someBinaryData_5110E[35]);
     }
 //loc_4E169:              ; CODE XREF: update?+2D4j
     else if (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeYellowDisk)
@@ -16854,11 +17684,11 @@ uint16_t updateMurphy7(uint16_t position)
         si = word_5157A;
         drawStillMurphyFrame(304, 132); // TODO: fix coordinates
     //    pop si
-        dx = 0x10BE;
+//        dx = 0x10BE;
         murphyTile->movingObject = 0x25;
         word_510EE = 8;
         word_510D9 = 0;
-        return updateMurphy3(position);
+        return updateMurphy3(position, someBinaryData_5110E[44]);
     }
 //loc_4E171:              ; CODE XREF: update?+2DCj
     else if (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeOrangeDisk)
@@ -16876,11 +17706,11 @@ uint16_t updateMurphy7(uint16_t position)
         si = word_5157A;
         drawStillMurphyFrame(304, 132); // TODO: fix coordinates
     //    pop si
-        dx = 0x10EE;
+//        dx = 0x10EE;
         murphyTile->movingObject = 0x28;
         word_510EE = 8;
         word_510D9 = 0;
-        return updateMurphy3(position);
+        return updateMurphy3(position, someBinaryData_5110E[47]);
     }
 //loc_4E179:              ; CODE XREF: update?+2E4j
     else if (sub_4F21F(position - 1) != 1)
@@ -16904,15 +17734,17 @@ uint16_t updateMurphy5(uint16_t position)
 //    mov ax, leveldata[si+78h]
     if (belowTile->movingObject == 0 && belowTile->tile == LevelTileTypeSpace)
     {
+        SomeUnknownMurphyData unknownMurphyData;
+
 //loc_4E38A:              ; CODE XREF: update?+69j update?+2FFj
         if (word_510CB != 0)
         {
-            dx = 0x0E2E;
+            unknownMurphyData = someBinaryData_5110E[3]; // dx = 0x0E2E;
         }
         else
         {
 //loc_4E396:              ; CODE XREF: update?+4FFj
-            dx = 0x0E3E;
+            unknownMurphyData = someBinaryData_5110E[4]; // dx = 0x0E3E;
         }
 
 //loc_4E399:              ; CODE XREF: update?+504j
@@ -16922,21 +17754,23 @@ uint16_t updateMurphy5(uint16_t position)
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
         word_510D9 = 0;
-        return updateMurphy3(position + kLevelWidth);
+        return updateMurphy3(position + kLevelWidth, unknownMurphyData);
     }
 //loc_4E192:              ; CODE XREF: update?+2FDj
     else if (belowTile->movingObject == 0 && belowTile->tile == LevelTileTypeZonk)
     {
+        SomeUnknownMurphyData unknownMurphyData;
+
 //loc_4E44F:              ; CODE XREF: update?+307j
         sound9();
         if (word_510CB != 0)
         {
-            dx = 0x0E9E;
+            unknownMurphyData = someBinaryData_5110E[10]; // dx = 0x0E9E;
         }
         else
         {
 //loc_4E45E:              ; CODE XREF: update?+5C7j
-            dx = 0x0EAE;
+            unknownMurphyData = someBinaryData_5110E[11]; // dx = 0x0EAE;
         }
 
 //loc_4E461:              ; CODE XREF: update?+5CCj
@@ -16946,7 +17780,7 @@ uint16_t updateMurphy5(uint16_t position)
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
         word_510D9 = 0;
-        return updateMurphy3(position + kLevelWidth);
+        return updateMurphy3(position + kLevelWidth, unknownMurphyData);
     }
 //loc_4E19A:              ; CODE XREF: update?+305j
     else if (belowTile->tile == LevelTileTypeBug)
@@ -16961,16 +17795,18 @@ uint16_t updateMurphy5(uint16_t position)
 //loc_4E449:              ; CODE XREF: update?+5B3j
         belowTile->tile = LevelTileTypeBase;
 
+        SomeUnknownMurphyData unknownMurphyData;
+
 //loc_4E44F:              ; CODE XREF: update?+307j
         sound9();
         if (word_510CB != 0)
         {
-            dx = 0x0E9E;
+            unknownMurphyData = someBinaryData_5110E[10]; // dx = 0x0E9E;
         }
         else
         {
 //loc_4E45E:              ; CODE XREF: update?+5C7j
-            dx = 0x0EAE;
+            unknownMurphyData = someBinaryData_5110E[11]; // dx = 0x0EAE;
         }
 
 //loc_4E461:              ; CODE XREF: update?+5CCj
@@ -16980,21 +17816,23 @@ uint16_t updateMurphy5(uint16_t position)
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
         word_510D9 = 0;
-        return updateMurphy3(position + kLevelWidth);
+        return updateMurphy3(position + kLevelWidth, unknownMurphyData);
     }
 //loc_4E1A1:              ; CODE XREF: update?+30Cj
     else if (belowTile->tile == LevelTileTypeInfotron)
     {
+        SomeUnknownMurphyData unknownMurphyData;
+
 //loc_4E5A8:              ; CODE XREF: update?+316j
         sound5();
         if (word_510CB != 0)
         {
-            dx = 0x0F3E;
+            unknownMurphyData = someBinaryData_5110E[20]; // dx = 0x0F3E;
         }
         else
         {
 //loc_4E5B7:              ; CODE XREF: update?+720j
-            dx = 0x0F4E;
+            unknownMurphyData = someBinaryData_5110E[21]; // dx = 0x0F4E;
         }
 
 //loc_4E5BA:              ; CODE XREF: update?+725j
@@ -17004,7 +17842,7 @@ uint16_t updateMurphy5(uint16_t position)
         murphyTile->tile = LevelTileTypeBase;
         word_510EE = 0;
         word_510D9 = 0;
-        return updateMurphy3(position + kLevelWidth);
+        return updateMurphy3(position + kLevelWidth, unknownMurphyData);
     }
 //loc_4E1A9:              ; CODE XREF: update?+314j
     else if (belowTile->tile == LevelTileTypeExit)
@@ -17030,11 +17868,11 @@ uint16_t updateMurphy5(uint16_t position)
         changePlayerCurrentLevelState();
         word_51978 = 0x40;
     //    pop si
-        dx = 0x0E5E;
+//        dx = 0x0E5E;
         murphyTile->movingObject = 0xD;
         word_510EE = 0;
         word_510D9 = 0;
-        return updateMurphy3(position);
+        return updateMurphy3(position, someBinaryData_5110E[6]);
     }
 //loc_4E1B1:              ; CODE XREF: update?+31Cj
     else if (belowTile->tile == LevelTileTypeTerminal)
@@ -17072,25 +17910,27 @@ uint16_t updateMurphy5(uint16_t position)
         }
 
 //loc_4E814:              ; CODE XREF: update?+981j
-        dx = 0x0FEE;
+//        dx = 0x0FEE;
         murphyTile->movingObject = 0x1A;
         belowBelowTile->movingObject = 3;
         word_510EE = 0;
         word_510D9 = 1;
-        return updateMurphy3(position);
+        return updateMurphy3(position, someBinaryData_5110E[31]);
     }
 //loc_4E1CD:              ; CODE XREF: update?+338j
     else if (belowTile->tile == LevelTileTypeRedDisk)
     {
+        SomeUnknownMurphyData unknownMurphyData;
+
 //loc_4E87F:              ; CODE XREF: update?+341j
         if (word_510CB != 0)
         {
-            dx = 0x103E;
+            unknownMurphyData = someBinaryData_5110E[36]; // dx = 0x103E;
         }
         else
         {
 //loc_4E88B:              ; CODE XREF: update?+9F4j
-            dx = 0x104E;
+            unknownMurphyData = someBinaryData_5110E[37]; // dx = 0x104E;
         }
 
 //loc_4E88E:              ; CODE XREF: update?+9F9j
@@ -17098,7 +17938,7 @@ uint16_t updateMurphy5(uint16_t position)
         belowTile->movingObject = 3;
         word_510EE = 0;
         word_510D9 = 0;
-        return updateMurphy3(position);
+        return updateMurphy3(position, unknownMurphyData);
     }
 //loc_4E1D4:              ; CODE XREF: update?+33Fj
     else if (belowTile->tile == LevelTileTypeYellowDisk)
@@ -17116,11 +17956,11 @@ uint16_t updateMurphy5(uint16_t position)
         si = word_5157C;
         drawStillMurphyFrame(304, 132); // TODO: fix coordinates
     //    pop si
-        dx = 0x10CE;
+//        dx = 0x10CE;
         murphyTile->movingObject = 0x27;
         word_510EE = 8;
         word_510D9 = 0;
-        return updateMurphy3(position);
+        return updateMurphy3(position, someBinaryData_5110E[45]);
     }
 //loc_4E1DB:              ; CODE XREF: update?+346j
     else if (sub_4F21F(position + kLevelWidth) != 1)
@@ -17154,28 +17994,28 @@ uint16_t updateMurphy4(uint16_t position)
     if (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeSpace)
     {
 //loc_4E3B3:              ; CODE XREF: update?+367j
-        dx = 0x0E4E;
+//        dx = 0x0E4E;
         rightTile->movingObject = 4;
         rightTile->tile = LevelTileTypeMurphy;
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
         word_510D9 = 0;
-        return updateMurphy3(position + 1);
+        return updateMurphy3(position + 1, someBinaryData_5110E[5]);
     }
 //loc_4E1FA:              ; CODE XREF: update?+365j
     else if (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeZonk)
     {
 //loc_4E48C:              ; CODE XREF: update?+36Fj
         sound9();
-        dx = 0x0EBE;
+//        dx = 0x0EBE;
         rightTile->movingObject = 8;
         rightTile->tile = LevelTileTypeMurphy;
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
         word_510D9 = 0;
-        return updateMurphy3(position + 1);
+        return updateMurphy3(position + 1, someBinaryData_5110E[12]);
     }
 //loc_4E202:              ; CODE XREF: update?+36Dj
     else if (rightTile->tile == LevelTileTypeBug)
@@ -17192,28 +18032,28 @@ uint16_t updateMurphy4(uint16_t position)
 
 //loc_4E48C:              ; CODE XREF: update?+36Fj
         sound9();
-        dx = 0x0EBE;
+//        dx = 0x0EBE;
         rightTile->movingObject = 8;
         rightTile->tile = LevelTileTypeMurphy;
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
         word_510D9 = 0;
-        return updateMurphy3(position + 1);
+        return updateMurphy3(position + 1, someBinaryData_5110E[12]);
     }
 //loc_4E209:              ; CODE XREF: update?+374j
     else if (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeInfotron)
     {
 //loc_4E5D4:              ; CODE XREF: update?+37Ej
         sound5();
-        dx = 0x0F5E;
+//        dx = 0x0F5E;
         rightTile->movingObject = 12;
         rightTile->tile = LevelTileTypeMurphy;
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
         word_510D9 = 0;
-        return updateMurphy3(position + 1);
+        return updateMurphy3(position + 1, someBinaryData_5110E[22]);
     }
 //loc_4E211:              ; CODE XREF: update?+37Cj
     else if (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeExit)
@@ -17239,11 +18079,11 @@ uint16_t updateMurphy4(uint16_t position)
         changePlayerCurrentLevelState();
         word_51978 = 0x40;
     //    pop si
-        dx = 0x0E5E;
+//        dx = 0x0E5E;
         murphyTile->movingObject = 0xD;
         word_510EE = 0;
         word_510D9 = 0;
-        return updateMurphy3(position);
+        return updateMurphy3(position, someBinaryData_5110E[6]);
     }
 //loc_4E219:              ; CODE XREF: update?+384j
     else if (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeZonk)
@@ -17269,11 +18109,11 @@ uint16_t updateMurphy4(uint16_t position)
         si = word_5157C;
         drawStillMurphyFrame(304, 132); // TODO: fix coordinates
     //    pop si
-        dx = 0x0FBE;
+//        dx = 0x0FBE;
         murphyTile->movingObject = 0xF;
         word_510EE = 8;
         word_510D9 = 0;
-        return updateMurphy3(position);
+        return updateMurphy3(position, someBinaryData_5110E[28]);
     }
 //loc_4E221:              ; CODE XREF: update?+38Cj
     else if (rightTile->tile == LevelTileTypeTerminal)
@@ -17312,25 +18152,25 @@ uint16_t updateMurphy4(uint16_t position)
         }
 
 //loc_4E82B:              ; CODE XREF: update?+998j
-        dx = 0x0FFE;
+//        dx = 0x0FFE;
         murphyTile->movingObject = 0x1B;
         rightRightTile->movingObject = 3;
         word_510EE = 0;
         word_510D9 = 1;
-        return updateMurphy3(position);
+        return updateMurphy3(position, someBinaryData_5110E[32]);
     }
 //loc_4E23D:              ; CODE XREF: update?+3A8j
     else if (rightTile->tile == LevelTileTypeRedDisk)
     {
 //loc_4E89A:              ; CODE XREF: update?+3B1j
-        dx = 0x105E;
+//        dx = 0x105E;
         rightTile->movingObject = 0x1F;
         rightTile->tile = LevelTileTypeMurphy;
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
         word_510D9 = 0;
-        return updateMurphy3(position + 1);
+        return updateMurphy3(position + 1, someBinaryData_5110E[38]);
     }
 //loc_4E244:              ; CODE XREF: update?+3AFj
     else if (rightTile->tile == LevelTileTypeYellowDisk)
@@ -17348,11 +18188,11 @@ uint16_t updateMurphy4(uint16_t position)
         si = word_5157C;
         drawStillMurphyFrame(304, 132); // TODO: fix coordinates
     //    pop si
-        dx = 0x10DE;
+//        dx = 0x10DE;
         murphyTile->movingObject = 0x26;
         word_510EE = 8;
         word_510D9 = 0;
-        return updateMurphy3(position);
+        return updateMurphy3(position, someBinaryData_5110E[46]);
     }
 //loc_4E24B:              ; CODE XREF: update?+3B6j
     else if (rightTile->tile == LevelTileTypeOrangeDisk)
@@ -17376,7 +18216,7 @@ uint16_t updateMurphy4(uint16_t position)
         si = word_5157C;
         drawStillMurphyFrame(304, 132); // TODO: fix coordinates
     //    pop si
-        dx = 0x10FE;
+//        dx = 0x10FE;
         murphyTile->movingObject = 0x29;
 
 //loc_4E9E7:              ; CODE XREF: update?+84Ej update?+87Fj ...
@@ -17385,7 +18225,7 @@ uint16_t updateMurphy4(uint16_t position)
 //loc_4E9ED:              ; CODE XREF: update?+A66j
         word_510D9 = 0;
 
-        return updateMurphy3(position);
+        return updateMurphy3(position, someBinaryData_5110E[48]);
     }
 //loc_4E253:              ; CODE XREF: update?+3BEj
     else if (sub_4F21F(position + 1) != 1)
@@ -17398,23 +18238,25 @@ uint16_t updateMurphy4(uint16_t position)
     }
 }
 
-uint16_t updateMurphy3(uint16_t position)
+uint16_t updateMurphy3(uint16_t position, SomeUnknownMurphyData unknownMurphyData)
 {
 //loc_4E9F3:              ; CODE XREF: update?+4B0j update?+9B4j
 //    push    si
 //    push(di);
 //    push    es
-    si = dx;
-    di = 0x0DE0;
+//    si = dx;
+//    di = 0x0DE0;
 //    mov ax, ds
 //    mov es, ax
 //    assume es:data
 //    mov cx, 7
-//    memcpy(di, si, 7); // rep movsw
+//    memcpy(di, si, cx * 2); // rep movsw
 //    pop es
 //    assume es:nothing
 //    pop(di);
 //    pop si
+
+    gSomeUnknownMurphyData = unknownMurphyData;
 
     return updateMurphy2(position);
 }
@@ -17443,19 +18285,17 @@ uint16_t updateMurphy2(uint16_t position)
 //loc_4EA6B:              ; CODE XREF: update?+B83j
     //    push    si
     //    push(di);
-        ax = word_510FA;
-        gMurphyPositionX += ax;
-        ax = word_510FC;
-        gMurphyPositionY += ax;
+        gMurphyPositionX += gSomeUnknownMurphyData.word_510FA;
+        gMurphyPositionY += gSomeUnknownMurphyData.word_510FC;
     //    mov di, [si+6155h]
-        di += word_510F0;
-        si = word_510F8;
+        di += gSomeUnknownMurphyData.word_510F0;
+        si = gSomeUnknownMurphyData.word_510F8;
     //    ax = *si;
         si += 2;
-        word_510F8 = si;
+        gSomeUnknownMurphyData.word_510F8 = si;
         si = ax;
-        bx = word_510F4;
-        dx = word_510F6;
+        bx = gSomeUnknownMurphyData.word_510F4;
+        dx = gSomeUnknownMurphyData.word_510F6;
     //    push    ds
     //    mov ax, es
     //    mov ds, ax
@@ -17483,11 +18323,11 @@ uint16_t updateMurphy2(uint16_t position)
         if (word_510D9 != 0)
         {
             di -= 0x7A0; // 1952
-            di += word_510F2;
-            si = word_510F8;
+            di += gSomeUnknownMurphyData.word_510F2;
+            si = gSomeUnknownMurphyData.word_510F8;
             si += 16;
     //      si = *si;
-            dx = word_510F6;
+            dx = gSomeUnknownMurphyData.word_510F6;
     //      push    ds
     //      mov ds, ax
 
@@ -17514,13 +18354,13 @@ uint16_t updateMurphy2(uint16_t position)
         else
         {
 //loc_4EAFA:              ; CODE XREF: update?+C32j
-            ax = word_510F0;
-            ax += word_510F2;
-            word_510F0 = ax;
+            ax = gSomeUnknownMurphyData.word_510F0;
+            ax += gSomeUnknownMurphyData.word_510F2;
+            gSomeUnknownMurphyData.word_510F0 = ax;
         }
 
 //loc_4EB04:              ; CODE XREF: update?+C68j
-        si = word_510F8;
+        si = gSomeUnknownMurphyData.word_510F8;
     //    if (*si != 0xFFFF) // cmp word ptr [si], 0FFFFh
     //    {
     ////        pop(di);
@@ -17531,9 +18371,9 @@ uint16_t updateMurphy2(uint16_t position)
 //loc_4EB10:              ; CODE XREF: update?+C7Bj
     //    pop(di);
     //    pop si
-        ax = word_510FA;
+        ax = gSomeUnknownMurphyData.word_510FA;
         ax /= 2;
-        bx = word_510FC;
+        bx = gSomeUnknownMurphyData.word_510FC;
         bx /= 2;
         gMurphyTileX += ax;
         gMurphyTileY += bx;
