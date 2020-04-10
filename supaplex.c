@@ -34,10 +34,25 @@ static const int kScreenHeight = 200;
 
 uint8_t fastMode = 0;
 
+typedef enum {
+    UserInputNone = 0,
+    UserInputUp = 1,
+    UserInputLeft = 2,
+    UserInputDown = 3,
+    UserInputRight = 4,
+    UserInputSpaceUp = 5,
+    UserInputSpaceLeft = 6,
+    UserInputSpaceDown = 7,
+    UserInputSpaceRight = 8,
+    UserInputSpaceOnly = 9,
+} UserInput;
+
+static const uint8_t kUserInputSpaceAndDirectionOffset = (UserInputSpaceUp - 1);
+
 static const int levelDataLength = 1536; // exact length of a level file, even of each level inside the LEVELS.DAT file
 uint8_t byte_50919 = 0;
 uint8_t byte_5091A = 0;
-uint8_t byte_50941 = 0; // 1: move up, 2: move left, 3: move down, 4: move right, 5: space + up, 6: space + left, 7: space + down, 8: space + right
+UserInput gCurrentUserInput = 0; // byte_50941
 uint8_t byte_50946 = 0;
 uint8_t byte_50953 = 0;
 uint8_t byte_50954 = 0;
@@ -1369,7 +1384,7 @@ uint16_t updateMurphy7(uint16_t position);
 uint16_t updateMurphy8(uint16_t position);
 void updateMurphy6(void);
 void sub_4914A(void);
-void sub_4A1BF(void);
+void updateUserInput(void);
 void sub_492F1(void);
 void sub_492A8(void);
 void sub_4A23C(void);
@@ -4276,7 +4291,7 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
 //loc_47EB8:              ; CODE XREF: waitForKeyMouseOrJoystick+28j
         sub_48E59();
     }
-    while (byte_50941 > 4);
+    while (gCurrentUserInput > kUserInputSpaceAndDirectionOffset);
 
     for (int i = 0; i < 4200; ++i)
     {
@@ -4296,7 +4311,7 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
             break;
         }
         sub_48E59();
-        if (byte_50941 > 4)
+        if (gCurrentUserInput > kUserInputSpaceAndDirectionOffset)
         {
             break;
         }
@@ -4329,7 +4344,7 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
         }
         while (keyPressed != SDL_SCANCODE_UNKNOWN);
     }
-    else if (byte_50941 > 4)
+    else if (gCurrentUserInput > kUserInputSpaceAndDirectionOffset)
     {
         do
         {
@@ -4343,7 +4358,7 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
 //loc_47F2D:              ; CODE XREF: waitForKeyMouseOrJoystick+8Ej
             sub_48E59();
         }
-        while (byte_50941 > 4);
+        while (gCurrentUserInput > kUserInputSpaceAndDirectionOffset);
     }
 
 //loc_47EF1:              ; CODE XREF: waitForKeyMouseOrJoystick+3Cj
@@ -6680,7 +6695,7 @@ void sub_48E59() //   proc near       ; CODE XREF: waitForKeyMouseOrJoystick:loc
     }
 //loc_48F68:              ; CODE XREF: sub_48E59+Bj
 //                ; sub_48E59+27j ...
-    byte_50941 = bl;
+    gCurrentUserInput = bl;
     return;
 }
 
@@ -7042,7 +7057,7 @@ loc_492B3:              ; CODE XREF: sub_492A8+5j
 loc_492CA:              ; CODE XREF: sub_492A8+47j
     mov ah, al
     and ah, 0Fh
-    mov byte_50941, ah
+    mov gCurrentUserInput, ah
     and al, 0F0h
     shr al, 1
     shr al, 1
@@ -7063,7 +7078,7 @@ void sub_492F1() //   proc near       ; CODE XREF: sub_4955B+1Dp
 {
     /*
     inc byte_510E2
-    mov bl, byte_50941
+    mov bl, gCurrentUserInput
     cmp byte_510E2, 0FFh
     jnz short loc_49311
     mov byte_510E1, bl
@@ -7097,7 +7112,7 @@ loc_4931E:              ; CODE XREF: sub_492F1+24j
     int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
                 ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
     mov byte_510E2, 0FFh
-    mov bl, byte_50941
+    mov bl, gCurrentUserInput
     mov byte_510E1, bl
 
 locret_49359:               ; CODE XREF: sub_492F1+2Bj
@@ -7412,7 +7427,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 //loc_49567:              ; CODE XREF: sub_4955B+5j
     else if (gIsPlayingDemo == 0)
     {
-        sub_4A1BF(); // 01ED:290B
+        updateUserInput(); // 01ED:290B
         if (gIsRecordingDemo != 0)
         {
             sub_492F1(); // 01ED:2915
@@ -8248,7 +8263,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     fclose(file);
     gIsPlayingDemo = 0;
     gIsRecordingDemo = 0;
-    byte_50941 = 0;
+    gCurrentUserInput = UserInputNone;
     word_51A01 = 0;
     word_51963 = 0;
     word_51965 = 0;
@@ -9217,70 +9232,65 @@ void sub_4A1AE() //   proc near       ; CODE XREF: sub_4955B+66Cp
     ax = ax / 2;
 }
 
-void sub_4A1BF() //   proc near       ; CODE XREF: sub_4955B+13p
+void updateUserInput() // sub_4A1BF   proc near       ; CODE XREF: sub_4955B+13p
                    // ; runMainMenu+BDp ...
 {
     // 01ED:355C
 
-    ah = 0;
+    uint8_t directionKeyWasPressed = 0;
 
     if (gIsUpKeyPressed != 0
         || byte_519F9 != 0)
     {
-//loc_4A1CF:              ; CODE XREF: sub_4A1BF+7j
-        byte_50941 = 1; // move up
-        ah = 1;
+//loc_4A1CF:              ; CODE XREF: updateUserInput+7j
+        gCurrentUserInput = UserInputUp;
+        directionKeyWasPressed = 1;
     }
 
-//loc_4A1D6:              ; CODE XREF: sub_4A1BF+Ej
+//loc_4A1D6:              ; CODE XREF: updateUserInput+Ej
     if (gIsLeftKeyPressed != 0
         || byte_519F7 != 0)
     {
-//loc_4A1E4:              ; CODE XREF: sub_4A1BF+1Cj
-        byte_50941 = 2; // move left
-        ah = 1;
+//loc_4A1E4:              ; CODE XREF: updateUserInput+1Cj
+        gCurrentUserInput = UserInputLeft;
+        directionKeyWasPressed = 1;
     }
 
-//loc_4A1EB:              ; CODE XREF: sub_4A1BF+23j
+//loc_4A1EB:              ; CODE XREF: updateUserInput+23j
     if (gIsDownKeyPressed != 0
         || byte_519F8 != 0)
     {
-//loc_4A1F9:              ; CODE XREF: sub_4A1BF+31j
-        byte_50941 = 3; // move down
-        ah = 1;
+//loc_4A1F9:              ; CODE XREF: updateUserInput+31j
+        gCurrentUserInput = UserInputDown;
+        directionKeyWasPressed = 1;
     }
 
-//loc_4A200:              ; CODE XREF: sub_4A1BF+38j
+//loc_4A200:              ; CODE XREF: updateUserInput+38j
     if (gIsRightKeyPressed != 0
         || byte_519F6 != 0)
     {
-//loc_4A20E:              ; CODE XREF: sub_4A1BF+46j
-        byte_50941 = 4; // move right
-        ah = 1;
+//loc_4A20E:              ; CODE XREF: updateUserInput+46j
+        gCurrentUserInput = UserInputRight;
+        directionKeyWasPressed = 1;
     }
 
-//loc_4A215:              ; CODE XREF: sub_4A1BF+4Dj
-    if (gIsSpaceKeyPressed == 0
-        && byte_519F5 == 0
-        && byte_519F4 == 0)
+//loc_4A215:              ; CODE XREF: updateUserInput+4Dj
+    if (gIsSpaceKeyPressed != 0
+        || byte_519F5 != 0
+        || byte_519F4 != 0)
     {
-        return;
+//loc_4A22A:              ; CODE XREF: updateUserInput+5Bj
+//                ; updateUserInput+62j
+        if (directionKeyWasPressed == 1)
+        {
+            gCurrentUserInput += kUserInputSpaceAndDirectionOffset;
     }
-
-//loc_4A22A:              ; CODE XREF: sub_4A1BF+5Bj
-//                ; sub_4A1BF+62j
-    if (ah == 1)
+        else
     {
-        byte_50941 += 4; // this means space was pressed
-        return;
+//loc_4A236:              ; CODE XREF: updateUserInput+6Ej
+            gCurrentUserInput = UserInputSpaceOnly;
+        }
     }
-
-//loc_4A236:              ; CODE XREF: sub_4A1BF+6Ej
-    byte_50941 = 9;
-
-//locret_4A23B:               ; CODE XREF: sub_4A1BF+69j
-//                ; sub_4A1BF+75j
-    return;
 }
 
 void sub_4A23C() //   proc near       ; CODE XREF: sub_4955B+111p
@@ -9596,7 +9606,7 @@ loc_4A427:              ; CODE XREF: sub_4A3E9+37j
 
 loc_4A446:              ; CODE XREF: sub_4A3E9+50j
                 ; sub_4A3E9+57j
-    mov byte_50941, 0
+    mov gCurrentUserInput, 0
     cmp gIsPlayingDemo, 0
     jz  short locret_4A462
     mov bx, word_5A33C
@@ -12987,7 +12997,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
         drawMouseCursor(); // 01ED:5BE5 Draws mouse cursor too?
         drawMainMenuButtonBorders(); // 01ED:5BE8
         sub_48E59();
-        sub_4A1BF();
+        updateUserInput();
         if (gPlayerListDownButtonPressed != 0
             || gPlayerListUpButtonPressed != 0)
         {
@@ -13018,7 +13028,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
 //loc_4C8A1:              // ; CODE XREF: runMainMenu+106j
         gLevelListDownButtonPressed = 0;
         gLevelListUpButtonPressed = 0;
-        if (byte_50941 > 4)
+        if (gCurrentUserInput > kUserInputSpaceAndDirectionOffset)
         {
             handleOkButtonClick();
         }
@@ -13185,6 +13195,8 @@ void handleControlsOptionClick() //showControls:                              ; 
 
     do
     {
+        int9handler();
+
 //loc_4CA67:                              ; CODE XREF: code:5E89j
 //                            ; code:5EBFj ...
         videoloop(); // 01ED:5E04
@@ -13378,16 +13390,17 @@ void drawInputOptionsSelection(uint8_t *destBuffer) // sub_4CCDF   proc near    
 
 void updateOptionsMenuState(uint8_t *destBuffer) // sub_4CD3C   proc near       ; CODE XREF: drawInputOptionsSelection:loc_4CD38p
 {
+    // 01ED:60D9
     sub_48E59();
-    sub_4A1BF();
-    if (byte_50941 == byte_50919)
+    updateUserInput();
+    if (gCurrentUserInput == byte_50919)
     {
         return;
     }
 
 //loc_4CD4D:              ; CODE XREF: updateOptionsMenuState+Ej
-    byte_50919 = byte_50941;
-    if (byte_50941 == 0)
+    byte_50919 = gCurrentUserInput;
+    if (gCurrentUserInput == UserInputNone)
     {
         drawOptionsMenuLine(kOptionsMenuBorders[12], 6, destBuffer);
         drawOptionsMenuLine(kOptionsMenuBorders[17], 4, destBuffer);
@@ -13395,7 +13408,7 @@ void updateOptionsMenuState(uint8_t *destBuffer) // sub_4CD3C   proc near       
     else
     {
 //loc_4CD6A:              ; CODE XREF: updateOptionsMenuState+1Aj
-        if (byte_50941 > 4)
+        if (gCurrentUserInput <= kUserInputSpaceAndDirectionOffset)
         {
 //loc_4CD9E:              ; CODE XREF: updateOptionsMenuState+33j
             drawOptionsMenuLine(kOptionsMenuBorders[12], 4, destBuffer);
@@ -13404,15 +13417,15 @@ void updateOptionsMenuState(uint8_t *destBuffer) // sub_4CD3C   proc near       
         else
         {
             drawOptionsMenuLine(kOptionsMenuBorders[17], 6, destBuffer);
-            if (byte_50941 == 9)
+            if (gCurrentUserInput != UserInputSpaceOnly)
             {
 //loc_4CD8F:              ; CODE XREF: updateOptionsMenuState+42j
-                byte_50941 -= 4;
+                gCurrentUserInput -= kUserInputSpaceAndDirectionOffset;
                 drawOptionsMenuLine(kOptionsMenuBorders[12], 4, destBuffer);
             }
             else
             {
-                byte_50941 = 0;
+                gCurrentUserInput = UserInputNone;
                 drawOptionsMenuLine(kOptionsMenuBorders[12], 6, destBuffer);
             }
         }
@@ -13424,28 +13437,22 @@ void updateOptionsMenuState(uint8_t *destBuffer) // sub_4CD3C   proc near       
     drawOptionsMenuLine(kOptionsMenuBorders[14], 4, destBuffer);
     drawOptionsMenuLine(kOptionsMenuBorders[15], 4, destBuffer);
     drawOptionsMenuLine(kOptionsMenuBorders[16], 4, destBuffer);
-    if (byte_50941 == 1)
+    if (gCurrentUserInput == UserInputUp)
     {
         drawOptionsMenuLine(kOptionsMenuBorders[13], 6, destBuffer);
-        return;
     }
-
 //loc_4CDDF:              ; CODE XREF: updateOptionsMenuState+97j
-    if (byte_50941 == 2)
+    else if (gCurrentUserInput == UserInputLeft)
     {
         drawOptionsMenuLine(kOptionsMenuBorders[14], 6, destBuffer);
-        return;
     }
-
 //loc_4CDF0:              ; CODE XREF: updateOptionsMenuState+A8j
-    if (byte_50941 == 3)
+    else if (gCurrentUserInput == UserInputDown)
     {
         drawOptionsMenuLine(kOptionsMenuBorders[15], 6, destBuffer);
-        return;
     }
-
 //loc_4CE01:              ; CODE XREF: updateOptionsMenuState+B9j
-    if (byte_50941 == 4)
+    else if (gCurrentUserInput == UserInputRight)
     {
         drawOptionsMenuLine(kOptionsMenuBorders[16], 6, destBuffer);
     }
@@ -15757,7 +15764,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
     }
 
 //loc_4DEE1:              ; CODE XREF: update?+2Ej update?+35j ...
-    if (byte_50941 == 0)
+    if (gCurrentUserInput == UserInputNone)
     {
 //loc_4DEED:              ; CODE XREF: update?+58j
         byte_510D3 =  1;
@@ -15915,50 +15922,50 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
     if (byte_510D8 != 0
         && (belowTile->movingObject == 0 && belowTile->tile == LevelTileTypeSpace))
     {
-        if (byte_50941 != 1
+        if (gCurrentUserInput != UserInputUp
                  || (aboveTile->movingObject != 0 || aboveTile->tile != LevelTileTypeBase))
         {
 //loc_4E01B:              ; CODE XREF: update?+182j
-            if (byte_50941 != 2
+            if (gCurrentUserInput != UserInputLeft
                 || (leftTile->movingObject != 0 || leftTile->tile != LevelTileTypeBase))
             {
 //loc_4E027:              ; CODE XREF: update?+18Ej
-                if (byte_50941 != 4
+                if (gCurrentUserInput != UserInputRight
                     || (rightTile->movingObject != 0 || rightTile->tile != LevelTileTypeBase))
                 {
 //loc_4E033:              ; CODE XREF: update?+19Aj
-                    byte_50941 = 3;
+                    gCurrentUserInput = UserInputDown;
                 }
             }
         }
     }
 
 //loc_4E035:              ; CODE XREF: update?+176j update?+17Dj ...
-    if (byte_50941 == 1)
+    if (gCurrentUserInput == UserInputUp)
     {
         byte_510D3 = 0;
         return updateMurphy8(position);
     }
 //loc_4E041:              ; CODE XREF: update?+1A8j
-    else if (byte_50941 == 2)
+    else if (gCurrentUserInput == UserInputLeft)
     {
         byte_510D3 = 0;
         return updateMurphy7(position);
     }
 //loc_4E04E:              ; CODE XREF: update?+1B4j
-    else if (byte_50941 == 3)
+    else if (gCurrentUserInput == UserInputDown)
     {
         byte_510D3 = 0;
         return updateMurphy5(position);
     }
 //loc_4E05B:              ; CODE XREF: update?+1C1j
-    else if (byte_50941 == 4)
+    else if (gCurrentUserInput == UserInputRight)
     {
         byte_510D3 = 0;
         return updateMurphy4(position);
     }
 //loc_4E068:              ; CODE XREF: update?+1CEj
-    else if (byte_50941 == 5)
+    else if (gCurrentUserInput == UserInputSpaceUp)
     {
         byte_510D3 = 0;
 //loc_4E260:              ; CODE XREF: update?+1E2j
@@ -16062,7 +16069,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
         }
     }
 //loc_4E075:              ; CODE XREF: update?+1DBj
-    else if (byte_50941 == 6)
+    else if (gCurrentUserInput == UserInputSpaceLeft)
     {
         byte_510D3 = 0;
 //loc_4E28A:              ; CODE XREF: update?+1EFj
@@ -16167,7 +16174,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
         }
     }
 //loc_4E082:              ; CODE XREF: update?+1E8j
-    else if (byte_50941 == 7)
+    else if (gCurrentUserInput == UserInputSpaceDown)
     {
         byte_510D3 = 0;
 //loc_4E2BA:              ; CODE XREF: update?+1FCj
@@ -16271,7 +16278,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
         }
     }
 //loc_4E08F:              ; CODE XREF: update?+1F5j
-    else if (byte_50941 == 8)
+    else if (gCurrentUserInput == UserInputSpaceRight)
     {
         byte_510D3 = 0;
 //loc_4E2E4:              ; CODE XREF: update?+209j
@@ -16379,7 +16386,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
         }
     }
 //loc_4E09C:              ; CODE XREF: update?+202j
-    else if (byte_50941 == 9)
+    else if (gCurrentUserInput == UserInputSpaceOnly)
     {
 //loc_4E314:              ; CODE XREF: update?+211j
         if (byte_5195C == 0
@@ -18219,7 +18226,7 @@ uint16_t updateMurphy2(uint16_t position)
     if (murphyTile->movingObject == 0xE)
     {
 //loc_4ED49:              ; CODE XREF: update?+B97j
-        if (byte_50941 == 2
+        if (gCurrentUserInput == UserInputLeft
             && (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeZonk))
         {
             return position;
@@ -18248,7 +18255,7 @@ uint16_t updateMurphy2(uint16_t position)
     else if (murphyTile->movingObject == 0xF)
     {
 //loc_4ED81:              ; CODE XREF: update?+B9Fj
-        if (byte_50941 == 4
+        if (gCurrentUserInput == UserInputRight
             && (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeZonk))
         {
             return position;
@@ -18277,7 +18284,7 @@ uint16_t updateMurphy2(uint16_t position)
     else if (murphyTile->movingObject == 0x28)
     {
 //loc_4EDB9:              ; CODE XREF: update?+BA7j
-        if (byte_50941 == 2
+        if (gCurrentUserInput == UserInputLeft
             && (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeOrangeDisk))
         {
             return position;
@@ -18306,7 +18313,7 @@ uint16_t updateMurphy2(uint16_t position)
     else if (murphyTile->movingObject == 0x29)
     {
 //loc_4EDF1:              ; CODE XREF: update?+BAFj
-        if (byte_50941 == 4
+        if (gCurrentUserInput == UserInputRight
             && (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeOrangeDisk))
         {
             return position;
@@ -18335,7 +18342,7 @@ uint16_t updateMurphy2(uint16_t position)
     else if (murphyTile->movingObject == 0x24)
     {
 //loc_4EE29:              ; CODE XREF: update?+BB7j
-        if (byte_50941 == 1
+        if (gCurrentUserInput == UserInputUp
             && (aboveTile->movingObject == 0 && aboveTile->tile == LevelTileTypeYellowDisk))
         {
             return position;
@@ -18364,7 +18371,7 @@ uint16_t updateMurphy2(uint16_t position)
     else if (murphyTile->movingObject == 0x25)
     {
 //loc_4EE61:              ; CODE XREF: update?+BBFj
-        if (byte_50941 == 2
+        if (gCurrentUserInput == UserInputLeft
             && (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeYellowDisk))
         {
             return position;
@@ -18393,7 +18400,7 @@ uint16_t updateMurphy2(uint16_t position)
     else if (murphyTile->movingObject == 0x27)
     {
 //loc_4EE99:              ; CODE XREF: update?+BC7j
-        if (byte_50941 == 3
+        if (gCurrentUserInput == UserInputDown
             && (belowTile->movingObject == 0 && belowTile->tile == LevelTileTypeYellowDisk))
         {
             return position;
@@ -18423,7 +18430,7 @@ uint16_t updateMurphy2(uint16_t position)
     else if (murphyTile->movingObject == 0x26)
     {
 //loc_4EED1:              ; CODE XREF: update?+BCFj
-        if (byte_50941 == 4
+        if (gCurrentUserInput == UserInputRight
             && (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeYellowDisk))
         {
             return position;
@@ -18453,7 +18460,7 @@ uint16_t updateMurphy2(uint16_t position)
     else if (murphyTile->movingObject == 0x2A)
     {
 //loc_4EF09:              ; CODE XREF: update?+BD7j
-        if (byte_50941 == 9)
+        if (gCurrentUserInput == UserInputSpaceOnly)
         {
             if (word_510EE > 0x20)
             {
