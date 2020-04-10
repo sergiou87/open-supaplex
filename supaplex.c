@@ -9284,9 +9284,9 @@ void updateUserInput() // sub_4A1BF   proc near       ; CODE XREF: sub_4955B+13
         if (directionKeyWasPressed == 1)
         {
             gCurrentUserInput += kUserInputSpaceAndDirectionOffset;
-    }
+        }
         else
-    {
+        {
 //loc_4A236:              ; CODE XREF: updateUserInput+6Ej
             gCurrentUserInput = UserInputSpaceOnly;
         }
@@ -14274,16 +14274,25 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
  */
 }
 
+static const double kFPS = 60.0;
+static const double kFrameDuration = 1000.0 / kFPS;
+
 void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
 {
     SDL_PumpEvents(); // Make sure the app stays responsive
 
+    Uint32 start = SDL_GetTicks();
     SDL_BlitSurface(gScreenSurface, NULL, gTextureSurface, NULL);
 
     SDL_UpdateTexture(gTexture, NULL, gTextureSurface->pixels, gTextureSurface->pitch);
     SDL_RenderClear(gRenderer);
     SDL_RenderCopy(gRenderer, gTexture, NULL, NULL);
     SDL_RenderPresent(gRenderer);
+    Uint32 time = (SDL_GetTicks() - start);
+    if (time < kFrameDuration)
+    {
+        SDL_Delay(kFrameDuration - time);
+    }
 
 //        push    dx
 //        push    ax
@@ -14363,7 +14372,7 @@ void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
 void loopForVSync() //   proc near       ; CODE XREF: crt?2+55p crt?1+41p ...
 {
     // TODO: handle this properly to control FPS
-    SDL_Delay(1000 / 60); // 60 fps
+//    SDL_Delay(1000 / kFPS); // 60 fps
 //        push    dx
 //        push    ax
 //
