@@ -37,7 +37,7 @@ uint8_t fastMode = 0;
 static const int levelDataLength = 1536; // exact length of a level file, even of each level inside the LEVELS.DAT file
 uint8_t byte_50919 = 0;
 uint8_t byte_5091A = 0;
-uint8_t byte_50941 = 0;
+uint8_t byte_50941 = 0; // 1: move up, 2: move left, 3: move down, 4: move right, 5: space + up, 6: space + left, 7: space + down, 8: space + right
 uint8_t byte_50946 = 0;
 uint8_t byte_50953 = 0;
 uint8_t byte_50954 = 0;
@@ -64,67 +64,100 @@ uint8_t byte_51969 = 0;
 uint8_t byte_5196A = 0;
 uint8_t byte_5196B = 0;
 uint8_t byte_5197C = 0;
-uint8_t byte_5197E = 0;
-uint8_t byte_5197F = 0;
-uint8_t byte_51980 = 0;
-uint8_t byte_51981 = 0;
-uint8_t byte_51982 = 0;
-uint8_t byte_51983 = 0;
-uint8_t byte_51984 = 0;
-uint8_t byte_51985 = 0;
-uint8_t byte_51986 = 0;
-uint8_t byte_51987 = 0;
-uint8_t byte_51988 = 0;
-uint8_t byte_51989 = 0;
-uint8_t byte_5198A = 0;
-uint8_t byte_5198D = 0;
-uint8_t byte_5198E = 0;
-uint8_t byte_51990 = 0;
-uint8_t byte_51996 = 0;
-uint8_t byte_51999 = 0;
-uint8_t byte_5199A = 0;
-uint8_t byte_5199C = 0;
-uint8_t byte_5199D = 0;
-uint8_t byte_519A0 = 0;
-uint8_t byte_519A1 = 0;
-uint8_t byte_519B5 = 0;
-uint8_t byte_519B6 = 0;
-uint8_t byte_519B8 = 0;
-uint8_t byte_519B9 = 0;
-uint8_t byte_519BA = 0;
-uint8_t byte_519BB = 0;
-uint8_t byte_519BC = 0;
-uint8_t byte_519BD = 0;
-uint8_t byte_519BE = 0;
-uint8_t byte_519BF = 0;
-uint8_t byte_519C0 = 0;
-uint8_t byte_519C1 = 0;
-uint8_t byte_519C2 = 0; // -> 16B2
-uint8_t byte_519C3 = 0;
-uint8_t byte_519C5 = 0;
-uint8_t byte_519C8 = 0;
-uint8_t byte_519C9 = 0;
-uint8_t byte_519CA = 0;
-uint8_t byte_519CD = 0;
-uint8_t byte_519D4 = 0;
-uint8_t byte_519D5 = 0;
-uint8_t byte_519F4 = 0;
-uint8_t byte_519F5 = 0;
-uint8_t byte_519F6 = 0;
-uint8_t byte_519F7 = 0;
-uint8_t byte_519F8 = 0;
-uint8_t byte_519F9 = 0;
-uint8_t byte_51ABE = 0;
-uint8_t byte_5870F = 0;
-uint8_t byte_58D46 = 0;
-uint8_t byte_58D47 = 0;
-uint8_t byte_59821 = 0;
-uint8_t byte_59822 = 0;
-uint8_t byte_59823 = 0;
-uint8_t byte_59889 = 0;
-uint8_t byte_5988A = 0;
-uint8_t byte_5988B = 0;
-uint8_t byte_5988C = 0;
+uint8_t gIsEscapeKeyPressed = 0; // byte_5197E -> ESC
+uint8_t byte_5197F = 0; // 1
+uint8_t byte_51980 = 0; // 2
+uint8_t byte_51981 = 0; // 3
+uint8_t byte_51982 = 0; // 4
+uint8_t byte_51983 = 0; // 5
+uint8_t byte_51984 = 0; // 6
+uint8_t byte_51985 = 0; // 7
+uint8_t byte_51986 = 0; // 8
+uint8_t byte_51987 = 0; // 9
+uint8_t byte_51988 = 0; // 0
+uint8_t byte_51989 = 0; // -
+uint8_t byte_5198A = 0; // =
+// backspace
+// tab
+uint8_t byte_5198D = 0; // q
+uint8_t byte_5198E = 0; // w
+// e
+uint8_t byte_51990 = 0; // r
+// t
+// y
+// u
+// i
+// o
+uint8_t byte_51996 = 0; // p
+// [
+// ]
+uint8_t byte_51999 = 0; // enter
+uint8_t byte_5199A = 0; // left control
+//a
+uint8_t byte_5199C = 0;//s
+uint8_t byte_5199D = 0;//d
+//f
+//g
+uint8_t byte_519A0 = 0;//h
+uint8_t byte_519A1 = 0;//j
+//k
+uint32_t dword_519A3 = 0; // l ; ' `
+uint16_t word_519A7 = 0; // "left shift" \
+uint16_t word_519A9 = 0; // z x
+uint16_t word_519AB = 0; // c v
+uint16_t word_519AD = 0; // b n
+uint32_t dword_519AF = 0; // m , . /
+uint16_t word_519B3 = 0; // "right shift" "numpad *"
+uint8_t byte_519B5 = 0; // "left alt"
+uint8_t gIsSpaceKeyPressed = 0; // byte_519B6 -> space
+uint8_t byte_519B7 = 0; // caps lock
+uint8_t byte_519B8 = 0; // F1
+uint8_t byte_519B9 = 0; // F2
+uint8_t byte_519BA = 0; // F3
+uint8_t byte_519BB = 0; // F4
+uint8_t byte_519BC = 0; // F5
+uint8_t byte_519BD = 0; // F6
+uint8_t byte_519BE = 0; // F7
+uint8_t byte_519BF = 0; // F8
+uint8_t byte_519C0 = 0; // F9
+uint8_t byte_519C1 = 0; // F10
+uint8_t byte_519C2 = 0; // -> 16B2 -> Num lock
+uint8_t byte_519C3 = 0; // Scroll lock
+uint8_t byte_519C4 = 0; // numpad 7
+uint8_t gIsUpKeyPressed = 0; // byte_519C5 -> 16B5 -> numpad 8 or up arrow
+uint8_t byte_519C6 = 0; // numpad 9
+// numpad -
+uint8_t gIsLeftKeyPressed = 0; // byte_519C8 -> numpad 4
+uint8_t byte_519C9 = 0; // numpad 5
+uint8_t gIsRightKeyPressed = 0; // byte_519CA -> numpad 6
+// numpad +
+// numpad 1
+uint8_t gIsDownKeyPressed = 0; // byte_519CD -> numpad 2
+uint8_t byte_519CE = 0; // numpad 3
+uint8_t byte_519CF = 0; // numpad 0
+uint8_t byte_519D0 = 0; // numpad .
+uint8_t byte_519D1 = 0; // numpad SysReq
+// Key 45
+// numpad Enter
+uint8_t byte_519D4 = 0; // numpad /
+uint8_t byte_519D5 = 0; //
+uint8_t byte_519F4 = 0; //
+uint8_t byte_519F5 = 0; //
+uint8_t byte_519F6 = 0; //
+uint8_t byte_519F7 = 0; //
+uint8_t byte_519F8 = 0; //
+uint8_t byte_519F9 = 0; //
+uint8_t byte_51ABE = 0; //
+uint8_t byte_5870F = 0; //
+uint8_t byte_58D46 = 0; //
+uint8_t byte_58D47 = 0; //
+uint8_t byte_59821 = 0; //
+uint8_t byte_59822 = 0; //
+uint8_t byte_59823 = 0; //
+uint8_t byte_59889 = 0; //
+uint8_t byte_5988A = 0; //
+uint8_t byte_5988B = 0; //
+uint8_t byte_5988C = 0; //
 uint8_t byte_5988D = 0x53; // 83 or '+'
 uint8_t byte_59890 = 0x58; // 88 or 'X'
 uint8_t byte_599D4 = 0;
@@ -248,9 +281,6 @@ uint16_t word_51974 = 0;
 uint16_t word_51978 = 0;
 uint16_t word_5197A = 0;
 uint16_t word_519A9 = 0;
-uint16_t word_519AB = 0;
-uint16_t word_519AD = 0;
-uint16_t word_519B3 = 0;
 uint16_t word_51A01 = 0;
 uint16_t word_51A07 = 1;
 uint16_t word_58463 = 0;
@@ -287,8 +317,6 @@ uint16_t word_5A309 = 0x5053;
 uint16_t word_5A30B = 0x1A0D;
 uint16_t word_5A30D = 0;
 uint16_t word_5A30F = 0;
-uint32_t dword_519A3 = 0;
-uint32_t dword_519AF = 0;
 uint32_t dword_58488 = 0;
 uint8_t fileIsDemo = 0;
 uint8_t isJoystickEnabled = 0; // byte_50940
@@ -2581,84 +2609,89 @@ void int9handler() // proc far        ; DATA XREF: setint9+1Fo
         }
     }
 
-    if (keyPressed != SDL_SCANCODE_UNKNOWN) //test    cl, 80h     ; think key up
+    gIsEscapeKeyPressed = keys[SDL_SCANCODE_ESCAPE];
+    gIsSpaceKeyPressed = keys[SDL_SCANCODE_SPACE];
+    gIsUpKeyPressed = keys[SDL_SCANCODE_UP];
+    gIsDownKeyPressed = keys[SDL_SCANCODE_DOWN];
+    gIsLeftKeyPressed = keys[SDL_SCANCODE_LEFT];
+    gIsRightKeyPressed = keys[SDL_SCANCODE_RIGHT];
+
+    // 01ED:0659
+    if (keyPressed == SDL_SCANCODE_UNKNOWN) //test    cl, 80h     ; think key up
     {
+        return;
+    }
 //storeKey:               ; CODE XREF: int9handler+2Bj
 //        keyPressed = cl;
-        if (speed3 >= 0)
+    if (speed3 >= 0)
+    {
+        if (keyPressed == SDL_SCANCODE_KP_MULTIPLY // Key * in the numpad, restore speed
+            && speed3 >= 0)
         {
-            if (keyPressed == SDL_SCANCODE_KP_MULTIPLY // Key * in the numpad, restore speed
-                && speed3 >= 0)
-            {
-                gameSpeed = speed3;
+            gameSpeed = speed3;
 //              push(cx);
-                cl = speed2;
-                cl = cl & 0xF0;
-                cl = cl | gameSpeed;
-                if (speed2 > cl)
-                {
-                    speed2 = cl;
-                }
+            cl = speed2;
+            cl = cl & 0xF0;
+            cl = cl | gameSpeed;
+            if (speed2 > cl)
+            {
+                speed2 = cl;
+            }
 //              pop(cx);
+        }
+        else
+        {
+//checkSlash:             ; CODE XREF: int9handler+3Ej
+//                ; int9handler+45j
+            if (cl == SDL_SCANCODE_KP_DIVIDE) // Key / (numpad or not)
+            {
+                speed1 = 0;
+                gameSpeed = 10;
             }
             else
             {
-//checkSlash:             ; CODE XREF: int9handler+3Ej
-//                ; int9handler+45j
-                if (cl == SDL_SCANCODE_KP_DIVIDE) // Key / (numpad or not)
+//checkPlus:              ; CODE XREF: int9handler+54j
+                if (cl == SDL_SCANCODE_KP_PLUS) // Key + in the numpad, speed up
                 {
                     speed1 = 0;
-                    gameSpeed = 10;
-                }
-                else
-                {
-//checkPlus:              ; CODE XREF: int9handler+54j
-                    if (cl == SDL_SCANCODE_KP_PLUS) // Key + in the numpad, speed up
+                    if (gameSpeed < 10) // 10
                     {
-                        speed1 = 0;
-                        if (gameSpeed < 10) // 10
-                        {
-                            gameSpeed++;
-                        }
+                        gameSpeed++;
                     }
+                }
 //checkMinus:             ; CODE XREF: int9handler+65j
 //                ; int9handler+71j
-                    if (cl == SDL_SCANCODE_KP_MINUS) // Key - in the numpad, speed down
+                if (cl == SDL_SCANCODE_KP_MINUS) // Key - in the numpad, speed down
+                {
+                    speed1 = 0;
+                    if (gameSpeed != 0)
                     {
-                        speed1 = 0;
-                        if (gameSpeed != 0)
-                        {
-                            gameSpeed--;
+                        gameSpeed--;
 //loc_47320:              ; CODE XREF: int9handler+4Fj
 //                          push(cx);
-                            cl = speed2;
-                            cl = cl & 0xF0;
-                            cl = cl | gameSpeed;
-                            if (speed2 > cl)
-                            {
-                                speed2 = cl;
-                            }
+                        cl = speed2;
+                        cl = cl & 0xF0;
+                        cl = cl | gameSpeed;
+                        if (speed2 > cl)
+                        {
+                            speed2 = cl;
+                        }
 //dontUpdatespeed2:          ; CODE XREF: int9handler+9Cj
 //                          pop(cx);
-                        }
                     }
                 }
             }
         }
-
-    //checkX:                 ; CODE XREF: int9handler+39j
-    //                ; int9handler+60j ...
-        if (cl == SDL_SCANCODE_X // Key X
-            && byte_519B5 != 0)
-        {
-            word_51974 = 1;
-            word_5197A = 1;
-        }
     }
-//    else
-//    {
-//        keyPressed = 0;
-//    }
+
+//checkX:                 ; CODE XREF: int9handler+39j
+//                ; int9handler+60j ...
+    if (cl == SDL_SCANCODE_X // Key X
+        && byte_519B5 != 0)
+    {
+        word_51974 = 1;
+        word_5197A = 1;
+    }
 
 //doneexit:                   ; CODE XREF: int9handler+A6j
 //                ; int9handler+ADj ...
@@ -4219,7 +4252,7 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
     do
     {
 //keyIsPressed:               ; CODE XREF: waitForKeyMouseOrJoystick+16j
-        if (byte_5197E != 0)
+        if (gIsEscapeKeyPressed != 0)
         {
             byte_59B86 = 0xFF;
         }
@@ -4285,7 +4318,7 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
         {
 //loc_47F0C:              ; CODE XREF: waitForKeyMouseOrJoystick+4Bj
 //                ; waitForKeyMouseOrJoystick+85j
-        if (byte_5197E != 0)
+        if (gIsEscapeKeyPressed != 0)
         {
             byte_59B86 = 0xFF;
         }
@@ -4302,7 +4335,7 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
         {
 //loc_47F21:              ; CODE XREF: waitForKeyMouseOrJoystick+55j
 //                ; waitForKeyMouseOrJoystick+9Dj
-            if (byte_5197E != 0)
+            if (gIsEscapeKeyPressed != 0)
             {
                 byte_59B86 = 0xFF;
             }
@@ -6826,25 +6859,25 @@ void drawFixedLevel() // sub_48F6D   proc near       ; CODE XREF: start+335p ru
 void sub_4914A() //   proc near       ; CODE XREF: sub_4955B+7p
 {
     /*
-    cmp byte_519C8, 0
+    cmp gIsLeftKeyPressed, 0
     jz  short loc_49159
     dec word_51963
     dec word_51963
 
 loc_49159:              ; CODE XREF: sub_4914A+5j
-    cmp byte_519CA, 0
+    cmp gIsRightKeyPressed, 0
     jz  short loc_49168
     inc word_51963
     inc word_51963
 
 loc_49168:              ; CODE XREF: sub_4914A+14j
-    cmp byte_519C5, 0
+    cmp gIsUpKeyPressed, 0
     jz  short loc_49177
     dec word_51965
     dec word_51965
 
 loc_49177:              ; CODE XREF: sub_4914A+23j
-    cmp byte_519CD, 0
+    cmp gIsDownKeyPressed, 0
     jz  short loc_49186
     inc word_51965
     inc word_51965
@@ -8405,7 +8438,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     }
 
 //loc_49D15:              ; CODE XREF: sub_4955B+772j
-    if (byte_5197E != 0
+    if (gIsEscapeKeyPressed != 0
         && word_51978 <= 0)
     {
         // This is called when I press ESC to exit the game, but not when I die
@@ -9191,43 +9224,43 @@ void sub_4A1BF() //   proc near       ; CODE XREF: sub_4955B+13p
 
     ah = 0;
 
-    if (byte_519C5 != 0
+    if (gIsUpKeyPressed != 0
         || byte_519F9 != 0)
     {
 //loc_4A1CF:              ; CODE XREF: sub_4A1BF+7j
-        byte_50941 = 1;
+        byte_50941 = 1; // move up
         ah = 1;
     }
 
 //loc_4A1D6:              ; CODE XREF: sub_4A1BF+Ej
-    if (byte_519C8 != 0
+    if (gIsLeftKeyPressed != 0
         || byte_519F7 != 0)
     {
 //loc_4A1E4:              ; CODE XREF: sub_4A1BF+1Cj
-        byte_50941 = 2;
+        byte_50941 = 2; // move left
         ah = 1;
     }
 
 //loc_4A1EB:              ; CODE XREF: sub_4A1BF+23j
-    if (byte_519CD != 0
+    if (gIsDownKeyPressed != 0
         || byte_519F8 != 0)
     {
 //loc_4A1F9:              ; CODE XREF: sub_4A1BF+31j
-        byte_50941 = 3;
+        byte_50941 = 3; // move down
         ah = 1;
     }
 
 //loc_4A200:              ; CODE XREF: sub_4A1BF+38j
-    if (byte_519CA != 0
+    if (gIsRightKeyPressed != 0
         || byte_519F6 != 0)
     {
 //loc_4A20E:              ; CODE XREF: sub_4A1BF+46j
-        byte_50941 = 4;
+        byte_50941 = 4; // move right
         ah = 1;
     }
 
 //loc_4A215:              ; CODE XREF: sub_4A1BF+4Dj
-    if (byte_519B6 == 0
+    if (gIsSpaceKeyPressed == 0
         && byte_519F5 == 0
         && byte_519F4 == 0)
     {
@@ -9238,7 +9271,7 @@ void sub_4A1BF() //   proc near       ; CODE XREF: sub_4955B+13p
 //                ; sub_4A1BF+62j
     if (ah == 1)
     {
-        byte_50941 += 4;
+        byte_50941 += 4; // this means space was pressed
         return;
     }
 
@@ -12912,6 +12945,8 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
 
     while (1)
     {
+        int9handler();
+
 //loc_4C7FD:              // ; CODE XREF: runMainMenu+121j
                    // ; runMainMenu+219j ...
         word_58465++;
@@ -13079,7 +13114,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
         {
             break;
         }
-        if (byte_5197E == 1)
+        if (gIsEscapeKeyPressed == 1)
         {
             break;
         }
@@ -13168,7 +13203,7 @@ void handleControlsOptionClick() //showControls:                              ; 
         {
             break;
         }
-        if (byte_5197E == 1)
+        if (gIsEscapeKeyPressed == 1)
         {
             break;
         }
@@ -14126,7 +14161,7 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
 //loc_4D360:              ; CODE XREF: getMouseStatus+5j
     bx = 0;
     // This emulates the right mouse button
-    if (byte_5197E == 1)
+    if (gIsEscapeKeyPressed == 1)
     {
         bx = 2;
     }
@@ -14144,28 +14179,28 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
     ax = (dword_58488 & 0xFFFF); // mov ax, word ptr dword_58488
     ax = ax / 8;
     ax++;
-    if (byte_519C5 == 1)
+    if (gIsUpKeyPressed == 1)
     {
         gCursorY -= ax;
         cx = 0;
     }
 
 //loc_4D390:              ; CODE XREF: getMouseStatus+39j
-    if (byte_519CD == 1)
+    if (gIsDownKeyPressed == 1)
     {
         gCursorY += ax;
         cx = 0;
     }
 
 //loc_4D39D:              ; CODE XREF: getMouseStatus+46j
-    if (byte_519C8 == 1)
+    if (gIsLeftKeyPressed == 1)
     {
         gCursorX -= ax;
         cx = 0;
     }
 
 //loc_4D3AA:              ; CODE XREF: getMouseStatus+53j
-    if (byte_519CA == 1)
+    if (gIsRightKeyPressed == 1)
     {
         gCursorX += ax;
         cx = 0;
@@ -15722,8 +15757,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
     }
 
 //loc_4DEE1:              ; CODE XREF: update?+2Ej update?+35j ...
-    bl = byte_50941;
-    if (bl == 0)
+    if (byte_50941 == 0)
     {
 //loc_4DEED:              ; CODE XREF: update?+58j
         byte_510D3 =  1;
@@ -15881,50 +15915,50 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
     if (byte_510D8 != 0
         && (belowTile->movingObject == 0 && belowTile->tile == LevelTileTypeSpace))
     {
-        if (bl != 1
+        if (byte_50941 != 1
                  || (aboveTile->movingObject != 0 || aboveTile->tile != LevelTileTypeBase))
         {
 //loc_4E01B:              ; CODE XREF: update?+182j
-            if (bl != 2
+            if (byte_50941 != 2
                 || (leftTile->movingObject != 0 || leftTile->tile != LevelTileTypeBase))
             {
 //loc_4E027:              ; CODE XREF: update?+18Ej
-                if (bl != 4
+                if (byte_50941 != 4
                     || (rightTile->movingObject != 0 || rightTile->tile != LevelTileTypeBase))
                 {
 //loc_4E033:              ; CODE XREF: update?+19Aj
-                    bl = 3;
+                    byte_50941 = 3;
                 }
             }
         }
     }
 
 //loc_4E035:              ; CODE XREF: update?+176j update?+17Dj ...
-    if (bl == 1)
+    if (byte_50941 == 1)
     {
         byte_510D3 = 0;
         return updateMurphy8(position);
     }
 //loc_4E041:              ; CODE XREF: update?+1A8j
-    else if (bl == 2)
+    else if (byte_50941 == 2)
     {
         byte_510D3 = 0;
         return updateMurphy7(position);
     }
 //loc_4E04E:              ; CODE XREF: update?+1B4j
-    else if (bl == 3)
+    else if (byte_50941 == 3)
     {
         byte_510D3 = 0;
         return updateMurphy5(position);
     }
 //loc_4E05B:              ; CODE XREF: update?+1C1j
-    else if (bl == 4)
+    else if (byte_50941 == 4)
     {
         byte_510D3 = 0;
         return updateMurphy4(position);
     }
 //loc_4E068:              ; CODE XREF: update?+1CEj
-    else if (bl == 5)
+    else if (byte_50941 == 5)
     {
         byte_510D3 = 0;
 //loc_4E260:              ; CODE XREF: update?+1E2j
@@ -16028,7 +16062,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
         }
     }
 //loc_4E075:              ; CODE XREF: update?+1DBj
-    else if (bl == 6)
+    else if (byte_50941 == 6)
     {
         byte_510D3 = 0;
 //loc_4E28A:              ; CODE XREF: update?+1EFj
@@ -16133,7 +16167,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
         }
     }
 //loc_4E082:              ; CODE XREF: update?+1E8j
-    else if (bl == 7)
+    else if (byte_50941 == 7)
     {
         byte_510D3 = 0;
 //loc_4E2BA:              ; CODE XREF: update?+1FCj
@@ -16237,7 +16271,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
         }
     }
 //loc_4E08F:              ; CODE XREF: update?+1F5j
-    else if (bl == 8)
+    else if (byte_50941 == 8)
     {
         byte_510D3 = 0;
 //loc_4E2E4:              ; CODE XREF: update?+209j
@@ -16345,7 +16379,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
         }
     }
 //loc_4E09C:              ; CODE XREF: update?+202j
-    else if (bl == 9)
+    else if (byte_50941 == 9)
     {
 //loc_4E314:              ; CODE XREF: update?+211j
         if (byte_5195C == 0
@@ -17496,9 +17530,9 @@ uint16_t updateMurphy2(uint16_t position)
         bx /= 2;
         gMurphyTileX += ax;
         gMurphyTileY += bx;
-        bl = murphyTile->movingObject;
+        uint8_t previousMurphyMovingObject = murphyTile->movingObject;
         murphyTile->movingObject = 0;
-        if (bl == 1)
+        if (previousMurphyMovingObject == 1)
         {
 //loc_4EC93:              ; CODE XREF: update?+CA3j update?+CC3j
             murphyTile->tile = LevelTileTypeMurphy;
@@ -17506,7 +17540,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EB36:              ; CODE XREF: update?+CA1j
-        else if (bl == 2)
+        else if (previousMurphyMovingObject == 2)
         {
 //loc_4ECB1:              ; CODE XREF: update?+CABj update?+CCBj
             murphyTile->tile = LevelTileTypeMurphy;
@@ -17514,7 +17548,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EB3E:              ; CODE XREF: update?+CA9j
-        else if (bl == 3)
+        else if (previousMurphyMovingObject == 3)
         {
 //loc_4ECCF:              ; CODE XREF: update?+CB3j update?+CD3j
             if (aboveTile->tile != LevelTileTypeHardware5)
@@ -17529,7 +17563,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EB46:              ; CODE XREF: update?+CB1j
-        else if (bl == 4)
+        else if (previousMurphyMovingObject == 4)
         {
 //loc_4EF53:              ; CODE XREF: update?+CBBj update?+CDBj
             sub_487FE(position - 1);
@@ -17538,7 +17572,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EB4E:              ; CODE XREF: update?+CB9j
-        else if (bl == 5)
+        else if (previousMurphyMovingObject == 5)
         {
 //loc_4EC93:              ; CODE XREF: update?+CA3j update?+CC3j
             murphyTile->tile = LevelTileTypeMurphy;
@@ -17546,7 +17580,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EB56:              ; CODE XREF: update?+CC1j
-        else if (bl == 6)
+        else if (previousMurphyMovingObject == 6)
         {
 //loc_4ECB1:              ; CODE XREF: update?+CABj update?+CCBj
             murphyTile->tile = LevelTileTypeMurphy;
@@ -17554,7 +17588,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EB5E:              ; CODE XREF: update?+CC9j
-        else if (bl == 7)
+        else if (previousMurphyMovingObject == 7)
         {
 //loc_4ECCF:              ; CODE XREF: update?+CB3j update?+CD3j
             if (aboveTile->tile != LevelTileTypeHardware5)
@@ -17569,7 +17603,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EB66:              ; CODE XREF: update?+CD1j
-        else if (bl == 8)
+        else if (previousMurphyMovingObject == 8)
         {
 //loc_4EF53:              ; CODE XREF: update?+CBBj update?+CDBj
             sub_487FE(position - 1);
@@ -17578,7 +17612,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EB6E:              ; CODE XREF: update?+CD9j
-        else if (bl == 9)
+        else if (previousMurphyMovingObject == 9)
         {
 //loc_4EC85:              ; CODE XREF: update?+CE3j
             if (gNumberOfRemainingInfotrons > 0)
@@ -17595,7 +17629,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EB76:              ; CODE XREF: update?+CE1j
-        else if (bl == 10)
+        else if (previousMurphyMovingObject == 10)
         {
 //loc_4ECA3:              ; CODE XREF: update?+CEBj
             if (gNumberOfRemainingInfotrons > 0)
@@ -17612,7 +17646,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EB7E:              ; CODE XREF: update?+CE9j
-        else if (bl == 11)
+        else if (previousMurphyMovingObject == 11)
         {
 //loc_4ECC1:              ; CODE XREF: update?+CF3j
             if (gNumberOfRemainingInfotrons > 0)
@@ -17636,7 +17670,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EB86:              ; CODE XREF: update?+CF1j
-        else if (bl == 12)
+        else if (previousMurphyMovingObject == 12)
         {
 //loc_4EF45:              ; CODE XREF: update?+CFBj
             if (gNumberOfRemainingInfotrons > 0)
@@ -17654,7 +17688,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EB8E:              ; CODE XREF: update?+CF9j
-        else if (bl == 14)
+        else if (previousMurphyMovingObject == 14)
         {
 //loc_4ECE3:              ; CODE XREF: update?+D03j
             if (murphyTile->tile != LevelTileTypeHardware5)
@@ -17672,7 +17706,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position - 1;
         }
 //loc_4EB96:              ; CODE XREF: update?+D01j
-        else if (bl == 15)
+        else if (previousMurphyMovingObject == 15)
         {
 //loc_4ED06:              ; CODE XREF: update?+D0Bj
             if (murphyTile->tile != LevelTileTypeHardware5)
@@ -17690,7 +17724,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position + 1;
         }
 //loc_4EB9E:              ; CODE XREF: update?+D09j
-        else if (bl == 16)
+        else if (previousMurphyMovingObject == 16)
         {
 //loc_4EF71:              ; CODE XREF: update?+D13j
             if (aboveTile->tile != LevelTileTypeHardware5)
@@ -17702,7 +17736,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EBA6:              ; CODE XREF: update?+D11j
-        else if (bl == 17)
+        else if (previousMurphyMovingObject == 17)
         {
 //loc_4EF8D:              ; CODE XREF: update?+D1Bj
             if (leftTile->tile != LevelTileTypeHardware5)
@@ -17714,7 +17748,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EBAE:              ; CODE XREF: update?+D19j
-        else if (bl == 19)
+        else if (previousMurphyMovingObject == 19)
         {
 //loc_4EFC5:              ; CODE XREF: update?+D23j
             if (rightTile->tile != LevelTileTypeHardware5)
@@ -17726,7 +17760,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EBB6:              ; CODE XREF: update?+D21j
-        else if (bl == 18)
+        else if (previousMurphyMovingObject == 18)
         {
 //loc_4EFA9:              ; CODE XREF: update?+D2Bj
             if (belowTile->tile != LevelTileTypeHardware5)
@@ -17738,7 +17772,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EBBE:              ; CODE XREF: update?+D29j
-        else if (bl == 20)
+        else if (previousMurphyMovingObject == 20)
         {
 //loc_4EF63:              ; CODE XREF: update?+D33j
             if (gNumberOfRemainingInfotrons > 0)
@@ -17759,7 +17793,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EBC6:              ; CODE XREF: update?+D31j
-        else if (bl == 21)
+        else if (previousMurphyMovingObject == 21)
         {
 //loc_4EF7F:              ; CODE XREF: update?+D3Bj
             if (gNumberOfRemainingInfotrons > 0)
@@ -17780,7 +17814,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EBCE:              ; CODE XREF: update?+D39j
-        else if (bl == 23)
+        else if (previousMurphyMovingObject == 23)
         {
 //loc_4EFB7:              ; CODE XREF: update?+D43j
             if (gNumberOfRemainingInfotrons > 0)
@@ -17801,7 +17835,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EBD6:              ; CODE XREF: update?+D41j
-        else if (bl == 22)
+        else if (previousMurphyMovingObject == 22)
         {
 //loc_4EF9B:              ; CODE XREF: update?+D4Bj
             if (gNumberOfRemainingInfotrons > 0)
@@ -17822,14 +17856,14 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EBDE:              ; CODE XREF: update?+D49j
-        else if (bl == 13)
+        else if (previousMurphyMovingObject == 13)
         {
 //loc_4ED42:              ; CODE XREF: update?+D53j
             word_51974 = 1;
             return position;
         }
 //loc_4EBE6:              ; CODE XREF: update?+D51j
-        else if (bl == 24)
+        else if (previousMurphyMovingObject == 24)
         {
 //loc_4EFD3:              ; CODE XREF: update?+D5Bj
             if (murphyTile->tile != LevelTileTypeHardware5)
@@ -17851,7 +17885,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EBEE:              ; CODE XREF: update?+D59j
-        else if (bl == 25)
+        else if (previousMurphyMovingObject == 25)
         {
 //loc_4F001:              ; CODE XREF: update?+D63j
             if (murphyTile->tile != LevelTileTypeHardware5)
@@ -17873,7 +17907,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EBF6:              ; CODE XREF: update?+D61j
-        else if (bl == 26)
+        else if (previousMurphyMovingObject == 26)
         {
 //loc_4F02E:              ; CODE XREF: update?+D6Bj
             if (murphyTile->tile != LevelTileTypeHardware5)
@@ -17895,7 +17929,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EBFE:              ; CODE XREF: update?+D69j
-        else if (bl == 27)
+        else if (previousMurphyMovingObject == 27)
         {
 //loc_4F05C:              ; CODE XREF: update?+D73j
             if (murphyTile->tile != LevelTileTypeHardware5)
@@ -17917,7 +17951,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EC06:              ; CODE XREF: update?+D71j
-        else if (bl == 28)
+        else if (previousMurphyMovingObject == 28)
         {
 //loc_4F089:              ; CODE XREF: update?+D7Bj
             if (murphyTile->tile != LevelTileTypeHardware5)
@@ -17937,7 +17971,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EC0E:              ; CODE XREF: update?+D79j
-        else if (bl == 29)
+        else if (previousMurphyMovingObject == 29)
         {
 //loc_4F09C:              ; CODE XREF: update?+D83j
             if (rightTile->tile != LevelTileTypeHardware5)
@@ -17954,7 +17988,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EC16:              ; CODE XREF: update?+D81j
-        else if (bl == 30)
+        else if (previousMurphyMovingObject == 30)
         {
 //loc_4F0AC:              ; CODE XREF: update?+D8Bj
             if (murphyTile->tile != LevelTileTypeHardware5)
@@ -17974,7 +18008,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EC1E:              ; CODE XREF: update?+D89j
-        else if (bl == 31)
+        else if (previousMurphyMovingObject == 31)
         {
 //loc_4F0BF:              ; CODE XREF: update?+D93j
             if (leftTile->tile != LevelTileTypeHardware5)
@@ -17991,7 +18025,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EC26:              ; CODE XREF: update?+D91j
-        else if (bl == 32)
+        else if (previousMurphyMovingObject == 32)
         {
 //loc_4F0CF:              ; CODE XREF: update?+D9Bj
             if (aboveTile->tile != LevelTileTypeHardware5)
@@ -18005,7 +18039,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EC2E:              ; CODE XREF: update?+D99j
-        else if (bl == 33)
+        else if (previousMurphyMovingObject == 33)
         {
 //loc_4F0E6:              ; CODE XREF: update?+DA3j
             if (leftTile->tile != LevelTileTypeHardware5)
@@ -18019,7 +18053,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EC36:              ; CODE XREF: update?+DA1j
-        else if (bl == 34)
+        else if (previousMurphyMovingObject == 34)
         {
 //loc_4F0FD:              ; CODE XREF: update?+DABj
             if (belowTile->tile != LevelTileTypeHardware5)
@@ -18033,7 +18067,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EC3E:              ; CODE XREF: update?+DA9j
-        else if (bl == 35)
+        else if (previousMurphyMovingObject == 35)
         {
 //loc_4F114:              ; CODE XREF: update?+DB3j
             if (rightTile->tile != LevelTileTypeHardware5)
@@ -18047,7 +18081,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position;
         }
 //loc_4EC46:              ; CODE XREF: update?+DB1j
-        else if (bl == 36)
+        else if (previousMurphyMovingObject == 36)
         {
 //loc_4F12B:              ; CODE XREF: update?+DBBj
             if (murphyTile->tile != LevelTileTypeHardware5)
@@ -18064,7 +18098,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position - kLevelWidth;
         }
 //loc_4EC4E:              ; CODE XREF: update?+DB9j
-        else if (bl == 37)
+        else if (previousMurphyMovingObject == 37)
         {
 //loc_4F148:              ; CODE XREF: update?+DC3j
             if (murphyTile->tile != LevelTileTypeHardware5)
@@ -18081,7 +18115,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position - 1;
         }
 //loc_4EC56:              ; CODE XREF: update?+DC1j
-        else if (bl == 39)
+        else if (previousMurphyMovingObject == 39)
         {
 //loc_4F165:              ; CODE XREF: update?+DCBj
             if (murphyTile->tile != LevelTileTypeHardware5)
@@ -18098,7 +18132,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position + kLevelWidth;
         }
 //loc_4EC5E:              ; CODE XREF: update?+DC9j
-        else if (bl == 38)
+        else if (previousMurphyMovingObject == 38)
         {
 //loc_4F182:              ; CODE XREF: update?+DD3j
             if (murphyTile->tile != LevelTileTypeHardware5)
@@ -18115,7 +18149,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position + 1;
         }
 //loc_4EC66:              ; CODE XREF: update?+DD1j
-        else if (bl == 40)
+        else if (previousMurphyMovingObject == 40)
         {
 //loc_4F19F:              ; CODE XREF: update?+DDBj
             if (murphyTile->tile != LevelTileTypeHardware5)
@@ -18132,7 +18166,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position - 1;
         }
 //loc_4EC6E:              ; CODE XREF: update?+DD9j
-        else if (bl == 41)
+        else if (previousMurphyMovingObject == 41)
         {
 //loc_4F1BC:              ; CODE XREF: update?+DE3j
             if (murphyTile->tile != LevelTileTypeHardware5)
@@ -18156,7 +18190,7 @@ uint16_t updateMurphy2(uint16_t position)
             return position + 1;
         }
 //loc_4EC76:              ; CODE XREF: update?+DE1j
-        else if (bl == 42)
+        else if (previousMurphyMovingObject == 42)
         {
 //loc_4F1EA:              ; CODE XREF: update?+DEBj
             murphyTile->movingObject = 0;
@@ -18182,12 +18216,10 @@ uint16_t updateMurphy2(uint16_t position)
     }
 
 //loc_4EA1E:              ; CODE XREF: update?+B89j
-    bl = murphyTile->movingObject;
-    if (bl == 0xE)
+    if (murphyTile->movingObject == 0xE)
     {
 //loc_4ED49:              ; CODE XREF: update?+B97j
-        bl = byte_50941;
-        if (bl == 2
+        if (byte_50941 == 2
             && (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeZonk))
         {
             return position;
@@ -18213,11 +18245,10 @@ uint16_t updateMurphy2(uint16_t position)
         return position;
     }
 //loc_4EA2A:              ; CODE XREF: update?+B95j
-    else if (bl == 0xF)
+    else if (murphyTile->movingObject == 0xF)
     {
 //loc_4ED81:              ; CODE XREF: update?+B9Fj
-        bl = byte_50941;
-        if (bl == 4
+        if (byte_50941 == 4
             && (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeZonk))
         {
             return position;
@@ -18243,11 +18274,10 @@ uint16_t updateMurphy2(uint16_t position)
         return position;
     }
 //loc_4EA32:              ; CODE XREF: update?+B9Dj
-    else if (bl == 0x28)
+    else if (murphyTile->movingObject == 0x28)
     {
 //loc_4EDB9:              ; CODE XREF: update?+BA7j
-        bl = byte_50941;
-        if (bl == 2
+        if (byte_50941 == 2
             && (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeOrangeDisk))
         {
             return position;
@@ -18273,11 +18303,10 @@ uint16_t updateMurphy2(uint16_t position)
         return position;
     }
 //loc_4EA3A:              ; CODE XREF: update?+BA5j
-    else if (bl == 0x29)
+    else if (murphyTile->movingObject == 0x29)
     {
 //loc_4EDF1:              ; CODE XREF: update?+BAFj
-        bl = byte_50941;
-        if (bl == 4
+        if (byte_50941 == 4
             && (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeOrangeDisk))
         {
             return position;
@@ -18303,11 +18332,10 @@ uint16_t updateMurphy2(uint16_t position)
         return position;
     }
 //loc_4EA42:              ; CODE XREF: update?+BADj
-    else if (bl == 0x24)
+    else if (murphyTile->movingObject == 0x24)
     {
 //loc_4EE29:              ; CODE XREF: update?+BB7j
-        bl = byte_50941;
-        if (bl == 1
+        if (byte_50941 == 1
             && (aboveTile->movingObject == 0 && aboveTile->tile == LevelTileTypeYellowDisk))
         {
             return position;
@@ -18333,11 +18361,10 @@ uint16_t updateMurphy2(uint16_t position)
         return position;
     }
 //loc_4EA4A:              ; CODE XREF: update?+BB5j
-    else if (bl == 0x25)
+    else if (murphyTile->movingObject == 0x25)
     {
 //loc_4EE61:              ; CODE XREF: update?+BBFj
-        bl = byte_50941;
-        if (bl == 2
+        if (byte_50941 == 2
             && (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeYellowDisk))
         {
             return position;
@@ -18363,11 +18390,10 @@ uint16_t updateMurphy2(uint16_t position)
         return position;
     }
 //loc_4EA52:              ; CODE XREF: update?+BBDj
-    else if (bl == 0x27)
+    else if (murphyTile->movingObject == 0x27)
     {
 //loc_4EE99:              ; CODE XREF: update?+BC7j
-        bl = byte_50941;
-        if (bl == 3
+        if (byte_50941 == 3
             && (belowTile->movingObject == 0 && belowTile->tile == LevelTileTypeYellowDisk))
         {
             return position;
@@ -18394,11 +18420,10 @@ uint16_t updateMurphy2(uint16_t position)
         return position;
     }
 //loc_4EA5A:              ; CODE XREF: update?+BC5j
-    else if (bl == 0x26)
+    else if (murphyTile->movingObject == 0x26)
     {
 //loc_4EED1:              ; CODE XREF: update?+BCFj
-        bl = byte_50941;
-        if (bl == 4
+        if (byte_50941 == 4
             && (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeYellowDisk))
         {
             return position;
@@ -18425,11 +18450,10 @@ uint16_t updateMurphy2(uint16_t position)
         return position;
     }
 //loc_4EA62:              ; CODE XREF: update?+BCDj
-    else if (bl == 0x2A)
+    else if (murphyTile->movingObject == 0x2A)
     {
 //loc_4EF09:              ; CODE XREF: update?+BD7j
-        bl = byte_50941;
-        if (bl == 9)
+        if (byte_50941 == 9)
         {
             if (word_510EE > 0x20)
             {
