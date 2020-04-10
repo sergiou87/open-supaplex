@@ -54,6 +54,8 @@ uint8_t byte_50919 = 0;
 uint8_t byte_5091A = 0;
 UserInput gCurrentUserInput = 0; // byte_50941
 uint8_t byte_50946 = 0;
+uint16_t word_50947 = 0;
+uint16_t word_50949 = 0;
 uint8_t byte_50953 = 0;
 uint8_t byte_50954 = 0;
 uint8_t byte_5101C = 0;
@@ -73,6 +75,10 @@ uint8_t byte_510D3 = 0;
 uint8_t byte_510D7 = 0;
 uint8_t byte_510D8 = 0;
 uint8_t byte_510DB = 0;
+uint16_t word_510DF = 0;
+uint8_t byte_510E1 = 0;
+uint8_t byte_510E2 = 0;
+uint16_t word_510E4 = 0; // This is probably a FILE *
 uint8_t byte_5195B = 0;
 uint8_t byte_5195C = 0;
 uint8_t byte_51969 = 0;
@@ -176,6 +182,8 @@ uint8_t byte_5988C = 0; //
 uint8_t byte_5988D = 0x53; // 83 or '+'
 uint8_t byte_59890 = 0x58; // 88 or 'X'
 uint8_t byte_599D4 = 0;
+uint8_t byte_59B5C = 0;
+uint8_t byte_59B5F = 0;
 uint8_t byte_59B62 = 0;
 uint8_t byte_59B64 = 0;
 uint8_t byte_59B6B = 0;
@@ -199,6 +207,7 @@ uint8_t byte_59B86 = 0;
 uint8_t byte_59B94 = 0;
 uint8_t byte_59B95 = 0;
 uint8_t byte_59B96 = 0;
+uint16_t word_5A199 = 0;
 uint8_t byte_5A19B = 0;
 uint8_t byte_5A19C = 0;
 uint8_t byte_5A2F8 = 0;
@@ -207,6 +216,7 @@ uint8_t byte_5A320 = 0;
 uint8_t byte_5A321 = 0;
 uint8_t byte_5A322 = 0;
 uint8_t byte_5A323 = 0;
+uint16_t word_5A33C = 0;
 uint8_t byte_5A33E = 0;
 uint8_t byte_5A33F = 0;
 uint8_t gCurrentPlayerIndex = 0; // byte_5981F
@@ -1315,7 +1325,7 @@ void saveHallOfFameData(void);
 void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonStatus);
 void drawMainMenuButtonBorders(void);
 void drawMainMenuButtonBorder(ButtonBorderDescriptor border, uint8_t color);
-void waitForJoystickKey(void); // sub_49FED
+uint8_t waitForJoystickKeyReleased(uint8_t keyOrAxis, uint16_t *outTime); // sub_49FED
 void getTime(void);
 void checkVideo(void);
 void initializeFadePalette(void);
@@ -1387,6 +1397,7 @@ void sub_4914A(void);
 void updateUserInput(void);
 void sub_492F1(void);
 void sub_492A8(void);
+void sub_4A463(void);
 void sub_4A23C(void);
 void sub_4A3E9(void);
 void sub_4945D(void);
@@ -6540,7 +6551,7 @@ void sub_48E59() //   proc near       ; CODE XREF: waitForKeyMouseOrJoystick:loc
 //                    ; waitForKeyMouseOrJoystick+4Dp ...
 {
     ax = 0;
-    bl = 0;
+    UserInput userInput = UserInputNone;
     if (isJoystickEnabled != 0)
     {
 //loc_48E67:              ; CODE XREF: sub_48E59+9j
@@ -6554,10 +6565,9 @@ void sub_48E59() //   proc near       ; CODE XREF: waitForKeyMouseOrJoystick:loc
         if (al != 0)
         {
 //loc_48E83:              ; CODE XREF: sub_48E59+25j
-            ah = 1;
-            waitForJoystickKey();
-
-            if (1 /* result of waitForJoystickKey causes CF = 0 */) // jnb short loc_48E8D
+            // Joystick axis X
+//            ah = 1;
+            if (waitForJoystickKeyReleased(1, &ax)) // jnb short loc_48E8D
             {
 //loc_48E8D:              ; CODE XREF: sub_48E59+2Fj
                 word_50942 = ax;
@@ -6586,9 +6596,9 @@ void sub_48E59() //   proc near       ; CODE XREF: waitForKeyMouseOrJoystick:loc
 //loc_48EBB:              ; CODE XREF: sub_48E59+56j
 //                ; sub_48E59+5Dj
                 word_5094F = ax;
-                ah = 2;
-                waitForJoystickKey();
-                if (1 /* result of waitForJoystickKey causes CF = 0 */) // jnb short loc_48EC8
+                // Joystick axis Y
+//                ah = 2;
+                if (waitForJoystickKeyReleased(2, &ax)) // jnb short loc_48EC8
                 {
 //loc_48EC8:              ; CODE XREF: sub_48E59+6Aj
                     word_50944 = ax;
@@ -6623,40 +6633,19 @@ void sub_48E59() //   proc near       ; CODE XREF: waitForKeyMouseOrJoystick:loc
                     si = word_5094F;
                     si += ax;
                     si += 0x645;
-//                    bl = *(uint8_t *)si;
-                    if (bl != 0)
+//                    userInput = *(uint8_t *)si;
+                    if (userInput != UserInputNone)
                     {
 //                    mov dx, 201h
 //                    in  al, dx      ; Game I/O port
 //                                ; bits 0-3: Coordinates (resistive, time-dependent inputs)
 //                                ; bits 4-7: Buttons/Triggers (digital inputs)
-                        if ((al & 0x10))
+                        if ((al & 0x10) == 0
+                            || (al & 0x20) == 0
+                            || byte_519F5 != 0
+                            || byte_519F4 != 0)
                         {
-//loc_48F1F:              ; CODE XREF: sub_48E59+BFj
-                            if ((al & 0x20))
-                            {
-//loc_48F28:              ; CODE XREF: sub_48E59+C8j
-                                if (byte_519F5 == 0)
-                                {
-//loc_48F34:              ; CODE XREF: sub_48E59+D4j
-                                    if (byte_519F4 == 0)
-                                    {
-                                        bl += 4;
-                                    }
-                                }
-                                else
-                                {
-                                    bl += 4;
-                                }
-                            }
-                            else
-                            {
-                                bl += 4;
-                            }
-                        }
-                        else
-                        {
-                            bl += 4;
+                            userInput += kUserInputSpaceAndDirectionOffset;
                         }
                     }
                     else
@@ -6666,27 +6655,12 @@ void sub_48E59() //   proc near       ; CODE XREF: waitForKeyMouseOrJoystick:loc
 //                    in  al, dx      ; Game I/O port
 //                                ; bits 0-3: Coordinates (resistive, time-dependent inputs)
 //                                ; bits 4-7: Buttons/Triggers (digital inputs)
-                        if ((al & 0x10) == 0)
+                        if ((al & 0x10) == 0
+                            || (al & 0x20) == 0
+                            || byte_519F5 != 0
+                            || byte_519F4 != 0)
                         {
-                            bl += 9;
-
-//loc_48F4C:              ; CODE XREF: sub_48E59+EDj
-                            if ((al & 0x20) == 0)
-                            {
-                                bl += 9;
-
-//loc_48F54:              ; CODE XREF: sub_48E59+F5j
-                                if (byte_519F5 != 0)
-                                {
-                                    bl += 9;
-
-//loc_48F5F:              ; CODE XREF: sub_48E59+100j
-                                    if (byte_519F4 != 0)
-                                    {
-                                        bl += 9;
-                                    }
-                                }
-                            }
+                            userInput = UserInputSpaceOnly;
                         }
                     }
                 }
@@ -6695,7 +6669,7 @@ void sub_48E59() //   proc near       ; CODE XREF: waitForKeyMouseOrJoystick:loc
     }
 //loc_48F68:              ; CODE XREF: sub_48E59+Bj
 //                ; sub_48E59+27j ...
-    gCurrentUserInput = bl;
+    gCurrentUserInput = userInput;
     return;
 }
 
@@ -6962,162 +6936,175 @@ locret_4921A:               ; CODE XREF: sub_4914A+C7j
 void sub_4921B() //   proc near       ; CODE XREF: readConfig+8Cp
                    // ; sub_4955B+31p ...
 {
-    /*
-        push    bp
-        xor ax, ax
-        mov byte_50946, al
-        mov word_50947, ax
-        mov word_50949, ax
-        mov word_5094B, ax
-        mov word_5094D, ax
-        xor bp, bp
-        mov ah, 1
-        call    waitForJoystickKey
-        jb  short loc_492A6
-        add bp, ax
-        mov ah, 1
-        call    waitForJoystickKey
-        jb  short loc_492A6
-        add bp, ax
-        mov ah, 1
-        call    waitForJoystickKey
-        jb  short loc_492A6
-        add bp, ax
-        mov ah, 1
-        call    waitForJoystickKey
-        jb  short loc_492A6
-        add bp, ax
-        shr bp, 1
-        mov word_50947, bp
-        mov dx, 10h
-        xor ax, ax
-        cmp bp, dx
-        jbe short loc_492A6
-        div bp
-        mov word_5094B, ax
-        xor bp, bp
-        mov ah, 2
-        call    waitForJoystickKey
-        jb  short loc_492A6
-        add bp, ax
-        mov ah, 2
-        call    waitForJoystickKey
-        jb  short loc_492A6
-        add bp, ax
-        mov ah, 2
-        call    waitForJoystickKey
-        jb  short loc_492A6
-        add bp, ax
-        mov ah, 2
-        call    waitForJoystickKey
-        jb  short loc_492A6
-        add bp, ax
-        shr bp, 1
-        mov word_50949, bp
-        mov dx, 10h
-        xor ax, ax
-        cmp bp, dx
-        jbe short loc_492A6
-        div bp
-        mov word_5094D, ax
-        al = 1
-        mov byte_50946, al
+//    push    bp
+    ax = 0;
+    byte_50946 = 0;
+    word_50947 = 0;
+    word_50949 = 0;
+    word_5094B = 0;
+    word_5094D = 0;
+    bp = 0;
 
-loc_492A6:              ; CODE XREF: sub_4921B+19j
-                    ; sub_4921B+22j ...
-        pop bp
+    if (waitForJoystickKeyReleased(1, &ax) == 0)
+    {
         return;
-     */
+    }
+    bp += ax;
+
+    if (waitForJoystickKeyReleased(1, &ax) == 0)
+    {
+        return;
+    }
+    bp += ax;
+
+    if (waitForJoystickKeyReleased(1, &ax) == 0)
+    {
+        return;
+    }
+    bp += ax;
+
+    if (waitForJoystickKeyReleased(1, &ax) == 0)
+    {
+        return;
+    }
+    bp += ax;
+    bp = bp >> 1;
+
+    word_50947 = bp;
+    dx = 0x10;
+    ax = 0;
+    if (bp <= dx)
+    {
+        return;
+    }
+//    div bp -> 0x01000000 comes from the dx=0x10 ax=0 above
+    ax = 0x01000000 / bp;
+    dx = 0x01000000 % bp;
+    word_5094B = ax;
+    bp = 0;
+    if (waitForJoystickKeyReleased(2, &ax) == 0)
+    {
+        return;
+    }
+    bp += ax;
+    if (waitForJoystickKeyReleased(2, &ax) == 0)
+    {
+        return;
+    }
+    bp += ax;
+    if (waitForJoystickKeyReleased(2, &ax) == 0)
+    {
+        return;
+    }
+    bp += ax;
+    if (waitForJoystickKeyReleased(2, &ax) == 0)
+    {
+        return;
+    }
+    bp += ax;
+    bp = bp >> 1;
+    word_50949 = bp;
+    dx = 0x10;
+    ax = 0;
+    if (bp <= dx)
+    {
+        return;
+    }
+    //    div bp -> 0x01000000 comes from the dx=0x10 ax=0 above
+    ax = 0x01000000 / bp;
+    dx = 0x01000000 % bp;
+    word_5094D = ax;
+    al = 1;
+    byte_50946 = al;
+
+//loc_492A6:              ; CODE XREF: sub_4921B+19j
+//                ; sub_4921B+22j ...
+//    pop bp
+    return;
 }
 
 void sub_492A8() //   proc near       ; CODE XREF: sub_4955B+27p
                    // ; sub_4A3E9+76p
 {
-    /*
-    al = byte_510E2
-    dec al
-    jz  short loc_492B3
-    mov byte_510E2, al
-    return;
+    al = byte_510E2;
+    al--;
+    if (al != 0)
+    {
+        byte_510E2 = al;
+        return;
+    }
 
-loc_492B3:              ; CODE XREF: sub_492A8+5j
-    push    es
-    mov ax, seg demoseg
-    mov es, ax
-    assume es:demoseg
-    mov bx, word_510DF
-    al = es:[bx]
-    inc bx
-    pop es
-    assume es:nothing
-    cmp al, 0FFh
-    jz  short loc_492E3
-    mov word_510DF, bx
+//loc_492B3:              ; CODE XREF: sub_492A8+5j
+//    push    es
+//    mov ax, seg demoseg
+//    mov es, ax
+//    assume es:demoseg
+    bx = word_510DF;
+//    al = es:[bx]
+    bx++;
+//    pop es
+//    assume es:nothing
+    if (al == 0xFF)
+    {
+        word_51978 = 0x64;
+        word_51974 = 1;
+    }
+    else
+    {
+        word_510DF = bx;
+    }
 
-loc_492CA:              ; CODE XREF: sub_492A8+47j
-    mov ah, al
-    and ah, 0Fh
-    mov gCurrentUserInput, ah
-    and al, 0F0h
-    shr al, 1
-    shr al, 1
-    shr al, 1
-    shr al, 1
+//loc_492CA:              ; CODE XREF: sub_492A8+47j
+    ah = al;
+    ah &= 0xF;
+    gCurrentUserInput = ah;
+    al &= 0xF0;
+    al = al >> 4;
     al++;
-    mov byte_510E2, al
-    return;
-
-loc_492E3:              ; CODE XREF: sub_492A8+1Cj
-    mov word_51978, 64h ; 'd'
-    mov word_51974, 1
-    jmp short loc_492CA
-    */
+    byte_510E2 = al;
 }
 
 void sub_492F1() //   proc near       ; CODE XREF: sub_4955B+1Dp
 {
-    /*
-    inc byte_510E2
-    mov bl, gCurrentUserInput
-    cmp byte_510E2, 0FFh
-    jnz short loc_49311
-    mov byte_510E1, bl
-    mov ax, gTimeOfDay
-    mov word_5A199, ax
-    mov byte_59B5F, ah
-    mov byte_59B5C, al
+    byte_510E2++;
+    bl = gCurrentUserInput;
+    if (byte_510E2 == 0xFF)
+    {
+        byte_510E1 = bl;
+        ax = gTimeOfDay;
+        word_5A199 = ax;
+        byte_59B5F = ah;
+        byte_59B5C = al;
+    }
 
-loc_49311:              ; CODE XREF: sub_492F1+Dj
-    cmp byte_510E1, bl
-    jnz short loc_4931E
-    cmp byte_510E2, 0Fh
-    jnz short locret_49359
+//loc_49311:              ; CODE XREF: sub_492F1+Dj
+    if (byte_510E1 == bl
+        && byte_510E2 != 0xF)
+    {
+        return;
+    }
 
-loc_4931E:              ; CODE XREF: sub_492F1+24j
-    al = byte_510E1
-    mov ah, byte_510E2
-    shl ah, 1
-    shl ah, 1
-    shl ah, 1
-    shl ah, 1
-    or  al, ah
-    mov byte_510E1, al
-    al = byte_510E2
-    add byte_59B5C, al
-    inc byte_59B5C
-    mov ax, 4000h
-    mov bx, word_510E4
-    mov cx, 1
-    mov dx, 0DD1h
-    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
-                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
-    mov byte_510E2, 0FFh
-    mov bl, gCurrentUserInput
-    mov byte_510E1, bl
+//loc_4931E:              ; CODE XREF: sub_492F1+24j
+    al = byte_510E1;
+    ah = byte_510E2;
+    ah = ah << 4;
+    al |= ah;
+    byte_510E1 = al;
+    al = byte_510E2;
+    byte_59B5C += al;
+    byte_59B5C++;
+//    mov ax, 4000h
+//    mov bx, word_510E4
+//    mov cx, 1
+//    mov dx, 0DD1h
+//    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
+//                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
+//    fwrite(NULL, sizeof(uint8_t), 1, word_510E4);
+    byte_510E2 = 0xFF;
+    bl = gCurrentUserInput;
+    byte_510E1 = bl;
 
-locret_49359:               ; CODE XREF: sub_492F1+2Bj
     return;
-    */
 }
 
 void somethingspsig() //  proc near       ; CODE XREF: runLevel+355p
@@ -8947,35 +8934,40 @@ void sub_49EBE() //   proc near       ; CODE XREF: runLevel+109p
     word_51967 = bx;
 }
 
-void waitForJoystickKey() // sub_49FED  proc near       ; CODE XREF: sub_48E59+2Cp
+uint8_t waitForJoystickKeyReleased(uint8_t keyOrAxis, uint16_t *outTime) // sub_49FED  proc near       ; CODE XREF: sub_48E59+2Cp
                    // ; sub_48E59+67p ...
 {
-    // Maybe it waits for a key in the joystick to be pressed???
+    // Maybe it waits for a key in the joystick to be released???
     // Parameters:
     // ah: bitmask of the button/coordiante to test
+    // Returns:
+    // CF=0 if the key was initially pressed and then released, CF=1 in any other case
+    // ax: will contain the number of iterations where the key was pressed?
 
     if (isJoystickEnabled == 0)
     {
-        ax = 0;
-        cf = 1; // stc
-        return;
+//        ax = 0;
+//        cf = 1; // stc
+        *outTime = 0;
+        return 0;
     }
 
-//loc_49FF8:              ; CODE XREF: waitForJoystickKey+5j
+//loc_49FF8:              ; CODE XREF: waitForJoystickKeyReleased+5j
     dx = 0x201; // 513
 //    cli
     cx = 0;
 
     char keyWasPressed = 1;
 
+    // This loop waits until the key is not pressed?
     do
     {
-//loc_49FFF:              ; CODE XREF: waitForJoystickKey+21j
+//loc_49FFF:              ; CODE XREF: waitForJoystickKeyReleased+21j
         // 2 possible joysticks: (X1, Y1, 11, 12) and (X2, Y2, 21, 22)
     //    in  al, dx      ; Game I/O port
     //                ; bits 0-3: Coordinates (resistive, time-dependent inputs) X1, Y1, X2, Y2
     //                ; bits 4-7: Buttons/Triggers (digital inputs) 11, 12, 21, 12
-        if ((al & ah) == 0)
+        if ((al & keyOrAxis) == 0)
         {
             keyWasPressed = 0;
             break;
@@ -8987,47 +8979,42 @@ void waitForJoystickKey() // sub_49FED  proc near       ; CODE XREF: sub_48E59+2
     if (keyWasPressed == 1)
     {
         cf = 1; //stc
+        return 0;
     }
-    else
+
+//loc_4A013:              ; CODE XREF: waitForJoystickKeyReleased+1Fj
+//    out dx, al      ; Game I/O port
+//                ; bits 0-3: Coordinates (resistive, time-dependent inputs)
+//                ; bits 4-7: Buttons/Triggers (digital inputs)
+    cx = 0;
+
+    do
     {
-//loc_4A013:              ; CODE XREF: waitForJoystickKey+1Fj
-    //    out dx, al      ; Game I/O port
+//loc_4A021:              ; CODE XREF: waitForJoystickKeyReleased+44j
+    //    in  al, dx      ; Game I/O port
     //                ; bits 0-3: Coordinates (resistive, time-dependent inputs)
     //                ; bits 4-7: Buttons/Triggers (digital inputs)
-        cx = 0;
+        if ((al & keyOrAxis) == 0)
+        {
+            keyWasPressed = 0;
+            break;
+        }
+        cx--;
+    }
+    while (cx > 0);
 
-        do
-        {
-//loc_4A021:              ; CODE XREF: waitForJoystickKey+44j
-        //    in  al, dx      ; Game I/O port
-        //                ; bits 0-3: Coordinates (resistive, time-dependent inputs)
-        //                ; bits 4-7: Buttons/Triggers (digital inputs)
-            if ((al & ah) == 0)
-            {
-                keyWasPressed = 0;
-                break;
-            }
-            cx--;
-        }
-        while (cx > 0);
-
-        if (keyWasPressed == 1)
-        {
-            cf = 1; //stc
-        }
-        else
-        {
-//loc_4A036:              ; CODE XREF: waitForJoystickKey+42j
-            cx = -cx;
-            ax = cx;
-            cf = 0; // clc
-        }
+    if (keyWasPressed == 1)
+    {
+        cf = 1; //stc
+        return 0;
     }
 
-//loc_4A03B:              ; CODE XREF: waitForJoystickKey+24j
-//                ; waitForJoystickKey+47j
-//    sti
-    return;
+//loc_4A036:              ; CODE XREF: waitForJoystickKeyReleased+42j
+//    cx = -cx;
+//    ax = cx;
+//    cf = 0; // clc
+    *outTime = ~cx;
+    return 1;
 }
 
 /*
@@ -9571,74 +9558,72 @@ void sub_4A3D2() //   proc near       ; CODE XREF: sub_4955B+39Ep
 
 void sub_4A3E9() //   proc near       ; CODE XREF: sub_4955B+14Ep
 {
-    /*
-    cmp byte_5A33E, 0
-    jnz short loc_4A3F3
-    call    sub_4A95F
+    if (byte_5A33E == 0)
+    {
+        sub_4A95F();
+    }
 
-loc_4A3F3:              ; CODE XREF: sub_4A3D2+15j
-                ; sub_4A3E9+5j
-    mov word_51A01, 0
-    mov word_51963, 0
-    mov word_51965, 0
-    mov word ptr flashingbackgroundon, 0
-    mov word_51A07, 1
-    mov dx, 3C8h
-    xor al, al
-    out dx, al
-    inc dx
-    out dx, al
-    out dx, al
-    out dx, al
-    cmp byte_5A33E, 0
-    jz  short loc_4A427
-    mov gIsPlayingDemo, 1
+//loc_4A3F3:              ; CODE XREF: sub_4A3D2+15j
+//                ; sub_4A3E9+5j
+    word_51A01 = 0;
+    word_51963 = 0;
+    word_51965 = 0;
+    flashingbackgroundon = (flashingbackgroundon & 0xFFFF0000) + 0; // mov word ptr flashingbackgroundon, 0
+    word_51A07 = 1;
+//    mov dx, 3C8h
+//    xor al, al
+//    out dx, al
+//    inc dx
+//    out dx, al
+//    out dx, al
+//    out dx, al
+    if (byte_5A33E != 0)
+    {
+        gIsPlayingDemo = 1;
+    }
 
-loc_4A427:              ; CODE XREF: sub_4A3E9+37j
-    mov byte_5A33F, 0
-    call    sub_4A463
-    mov byte_5A33F, 1
-    cmp byte_5A33E, 1
-    jb  short loc_4A446
-    mov gIsPlayingDemo, 0
-    jnz short loc_4A446
-    inc byte_5A33E
+//loc_4A427:              ; CODE XREF: sub_4A3E9+37j
+    byte_5A33F = 0;
+    sub_4A463();
+    byte_5A33F = 1;
+    if (byte_5A33E >= 1)
+    {
+        gIsPlayingDemo = 0;
+        if (byte_5A33E == 0) // WTF? this makes no sense...
+        {
+            byte_5A33E++;
+        }
+    }
 
-loc_4A446:              ; CODE XREF: sub_4A3E9+50j
-                ; sub_4A3E9+57j
-    mov gCurrentUserInput, 0
-    cmp gIsPlayingDemo, 0
-    jz  short locret_4A462
-    mov bx, word_5A33C
-    mov word_510DF, bx
-    mov byte_510E2, 1
-    call    sub_492A8
+//loc_4A446:              ; CODE XREF: sub_4A3E9+50j
+//                ; sub_4A3E9+57j
+    gCurrentUserInput = UserInputNone;
+    if (gIsPlayingDemo == 0)
+    {
+        return;
+    }
 
-locret_4A462:               ; CODE XREF: sub_4A3E9+67j
-    return;
-    */
+    word_510DF = word_5A33C;
+    byte_510E2 = 1;
+    sub_492A8();
+}
+
+void sub_4A463() //   proc near       ; CODE XREF: sub_4945D:loc_4953Bp
+                   // ; sub_4A3E9+43p
+{
+    readLevels();
+    sub_4D464();
+    drawFixedLevel();
+    drawGamePanel();
+    byte_5A33F = -byte_5A33F;
+    sub_4A2E6();
+    byte_5A33F = -byte_5A33F;
+    resetNumberOfInfotrons();
+    byte_59B7B = 1;
+    sub_48A20();
+    findMurphy();
 }
 /*
-sub_4A463   proc near       ; CODE XREF: sub_4945D:loc_4953Bp
-                    ; sub_4A3E9+43p
-        call    readLevels
-        call    sub_4D464
-        call    drawFixedLevel
-        call    drawGamePanel
-        neg byte_5A33F
-        call    sub_4A2E6
-        neg byte_5A33F
-        call    resetNumberOfInfotrons
-        mov byte_59B7B, 1
-        call    sub_48A20
-        call    findMurphy
-        return;
-sub_4A463   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
 movefun3  proc near       ; DATA XREF: data:161Ao
         cmp byte ptr leveldata[si], 8
         jz  short loc_4A491
