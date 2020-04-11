@@ -1010,7 +1010,7 @@ uint16_t word_51580 = 0x1AB2; // (0, 32)
 uint16_t word_515A2 = 0x32A2; // (224, 82) ??
 uint16_t word_51790 = 0x4A7E; // (288, 132)
 uint16_t word_51840 = 0x2A06; // (160, 64)
-uint16_t word_51842 = 0x132C; // (208, 16)
+uint16_t word_51842 = 0x132C; // (208, 16) confirmed
 uint16_t word_51844 = 0x2A08; // (176, 64)
 uint16_t word_51846 = 0x132A; // (192, 16)
 uint16_t word_51848 = 0x2A62; // (896, 64)
@@ -16659,8 +16659,8 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4E4BD:              ; CODE XREF: update?+3D9j
         //    push    si
         //    mov di, [si+6155h]
-            si = word_51840;
-            drawStillMurphyFrame(304, 132); // TODO: fix coordinates
+//            si = word_51840;
+            drawStillMurphyFrame(160, 64);
         //    pop si
             sound9();
 //            dx = 0x0ECE;
@@ -16685,8 +16685,8 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4E4BD:              ; CODE XREF: update?+3D9j
         //    push    si
         //    mov di, [si+6155h]
-            si = word_51840;
-            drawStillMurphyFrame(304, 132); // TODO: fix coordinates
+//            si = word_51840;
+            drawStillMurphyFrame(160, 64);
         //    pop si
             sound9();
 //            dx = 0x0ECE;
@@ -16701,8 +16701,8 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4E5F4:              ; CODE XREF: update?+3E8j
         //    push    si
         //    mov di, [si+6155h]
-            si = word_51840;
-            drawStillMurphyFrame(304, 132); // TODO: fix coordinates
+//            si = word_51840;
+            drawStillMurphyFrame(160, 64);
         //    pop si
             sound5();
 //            dx = 0x0F6E;
@@ -16718,8 +16718,8 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4E712:              ; CODE XREF: update?+249j update?+3EFj
         //    push    si
         //    mov di, [si+6155h]
-            si = word_51840;
-            drawStillMurphyFrame(304, 132); // TODO: fix coordinates
+//            si = word_51840;
+            drawStillMurphyFrame(160, 64);
         //    pop si
             if (byte_5196B != 0)
             {
@@ -16764,8 +16764,8 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4E4E9:              ; CODE XREF: update?+409j
         //    push    si
         //    mov di, [si+6155h]
-            si = word_51842;
-            drawStillMurphyFrame(304, 132); // TODO: fix coordinates
+//            si = word_51842;
+            drawStillMurphyFrame(208, 16);
         //    pop si
             sound9();
 //            dx = 0x0EDE;
@@ -16790,8 +16790,8 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4E4E9:              ; CODE XREF: update?+409j
         //    push    si
         //    mov di, [si+6155h]
-            si = word_51842;
-            drawStillMurphyFrame(304, 132); // TODO: fix coordinates
+//            si = word_51842;
+            drawStillMurphyFrame(208, 16);
         //    pop si
             sound9();
 //            dx = 0x0EDE;
@@ -16806,8 +16806,8 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4E614:              ; CODE XREF: update?+418j
         //    push    si
         //    mov di, [si+6155h]
-            si = word_51842;
-            drawStillMurphyFrame(304, 132); // TODO: fix coordinates
+//            si = word_51842;
+            drawStillMurphyFrame(208, 16);
         //    pop si
             sound5();
 //            dx = 0x0F7E;
@@ -16823,8 +16823,8 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4E73C:              ; CODE XREF: update?+2B9j update?+41Fj
         //    push    si
         //    mov di, [si+6155h]
-            si = word_51842;
-            drawStillMurphyFrame(304, 132); // TODO: fix coordinates
+//            si = word_51842;
+            drawStillMurphyFrame(208, 16);
         //    pop si
             if (byte_5196B != 0)
             {
@@ -16868,8 +16868,8 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4E515:              ; CODE XREF: update?+433j
         //    push    si
         //    mov di, [si+6155h]
-            si = word_51844;
-            drawStillMurphyFrame(304, 132); // TODO: fix coordinates
+//            si = word_51844;
+            drawStillMurphyFrame(176, 64);
         //    pop si
             sound9();
 //            dx = 0x0EEE;
@@ -16894,8 +16894,8 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4E515:              ; CODE XREF: update?+433j
         //    push    si
         //    mov di, [si+6155h]
-            si = word_51844;
-            drawStillMurphyFrame(304, 132); // TODO: fix coordinates
+//            si = word_51844;
+            drawStillMurphyFrame(176, 64);
         //    pop si
             sound9();
 //            dx = 0x0EEE;
@@ -16910,8 +16910,8 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4E634:              ; CODE XREF: update?+442j
         //    push    si
         //    mov di, [si+6155h]
-            si = word_51844;
-            drawStillMurphyFrame(304, 132); // TODO: fix coordinates
+//            si = word_51844;
+            drawStillMurphyFrame(176, 64);
         //    pop si
             sound5();
 //            dx = 0x0F8E;
@@ -16927,8 +16927,8 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4E766:              ; CODE XREF: update?+325j update?+449j
         //    push    si
         //    mov di, [si+6155h]
-            si = word_51844;
-            drawStillMurphyFrame(304, 132); // TODO: fix coordinates
+//            si = word_51844;
+            drawStillMurphyFrame(176, 64);
         //    pop si
             if (byte_5196B != 0)
             {
@@ -16973,8 +16973,8 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4E541:              ; CODE XREF: update?+463j
         //    push    si
         //    mov di, [si+6155h]
-            si = word_51846;
-            drawStillMurphyFrame(304, 132); // TODO: fix coordinates
+//            si = word_51846;
+            drawStillMurphyFrame(192, 16);
         //    pop si
             sound9();
 //            dx = 0x0EFE;
@@ -16999,8 +16999,8 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4E541:              ; CODE XREF: update?+463j
         //    push    si
         //    mov di, [si+6155h]
-            si = word_51846;
-            drawStillMurphyFrame(304, 132); // TODO: fix coordinates
+//            si = word_51846;
+            drawStillMurphyFrame(192, 16);
         //    pop si
             sound9();
 //            dx = 0x0EFE;
@@ -17015,8 +17015,8 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4E654:              ; CODE XREF: update?+472j
         //    push    si
         //    mov di, [si+6155h]
-            si = word_51846;
-            drawStillMurphyFrame(304, 132); // TODO: fix coordinates
+//            si = word_51846;
+            drawStillMurphyFrame(192, 16);
         //    pop si
             sound5();
 //            dx = 0x0F9E;
@@ -17049,8 +17049,8 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4E790:              ; CODE XREF: update?+395j update?+479j
         //    push    si
         //    mov di, [si+6155h]
-            si = word_51846;
-            drawStillMurphyFrame(304, 132); // TODO: fix coordinates
+//            si = word_51846;
+            drawStillMurphyFrame(192, 16);
         //    pop si
             if (byte_5196B != 0)
             {
@@ -17254,8 +17254,8 @@ uint16_t updateMurphy8(uint16_t position)
 //loc_4E712:              ; CODE XREF: update?+249j update?+3EFj
     //    push    si
     //    mov di, [si+6155h]
-        si = word_51840;
-        drawStillMurphyFrame(304, 132); // TODO: fix coordinates
+//        si = word_51840;
+        drawStillMurphyFrame(160, 64);
     //    pop si
         if (byte_5196B != 0)
         {
@@ -17483,8 +17483,8 @@ uint16_t updateMurphy7(uint16_t position)
 //loc_4E73C:              ; CODE XREF: update?+2B9j update?+41Fj
     //    push    si
     //    mov di, [si+6155h]
-        si = word_51842;
-        drawStillMurphyFrame(304, 132); // TODO: fix coordinates
+//        si = word_51842;
+        drawStillMurphyFrame(208, 16);
     //    pop si
         if (byte_5196B != 0)
         {
@@ -17745,8 +17745,8 @@ uint16_t updateMurphy5(uint16_t position)
 //loc_4E766:              ; CODE XREF: update?+325j update?+449j
     //    push    si
     //    mov di, [si+6155h]
-        si = word_51844;
-        drawStillMurphyFrame(304, 132); // TODO: fix coordinates
+//        si = word_51844;
+        drawStillMurphyFrame(176, 64);
     //    pop si
         if (byte_5196B != 0)
         {
@@ -17986,8 +17986,8 @@ uint16_t updateMurphy4(uint16_t position)
 //loc_4E790:              ; CODE XREF: update?+395j update?+479j
     //    push    si
     //    mov di, [si+6155h]
-        si = word_51846;
-        drawStillMurphyFrame(304, 132); // TODO: fix coordinates
+//        si = word_51846;
+        drawStillMurphyFrame(192, 16);
     //    pop si
         if (byte_5196B != 0)
         {
