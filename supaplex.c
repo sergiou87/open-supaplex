@@ -272,11 +272,11 @@ uint16_t word_510EE = 0;
 typedef struct {
     uint16_t word_510F0; // value1;
     uint16_t word_510F2; // value2;
-    uint16_t word_510F4; // value3;
-    uint16_t word_510F6; // value4;
+    uint16_t width; // value3;
+    uint16_t height; // value4;
     uint16_t word_510F8; // value5;
-    uint16_t word_510FA; // value6; -> applied to Murphy X position... speedX?
-    uint16_t word_510FC; // value7; -> applied to Murphy Y position... speedY?
+    uint16_t speedX; // value6; -> applied to Murphy X position... speedX?
+    uint16_t speedY; // value7; -> applied to Murphy Y position... speedY?
     uint16_t unknown1;
 } SomeUnknownMurphyData;
 
@@ -315,450 +315,450 @@ SomeUnknownMurphyData someBinaryData_5110E[50] = {
     0x02, // -> 0xe02
     0x012, // -> 0xe04
     0x111e, // -> 0xe06
-    0x00, // -> 0xe08
-    0xfffe, // -> 0xe0a
-    0x00, // -> 0xe0c
+    0, // -> 0xe08
+    -2, // -> 0xe0a
+    0, // -> 0xe0c
 }, { // 1
     0x6ac, // -> 0xe0e
     0xffc, // -> 0xe10
     0x02, // -> 0xe12
     0x012, // -> 0xe14
     0x1130, // -> 0xe16
-    0x00, // -> 0xe18
-    0xfffe, // -> 0xe1a
-    0x00, // -> 0xe1c
+    0, // -> 0xe18
+    -2, // -> 0xe1a
+    0, // -> 0xe1c
 }, { // 2
     0x00, // -> 0xe1e
     0x00, // -> 0xe20
     0x04, // -> 0xe22
     0x010, // -> 0xe24
     0x1166, // -> 0xe26
-    0xfffe, // -> 0xe28
-    0x00, // -> 0xe2a
-    0x00, // -> 0xe2c
+    -2, // -> 0xe28
+    0, // -> 0xe2a
+    0, // -> 0xe2c
 }, { // 3
     0xf860, // -> 0xe2e
     0x0f4, // -> 0xe30
     0x02, // -> 0xe32
     0x012, // -> 0xe34
     0x1142, // -> 0xe36
-    0x00, // -> 0xe38
-    0x02, // -> 0xe3a
-    0x00, // -> 0xe3c
+    0, // -> 0xe38
+    2, // -> 0xe3a
+    0, // -> 0xe3c
 }, { // 4
     0xf860, // -> 0xe3e
     0x0f4, // -> 0xe40
     0x02, // -> 0xe42
     0x012, // -> 0xe44
     0x1154, // -> 0xe46
-    0x00, // -> 0xe48
-    0x02, // -> 0xe4a
-    0x00, // -> 0xe4c
+    0, // -> 0xe48
+    2, // -> 0xe4a
+    0, // -> 0xe4c
 }, { // 5
     0xfffe, // -> 0xe4e
     0x00, // -> 0xe50
     0x04, // -> 0xe52
     0x010, // -> 0xe54
     0x1178, // -> 0xe56
-    0x02, // -> 0xe58
-    0x00, // -> 0xe5a
-    0x00, // -> 0xe5c
+    2, // -> 0xe58
+    0, // -> 0xe5a
+    0, // -> 0xe5c
 }, { // 6
     0x00, // -> 0xe5e
     0x00, // -> 0xe60
     0x02, // -> 0xe62
     0x010, // -> 0xe64
     0x118a, // -> 0xe66
-    0x00, // -> 0xe68
-    0x00, // -> 0xe6a
-    0x00, // -> 0xe6c
+    0, // -> 0xe68
+    0, // -> 0xe6a
+    0, // -> 0xe6c
 }, { // 7
     0x6ac, // -> 0xe6e
     0xffc, // -> 0xe70
     0x02, // -> 0xe72
     0x012, // -> 0xe74
     0x111e, // -> 0xe76
-    0x00, // -> 0xe78
-    0xfffe, // -> 0xe7a
-    0x00, // -> 0xe7c
+    0, // -> 0xe78
+    -2, // -> 0xe7a
+    0, // -> 0xe7c
 }, { // 8
     0x6ac, // -> 0xe7e
     0xffc, // -> 0xe80
     0x02, // -> 0xe82
     0x012, // -> 0xe84
     0x1130, // -> 0xe86
-    0x00, // -> 0xe88
-    0xfffe, // -> 0xe8a
-    0x00, // -> 0xe8c
+    0, // -> 0xe88
+    -2, // -> 0xe8a
+    0, // -> 0xe8c
 }, { // 9
     0x00, // -> 0xe8e
     0x00, // -> 0xe90
-    0x04, // -> 0xe92
-    0x010, // -> 0xe94
-    0x11dc, // -> 0xe96
-    0xfffe, // -> 0xe98
-    0x00, // -> 0xe9a
-    0x00, // -> 0xe9c
+    0x04, // -> 0xe92 -> 4
+    0x010, // -> 0xe94 -> 16
+    0, // 0x11dc, // -> 0xe96
+    -2, // -> 0xe98
+    0, // -> 0xe9a
+    0, // -> 0xe9c
 }, { // 10
     0xf860, // -> 0xe9e
     0x0f4, // -> 0xea0
     0x02, // -> 0xea2
     0x012, // -> 0xea4
     0x1142, // -> 0xea6
-    0x00, // -> 0xea8
-    0x02, // -> 0xeaa
-    0x00, // -> 0xeac
+    0, // -> 0xea8
+    2, // -> 0xeaa
+    0, // -> 0xeac
 }, { // 11
     0xf860, // -> 0xeae
     0x0f4, // -> 0xeb0
     0x02, // -> 0xeb2
     0x012, // -> 0xeb4
     0x1154, // -> 0xeb6
-    0x00, // -> 0xeb8
-    0x02, // -> 0xeba
-    0x00, // -> 0xebc
+    0, // -> 0xeb8
+    2, // -> 0xeba
+    0, // -> 0xebc
 }, { // 12
     0xfffe, // -> 0xebe
     0x00, // -> 0xec0
     0x04, // -> 0xec2
     0x010, // -> 0xec4
     0x11ee, // -> 0xec6
-    0x02, // -> 0xec8
-    0x00, // -> 0xeca
-    0x00, // -> 0xecc
+    2, // -> 0xec8
+    0, // -> 0xeca
+    0, // -> 0xecc
 }, { // 13
     0xf860, // -> 0xece
     0x00, // -> 0xed0
     0x02, // -> 0xed2
     0x010, // -> 0xed4
     0x120, // -> 0xed6
-    0x00, // -> 0xed8
-    0x00, // -> 0xeda
-    0x00, // -> 0xedc
+    0, // -> 0xed8
+    0, // -> 0xeda
+    0, // -> 0xedc
 }, { // 14
     0xfffe, // -> 0xede
     0x00, // -> 0xee0
     0x02, // -> 0xee2
     0x010, // -> 0xee4
     0x120, // -> 0xee6
-    0x00, // -> 0xee8
-    0x00, // -> 0xeea
-    0x00, // -> 0xeec
+    0, // -> 0xee8
+    0, // -> 0xeea
+    0, // -> 0xeec
 }, { // 15
     0x7a0, // -> 0xeee
     0x00, // -> 0xef0
     0x02, // -> 0xef2
     0x010, // -> 0xef4
     0x120, // -> 0xef6
-    0x00, // -> 0xef8
-    0x00, // -> 0xefa
-    0x00, // -> 0xefc
+    0, // -> 0xef8
+    0, // -> 0xefa
+    0, // -> 0xefc
 }, { // 16
     0x02, // -> 0xefe
     0x00, // -> 0xf00
     0x02, // -> 0xf02
     0x010, // -> 0xf04
     0x120, // -> 0xf06
-    0x00, // -> 0xf08
-    0x00, // -> 0xf0a
-    0x00, // -> 0xf0c
+    0, // -> 0xf08
+    0, // -> 0xf0a
+    0, // -> 0xf0c
 }, { // 17
     0x6ac, // -> 0xf0e
     0xffc, // -> 0xf10
     0x02, // -> 0xf12
     0x012, // -> 0xf14
     0x111e, // -> 0xf16
-    0x00, // -> 0xf18
-    0xfffe, // -> 0xf1a
-    0x00, // -> 0xf1c
+    0, // -> 0xf18
+    -2, // -> 0xf1a
+    0, // -> 0xf1c
 }, { // 18
     0x6ac, // -> 0xf1e
     0xffc, // -> 0xf20
     0x02, // -> 0xf22
     0x012, // -> 0xf24
     0x1130, // -> 0xf26
-    0x00, // -> 0xf28
-    0xfffe, // -> 0xf2a
-    0x00, // -> 0xf2c
+    0, // -> 0xf28
+    -2, // -> 0xf2a
+    0, // -> 0xf2c
 }, { // 19
     0x00, // -> 0xf2e
     0x00, // -> 0xf30
     0x04, // -> 0xf32
     0x010, // -> 0xf34
     0x1212, // -> 0xf36
-    0xfffe, // -> 0xf38
-    0x00, // -> 0xf3a
-    0x00, // -> 0xf3c
+    -2, // -> 0xf38
+    0, // -> 0xf3a
+    0, // -> 0xf3c
 }, { // 20
     0xf860, // -> 0xf3e
     0x0f4, // -> 0xf40
     0x02, // -> 0xf42
     0x012, // -> 0xf44
     0x1142, // -> 0xf46
-    0x00, // -> 0xf48
-    0x02, // -> 0xf4a
-    0x00, // -> 0xf4c
+    0, // -> 0xf48
+    2, // -> 0xf4a
+    0, // -> 0xf4c
 }, { // 21
     0xf860, // -> 0xf4e
     0x0f4, // -> 0xf50
     0x02, // -> 0xf52
     0x012, // -> 0xf54
     0x1154, // -> 0xf56
-    0x00, // -> 0xf58
-    0x02, // -> 0xf5a
-    0x00, // -> 0xf5c
+    0, // -> 0xf58
+    2, // -> 0xf5a
+    0, // -> 0xf5c
 }, { // 22
     0xfffe, // -> 0xf5e
     0x00, // -> 0xf60
     0x04, // -> 0xf62
     0x010, // -> 0xf64
     0x1224, // -> 0xf66
-    0x02, // -> 0xf68
-    0x00, // -> 0xf6a
-    0x00, // -> 0xf6c
+    2, // -> 0xf68
+    0, // -> 0xf6a
+    0, // -> 0xf6c
 }, { // 23
     0xf860, // -> 0xf6e
     0x00, // -> 0xf70
     0x02, // -> 0xf72
     0x010, // -> 0xf74
     0x1236, // -> 0xf76
-    0x00, // -> 0xf78
-    0x00, // -> 0xf7a
-    0x00, // -> 0xf7c
+    0, // -> 0xf78
+    0, // -> 0xf7a
+    0, // -> 0xf7c
 }, { // 24
     0xfffe, // -> 0xf7e
     0x00, // -> 0xf80
     0x02, // -> 0xf82
     0x010, // -> 0xf84
     0x1236, // -> 0xf86
-    0x00, // -> 0xf88
-    0x00, // -> 0xf8a
-    0x00, // -> 0xf8c
+    0, // -> 0xf88
+    0, // -> 0xf8a
+    0, // -> 0xf8c
 }, { // 25
     0x7a0, // -> 0xf8e
     0x00, // -> 0xf90
     0x02, // -> 0xf92
     0x010, // -> 0xf94
     0x1236, // -> 0xf96
-    0x00, // -> 0xf98
-    0x00, // -> 0xf9a
-    0x00, // -> 0xf9c
+    0, // -> 0xf98
+    0, // -> 0xf9a
+    0, // -> 0xf9c
 }, { // 26
     0x02, // -> 0xf9e
     0x00, // -> 0xfa0
     0x02, // -> 0xfa2
     0x010, // -> 0xfa4
     0x1236, // -> 0xfa6
-    0x00, // -> 0xfa8
-    0x00, // -> 0xfaa
-    0x00, // -> 0xfac
+    0, // -> 0xfa8
+    0, // -> 0xfaa
+    0, // -> 0xfac
 }, { // 27
     0xfffc, // -> 0xfae
     0x00, // -> 0xfb0
     0x06, // -> 0xfb2
     0x010, // -> 0xfb4
     0x1246, // -> 0xfb6
-    0xfffe, // -> 0xfb8
-    0x00, // -> 0xfba
-    0x00, // -> 0xfbc
+    -2, // -> 0xfb8
+    0, // -> 0xfba
+    0, // -> 0xfbc
 }, { // 28
     0x00, // -> 0xfbe
     0x00, // -> 0xfc0
     0x06, // -> 0xfc2
     0x010, // -> 0xfc4
     0x1258, // -> 0xfc6
-    0x02, // -> 0xfc8
-    0x00, // -> 0xfca
-    0x00, // -> 0xfcc
+    2, // -> 0xfc8
+    0, // -> 0xfca
+    0, // -> 0xfcc
 }, { // 29
     0x00, // -> 0xfce
     0xf0c0, // -> 0xfd0
     0x02, // -> 0xfd2
     0x010, // -> 0xfd4
     0x1340, // -> 0xfd6
-    0x00, // -> 0xfd8
-    0xfffc, // -> 0xfda
-    0x00, // -> 0xfdc
+    0, // -> 0xfd8
+    -4, // -> 0xfda
+    0, // -> 0xfdc
 }, { // 30
     0x00, // -> 0xfde
     0xfffc, // -> 0xfe0
     0x02, // -> 0xfe2
     0x010, // -> 0xfe4
     0x12f8, // -> 0xfe6
-    0xfffc, // -> 0xfe8
-    0x00, // -> 0xfea
-    0x00, // -> 0xfec
+    -4, // -> 0xfe8
+    0, // -> 0xfea
+    0, // -> 0xfec
 }, { // 31
     0x00, // -> 0xfee
     0xf40, // -> 0xff0
     0x02, // -> 0xff2
     0x010, // -> 0xff4
     0x1364, // -> 0xff6
-    0x00, // -> 0xff8
-    0x04, // -> 0xffa
-    0x00, // -> 0xffc
+    0, // -> 0xff8
+    4, // -> 0xffa
+    0, // -> 0xffc
 }, { // 32
     0x00, // -> 0xffe
     0x04, // -> 0x1000
     0x02, // -> 0x1002
     0x010, // -> 0x1004
     0x131c, // -> 0x1006
-    0x04, // -> 0x1008
-    0x00, // -> 0x100a
-    0x00, // -> 0x100c
+    4, // -> 0x1008
+    0, // -> 0x100a
+    0, // -> 0x100c
 }, { // 33
     0xffc, // -> 0x100e
     0xffc, // -> 0x1010
     0x02, // -> 0x1012
     0x012, // -> 0x1014
     0x111e, // -> 0x1016
-    0x00, // -> 0x1018
-    0xfffe, // -> 0x101a
-    0x00, // -> 0x101c
+    0, // -> 0x1018
+    -2, // -> 0x101a
+    0, // -> 0x101c
 }, { // 34
     0xffc, // -> 0x101e
     0xffc, // -> 0x1020
     0x02, // -> 0x1022
     0x012, // -> 0x1024
     0x1130, // -> 0x1026
-    0x00, // -> 0x1028
-    0xfffe, // -> 0x102a
-    0x00, // -> 0x102c
+    0, // -> 0x1028
+    -2, // -> 0x102a
+    0, // -> 0x102c
 }, { // 35
     0x00, // -> 0x102e
     0x00, // -> 0x1030
     0x04, // -> 0x1032
     0x010, // -> 0x1034
     0x1448, // -> 0x1036
-    0xfffe, // -> 0x1038
-    0x00, // -> 0x103a
-    0x00, // -> 0x103c
+    -2, // -> 0x1038
+    0, // -> 0x103a
+    0, // -> 0x103c
 }, { // 36
     0x00, // -> 0x103e
     0x0f4, // -> 0x1040
     0x02, // -> 0x1042
     0x012, // -> 0x1044
     0x1142, // -> 0x1046
-    0x00, // -> 0x1048
-    0x02, // -> 0x104a
-    0x00, // -> 0x104c
+    0, // -> 0x1048
+    2, // -> 0x104a
+    0, // -> 0x104c
 }, { // 37
     0x00, // -> 0x104e
     0x0f4, // -> 0x1050
     0x02, // -> 0x1052
     0x012, // -> 0x1054
     0x1154, // -> 0x1056
-    0x00, // -> 0x1058
-    0x02, // -> 0x105a
-    0x00, // -> 0x105c
+    0, // -> 0x1058
+    2, // -> 0x105a
+    0, // -> 0x105c
 }, { // 38
     0xfffe, // -> 0x105e
     0x00, // -> 0x1060
     0x04, // -> 0x1062
     0x010, // -> 0x1064
     0x145a, // -> 0x1066
-    0x02, // -> 0x1068
-    0x00, // -> 0x106a
-    0x00, // -> 0x106c
+    2, // -> 0x1068
+    0, // -> 0x106a
+    0, // -> 0x106c
 }, { // 39
     0xf860, // -> 0x106e
     0x00, // -> 0x1070
     0x02, // -> 0x1072
     0x010, // -> 0x1074
     0x146e, // -> 0x1076
-    0x00, // -> 0x1078
-    0x00, // -> 0x107a
-    0x00, // -> 0x107c
+    0, // -> 0x1078
+    0, // -> 0x107a
+    0, // -> 0x107c
 }, { // 40
     0xfffe, // -> 0x107e
     0x00, // -> 0x1080
     0x02, // -> 0x1082
     0x010, // -> 0x1084
     0x146e, // -> 0x1086
-    0x00, // -> 0x1088
-    0x00, // -> 0x108a
-    0x00, // -> 0x108c
+    0, // -> 0x1088
+    0, // -> 0x108a
+    0, // -> 0x108c
 }, { // 41
     0x7a0, // -> 0x108e
     0x00, // -> 0x1090
     0x02, // -> 0x1092
     0x010, // -> 0x1094
     0x146e, // -> 0x1096
-    0x00, // -> 0x1098
-    0x00, // -> 0x109a
-    0x00, // -> 0x109c
+    0, // -> 0x1098
+    0, // -> 0x109a
+    0, // -> 0x109c
 }, { // 42
     0x02, // -> 0x109e
     0x00, // -> 0x10a0
     0x02, // -> 0x10a2
     0x010, // -> 0x10a4
     0x146e, // -> 0x10a6
-    0x00, // -> 0x10a8
-    0x00, // -> 0x10aa
-    0x00, // -> 0x10ac
+    0, // -> 0x10a8
+    0, // -> 0x10aa
+    0, // -> 0x10ac
 }, { // 43
     0xf76c, // -> 0x10ae
     0xffc, // -> 0x10b0
     0x02, // -> 0x10b2
     0x022, // -> 0x10b4
     0x1488, // -> 0x10b6
-    0x00, // -> 0x10b8
-    0xfffe, // -> 0x10ba
-    0x00, // -> 0x10bc
+    0, // -> 0x10b8
+    -2, // -> 0x10ba
+    0, // -> 0x10bc
 }, { // 44
     0xfffc, // -> 0x10be
     0x00, // -> 0x10c0
     0x06, // -> 0x10c2
     0x010, // -> 0x10c4
     0x149a, // -> 0x10c6
-    0xfffe, // -> 0x10c8
-    0x00, // -> 0x10ca
-    0x00, // -> 0x10cc
+    -2, // -> 0x10c8
+    0, // -> 0x10ca
+    0, // -> 0x10cc
 }, { // 45
     0x00, // -> 0x10ce
     0x0f4, // -> 0x10d0
     0x02, // -> 0x10d2
     0x022, // -> 0x10d4
     0x14ac, // -> 0x10d6
-    0x00, // -> 0x10d8
-    0x02, // -> 0x10da
-    0x00, // -> 0x10dc
+    0, // -> 0x10d8
+    2, // -> 0x10da
+    0, // -> 0x10dc
 }, { // 46
     0x00, // -> 0x10de
     0x00, // -> 0x10e0
     0x06, // -> 0x10e2
     0x010, // -> 0x10e4
     0x14be, // -> 0x10e6
-    0x02, // -> 0x10e8
-    0x00, // -> 0x10ea
-    0x00, // -> 0x10ec
+    2, // -> 0x10e8
+    0, // -> 0x10ea
+    0, // -> 0x10ec
 }, { // 47
     0xfffc, // -> 0x10ee
     0x00, // -> 0x10f0
     0x06, // -> 0x10f2
     0x010, // -> 0x10f4
     0x14d0, // -> 0x10f6
-    0xfffe, // -> 0x10f8
-    0x00, // -> 0x10fa
-    0x00, // -> 0x10fc
+    -2, // -> 0x10f8
+    0, // -> 0x10fa
+    0, // -> 0x10fc
 }, { // 48
     0x00, // -> 0x10fe
     0x00, // -> 0x1100
     0x06, // -> 0x1102
     0x010, // -> 0x1104
     0x14e2, // -> 0x1106
-    0x02, // -> 0x1108
-    0x00, // -> 0x110a
-    0x00, // -> 0x110c
+    2, // -> 0x1108
+    0, // -> 0x110a
+    0, // -> 0x110c
 }, { // 49
     0x00, // -> 0x110e
     0x00, // -> 0x1110
     0x02, // -> 0x1112
     0x010, // -> 0x1114
     0x1484, // -> 0x1116
-    0x00, // -> 0x1118
-    0x00, // -> 0x111a
-    0x00, // -> 0x111c
+    0, // -> 0x1118
+    0, // -> 0x111a
+    0, // -> 0x111c
 }
 };
 
@@ -2240,7 +2240,7 @@ void sub_4ED29(uint16_t position);
 void sub_4FDB5(uint16_t position);
 void sub_4F2AF(uint16_t position);
 void drawLevelViewport(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
-void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, uint16_t dstX, uint16_t dstY);
+void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, uint16_t height, uint16_t dstX, uint16_t dstY);
 
 static const int kWindowWidth = kScreenWidth * 4;
 static const int kWindowHeight = kScreenHeight * 4;
@@ -5551,7 +5551,7 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
             uint16_t dstPosition = position - 1;
             uint16_t dstY = dstPosition / kLevelWidth;
             uint16_t dstX = dstPosition % kLevelWidth;
-            drawMovingSpriteFrameInLevel(srcX, srcY, kTileSize * 2, dstX, dstY);
+            drawMovingSpriteFrameInLevel(srcX, srcY, kTileSize * 2, kTileSize, dstX, dstY);
             /*
             bh = 0;
             bl &= 0xF;
@@ -5632,7 +5632,7 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
             uint16_t dstPosition = position - 1;
             uint16_t dstY = dstPosition / kLevelWidth;
             uint16_t dstX = dstPosition % kLevelWidth;
-            drawMovingSpriteFrameInLevel(srcX, srcY, kTileSize * 2, dstX, dstY);
+            drawMovingSpriteFrameInLevel(srcX, srcY, kTileSize * 2, kTileSize, dstX, dstY);
 /*
             bh = 0;
             bl &= 7;
@@ -7276,6 +7276,8 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         gNumberOfDotsToShiftDataLeft = ah;
         if (fastMode != 1)
         {
+            // TODO: render the right viewport
+            drawLevelViewport(0, 0, kScreenWidth, kScreenHeight); // Added by me
             videoloop();
         }
 
@@ -8228,7 +8230,6 @@ void writeToFh1() //  proc near       ; CODE XREF: sub_4955B+486p
 void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
                    // ; runLevel+30Cp
 {
-    // No idea what this method does yet but doesn't respond to user input
     // 01ED:28F8
 
 // ; FUNCTION CHUNK AT 2DA8 SIZE 0000038B BYTES
@@ -8246,8 +8247,6 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
             sub_492F1(); // 01ED:2915
         }
     }
-
-    return;
 
 //loc_4957B:              ; CODE XREF: sub_4955B+Aj
 //                ; sub_4955B+11j ...
@@ -11486,7 +11485,7 @@ void sub_4AAB4(uint16_t position) //   proc near       ; CODE XREF: sub_4A9C4+2E
 //    push    ds
 //    mov di, [si+6155h]
     si = word_51580; // probably point to the coordinates of the frame in MOVING.DAT
-    drawMovingSpriteFrameInLevel(0, 0, 0, 0, 0);
+    drawMovingSpriteFrameInLevel(0, 0, 0, 0, 0, 0);
     /*
     mov ax, es
     mov ds, ax
@@ -16932,7 +16931,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
             drawStillMurphyFrame(304, 132); // TODO: fix coordinates
         //    pop si
             sound9();
-            dx = 0x0EDE;
+//            dx = 0x0EDE;
             murphyTile->movingObject = 0x11;
             word_510EE = 0;
             word_510D9 = 0;
@@ -17221,7 +17220,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
         word_510EE = 0x40; // 64
 //        dx = 0x110E;
         byte_510DB = 1;
-        word_510DC = si;
+        word_510DC = position;
         return updateMurphy3(position, someBinaryData_5110E[49]);
     }
     else
@@ -18240,21 +18239,11 @@ uint16_t updateMurphy4(uint16_t position)
 
 uint16_t updateMurphy3(uint16_t position, SomeUnknownMurphyData unknownMurphyData)
 {
+    // 01ED:7D9F
+
 //loc_4E9F3:              ; CODE XREF: update?+4B0j update?+9B4j
-//    push    si
-//    push(di);
-//    push    es
-//    si = dx;
 //    di = 0x0DE0;
-//    mov ax, ds
-//    mov es, ax
-//    assume es:data
-//    mov cx, 7
-//    memcpy(di, si, cx * 2); // rep movsw
-//    pop es
-//    assume es:nothing
-//    pop(di);
-//    pop si
+//    memcpy(di, si, 7 * 2); // rep movsw
 
     gSomeUnknownMurphyData = unknownMurphyData;
 
@@ -18263,6 +18252,8 @@ uint16_t updateMurphy3(uint16_t position, SomeUnknownMurphyData unknownMurphyDat
 
 uint16_t updateMurphy2(uint16_t position)
 {
+    // 01ED:7DA4
+
     MovingLevelTile *murphyTile = &gCurrentLevelWord[position];
     MovingLevelTile *leftLeftTile = &gCurrentLevelWord[position - 2];
     MovingLevelTile *leftTile = &gCurrentLevelWord[position - 1];
@@ -18272,9 +18263,6 @@ uint16_t updateMurphy2(uint16_t position)
     MovingLevelTile *belowBelowTile = &gCurrentLevelWord[position + kLevelWidth * 2];
     MovingLevelTile *aboveTile = &gCurrentLevelWord[position - kLevelWidth];
     MovingLevelTile *aboveAboveTile = &gCurrentLevelWord[position - kLevelWidth * 2];
-//    MovingLevelTile *aboveLeftTile = &gCurrentLevelWord[position - kLevelWidth - 1];
-//    MovingLevelTile *belowLeftTile = &gCurrentLevelWord[position + kLevelWidth - 1];
-//    MovingLevelTile *belowRightTile = &gCurrentLevelWord[position + kLevelWidth + 1];
     MovingLevelTile *belowRightRightTile = &gCurrentLevelWord[position + kLevelWidth + 2];
 
 //loc_4EA07:              ; CODE XREF: update?+21j
@@ -18282,44 +18270,37 @@ uint16_t updateMurphy2(uint16_t position)
     ax = word_510EE;
     if (word_510EE == 0)
     {
+        // 01ED:7E08
+
 //loc_4EA6B:              ; CODE XREF: update?+B83j
     //    push    si
     //    push(di);
-        gMurphyPositionX += gSomeUnknownMurphyData.word_510FA;
-        gMurphyPositionY += gSomeUnknownMurphyData.word_510FC;
+        gMurphyPositionX += gSomeUnknownMurphyData.speedX;
+        gMurphyPositionY += gSomeUnknownMurphyData.speedY;
     //    mov di, [si+6155h]
-        di += gSomeUnknownMurphyData.word_510F0;
-        si = gSomeUnknownMurphyData.word_510F8;
-    //    ax = *si;
-        si += 2;
+        di += gSomeUnknownMurphyData.word_510F0; // some kind of offset that needs a * 8?
+        si = gSomeUnknownMurphyData.word_510F8; // coordinates in MOVING.DAT
+        ax = si;
+        si += 2 * kTileSize; // Advance 2 tiles
         gSomeUnknownMurphyData.word_510F8 = si;
         si = ax;
-        bx = gSomeUnknownMurphyData.word_510F4;
-        dx = gSomeUnknownMurphyData.word_510F6;
+        bx = gSomeUnknownMurphyData.width * 8;
+        dx = gSomeUnknownMurphyData.height;
     //    push    ds
     //    mov ax, es
     //    mov ds, ax
 
-        do
-        {
-//loc_4EA9F:              ; CODE XREF: update?+C28j
-            cx = bx;
-    //    memcpy(di, si, cx); // rep movsb
-            si += 122;
-            si -= bx;
-            di += 122;
-            di -= bx;
-            if (si >= 0x4D34)
-            {
-                si -= 0x4D0C;
-            }
+        uint16_t srcX = (si % kMovingBitmapWidth);
+        uint16_t srcY = (si / kMovingBitmapWidth);
+        uint16_t dstX = (position % kLevelWidth) * kTileSize;
+        uint16_t dstY = (position / kLevelWidth) * kTileSize;
 
-//loc_4EAB7:              ; CODE XREF: update?+C21j
-            dx--;
-        }
-        while (dx != 0);
-    //    mov ax, ds
-    //    pop ds
+//loc_4EA9F:              ; CODE XREF: update?+C28j
+        drawMovingSpriteFrameInLevel(srcX, srcY,
+                                     gSomeUnknownMurphyData.width * 8,
+                                     gSomeUnknownMurphyData.height,
+                                     dstX, dstY);
+
         if (word_510D9 != 0)
         {
             di -= 0x7A0; // 1952
@@ -18327,7 +18308,7 @@ uint16_t updateMurphy2(uint16_t position)
             si = gSomeUnknownMurphyData.word_510F8;
             si += 16;
     //      si = *si;
-            dx = gSomeUnknownMurphyData.word_510F6;
+            dx = gSomeUnknownMurphyData.height;
     //      push    ds
     //      mov ds, ax
 
@@ -18361,19 +18342,19 @@ uint16_t updateMurphy2(uint16_t position)
 
 //loc_4EB04:              ; CODE XREF: update?+C68j
         si = gSomeUnknownMurphyData.word_510F8;
-    //    if (*si != 0xFFFF) // cmp word ptr [si], 0FFFFh
-    //    {
-    ////        pop(di);
-    ////        pop si
-    //          return position;
-    //    }
+        if (gSomeUnknownMurphyData.word_510F8 != 0xFFFF) // cmp word ptr [si], 0FFFFh
+        {
+    //        pop(di);
+    //        pop si
+              return position;
+        }
 
 //loc_4EB10:              ; CODE XREF: update?+C7Bj
     //    pop(di);
     //    pop si
-        ax = gSomeUnknownMurphyData.word_510FA;
+        ax = gSomeUnknownMurphyData.speedX;
         ax /= 2;
-        bx = gSomeUnknownMurphyData.word_510FC;
+        bx = gSomeUnknownMurphyData.speedY;
         bx /= 2;
         gMurphyTileX += ax;
         gMurphyTileY += bx;
@@ -21140,11 +21121,11 @@ void drawLevelViewport(uint16_t x, uint16_t y, uint16_t width, uint16_t height)
     }
 }
 
-void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, uint16_t dstX, uint16_t dstY)
+void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, uint16_t height, uint16_t dstX, uint16_t dstY)
 {
     assert((width % kTileSize) == 0);
 
-    for (int y = 0; y < kTileSize; ++y)
+    for (int y = 0; y < height; ++y)
     {
         for (int x = 0; x < width; ++x)
         {
