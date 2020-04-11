@@ -8359,319 +8359,272 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     }
 
 //loc_4963F:              ; CODE XREF: sub_4955B+DFj
-    if (gIsRecordingDemo != 0) // 01ED:29DC
+    if (gIsRecordingDemo == 0) // 01ED:29DC
     {
-        //jmp loc_49742
-    }
-
 //loc_49649:              ; CODE XREF: sub_4955B+E9j
-    if ((dword_519AF & 0xFF) != 0) // cmp byte ptr dword_519AF, 0
-    {
-        word_51A01 = 1;
-    }
+        if ((dword_519AF & 0xFF) != 0) // cmp byte ptr dword_519AF, 0
+        {
+            word_51A01 = 1;
+        }
 
 //loc_49656:              ; CODE XREF: sub_4955B+F3j
-    if (byte_5199D != 0)
-    {
-        flashingbackgroundon = (flashingbackgroundon & 0xFFFF0000) + 1; // mov word ptr flashingbackgroundon, 1
-    }
+        if (byte_5199D != 0)
+        {
+            flashingbackgroundon = (flashingbackgroundon & 0xFFFF0000) + 1; // mov word ptr flashingbackgroundon, 1
+        }
 
 //loc_49663:              ; CODE XREF: sub_4955B+100j
-    if ((word_519A9 & 0xFF) != 0) // cmp byte ptr word_519A9, 0
-    {
-        ah = 1;
-        sub_4A23C();
-    }
+        if ((word_519A9 & 0xFF) != 0) // cmp byte ptr word_519A9, 0
+        {
+            ah = 1;
+            sub_4A23C();
+        }
 
 //loc_4966F:              ; CODE XREF: sub_4955B+10Dj
-    if ((word_519AD & 0xFF) != 0) // cmp byte ptr word_519AD, 0
-    {
-        ah = 2;
-        sub_4A23C();
-    }
+        if ((word_519AD & 0xFF) != 0) // cmp byte ptr word_519AD, 0
+        {
+            ah = 2;
+            sub_4A23C();
+        }
 
 //loc_4967B:              ; CODE XREF: sub_4955B+119j
-    if (byte_519A0 != 0)
-    {
-        ah = 6;
-        sub_4A23C();
-    }
+        if (byte_519A0 != 0)
+        {
+            ah = 6;
+            sub_4A23C();
+        }
 
 //loc_49687:              ; CODE XREF: sub_4955B+125j
-    if ((word_519AB & 0xFF) != 0) // cmp byte ptr word_519AB, 0
-    {
-        ah = 5;
-        sub_4A23C();
-    }
+        if ((word_519AB & 0xFF) != 0) // cmp byte ptr word_519AB, 0
+        {
+            ah = 5;
+            sub_4A23C();
+        }
 
 //loc_49693:              ; CODE XREF: sub_4955B+131j
-    if (byte_5199C != 0)
-    {
-        ah = 0x11;
-        sub_4A23C();
-    }
+        if (byte_5199C != 0)
+        {
+            ah = 0x11;
+            sub_4A23C();
+        }
 
 //loc_4969F:              ; CODE XREF: sub_4955B+13Dj
-    if (byte_51990 != 0)
-    {
-        videoloop();
-        sub_4A3E9();
-    }
+        if (byte_51990 != 0)
+        {
+            videoloop();
+            sub_4A3E9();
+        }
 
 //loc_496AC:              ; CODE XREF: sub_4955B+149j
-    if (gIsPlayingDemo != 0)
-    {
-//        jmp loc_49742
-    }
-
-//loc_496B6:              ; CODE XREF: sub_4955B+156j
-    if (speed3 < 0)
-    {
-        //jmp loc_49742
-    }
-
+        if (gIsPlayingDemo == 0
+            && speed3 >= 0)
+        {
 //loc_496C0:              ; CODE XREF: sub_4955B+160j
-    if (byte_5197F != 0)
-    {
-        word_51A07 = 1;
-    }
+            if (byte_5197F != 0)
+            {
+                word_51A07 = 1;
+            }
 
 //loc_496CD:              ; CODE XREF: sub_4955B+16Aj
-    if (byte_51980 != 0)
-    {
-        word_51A07 = 2;
-    }
+            if (byte_51980 != 0)
+            {
+                word_51A07 = 2;
+            }
 
 //loc_496DA:              ; CODE XREF: sub_4955B+177j
-    if (byte_51981 != 0)
-    {
-        word_51A07 = 3;
-    }
+            if (byte_51981 != 0)
+            {
+                word_51A07 = 3;
+            }
 
 //loc_496E7:              ; CODE XREF: sub_4955B+184j
-    if (byte_51982 != 0)
-    {
-        word_51A07 = 4;
-    }
+            if (byte_51982 != 0)
+            {
+                word_51A07 = 4;
+            }
 
 //loc_496F4:              ; CODE XREF: sub_4955B+191j
-    if (byte_51983 != 0)
-    {
-        word_51A07 = 6;
-    }
+            if (byte_51983 != 0)
+            {
+                word_51A07 = 6;
+            }
 
 //loc_49701:              ; CODE XREF: sub_4955B+19Ej
-    if (byte_51984 != 0)
-    {
-        word_51A07 = 8;
-    }
+            if (byte_51984 != 0)
+            {
+                word_51A07 = 8;
+            }
 
 //loc_4970E:              ; CODE XREF: sub_4955B+1ABj
-    if (byte_51985 != 0)
-    {
-        word_51A07 = 0xC;
-    }
+            if (byte_51985 != 0)
+            {
+                word_51A07 = 0xC;
+            }
 
 //loc_4971B:              ; CODE XREF: sub_4955B+1B8j
-    if (byte_51986 != 0)
-    {
-        word_51A07 = 0x10;
-    }
+            if (byte_51986 != 0)
+            {
+                word_51A07 = 0x10;
+            }
 
 //loc_49728:              ; CODE XREF: sub_4955B+1C5j
-    if (byte_51987 != 0)
-    {
-        word_51A07 = 0x18;
-    }
+            if (byte_51987 != 0)
+            {
+                word_51A07 = 0x18;
+            }
 
 //loc_49735:              ; CODE XREF: sub_4955B+1D2j
-    if (byte_51988 != 0)
-    {
-        word_51A07 = 0x20;
+            if (byte_51988 != 0)
+            {
+                word_51A07 = 0x20;
+            }
+        }
     }
 
 //loc_49742:              ; CODE XREF: sub_4955B+EBj
 //                ; sub_4955B+158j ...
     if (byte_5199A == 1)
     {
-//        jmp loc_497D1
+//loc_497D1:              ; CODE XREF: sub_4955B+1EEj
+        if (gIsPlayingDemo != 0)
+        {
+            // jmp loc_4988E
+        }
+//loc_497DB:              ; CODE XREF: sub_4955B+27Bj
+        else if (speed3 < 0)
+        {
+            // jmp loc_4988E
+        }
+//loc_497E5:              ; CODE XREF: sub_4955B+285j
+        else if (byte_519B8 == 1)
+        {
+            ax = 0;
+            sub_4945D();
+        }
+//loc_497F5:              ; CODE XREF: sub_4955B+28Fj
+        else if (byte_519B9 == 1)
+        {
+            ax = 1;
+            sub_4945D();
+        }
+//loc_49805:              ; CODE XREF: sub_4955B+29Fj
+        else if (byte_519BA == 1)
+        {
+            ax = 2;
+            sub_4945D();
+        }
+//loc_49814:              ; CODE XREF: sub_4955B+2AFj
+        else if (byte_519BB == 1)
+        {
+            ax = 3;
+            sub_4945D();
+        }
+//loc_49823:              ; CODE XREF: sub_4955B+2BEj
+        else if (byte_519BC == 1)
+        {
+            ax = 4;
+            sub_4945D();
+        }
+//loc_49832:              ; CODE XREF: sub_4955B+2CDj
+        else if (byte_519BD == 1)
+        {
+            ax = 5;
+            sub_4945D();
+        }
+//loc_49841:              ; CODE XREF: sub_4955B+2DCj
+        else if (byte_519BE == 1)
+        {
+            ax = 6;
+            sub_4945D();
+        }
+//loc_49850:              ; CODE XREF: sub_4955B+2EBj
+        else if (byte_519BF == 1)
+        {
+            ax = 7;
+            sub_4945D();
+        }
+//loc_4985F:              ; CODE XREF: sub_4955B+2FAj
+        else if (byte_519C0 == 1)
+        {
+            ax = 8;
+            sub_4945D();
+        }
+//loc_4986E:              ; CODE XREF: sub_4955B+309j
+        else if (byte_519C1 == 1)
+        {
+            ax = 9;
+            sub_4945D();
+        }
+//loc_4987D:              ; CODE XREF: sub_4955B+318j
+        else if (byte_519D5 == 1
+            && gIsRecordingDemo != 0)
+        {
+            somethingspsig();
+        }
     }
-
+    else
+    {
 //loc_4974C:              ; CODE XREF: sub_4955B+1ECj
-    ax = word_5195D;
-    ax &= 7;
-    if (ax != 0)
-    {
-//        jmp loc_4988E
-    }
-
-//loc_49757:              ; CODE XREF: sub_4955B+1F7j
-    if (gIsRecordingDemo != 0)
-    {
-//        jmp loc_4988E
-    }
-
+        ax = word_5195D;
+        ax &= 7;
+        if (ax == 0
+            && gIsRecordingDemo == 0)
+        {
 //loc_49761:              ; CODE XREF: sub_4955B+201j
-    if (byte_519B8 == 0)
-    {
-        byte_59B7C = 0;
-//        jmp short loc_49786
-    }
-
+            if (byte_519B8 == 0)
+            {
+                byte_59B7C = 0;
+            }
 //loc_4976F:              ; CODE XREF: sub_4955B+20Bj
-    if (byte_59B7C == 0)
-    {
-        byte_59B7C--;
-        byte_5101C &= 1;
-        byte_5101C = byte_5101C ^ 1;
-//        jmp short loc_497CE
-    }
+            else if (byte_59B7C == 0)
+            {
+                byte_59B7C--;
+                byte_5101C &= 1;
+                byte_5101C = byte_5101C ^ 1;
+            }
 
+            if (byte_519B8 == 0
+                || byte_59B7C != 0)
+            {
 //loc_49786:              ; CODE XREF: sub_4955B+212j
 //                ; sub_4955B+219j
-    if (byte_519B9 == 0)
-    {
-        byte_59B7D = 0;
-//        jmp short loc_497AB
-    }
-
+                if (byte_519B9 == 0)
+                {
+                    byte_59B7D = 0;
+                }
 //loc_49794:              ; CODE XREF: sub_4955B+230j
-    if (byte_59B7D == 0)
-    {
-        byte_59B7D--;
-        byte_51035 &= 2;
-        byte_51035 = byte_51035 ^ 2;
-//        jmp short loc_497CE
-    }
+                if (byte_59B7D == 0)
+                {
+                    byte_59B7D--;
+                    byte_51035 &= 2;
+                    byte_51035 = byte_51035 ^ 2;
+                }
 
+                if (byte_519B9 == 0
+                    || byte_59B7D != 0)
+                {
 //loc_497AB:              ; CODE XREF: sub_4955B+237j
 //                ; sub_4955B+23Ej
-    if (byte_519BA == 0)
-    {
-        byte_59B7E = 0;
-//        jmp short loc_497CE
-    }
-
+                    if (byte_519BA == 0)
+                    {
+                        byte_59B7E = 0;
+                    }
 //loc_497B9:              ; CODE XREF: sub_4955B+255j
-    if (byte_59B7E == 0)
-    {
-        byte_59B7E--;
-        byte_510D7 &= 1;
-        byte_510D7 = byte_510D7 ^ 1;
-    }
-
-//loc_497CE:              ; CODE XREF: sub_4955B+229j
-//                ; sub_4955B+24Ej ...
-//    jmp loc_4988E
-
-//loc_497D1:              ; CODE XREF: sub_4955B+1EEj
-    if (gIsPlayingDemo != 0)
-    {
-//        jmp loc_4988E
-    }
-
-//loc_497DB:              ; CODE XREF: sub_4955B+27Bj
-    if (speed3 < 0)
-    {
-//        jmp loc_4988E
-    }
-
-//loc_497E5:              ; CODE XREF: sub_4955B+285j
-    if (byte_519B8 == 1)
-    {
-        ax = 0;
-        sub_4945D();
-//        jmp loc_4988E
-    }
-
-//loc_497F5:              ; CODE XREF: sub_4955B+28Fj
-    if (byte_519B9 == 1)
-    {
-        ax = 1;
-        sub_4945D();
-//        jmp loc_4988E
-    }
-
-//loc_49805:              ; CODE XREF: sub_4955B+29Fj
-    if (byte_519BA == 1)
-    {
-        ax = 2;
-        sub_4945D();
-//        jmp loc_4988E
-    }
-
-//loc_49814:              ; CODE XREF: sub_4955B+2AFj
-    if (byte_519BB == 1)
-    {
-        ax = 3;
-        sub_4945D();
-//        jmp loc_4988E
-    }
-
-//loc_49823:              ; CODE XREF: sub_4955B+2BEj
-    if (byte_519BC == 1)
-    {
-        ax = 4;
-        sub_4945D();
-//        jmp loc_4988E
-    }
-
-//loc_49832:              ; CODE XREF: sub_4955B+2CDj
-    if (byte_519BD == 1)
-    {
-        ax = 5;
-        sub_4945D();
-//        jmp loc_4988E
-    }
-
-//loc_49841:              ; CODE XREF: sub_4955B+2DCj
-    if (byte_519BE == 1)
-    {
-        ax = 6;
-        sub_4945D();
-//        jmp loc_4988E
-    }
-
-//loc_49850:              ; CODE XREF: sub_4955B+2EBj
-    if (byte_519BF == 1)
-    {
-        ax = 7;
-        sub_4945D();
-//        jmp loc_4988E
-    }
-
-//loc_4985F:              ; CODE XREF: sub_4955B+2FAj
-    if (byte_519C0 == 1)
-    {
-        ax = 8;
-        sub_4945D();
-//        jmp loc_4988E
-    }
-
-//loc_4986E:              ; CODE XREF: sub_4955B+309j
-    if (byte_519C1 == 1)
-    {
-        ax = 9;
-        sub_4945D();
-//        jmp loc_4988E
-    }
-
-//loc_4987D:              ; CODE XREF: sub_4955B+318j
-    if (byte_519D5 == 1
-        && gIsRecordingDemo != 0)
-    {
-        somethingspsig();
+                    else if (byte_59B7E == 0)
+                    {
+                        byte_59B7E--;
+                        byte_510D7 &= 1;
+                        byte_510D7 = byte_510D7 ^ 1;
+                    }
+                }
+            }
+        }
     }
 
 //loc_4988E:              ; CODE XREF: sub_4955B+1F9j
 //                ; sub_4955B+203j ...
-    if (gIsRecordingDemo != 0)
-    {
-//        jmp loc_49949
-    }
-
-//loc_49898:              ; CODE XREF: sub_4955B+338j
-    if (gIsPlayingDemo != 0)
+    if (gIsRecordingDemo != 0
+        || gIsPlayingDemo != 0)
     {
 //        jmp loc_49949
     }
@@ -8681,41 +8634,40 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     {
         byte_59B7F = 0;
         byte_59B80 = 5;
-//        jmp short loc_498FC
     }
-
 //loc_498B5:              ; CODE XREF: sub_4955B+34Cj
-    if (byte_59B7F != 0)
+    else if (byte_59B7F != 0)
     {
         byte_59B7F--;
-//        jmp short loc_498FC
     }
-
-//loc_498C2:              ; CODE XREF: sub_4955B+35Fj
-    if (byte_59B80 != 0)
+    else
     {
-        byte_59B80--;
-        byte_59B7F = 0x10;
-    }
+//loc_498C2:              ; CODE XREF: sub_4955B+35Fj
+        if (byte_59B80 != 0)
+        {
+            byte_59B80--;
+            byte_59B7F = 0x10;
+        }
 
 //loc_498D2:              ; CODE XREF: sub_4955B+36Cj
-    if (gCurrentSelectedLevelIndex <= 1)
-    {
-        gCurrentSelectedLevelIndex = 2;
-    }
+        if (gCurrentSelectedLevelIndex <= 1)
+        {
+            gCurrentSelectedLevelIndex = 2;
+        }
 
 //loc_498DF:              ; CODE XREF: sub_4955B+37Cj
-    gCurrentSelectedLevelIndex--;
-    if (gCurrentSelectedLevelIndex > kNumberOfLevels)
-    {
-        gCurrentSelectedLevelIndex = kNumberOfLevels;
-    }
+        gCurrentSelectedLevelIndex--;
+        if (gCurrentSelectedLevelIndex > kNumberOfLevels)
+        {
+            gCurrentSelectedLevelIndex = kNumberOfLevels;
+        }
 
 //loc_498F0:              ; CODE XREF: sub_4955B+38Dj
-//    ax = gCurrentSelectedLevelIndex;
-    sub_4BF4A(gCurrentSelectedLevelIndex);
-    drawLevelList();
-    sub_4A3D2();
+        // ax = gCurrentSelectedLevelIndex;
+        sub_4BF4A(gCurrentSelectedLevelIndex);
+        drawLevelList();
+        sub_4A3D2();
+    }
 
 //loc_498FC:              ; CODE XREF: sub_4955B+358j
 //                ; sub_4955B+365j
@@ -8723,35 +8675,34 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     {
         byte_59B81 = 0;
         byte_59B82 = 5;
-//        jmp short loc_49949
     }
-
 //loc_4990F:              ; CODE XREF: sub_4955B+3A6j
-    if (byte_59B81 != 0)
+    else if (byte_59B81 != 0)
     {
         byte_59B81--;
-//        jmp short loc_49949
     }
-
-//loc_4991C:              ; CODE XREF: sub_4955B+3B9j
-    if (byte_59B82 != 0)
+    else
     {
-        byte_59B82--;
-        byte_59B81 = 0x10; // 16
-    }
+//loc_4991C:              ; CODE XREF: sub_4955B+3B9j
+        if (byte_59B82 != 0)
+        {
+            byte_59B82--;
+            byte_59B81 = 0x10; // 16
+        }
 
 //loc_4992C:              ; CODE XREF: sub_4955B+3C6j
-    if (gCurrentSelectedLevelIndex >= kNumberOfLevels)
-    {
-        gCurrentSelectedLevelIndex = kNumberOfLevels;
-    }
+        if (gCurrentSelectedLevelIndex >= kNumberOfLevels)
+        {
+            gCurrentSelectedLevelIndex = kNumberOfLevels;
+        }
 
 //loc_49939:              ; CODE XREF: sub_4955B+3D6j
-    gCurrentSelectedLevelIndex++;
-//    ax = gCurrentSelectedLevelIndex;
-    sub_4BF4A(gCurrentSelectedLevelIndex); // 01ED:2CDD
-    drawLevelList();
-    sub_4A3D2();
+        gCurrentSelectedLevelIndex++;
+    //    ax = gCurrentSelectedLevelIndex;
+        sub_4BF4A(gCurrentSelectedLevelIndex); // 01ED:2CDD
+        drawLevelList();
+        sub_4A3D2();
+    }
 
     // 01ED:2CE6
 //loc_49949:              ; CODE XREF: sub_4955B+E1j
@@ -9194,14 +9145,14 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
             do
             {
 //loc_49CAF:              ; CODE XREF: sub_4955B+759j
-                assert(0); // WTF is this infinite loop???
+                int9handler();
             }
             while (byte_51996 == 0);
 
             do
             {
 //loc_49CB6:              ; CODE XREF: sub_4955B+760j
-                assert(0); // WTF is this infinite loop???
+                int9handler();
             }
             while (byte_51996 == 1);
 //            mov si, 6015h
@@ -9221,7 +9172,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
         do
         {
 //loc_49CDA:              ; CODE XREF: sub_4955B+784j
-            assert(0); // WTF is this infinite loop???
+            int9handler();
         }
         while (byte_519C2 == 1);
 
@@ -9239,6 +9190,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
             else
             {
 //loc_49CF3:              ; CODE XREF: sub_4955B+78Ej
+                // checks for keys pressed
 //                if (bx[0x166D] != 0) // cmp byte ptr [bx+166Dh], 0
 //                {
 //                    si++;
