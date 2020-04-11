@@ -8264,6 +8264,14 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
             }
         }
     }
+    // TODO: remove this whole if, the good one is at the bottom of this function
+    // but I needed something meanwhile to exit the level
+    if (gIsEscapeKeyPressed != 0
+        && word_51978 <= 0)
+    {
+        // This is called when I press ESC to exit the game, but not when I die
+        word_510D1 = 1;
+    }
 
     return; // TODO: remove this
 //loc_49635:              ; CODE XREF: sub_4955B+4Bj
@@ -20992,7 +21000,7 @@ void drawCurrentLevelViewport()
     {
         scrollY = gMurphyPositionY - kScreenHeight / 2;
     }
-    
+
     drawLevelViewport(scrollX, scrollY, kScreenWidth, kScreenHeight);
 }
 
