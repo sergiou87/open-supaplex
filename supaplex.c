@@ -8351,6 +8351,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
         }
     }
 
+    return; // TODO: remove this
 //loc_49635:              ; CODE XREF: sub_4955B+4Bj
 //                ; sub_4955B+55j ...
     if (word_51970 != 1)
@@ -17458,7 +17459,7 @@ uint16_t updateMurphy7(uint16_t position)
         return updateMurphy3(position - 1, someBinaryData_5110E[2]);
     }
 //loc_4E11E:              ; CODE XREF: update?+289j
-    else if (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeBase)
+    else if (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeBase) // 01ED:7634
     {
 //loc_4E41E:              ; CODE XREF: update?+293j
         sound9();
@@ -17472,7 +17473,7 @@ uint16_t updateMurphy7(uint16_t position)
         return updateMurphy3(position - 1, someBinaryData_5110E[9]);
     }
 //loc_4E126:              ; CODE XREF: update?+291j
-    else if (leftTile->tile == LevelTileTypeBug)
+    else if (leftTile->tile == LevelTileTypeBug) // 01ED:763B
     {
 //loc_4E40D:              ; CODE XREF: update?+29Aj
         if (leftTile->movingObject >= 0) // TODO: should movingObject be signed?
@@ -17482,6 +17483,7 @@ uint16_t updateMurphy7(uint16_t position)
         }
 
 //loc_4E418:              ; CODE XREF: update?+582j
+        // 01ED:77B5
         leftTile->movingObject = 0;
         leftTile->tile = LevelTileTypeBase;
 
