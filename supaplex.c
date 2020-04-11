@@ -1098,7 +1098,7 @@ uint8_t gLastMouseCursorAreaBitmap[kLastMouseCursorAreaSize * kLastMouseCursorAr
 
 static const int kConfigDataLength = 4;
 
-uint32_t gTimeOfDay = 0;
+uint16_t gTimeOfDay = 0;
 
 typedef enum
 {
@@ -1946,7 +1946,7 @@ void movefun(uint16_t position);
 //void movefun2(void);
 //void movefun3(void);
 //void movefun4(void);
-//void movefun5(void);
+void updateTerminalTiles(uint16_t position);
 //void movefun6(void);
 //void movefun7(void);
 //void loc_4A543(void);
@@ -1971,7 +1971,7 @@ static const MovingFunction movingFunctions[32] = {
     NULL,
     NULL, //movefun4,
     NULL,
-    NULL, //movefun5,
+    updateTerminalTiles,
     NULL,
     NULL,
     NULL,
@@ -2109,7 +2109,7 @@ void drawMovingFrame(uint16_t srcX, uint16_t srcY, uint16_t destPosition);
 void runLevel(void);
 void slideDownGameDash(void);
 void sub_49EBE(void);
-void sub_4A1AE(void);
+uint16_t sub_4A1AE(void);
 void sub_4955B(void);
 void levelScanThing(void);
 void gameloop(void);
@@ -2120,7 +2120,7 @@ uint16_t updateMurphy4(uint16_t position);
 uint16_t updateMurphy5(uint16_t position);
 uint16_t updateMurphy7(uint16_t position);
 uint16_t updateMurphy8(uint16_t position);
-void updateMurphy6(void);
+void detonateYellowDisks(void);
 void sub_4914A(void);
 void updateUserInput(void);
 void sub_492F1(void);
@@ -2147,6 +2147,7 @@ void sub_4ED29(uint16_t position);
 void sub_4FDB5(uint16_t position);
 void sub_4F2AF(uint16_t position);
 void drawLevelViewport(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
+void drawCurrentLevelViewport();
 void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, uint16_t height, uint16_t dstX, uint16_t dstY);
 
 static const int kWindowWidth = kScreenWidth * 4;
@@ -2785,7 +2786,7 @@ loc_46E75:              //; CODE XREF: start+251j
             resetNumberOfInfotrons();
 //            enableFloppy();
             findMurphy();
-            drawLevelViewport(0, 0, kScreenWidth, kScreenHeight); // Added by me
+            drawCurrentLevelViewport(); // Added by me
 //            si = 0x6015;
             fadeToPalette(gPalettes[1]); // At this point the screen fades in and shows the game
 
@@ -7186,33 +7187,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 //noFlashing4:              ; CODE XREF: runLevel+2D1j
         gNumberOfDotsToShiftDataLeft = ah;
 
-        // TODO: render the right viewport
-        uint16_t scrollX = 0, scrollY = 0;
-        if (gMurphyPositionX < kScreenWidth / 2)
-        {
-            scrollX = 0;
-        }
-        else if (gMurphyPositionX > kLevelBitmapWidth - kScreenWidth / 2)
-        {
-            scrollX = kLevelBitmapWidth - kScreenWidth;
-        }
-        else
-        {
-            scrollX = gMurphyPositionX - kScreenWidth / 2;
-        }
-        if (gMurphyPositionY < kScreenHeight / 2)
-        {
-            scrollY = 0;
-        }
-        else if (gMurphyPositionY > kLevelBitmapHeight - kScreenHeight / 2)
-        {
-            scrollY = kLevelBitmapHeight - kScreenHeight;
-        }
-        else
-        {
-            scrollY = gMurphyPositionY - kScreenHeight / 2;
-        }
-        drawLevelViewport(scrollX, scrollY, kScreenWidth, kScreenHeight); // Added by me
+        drawCurrentLevelViewport(); // Added by me
 
         if (fastMode != 1)
         {
@@ -9454,8 +9429,7 @@ void sub_49EBE() //   proc near       ; CODE XREF: runLevel+109p
     dx = 0;
     if (byte_510C0 != 0)
     {
-        sub_4A1AE();
-        dx = ax;
+        dx = sub_4A1AE();
     }
 
 //loc_49ECC:              ; CODE XREF: sub_49EBE+7j
@@ -9810,108 +9784,60 @@ loc_4A0C6:              ; CODE XREF: movefun7+91j
         pop ds
         return;
 movefun7  endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-movefun5  proc near       ; DATA XREF: data:1630o
-        cmp byte ptr leveldata[si], 13h
-        jz  short loc_4A0DA
-        return;
-
-loc_4A0DA:              ; CODE XREF: movefun5+5j
-        mov bl, [si+1835h]
-        inc bl
-        cmp bl, 0
-        jg  short loc_4A0EA
-        mov [si+1835h], bl
-        return;
-
-loc_4A0EA:              ; CODE XREF: movefun5+11j
-        call    sub_4A1AE
-        and al, byte_5196A
-        neg al
-        mov bl, al
-        mov [si+1835h], bl
-        mov di, [si+6155h]
-        mov si, di
-        add di, 4C4h
-        add si, 0F4h ; '?'
-        push    ds
-        mov ax, es
-        mov ds, ax
-        push    si
-        push(di);
-        movsb
-        add di, 0FC2Fh
-        add si, 79h ; 'y'
-        movsb
-        add di, 79h ; 'y'
-        add si, 79h ; 'y'
-        movsb
-        add di, 79h ; 'y'
-        add si, 79h ; 'y'
-        movsb
-        add di, 79h ; 'y'
-        add si, 79h ; 'y'
-        movsb
-        add di, 79h ; 'y'
-        add si, 79h ; 'y'
-        movsb
-        add di, 79h ; 'y'
-        add si, 79h ; 'y'
-        movsb
-        add di, 79h ; 'y'
-        add si, 79h ; 'y'
-        movsb
-        add di, 79h ; 'y'
-        add si, 79h ; 'y'
-        movsb
-        add di, 79h ; 'y'
-        add si, 79h ; 'y'
-        movsb
-        add di, 79h ; 'y'
-        add si, 79h ; 'y'
-        pop(di);
-        pop si
-        inc si
-        inc di
-        movsb
-        add di, 0FC2Fh
-        add si, 79h ; 'y'
-        movsb
-        add di, 79h ; 'y'
-        add si, 79h ; 'y'
-        movsb
-        add di, 79h ; 'y'
-        add si, 79h ; 'y'
-        movsb
-        add di, 79h ; 'y'
-        add si, 79h ; 'y'
-        movsb
-        add di, 79h ; 'y'
-        add si, 79h ; 'y'
-        movsb
-        add di, 79h ; 'y'
-        add si, 79h ; 'y'
-        movsb
-        add di, 79h ; 'y'
-        add si, 79h ; 'y'
-        movsb
-        add di, 79h ; 'y'
-        add si, 79h ; 'y'
-        movsb
-        add di, 79h ; 'y'
-        add si, 79h ; 'y'
-        movsb
-        add di, 79h ; 'y'
-        add si, 79h ; 'y'
-        pop ds
-        return;
-movefun5  endp
-
 */
+void updateTerminalTiles(uint16_t position) // movefun5  proc near       ; DATA XREF: data:1630o
+{
+    MovingLevelTile *currentTile = &gCurrentLevelWord[position];
+
+    if (currentTile->tile != LevelTileTypeTerminal)
+    {
+        return;
+    }
+
+//loc_4A0DA:              ; CODE XREF: updateTerminalTiles+5j
+    int8_t movingObject = currentTile->movingObject;
+    movingObject++;
+    if (movingObject <= 0)
+    {
+        currentTile->movingObject = movingObject;
+        return;
+    }
+
+//loc_4A0EA:              ; CODE XREF: updateTerminalTiles+11j
+    uint8_t value = sub_4A1AE() & 0xFF;
+    value &= byte_5196A;
+    value = ~value;
+    currentTile->movingObject = value;
+
+    // This code basically simulates a scroll effect in the terminal:
+    // copies the row 2 in the row 10, and then row 3 in 2, 4 in 3...
+    //
+    uint16_t tileX = (position % kLevelWidth) - 1;
+    uint16_t tileY = (position / kLevelWidth) - 1;
+
+    uint16_t x = kLevelEdgeSize + tileX * kTileSize;
+    uint16_t y = kLevelEdgeSize + tileY * kTileSize;
+
+    uint32_t source = 0;
+    uint32_t dest = 0;
+
+    source = dest = y * kLevelBitmapWidth + x;
+
+    dest += kLevelBitmapWidth * 10;
+    source += kLevelBitmapWidth * 2;
+    memcpy(&gLevelBitmapData[dest], &gLevelBitmapData[source], kTileSize);
+
+    dest -= kLevelBitmapWidth * 8;
+    source += kLevelBitmapWidth;
+
+    for (int i = 0; i < 9; ++i)
+    {
+        memcpy(&gLevelBitmapData[dest], &gLevelBitmapData[source], kTileSize);
+        dest += kLevelBitmapWidth;
+        source += kLevelBitmapWidth;
+    }
+}
+
 void getTime() //     proc near       ; CODE XREF: start:doesNotHaveCommandLinep
                     // ; sub_4955B+669p ...
 {
@@ -9923,18 +9849,27 @@ void getTime() //     proc near       ; CODE XREF: start:doesNotHaveCommandLine
 //                    ; Otherwise, AL > 0
 //    xor cx, dx
 //    mov gTimeOfDay, cx
-    gTimeOfDay = (uint32_t)time(NULL);
+    Uint32 timeInMilliseconds = SDL_GetTicks();
+    // In order to keep the same behavior and values, this code will convert
+    // the time in milliseconds to the clock count, as described in
+    // http://vitaly_filatov.tripod.com/ng/asm/asm_029.1.html
+    // If 1 second is 18.2 clock counts, we need to divide the time
+    // by 1000 to get the seconds, and then multiply by 18.2.
+    //
+    uint32_t clockCount = timeInMilliseconds * 18.2 / 1000;
+    uint16_t lowValue = (clockCount & 0xFFFF);
+    uint16_t highValue = ((clockCount >> 16) & 0xFFFF);
+    gTimeOfDay = highValue ^ lowValue;
 }
 
-void sub_4A1AE() //   proc near       ; CODE XREF: sub_4955B+66Cp
+uint16_t sub_4A1AE() //   proc near       ; CODE XREF: sub_4955B+66Cp
                    // ; sub_49EBE+9p ...
 {
-    ax = gTimeOfDay;
-    bx = 0x5E5; // 1509
-    ax = ax * bx;
-    ax += 0x31; // '1' or 49
-    gTimeOfDay = ax;
-    ax = ax / 2;
+    uint16_t someValue = gTimeOfDay;
+    someValue *= 0x5E5; // 1509
+    someValue += 0x31; // '1' or 49
+    gTimeOfDay = someValue;
+    return someValue / 2;
 }
 
 void updateUserInput() // sub_4A1BF   proc near       ; CODE XREF: sub_4955B+13p
@@ -16763,7 +16698,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //            si = kTerminalOnSpriteCoordinates;
             drawMovingFrame(256, 388, position - kLevelWidth);
         //    pop si
-            updateMurphy6();
+            detonateYellowDisks();
             return position;
         }
 //loc_4E282:              ; CODE XREF: update?+3EDj
@@ -16868,7 +16803,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //            si = kTerminalOnSpriteCoordinates;
             drawMovingFrame(256, 388, position - 1);
         //    pop si
-            updateMurphy6();
+            detonateYellowDisks();
             return position;
         }
 //loc_4E2B2:              ; CODE XREF: update?+41Dj
@@ -16972,7 +16907,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //            si = kTerminalOnSpriteCoordinates;
             drawMovingFrame(256, 388, position + kLevelWidth);
         //    pop si
-            updateMurphy6();
+            detonateYellowDisks();
             return position;
         }
 //loc_4E2DC:              ; CODE XREF: update?+447j
@@ -17095,7 +17030,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
             drawMovingFrame(256, 388, position + 1);
         //    pop si
 
-            updateMurphy6();
+            detonateYellowDisks();
             return position;
         }
     }
@@ -17300,7 +17235,7 @@ uint16_t updateMurphy8(uint16_t position)
 //        si = kTerminalOnSpriteCoordinates;
         drawMovingFrame(256, 388, position - kLevelWidth);
     //    pop si
-        updateMurphy6();
+        detonateYellowDisks();
         return position;
     }
 //loc_4E0DC:              ; CODE XREF: update?+247j
@@ -17529,7 +17464,7 @@ uint16_t updateMurphy7(uint16_t position)
 //        si = kTerminalOnSpriteCoordinates;
         drawMovingFrame(256, 388, position - 1);
     //    pop si
-        updateMurphy6();
+        detonateYellowDisks();
         return position;
     }
 //loc_4E14C:              ; CODE XREF: update?+2B7j
@@ -17791,7 +17726,7 @@ uint16_t updateMurphy5(uint16_t position)
 //        si = kTerminalOnSpriteCoordinates;
         drawMovingFrame(256, 388, position + kLevelWidth);
     //    pop si
-        updateMurphy6();
+        detonateYellowDisks();
         return position;
     }
 //loc_4E1B8:              ; CODE XREF: update?+323j
@@ -18033,7 +17968,7 @@ uint16_t updateMurphy4(uint16_t position)
         drawMovingFrame(256, 388, position + 1);
     //    pop si
 
-        updateMurphy6();
+        detonateYellowDisks();
         return position;
     }
 //loc_4E228:              ; CODE XREF: update?+393j
@@ -19219,14 +19154,11 @@ uint16_t updateMurphy2(uint16_t position)
     }
 }
 
-void updateMurphy6()
+void detonateYellowDisks()
 {
 //loc_4E7B8:              ; CODE XREF: update?+8AAj update?+8D4j ...
     byte_5196A = 7;
     byte_5196B = 1;
-//    push    si
-    si = 0;
-//    mov cx, 5A0h // 1440
 
     for (int i = 0; i < kLevelSize; ++i)
     {
@@ -19237,7 +19169,6 @@ void updateMurphy6()
             sub_4A61F(i);
         }
     }
-//    pop si
 }
 
 void sub_4ED29(uint16_t position) //   proc near       ; CODE XREF: update?+E6Fp update?+E92p
@@ -21028,6 +20959,37 @@ void drawLevelViewport(uint16_t x, uint16_t y, uint16_t width, uint16_t height)
             gScreenPixels[y * kScreenWidth + x] = gLevelBitmapData[(scrollY + y) * kLevelBitmapWidth + x + scrollX];
         }
     }
+}
+
+void drawCurrentLevelViewport()
+{
+    uint16_t scrollX = 0, scrollY = 0;
+    if (gMurphyPositionX < kScreenWidth / 2)
+    {
+        scrollX = 0;
+    }
+    else if (gMurphyPositionX > kLevelBitmapWidth - kScreenWidth / 2)
+    {
+        scrollX = kLevelBitmapWidth - kScreenWidth;
+    }
+    else
+    {
+        scrollX = gMurphyPositionX - kScreenWidth / 2;
+    }
+    if (gMurphyPositionY < kScreenHeight / 2)
+    {
+        scrollY = 0;
+    }
+    else if (gMurphyPositionY > kLevelBitmapHeight - kScreenHeight / 2)
+    {
+        scrollY = kLevelBitmapHeight - kScreenHeight;
+    }
+    else
+    {
+        scrollY = gMurphyPositionY - kScreenHeight / 2;
+    }
+    
+    drawLevelViewport(scrollX, scrollY, kScreenWidth, kScreenHeight);
 }
 
 void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, uint16_t height, uint16_t dstX, uint16_t dstY)
