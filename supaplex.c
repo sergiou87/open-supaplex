@@ -1031,7 +1031,7 @@ uint16_t word_51967 = 0;
 uint16_t word_5196C = 0;
 uint16_t word_51970 = 0;
 uint16_t word_51974 = 0;
-uint16_t word_51978 = 0;
+uint16_t gQuitLevelCountdown = 0; // word_51978 -> this is a counter to end the level after certain number of iterations (to let the game progress a bit before going back to the menu)
 uint16_t word_5197A = 0;
 uint16_t word_519A9 = 0;
 uint16_t word_51A01 = 0;
@@ -6701,7 +6701,7 @@ void sub_48A20() //   proc near       ; CODE XREF: start+32Fp
     word_510CB = 0;
     word_510D1 = 0;
     word_51974 = 0;
-    word_51978 = 0;
+    gQuitLevelCountdown = 0;
     byte_5195C = 0;
     byte_5197C = 0;
     word_510CD = 0;
@@ -6792,7 +6792,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 //loc_48B23:              ; CODE XREF: runLevel+63j
         getMouseStatus(NULL, NULL, &mouseButtonsStatus);
         if (mouseButtonsStatus == 2
-            && word_51978 <= 0)
+            && gQuitLevelCountdown <= 0)
         {
             word_510D1 = 1;
         }
@@ -7240,15 +7240,15 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         {
             break;
         }
-        if (word_51978 == 0) // 01ED:218D
+        if (gQuitLevelCountdown == 0) // 01ED:218D
         {
             continue;
         }
 
 //loc_48DFA:              ; CODE XREF: runLevel+33Aj
         // 01ED:2197
-        word_51978--;
-        if (word_51978 == 0)
+        gQuitLevelCountdown--;
+        if (gQuitLevelCountdown == 0)
         {
             break;
         }
@@ -7789,7 +7789,7 @@ void sub_492A8() //   proc near       ; CODE XREF: sub_4955B+27p
 //    assume es:nothing
     if (al == 0xFF)
     {
-        word_51978 = 0x64;
+        gQuitLevelCountdown = 0x64;
         word_51974 = 1;
     }
     else
@@ -8267,7 +8267,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     // TODO: remove this whole if, the good one is at the bottom of this function
     // but I needed something meanwhile to exit the level
     if (gIsEscapeKeyPressed != 0
-        && word_51978 <= 0)
+        && gQuitLevelCountdown <= 0)
     {
         // This is called when I press ESC to exit the game, but not when I die
         word_510D1 = 1;
@@ -9143,7 +9143,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 
 //loc_49D15:              ; CODE XREF: sub_4955B+772j
     if (gIsEscapeKeyPressed != 0
-        && word_51978 <= 0)
+        && gQuitLevelCountdown <= 0)
     {
         // This is called when I press ESC to exit the game, but not when I die
         word_510D1 = 1; // 01ED:30C0
@@ -9403,7 +9403,7 @@ void gameloop() //   proc near       ; CODE XREF: runLevel:noFlashingp
 //    out dx, al
 //    inc dx
 //    al = 0
-//    out dx, al
+//    out dx,
 
     // 01ED:3227
     if (word_510D1 != 1
@@ -9414,13 +9414,13 @@ void gameloop() //   proc near       ; CODE XREF: runLevel:noFlashingp
 
 //loc_49E99:              ; CODE XREF: gameloop+AFj
 //                ; gameloop+B6j
-    if (word_51978 == 0) // 01ED:3236
+    if (gQuitLevelCountdown == 0) // 01ED:3236
     {
         // 01ED:323D
         word_510D1 = 0;
 //        si = word_510C7;
         sub_4A61F(word_510C7); // could use gMurphyLocation too?
-        word_51978 = 0x40; // 64
+        gQuitLevelCountdown = 0x40; // 64
     }
 
 //loc_49EB3:
@@ -9606,7 +9606,7 @@ void sub_49EBE() //   proc near       ; CODE XREF: runLevel+109p
 //                ; sub_49EBE+BDj ...
     if (byte_59B72 != 0
         || (byte_59B6D == 0
-            && (word_51978 & 0xFF) != 0))
+            && (gQuitLevelCountdown & 0xFF) != 0))
     {
 //loc_49FBE:              ; CODE XREF: sub_49EBE+F0j
         cx = 0;
@@ -17217,7 +17217,7 @@ uint16_t updateMurphy8(uint16_t position)
 
 //loc_4E6A4:              ; CODE XREF: update?+803j update?+80Aj
         changePlayerCurrentLevelState();
-        word_51978 = 0x40;
+        gQuitLevelCountdown = 0x40;
     //    pop si
 //        dx = 0x0E5E;
         murphyTile->movingObject = 0xD;
@@ -17424,7 +17424,7 @@ uint16_t updateMurphy7(uint16_t position)
 
 //loc_4E6A4:              ; CODE XREF: update?+803j update?+80Aj
         changePlayerCurrentLevelState();
-        word_51978 = 0x40;
+        gQuitLevelCountdown = 0x40;
     //    pop si
 //        dx = 0x0E5E;
         murphyTile->movingObject = 0xD;
@@ -17709,7 +17709,7 @@ uint16_t updateMurphy5(uint16_t position)
 
 //loc_4E6A4:              ; CODE XREF: update?+803j update?+80Aj
         changePlayerCurrentLevelState();
-        word_51978 = 0x40;
+        gQuitLevelCountdown = 0x40;
     //    pop si
 //        dx = 0x0E5E;
         murphyTile->movingObject = 0xD;
@@ -17920,7 +17920,7 @@ uint16_t updateMurphy4(uint16_t position)
 
 //loc_4E6A4:              ; CODE XREF: update?+803j update?+80Aj
         changePlayerCurrentLevelState();
-        word_51978 = 0x40;
+        gQuitLevelCountdown = 0x40;
     //    pop si
 //        dx = 0x0E5E;
         murphyTile->movingObject = 0xD;
