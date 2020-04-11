@@ -7240,12 +7240,13 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         {
             break;
         }
-        if (word_51978 == 0)
+        if (word_51978 == 0) // 01ED:218D
         {
             continue;
         }
 
 //loc_48DFA:              ; CODE XREF: runLevel+33Aj
+        // 01ED:2197
         word_51978--;
         if (word_51978 == 0)
         {
@@ -9387,6 +9388,7 @@ void gameloop() //   proc near       ; CODE XREF: runLevel:noFlashingp
     }
 
 //doneWithGameLoop:
+    // 01ED:321D
 //    ; set graphics write mode = 0
 //    mov dx, 3CEh
 //    al = 5
@@ -9395,6 +9397,7 @@ void gameloop() //   proc near       ; CODE XREF: runLevel:noFlashingp
 //    al = 0
 //    out dx, al
 
+    // 01ED:3227
     if (word_510D1 != 1
         && word_510CF != 0)
     {
@@ -9403,8 +9406,9 @@ void gameloop() //   proc near       ; CODE XREF: runLevel:noFlashingp
 
 //loc_49E99:              ; CODE XREF: gameloop+AFj
 //                ; gameloop+B6j
-    if (word_51978 == 0)
+    if (word_51978 == 0) // 01ED:3236
     {
+        // 01ED:323D
         word_510D1 = 0;
 //        si = word_510C7;
         sub_4A61F(word_510C7); // could use gMurphyLocation too?
@@ -10714,7 +10718,7 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     }
 
 //loc_4A724:              ; CODE XREF: sub_4A61F+FCj
-    if (aboveRightTile->tile != LevelTileTypeMurphy)
+    if (aboveRightTile->tile == LevelTileTypeMurphy)
     {
         word_510D1 = 1;
 
