@@ -1005,7 +1005,7 @@ AnimationFrameCoordinates frameCoordinates_5142E[15] = {
 
 uint16_t word_5157A = 0x4A62; // (64, 132) ??
 uint16_t word_5157C = 0x0502;
-uint16_t word_5157E = 0x4A80; // still frame: (304, 132)
+uint16_t kMurphyStillSpriteCoordinates = 0x4A80; // word_5157E -> (304, 132)
 uint16_t word_51580 = 0x1AB2; // (0, 32)
 uint16_t word_515A2 = 0x32A2; // (224, 82) ??
 uint16_t word_51790 = 0x4A7E; // (288, 132)
@@ -1013,7 +1013,7 @@ uint16_t word_51840 = 0x2A06; // (160, 64)
 uint16_t word_51842 = 0x132C; // (208, 16) confirmed
 uint16_t word_51844 = 0x2A08; // (176, 64)
 uint16_t word_51846 = 0x132A; // (192, 16)
-uint16_t word_51848 = 0x2A62; // (256, 388) I don't get the math for this one, but the coordinates are right
+uint16_t kTerminalOnSpriteCoordinates = 0x2A62; // word_51848 -> (256, 388) I don't get the math for this one, but the coordinates are right
 uint16_t word_5184A = 0x2A66; // (
 uint16_t word_5184C = 0x2A67; // (
 uint16_t word_5184E = 0x2E36; // (
@@ -6876,6 +6876,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         }
 
 //noFlashing3:              ; CODE XREF: runLevel+F1j
+        // 01ED:1F5B
         sub_4A910();
         sub_4A5E0();
         sub_49EBE();
@@ -7009,9 +7010,9 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         {
 
 //loc_48C9A:              ; CODE XREF: runLevel+1DAj
-            cx = 6;
-            cl -= gameSpeed;
-            if (cl <= 0)
+            int8_t numberOfVideoLoopIterations = 6;
+            numberOfVideoLoopIterations -= gameSpeed;
+            if (numberOfVideoLoopIterations <= 0)
             {
                 al = gameSpeed;
                 byte_59B95++;
@@ -7024,7 +7025,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
                 {
 //loc_48CB5:              ; CODE XREF: runLevel+1F5j
                     byte_59B95 = 0;
-                    cx = 1;
+                    numberOfVideoLoopIterations = 1;
                 }
             }
 
@@ -7033,30 +7034,32 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 //loc_48CBD:              ; CODE XREF: runLevel+1E6j
                 // push    bx
 
+                // Is this loop the shake effect??
                 do
                 {
 //loc_48CBE:              ; CODE XREF: runLevel+29Aj
-                    dx = word_5195F;
-                    dx -= word_59B90;
-                    if (dx <= 0x10
-                        && dx >= 0xFFF0)
+                    int16_t someValue = word_5195F;
+                    someValue -= word_59B90;
+                    if (someValue <= 0x10
+                        && someValue >= -0x10) // 0xFFF0 = -0x10?? or -0xF??
                     {
-                        ax = word_51961;
-                        ax -= word_59B92;
-                        if (ax <= 0x10
-                            && ax >= 0xFFF0)
+                        int16_t someOtherValue = word_51961;
+                        someOtherValue -= word_59B92;
+                        if (someOtherValue <= 0x10
+                            && someOtherValue >= -0x10) // 0xFFF0 = -0x10?? or -0xF??
                         {
                             // push(cx);
-                            cx++;
+                            int8_t otherNumberOfVideoLoopIterations = numberOfVideoLoopIterations;
+                            otherNumberOfVideoLoopIterations++;
                             // idiv    cl -> signed division
-                            al = ax / cl;
-                            ah = ax % cl;
+                            al = someOtherValue / otherNumberOfVideoLoopIterations;
+                            ah = someOtherValue % otherNumberOfVideoLoopIterations;
                             uint8_t topBit = ah >> 7;
                             ah = ah << 1;
                             if (topBit != 0) // jnb -> cf==0 -> in shl, cf will be the MSB of the operand
                             {
 //loc_48CF3:              ; CODE XREF: runLevel+22Cj
-                                if (ah >= cl)
+                                if (ah >= otherNumberOfVideoLoopIterations)
                                 {
                                     al++;
                                 }
@@ -7064,7 +7067,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
                             else
                             {
                                 ah = -ah;
-                                if (ah >= cl)
+                                if (ah >= otherNumberOfVideoLoopIterations)
                                 {
                                     al--;
                                 }
@@ -7074,16 +7077,16 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         //                ; runLevel+236j ...
                             // cbw
                             word_59B92 += ax;
-                            ax = dx;
+                            ax = someValue;
                             // idiv    cl -> signed division
-                            al = ax / cl;
-                            ah = ax % cl;
+                            al = ax / otherNumberOfVideoLoopIterations;
+                            ah = ax % otherNumberOfVideoLoopIterations;
                             uint8_t topBit2 = ah >> 7;
                             ah = ah << 1;
                             if (topBit2 != 0) // jnb -> cf==0 -> in shl, cf will be the MSB of the operand
                             {
 //loc_48D10:              ; CODE XREF: runLevel+249j
-                                if (ah >= cl)
+                                if (ah >= otherNumberOfVideoLoopIterations)
                                 {
                                     al++;
                                 }
@@ -7091,7 +7094,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
                             else
                             {
                                 ah = -ah;
-                                if (ah >= cl)
+                                if (ah >= otherNumberOfVideoLoopIterations)
                                 {
                                     al--;
                                 }
@@ -7132,11 +7135,11 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         //        inc dx
         //        al = bh
         //        out dx, al      ; Video: CRT controller internal registers
-                    videoloop();
+                    videoloop(); // 01ED:20E9
                     loopForVSync();
-                    cx--;
+                    numberOfVideoLoopIterations--;
                 }
-                while (cx != 0);
+                while (numberOfVideoLoopIterations != 0);
 
 //loc_48D58:              ; CODE XREF: runLevel+298j
                 // pop bx
@@ -7213,7 +7216,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 
         if (fastMode != 1)
         {
-            videoloop();
+            videoloop(); // 01ED:2142
         }
 
 //isFastMode2:              ; CODE XREF: runLevel+2E8j
@@ -7233,7 +7236,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
             if (fastMode != 1)
             {
                 loopForVSync();
-                videoloop();
+                videoloop(); // 01ED:2160
             }
 
 //isFastMode3:              ; CODE XREF: runLevel+303j
@@ -10062,7 +10065,7 @@ void sub_4A291() //   proc near       ; CODE XREF: sub_4955B+686p
     gMurphyPositionX = gMurphyTileX * kTileSize;
     gMurphyPositionY = gMurphyTileY * kTileSize;
 //    di = si[0x6155];
-//    si = word_5157E;
+//    si = kMurphyStillSpriteCoordinates;
     drawMovingFrame(304, 132, gMurphyLocation);
     sub_49EBE();
     ax = word_51961;
@@ -16514,7 +16517,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
         {
     //        push    si
     //        mov di, [si+6155h]
-            si = word_5157E;
+            si = kMurphyStillSpriteCoordinates;
             drawMovingFrame(304, 132, position);
     //        pop si
             return position;
@@ -16757,7 +16760,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4E72D:              ; CODE XREF: update?+894j
         //    push    si
         //    mov di, [si+60DDh]
-            si = word_51848;
+//            si = kTerminalOnSpriteCoordinates;
             drawMovingFrame(256, 388, position - kLevelWidth);
         //    pop si
             updateMurphy6();
@@ -16862,8 +16865,8 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4E757:              ; CODE XREF: update?+8BEj
         //    push    si
         //    mov di, [si+6153h]
-            si = word_51848;
-            drawMovingFrame(256, 388, position + 1);
+//            si = kTerminalOnSpriteCoordinates;
+            drawMovingFrame(256, 388, position - 1);
         //    pop si
             updateMurphy6();
             return position;
@@ -16966,7 +16969,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4E781:              ; CODE XREF: update?+8E8j
         //    push    si
         //    mov di, [si+61CDh]
-            si = word_51848;
+//            si = kTerminalOnSpriteCoordinates;
             drawMovingFrame(256, 388, position + kLevelWidth);
         //    pop si
             updateMurphy6();
@@ -17088,8 +17091,8 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4E7AB:              ; CODE XREF: update?+912j
         //    push    si
         //    mov di, [si+6157h]
-            si = word_51848;
-            drawMovingFrame(304, 132, position + 1); // TODO: fix coordinates
+//            si = kTerminalOnSpriteCoordinates;
+            drawMovingFrame(256, 388, position + 1);
         //    pop si
 
             updateMurphy6();
@@ -17294,8 +17297,7 @@ uint16_t updateMurphy8(uint16_t position)
 //loc_4E72D:              ; CODE XREF: update?+894j
     //    push    si
     //    mov di, [si+60DDh]
-        si = word_51848;
-        // renders the terminal with the buttons on
+//        si = kTerminalOnSpriteCoordinates;
         drawMovingFrame(256, 388, position - kLevelWidth);
     //    pop si
         updateMurphy6();
@@ -17524,7 +17526,7 @@ uint16_t updateMurphy7(uint16_t position)
 //loc_4E757:              ; CODE XREF: update?+8BEj
     //    push    si
     //    mov di, [si+6153h]
-//        si = word_51848;
+//        si = kTerminalOnSpriteCoordinates;
         drawMovingFrame(256, 388, position - 1);
     //    pop si
         updateMurphy6();
@@ -17786,7 +17788,7 @@ uint16_t updateMurphy5(uint16_t position)
 //loc_4E781:              ; CODE XREF: update?+8E8j
     //    push    si
     //    mov di, [si+61CDh]
-//        si = word_51848;
+//        si = kTerminalOnSpriteCoordinates;
         drawMovingFrame(256, 388, position + kLevelWidth);
     //    pop si
         updateMurphy6();
@@ -18027,8 +18029,8 @@ uint16_t updateMurphy4(uint16_t position)
 //loc_4E7AB:              ; CODE XREF: update?+912j
     //    push    si
     //    mov di, [si+6157h]
-        si = word_51848;
-        drawMovingFrame(256, 388, position + 1); // TODO: fix coordinates
+//        si = kTerminalOnSpriteCoordinates;
+        drawMovingFrame(256, 388, position + 1);
     //    pop si
 
         updateMurphy6();
@@ -18970,7 +18972,7 @@ uint16_t updateMurphy2(uint16_t position)
 //loc_4ED73:              ; CODE XREF: update?+EDBj
     //    push    si
     //    mov di, [si+6155h]
-        si = word_5157E;
+        si = kMurphyStillSpriteCoordinates;
         drawMovingFrame(304, 132, position); // TODO: fix coordinates
     //    pop si
         return position;
@@ -18999,7 +19001,7 @@ uint16_t updateMurphy2(uint16_t position)
 //loc_4EDAB:              ; CODE XREF: update?+F13j
     //    push    si
     //    mov di, [si+6155h]
-        si = word_5157E;
+        si = kMurphyStillSpriteCoordinates;
         drawMovingFrame(304, 132, position); // TODO: fix coordinates
     //    pop si
         return position;
@@ -19028,7 +19030,7 @@ uint16_t updateMurphy2(uint16_t position)
 //loc_4EDE3:              ; CODE XREF: update?+F4Bj
     //    push    si
     //    mov di, [si+6155h]
-        si = word_5157E;
+        si = kMurphyStillSpriteCoordinates;
         drawMovingFrame(304, 132, position); // TODO: fix coordinates
     //    pop si
         return position;
@@ -19057,7 +19059,7 @@ uint16_t updateMurphy2(uint16_t position)
 //loc_4EE1B:              ; CODE XREF: update?+F83j
     //    push    si
     //    mov di, [si+6155h]
-        si = word_5157E;
+        si = kMurphyStillSpriteCoordinates;
         drawMovingFrame(304, 132, position); // TODO: fix coordinates
     //    pop si
         return position;
@@ -19086,7 +19088,7 @@ uint16_t updateMurphy2(uint16_t position)
 //loc_4EE53:              ; CODE XREF: update?+FBBj
     //    push    si
     //    mov di, [si+6155h]
-        si = word_5157E;
+        si = kMurphyStillSpriteCoordinates;
         drawMovingFrame(304, 132, position); // TODO: fix coordinates
     //    pop si
         return position;
@@ -19115,7 +19117,7 @@ uint16_t updateMurphy2(uint16_t position)
 //loc_4EE8B:              ; CODE XREF: update?+FF3j
     //    push    si
     //    mov di, [si+6155h]
-        si = word_5157E;
+        si = kMurphyStillSpriteCoordinates;
         drawMovingFrame(304, 132, position); // TODO: fix coordinates
     //    pop si
         return position;
@@ -19145,7 +19147,7 @@ uint16_t updateMurphy2(uint16_t position)
 //loc_4EEC3:              ; CODE XREF: update?+102Bj
     //    push    si
     //    mov di, [si+6155h]
-        si = word_5157E;
+        si = kMurphyStillSpriteCoordinates;
         drawMovingFrame(304, 132, position); // TODO: fix coordinates
     //    pop si
         return position;
@@ -19175,7 +19177,7 @@ uint16_t updateMurphy2(uint16_t position)
 //loc_4EEFB:              ; CODE XREF: update?+1063j
     //    push    si
     //    mov di, [si+6155h]
-        si = word_5157E;
+        si = kMurphyStillSpriteCoordinates;
         drawMovingFrame(304, 132, position); // TODO: fix coordinates
     //    pop si
         return position;
@@ -19205,7 +19207,7 @@ uint16_t updateMurphy2(uint16_t position)
         murphyTile->movingObject = 0;
         murphyTile->tile = LevelTileTypeMurphy;
     //    mov di, [si+6155h]
-        si = word_5157E;
+        si = kMurphyStillSpriteCoordinates;
         drawMovingFrame(304, 132, position); // TODO: fix coordinates
         byte_510DB = 0;
     //    pop si
