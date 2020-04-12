@@ -5919,6 +5919,7 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
 
 //loc_48078:              ; CODE XREF: movefun+B3j
 //                ; movefun+475j
+        // This animates the Zonk falling
         // 01ED:1415
         uint8_t somePositionThing = movingObject;
         somePositionThing *= 2;
@@ -5954,6 +5955,8 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
         }
 
 //loc_480C5:              ; CODE XREF: movefun+12Ej
+        // This part handles what to do when the zonk finished falling 1 tile
+        // 01ED:1462
         currentTile->movingObject = 0;
         if (byte_51035 == 2)
         {
@@ -6745,6 +6748,7 @@ void sub_487FE(uint16_t position) //   proc near       ; CODE XREF: update?+E0C
 void sub_488DC(uint16_t position) //   proc near       ; CODE XREF: movefun+124p
                    // ; movefun+2C6p ...
 {
+    // 01ED:1C79
     MovingLevelTile *currentTile = &gCurrentLevelWord[position];
     MovingLevelTile *aboveTile = &gCurrentLevelWord[position - kLevelWidth];
     MovingLevelTile *leftTile = &gCurrentLevelWord[position - 1];
@@ -6755,6 +6759,7 @@ void sub_488DC(uint16_t position) //   proc near       ; CODE XREF: movefun+124
 
     if (currentTile->tile != LevelTileTypeHardware5)
     {
+        currentTile->movingObject = 0;
         currentTile->tile = LevelTileTypeSpace;
     }
 
