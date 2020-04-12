@@ -770,7 +770,7 @@ typedef struct
 
 typedef struct
 {
-    Point coordinates[40];
+    Point coordinates[105];
     uint8_t numberOfCoordinates;
 } AnimationFrameCoordinates;
 
@@ -1003,26 +1003,345 @@ AnimationFrameCoordinates frameCoordinates_5142E[15] = {
     },
 };
 
-uint16_t word_5157A = 0x4A62; // (64, 132) ??
-uint16_t word_5157C = 0x0502;
-uint16_t kMurphyStillSpriteCoordinates = 0x4A80; // word_5157E -> (304, 132)
-uint16_t word_51580 = 0x1AB2; // (0, 32)
-uint16_t word_515A2 = 0x32A2; // (224, 82) ??
-uint16_t word_51790 = 0x4A7E; // (288, 132)
-uint16_t word_51840 = 0x2A06; // (160, 64)
-uint16_t word_51842 = 0x132C; // (208, 16) confirmed
-uint16_t word_51844 = 0x2A08; // (176, 64)
-uint16_t word_51846 = 0x132A; // (192, 16)
-uint16_t kTerminalOnSpriteCoordinates = 0x2A62; // word_51848 -> (256, 388) I don't get the math for this one, but the coordinates are right
-uint16_t word_5184A = 0x2A66; // (
-uint16_t word_5184C = 0x2A67; // (
-uint16_t word_5184E = 0x2E36; // (
-uint16_t word_51850 = 0x2E37; // (
-uint16_t word_51852 = 0x2A68; // (
-uint16_t word_51854 = 0x2A69; // (
-uint16_t word_51856 = 0x2E38; // (
-uint16_t word_51858 = 0x2E39; // (
-uint16_t word_5195D = 0xF000; // (
+uint16_t word_5157A = 0x4A62; // -> 0x126A -> (64, 132) ??
+uint16_t word_5157C = 0x0502; // -> 0x126C ->
+uint16_t kMurphyStillSpriteCoordinates = 0x4A80; // word_5157E -> 0x126E -> (304, 132)
+uint16_t word_51580 = 0x1AB2; // -> 0x1270 -> (0, 32)
+uint8_t binaryData_51582[2] = {
+    0x40, // -> 0x1272
+    0x3B,
+};
+
+uint16_t binaryData_51584[11] = {
+    0x1BEE, // -> 0x1274
+    0x1BF0, // -> 0x1276
+    0x1BF2, // -> 0x1278
+    0x1BF4, // -> 0x127A
+    0x1BF2, // -> 0x127C
+    0x1BF0, // -> 0x127E
+    0x1BF2, // -> 0x1280
+    0x1BF4, // -> 0x1282
+    0x1BF2, // -> 0x1284
+    0x1BF0, // -> 0x1286
+    0x1BEE, // -> 0x1288
+};
+
+uint8_t binaryData_5159A[8] = {
+    0x40, // -> 0x128A
+    0x3B, // -> 0x128B
+    0x18, // -> 0x128C
+    0x2A, // -> 0x128D
+    0x18, // -> 0x128E
+    0x2A, // -> 0x128F
+    0x96, // -> 0x1290
+    0x33, // -> 0x1291
+};
+
+uint16_t word_515A2 = 0x32A2; // -> 0x1292 -> (224, 82) ??
+
+// Zonk frame coordinates
+Point kZonkSlideLeftAnimationFrameCoordinates[8] = { // binaryData_515A4
+    { 0, 84 }, // 0x337A -> 0x1294
+    { 32, 84 }, // 0x337E -> 0x1296
+    { 64, 84 }, // 0x3382 -> 0x1298
+    { 96, 84 }, // 0x3386 -> 0x129A
+    { 128, 84 }, // 0x338A -> 0x129C
+    { 160, 84 }, // 0x338E -> 0x129E
+    { 192, 84 }, // 0x3392 -> 0x12A0
+    { 224, 84 }, // 0x3396 -> 0x12A2
+};
+
+Point kZonkSlideRightAnimationFrameCoordinates[8] = { // binaryData_515B4
+    { 0, 100 }, // 0x3B1A -> 0x12A4
+    { 32, 100 }, // 0x3B1E -> 0x12A6
+    { 64, 100 }, // 0x3B22 -> 0x12A8
+    { 96, 100 }, // 0x3B26 -> 0x12AA
+    { 128, 100 }, // 0x3B2A -> 0x12AC
+    { 160, 100 }, // 0x3B2E -> 0x12AE
+    { 192, 100 }, // 0x3B32 -> 0x12B0
+    { 224, 100 }, // 0x3B36 -> 0x12B2
+};
+
+uint16_t word_515C4 = 0x1358; // -> 0x12B2
+
+AnimationFrameCoordinates frameCoordinates_515C6[10] = {
+    { // 0
+        {
+            { 320, 2 }, // -> 0x0c8e -> 12b4
+            { 352, 2 }, // -> 0x0c92 -> 12b6
+            { 384, 2 }, // -> 0x0c96 -> 12b8
+            { 416, 2 }, // -> 0x0c9a -> 12ba
+            { 328, 2 }, // -> 0x0c8f -> 12bc
+            { 480, 2 }, // -> 0x0ca2 -> 12be
+            { 512, 2 }, // -> 0x0ca6 -> 12c0
+            { 544, 2 }, // -> 0x0caa -> 12c2
+            { 320, 18 }, // -> 0x142e -> 12c4
+            { 352, 18 }, // -> 0x1432 -> 12c6
+            { 384, 18 }, // -> 0x1436 -> 12c8
+            { 416, 18 }, // -> 0x143a -> 12ca
+            { 448, 18 }, // -> 0x143e -> 12cc
+            { 480, 18 }, // -> 0x1442 -> 12ce
+            { 512, 18 }, // -> 0x1446 -> 12d0
+            { 544, 18 }, // -> 0x144a -> 12d2
+            { 320, 34 }, // -> 0x1bce -> 12d4
+            { 336, 34 }, // -> 0x1bd0 -> 12d6
+            { 352, 34 }, // -> 0x1bd2 -> 12d8
+            { 368, 34 }, // -> 0x1bd4 -> 12da
+            { 384, 34 }, // -> 0x1bd6 -> 12dc
+            { 400, 34 }, // -> 0x1bd8 -> 12de
+            { 416, 34 }, // -> 0x1bda -> 12e0
+            { 432, 34 }, // -> 0x1bdc -> 12e2
+            { 448, 34 }, // -> 0x1bde -> 12e4
+            { 464, 34 }, // -> 0x1be0 -> 12e6
+            { 480, 34 }, // -> 0x1be2 -> 12e8
+            { 496, 34 }, // -> 0x1be4 -> 12ea
+            { 512, 34 }, // -> 0x1be6 -> 12ec
+            { 528, 34 }, // -> 0x1be8 -> 12ee
+            { 544, 34 }, // -> 0x1bea -> 12f0
+            { 560, 34 }, // -> 0x1bec -> 12f2
+            { 128, 64 }, // -> 0x2a02 -> 12f4
+            { 48, 32 }, // -> 0x1ab8 -> 12f6
+            { 80, 32 }, // -> 0x1abc -> 12f8
+            { 112, 32 }, // -> 0x1ac0 -> 12fa
+            { 144, 32 }, // -> 0x1ac4 -> 12fc
+            { 176, 32 }, // -> 0x1ac8 -> 12fe
+            { 208, 32 }, // -> 0x1acc -> 1300
+            { 240, 32 }, // -> 0x1ad0 -> 1302
+            { 272, 32 }, // -> 0x1ad4 -> 1304
+        },
+        41
+    },
+    { // 1
+        {
+            { 32, 32 }, // -> 0x1ab6 -> 1308
+            { 64, 32 }, // -> 0x1aba -> 130a
+            { 96, 32 }, // -> 0x1abe -> 130c
+            { 128, 32 }, // -> 0x1ac2 -> 130e
+            { 160, 32 }, // -> 0x1ac6 -> 1310
+            { 192, 32 }, // -> 0x1aca -> 1312
+            { 224, 32 }, // -> 0x1ace -> 1314
+            { 256, 32 }, // -> 0x1ad2 -> 1316
+        },
+        8
+    },
+    { // 2
+        {
+            { 288, 32 }, // -> 0x1ad6 -> 131a
+            { 0, 48 }, // -> 0x2252 -> 131c
+            { 32, 48 }, // -> 0x2256 -> 131e
+            { 64, 48 }, // -> 0x225a -> 1320
+            { 96, 48 }, // -> 0x225e -> 1322
+            { 128, 48 }, // -> 0x2262 -> 1324
+            { 160, 48 }, // -> 0x2266 -> 1326
+            { 192, 48 }, // -> 0x226a -> 1328
+        },
+        8
+    },
+    { // 3
+        {
+            { 304, 32 }, // -> 0x1ad8 -> 132c
+            { 16, 48 }, // -> 0x2254 -> 132e
+            { 48, 48 }, // -> 0x2258 -> 1330
+            { 80, 48 }, // -> 0x225c -> 1332
+            { 112, 48 }, // -> 0x2260 -> 1334
+            { 144, 48 }, // -> 0x2264 -> 1336
+            { 176, 48 }, // -> 0x2268 -> 1338
+            { 208, 48 }, // -> 0x226c -> 133a
+        },
+        8
+    },
+    { // 4
+        {
+            { 304, 134 }, // -> 0x4b74 -> 133e
+            { 304, 136 }, // -> 0x4c68 -> 1340
+            { 624, -24 }, // -> 0x0050 -> 1342
+            { 624, -22 }, // -> 0x0144 -> 1344
+            { 624, -20 }, // -> 0x0238 -> 1346
+            { 624, -18 }, // -> 0x032c -> 1348
+            { 624, -16 }, // -> 0x0420 -> 134a
+            { 624, -14 }, // -> 0x0514 -> 134c
+        },
+        8
+    },
+    { // 5
+        {
+            { 304, 118 }, // -> 0x43d4 -> 1350
+            { 304, 120 }, // -> 0x44c8 -> 1352
+            { 304, 122 }, // -> 0x45bc -> 1354
+            { 304, 124 }, // -> 0x46b0 -> 1356
+            { 304, 126 }, // -> 0x47a4 -> 1358
+            { 304, 128 }, // -> 0x4898 -> 135a
+            { 304, 130 }, // -> 0x498c -> 135c
+            { 304, 132 }, // -> 0x4a80 -> 135e
+        },
+        8
+    },
+    { // 6
+        {
+            { 304, 130 }, // -> 0x498c -> 1362
+            { 304, 128 }, // -> 0x4898 -> 1364
+            { 304, 126 }, // -> 0x47a4 -> 1366
+            { 304, 124 }, // -> 0x46b0 -> 1368
+            { 304, 122 }, // -> 0x45bc -> 136a
+            { 304, 120 }, // -> 0x44c8 -> 136c
+            { 304, 118 }, // -> 0x43d4 -> 136e
+            { 304, 116 }, // -> 0x42e0 -> 1370
+        },
+        8
+    },
+    { // 7
+        {
+            { 624, -16 }, // -> 0x0420 -> 1374
+            { 624, -18 }, // -> 0x032c -> 1376
+            { 624, -20 }, // -> 0x0238 -> 1378
+            { 624, -22 }, // -> 0x0144 -> 137a
+            { 624, -24 }, // -> 0x0050 -> 137c
+            { 304, 136 }, // -> 0x4c68 -> 137e
+            { 304, 134 }, // -> 0x4b74 -> 1380
+            { 304, 132 }, // -> 0x4a80 -> 1382
+        },
+        8
+    },
+    { // 8
+        {
+            { 832, 64 }, // -> 0x2a5a -> 1386
+            { 384, 98 }, // -> 0x3a56 -> 1388
+            { 416, 82 }, // -> 0x32ba -> 138a
+            { 400, 98 }, // -> 0x3a58 -> 138c
+            { 848, 64 }, // -> 0x2a5c -> 138e
+            { 416, 98 }, // -> 0x3a5a -> 1390
+            { 368, 98 }, // -> 0x3a54 -> 1392
+            { 432, 98 }, // -> 0x3a5c -> 1394
+            { 832, 64 }, // -> 0x2a5a -> 1396
+            { 432, 98 }, // -> 0x3a5c -> 1398
+            { 368, 98 }, // -> 0x3a54 -> 139a
+            { 416, 98 }, // -> 0x3a5a -> 139c
+            { 848, 64 }, // -> 0x2a5c -> 139e
+            { 400, 98 }, // -> 0x3a58 -> 13a0
+            { 416, 82 }, // -> 0x32ba -> 13a2
+            { 384, 98 }, // -> 0x3a56 -> 13a4
+            { 640, 100 }, // -> 0x3b6a -> 13a6
+            { 656, 100 }, // -> 0x3b6c -> 13a8
+            { 672, 100 }, // -> 0x3b6e -> 13aa
+            { 688, 100 }, // -> 0x3b70 -> 13ac
+            { 704, 100 }, // -> 0x3b72 -> 13ae
+            { 720, 100 }, // -> 0x3b74 -> 13b0
+            { 736, 100 }, // -> 0x3b76 -> 13b2
+            { 752, 100 }, // -> 0x3b78 -> 13b4
+            { 512, 66 }, // -> 0x2b26 -> 13b6
+            { 544, 66 }, // -> 0x2b2a -> 13b8
+            { 576, 66 }, // -> 0x2b2e -> 13ba
+            { 608, 66 }, // -> 0x2b32 -> 13bc
+            { 320, 82 }, // -> 0x32ae -> 13be
+            { 352, 82 }, // -> 0x32b2 -> 13c0
+            { 384, 82 }, // -> 0x32b6 -> 13c2
+            { 416, 82 }, // -> 0x32ba -> 13c4
+            { 784, 98 }, // -> 0x3a88 -> 13c6
+            { 800, 98 }, // -> 0x3a8a -> 13c8
+            { 816, 98 }, // -> 0x3a8c -> 13ca
+            { 832, 98 }, // -> 0x3a8e -> 13cc
+            { 848, 98 }, // -> 0x3a90 -> 13ce
+            { 864, 98 }, // -> 0x3a92 -> 13d0
+            { 880, 98 }, // -> 0x3a94 -> 13d2
+            { 896, 98 }, // -> 0x3a96 -> 13d4
+            { 448, 82 }, // -> 0x32be -> 13d6
+            { 480, 82 }, // -> 0x32c2 -> 13d8
+            { 512, 82 }, // -> 0x32c6 -> 13da
+            { 544, 82 }, // -> 0x32ca -> 13dc
+            { 576, 82 }, // -> 0x32ce -> 13de
+            { 608, 82 }, // -> 0x32d2 -> 13e0
+            { 320, 98 }, // -> 0x3a4e -> 13e2
+            { 352, 98 }, // -> 0x3a52 -> 13e4
+            { 640, 80 }, // -> 0x31e2 -> 13e6
+            { 656, 80 }, // -> 0x31e4 -> 13e8
+            { 672, 80 }, // -> 0x31e6 -> 13ea
+            { 688, 80 }, // -> 0x31e8 -> 13ec
+            { 704, 80 }, // -> 0x31ea -> 13ee
+            { 720, 80 }, // -> 0x31ec -> 13f0
+            { 736, 80 }, // -> 0x31ee -> 13f2
+            { 752, 80 }, // -> 0x31f0 -> 13f4
+            { 640, 80 }, // -> 0x31e2 -> 13f6
+            { 752, 80 }, // -> 0x31f0 -> 13f8
+            { 736, 80 }, // -> 0x31ee -> 13fa
+            { 720, 80 }, // -> 0x31ec -> 13fc
+            { 704, 80 }, // -> 0x31ea -> 13fe
+            { 688, 80 }, // -> 0x31e8 -> 1400
+            { 672, 80 }, // -> 0x31e6 -> 1402
+            { 656, 80 }, // -> 0x31e4 -> 1404
+            { 784, 80 }, // -> 0x31f4 -> 1406
+            { 800, 80 }, // -> 0x31f6 -> 1408
+            { 816, 80 }, // -> 0x31f8 -> 140a
+            { 832, 80 }, // -> 0x31fa -> 140c
+            { 848, 80 }, // -> 0x31fc -> 140e
+            { 864, 80 }, // -> 0x31fe -> 1410
+            { 880, 80 }, // -> 0x3200 -> 1412
+            { 896, 80 }, // -> 0x3202 -> 1414
+            { 640, 48 }, // -> 0x22a2 -> 1416
+            { 672, 48 }, // -> 0x22a6 -> 1418
+            { 704, 48 }, // -> 0x22aa -> 141a
+            { 736, 48 }, // -> 0x22ae -> 141c
+            { 768, 48 }, // -> 0x22b2 -> 141e
+            { 800, 48 }, // -> 0x22b6 -> 1420
+            { 832, 48 }, // -> 0x22ba -> 1422
+            { 864, 48 }, // -> 0x22be -> 1424
+            { 640, 78 }, // -> 0x30ee -> 1426
+            { 656, 78 }, // -> 0x30f0 -> 1428
+            { 672, 78 }, // -> 0x30f2 -> 142a
+            { 688, 78 }, // -> 0x30f4 -> 142c
+            { 704, 78 }, // -> 0x30f6 -> 142e
+            { 720, 79 }, // -> 0x3172 -> 1430
+            { 736, 79 }, // -> 0x3174 -> 1432
+            { 752, 78 }, // -> 0x30fc -> 1434
+            { 896, 48 }, // -> 0x22c2 -> 1436
+            { 928, 48 }, // -> 0x22c6 -> 1438
+            { 640, 64 }, // -> 0x2a42 -> 143a
+            { 672, 64 }, // -> 0x2a46 -> 143c
+            { 704, 64 }, // -> 0x2a4a -> 143e
+            { 736, 64 }, // -> 0x2a4e -> 1440
+            { 768, 64 }, // -> 0x2a52 -> 1442
+            { 800, 64 }, // -> 0x2a56 -> 1444
+            { 448, 98 }, // -> 0x3a5e -> 1446
+            { 480, 98 }, // -> 0x3a62 -> 1448
+            { 512, 98 }, // -> 0x3a66 -> 144a
+            { 544, 98 }, // -> 0x3a6a -> 144c
+            { 576, 98 }, // -> 0x3a6e -> 144e
+            { 608, 98 }, // -> 0x3a72 -> 1450
+            { 608, 114 }, // -> 0x4212 -> 1452
+            { 608, 130 }, // -> 0x49b2 -> 1454
+        },
+        104
+    },
+    { // 9
+        {
+            { 832, -16 }, // -> 0x043a -> 1458
+            { 864, -16 }, // -> 0x043e -> 145a
+            { 896, -16 }, // -> 0x0442 -> 145c
+            { 928, -16 }, // -> 0x0446 -> 145e
+            { 928, -16 }, // -> 0x0446 -> 1460
+            { 928, 0 }, // -> 0x0be6 -> 1462
+            { 928, 16 }, // -> 0x1386 -> 1464
+            { 832, 32 }, // -> 0x1b1a -> 1466
+            { 864, 32 }, // -> 0x1b1e -> 1468
+        },
+        9
+    },
+};
+
+uint16_t word_51790 = 0x4A7E; //  -> 0x129 -> (288, 132)
+uint16_t word_51840 = 0x2A06; //  -> 0x129 -> (160, 64)
+uint16_t word_51842 = 0x132C; //  -> 0x129 -> (208, 16) confirmed
+uint16_t word_51844 = 0x2A08; //  -> 0x129 -> (176, 64)
+uint16_t word_51846 = 0x132A; //  -> 0x129 -> (192, 16)
+uint16_t kTerminalOnSpriteCoordinates = 0x2A62; // word_51848 -> 0x1268 -> (256, 388) I don't get the math for this one, but the coordinates are right
+uint16_t word_5184A = 0x2A66; //  -> 0x1268 -> (
+uint16_t word_5184C = 0x2A67; //  -> 0x1268 -> (
+uint16_t word_5184E = 0x2E36; //  -> 0x1268 -> (
+uint16_t word_51850 = 0x2E37; //  -> 0x1268 -> (
+uint16_t word_51852 = 0x2A68; //  -> 0x1268 -> (
+uint16_t word_51854 = 0x2A69; //  -> 0x1268 -> (
+uint16_t word_51856 = 0x2E38; //  -> 0x1268 -> (
+uint16_t word_51858 = 0x2E39; //  -> 0x1268 -> (
+uint16_t word_5195D = 0xF000; //  -> 0x1268 -> (
 uint16_t word_5195F = 0;
 uint16_t word_51961 = 0;
 uint16_t word_51963 = 0;
@@ -1083,6 +1402,27 @@ int8_t speed3 = 0xFF;
 int8_t gameSpeed = 5;
 uint8_t demoFileName = 0; // Probably should be another type but whatever for now
 uint32_t flashingbackgroundon = 0;
+
+uint16_t someZonkBinaryData[] = {
+    0x0000, // -> 0x6C95
+    0x007A, // -> 0x6C97
+    0x00F4, // -> 0x6C99
+    0x016E, // -> 0x6C9B
+    0x01E8, // -> 0x6C9D
+    0x0262, // -> 0x6C9F
+    0x02DC, // -> 0x6CA1
+    0x0356, // -> 0x6CA3
+    0x03D0, // -> 0x6CA5
+    0x044A, // -> 0x6CA7
+    0x04C4, // -> 0x6CA9
+    0x053E, // -> 0x6CAB
+    0x05B8, // -> 0x6CAD
+    0x0632, // -> 0x6CAF
+    0x06AC, // -> 0x6CB1
+    0x0726, // -> 0x6CB3
+    0x07A0, // -> 0x6CB5
+    0x081A, // -> 0x6CB7
+};
 
 // This points to the address on the screen where the mouse cursor was
 // drawn the last time, used to clear the cursor before redrawing it again
@@ -5163,6 +5503,8 @@ loc_47F5E:              ; CODE XREF: recoverFilesFromFloppyDisk+1Bj
 
 void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
 {
+    // 01ED:132D
+
     MovingLevelTile *currentTile = &gCurrentLevelWord[position];
     MovingLevelTile *belowTile = &gCurrentLevelWord[position + kLevelWidth];
     MovingLevelTile *belowLeftTile = &gCurrentLevelWord[position + kLevelWidth - 1];
@@ -5197,7 +5539,7 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
         if (belowTile->tile == LevelTileTypeSpace && belowTile->movingObject == 0)
         {
 //loc_47FF4:              ; CODE XREF: movefun+23j
-            currentTile->movingObject = 0x40; // 64 -> mov byte ptr leveldata[si+1], 40h ; '@'
+            currentTile->movingObject = 0x40;
             shouldSkipFirstPartOfLoop = 1; // used to emulate "jmp loc_48035"
         }
         else
@@ -5224,7 +5566,7 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
                 if (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeSpace)
                 {
 //loc_48004:              ; CODE XREF: movefun+70j
-                    currentTile->movingObject = 0x50;// mov byte ptr leveldata[si+1], 50h ; 'P'
+                    currentTile->movingObject = 0x50;
                     leftTile->movingObject = 0x88;
                     leftTile->tile = 0x88;
                     shouldSkipFirstPartOfLoop = 1; // used to emulate "jmp loc_48035"
@@ -5232,6 +5574,8 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
             }
         }
     }
+
+    uint8_t shouldSkipTo_loc_481C6 = 0;
 
     do
     {
@@ -5252,18 +5596,17 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
 //                ; movefun+59j ...
                 // Only if the right tile is empty or... other circumstances?
                 if ((rightTile->movingObject != 0 || rightTile->tile != LevelTileTypeSpace)
-                    || (rightTile->movingObject != 0x99 || rightTile->tile != 0x99)
-                    || (aboveRightTile->movingObject != 0 || aboveRightTile->tile != LevelTileTypeZonk))
+                    && ((rightTile->movingObject != 0x99 || rightTile->tile != 0x99)
+                        || (aboveRightTile->movingObject != 0 || aboveRightTile->tile != LevelTileTypeZonk)))
                 {
                     return;
                 }
 
 //loc_48028:              ; CODE XREF: movefun+86j
 //                ; movefun+95j
-                currentTile->movingObject = 0x60; // 96 mov byte ptr leveldata[si+1], 60h ; '`'
+                currentTile->movingObject = 0x60;
                 rightTile->movingObject = 0x88;
                 rightTile->tile = 0x88;
-//              jmp short $+2 -> jump to loc_48035 probably
             }
         }
 
@@ -5271,419 +5614,347 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
 
 //loc_48035:              ; CODE XREF: movefun+11j
 //                ; movefun+69j ...
-        bl = currentTile->movingObject; // mov bl, byte ptr leveldata[si+1]
-        bh = 0;
-        al = bl;
-        al &= 0xF0; // 240 -> only multiples of 16? so it's like al = (al / 16) * 16:
-        if (al == 0x10) // 16
+        uint8_t movingObject = currentTile->movingObject;
+        uint8_t movingObjectType = movingObject & 0xF0;
+//        bh = 0;
+//        al = bl;
+//        al &= 0xF0; // 240 -> only multiples of 16? so it's like al = (al / 16) * 16:
+        if (movingObjectType != 0x10) // 16
         {
-//            jmp short loc_48078
-        }
 //loc_48045:              ; CODE XREF: movefun+B1j
-        else if (al == 0x20) // 32
-        {
+            if (movingObjectType == 0x20) // 32
+            {
 //loc_48212:              ; CODE XREF: movefun+B9j
-//            and bl, 7
-//            shl bl, 1
-//            xor bh, bh
-//            mov di, [si+6155h] // an address in gLevelBitmapData
-//            push    si
-//            mov si, 1294h
-//            mov si, [bx+si]
-//            push    ds
-//            mov ax, es
-//            mov ds, ax
+                // 01ED:15AF
+                uint8_t movingObjectFrame = movingObject & 0x7; // module 8?
 
-//loc_48228:
-//            mov cx, 10h
+                uint8_t tileX = (position % kLevelWidth);
+                uint8_t tileY = (position / kLevelWidth);
 
-            for (int i = 0; i < 16; ++i)
-            {
-//loc_4822B:              ; CODE XREF: movefun+2A5j
-//                movsb
-//                movsb
-//                movsb
-//                movsb
-//                add si, 76h ; 'v'
-//                add di, 76h ; 'v'
-            }
-//            pop ds
-//            pop si
-            currentTile->movingObject = bl; // mov bl, [si+1835h]
-//            inc bl
-            if (bl == 0x24) // 36
-            {
-                // mov word ptr [si+1836h], 0AAAAh
-                rightTile->movingObject = 0xAA;
-                rightTile->tile = 0xAA;
-            }
+                uint16_t dstX = tileX * kTileSize;
+                uint16_t dstY = tileY * kTileSize;
+
+                // mov si, 1294h
+                // mov si, [bx+si]
+                Point frameCoordinates = kZonkSlideLeftAnimationFrameCoordinates[movingObjectFrame];
+
+                drawMovingSpriteFrameInLevel(frameCoordinates.x,
+                                             frameCoordinates.y,
+                                             kTileSize * 2,
+                                             kTileSize,
+                                             dstX, dstY);
+
+                // 01ED:15D6
+                movingObject = currentTile->movingObject; // mov bl, [si+1835h]
+                movingObject++;
+
+                if (movingObject == 0x24) // 36
+                {
+                    rightTile->movingObject = 0xAA;
+                    rightTile->tile = 0xAA;
+                }
 //loc_4824A:              ; CODE XREF: movefun+2B2j
-            else if (bl == 0x26) // 38
-            {
-                currentTile->movingObject = bl; // mov [si+1835h], bl
-        //        add si, 2
-                sub_488DC(position + 1); // right tile
-        //        sub si, 2
-                return;
-            }
+                if (movingObject == 0x26) // 38
+                {
+                    currentTile->movingObject = movingObject;
+                    sub_488DC(position + 1);
+                    return;
+                }
 //loc_4825D:              ; CODE XREF: movefun+2BDj
-            else if (bl < 0x28) // 40
-            {
-                currentTile->movingObject = bl; // mov [si+1835h], bl
-                return;
-            }
+                else if (movingObject < 0x28) // 40
+                {
+                    currentTile->movingObject = movingObject;
+                    return;
+                }
 //loc_48267:              ; CODE XREF: movefun+2D0j
-            else
-            {
-//                mov word ptr leveldata[si], 0FFFFh
-                currentTile->movingObject = 0xFF;
-                currentTile->tile = 0xFF;
-//                add si, 78h ; 'x'
-//                mov word ptr leveldata[si], 1001h
-                belowTile->movingObject = 0x10;
-                belowTile->tile = LevelTileTypeZonk;
-                return;
+                else
+                {
+                    currentTile->movingObject = 0xFF;
+                    currentTile->tile = 0xFF;
+                    belowTile->movingObject = 0x10;
+                    belowTile->tile = LevelTileTypeZonk;
+                    return;
+                }
             }
-        }
 //loc_4804C:              ; CODE XREF: movefun+B7j
-        else if (al == 0x30) // 48
-        {
+            else if (movingObjectType == 0x30) // 48
+            {
 //loc_48277:              ; CODE XREF: movefun+C0j
-            bl &= 7;
-            bl = bl * 2;
-            bh = 0;
-        //    mov di, [si+6153h]
-        //    push    si
-        //    mov si, 12A4h
-        //    mov si, [bx+si]
-        //    push    ds
-        //    mov ax, es
-        //    mov ds, ax
+                uint8_t movingObjectFrame = movingObject & 0x7; // module 8?
 
-//loc_4828D:
-        //    mov cx, 10h
+                uint8_t tileX = ((position - 1) % kLevelWidth);
+                uint8_t tileY = ((position - 1) / kLevelWidth);
 
-            for (int i = 0; i < 16; ++i)
-            {
-//loc_48290:              ; CODE XREF: movefun+30Aj
-        //        movsb
-        //        movsb
-        //        movsb
-        //        movsb
-                si += 0x76; // 118
-                di += 0x76; // 118
-            }
-        //    pop ds
-        //    pop si
-            bl = currentTile->movingObject; // mov bl, [si+1835h]
-            bl++;
-            if (bl == 0x34) // 52
-            {
-                // mov word ptr [si+1832h], 0AAAAh
-                leftTile->movingObject = 0xAA;
-                leftTile->tile = 0xAA;
-            }
+                uint16_t dstX = tileX * kTileSize;
+                uint16_t dstY = tileY * kTileSize;
+
+                // mov si, 12A4h
+                // mov si, [bx+si]
+                Point frameCoordinates = kZonkSlideRightAnimationFrameCoordinates[movingObjectFrame];
+
+                drawMovingSpriteFrameInLevel(frameCoordinates.x,
+                                             frameCoordinates.y,
+                                             kTileSize * 2,
+                                             kTileSize,
+                                             dstX, dstY);
+
+                movingObject = currentTile->movingObject;
+                movingObject++;
+                if (movingObject == 0x34) // 52
+                {
+                    leftTile->movingObject = 0xAA;
+                    leftTile->tile = 0xAA;
+                }
 //loc_482AF:              ; CODE XREF: movefun+317j
-            else if (bl == 0x36) // 54
-            {
-                currentTile->movingObject = bl;
-        //        sub si, 2
-                sub_488DC(position - 1); // left tile
-        //        add si, 2
-                return;
-            }
+                if (movingObject == 0x36) // 54
+                {
+                    currentTile->movingObject = movingObject;
+                    sub_488DC(position - 1); // left tile
+                    return;
+                }
 //loc_482C2:              ; CODE XREF: movefun+322j
-            else if (bl < 0x38) // 54
-            {
-                currentTile->movingObject = bl;
-                return;
-            }
+                else if (movingObject < 0x38) // 54
+                {
+                    currentTile->movingObject = movingObject;
+                    return;
+                }
 //loc_482CC:              ; CODE XREF: movefun+335j
-            else
-            {
-                // mov word ptr leveldata[si], 0FFFFh
-                currentTile->movingObject = 0xFF;
-                currentTile->tile = 0xFF;
-                // mov word ptr leveldata[si], 1001h
-                belowTile->movingObject = 0x10;
-                belowTile->tile = LevelTileTypeZonk;
-                return;
+                else
+                {
+                    currentTile->movingObject = 0xFF;
+                    currentTile->tile = 0xFF;
+                    belowTile->movingObject = 0x10;
+                    belowTile->tile = LevelTileTypeZonk;
+                    return;
+                }
             }
-        }
 //loc_48053:              ; CODE XREF: movefun+BEj
-        else if (byte_51035 == 2)
-        {
-            return;
-        }
+            else if (byte_51035 == 2)
+            {
+                return;
+            }
 //loc_4805B:              ; CODE XREF: movefun+C8j
-        else if (al == 0x40) // 64
-        {
+            else if (movingObjectType == 0x40) // 64
+            {
 //loc_482DC:              ; CODE XREF: movefun+CFj
-            bl++;
-            if (bl < 0x42) // 66
-            {
-                currentTile->movingObject = bl;
-                return;
-            }
+                movingObject++;
+                if (movingObject < 0x42) // 66
+                {
+                    currentTile->movingObject = movingObject;
+                    return;
+                }
 //loc_482E8:              ; CODE XREF: movefun+351j
-            else if (belowTile->tile != LevelTileTypeSpace || belowTile->movingObject != 0) // cmp word ptr [si+18ACh], 0
-            {
-                bl--;
-                currentTile->movingObject = bl;
-                return;
-            }
+                else if (belowTile->tile != LevelTileTypeSpace || belowTile->movingObject != 0) // cmp word ptr [si+18ACh], 0
+                {
+                    movingObject--;
+                    currentTile->movingObject = movingObject;
+                    return;
+                }
 //loc_482F6:              ; CODE XREF: movefun+35Dj
-            else
-            {
-                // mov word ptr leveldata[si], 0FFFFh
-                currentTile->movingObject = 0xFF;
-                currentTile->tile = 0xFF;
-                // add si, 78h ; 'x'
-                // mov byte ptr leveldata[si], 1
-                // mov byte ptr [si+1835h], 10h
-                belowTile->movingObject = 0x10;
-                belowTile->tile = LevelTileTypeZonk;
+                else
+                {
+                    currentTile->movingObject = 0xFF;
+                    currentTile->tile = 0xFF;
+                    belowTile->movingObject = 0x10;
+                    belowTile->tile = LevelTileTypeZonk;
 
-                return;
+                    return;
+                }
             }
-        }
 //loc_48062:              ; CODE XREF: movefun+CDj
-        else if (al == 0x50) // row 5 of the MOVING.DAT? Zonk sliding left
-        {
+            else if (movingObjectType == 0x50) // Zonk sliding left
+            {
 //loc_4830A:              ; CODE XREF: movefun+D6j
-            uint8_t frame = currentTile->movingObject & 0xF; // bl & 0xF;
+                uint8_t movingObjectFrame = movingObject & 0x7; // module 8?
 
-            uint16_t srcX = frame * kTileSize * 2;
-            uint16_t srcY = currentTile->movingObject & 0xF0; // al; // is the same as -> (al >> 4) * kTileSize;
+                uint8_t tileX = ((position - 1) % kLevelWidth);
+                uint8_t tileY = ((position - 1) / kLevelWidth);
 
-            uint16_t dstPosition = position - 1;
-            uint16_t dstY = dstPosition / kLevelWidth;
-            uint16_t dstX = dstPosition % kLevelWidth;
-            drawMovingSpriteFrameInLevel(srcX, srcY, kTileSize * 2, kTileSize, dstX, dstY);
-            /*
-            bh = 0;
-            bl &= 0xF;
-            bl = bl * 2;
-        //    mov di, [si+6153h]
-        //    push    si
-        //    mov si, 1294h
-        //    mov si, [bx+si]
-        //    push    ds
-        //    mov ax, es
-        //    mov ds, ax
-        //    mov cx, 10h
+                uint16_t dstX = tileX * kTileSize;
+                uint16_t dstY = tileY * kTileSize;
 
-            for (int i = 0; i < 16; ++i)
-            {
-//loc_48323:              ; CODE XREF: movefun+39Dj
-        //        movsb
-        //        movsb
-        //        movsb
-        //        movsb
-                si += 0x76; // 118
-                di += 0x76; // 118
-            }
-        //    pop ds
-        //    pop si
-             */
-            bl = currentTile->movingObject;
-            bl++;
-            if (bl < 0x52) // 82
-            {
-                currentTile->movingObject = bl;
-                return;
-            }
+                // mov si, 1294h
+                // mov si, [bx+si]
+                Point frameCoordinates = kZonkSlideLeftAnimationFrameCoordinates[movingObjectFrame];
+
+                drawMovingSpriteFrameInLevel(frameCoordinates.x,
+                                             frameCoordinates.y,
+                                             kTileSize * 2,
+                                             kTileSize,
+                                             dstX, dstY);
+                
+                movingObject = currentTile->movingObject;
+                movingObject++;
+
+                if (movingObject < 0x52) // 82
+                {
+                    currentTile->movingObject = movingObject;
+                    return;
+                }
 //loc_48341:              ; CODE XREF: movefun+3AAj
-            if (belowLeftTile->movingObject != 0 || belowLeftTile->tile != LevelTileTypeSpace) // cmp word ptr [si+18AAh], 0
-            {
+                if (belowLeftTile->movingObject != 0 || belowLeftTile->tile != LevelTileTypeSpace) // cmp word ptr [si+18AAh], 0
+                {
 //loc_48371:              ; CODE XREF: movefun+3B6j
-//                ; movefun+3C5j
-                bl--;
-                currentTile->movingObject = bl;
-                return;
-            }
-            else if ((leftTile->movingObject != 0 || leftTile->tile != LevelTileTypeSpace) // cmp word ptr [si+1832h], 0
-                     && (leftTile->movingObject != 0x88 || leftTile->tile != 0x88)) // cmp word ptr [si+1832h], 8888h
-            {
+    //                ; movefun+3C5j
+                    movingObject--;
+                    currentTile->movingObject = movingObject;
+                    return;
+                }
+                else if ((leftTile->movingObject != 0 || leftTile->tile != LevelTileTypeSpace) // cmp word ptr [si+1832h], 0
+                         && (leftTile->movingObject != 0x88 || leftTile->tile != 0x88)) // cmp word ptr [si+1832h], 8888h
+                {
 //loc_48371:              ; CODE XREF: movefun+3B6j
-//                ; movefun+3C5j
-                bl--;
-                currentTile->movingObject = bl;
-                return;
-            }
-            else
-            {
+    //                ; movefun+3C5j
+                    movingObject--;
+                    currentTile->movingObject = movingObject;
+                    return;
+                }
+                else
+                {
 //loc_48357:              ; CODE XREF: movefun+3BDj
-                // mov leveldata[si], 0FFFFh
-                currentTile->movingObject = 0xFF;
-                currentTile->tile = 0xFF;
-                // sub si, 2
-                // mov byte ptr leveldata[si], 1
-                // mov byte ptr [si+1835h], 22h ; '"'
-                leftTile->movingObject = 0x22;
-                leftTile->tile = LevelTileTypeZonk;
-                // mov word ptr [si+18ACh], 0FFFFh
-                belowLeftTile->movingObject = 0xFF;
-                belowLeftTile->tile = 0xFF;
-                return;
+                    currentTile->movingObject = 0xFF;
+                    currentTile->tile = 0xFF;
+                    leftTile->movingObject = 0x22;
+                    leftTile->tile = LevelTileTypeZonk;
+                    belowLeftTile->movingObject = 0xFF;
+                    belowLeftTile->tile = 0xFF;
+                    return;
+                }
             }
-        }
 //loc_48069:              ; CODE XREF: movefun+D4j
-        else if (al == 0x60) // 96
-        {
+            else if (movingObjectType == 0x60) // 96
+            {
 //loc_48378:              ; CODE XREF: movefun+DDj
-            uint8_t frame = currentTile->movingObject & 0xF; // bl & 0xF;
+                uint8_t movingObjectFrame = movingObject & 0x7; // module 8?
 
-            uint16_t srcX = frame * kTileSize * 2;
-            uint16_t srcY = currentTile->movingObject & 0xF0; // al; // is the same as -> (al >> 4) * kTileSize;
+                uint8_t tileX = (position % kLevelWidth);
+                uint8_t tileY = (position / kLevelWidth);
 
-            uint16_t dstPosition = position - 1;
-            uint16_t dstY = dstPosition / kLevelWidth;
-            uint16_t dstX = dstPosition % kLevelWidth;
-            drawMovingSpriteFrameInLevel(srcX, srcY, kTileSize * 2, kTileSize, dstX, dstY);
-/*
-            bh = 0;
-            bl &= 7;
-            bl *= 2;
-        //    mov di, [si+6155h]
-        //    push    si
-        //    mov si, 12A4h
-        //    mov si, [bx+si]
-        //    push    ds
-        //    mov ax, es
-        //    mov ds, ax
-        //    mov cx, 10h
+                uint16_t dstX = tileX * kTileSize;
+                uint16_t dstY = tileY * kTileSize;
 
-            for (int i = 0; i < 16; ++i)
-            {
-//loc_48391:              ; CODE XREF: movefun+40Bj
-        //        movsb
-        //        movsb
-        //        movsb
-        //        movsb
-                si += 0x76; // 118
-                di += 0x76; // 118
-            }
-        //    pop ds
-        //    pop si
- */
-            bl = currentTile->movingObject;
-            bl++;
-            if (bl < 0x62) // 98
-            {
-                currentTile->movingObject = bl;
-                return;
-            }
+                // mov si, 12A4h
+                // mov si, [bx+si]
+                Point frameCoordinates = kZonkSlideRightAnimationFrameCoordinates[movingObjectFrame];
+
+                drawMovingSpriteFrameInLevel(frameCoordinates.x,
+                                             frameCoordinates.y,
+                                             kTileSize * 2,
+                                             kTileSize,
+                                             dstX, dstY);
+
+                movingObject = currentTile->movingObject;
+                movingObject++;
+
+                if (movingObject < 0x62) // 98
+                {
+                    currentTile->movingObject = movingObject;
+                    return;
+                }
 //loc_483AF:              ; CODE XREF: movefun+418j
-            else if (belowRightTile->movingObject != 0 || belowRightTile->tile != LevelTileTypeSpace) // cmp word ptr [si+18AEh], 0
-            {
+                else if (belowRightTile->movingObject != 0 || belowRightTile->tile != LevelTileTypeSpace) // cmp word ptr [si+18AEh], 0
+                {
 //loc_483DF:              ; CODE XREF: movefun+424j
-//                ; movefun+433j
-                bl--;
-                currentTile->movingObject = bl;
-                return;
-            }
-            else if ((rightTile->movingObject != 0 || rightTile->tile != LevelTileTypeSpace) // cmp word ptr [si+1836h], 0
-                     && (rightTile->movingObject != 0x88 || rightTile->tile != 0x88)) // cmp word ptr [si+1836h], 8888h
-            {
+    //                ; movefun+433j
+                    movingObject--;
+                    currentTile->movingObject = movingObject;
+                    return;
+                }
+                else if ((rightTile->movingObject != 0 || rightTile->tile != LevelTileTypeSpace) // cmp word ptr [si+1836h], 0
+                         && (rightTile->movingObject != 0x88 || rightTile->tile != 0x88)) // cmp word ptr [si+1836h], 8888h
+                {
 //loc_483DF:              ; CODE XREF: movefun+424j
-//                ; movefun+433j
-                bl--;
-                currentTile->movingObject = bl;
-                return;
-            }
-            else
-            {
+    //                ; movefun+433j
+                    movingObject--;
+                    currentTile->movingObject = movingObject;
+                    return;
+                }
+                else
+                {
 //loc_483C5:              ; CODE XREF: movefun+42Bj
-                // mov word ptr leveldata[si], 0FFFFh
-                currentTile->movingObject = 0xFF;
-                currentTile->tile = 0xFF;
-                // add si, 2
-                // mov byte ptr leveldata[si], 1
-                // mov byte ptr [si+1835h], 32h ; '2'
-                rightTile->movingObject = 0x32;
-                rightTile->tile = LevelTileTypeZonk;
-
-//loc_483D8:
-                // mov word ptr [si+18ACh], 0FFFFh
-                belowLeftTile->movingObject = 0xFF;
-                belowLeftTile->tile = 0xFF;
-
-//locret_483DE:
-                return;
+                    currentTile->movingObject = 0xFF;
+                    currentTile->tile = 0xFF;
+                    rightTile->movingObject = 0x32;
+                    rightTile->tile = LevelTileTypeZonk;
+                    belowRightTile->movingObject = 0xFF;
+                    belowRightTile->tile = 0xFF;
+                    return;
+                }
             }
-        }
 //loc_48070:              ; CODE XREF: movefun+DBj
-        else if (al == 0x70) // 112
-        {
-//loc_483E6:              ; CODE XREF: movefun+E4j
-            if ((belowLeftTile->movingObject != 0 || belowLeftTile->tile != LevelTileTypeSpace) // cmp word ptr [si+18ACh], 0
-                && (belowLeftTile->movingObject != 0x99 && belowLeftTile->tile != 0x99)) // cmp word ptr [si+18ACh], 9999h
+            else if (movingObjectType == 0x70) // 112
             {
-                return;
-            }
+//loc_483E6:              ; CODE XREF: movefun+E4j
+                if ((belowTile->movingObject != 0 || belowTile->tile != LevelTileTypeSpace) // cmp word ptr [si+18ACh], 0
+                    && (belowTile->movingObject != 0x99 && belowTile->tile != 0x99)) // cmp word ptr [si+18ACh], 9999h
+                {
+                    return;
+                }
 
 //loc_483F6:              ; CODE XREF: movefun+45Bj
 //                ; movefun+463j
-            // mov word ptr leveldata[si], 0FFFFh
-            currentTile->movingObject = 0xFF;
-            currentTile->tile = 0xFF;
-            // add si, 78h ; 'x'
-            // mov word ptr leveldata[si], 1001h
-            belowTile->movingObject = 0x10;
-            belowTile->tile = LevelTileTypeZonk;
-            // jmp loc_48078
-        }
+                currentTile->movingObject = 0xFF;
+                currentTile->tile = 0xFF;
+
+                // Move down and update tiles
+                position += kLevelWidth;
+
+                currentTile = &gCurrentLevelWord[position];
+                belowTile = &gCurrentLevelWord[position + kLevelWidth];
+                belowLeftTile = &gCurrentLevelWord[position + kLevelWidth - 1];
+                leftTile = &gCurrentLevelWord[position - 1];
+                belowRightTile = &gCurrentLevelWord[position + kLevelWidth + 1];
+                rightTile = &gCurrentLevelWord[position + 1];
+                aboveRightTile = &gCurrentLevelWord[position - kLevelWidth + 1];
+
+                currentTile->movingObject = 0x10;
+                currentTile->tile = LevelTileTypeZonk;
+            }
 //locret_48077:               ; CODE XREF: movefun+E2j
-        else
-        {
-            return;
+            else
+            {
+                return;
+            }
         }
 
 //loc_48078:              ; CODE XREF: movefun+B3j
 //                ; movefun+475j
-        bh = 0;
-        bl *= 2;
-        bl *= 2;
-        bl &= 0x1F;
-//        mov di, [si+60DDh]
-//        add di, [bx+6C95h]
-//        push    si
-        si = word_515A2;
-//        push    ds
-//        mov ax, es
-//        mov ds, ax
-        cx = 0x12; // 18
+        // 01ED:1415
+        uint8_t somePositionThing = movingObject;
+        somePositionThing *= 2;
+        somePositionThing &= 0x1F;
 
-        for (int i = 0; i < 18; ++i)
+        uint16_t offset = someZonkBinaryData[somePositionThing];
+
+        uint16_t finalPosition = position - kLevelWidth;
+        uint8_t tileX = (finalPosition % kLevelWidth);
+        uint8_t tileY = (finalPosition / kLevelWidth);
+
+        uint16_t dstX = tileX * kTileSize + (offset % 122);
+        uint16_t dstY = tileY * kTileSize + (offset / 122);
+
+        drawMovingSpriteFrameInLevel(224, 82,
+                                     kTileSize,
+                                     kTileSize + 2,
+                                     dstX, dstY);
+
+        uint8_t newMovingObject = currentTile->movingObject;
+        newMovingObject++;
+        if (newMovingObject == 0x16) // 22
         {
-//loc_48096:              ; CODE XREF: movefun+10Ej
-//            *di = *si; di++; si++; //movsb
-//            *di = *si; di++; si++; //movsb
-//            add si, 78h ; 'x'
-//            add di, 78h ; 'x'
-        }
-//        pop ds
-//        pop si
-        bl = currentTile->movingObject; // bl = si[0x1835];
-        bl++;
-        if (bl == 0x16) // 22
-        {
-            currentTile->movingObject = bl; // si[0x1835] = bl;
-//            sub si, 78h ; 'x'
-            sub_488DC(position - kLevelWidth); // Tile below
-//            add si, 78h ; 'x'
+            currentTile->movingObject = newMovingObject;
+            sub_488DC(position - kLevelWidth); // Tile above
             return;
         }
 //loc_480BB:              ; CODE XREF: movefun+11Bj
-        else if (bl < 0x18) // 24
+        else if (newMovingObject < 0x18) // 24
         {
-            currentTile->movingObject = bl; // si[0x1835] = bl;
+            currentTile->movingObject = newMovingObject;
             return;
         }
 
 //loc_480C5:              ; CODE XREF: movefun+12Ej
-        currentTile->movingObject = 0; // mov byte ptr [si+1835h], 0
+        currentTile->movingObject = 0;
         if (byte_51035 == 2)
         {
             return;
@@ -5695,10 +5966,8 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
         {
 //loc_4816D:              ; CODE XREF: movefun+149j
     //                ; movefun+154j
-            // mov word ptr leveldata[si], 7001h
             currentTile->movingObject = 0x70;
             currentTile->tile = LevelTileTypeZonk;
-            // mov word ptr [si+18ACh], 9999h
             belowTile->movingObject = 0x99;
             belowTile->tile = 0x99;
             return;
@@ -5707,7 +5976,7 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
 //loc_480E7:              ; CODE XREF: movefun+152j
         if (belowTile->tile == LevelTileTypeMurphy && belowTile->movingObject == 0) // cmp word ptr [si+18ACh], 3
         {
-            break; // jmp loc_481A4
+            break;
         }
 
 //loc_480F1:              ; CODE XREF: movefun+15Cj
@@ -5715,7 +5984,6 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
         {
 //loc_481FE:              ; CODE XREF: movefun+168j
 //                ; movefun+188j ...
-    //      add si, 78h ; 'x' // 120 = width * 2
             sub_4A61F(position + kLevelWidth); // Tile below
             return;
         }
@@ -5723,7 +5991,8 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
 //loc_480FB:              ; CODE XREF: movefun+166j
         if (belowTile->tile == 0xBB && belowTile->movingObject == 0x2) // cmp word ptr [si+18ACh], 2BBh
         {
-//            jmp loc_481C6
+            shouldSkipTo_loc_481C6 = 1;
+            break;
         }
 
 //loc_48106:              ; CODE XREF: movefun+171j
@@ -5732,7 +6001,6 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
 //loc_481E2:              ; CODE XREF: movefun+17Ej
             if (belowRightTile->tile == LevelTileTypeElectron) // cmp byte ptr [si+18AEh], 18h
             {
-                // mov word ptr [si+18ACh], 18h
                 belowTile->tile = LevelTileTypeElectron;
                 belowTile->movingObject = 0;
             }
@@ -5740,7 +6008,6 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
             else if (belowRightTile->movingObject != 0
                      || belowRightTile->tile != LevelTileTypeHardware5) // cmp byte ptr [si+18AEh], 1Fh
             {
-                // mov word ptr [si+18AEh], 0
                 belowRightTile->tile = LevelTileTypeSpace;
                 belowRightTile->movingObject = 0;
             }
@@ -5749,7 +6016,6 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
             {
 //loc_481FE:              ; CODE XREF: movefun+168j
 //                ; movefun+188j ...
-        //      add si, 78h ; 'x' // 120 = width * 2
                 sub_4A61F(position + kLevelWidth); // Tile below
                 return;
             }
@@ -5760,7 +6026,6 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
         {
 //loc_481FE:              ; CODE XREF: movefun+168j
 //                ; movefun+188j ...
-    //      add si, 78h ; 'x' // 120 = width * 2
             sub_4A61F(position + kLevelWidth); // Tile below
             return;
         }
@@ -5769,10 +6034,12 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
         if (belowTile->tile == LevelTileTypeOrangeDisk && belowTile->movingObject == 0) // cmp word ptr [si+18ACh], 8
         {
 //loc_48205:              ; CODE XREF: movefun+192j
+            // TODO: no idea what this does yet. do orange disks turn into hardware tiles or something like that?
             // add si, 78h ; 'x'
             // mov bx, si
             // shr bx, 1
             // mov byte ptr [bx+2434h], 6
+            gCurrentLevelAfterWord.tiles[position + kLevelWidth] = LevelTileTypeHardware;
             return;
         }
 
@@ -5796,8 +6063,7 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
             if (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeSpace) //cmp word ptr [si+1832h], 0
             {
 //loc_48184:              ; CODE XREF: movefun+1EFj
-                currentTile->movingObject = 0x50; // mov byte ptr [si+1835h], 50h ; 'P'
-//                mov word ptr [si+1832h], 8888h
+                currentTile->movingObject = 0x50;
                 leftTile->movingObject = 0x88;
                 leftTile->tile = 0x88;
                 return;
@@ -5805,7 +6071,6 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
             else
             {
                 continue;
-//                jmp loc_47FDC
             }
         }
         if ((belowRightTile->movingObject == 0 && belowRightTile->tile == LevelTileTypeSpace) // cmp word ptr [si+18AEh], 0
@@ -5817,8 +6082,7 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
             if (rightTile->tile == LevelTileTypeSpace && rightTile->movingObject == 0) //cmp word ptr [si+1836h], 0
             {
 //loc_48198:              ; CODE XREF: movefun+205j
-                currentTile->movingObject = 0x60; // mov byte ptr [si+1835h], 60h ; '`'
-//                mov word ptr [si+1836h], 8888h
+                currentTile->movingObject = 0x60;
                 rightTile->movingObject = 0x88;
                 rightTile->tile = 0x88;
                 return;
@@ -5834,22 +6098,23 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
     }
     while (1);
 
-//loc_481A4:              ; CODE XREF: movefun+15Ej
-    bl = belowTile->movingObject; // si[0x18AD]; //mov bl, [si+18ADh]
-    if (bl == 0xE
-        || bl == 0xF
-        || bl == 0x28
-        || bl == 0x29
-        || bl == 0x25
-        || bl == 0x26)
+    if (shouldSkipTo_loc_481C6 == 0)
     {
-        return;
+//loc_481A4:              ; CODE XREF: movefun+15Ej
+        if (belowTile->movingObject == 0xE
+            || belowTile->movingObject == 0xF
+            || belowTile->movingObject == 0x28
+            || belowTile->movingObject == 0x29
+            || belowTile->movingObject == 0x25
+            || belowTile->movingObject == 0x26)
+        {
+            return;
+        }
     }
 
 //loc_481C6:              ; CODE XREF: movefun+173j
     if (belowLeftTile->tile == LevelTileTypeElectron) // cmp byte ptr [si+18AAh], 18h
     {
-//        mov word ptr [si+18ACh], 18h
         belowTile->tile = LevelTileTypeElectron;
         belowTile->movingObject = 0;
     }
@@ -5857,7 +6122,6 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
     else if (belowLeftTile->movingObject != 0
              || belowLeftTile->tile != LevelTileTypeHardware5) // cmp byte ptr [si+18AAh], 1Fh
     {
-        // mov word ptr [si+18AAh], 0
         belowLeftTile->tile = LevelTileTypeSpace;
         belowLeftTile->movingObject = 0;
     }
@@ -5866,7 +6130,6 @@ void movefun(uint16_t position) //   proc near       ; DATA XREF: data:160Co
     {
 //loc_481FE:              ; CODE XREF: movefun+168j
 //                ; movefun+188j ...
-//      add si, 78h ; 'x' // 120 = width * 2
         sub_4A61F(position + kLevelWidth); // Tile below
         return;
     }
@@ -6386,6 +6649,7 @@ movefun2  endp
 
 void sub_487FE(uint16_t position) //   proc near       ; CODE XREF: update?+E0Cp update?+E2Ap ...
 {
+    // 01ED:1B9B
     MovingLevelTile *currentTile = &gCurrentLevelWord[position];
     MovingLevelTile *aboveTile = &gCurrentLevelWord[position - kLevelWidth];
     MovingLevelTile *leftTile = &gCurrentLevelWord[position - 1];
@@ -6471,7 +6735,7 @@ void sub_487FE(uint16_t position) //   proc near       ; CODE XREF: update?+E0C
 //loc_48829:              ; CODE XREF: sub_487FE+21j
         aboveTile->movingObject = 0x40;
     }
-    else if (aboveTile->movingObject == 0x99 && aboveTile->tile == LevelTileTypeInfotron)
+    else if (aboveTile->movingObject == 0 && aboveTile->tile == LevelTileTypeInfotron)
     {
 //loc_4882F:              ; CODE XREF: sub_487FE+28j
         aboveTile->movingObject = 0x40;
@@ -9391,6 +9655,7 @@ void gameloop() //   proc near       ; CODE XREF: runLevel:noFlashingp
 //            mov si, [di]    ; the tile number for the moving object
 //            mov ax, [di+2]  ; the function to call
 //            call    ax
+            // 01ED:3214
             movingObjects[i].function(movingObjects[i].tilePosition); // the tile number is probably a parameter
         }
     }
@@ -10289,6 +10554,7 @@ void sub_4A463() //   proc near       ; CODE XREF: sub_4945D:loc_4953Bp
 }
 /*
 movefun3  proc near       ; DATA XREF: data:161Ao
+ // 01ED:3826
         cmp byte ptr leveldata[si], 8
         jz  short loc_4A491
         return;
@@ -16585,15 +16851,15 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
         if (gCurrentUserInput != UserInputUp
             || (aboveTile->movingObject != 0 || aboveTile->tile != LevelTileTypeBase))
         {
-            //loc_4E01B:              ; CODE XREF: update?+182j
+//loc_4E01B:              ; CODE XREF: update?+182j
             if (gCurrentUserInput != UserInputLeft
                 || (leftTile->movingObject != 0 || leftTile->tile != LevelTileTypeBase))
             {
-                //loc_4E027:              ; CODE XREF: update?+18Ej
+//loc_4E027:              ; CODE XREF: update?+18Ej
                 if (gCurrentUserInput != UserInputRight
                     || (rightTile->movingObject != 0 || rightTile->tile != LevelTileTypeBase))
                 {
-                    //loc_4E033:              ; CODE XREF: update?+19Aj
+//loc_4E033:              ; CODE XREF: update?+19Aj
                     gCurrentUserInput = UserInputDown;
                 }
             }
@@ -18202,6 +18468,7 @@ uint16_t updateMurphy2(uint16_t position)
         }
 
 //loc_4EB10:              ; CODE XREF: update?+C7Bj
+        // 01ED:7EAD
     //    pop(di);
     //    pop si
         ax = gSomeUnknownMurphyData.speedX;
@@ -18286,6 +18553,7 @@ uint16_t updateMurphy2(uint16_t position)
         else if (previousMurphyMovingObject == 8)
         {
 //loc_4EF53:              ; CODE XREF: update?+CBBj update?+CDBj
+            // 01ED:82F0
             sub_487FE(position - 1);
             murphyTile->movingObject = 0;
             murphyTile->tile = LevelTileTypeMurphy;
