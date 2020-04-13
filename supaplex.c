@@ -933,45 +933,45 @@ AnimationFrameCoordinates frameCoordinates_5142E[15] = {
             { 256, 100 }, // -> 0x3b3a -> 1208
             { 272, 100 }, // -> 0x3b3c -> 120a
             { 288, 100 }, // -> 0x3b3e -> 120c
-            { 624, -14 }, // -> 0x0514 -> 120e
+            { 304, 148 }, // -> 0x0514 -> 120e
         },
         8
     },
     { // 10
         {
-            { 320, 50 }, // -> 0x236e -> 1212
-            { 352, 50 }, // -> 0x2372 -> 1214
-            { 384, 50 }, // -> 0x2376 -> 1216
-            { 416, 50 }, // -> 0x237a -> 1218
-            { 448, 50 }, // -> 0x237e -> 121a
-            { 480, 50 }, // -> 0x2382 -> 121c
-            { 512, 50 }, // -> 0x2386 -> 121e
-            { 544, 50 }, // -> 0x238a -> 1220
+            { 0, 212 }, // -> 0x236e -> 1212
+            { 32, 212 }, // -> 0x2372 -> 1214
+            { 64, 212 }, // -> 0x2376 -> 1216
+            { 96, 212 }, // -> 0x237a -> 1218
+            { 128, 212 }, // -> 0x237e -> 121a
+            { 160, 212 }, // -> 0x2382 -> 121c
+            { 192, 212 }, // -> 0x2386 -> 121e
+            { 224, 212 }, // -> 0x238a -> 1220
         },
         8
     },
     { // 11
         {
-            { 576, 50 }, // -> 0x238e -> 1224
-            { 608, 50 }, // -> 0x2392 -> 1226
-            { 320, 66 }, // -> 0x2b0e -> 1228
-            { 352, 66 }, // -> 0x2b12 -> 122a
-            { 384, 66 }, // -> 0x2b16 -> 122c
-            { 416, 66 }, // -> 0x2b1a -> 122e
-            { 448, 66 }, // -> 0x2b1e -> 1230
-            { 480, 66 }, // -> 0x2b22 -> 1232
+            { 256, 212 }, // -> 0x238e -> 1224
+            { 288, 212 }, // -> 0x2392 -> 1226
+            { 0, 228 }, // -> 0x2b0e -> 1228
+            { 32, 228 }, // -> 0x2b12 -> 122a
+            { 64, 228 }, // -> 0x2b16 -> 122c
+            { 96, 228 }, // -> 0x2b1a -> 122e
+            { 128, 228 }, // -> 0x2b1e -> 1230
+            { 160, 228 }, // -> 0x2b22 -> 1232
         },
         8
     },
     { // 12
         {
-            { 512, -14 }, // -> 0x0506 -> 1236
-            { 528, -14 }, // -> 0x0508 -> 1238
-            { 544, -14 }, // -> 0x050a -> 123a
-            { 576, -14 }, // -> 0x050e -> 123c
-            { 592, -14 }, // -> 0x0510 -> 123e
-            { 608, -14 }, // -> 0x0512 -> 1240
-            { 624, -14 }, // -> 0x0514 -> 1242
+            { 192, 148 }, // -> 0x0506 -> 1236
+            { 208, 148 }, // -> 0x0508 -> 1238
+            { 224, 148 }, // -> 0x050a -> 123a
+            { 256, 148 }, // -> 0x050e -> 123c
+            { 272, 148 }, // -> 0x0510 -> 123e
+            { 288, 148 }, // -> 0x0512 -> 1240
+            { 304, 148 }, // -> 0x0514 -> 1242
         },
         7
     },
@@ -994,17 +994,17 @@ AnimationFrameCoordinates frameCoordinates_5142E[15] = {
             { 144, 132 }, // -> 0x4a6c -> 125a
             { 192, 132 }, // -> 0x4a72 -> 125c
             { 240, 132 }, // -> 0x4a78 -> 125e
-            { 320, -14 }, // -> 0x04ee -> 1260
-            { 368, -14 }, // -> 0x04f4 -> 1262
-            { 416, -14 }, // -> 0x04fa -> 1264
-            { 464, -14 }, // -> 0x0500 -> 1266
+            { 0, 148 }, // -> 0x04ee -> 1260
+            { 48, 148 }, // -> 0x04f4 -> 1262
+            { 96, 148 }, // -> 0x04fa -> 1264
+            { 144, 148 }, // -> 0x0500 -> 1266
         },
         8
     },
 };
 
-uint16_t word_5157A = 0x4A62; // -> 0x126A -> (64, 132) ??
-uint16_t word_5157C = 0x0502; // -> 0x126C ->
+uint16_t word_5157A = 0x4A62; // -> 0x126A -> (64, 132)
+uint16_t word_5157C = 0x0502; // -> 0x126C -> (97, 132)
 uint16_t kMurphyStillSpriteCoordinates = 0x4A80; // word_5157E -> 0x126E -> (304, 132)
 uint16_t word_51580 = 0x1AB2; // -> 0x1270 -> (0, 32)
 uint8_t binaryData_51582[2] = {
@@ -17576,8 +17576,8 @@ uint16_t updateMurphy8(uint16_t position)
         aboveAboveTile->movingObject = 0x12;
     //    push    si
     //    mov di, [si+6155h]
-        si = word_5157C;
-        drawMovingFrame(304, 132, position); // TODO: fix coordinates
+//        si = word_5157C;
+        drawMovingFrame(97, 132, position);
     //    pop si
 //        dx = 0x10AE;
         murphyTile->movingObject = 0x24;
@@ -17718,7 +17718,7 @@ uint16_t updateMurphy7(uint16_t position)
     //    push    si
     //    mov di, [si+6155h]
 //        si = word_5157A;
-        drawMovingFrame(64, 132, position); // TODO: fix coordinates
+        drawMovingFrame(64, 132, position);
     //    pop si
 //        dx = 0x0FAE;
         murphyTile->movingObject = 0xE;
@@ -17795,8 +17795,8 @@ uint16_t updateMurphy7(uint16_t position)
         leftLeftTile->movingObject = 0x12;
     //    push    si
     //    mov di, [si+6155h]
-        si = word_5157A;
-        drawMovingFrame(304, 132, position); // TODO: fix coordinates
+//        si = word_5157A;
+        drawMovingFrame(64, 132, position);
     //    pop si
 //        dx = 0x10BE;
         murphyTile->movingObject = 0x25;
@@ -17817,8 +17817,8 @@ uint16_t updateMurphy7(uint16_t position)
         leftLeftTile->movingObject = 8;
     //    push    si
     //    mov di, [si+6155h]
-        si = word_5157A;
-        drawMovingFrame(304, 132, position); // TODO: fix coordinates
+//        si = word_5157A;
+        drawMovingFrame(64, 132, position);
     //    pop si
 //        dx = 0x10EE;
         murphyTile->movingObject = 0x28;
@@ -18067,8 +18067,8 @@ uint16_t updateMurphy5(uint16_t position)
         belowBelowTile->movingObject = 0x12;
     //    push    si
     //    mov di, [si+6155h]
-        si = word_5157C;
-        drawMovingFrame(304, 132, position); // TODO: fix coordinates
+//        si = word_5157C;
+        drawMovingFrame(97, 132, position);
     //    pop si
 //        dx = 0x10CE;
         murphyTile->movingObject = 0x27;
@@ -18090,16 +18090,8 @@ uint16_t updateMurphy5(uint16_t position)
 uint16_t updateMurphy4(uint16_t position)
 {
     MovingLevelTile *murphyTile = &gCurrentLevelWord[position];
-//    MovingLevelTile *leftLeftTile = &gCurrentLevelWord[position - 2];
-//    MovingLevelTile *leftTile = &gCurrentLevelWord[position - 1];
     MovingLevelTile *rightTile = &gCurrentLevelWord[position + 1];
     MovingLevelTile *rightRightTile = &gCurrentLevelWord[position + 2];
-//    MovingLevelTile *belowTile = &gCurrentLevelWord[position + kLevelWidth];
-//    MovingLevelTile *belowBelowTile = &gCurrentLevelWord[position + kLevelWidth * 2];
-//    MovingLevelTile *aboveTile = &gCurrentLevelWord[position - kLevelWidth];
-//    MovingLevelTile *aboveAboveTile = &gCurrentLevelWord[position - kLevelWidth * 2];
-//    MovingLevelTile *aboveLeftTile = &gCurrentLevelWord[position - kLevelWidth - 1];
-//    MovingLevelTile *belowLeftTile = &gCurrentLevelWord[position + kLevelWidth - 1];
     MovingLevelTile *belowRightTile = &gCurrentLevelWord[position + kLevelWidth + 1];
 
 //loc_4E1E8:              ; CODE XREF: update?+1D5j update?+3CDj
@@ -18220,8 +18212,8 @@ uint16_t updateMurphy4(uint16_t position)
         rightRightTile->movingObject = 1;
     //    push    si
     //    mov di, [si+6155h]
-        si = word_5157C;
-        drawMovingFrame(304, 132, position); // TODO: fix coordinates
+//        si = word_5157C;
+        drawMovingFrame(97, 132, position);
     //    pop si
 //        dx = 0x0FBE;
         murphyTile->movingObject = 0xF;
@@ -18299,8 +18291,8 @@ uint16_t updateMurphy4(uint16_t position)
         rightRightTile->movingObject = 0x12;
     //    push    si
     //    mov di, [si+6155h]
-        si = word_5157C;
-        drawMovingFrame(304, 132, position); // TODO: fix coordinates
+//        si = word_5157C;
+        drawMovingFrame(97, 132, position);
     //    pop si
 //        dx = 0x10DE;
         murphyTile->movingObject = 0x26;
@@ -18327,8 +18319,8 @@ uint16_t updateMurphy4(uint16_t position)
         rightRightTile->movingObject = 1;
     //    push    si
     //    mov di, [si+6155h]
-        si = word_5157C;
-        drawMovingFrame(304, 132, position); // TODO: fix coordinates
+//        si = word_5157C;
+        drawMovingFrame(97, 132, position);
     //    pop si
 //        dx = 0x10FE;
         murphyTile->movingObject = 0x29;
