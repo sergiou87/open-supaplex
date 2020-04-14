@@ -1062,266 +1062,266 @@ Point kZonkSlideRightAnimationFrameCoordinates[8] = { // binaryData_515B4
     { 224, 100 }, // 0x3B36 -> 0x12B2
 };
 
-uint16_t word_515C4 = 0x1358; // -> 0x12B2
+uint16_t word_515C4 = 0x1358; // -> 0x12B4
 
 AnimationFrameCoordinates frameCoordinates_515C6[10] = {
     { // 0
         {
-            { 320, 2 }, // -> 0x0c8e -> 12b4
-            { 352, 2 }, // -> 0x0c92 -> 12b6
-            { 384, 2 }, // -> 0x0c96 -> 12b8
-            { 416, 2 }, // -> 0x0c9a -> 12ba
-            { 328, 2 }, // -> 0x0c8f -> 12bc
-            { 480, 2 }, // -> 0x0ca2 -> 12be
-            { 512, 2 }, // -> 0x0ca6 -> 12c0
-            { 544, 2 }, // -> 0x0caa -> 12c2
-            { 320, 18 }, // -> 0x142e -> 12c4
-            { 352, 18 }, // -> 0x1432 -> 12c6
-            { 384, 18 }, // -> 0x1436 -> 12c8
-            { 416, 18 }, // -> 0x143a -> 12ca
-            { 448, 18 }, // -> 0x143e -> 12cc
-            { 480, 18 }, // -> 0x1442 -> 12ce
-            { 512, 18 }, // -> 0x1446 -> 12d0
-            { 544, 18 }, // -> 0x144a -> 12d2
-            { 320, 34 }, // -> 0x1bce -> 12d4
-            { 336, 34 }, // -> 0x1bd0 -> 12d6
-            { 352, 34 }, // -> 0x1bd2 -> 12d8
-            { 368, 34 }, // -> 0x1bd4 -> 12da
-            { 384, 34 }, // -> 0x1bd6 -> 12dc
-            { 400, 34 }, // -> 0x1bd8 -> 12de
-            { 416, 34 }, // -> 0x1bda -> 12e0
-            { 432, 34 }, // -> 0x1bdc -> 12e2
-            { 448, 34 }, // -> 0x1bde -> 12e4
-            { 464, 34 }, // -> 0x1be0 -> 12e6
-            { 480, 34 }, // -> 0x1be2 -> 12e8
-            { 496, 34 }, // -> 0x1be4 -> 12ea
-            { 512, 34 }, // -> 0x1be6 -> 12ec
-            { 528, 34 }, // -> 0x1be8 -> 12ee
-            { 544, 34 }, // -> 0x1bea -> 12f0
-            { 560, 34 }, // -> 0x1bec -> 12f2
-            { 128, 64 }, // -> 0x2a02 -> 12f4
-            { 48, 32 }, // -> 0x1ab8 -> 12f6
-            { 80, 32 }, // -> 0x1abc -> 12f8
-            { 112, 32 }, // -> 0x1ac0 -> 12fa
-            { 144, 32 }, // -> 0x1ac4 -> 12fc
-            { 176, 32 }, // -> 0x1ac8 -> 12fe
-            { 208, 32 }, // -> 0x1acc -> 1300
-            { 240, 32 }, // -> 0x1ad0 -> 1302
-            { 272, 32 }, // -> 0x1ad4 -> 1304
+            { 0, 164 }, // -> 0x0c8e -> 12b6
+            { 32, 164 }, // -> 0x0c92 -> 12b8
+            { 64, 164 }, // -> 0x0c96 -> 12ba
+            { 96, 164 }, // -> 0x0c9a -> 12bc
+            { 8, 164 }, // -> 0x0c8f -> 12be
+            { 160, 164 }, // -> 0x0ca2 -> 12c0
+            { 192, 164 }, // -> 0x0ca6 -> 12c2
+            { 224, 164 }, // -> 0x0caa -> 12c4
+            { 0, 180 }, // -> 0x142e -> 12c6
+            { 32, 180 }, // -> 0x1432 -> 12c8
+            { 64, 180 }, // -> 0x1436 -> 12ca
+            { 96, 180 }, // -> 0x143a -> 12cc
+            { 128, 180 }, // -> 0x143e -> 12ce
+            { 160, 180 }, // -> 0x1442 -> 12d0
+            { 192, 180 }, // -> 0x1446 -> 12d2
+            { 224, 180 }, // -> 0x144a -> 12d4
+            { 0, 196 }, // -> 0x1bce -> 12d6
+            { 16, 196 }, // -> 0x1bd0 -> 12d8
+            { 32, 196 }, // -> 0x1bd2 -> 12da
+            { 48, 196 }, // -> 0x1bd4 -> 12dc
+            { 64, 196 }, // -> 0x1bd6 -> 12de
+            { 80, 196 }, // -> 0x1bd8 -> 12e0
+            { 96, 196 }, // -> 0x1bda -> 12e2
+            { 112, 196 }, // -> 0x1bdc -> 12e4
+            { 128, 196 }, // -> 0x1bde -> 12e6
+            { 144, 196 }, // -> 0x1be0 -> 12e8
+            { 160, 196 }, // -> 0x1be2 -> 12ea
+            { 176, 196 }, // -> 0x1be4 -> 12ec
+            { 192, 196 }, // -> 0x1be6 -> 12ee
+            { 208, 196 }, // -> 0x1be8 -> 12f0
+            { 224, 196 }, // -> 0x1bea -> 12f2
+            { 240, 196 }, // -> 0x1bec -> 12f4
+            { 128, 64 }, // -> 0x2a02 -> 12f6
+            { 48, 32 }, // -> 0x1ab8 -> 12f8
+            { 80, 32 }, // -> 0x1abc -> 12fa
+            { 112, 32 }, // -> 0x1ac0 -> 12fc
+            { 144, 32 }, // -> 0x1ac4 -> 12fe
+            { 176, 32 }, // -> 0x1ac8 -> 1300
+            { 208, 32 }, // -> 0x1acc -> 1302
+            { 240, 32 }, // -> 0x1ad0 -> 1304
+            { 272, 32 }, // -> 0x1ad4 -> 1306
         },
         41
     },
     { // 1
         {
-            { 32, 32 }, // -> 0x1ab6 -> 1308
-            { 64, 32 }, // -> 0x1aba -> 130a
-            { 96, 32 }, // -> 0x1abe -> 130c
-            { 128, 32 }, // -> 0x1ac2 -> 130e
-            { 160, 32 }, // -> 0x1ac6 -> 1310
-            { 192, 32 }, // -> 0x1aca -> 1312
-            { 224, 32 }, // -> 0x1ace -> 1314
-            { 256, 32 }, // -> 0x1ad2 -> 1316
+            { 32, 32 }, // -> 0x1ab6 -> 130a
+            { 64, 32 }, // -> 0x1aba -> 130c
+            { 96, 32 }, // -> 0x1abe -> 130e
+            { 128, 32 }, // -> 0x1ac2 -> 1310
+            { 160, 32 }, // -> 0x1ac6 -> 1312
+            { 192, 32 }, // -> 0x1aca -> 1314
+            { 224, 32 }, // -> 0x1ace -> 1316
+            { 256, 32 }, // -> 0x1ad2 -> 1318
         },
         8
     },
     { // 2
         {
-            { 288, 32 }, // -> 0x1ad6 -> 131a
-            { 0, 48 }, // -> 0x2252 -> 131c
-            { 32, 48 }, // -> 0x2256 -> 131e
-            { 64, 48 }, // -> 0x225a -> 1320
-            { 96, 48 }, // -> 0x225e -> 1322
-            { 128, 48 }, // -> 0x2262 -> 1324
-            { 160, 48 }, // -> 0x2266 -> 1326
-            { 192, 48 }, // -> 0x226a -> 1328
+            { 288, 32 }, // -> 0x1ad6 -> 131c
+            { 0, 48 }, // -> 0x2252 -> 131e
+            { 32, 48 }, // -> 0x2256 -> 1320
+            { 64, 48 }, // -> 0x225a -> 1322
+            { 96, 48 }, // -> 0x225e -> 1324
+            { 128, 48 }, // -> 0x2262 -> 1326
+            { 160, 48 }, // -> 0x2266 -> 1328
+            { 192, 48 }, // -> 0x226a -> 132a
         },
         8
     },
     { // 3
         {
-            { 304, 32 }, // -> 0x1ad8 -> 132c
-            { 16, 48 }, // -> 0x2254 -> 132e
-            { 48, 48 }, // -> 0x2258 -> 1330
-            { 80, 48 }, // -> 0x225c -> 1332
-            { 112, 48 }, // -> 0x2260 -> 1334
-            { 144, 48 }, // -> 0x2264 -> 1336
-            { 176, 48 }, // -> 0x2268 -> 1338
-            { 208, 48 }, // -> 0x226c -> 133a
+            { 304, 32 }, // -> 0x1ad8 -> 132e
+            { 16, 48 }, // -> 0x2254 -> 1330
+            { 48, 48 }, // -> 0x2258 -> 1332
+            { 80, 48 }, // -> 0x225c -> 1334
+            { 112, 48 }, // -> 0x2260 -> 1336
+            { 144, 48 }, // -> 0x2264 -> 1338
+            { 176, 48 }, // -> 0x2268 -> 133a
+            { 208, 48 }, // -> 0x226c -> 133c
         },
         8
     },
     { // 4
         {
-            { 304, 134 }, // -> 0x4b74 -> 133e
-            { 304, 136 }, // -> 0x4c68 -> 1340
-            { 624, -24 }, // -> 0x0050 -> 1342
-            { 624, -22 }, // -> 0x0144 -> 1344
-            { 624, -20 }, // -> 0x0238 -> 1346
-            { 624, -18 }, // -> 0x032c -> 1348
-            { 624, -16 }, // -> 0x0420 -> 134a
-            { 624, -14 }, // -> 0x0514 -> 134c
+            { 304, 134 }, // -> 0x4b74 -> 1340
+            { 304, 136 }, // -> 0x4c68 -> 1342
+            { 624, -24 }, // -> 0x0050 -> 1344
+            { 624, -22 }, // -> 0x0144 -> 1346
+            { 624, -20 }, // -> 0x0238 -> 1348
+            { 624, -18 }, // -> 0x032c -> 134a
+            { 624, -16 }, // -> 0x0420 -> 134c
+            { 624, -14 }, // -> 0x0514 -> 134e
         },
         8
     },
     { // 5
         {
-            { 304, 118 }, // -> 0x43d4 -> 1350
-            { 304, 120 }, // -> 0x44c8 -> 1352
-            { 304, 122 }, // -> 0x45bc -> 1354
-            { 304, 124 }, // -> 0x46b0 -> 1356
-            { 304, 126 }, // -> 0x47a4 -> 1358
-            { 304, 128 }, // -> 0x4898 -> 135a
-            { 304, 130 }, // -> 0x498c -> 135c
-            { 304, 132 }, // -> 0x4a80 -> 135e
+            { 304, 118 }, // -> 0x43d4 -> 1352
+            { 304, 120 }, // -> 0x44c8 -> 1354
+            { 304, 122 }, // -> 0x45bc -> 1356
+            { 304, 124 }, // -> 0x46b0 -> 1358
+            { 304, 126 }, // -> 0x47a4 -> 135a
+            { 304, 128 }, // -> 0x4898 -> 135c
+            { 304, 130 }, // -> 0x498c -> 135e
+            { 304, 132 }, // -> 0x4a80 -> 1360
         },
         8
     },
     { // 6
         {
-            { 304, 130 }, // -> 0x498c -> 1362
-            { 304, 128 }, // -> 0x4898 -> 1364
-            { 304, 126 }, // -> 0x47a4 -> 1366
-            { 304, 124 }, // -> 0x46b0 -> 1368
-            { 304, 122 }, // -> 0x45bc -> 136a
-            { 304, 120 }, // -> 0x44c8 -> 136c
-            { 304, 118 }, // -> 0x43d4 -> 136e
-            { 304, 116 }, // -> 0x42e0 -> 1370
+            { 304, 130 }, // -> 0x498c -> 1364
+            { 304, 128 }, // -> 0x4898 -> 1366
+            { 304, 126 }, // -> 0x47a4 -> 1368
+            { 304, 124 }, // -> 0x46b0 -> 136a
+            { 304, 122 }, // -> 0x45bc -> 136c
+            { 304, 120 }, // -> 0x44c8 -> 136e
+            { 304, 118 }, // -> 0x43d4 -> 1370
+            { 304, 116 }, // -> 0x42e0 -> 1372
         },
         8
     },
     { // 7
         {
-            { 624, -16 }, // -> 0x0420 -> 1374
-            { 624, -18 }, // -> 0x032c -> 1376
-            { 624, -20 }, // -> 0x0238 -> 1378
-            { 624, -22 }, // -> 0x0144 -> 137a
-            { 624, -24 }, // -> 0x0050 -> 137c
-            { 304, 136 }, // -> 0x4c68 -> 137e
-            { 304, 134 }, // -> 0x4b74 -> 1380
-            { 304, 132 }, // -> 0x4a80 -> 1382
+            { 624, -16 }, // -> 0x0420 -> 1376
+            { 624, -18 }, // -> 0x032c -> 1378
+            { 624, -20 }, // -> 0x0238 -> 137a
+            { 624, -22 }, // -> 0x0144 -> 137c
+            { 624, -24 }, // -> 0x0050 -> 137e
+            { 304, 136 }, // -> 0x4c68 -> 1380
+            { 304, 134 }, // -> 0x4b74 -> 1382
+            { 304, 132 }, // -> 0x4a80 -> 1384
         },
         8
     },
     { // 8
         {
-            { 832, 64 }, // -> 0x2a5a -> 1386
-            { 384, 98 }, // -> 0x3a56 -> 1388
-            { 416, 82 }, // -> 0x32ba -> 138a
-            { 400, 98 }, // -> 0x3a58 -> 138c
-            { 848, 64 }, // -> 0x2a5c -> 138e
-            { 416, 98 }, // -> 0x3a5a -> 1390
-            { 368, 98 }, // -> 0x3a54 -> 1392
-            { 432, 98 }, // -> 0x3a5c -> 1394
-            { 832, 64 }, // -> 0x2a5a -> 1396
-            { 432, 98 }, // -> 0x3a5c -> 1398
-            { 368, 98 }, // -> 0x3a54 -> 139a
-            { 416, 98 }, // -> 0x3a5a -> 139c
-            { 848, 64 }, // -> 0x2a5c -> 139e
-            { 400, 98 }, // -> 0x3a58 -> 13a0
-            { 416, 82 }, // -> 0x32ba -> 13a2
-            { 384, 98 }, // -> 0x3a56 -> 13a4
-            { 640, 100 }, // -> 0x3b6a -> 13a6
-            { 656, 100 }, // -> 0x3b6c -> 13a8
-            { 672, 100 }, // -> 0x3b6e -> 13aa
-            { 688, 100 }, // -> 0x3b70 -> 13ac
-            { 704, 100 }, // -> 0x3b72 -> 13ae
-            { 720, 100 }, // -> 0x3b74 -> 13b0
-            { 736, 100 }, // -> 0x3b76 -> 13b2
-            { 752, 100 }, // -> 0x3b78 -> 13b4
-            { 512, 66 }, // -> 0x2b26 -> 13b6
-            { 544, 66 }, // -> 0x2b2a -> 13b8
-            { 576, 66 }, // -> 0x2b2e -> 13ba
-            { 608, 66 }, // -> 0x2b32 -> 13bc
-            { 320, 82 }, // -> 0x32ae -> 13be
-            { 352, 82 }, // -> 0x32b2 -> 13c0
-            { 384, 82 }, // -> 0x32b6 -> 13c2
-            { 416, 82 }, // -> 0x32ba -> 13c4
-            { 784, 98 }, // -> 0x3a88 -> 13c6
-            { 800, 98 }, // -> 0x3a8a -> 13c8
-            { 816, 98 }, // -> 0x3a8c -> 13ca
-            { 832, 98 }, // -> 0x3a8e -> 13cc
-            { 848, 98 }, // -> 0x3a90 -> 13ce
-            { 864, 98 }, // -> 0x3a92 -> 13d0
-            { 880, 98 }, // -> 0x3a94 -> 13d2
-            { 896, 98 }, // -> 0x3a96 -> 13d4
-            { 448, 82 }, // -> 0x32be -> 13d6
-            { 480, 82 }, // -> 0x32c2 -> 13d8
-            { 512, 82 }, // -> 0x32c6 -> 13da
-            { 544, 82 }, // -> 0x32ca -> 13dc
-            { 576, 82 }, // -> 0x32ce -> 13de
-            { 608, 82 }, // -> 0x32d2 -> 13e0
-            { 320, 98 }, // -> 0x3a4e -> 13e2
-            { 352, 98 }, // -> 0x3a52 -> 13e4
-            { 640, 80 }, // -> 0x31e2 -> 13e6
-            { 656, 80 }, // -> 0x31e4 -> 13e8
-            { 672, 80 }, // -> 0x31e6 -> 13ea
-            { 688, 80 }, // -> 0x31e8 -> 13ec
-            { 704, 80 }, // -> 0x31ea -> 13ee
-            { 720, 80 }, // -> 0x31ec -> 13f0
-            { 736, 80 }, // -> 0x31ee -> 13f2
-            { 752, 80 }, // -> 0x31f0 -> 13f4
-            { 640, 80 }, // -> 0x31e2 -> 13f6
-            { 752, 80 }, // -> 0x31f0 -> 13f8
-            { 736, 80 }, // -> 0x31ee -> 13fa
-            { 720, 80 }, // -> 0x31ec -> 13fc
-            { 704, 80 }, // -> 0x31ea -> 13fe
-            { 688, 80 }, // -> 0x31e8 -> 1400
-            { 672, 80 }, // -> 0x31e6 -> 1402
-            { 656, 80 }, // -> 0x31e4 -> 1404
-            { 784, 80 }, // -> 0x31f4 -> 1406
-            { 800, 80 }, // -> 0x31f6 -> 1408
-            { 816, 80 }, // -> 0x31f8 -> 140a
-            { 832, 80 }, // -> 0x31fa -> 140c
-            { 848, 80 }, // -> 0x31fc -> 140e
-            { 864, 80 }, // -> 0x31fe -> 1410
-            { 880, 80 }, // -> 0x3200 -> 1412
-            { 896, 80 }, // -> 0x3202 -> 1414
-            { 640, 48 }, // -> 0x22a2 -> 1416
-            { 672, 48 }, // -> 0x22a6 -> 1418
-            { 704, 48 }, // -> 0x22aa -> 141a
-            { 736, 48 }, // -> 0x22ae -> 141c
-            { 768, 48 }, // -> 0x22b2 -> 141e
-            { 800, 48 }, // -> 0x22b6 -> 1420
-            { 832, 48 }, // -> 0x22ba -> 1422
-            { 864, 48 }, // -> 0x22be -> 1424
-            { 640, 78 }, // -> 0x30ee -> 1426
-            { 656, 78 }, // -> 0x30f0 -> 1428
-            { 672, 78 }, // -> 0x30f2 -> 142a
-            { 688, 78 }, // -> 0x30f4 -> 142c
-            { 704, 78 }, // -> 0x30f6 -> 142e
-            { 720, 79 }, // -> 0x3172 -> 1430
-            { 736, 79 }, // -> 0x3174 -> 1432
-            { 752, 78 }, // -> 0x30fc -> 1434
-            { 896, 48 }, // -> 0x22c2 -> 1436
-            { 928, 48 }, // -> 0x22c6 -> 1438
-            { 640, 64 }, // -> 0x2a42 -> 143a
-            { 672, 64 }, // -> 0x2a46 -> 143c
-            { 704, 64 }, // -> 0x2a4a -> 143e
-            { 736, 64 }, // -> 0x2a4e -> 1440
-            { 768, 64 }, // -> 0x2a52 -> 1442
-            { 800, 64 }, // -> 0x2a56 -> 1444
-            { 448, 98 }, // -> 0x3a5e -> 1446
-            { 480, 98 }, // -> 0x3a62 -> 1448
-            { 512, 98 }, // -> 0x3a66 -> 144a
-            { 544, 98 }, // -> 0x3a6a -> 144c
-            { 576, 98 }, // -> 0x3a6e -> 144e
-            { 608, 98 }, // -> 0x3a72 -> 1450
-            { 608, 114 }, // -> 0x4212 -> 1452
-            { 608, 130 }, // -> 0x49b2 -> 1454
+            { 832, 64 }, // -> 0x2a5a -> 1388
+            { 384, 98 }, // -> 0x3a56 -> 138a
+            { 416, 82 }, // -> 0x32ba -> 138c
+            { 400, 98 }, // -> 0x3a58 -> 138e
+            { 848, 64 }, // -> 0x2a5c -> 1390
+            { 416, 98 }, // -> 0x3a5a -> 1392
+            { 368, 98 }, // -> 0x3a54 -> 1394
+            { 432, 98 }, // -> 0x3a5c -> 1396
+            { 832, 64 }, // -> 0x2a5a -> 1398
+            { 432, 98 }, // -> 0x3a5c -> 139a
+            { 368, 98 }, // -> 0x3a54 -> 139c
+            { 416, 98 }, // -> 0x3a5a -> 139e
+            { 848, 64 }, // -> 0x2a5c -> 13a0
+            { 400, 98 }, // -> 0x3a58 -> 13a2
+            { 416, 82 }, // -> 0x32ba -> 13a4
+            { 384, 98 }, // -> 0x3a56 -> 13a6
+            { 640, 100 }, // -> 0x3b6a -> 13a8
+            { 656, 100 }, // -> 0x3b6c -> 13aa
+            { 672, 100 }, // -> 0x3b6e -> 13ac
+            { 688, 100 }, // -> 0x3b70 -> 13ae
+            { 704, 100 }, // -> 0x3b72 -> 13b0
+            { 720, 100 }, // -> 0x3b74 -> 13b2
+            { 736, 100 }, // -> 0x3b76 -> 13b4
+            { 752, 100 }, // -> 0x3b78 -> 13b6
+            { 512, 66 }, // -> 0x2b26 -> 13b8
+            { 544, 66 }, // -> 0x2b2a -> 13ba
+            { 576, 66 }, // -> 0x2b2e -> 13bc
+            { 608, 66 }, // -> 0x2b32 -> 13be
+            { 320, 82 }, // -> 0x32ae -> 13c0
+            { 352, 82 }, // -> 0x32b2 -> 13c2
+            { 384, 82 }, // -> 0x32b6 -> 13c4
+            { 416, 82 }, // -> 0x32ba -> 13c6
+            { 784, 98 }, // -> 0x3a88 -> 13c8
+            { 800, 98 }, // -> 0x3a8a -> 13ca
+            { 816, 98 }, // -> 0x3a8c -> 13cc
+            { 832, 98 }, // -> 0x3a8e -> 13ce
+            { 848, 98 }, // -> 0x3a90 -> 13d0
+            { 864, 98 }, // -> 0x3a92 -> 13d2
+            { 880, 98 }, // -> 0x3a94 -> 13d4
+            { 896, 98 }, // -> 0x3a96 -> 13d6
+            { 448, 82 }, // -> 0x32be -> 13d8
+            { 480, 82 }, // -> 0x32c2 -> 13da
+            { 512, 82 }, // -> 0x32c6 -> 13dc
+            { 544, 82 }, // -> 0x32ca -> 13de
+            { 576, 82 }, // -> 0x32ce -> 13e0
+            { 608, 82 }, // -> 0x32d2 -> 13e2
+            { 320, 98 }, // -> 0x3a4e -> 13e4
+            { 352, 98 }, // -> 0x3a52 -> 13e6
+            { 640, 80 }, // -> 0x31e2 -> 13e8
+            { 656, 80 }, // -> 0x31e4 -> 13ea
+            { 672, 80 }, // -> 0x31e6 -> 13ec
+            { 688, 80 }, // -> 0x31e8 -> 13ee
+            { 704, 80 }, // -> 0x31ea -> 13f0
+            { 720, 80 }, // -> 0x31ec -> 13f2
+            { 736, 80 }, // -> 0x31ee -> 13f4
+            { 752, 80 }, // -> 0x31f0 -> 13f6
+            { 640, 80 }, // -> 0x31e2 -> 13f8
+            { 752, 80 }, // -> 0x31f0 -> 13fa
+            { 736, 80 }, // -> 0x31ee -> 13fc
+            { 720, 80 }, // -> 0x31ec -> 13fe
+            { 704, 80 }, // -> 0x31ea -> 1400
+            { 688, 80 }, // -> 0x31e8 -> 1402
+            { 672, 80 }, // -> 0x31e6 -> 1404
+            { 656, 80 }, // -> 0x31e4 -> 1406
+            { 784, 80 }, // -> 0x31f4 -> 1408
+            { 800, 80 }, // -> 0x31f6 -> 140a
+            { 816, 80 }, // -> 0x31f8 -> 140c
+            { 832, 80 }, // -> 0x31fa -> 140e
+            { 848, 80 }, // -> 0x31fc -> 1410
+            { 864, 80 }, // -> 0x31fe -> 1412
+            { 880, 80 }, // -> 0x3200 -> 1414
+            { 896, 80 }, // -> 0x3202 -> 1416
+            { 640, 48 }, // -> 0x22a2 -> 1418
+            { 672, 48 }, // -> 0x22a6 -> 141a
+            { 704, 48 }, // -> 0x22aa -> 141c
+            { 736, 48 }, // -> 0x22ae -> 141e
+            { 768, 48 }, // -> 0x22b2 -> 1420
+            { 800, 48 }, // -> 0x22b6 -> 1422
+            { 832, 48 }, // -> 0x22ba -> 1424
+            { 864, 48 }, // -> 0x22be -> 1426
+            { 640, 78 }, // -> 0x30ee -> 1428
+            { 656, 78 }, // -> 0x30f0 -> 142a
+            { 672, 78 }, // -> 0x30f2 -> 142c
+            { 688, 78 }, // -> 0x30f4 -> 142e
+            { 704, 78 }, // -> 0x30f6 -> 1430
+            { 720, 79 }, // -> 0x3172 -> 1432
+            { 736, 79 }, // -> 0x3174 -> 1434
+            { 752, 78 }, // -> 0x30fc -> 1436
+            { 896, 48 }, // -> 0x22c2 -> 1438
+            { 928, 48 }, // -> 0x22c6 -> 143a
+            { 640, 64 }, // -> 0x2a42 -> 143c
+            { 672, 64 }, // -> 0x2a46 -> 143e
+            { 704, 64 }, // -> 0x2a4a -> 1440
+            { 736, 64 }, // -> 0x2a4e -> 1442
+            { 768, 64 }, // -> 0x2a52 -> 1444
+            { 800, 64 }, // -> 0x2a56 -> 1446
+            { 448, 98 }, // -> 0x3a5e -> 1448
+            { 480, 98 }, // -> 0x3a62 -> 144a
+            { 512, 98 }, // -> 0x3a66 -> 144c
+            { 544, 98 }, // -> 0x3a6a -> 144e
+            { 576, 98 }, // -> 0x3a6e -> 1450
+            { 608, 98 }, // -> 0x3a72 -> 1452
+            { 608, 114 }, // -> 0x4212 -> 1454
+            { 608, 130 }, // -> 0x49b2 -> 1456
         },
         104
     },
     { // 9
         {
-            { 832, -16 }, // -> 0x043a -> 1458
-            { 864, -16 }, // -> 0x043e -> 145a
-            { 896, -16 }, // -> 0x0442 -> 145c
-            { 928, -16 }, // -> 0x0446 -> 145e
+            { 832, -16 }, // -> 0x043a -> 145a
+            { 864, -16 }, // -> 0x043e -> 145c
+            { 896, -16 }, // -> 0x0442 -> 145e
             { 928, -16 }, // -> 0x0446 -> 1460
-            { 928, 0 }, // -> 0x0be6 -> 1462
-            { 928, 16 }, // -> 0x1386 -> 1464
-            { 832, 32 }, // -> 0x1b1a -> 1466
-            { 864, 32 }, // -> 0x1b1e -> 1468
+            { 928, -16 }, // -> 0x0446 -> 1462
+            { 928, 0 }, // -> 0x0be6 -> 1464
+            { 928, 16 }, // -> 0x1386 -> 1466
+            { 832, 32 }, // -> 0x1b1a -> 1468
+            { 864, 32 }, // -> 0x1b1e -> 146a
         },
         9
     },
@@ -1496,7 +1496,7 @@ typedef enum
     LevelTileTypeHardware2 = 28,
     LevelTileTypeHardware3 = 29,
     LevelTileTypeHardware4 = 30,
-    LevelTileTypeHardware5 = 31,
+    LevelTileTypeExplosion = 31,
     LevelTileTypeHardware6 = 32,
     LevelTileTypeHardware7 = 33,
     LevelTileTypeHardware8 = 34,
@@ -2289,7 +2289,7 @@ void updateZonkTiles(uint16_t position);
 void updateTerminalTiles(uint16_t position);
 //void movefun6(void);
 //void movefun7(void);
-//void loc_4A543(void);
+void updateExplosionTiles(uint16_t position);
 
 static const MovingFunction movingFunctions[32] = {
     NULL,
@@ -2323,7 +2323,7 @@ static const MovingFunction movingFunctions[32] = {
     NULL,
     NULL,
     NULL,
-    NULL, //loc_4A543,
+    updateExplosionTiles,
 };
 
 SDL_Surface *gScreenSurface = NULL;
@@ -2487,7 +2487,7 @@ void sub_4ED29(uint16_t position);
 void sub_4FDB5(uint16_t position);
 void sub_4F2AF(uint16_t position);
 void drawLevelViewport(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
-void drawCurrentLevelViewport();
+void drawCurrentLevelViewport(void);
 void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, uint16_t height, uint16_t dstX, uint16_t dstY);
 
 static const int kWindowWidth = kScreenWidth * 4;
@@ -6009,7 +6009,7 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
             }
 //loc_481EF:              ; CODE XREF: movefun+257j
             else if (belowRightTile->movingObject != 0
-                     || belowRightTile->tile != LevelTileTypeHardware5) // cmp byte ptr [si+18AEh], 1Fh
+                     || belowRightTile->tile != LevelTileTypeExplosion) // cmp byte ptr [si+18AEh], 1Fh
             {
                 belowRightTile->tile = LevelTileTypeSpace;
                 belowRightTile->movingObject = 0;
@@ -6123,7 +6123,7 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
     }
 //loc_481D3:              ; CODE XREF: movefun+23Bj
     else if (belowLeftTile->movingObject != 0
-             || belowLeftTile->tile != LevelTileTypeHardware5) // cmp byte ptr [si+18AAh], 1Fh
+             || belowLeftTile->tile != LevelTileTypeExplosion) // cmp byte ptr [si+18AAh], 1Fh
     {
         belowLeftTile->tile = LevelTileTypeSpace;
         belowLeftTile->movingObject = 0;
@@ -6660,7 +6660,7 @@ void sub_487FE(uint16_t position) //   proc near       ; CODE XREF: update?+E0C
     MovingLevelTile *aboveRightTile = &gCurrentLevelWord[position - kLevelWidth + 1];
     MovingLevelTile *aboveLeftTile = &gCurrentLevelWord[position - kLevelWidth - 1];
 
-    if (currentTile->tile != LevelTileTypeHardware5)
+    if (currentTile->tile != LevelTileTypeExplosion)
     {
         currentTile->movingObject = 0;
         currentTile->tile = LevelTileTypeSpace;
@@ -6757,7 +6757,7 @@ void sub_488DC(uint16_t position) //   proc near       ; CODE XREF: movefun+124
     MovingLevelTile *aboveLeftTile = &gCurrentLevelWord[position - kLevelWidth - 1];
     MovingLevelTile *aboveRightTile = &gCurrentLevelWord[position - kLevelWidth + 1];
 
-    if (currentTile->tile != LevelTileTypeHardware5)
+    if (currentTile->tile != LevelTileTypeExplosion)
     {
         currentTile->movingObject = 0;
         currentTile->tile = LevelTileTypeSpace;
@@ -9459,7 +9459,7 @@ void levelScanThing() //   proc near       ; CODE XREF: runLevel+A7p
     {
 //loc_49D65:              ; CODE XREF: levelScanThing+18j
         MovingLevelTile *tile = &gCurrentLevelWord[i];
-        if (tile->tile == LevelTileTypeHardware5) // 31
+        if (tile->tile == LevelTileTypeExplosion) // 31
         {
             tile->tile = 0xF1; // 241
         }
@@ -10329,7 +10329,7 @@ void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
 
         if (currentTile->tile == 0xF1)
         {
-            currentTile->tile = LevelTileTypeHardware5;
+            currentTile->tile = LevelTileTypeExplosion;
             continue; // jmp short loc_4A3B0
         }
 
@@ -10650,91 +10650,72 @@ loc_4A53F:              ; CODE XREF: movefun3+B3j
         call    sub_4A61F
         return;
 movefun3  endp
-
-
-loc_4A543:              ; DATA XREF: data:1648o
-        cmp byte ptr leveldata[si], 1Fh
-        jz  short loc_4A54B
-        return;
-
-loc_4A54B:              ; CODE XREF: code:3928j
-        mov ax, word_5195D
-        and ax, 3
-        cmp ax, 0
-        jz  short loc_4A557
-        return;
-
-loc_4A557:              ; CODE XREF: code:3934j
-        mov bl, [si+1835h]
-        test    bl, 80h
-        jnz short loc_4A5A0
-        inc bl
-        mov [si+1835h], bl
-        push    si
-        push    bx
-        xor bh, bh
-        dec bl
-        mov di, [si+6155h]
-        mov si, bx
-        shl si, 1
-        add si, 12D6h
-        mov si, [si]
-        push    ds
-        mov ax, es
-        mov ds, ax
-        mov cx, 10h
-
-loc_4A582:              ; CODE XREF: code:396Aj
-        movsb
-        movsb
-        add si, 78h ; 'x'
-        add di, 78h ; 'x'
-        loop    loc_4A582
-        pop ds
-        pop bx
-        pop si
-        cmp bl, 8
-        jnz short locret_4A59F
-        mov word ptr leveldata[si], 0
-        mov byte_510C0, 0
-
-locret_4A59F:               ; CODE XREF: code:3972j
-        return;
-
-loc_4A5A0:              ; CODE XREF: code:393Ej
-        inc bl
-        cmp bl, 89h ; '?'
-        jnz short loc_4A5B3
-        mov word ptr leveldata[si], 4
-        mov byte_510C0, 0
-        return;
-
-loc_4A5B3:              ; CODE XREF: code:3985j
-        mov [si+1835h], bl
-        xor bh, bh
-        dec bl
-        and bl, 0Fh
-        mov di, [si+6155h]
-        mov si, bx
-        shl si, 1
-        add si, 12E6h
-        mov si, [si]
-        push    ds
-        mov ax, es
-        mov ds, ax
-        mov cx, 10h
-
-loc_4A5D4:              ; CODE XREF: code:39BCj
-        movsb
-        movsb
-        add si, 78h ; 'x'
-        add di, 78h ; 'x'
-        loop    loc_4A5D4
-        pop ds
-        return;
-
-; =============== S U B R O U T I N E =======================================
 */
+
+void updateExplosionTiles(uint16_t position) //loc_4A543:              ; DATA XREF: data:1648o
+{
+    MovingLevelTile *currentTile = &gCurrentLevelWord[position];
+
+    if (currentTile->tile != LevelTileTypeExplosion)
+    {
+        return;
+    }
+
+//loc_4A54B:              ; CODE XREF: code:3928j
+    if ((word_5195D & 3) != 0)
+    {
+        return;
+    }
+
+    AnimationFrameCoordinates animationFrameCoordinates = frameCoordinates_515C6[0];
+
+//loc_4A557:              ; CODE XREF: code:3934j
+    uint8_t movingObject = currentTile->movingObject;
+    if ((movingObject & 0x80) != 0)
+    {
+//loc_4A5A0:              ; CODE XREF: code:393Ej
+        movingObject++;
+        if (movingObject != 0x89)
+        {
+//loc_4A5B3:              ; CODE XREF: code:3985j
+            currentTile->movingObject = movingObject;
+            movingObject--;
+            movingObject &= 0xF;
+            Point frameCoordinates = animationFrameCoordinates.coordinates[24 + movingObject];
+
+            drawMovingFrame(frameCoordinates.x,
+                            frameCoordinates.y,
+                            position);
+        }
+        else
+        {
+            currentTile->movingObject = 0;
+            currentTile->tile = LevelTileTypeInfotron;
+            byte_510C0 = 0;
+        }
+    }
+    else
+    {
+        movingObject++;
+        currentTile->movingObject = movingObject;
+        bh = 0;
+        movingObject--;
+
+        Point frameCoordinates = animationFrameCoordinates.coordinates[16 + movingObject];
+
+        drawMovingFrame(frameCoordinates.x,
+                        frameCoordinates.y,
+                        position);
+
+//loc_4A582:              ; CODE XREF: code:396Aj
+        if (currentTile->movingObject == 8)
+        {
+            currentTile->movingObject = 0;
+            currentTile->tile = LevelTileTypeSpace;
+            byte_510C0 = 0;
+        }
+    }
+}
 
 void sub_4A5E0() //   proc near       ; CODE XREF: runLevel+106p
 {
@@ -10813,7 +10794,7 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     {
         // cx = 0x0801F;
         movingObject = 0x08;
-        tile = LevelTileTypeHardware5;
+        tile = LevelTileTypeExplosion;
         afterWordTile = 0xF3; // 243
     }
     else
@@ -10821,7 +10802,7 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
 //loc_4A647:              ; CODE XREF: sub_4A61F+1Fj
         // cx = 0x1F; // 31
         movingObject = 0;
-        tile = LevelTileTypeHardware5;
+        tile = LevelTileTypeExplosion;
         afterWordTile = LevelTileTypeSportRight; // 13
     }
 
@@ -10856,7 +10837,7 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         afterWordTile = 256 - afterWordTile; // dh = -dh;
         // cx = 0x0801F;
         movingObject = 0x08;
-        tile = LevelTileTypeHardware5;
+        tile = LevelTileTypeExplosion;
 //loc_4A680:              ; CODE XREF: sub_4A61F+3Aj
 //                ; sub_4A61F+3Ej ...
         if (aboveLeftTile->tile != LevelTileTypeHardware)
@@ -10921,7 +10902,7 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         afterWordTile = 256 - afterWordTile; // dh = -dh;
         // cx = 0x0801F;
         movingObject = 0x08;
-        tile = LevelTileTypeHardware5;
+        tile = LevelTileTypeExplosion;
 //loc_4A6D7:              ; CODE XREF: sub_4A61F+91j
 //                ; sub_4A61F+95j ...
         if (aboveTile->tile != LevelTileTypeHardware)
@@ -10987,7 +10968,7 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         afterWordTile = 256 - afterWordTile; // dh = -dh;
         // cx = 0x0801F;
         movingObject = 0x08;
-        tile = LevelTileTypeHardware5;
+        tile = LevelTileTypeExplosion;
 //loc_4A72E:              ; CODE XREF: sub_4A61F+E8j
 //                ; sub_4A61F+ECj ...
         if (aboveRightTile->tile != LevelTileTypeHardware)
@@ -11053,7 +11034,7 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         afterWordTile = 256 - afterWordTile; // dh = -dh;
         // cx = 0x0801F;
         movingObject = 0x08;
-        tile = LevelTileTypeHardware5;
+        tile = LevelTileTypeExplosion;
 //loc_4A785:              ; CODE XREF: sub_4A61F+13Fj
 //                ; sub_4A61F+143j ...
         if (leftTile->tile != LevelTileTypeHardware)
@@ -11122,7 +11103,7 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         afterWordTile = 256 - afterWordTile; // dh = -dh;
         // cx = 0x0801F;
         movingObject = 0x08;
-        tile = LevelTileTypeHardware5;
+        tile = LevelTileTypeExplosion;
 //loc_4A7E0:              ; CODE XREF: sub_4A61F+19Aj
 //                ; sub_4A61F+19Ej ...
         if (rightTile->tile != LevelTileTypeHardware)
@@ -11188,7 +11169,7 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         afterWordTile = 256 - afterWordTile; // dh = -dh;
         // cx = 0x0801F;
         movingObject = 0x08;
-        tile = LevelTileTypeHardware5;
+        tile = LevelTileTypeExplosion;
 //loc_4A837:              ; CODE XREF: sub_4A61F+1F1j
 //                ; sub_4A61F+1F5j ...
         if (belowLeftTile->tile != LevelTileTypeHardware)
@@ -11253,7 +11234,7 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         afterWordTile = 256 - afterWordTile; // dh = -dh;
         // cx = 0x0801F;
         movingObject = 0x08;
-        tile = LevelTileTypeHardware5;
+        tile = LevelTileTypeExplosion;
 //loc_4A88E:              ; CODE XREF: sub_4A61F+248j
 //                ; sub_4A61F+24Cj ...
         if (belowTile->tile != LevelTileTypeHardware)
@@ -11323,7 +11304,7 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         afterWordTile = 256 - afterWordTile; // dh = -dh;
         // cx = 0x0801F;
         movingObject = 0x08;
-        tile = LevelTileTypeHardware5;
+        tile = LevelTileTypeExplosion;
 //loc_4A8E5:              ; CODE XREF: sub_4A61F+29Fj
 //                ; sub_4A61F+2A3j ...
         if (belowRightTile->tile != LevelTileTypeHardware)
@@ -11581,7 +11562,7 @@ void sub_4AAB4(uint16_t position) //   proc near       ; CODE XREF: sub_4A9C4+2E
 {
     MovingLevelTile *currentTile = &gCurrentLevelWord[position];
 
-    if (currentTile->tile == LevelTileTypeHardware5)
+    if (currentTile->tile == LevelTileTypeExplosion)
     {
         return;
     }
@@ -18495,7 +18476,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 3)
         {
 //loc_4ECCF:              ; CODE XREF: update?+CB3j update?+CD3j
-            if (aboveTile->tile != LevelTileTypeHardware5)
+            if (aboveTile->tile != LevelTileTypeExplosion)
             {
                 aboveTile->movingObject = 0;
                 aboveTile->tile = LevelTileTypeSpace;
@@ -18535,7 +18516,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 7)
         {
 //loc_4ECCF:              ; CODE XREF: update?+CB3j update?+CD3j
-            if (aboveTile->tile != LevelTileTypeHardware5)
+            if (aboveTile->tile != LevelTileTypeExplosion)
             {
                 aboveTile->movingObject = 0;
                 aboveTile->tile = LevelTileTypeSpace;
@@ -18603,7 +18584,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
             drawgNumberOfRemainingInfotrons();
 
 //loc_4ECCF:              ; CODE XREF: update?+CB3j update?+CD3j
-            if (aboveTile->tile != LevelTileTypeHardware5)
+            if (aboveTile->tile != LevelTileTypeExplosion)
             {
                 aboveTile->movingObject = 0;
                 aboveTile->tile = LevelTileTypeSpace;
@@ -18636,7 +18617,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 14)
         {
 //loc_4ECE3:              ; CODE XREF: update?+D03j
-            if (murphyTile->tile != LevelTileTypeHardware5)
+            if (murphyTile->tile != LevelTileTypeExplosion)
             {
                 murphyTile->movingObject = 0;
                 murphyTile->tile = LevelTileTypeSpace;
@@ -18654,7 +18635,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 15)
         {
 //loc_4ED06:              ; CODE XREF: update?+D0Bj
-            if (murphyTile->tile != LevelTileTypeHardware5)
+            if (murphyTile->tile != LevelTileTypeExplosion)
             {
                 murphyTile->movingObject = 0;
                 murphyTile->tile = LevelTileTypeSpace;
@@ -18672,7 +18653,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 16)
         {
 //loc_4EF71:              ; CODE XREF: update?+D13j
-            if (aboveTile->tile != LevelTileTypeHardware5)
+            if (aboveTile->tile != LevelTileTypeExplosion)
             {
                 aboveTile->movingObject = 0;
                 aboveTile->tile = LevelTileTypeSpace;
@@ -18684,7 +18665,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 17)
         {
 //loc_4EF8D:              ; CODE XREF: update?+D1Bj
-            if (leftTile->tile != LevelTileTypeHardware5)
+            if (leftTile->tile != LevelTileTypeExplosion)
             {
                 leftTile->movingObject = 0;
                 leftTile->tile = LevelTileTypeSpace;
@@ -18696,7 +18677,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 19)
         {
 //loc_4EFC5:              ; CODE XREF: update?+D23j
-            if (rightTile->tile != LevelTileTypeHardware5)
+            if (rightTile->tile != LevelTileTypeExplosion)
             {
                 rightTile->movingObject = 0;
                 rightTile->tile = LevelTileTypeSpace;
@@ -18708,7 +18689,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 18)
         {
 //loc_4EFA9:              ; CODE XREF: update?+D2Bj
-            if (belowTile->tile != LevelTileTypeHardware5)
+            if (belowTile->tile != LevelTileTypeExplosion)
             {
                 belowTile->movingObject = 0;
                 belowTile->tile = LevelTileTypeSpace;
@@ -18729,7 +18710,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
             drawgNumberOfRemainingInfotrons();
 
 //loc_4EF71:              ; CODE XREF: update?+D13j
-            if (aboveTile->tile != LevelTileTypeHardware5)
+            if (aboveTile->tile != LevelTileTypeExplosion)
             {
                 aboveTile->movingObject = 0;
                 aboveTile->tile = LevelTileTypeSpace;
@@ -18750,7 +18731,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
             drawgNumberOfRemainingInfotrons();
 
 //loc_4EF8D:              ; CODE XREF: update?+D1Bj
-            if (leftTile->tile != LevelTileTypeHardware5)
+            if (leftTile->tile != LevelTileTypeExplosion)
             {
                 leftTile->movingObject = 0;
                 leftTile->tile = LevelTileTypeSpace;
@@ -18771,7 +18752,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
             drawgNumberOfRemainingInfotrons();
 
 //loc_4EFC5:              ; CODE XREF: update?+D23j
-            if (rightTile->tile != LevelTileTypeHardware5)
+            if (rightTile->tile != LevelTileTypeExplosion)
             {
                 rightTile->movingObject = 0;
                 rightTile->tile = LevelTileTypeSpace;
@@ -18792,7 +18773,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
             drawgNumberOfRemainingInfotrons();
 
 //loc_4EFA9:              ; CODE XREF: update?+D2Bj
-            if (belowTile->tile != LevelTileTypeHardware5)
+            if (belowTile->tile != LevelTileTypeExplosion)
             {
                 belowTile->movingObject = 0;
                 belowTile->tile = LevelTileTypeSpace;
@@ -18811,7 +18792,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 24)
         {
 //loc_4EFD3:              ; CODE XREF: update?+D5Bj
-            if (murphyTile->tile != LevelTileTypeHardware5)
+            if (murphyTile->tile != LevelTileTypeExplosion)
             {
                 murphyTile->movingObject = 0;
                 murphyTile->tile = LevelTileTypeSpace;
@@ -18833,7 +18814,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 25)
         {
 //loc_4F001:              ; CODE XREF: update?+D63j
-            if (murphyTile->tile != LevelTileTypeHardware5)
+            if (murphyTile->tile != LevelTileTypeExplosion)
             {
                 murphyTile->movingObject = 0;
                 murphyTile->tile = LevelTileTypeSpace;
@@ -18855,7 +18836,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 26)
         {
 //loc_4F02E:              ; CODE XREF: update?+D6Bj
-            if (murphyTile->tile != LevelTileTypeHardware5)
+            if (murphyTile->tile != LevelTileTypeExplosion)
             {
                 murphyTile->movingObject = 0;
                 murphyTile->tile = LevelTileTypeSpace;
@@ -18877,7 +18858,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 27)
         {
 //loc_4F05C:              ; CODE XREF: update?+D73j
-            if (murphyTile->tile != LevelTileTypeHardware5)
+            if (murphyTile->tile != LevelTileTypeExplosion)
             {
                 murphyTile->movingObject = 0;
                 murphyTile->tile = LevelTileTypeSpace;
@@ -18899,7 +18880,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 28)
         {
 //loc_4F089:              ; CODE XREF: update?+D7Bj
-            if (murphyTile->tile != LevelTileTypeHardware5)
+            if (murphyTile->tile != LevelTileTypeExplosion)
             {
                 murphyTile->movingObject = 0;
                 murphyTile->tile = LevelTileTypeSpace;
@@ -18919,7 +18900,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 29)
         {
 //loc_4F09C:              ; CODE XREF: update?+D83j
-            if (rightTile->tile != LevelTileTypeHardware5)
+            if (rightTile->tile != LevelTileTypeExplosion)
             {
                 rightTile->movingObject = 0;
                 rightTile->tile = LevelTileTypeSpace;
@@ -18936,7 +18917,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 30)
         {
 //loc_4F0AC:              ; CODE XREF: update?+D8Bj
-            if (murphyTile->tile != LevelTileTypeHardware5)
+            if (murphyTile->tile != LevelTileTypeExplosion)
             {
                 murphyTile->movingObject = 0;
                 murphyTile->tile = LevelTileTypeSpace;
@@ -18956,7 +18937,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 31)
         {
 //loc_4F0BF:              ; CODE XREF: update?+D93j
-            if (leftTile->tile != LevelTileTypeHardware5)
+            if (leftTile->tile != LevelTileTypeExplosion)
             {
                 leftTile->movingObject = 0;
                 leftTile->tile = LevelTileTypeSpace;
@@ -18973,7 +18954,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 32)
         {
 //loc_4F0CF:              ; CODE XREF: update?+D9Bj
-            if (aboveTile->tile != LevelTileTypeHardware5)
+            if (aboveTile->tile != LevelTileTypeExplosion)
             {
                 aboveTile->movingObject = 0;
                 aboveTile->tile = LevelTileTypeSpace;
@@ -18987,7 +18968,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 33)
         {
 //loc_4F0E6:              ; CODE XREF: update?+DA3j
-            if (leftTile->tile != LevelTileTypeHardware5)
+            if (leftTile->tile != LevelTileTypeExplosion)
             {
                 leftTile->movingObject = 0;
                 leftTile->tile = LevelTileTypeSpace;
@@ -19001,7 +18982,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 34)
         {
 //loc_4F0FD:              ; CODE XREF: update?+DABj
-            if (belowTile->tile != LevelTileTypeHardware5)
+            if (belowTile->tile != LevelTileTypeExplosion)
             {
                 belowTile->movingObject = 0;
                 belowTile->tile = LevelTileTypeSpace;
@@ -19015,7 +18996,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 35)
         {
 //loc_4F114:              ; CODE XREF: update?+DB3j
-            if (rightTile->tile != LevelTileTypeHardware5)
+            if (rightTile->tile != LevelTileTypeExplosion)
             {
                 rightTile->movingObject = 0;
                 rightTile->tile = LevelTileTypeSpace;
@@ -19029,7 +19010,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 36)
         {
 //loc_4F12B:              ; CODE XREF: update?+DBBj
-            if (murphyTile->tile != LevelTileTypeHardware5)
+            if (murphyTile->tile != LevelTileTypeExplosion)
             {
                 murphyTile->movingObject = 0;
                 murphyTile->tile = LevelTileTypeSpace;
@@ -19046,7 +19027,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 37)
         {
 //loc_4F148:              ; CODE XREF: update?+DC3j
-            if (murphyTile->tile != LevelTileTypeHardware5)
+            if (murphyTile->tile != LevelTileTypeExplosion)
             {
                 murphyTile->movingObject = 0;
                 murphyTile->tile = LevelTileTypeSpace;
@@ -19063,7 +19044,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 39)
         {
 //loc_4F165:              ; CODE XREF: update?+DCBj
-            if (murphyTile->tile != LevelTileTypeHardware5)
+            if (murphyTile->tile != LevelTileTypeExplosion)
             {
                 murphyTile->movingObject = 0;
                 murphyTile->tile = LevelTileTypeSpace;
@@ -19080,7 +19061,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 38)
         {
 //loc_4F182:              ; CODE XREF: update?+DD3j
-            if (murphyTile->tile != LevelTileTypeHardware5)
+            if (murphyTile->tile != LevelTileTypeExplosion)
             {
                 murphyTile->movingObject = 0;
                 murphyTile->tile = LevelTileTypeSpace;
@@ -19097,7 +19078,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 40)
         {
 //loc_4F19F:              ; CODE XREF: update?+DDBj
-            if (murphyTile->tile != LevelTileTypeHardware5)
+            if (murphyTile->tile != LevelTileTypeExplosion)
             {
                 murphyTile->movingObject = 0;
                 murphyTile->tile = LevelTileTypeSpace;
@@ -19114,7 +19095,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 41)
         {
 //loc_4F1BC:              ; CODE XREF: update?+DE3j
-            if (murphyTile->tile != LevelTileTypeHardware5)
+            if (murphyTile->tile != LevelTileTypeExplosion)
             {
                 murphyTile->movingObject = 0;
                 murphyTile->tile = LevelTileTypeSpace;
@@ -19175,7 +19156,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         murphyTile->tile = LevelTileTypeMurphy;
         leftTile->movingObject = 0;
         leftTile->tile = LevelTileTypeZonk;
-        if (leftLeftTile->tile != LevelTileTypeHardware5)
+        if (leftLeftTile->tile != LevelTileTypeExplosion)
         {
             leftLeftTile->movingObject = 0;
             leftLeftTile->tile = LevelTileTypeSpace;
@@ -19204,7 +19185,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         murphyTile->tile = LevelTileTypeMurphy;
         rightTile->movingObject = 0;
         rightTile->tile = LevelTileTypeZonk;
-        if (rightRightTile->tile != LevelTileTypeHardware5)
+        if (rightRightTile->tile != LevelTileTypeExplosion)
         {
             rightRightTile->movingObject = 0;
             rightRightTile->tile = LevelTileTypeSpace;
@@ -19233,7 +19214,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         murphyTile->tile = LevelTileTypeMurphy;
         leftTile->movingObject = 0;
         leftTile->tile = LevelTileTypeOrangeDisk;
-        if (leftLeftTile->tile != LevelTileTypeHardware5)
+        if (leftLeftTile->tile != LevelTileTypeExplosion)
         {
             leftLeftTile->movingObject = 0;
             leftLeftTile->tile = LevelTileTypeSpace;
@@ -19262,7 +19243,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         murphyTile->tile = LevelTileTypeMurphy;
         rightTile->movingObject = 0;
         rightTile->tile = LevelTileTypeOrangeDisk;
-        if (rightRightTile->tile != LevelTileTypeHardware5)
+        if (rightRightTile->tile != LevelTileTypeExplosion)
         {
             rightRightTile->movingObject = 0;
             rightRightTile->tile = LevelTileTypeSpace;
@@ -19291,7 +19272,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         murphyTile->tile = LevelTileTypeMurphy;
         aboveTile->movingObject = 0;
         aboveTile->tile = LevelTileTypeYellowDisk;
-        if (aboveAboveTile->tile != LevelTileTypeHardware5)
+        if (aboveAboveTile->tile != LevelTileTypeExplosion)
         {
             aboveAboveTile->movingObject = 0;
             aboveAboveTile->tile = LevelTileTypeSpace;
@@ -19320,7 +19301,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         murphyTile->tile = LevelTileTypeMurphy;
         leftTile->movingObject = 0;
         leftTile->tile = LevelTileTypeYellowDisk;
-        if (leftLeftTile->tile != LevelTileTypeHardware5)
+        if (leftLeftTile->tile != LevelTileTypeExplosion)
         {
             leftLeftTile->movingObject = 0;
             leftLeftTile->tile = LevelTileTypeSpace;
@@ -19350,7 +19331,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         murphyTile->tile = LevelTileTypeMurphy;
         belowTile->movingObject = 0;
         belowTile->tile = LevelTileTypeYellowDisk;
-        if (belowBelowTile->tile != LevelTileTypeHardware5)
+        if (belowBelowTile->tile != LevelTileTypeExplosion)
         {
             belowBelowTile->movingObject = 0;
             belowBelowTile->tile = LevelTileTypeSpace;
@@ -19380,7 +19361,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         murphyTile->tile = LevelTileTypeMurphy;
         rightTile->movingObject = 0;
         rightTile->tile = LevelTileTypeYellowDisk;
-        if (rightRightTile->tile != LevelTileTypeHardware5)
+        if (rightRightTile->tile != LevelTileTypeExplosion)
         {
             rightRightTile->movingObject = 0;
             rightRightTile->tile = LevelTileTypeSpace;
@@ -19545,7 +19526,7 @@ uint8_t sub_4F21F(uint16_t position) //   proc near       ; CODE XREF: update?+2
 //                ; sub_4F21F+66j ...
         return 1;
     }
-    else if (tile->tile == LevelTileTypeHardware5)
+    else if (tile->tile == LevelTileTypeExplosion)
     {
 //loc_4F298:              ; CODE XREF: sub_4F21F+15j
         if ((tile->movingObject & 0x80) != 0
