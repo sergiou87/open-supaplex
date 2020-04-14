@@ -1007,34 +1007,23 @@ uint16_t word_5157A = 0x4A62; // -> 0x126A -> (64, 132)
 uint16_t word_5157C = 0x0502; // -> 0x126C -> (97, 132)
 uint16_t kMurphyStillSpriteCoordinates = 0x4A80; // word_5157E -> 0x126E -> (304, 132)
 uint16_t word_51580 = 0x1AB2; // -> 0x1270 -> (0, 32)
-uint8_t binaryData_51582[2] = {
-    0x40, // -> 0x1272
-    0x3B,
-};
-
-uint16_t binaryData_51584[11] = {
-    0x1BEE, // -> 0x1274
-    0x1BF0, // -> 0x1276
-    0x1BF2, // -> 0x1278
-    0x1BF4, // -> 0x127A
-    0x1BF2, // -> 0x127C
-    0x1BF0, // -> 0x127E
-    0x1BF2, // -> 0x1280
-    0x1BF4, // -> 0x1282
-    0x1BF2, // -> 0x1284
-    0x1BF0, // -> 0x1286
-    0x1BEE, // -> 0x1288
-};
-
-uint8_t binaryData_5159A[8] = {
-    0x40, // -> 0x128A
-    0x3B, // -> 0x128B
-    0x18, // -> 0x128C
-    0x2A, // -> 0x128D
-    0x18, // -> 0x128E
-    0x2A, // -> 0x128F
-    0x96, // -> 0x1290
-    0x33, // -> 0x1291
+static const Point kBugFrameCoordinates[16] = { // binaryData_51582
+    { 304, 100 }, // 0x3B40 -> 0x1272
+    { 256, 196 }, // 0x1BEE -> 0x1274
+    { 272, 196 }, // 0x1BF0 -> 0x1276
+    { 288, 196 }, // 0x1BF2 -> 0x1278
+    { 304, 196 }, // 0x1BF4 -> 0x127A
+    { 288, 196 }, // 0x1BF2 -> 0x127C
+    { 272, 196 }, // 0x1BF0 -> 0x127E
+    { 288, 196 }, // 0x1BF2 -> 0x1280
+    { 304, 196 }, // 0x1BF4 -> 0x1282
+    { 288, 196 }, // 0x1BF2 -> 0x1284
+    { 272, 196 }, // 0x1BF0 -> 0x1286
+    { 256, 196 }, // 0x1BEE -> 0x1288
+    { 304, 100 }, // 0x3B40 -> 0x128A
+    { 304, 64 }, // 0x2A18 -> 0x128C
+    { 304, 64 }, // 0x2A18 -> 0x128E -> this one probably doesn't belong to this array (there are only 14 bug frames according to updateBugTiles)
+    { 224, 84 }, // 0x3396 -> 0x1290 -> this is a zonk, probably doesn't belong to this array
 };
 
 uint16_t word_515A2 = 0x32A2; // -> 0x1292 -> (224, 82) ??
@@ -2288,7 +2277,7 @@ void updateZonkTiles(uint16_t position);
 //void movefun4(void);
 void updateTerminalTiles(uint16_t position);
 //void movefun6(void);
-//void movefun7(void);
+void updateBugTiles(uint16_t position);
 void updateExplosionTiles(uint16_t position);
 
 static const MovingFunction movingFunctions[32] = {
@@ -2317,7 +2306,7 @@ static const MovingFunction movingFunctions[32] = {
     NULL,
     NULL,
     NULL, //movefun6,
-    NULL, //movefun7,
+    updateBugTiles,
     NULL,
     NULL,
     NULL,
@@ -9991,82 +9980,68 @@ uint8_t waitForJoystickKeyReleased(uint8_t keyOrAxis, uint16_t *outTime) // sub_
     return 1;
 }
 
-/*
+void updateBugTiles(uint16_t position) // movefun7  proc near       ; DATA XREF: data:163Co
+{
+    MovingLevelTile *currentTile = &gCurrentLevelWord[position];
+    MovingLevelTile *aboveTile = &gCurrentLevelWord[position - kLevelWidth];
+    MovingLevelTile *belowTile = &gCurrentLevelWord[position + kLevelWidth];
+    MovingLevelTile *leftTile = &gCurrentLevelWord[position - 1];
+    MovingLevelTile *rightTile = &gCurrentLevelWord[position + 1];
+    MovingLevelTile *aboveLeftTile = &gCurrentLevelWord[position - kLevelWidth - 1];
+    MovingLevelTile *aboveRightTile = &gCurrentLevelWord[position - kLevelWidth + 1];
+    MovingLevelTile *belowLeftTile = &gCurrentLevelWord[position + kLevelWidth - 1];
+    MovingLevelTile *belowRightTile = &gCurrentLevelWord[position + kLevelWidth + 1];
 
-movefun7  proc near       ; DATA XREF: data:163Co
-        cmp byte ptr leveldata[si], 19h
-        jz  short loc_4A045
+    if (currentTile->tile != LevelTileTypeBug)
+    {
         return;
+    }
 
-loc_4A045:              ; CODE XREF: movefun7+5j
-        mov ax, word_5195D
-        and ax, 3
-        cmp ax, 0
-        jz  short loc_4A051
+//loc_4A045:              ; CODE XREF: movefun7+5j
+    if ((word_5195D & 3) != 0)
+    {
         return;
+    }
 
-loc_4A051:              ; CODE XREF: movefun7+11j
-        mov bl, [si+1835h]
-        inc bl
-        cmp bl, 0Eh
-        jl  short loc_4A067
-        call    sub_4A1AE
-        and al, 3Fh
-        add al, 20h ; ' '
-        neg al
-        mov bl, al
+//loc_4A051:              ; CODE XREF: movefun7+11j
+    int8_t frameNumber = currentTile->movingObject;
+    frameNumber++;
+    if (frameNumber >= 0xE)
+    {
+        uint8_t value = sub_4A1AE() & 0xFF;
+        value &= 0x3F;
+        value += 0x20;
+        value = ~value;
+        frameNumber = value;
+    }
 
-loc_4A067:              ; CODE XREF: movefun7+1Dj
-        mov [si+1835h], bl
-        cmp bl, 0
-        jge short loc_4A071
+//loc_4A067:              ; CODE XREF: movefun7+1Dj
+    currentTile->movingObject = frameNumber;
+    if (frameNumber < 0)
+    {
         return;
+    }
 
-loc_4A071:              ; CODE XREF: movefun7+31j
-        cmp byte ptr [si+17BAh], 3
-        jz  short loc_4A0AB
-        cmp byte ptr [si+17BCh], 3
-        jz  short loc_4A0AB
-        cmp byte ptr [si+17BEh], 3
-        jz  short loc_4A0AB
-        cmp byte ptr [si+1832h], 3
-        jz  short loc_4A0AB
-        cmp byte ptr [si+1836h], 3
-        jz  short loc_4A0AB
-        cmp byte ptr [si+18AAh], 3
-        jz  short loc_4A0AB
-        cmp byte ptr [si+18ACh], 3
-        jz  short loc_4A0AB
-        cmp byte ptr [si+18AEh], 3
-        jz  short loc_4A0AB
-        jmp short loc_4A0AE
+//loc_4A071:              ; CODE XREF: movefun7+31j
+    if (aboveLeftTile->tile == LevelTileTypeMurphy
+        || aboveTile->tile == LevelTileTypeMurphy
+        || aboveRightTile->tile == LevelTileTypeMurphy
+        || leftTile->tile == LevelTileTypeMurphy
+        || rightTile->tile == LevelTileTypeMurphy
+        || belowLeftTile->tile == LevelTileTypeMurphy
+        || belowTile->tile == LevelTileTypeMurphy
+        || belowRightTile->tile == LevelTileTypeMurphy)
+    {
+//loc_4A0AB:              ; CODE XREF: movefun7+39j
+//                ; movefun7+40j ...
+        sound8();
+    }
 
-loc_4A0AB:              ; CODE XREF: movefun7+39j
-                    ; movefun7+40j ...
-        call    sound8
+//loc_4A0AE:              ; CODE XREF: movefun7+6Cj
+    Point frameCoordinates = kBugFrameCoordinates[frameNumber];
+    drawMovingFrame(frameCoordinates.x, frameCoordinates.y, position);
+}
 
-loc_4A0AE:              ; CODE XREF: movefun7+6Cj
-        xor bh, bh
-        mov di, [si+6155h]
-        mov si, bx
-        shl si, 1
-        add si, 1272h
-        mov si, [si]
-        push    ds
-        mov ax, es
-        mov ds, ax
-        mov cx, 10h
-
-loc_4A0C6:              ; CODE XREF: movefun7+91j
-        movsb
-        movsb
-        add si, 78h ; 'x'
-        add di, 78h ; 'x'
-        loop    loc_4A0C6
-        pop ds
-        return;
-movefun7  endp
-*/
 void updateTerminalTiles(uint16_t position) // movefun5  proc near       ; DATA XREF: data:1630o
 {
     MovingLevelTile *currentTile = &gCurrentLevelWord[position];
