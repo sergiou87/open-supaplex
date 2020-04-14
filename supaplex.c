@@ -2478,8 +2478,8 @@ void sub_4A910(void);
 void sub_4A5E0(void);
 void sub_4A95F(void);
 void sub_488DC(uint16_t position);
-void sub_4A61F(uint16_t position);
-void sub_4A9C4(uint16_t position, uint8_t movingObject, uint8_t tile);
+void detonateBigExplosion(uint16_t position);
+void detonateZonk(uint16_t position, uint8_t movingObject, uint8_t tile);
 void sub_4AA34(uint16_t position, uint8_t movingObject, uint8_t tile);
 void sub_4AAB4(uint16_t position);
 uint8_t sub_4F21F(uint16_t position);
@@ -5987,7 +5987,7 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
         {
 //loc_481FE:              ; CODE XREF: movefun+168j
 //                ; movefun+188j ...
-            sub_4A61F(position + kLevelWidth); // Tile below
+            detonateBigExplosion(position + kLevelWidth); // Tile below
             return;
         }
 
@@ -6019,7 +6019,7 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
             {
 //loc_481FE:              ; CODE XREF: movefun+168j
 //                ; movefun+188j ...
-                sub_4A61F(position + kLevelWidth); // Tile below
+                detonateBigExplosion(position + kLevelWidth); // Tile below
                 return;
             }
         }
@@ -6029,7 +6029,7 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
         {
 //loc_481FE:              ; CODE XREF: movefun+168j
 //                ; movefun+188j ...
-            sub_4A61F(position + kLevelWidth); // Tile below
+            detonateBigExplosion(position + kLevelWidth); // Tile below
             return;
         }
 
@@ -6133,7 +6133,7 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
     {
 //loc_481FE:              ; CODE XREF: movefun+168j
 //                ; movefun+188j ...
-        sub_4A61F(position + kLevelWidth); // Tile below
+        detonateBigExplosion(position + kLevelWidth); // Tile below
         return;
     }
 }
@@ -6408,7 +6408,7 @@ loc_485F2:              ; CODE XREF: movefun2+136j
 loc_48614:              ; CODE XREF: movefun2+140j
                     ; movefun2+14Aj ...
         add si, 78h ; 'x'
-        call    sub_4A61F
+        call    detonateBigExplosion
 
 locret_4861A:               ; CODE XREF: movefun2+1F1j
                     ; movefun2+1F6j ...
@@ -9689,7 +9689,7 @@ void gameloop() //   proc near       ; CODE XREF: runLevel:noFlashingp
         // 01ED:323D
         word_510D1 = 0;
 //        si = word_510C7;
-        sub_4A61F(word_510C7); // could use gMurphyLocation too?
+        detonateBigExplosion(word_510C7); // could use gMurphyLocation too?
         gQuitLevelCountdown = 0x40; // 64
     }
 
@@ -10647,7 +10647,7 @@ loc_4A537:              ; CODE XREF: movefun3+A1j
         return;
 
 loc_4A53F:              ; CODE XREF: movefun3+B3j
-        call    sub_4A61F
+        call    detonateBigExplosion
         return;
 movefun3  endp
 */
@@ -10733,7 +10733,7 @@ loc_4A5E9:              ; CODE XREF: sub_4A5E0+25j
     push    si
     push(cx);
     push    bx
-    call    sub_4A61F
+    call    detonateBigExplosion
     pop bx
     pop(cx);
     pop si
@@ -10752,7 +10752,7 @@ loc_4A608:              ; CODE XREF: sub_4A5E0+10j
     push(cx);
     push    bx
     mov word ptr leveldata[si], 0FF18h
-    call    sub_4A61F
+    call    detonateBigExplosion
     pop bx
     pop(cx);
     pop si
@@ -10760,9 +10760,11 @@ loc_4A608:              ; CODE XREF: sub_4A5E0+10j
     */
 }
 
-void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271p
+// Creates an explossion of 3x3 tiles around a position
+void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CODE XREF: movefun+271p
                    // ; movefun2+20Fp ...
 {
+    // 01ED:39BC
     MovingLevelTile *currentTile = &gCurrentLevelWord[position];
     MovingLevelTile *aboveTile = &gCurrentLevelWord[position - kLevelWidth];
     MovingLevelTile *belowTile = &gCurrentLevelWord[position + kLevelWidth];
@@ -10782,15 +10784,15 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         return;
     }
 
-//loc_4A627:              ; CODE XREF: sub_4A61F+5j
+//loc_4A627:              ; CODE XREF: detonateBigExplosion+5j
     byte_510C0 = 1;
-    if (currentTile->movingObject == 0 && currentTile->tile == LevelTileTypeMurphy)
+    if (currentTile->tile == LevelTileTypeMurphy)
     {
         word_510D1 = 1;
     }
 
-//loc_4A639:              ; CODE XREF: sub_4A61F+12j
-    if (currentTile->movingObject == 0 && currentTile->tile == LevelTileTypeElectron)
+//loc_4A639:              ; CODE XREF: detonateBigExplosion+12j
+    if (currentTile->tile == LevelTileTypeElectron)
     {
         // cx = 0x0801F;
         movingObject = 0x08;
@@ -10799,22 +10801,22 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     }
     else
     {
-//loc_4A647:              ; CODE XREF: sub_4A61F+1Fj
+//loc_4A647:              ; CODE XREF: detonateBigExplosion+1Fj
         // cx = 0x1F; // 31
         movingObject = 0;
         tile = LevelTileTypeExplosion;
         afterWordTile = LevelTileTypeSportRight; // 13
     }
 
-//loc_4A64C:              ; CODE XREF: sub_4A61F+26j
+//loc_4A64C:              ; CODE XREF: detonateBigExplosion+26j
     uint8_t skipHardwareCheck7 = 0;
 
     if (aboveLeftTile->tile == LevelTileTypeOrangeDisk
         || aboveLeftTile->tile == LevelTileTypeYellowDisk
         || aboveLeftTile->tile == LevelTileTypeSnikSnak)
     {
-//loc_4A680:              ; CODE XREF: sub_4A61F+3Aj
-//                ; sub_4A61F+3Ej ...
+//loc_4A680:              ; CODE XREF: detonateBigExplosion+3Aj
+//                ; detonateBigExplosion+3Ej ...
         if (aboveLeftTile->tile != LevelTileTypeHardware)
         {
             gCurrentLevelAfterWord.tiles[position - kLevelWidth - 1] = afterWordTile; // mov [bx+23F7h], dh
@@ -10822,13 +10824,14 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     }
     else if (aboveLeftTile->tile == LevelTileTypeZonk)
     {
-//loc_4A69C:              ; CODE XREF: sub_4A61F+46j
-        sub_4A9C4(position - kLevelWidth - 1, movingObject, tile);
+//loc_4A69C:              ; CODE XREF: detonateBigExplosion+46j
+        // 01ED:3A39
+        detonateZonk(position - kLevelWidth - 1, movingObject, tile);
         skipHardwareCheck7 = 1; // to emulate jmp loc_4A6A6
     }
     else if (aboveLeftTile->tile == LevelTileTypeInfotron)
     {
-//loc_4A692:              ; CODE XREF: sub_4A61F+4Aj
+//loc_4A692:              ; CODE XREF: detonateBigExplosion+4Aj
         sub_4AA34(position - kLevelWidth - 1, movingObject, tile);
         skipHardwareCheck7 = 1; // to emulate jmp loc_4A6A6
     }
@@ -10838,20 +10841,20 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         // cx = 0x0801F;
         movingObject = 0x08;
         tile = LevelTileTypeExplosion;
-//loc_4A680:              ; CODE XREF: sub_4A61F+3Aj
-//                ; sub_4A61F+3Ej ...
+//loc_4A680:              ; CODE XREF: detonateBigExplosion+3Aj
+//                ; detonateBigExplosion+3Ej ...
         if (aboveLeftTile->tile != LevelTileTypeHardware)
         {
             gCurrentLevelAfterWord.tiles[position - kLevelWidth - 1] = afterWordTile; // mov [bx+23F7h], dh
         }
     }
-//loc_4A676:              ; CODE XREF: sub_4A61F+4Ej
-    if (aboveLeftTile->tile == LevelTileTypeMurphy)
+//loc_4A676:              ; CODE XREF: detonateBigExplosion+4Ej
+    else if (aboveLeftTile->tile == LevelTileTypeMurphy)
     {
         word_510D1 = 1;
 
-//loc_4A680:              ; CODE XREF: sub_4A61F+3Aj
-//                ; sub_4A61F+3Ej ...
+//loc_4A680:              ; CODE XREF: detonateBigExplosion+3Aj
+//                ; detonateBigExplosion+3Ej ...
         if (aboveLeftTile->tile != LevelTileTypeHardware)
         {
             gCurrentLevelAfterWord.tiles[position - kLevelWidth - 1] = afterWordTile; // mov [bx+23F7h], dh
@@ -10860,8 +10863,8 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
 
     if (skipHardwareCheck7 == 0)
     {
-//loc_4A688:              ; CODE XREF: sub_4A61F+59j
-//                ; sub_4A61F+63j
+//loc_4A688:              ; CODE XREF: detonateBigExplosion+59j
+//                ; detonateBigExplosion+63j
         if (aboveLeftTile->tile != LevelTileTypeHardware)
         {
             // mov [si+17BAh], cx
@@ -10870,16 +10873,16 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         }
     }
 
-//loc_4A6A6:              ; CODE XREF: sub_4A61F:loc_4A690j
-//                ; sub_4A61F+7Bj ...
+//loc_4A6A6:              ; CODE XREF: detonateBigExplosion:loc_4A690j
+//                ; detonateBigExplosion+7Bj ...
     uint8_t skipHardwareCheck6 = 0;
 
     if (aboveTile->tile == LevelTileTypeOrangeDisk
         || aboveTile->tile == LevelTileTypeYellowDisk
         || aboveTile->tile == LevelTileTypeSnikSnak)
     {
-//loc_4A6D7:              ; CODE XREF: sub_4A61F+91j
-//                ; sub_4A61F+95j ...
+//loc_4A6D7:              ; CODE XREF: detonateBigExplosion+91j
+//                ; detonateBigExplosion+95j ...
         if (aboveTile->tile != LevelTileTypeHardware)
         {
             gCurrentLevelAfterWord.tiles[position - kLevelWidth] = afterWordTile; // mov [bx+23F8h], dh
@@ -10887,13 +10890,13 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     }
     else if (aboveTile->tile == LevelTileTypeZonk)
     {
-//loc_4A6F3:              ; CODE XREF: sub_4A61F+9Dj
-        sub_4A9C4(position - kLevelWidth, movingObject, tile);
+//loc_4A6F3:              ; CODE XREF: detonateBigExplosion+9Dj
+        detonateZonk(position - kLevelWidth, movingObject, tile);
         skipHardwareCheck6 = 1; // to emulate jmp loc_4A6FD
     }
     else if (aboveTile->tile == LevelTileTypeInfotron)
     {
-//loc_4A6E9:              ; CODE XREF: sub_4A61F+A1j
+//loc_4A6E9:              ; CODE XREF: detonateBigExplosion+A1j
         sub_4AA34(position - kLevelWidth, movingObject, tile);
         skipHardwareCheck6 = 1; // to emulate jmp loc_4A6FD
     }
@@ -10903,21 +10906,20 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         // cx = 0x0801F;
         movingObject = 0x08;
         tile = LevelTileTypeExplosion;
-//loc_4A6D7:              ; CODE XREF: sub_4A61F+91j
-//                ; sub_4A61F+95j ...
+//loc_4A6D7:              ; CODE XREF: detonateBigExplosion+91j
+//                ; detonateBigExplosion+95j ...
         if (aboveTile->tile != LevelTileTypeHardware)
         {
             gCurrentLevelAfterWord.tiles[position - kLevelWidth] = afterWordTile; // mov [bx+23F8h], dh
         }
     }
-
-//loc_4A6CD:              ; CODE XREF: sub_4A61F+A5j
-    if (aboveTile->tile == LevelTileTypeMurphy)
+//loc_4A6CD:              ; CODE XREF: detonateBigExplosion+A5j
+    else if (aboveTile->tile == LevelTileTypeMurphy)
     {
         word_510D1 = 1;
 
-//loc_4A6D7:              ; CODE XREF: sub_4A61F+91j
-//                ; sub_4A61F+95j ...
+//loc_4A6D7:              ; CODE XREF: detonateBigExplosion+91j
+//                ; detonateBigExplosion+95j ...
         if (aboveTile->tile != LevelTileTypeHardware)
         {
             gCurrentLevelAfterWord.tiles[position - kLevelWidth] = afterWordTile; // mov [bx+23F8h], dh
@@ -10926,8 +10928,8 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
 
     if (skipHardwareCheck6 == 0)
     {
-//loc_4A6DF:              ; CODE XREF: sub_4A61F+B0j
-//                ; sub_4A61F+BAj
+//loc_4A6DF:              ; CODE XREF: detonateBigExplosion+B0j
+//                ; detonateBigExplosion+BAj
         if (aboveTile->tile != LevelTileTypeHardware)
         {
             // mov [si+17BCh], cx
@@ -10936,16 +10938,16 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         }
     }
 
-//loc_4A6FD:              ; CODE XREF: sub_4A61F:loc_4A6E7j
-//                ; sub_4A61F+D2j ...
+//loc_4A6FD:              ; CODE XREF: detonateBigExplosion:loc_4A6E7j
+//                ; detonateBigExplosion+D2j ...
     uint8_t skipHardwareCheck5 = 0;
 
     if (aboveRightTile->tile == LevelTileTypeOrangeDisk
         || aboveRightTile->tile == LevelTileTypeYellowDisk
         || aboveRightTile->tile == LevelTileTypeSnikSnak)
     {
-//loc_4A72E:              ; CODE XREF: sub_4A61F+E8j
-//                ; sub_4A61F+ECj ...
+//loc_4A72E:              ; CODE XREF: detonateBigExplosion+E8j
+//                ; detonateBigExplosion+ECj ...
         if (aboveRightTile->tile != LevelTileTypeHardware)
         {
             gCurrentLevelAfterWord.tiles[position - kLevelWidth + 1] = afterWordTile; // mov [bx+23F9h], dh
@@ -10953,13 +10955,13 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     }
     else if (aboveRightTile->tile == LevelTileTypeZonk)
     {
-//loc_4A74A:              ; CODE XREF: sub_4A61F+F4j
-        sub_4A9C4(position - kLevelWidth + 1, movingObject, tile);
+//loc_4A74A:              ; CODE XREF: detonateBigExplosion+F4j
+        detonateZonk(position - kLevelWidth + 1, movingObject, tile);
         skipHardwareCheck5 = 1; // to emulate jmp loc_4A754
     }
     else if (aboveRightTile->tile == LevelTileTypeInfotron)
     {
-//loc_4A740:              ; CODE XREF: sub_4A61F+F8j
+//loc_4A740:              ; CODE XREF: detonateBigExplosion+F8j
         sub_4AA34(position - kLevelWidth + 1, movingObject, tile);
         skipHardwareCheck5 = 1; // to emulate jmp loc_4A754
     }
@@ -10969,21 +10971,20 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         // cx = 0x0801F;
         movingObject = 0x08;
         tile = LevelTileTypeExplosion;
-//loc_4A72E:              ; CODE XREF: sub_4A61F+E8j
-//                ; sub_4A61F+ECj ...
+//loc_4A72E:              ; CODE XREF: detonateBigExplosion+E8j
+//                ; detonateBigExplosion+ECj ...
         if (aboveRightTile->tile != LevelTileTypeHardware)
         {
             gCurrentLevelAfterWord.tiles[position - kLevelWidth + 1] = afterWordTile; // mov [bx+23F9h], dh
         }
     }
-
-//loc_4A724:              ; CODE XREF: sub_4A61F+FCj
-    if (aboveRightTile->tile == LevelTileTypeMurphy)
+//loc_4A724:              ; CODE XREF: detonateBigExplosion+FCj
+    else if (aboveRightTile->tile == LevelTileTypeMurphy)
     {
         word_510D1 = 1;
 
-//loc_4A72E:              ; CODE XREF: sub_4A61F+E8j
-//                ; sub_4A61F+ECj ...
+//loc_4A72E:              ; CODE XREF: detonateBigExplosion+E8j
+//                ; detonateBigExplosion+ECj ...
         if (aboveRightTile->tile != LevelTileTypeHardware)
         {
             gCurrentLevelAfterWord.tiles[position - kLevelWidth + 1] = afterWordTile; // mov [bx+23F9h], dh
@@ -10992,8 +10993,8 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
 
     if (skipHardwareCheck5 == 0)
     {
-//loc_4A736:              ; CODE XREF: sub_4A61F+107j
-//                ; sub_4A61F+111j
+//loc_4A736:              ; CODE XREF: detonateBigExplosion+107j
+//                ; detonateBigExplosion+111j
         if (aboveRightTile->tile != LevelTileTypeHardware)
         {
             // mov [si+17BEh], cx
@@ -11002,16 +11003,16 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         }
     }
 
-//loc_4A754:              ; CODE XREF: sub_4A61F:loc_4A73Ej
-//                ; sub_4A61F+129j ...
+//loc_4A754:              ; CODE XREF: detonateBigExplosion:loc_4A73Ej
+//                ; detonateBigExplosion+129j ...
     uint8_t skipHardwareCheck4 = 0;
 
     if (leftTile->tile == LevelTileTypeOrangeDisk
         || leftTile->tile == LevelTileTypeYellowDisk
         || leftTile->tile == LevelTileTypeSnikSnak)
     {
-//loc_4A785:              ; CODE XREF: sub_4A61F+13Fj
-//                ; sub_4A61F+143j ...
+//loc_4A785:              ; CODE XREF: detonateBigExplosion+13Fj
+//                ; detonateBigExplosion+143j ...
         if (leftTile->tile != LevelTileTypeHardware)
         {
             gCurrentLevelAfterWord.tiles[position - 1] = afterWordTile; // mov [bx+2433h], dh
@@ -11019,13 +11020,13 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     }
     else if (leftTile->tile == LevelTileTypeZonk)
     {
-//loc_4A7A1:              ; CODE XREF: sub_4A61F+14Bj
-        sub_4A9C4(position - 1, movingObject, tile);
+//loc_4A7A1:              ; CODE XREF: detonateBigExplosion+14Bj
+        detonateZonk(position - 1, movingObject, tile);
         skipHardwareCheck4 = 1; // to emulate jmp loc_4A7AB
     }
     else if (leftTile->tile == LevelTileTypeInfotron)
     {
-//loc_4A797:              ; CODE XREF: sub_4A61F+14Fj
+//loc_4A797:              ; CODE XREF: detonateBigExplosion+14Fj
         sub_4AA34(position - 1, movingObject, tile);
         skipHardwareCheck4 = 1; // to emulate jmp loc_4A7AB
     }
@@ -11035,20 +11036,20 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         // cx = 0x0801F;
         movingObject = 0x08;
         tile = LevelTileTypeExplosion;
-//loc_4A785:              ; CODE XREF: sub_4A61F+13Fj
-//                ; sub_4A61F+143j ...
+//loc_4A785:              ; CODE XREF: detonateBigExplosion+13Fj
+//                ; detonateBigExplosion+143j ...
         if (leftTile->tile != LevelTileTypeHardware)
         {
             gCurrentLevelAfterWord.tiles[position - 1] = afterWordTile; // mov [bx+2433h], dh
         }
     }
-//loc_4A77B:              ; CODE XREF: sub_4A61F+153j
+//loc_4A77B:              ; CODE XREF: detonateBigExplosion+153j
     else if (leftTile->tile == LevelTileTypeMurphy)
     {
         word_510D1 = 1;
 
-//loc_4A785:              ; CODE XREF: sub_4A61F+13Fj
-//                ; sub_4A61F+143j ...
+//loc_4A785:              ; CODE XREF: detonateBigExplosion+13Fj
+//                ; detonateBigExplosion+143j ...
         if (leftTile->tile != LevelTileTypeHardware)
         {
             gCurrentLevelAfterWord.tiles[position - 1] = afterWordTile; // mov [bx+2433h], dh
@@ -11057,8 +11058,8 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
 
     if (skipHardwareCheck4 == 0)
     {
-//loc_4A78D:              ; CODE XREF: sub_4A61F+15Ej
-//                ; sub_4A61F+168j
+//loc_4A78D:              ; CODE XREF: detonateBigExplosion+15Ej
+//                ; detonateBigExplosion+168j
         if (leftTile->tile != LevelTileTypeHardware)
         {
             // mov [si+1832h], cx
@@ -11067,8 +11068,8 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         }
     }
 
-//loc_4A7AB:              ; CODE XREF: sub_4A61F:loc_4A795j
-//                ; sub_4A61F+180j ...
+//loc_4A7AB:              ; CODE XREF: detonateBigExplosion:loc_4A795j
+//                ; detonateBigExplosion+180j ...
     // mov [si+1834h], cx
     currentTile->movingObject = movingObject;
     currentTile->tile = tile;
@@ -11079,8 +11080,8 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         || rightTile->tile == LevelTileTypeYellowDisk
         || rightTile->tile == LevelTileTypeSnikSnak)
     {
-//loc_4A7E0:              ; CODE XREF: sub_4A61F+19Aj
-//                ; sub_4A61F+19Ej ...
+//loc_4A7E0:              ; CODE XREF: detonateBigExplosion+19Aj
+//                ; detonateBigExplosion+19Ej ...
         if (rightTile->tile != LevelTileTypeHardware)
         {
             gCurrentLevelAfterWord.tiles[position + 1] = afterWordTile; // mov [bx+2435h], dh
@@ -11088,13 +11089,13 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     }
     else if (rightTile->tile == LevelTileTypeZonk)
     {
-//loc_4A7FC:              ; CODE XREF: sub_4A61F+1A6j
-        sub_4A9C4(position + 1, movingObject, tile);
+//loc_4A7FC:              ; CODE XREF: detonateBigExplosion+1A6j
+        detonateZonk(position + 1, movingObject, tile);
         skipHardwareCheck3 = 1; // to emulate jmp loc_4A806
     }
     else if (rightTile->tile == LevelTileTypeInfotron)
     {
-//loc_4A7F2:              ; CODE XREF: sub_4A61F+1AAj
+//loc_4A7F2:              ; CODE XREF: detonateBigExplosion+1AAj
         sub_4AA34(position + 1, movingObject, tile);
         skipHardwareCheck3 = 1; // to emulate jmp loc_4A806
     }
@@ -11104,20 +11105,20 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         // cx = 0x0801F;
         movingObject = 0x08;
         tile = LevelTileTypeExplosion;
-//loc_4A7E0:              ; CODE XREF: sub_4A61F+19Aj
-//                ; sub_4A61F+19Ej ...
+//loc_4A7E0:              ; CODE XREF: detonateBigExplosion+19Aj
+//                ; detonateBigExplosion+19Ej ...
         if (rightTile->tile != LevelTileTypeHardware)
         {
             gCurrentLevelAfterWord.tiles[position + 1] = afterWordTile; // mov [bx+2435h], dh
         }
     }
-//loc_4A7D6:              ; CODE XREF: sub_4A61F+1AEj
+//loc_4A7D6:              ; CODE XREF: detonateBigExplosion+1AEj
     else if (rightTile->tile == LevelTileTypeMurphy)
     {
         word_510D1 = 1;
 
-//loc_4A7E0:              ; CODE XREF: sub_4A61F+19Aj
-//                ; sub_4A61F+19Ej ...
+//loc_4A7E0:              ; CODE XREF: detonateBigExplosion+19Aj
+//                ; detonateBigExplosion+19Ej ...
         if (rightTile->tile != LevelTileTypeHardware)
         {
             gCurrentLevelAfterWord.tiles[position + 1] = afterWordTile; // mov [bx+2435h], dh
@@ -11126,8 +11127,8 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
 
     if (skipHardwareCheck3 == 0)
     {
-//loc_4A7E8:              ; CODE XREF: sub_4A61F+1B9j
-//                ; sub_4A61F+1C3j
+//loc_4A7E8:              ; CODE XREF: detonateBigExplosion+1B9j
+//                ; detonateBigExplosion+1C3j
         if (rightTile->tile != LevelTileTypeHardware)
         {
             // mov [si+1836h], cx
@@ -11136,17 +11137,17 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         }
     }
 
-//loc_4A806:              ; CODE XREF: sub_4A61F:loc_4A7F0j
-//                ; sub_4A61F+1DBj ...
-
+//loc_4A806:              ; CODE XREF: detonateBigExplosion:loc_4A7F0j
+//                ; detonateBigExplosion+1DBj ...
+    // 01ED:3BA7
     uint8_t skipHardwareCheck2 = 0;
 
     if (belowLeftTile->tile == LevelTileTypeOrangeDisk
         || belowLeftTile->tile == LevelTileTypeYellowDisk
         || belowLeftTile->tile == LevelTileTypeSnikSnak)
     {
-//loc_4A837:              ; CODE XREF: sub_4A61F+1F1j
-//                ; sub_4A61F+1F5j ...
+//loc_4A837:              ; CODE XREF: detonateBigExplosion+1F1j
+//                ; detonateBigExplosion+1F5j ...
         if (belowLeftTile->tile != LevelTileTypeHardware)
         {
             gCurrentLevelAfterWord.tiles[position + kLevelWidth - 1] = afterWordTile; // mov [bx+246Fh], dh
@@ -11154,13 +11155,13 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     }
     else if (belowLeftTile->tile == LevelTileTypeZonk)
     {
-//loc_4A853:              ; CODE XREF: sub_4A61F+1FDj
-        sub_4A9C4(position + kLevelWidth - 1, movingObject, tile);
+//loc_4A853:              ; CODE XREF: detonateBigExplosion+1FDj
+        detonateZonk(position + kLevelWidth - 1, movingObject, tile);
         skipHardwareCheck2 = 1; // to emulate jmp loc_4A85D
     }
     else if (belowLeftTile->tile == LevelTileTypeInfotron)
     {
-//loc_4A849:              ; CODE XREF: sub_4A61F+201j
+//loc_4A849:              ; CODE XREF: detonateBigExplosion+201j
         sub_4AA34(position + kLevelWidth - 1, movingObject, tile);
         skipHardwareCheck2 = 1; // to emulate jmp loc_4A85D
     }
@@ -11170,19 +11171,19 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         // cx = 0x0801F;
         movingObject = 0x08;
         tile = LevelTileTypeExplosion;
-//loc_4A837:              ; CODE XREF: sub_4A61F+1F1j
-//                ; sub_4A61F+1F5j ...
+//loc_4A837:              ; CODE XREF: detonateBigExplosion+1F1j
+//                ; detonateBigExplosion+1F5j ...
         if (belowLeftTile->tile != LevelTileTypeHardware)
         {
             gCurrentLevelAfterWord.tiles[position + kLevelWidth - 1] = afterWordTile; // mov [bx+246Fh], dh
         }
     }
-//loc_4A82D:              ; CODE XREF: sub_4A61F+205j
+//loc_4A82D:              ; CODE XREF: detonateBigExplosion+205j
     else if (belowLeftTile->tile == LevelTileTypeMurphy)
     {
         word_510D1 = 1;
-//loc_4A837:              ; CODE XREF: sub_4A61F+1F1j
-//                ; sub_4A61F+1F5j ...
+//loc_4A837:              ; CODE XREF: detonateBigExplosion+1F1j
+//                ; detonateBigExplosion+1F5j ...
         if (belowLeftTile->tile != LevelTileTypeHardware)
         {
             gCurrentLevelAfterWord.tiles[position + kLevelWidth - 1] = afterWordTile; // mov [bx+246Fh], dh
@@ -11191,8 +11192,8 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
 
     if (skipHardwareCheck2 == 0)
     {
-//loc_4A83F:              ; CODE XREF: sub_4A61F+210j
-//                ; sub_4A61F+21Aj
+//loc_4A83F:              ; CODE XREF: detonateBigExplosion+210j
+//                ; detonateBigExplosion+21Aj
         if (belowLeftTile->tile != LevelTileTypeHardware)
         {
             // mov [si+18AAh], cx
@@ -11201,17 +11202,17 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         }
     }
 
-//loc_4A85D:              ; CODE XREF: sub_4A61F:loc_4A847j
-//                ; sub_4A61F+232j ...
-
+//loc_4A85D:              ; CODE XREF: detonateBigExplosion:loc_4A847j
+//                ; detonateBigExplosion+232j ...
+    // 01ED:3BE0
     uint8_t skipHardwareCheck1 = 0;
 
     if (belowTile->tile == LevelTileTypeOrangeDisk
         || belowTile->tile == LevelTileTypeYellowDisk
         || belowTile->tile == LevelTileTypeSnikSnak)
     {
-//loc_4A88E:              ; CODE XREF: sub_4A61F+248j
-//                ; sub_4A61F+24Cj ...
+//loc_4A88E:              ; CODE XREF: detonateBigExplosion+248j
+//                ; detonateBigExplosion+24Cj ...
         if (belowTile->tile != LevelTileTypeHardware)
         {
             gCurrentLevelAfterWord.tiles[position + kLevelWidth] = afterWordTile; // mov [bx+2470h], dh
@@ -11219,13 +11220,13 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     }
     else if (belowTile->tile == LevelTileTypeZonk)
     {
-//loc_4A8AA:              ; CODE XREF: sub_4A61F+254j
-        sub_4A9C4(position + kLevelWidth, movingObject, tile);
+//loc_4A8AA:              ; CODE XREF: detonateBigExplosion+254j
+        detonateZonk(position + kLevelWidth, movingObject, tile);
         skipHardwareCheck1 = 1; // to emulate jmp loc_4A8B4
     }
     else if (belowTile->tile == LevelTileTypeInfotron)
     {
-//loc_4A8A0:              ; CODE XREF: sub_4A61F+258j
+//loc_4A8A0:              ; CODE XREF: detonateBigExplosion+258j
         sub_4AA34(position + kLevelWidth, movingObject, tile);
         skipHardwareCheck1 = 1; // to emulate jmp loc_4A8B4
     }
@@ -11235,20 +11236,20 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         // cx = 0x0801F;
         movingObject = 0x08;
         tile = LevelTileTypeExplosion;
-//loc_4A88E:              ; CODE XREF: sub_4A61F+248j
-//                ; sub_4A61F+24Cj ...
+//loc_4A88E:              ; CODE XREF: detonateBigExplosion+248j
+//                ; detonateBigExplosion+24Cj ...
         if (belowTile->tile != LevelTileTypeHardware)
         {
             gCurrentLevelAfterWord.tiles[position + kLevelWidth] = afterWordTile; // mov [bx+2470h], dh
         }
     }
-//loc_4A884:              ; CODE XREF: sub_4A61F+25Cj
+//loc_4A884:              ; CODE XREF: detonateBigExplosion+25Cj
     else if (belowTile->tile == LevelTileTypeMurphy)
     {
         word_510D1 = 1;
 
-//loc_4A88E:              ; CODE XREF: sub_4A61F+248j
-//                ; sub_4A61F+24Cj ...
+//loc_4A88E:              ; CODE XREF: detonateBigExplosion+248j
+//                ; detonateBigExplosion+24Cj ...
         if (belowTile->tile != LevelTileTypeHardware)
         {
             gCurrentLevelAfterWord.tiles[position + kLevelWidth] = afterWordTile; // mov [bx+2470h], dh
@@ -11257,8 +11258,8 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
 
     if (skipHardwareCheck1 == 0) // to emulate jmp loc_4A8B4
     {
-//loc_4A896:              ; CODE XREF: sub_4A61F+267j
-//                ; sub_4A61F+271j
+//loc_4A896:              ; CODE XREF: detonateBigExplosion+267j
+//                ; detonateBigExplosion+271j
         if (belowTile->tile != LevelTileTypeHardware)
         {
             // mov [si+18ACh], cx
@@ -11267,15 +11268,15 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         }
     }
 
-//loc_4A8B4:              ; CODE XREF: sub_4A61F:loc_4A89Ej
-//                ; sub_4A61F+289j ...
-
+//loc_4A8B4:              ; CODE XREF: detonateBigExplosion:loc_4A89Ej
+//                ; detonateBigExplosion+289j ...
+    // 01ED:3BFE
     if (belowRightTile->tile == LevelTileTypeOrangeDisk
         || belowRightTile->tile == LevelTileTypeYellowDisk
         || belowRightTile->tile == LevelTileTypeSnikSnak)
     {
-//loc_4A8E5:              ; CODE XREF: sub_4A61F+29Fj
-//                ; sub_4A61F+2A3j ...
+//loc_4A8E5:              ; CODE XREF: detonateBigExplosion+29Fj
+//                ; detonateBigExplosion+2A3j ...
         if (belowRightTile->tile != LevelTileTypeHardware)
         {
             gCurrentLevelAfterWord.tiles[position + kLevelWidth + 1] = afterWordTile; // mov [bx+2471h], dh
@@ -11283,19 +11284,19 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
     }
     else if (belowRightTile->tile == LevelTileTypeZonk)
     {
-//loc_4A901:              ; CODE XREF: sub_4A61F+2ABj
-        sub_4A9C4(position + kLevelWidth + 1, movingObject, tile);
-//loc_4A90B:              ; CODE XREF: sub_4A61F:loc_4A8F5j
-//                ; sub_4A61F+2E0j ...
+//loc_4A901:              ; CODE XREF: detonateBigExplosion+2ABj
+        detonateZonk(position + kLevelWidth + 1, movingObject, tile);
+//loc_4A90B:              ; CODE XREF: detonateBigExplosion:loc_4A8F5j
+//                ; detonateBigExplosion+2E0j ...
         sound4();
         return;
     }
     else if (belowRightTile->tile == LevelTileTypeInfotron)
     {
-//loc_4A8F7:              ; CODE XREF: sub_4A61F+2AFj
+//loc_4A8F7:              ; CODE XREF: detonateBigExplosion+2AFj
         sub_4AA34(position + kLevelWidth + 1, movingObject, tile);
-//loc_4A90B:              ; CODE XREF: sub_4A61F:loc_4A8F5j
-//                ; sub_4A61F+2E0j ...
+//loc_4A90B:              ; CODE XREF: detonateBigExplosion:loc_4A8F5j
+//                ; detonateBigExplosion+2E0j ...
         sound4();
         return;
     }
@@ -11305,37 +11306,37 @@ void sub_4A61F(uint16_t position) //   proc near       ; CODE XREF: movefun+271
         // cx = 0x0801F;
         movingObject = 0x08;
         tile = LevelTileTypeExplosion;
-//loc_4A8E5:              ; CODE XREF: sub_4A61F+29Fj
-//                ; sub_4A61F+2A3j ...
+//loc_4A8E5:              ; CODE XREF: detonateBigExplosion+29Fj
+//                ; detonateBigExplosion+2A3j ...
         if (belowRightTile->tile != LevelTileTypeHardware)
         {
             gCurrentLevelAfterWord.tiles[position + kLevelWidth + 1] = afterWordTile; // mov [bx+2471h], dh
         }
     }
-//loc_4A8DB:              ; CODE XREF: sub_4A61F+2B3j
+//loc_4A8DB:              ; CODE XREF: detonateBigExplosion+2B3j
     else if (belowRightTile->tile == LevelTileTypeMurphy)
     {
         word_510D1 = 1;
 
-//loc_4A8E5:              ; CODE XREF: sub_4A61F+29Fj
-//                ; sub_4A61F+2A3j ...
+//loc_4A8E5:              ; CODE XREF: detonateBigExplosion+29Fj
+//                ; detonateBigExplosion+2A3j ...
         if (belowRightTile->tile != LevelTileTypeHardware)
         {
             gCurrentLevelAfterWord.tiles[position + kLevelWidth + 1] = afterWordTile; // mov [bx+2471h], dh
         }
     }
 
-//loc_4A8ED:              ; CODE XREF: sub_4A61F+2BEj
-//                ; sub_4A61F+2C8j
+//loc_4A8ED:              ; CODE XREF: detonateBigExplosion+2BEj
+//                ; detonateBigExplosion+2C8j
     if (belowRightTile->tile != LevelTileTypeHardware)
     {
         // mov [si+18AEh], cx
-        belowRightTile->movingObject = ch;
-        belowRightTile->tile = cl;
+        belowRightTile->movingObject = movingObject;
+        belowRightTile->tile = tile;
     }
 
-//loc_4A90B:              ; CODE XREF: sub_4A61F:loc_4A8F5j
-//                ; sub_4A61F+2E0j ...
+//loc_4A90B:              ; CODE XREF: detonateBigExplosion:loc_4A8F5j
+//                ; detonateBigExplosion+2E0j ...
     sound4();
 }
 
@@ -11370,7 +11371,7 @@ loc_4A932:              ; CODE XREF: sub_4A910+1Aj
     cmp byte_510DB, 28h ; '('
     jl  short loc_4A954
     mov si, word_510DC
-    call    sub_4A61F
+    call    detonateBigExplosion
     mov byte_510DB, 0
 
 loc_4A954:              ; CODE XREF: sub_4A910+Fj
@@ -11450,55 +11451,59 @@ loc_4A9C0:              ; CODE XREF: sub_4A95F+5Dj
      */
 }
 
-void sub_4A9C4(uint16_t position, uint8_t movingObject, uint8_t tile) //   proc near       ; CODE XREF: sub_4A61F+81p
-                  //  ; sub_4A61F+D8p ...
+void detonateZonk(uint16_t position, uint8_t movingObject, uint8_t tile) // sub_4A9C4   proc near       ; CODE XREF: detonateBigExplosion+81p
+                  //  ; detonateBigExplosion+D8p ...
 {
+    // 01ED:3D61
     MovingLevelTile *currentTile = &gCurrentLevelWord[position];
     MovingLevelTile *belowTile = &gCurrentLevelWord[position + kLevelWidth];
 
-    ah = currentTile->movingObject & 0xF0;
+    currentTile->movingObject = movingObject;
+    currentTile->tile = tile;
 
-    if (ah == 0x10
-        || ah == 0x70)
+    uint8_t movingObjectType = currentTile->movingObject & 0xF0;
+
+    if (movingObjectType == 0x10
+        || movingObjectType == 0x70)
     {
-//loc_4A9EF:              ; CODE XREF: sub_4A9C4+Aj sub_4A9C4+Fj
+//loc_4A9EF:              ; CODE XREF: detonateZonk+Aj detonateZonk+Fj
         sub_4AAB4(position - kLevelWidth);
         if (belowTile->movingObject == 0x99 && belowTile->tile == 0x99)
         {
             sub_4AAB4(position + kLevelWidth);
         }
     }
-    else if (ah == 0x20)
+    else if (movingObjectType == 0x20)
     {
-//loc_4AA05:              ; CODE XREF: sub_4A9C4+14j
+//loc_4AA05:              ; CODE XREF: detonateZonk+14j
         sub_4AAB4(position + 1);
         sub_4AAB4(position + kLevelWidth);
     }
-    else if (ah == 0x30)
+    else if (movingObjectType == 0x30)
     {
-//loc_4AA12:              ; CODE XREF: sub_4A9C4+19j
+//loc_4AA12:              ; CODE XREF: detonateZonk+19j
         sub_4AAB4(position - 1);
         sub_4AAB4(position + kLevelWidth);
     }
-    else if (ah == 0x50)
+    else if (movingObjectType == 0x50)
     {
-//loc_4AA1F:              ; CODE XREF: sub_4A9C4+1Ej
+//loc_4AA1F:              ; CODE XREF: detonateZonk+1Ej
         sub_4AAB4(position - 1);
     }
-    else if (ah == 0x60)
+    else if (movingObjectType == 0x60)
     {
-//loc_4AA26:              ; CODE XREF: sub_4A9C4+23j
+//loc_4AA26:              ; CODE XREF: detonateZonk+23j
         sub_4AAB4(position + 1);
     }
-    else if (ah == 0x70)
+    else if (movingObjectType == 0x70)
     {
-//loc_4AA2D:              ; CODE XREF: sub_4A9C4+28j
+//loc_4AA2D:              ; CODE XREF: detonateZonk+28j
         sub_4AAB4(position + kLevelWidth);
     }
 }
 
-void sub_4AA34(uint16_t position, uint8_t movingObject, uint8_t tile) //   proc near       ; CODE XREF: sub_4A61F+77p
-                   // ; sub_4A61F+CEp ...
+void sub_4AA34(uint16_t position, uint8_t movingObject, uint8_t tile) //   proc near       ; CODE XREF: detonateBigExplosion+77p
+                   // ; detonateBigExplosion+CEp ...
 {
     // Parameters:
     // - si: position
@@ -11557,8 +11562,8 @@ void sub_4AA34(uint16_t position, uint8_t movingObject, uint8_t tile) //   proc 
     }
 }
 
-void sub_4AAB4(uint16_t position) //   proc near       ; CODE XREF: sub_4A9C4+2Ep
-                   // ; sub_4A9C4+3Dp ...
+void sub_4AAB4(uint16_t position) //   proc near       ; CODE XREF: detonateZonk+2Ep
+                   // ; detonateZonk+3Dp ...
 {
     MovingLevelTile *currentTile = &gCurrentLevelWord[position];
 
@@ -16187,7 +16192,7 @@ void sound3() //     proc near       ; CODE XREF: start+354p runLevel+41p ...
 //locret_4DB76:               ; CODE XREF: sound3+Bj sound3+1Bj ...
 }
 
-void sound4() //     proc near       ; CODE XREF: sub_4A61F+2EDp code:5ADEp ...
+void sound4() //     proc near       ; CODE XREF: detonateBigExplosion+2EDp code:5ADEp ...
 {
     if (isFXEnabled != 1)
     {
@@ -16904,7 +16909,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4E4AC:              ; CODE XREF: update?+3E0j
             if (aboveLeftTile->movingObject >= 0) // TODO: should movingObject be signed?
             {
-                sub_4A61F(position);
+                detonateBigExplosion(position);
                 return position;
             }
 
@@ -17009,7 +17014,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4E4D8:              ; CODE XREF: update?+410j
             if (leftTile->movingObject >= 0) // TODO: should movingObject be signed?
             {
-                sub_4A61F(position);
+                detonateBigExplosion(position);
                 return position;
             }
 
@@ -17113,7 +17118,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4E504:              ; CODE XREF: update?+43Aj
             if (aboveTile->movingObject >= 0) // TODO: should movingObject be signed?
             {
-                sub_4A61F(position);
+                detonateBigExplosion(position);
                 return position;
             }
 
@@ -17218,7 +17223,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4E530:              ; CODE XREF: update?+46Aj
             if (rightTile->movingObject >= 0) // TODO: should movingObject be signed?
             {
-                sub_4A61F(position);
+                detonateBigExplosion(position);
                 return position;
             }
 
@@ -17392,7 +17397,7 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
         //    jl  short loc_4E3DB
         if (aboveTile->movingObject >= 0) // TODO: should movingObject be signed?
         {
-            sub_4A61F(position);
+            detonateBigExplosion(position);
             return position;
         }
 
@@ -17403,7 +17408,7 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
 //loc_4E47B:              ; CODE XREF: update?+376j
         if (rightTile->movingObject >= 0) // TODO: should movingObject be signed?
         {
-            sub_4A61F(position);
+            detonateBigExplosion(position);
             return position;
         }
 
@@ -17620,7 +17625,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
 //loc_4E40D:              ; CODE XREF: update?+29Aj
         if (leftTile->movingObject >= 0) // TODO: should movingObject be signed?
         {
-            sub_4A61F(position);
+            detonateBigExplosion(position);
             return position;
         }
 
@@ -17883,7 +17888,7 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
 //loc_4E43E:              ; CODE XREF: update?+30Ej
         if (belowLeftTile->movingObject >= 0) // TODO: should movingObject be signed?
         {
-            sub_4A61F(position);
+            detonateBigExplosion(position);
             return position;
         }
 
@@ -18110,7 +18115,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
 //loc_4E47B:              ; CODE XREF: update?+376j
         if (rightTile->movingObject >= 0) // TODO: should movingObject be signed?
         {
-            sub_4A61F(position);
+            detonateBigExplosion(position);
             return position;
         }
 
@@ -19424,7 +19429,7 @@ void detonateYellowDisks()
         MovingLevelTile *tile = &gCurrentLevelWord[i];
         if (tile->movingObject == 0 && tile->tile == LevelTileTypeYellowDisk)
         {
-            sub_4A61F(i);
+            detonateBigExplosion(i);
         }
     }
 }
@@ -19497,7 +19502,7 @@ uint8_t sub_4F21F(uint16_t position) //   proc near       ; CODE XREF: update?+2
 //                ; sub_4F21F+4Aj ...
                 return 1;
             }
-            sub_4A61F(position);
+            detonateBigExplosion(position);
 
 //loc_4F278:              ; CODE XREF: sub_4F21F+45j
 //                ; sub_4F21F+4Aj ...
@@ -19505,7 +19510,7 @@ uint8_t sub_4F21F(uint16_t position) //   proc near       ; CODE XREF: update?+2
         }
         else if (bl != 4)
         {
-            sub_4A61F(position);
+            detonateBigExplosion(position);
             return 1;
         }
 
@@ -19520,7 +19525,7 @@ uint8_t sub_4F21F(uint16_t position) //   proc near       ; CODE XREF: update?+2
 //                ; sub_4F21F+66j ...
             return 1;
         }
-        sub_4A61F(position);
+        detonateBigExplosion(position);
 
 //loc_4F294:              ; CODE XREF: sub_4F21F+61j
 //                ; sub_4F21F+66j ...
@@ -19533,7 +19538,7 @@ uint8_t sub_4F21F(uint16_t position) //   proc near       ; CODE XREF: update?+2
             || tile->movingObject < 4)
         {
 //loc_4F2A2:              ; CODE XREF: sub_4F21F+7Cj
-            sub_4A61F(position);
+            detonateBigExplosion(position);
             return 1;
         }
         else
@@ -19554,7 +19559,7 @@ uint8_t sub_4F21F(uint16_t position) //   proc near       ; CODE XREF: update?+2
     }
     else
     {
-        sub_4A61F(position);
+        detonateBigExplosion(position);
         return 1;
     }
 }
@@ -19672,7 +19677,7 @@ loc_4F34A:              ; CODE XREF: sub_4F312+79j
         jz  short locret_4F361
         cmp ah, 1Ah
         jz  short locret_4F361
-        call    sub_4A61F
+        call    detonateBigExplosion
 
 locret_4F361:               ; CODE XREF: sub_4F312+3Bj
                     ; sub_4F312+40j ...
@@ -19799,7 +19804,7 @@ loc_4F447:              ; CODE XREF: sub_4F40D+7Bj
         jz  short locret_4F45E
         cmp ah, 1Ah
         jz  short locret_4F45E
-        call    sub_4A61F
+        call    detonateBigExplosion
 
 locret_4F45E:               ; CODE XREF: sub_4F40D+3Dj
                     ; sub_4F40D+42j ...
@@ -19943,7 +19948,7 @@ loc_4F573:              ; CODE XREF: sub_4F50A+61j
 loc_4F58A:              ; CODE XREF: sub_4F50A+6Ej
         cmp byte ptr [si+17BCh], 3
         jnz short loc_4F595
-        call    sub_4A61F
+        call    detonateBigExplosion
         return;
 
 loc_4F595:              ; CODE XREF: sub_4F50A+85j
@@ -20027,7 +20032,7 @@ loc_4F619:              ; CODE XREF: sub_4F5B5+5Cj
 loc_4F630:              ; CODE XREF: sub_4F5B5+69j
         cmp byte ptr [si+1832h], 3
         jnz short loc_4F63B
-        call    sub_4A61F
+        call    detonateBigExplosion
         return;
 
 loc_4F63B:              ; CODE XREF: sub_4F5B5+80j
@@ -20118,7 +20123,7 @@ loc_4F6C6:              ; CODE XREF: sub_4F66B+53j
 loc_4F6DD:              ; CODE XREF: sub_4F66B+60j
         cmp byte ptr [si+18ACh], 3
         jnz short loc_4F6E8
-        call    sub_4A61F
+        call    detonateBigExplosion
         return;
 
 loc_4F6E8:              ; CODE XREF: sub_4F66B+77j
@@ -20202,7 +20207,7 @@ loc_4F76D:              ; CODE XREF: sub_4F708+5Dj
 loc_4F784:              ; CODE XREF: sub_4F708+6Aj
         cmp byte ptr [si+1836h], 3
         jnz short loc_4F78F
-        call    sub_4A61F
+        call    detonateBigExplosion
         return;
 
 loc_4F78F:              ; CODE XREF: sub_4F708+81j
@@ -20283,7 +20288,7 @@ loc_4F7F1:              ; CODE XREF: sub_4F7D1+28j
 
 loc_4F809:              ; CODE XREF: sub_4F7D1+61j
                     ; sub_4F7D1+80j ...
-        call    sub_4A61F
+        call    detonateBigExplosion
         return;
 
 loc_4F80D:              ; CODE XREF: sub_4F7D1+Bj
@@ -20392,7 +20397,7 @@ loc_4F8C4:              ; CODE XREF: sub_4F8A5+27j
 
 loc_4F8DF:              ; CODE XREF: sub_4F8A5+63j
                     ; sub_4F8A5+82j ...
-        call    sub_4A61F
+        call    detonateBigExplosion
         return;
 
 loc_4F8E3:              ; CODE XREF: sub_4F8A5+Bj
@@ -20526,7 +20531,7 @@ loc_4F9E4:              ; CODE XREF: sub_4F97B+61j
 loc_4F9FB:              ; CODE XREF: sub_4F97B+6Ej
         cmp byte ptr [si+17BCh], 3
         jnz short loc_4FA06
-        call    sub_4A61F
+        call    detonateBigExplosion
         return;
 
 loc_4FA06:              ; CODE XREF: sub_4F97B+85j
@@ -20610,7 +20615,7 @@ loc_4FA8A:              ; CODE XREF: sub_4FA26+5Cj
 loc_4FAA1:              ; CODE XREF: sub_4FA26+69j
         cmp byte ptr [si+1832h], 3
         jnz short loc_4FAAC
-        call    sub_4A61F
+        call    detonateBigExplosion
         return;
 
 loc_4FAAC:              ; CODE XREF: sub_4FA26+80j
@@ -20694,7 +20699,7 @@ loc_4FB37:              ; CODE XREF: sub_4FACC+63j
 loc_4FB4E:              ; CODE XREF: sub_4FACC+70j
         cmp byte ptr [si+18ACh], 3
         jnz short loc_4FB59
-        call    sub_4A61F
+        call    detonateBigExplosion
         return;
 
 loc_4FB59:              ; CODE XREF: sub_4FACC+87j
@@ -20778,7 +20783,7 @@ loc_4FBDE:              ; CODE XREF: sub_4FB79+5Dj
 loc_4FBF5:              ; CODE XREF: sub_4FB79+6Aj
         cmp byte ptr [si+1836h], 3
         jnz short loc_4FC00
-        call    sub_4A61F
+        call    detonateBigExplosion
         return;
 
 loc_4FC00:              ; CODE XREF: sub_4FB79+81j
