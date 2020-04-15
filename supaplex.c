@@ -10705,45 +10705,40 @@ void updateExplosionTiles(uint16_t position) //loc_4A543:              ; DATA XR
 
 void sub_4A5E0() //   proc near       ; CODE XREF: runLevel+106p
 {
-    /*
-    mov si, 0
-    mov bx, 0
-    mov cx, 5A0h
+    // This does something related to electrons?
+    for (int i = 0; i < kLevelSize; ++i)
+    {
+//loc_4A5E9:              ; CODE XREF: sub_4A5E0+25j
+        int8_t afterWordTile = gCurrentLevelAfterWord.tiles[i];
 
-loc_4A5E9:              ; CODE XREF: sub_4A5E0+25j
-    cmp byte ptr [bx+2434h], 0
-    jz  short loc_4A601
-    jl  short loc_4A608
-    dec byte ptr [bx+2434h]
-    jnz short loc_4A601
-    push    si
-    push(cx);
-    push    bx
-    call    detonateBigExplosion
-    pop bx
-    pop(cx);
-    pop si
+        if (afterWordTile == 0)
+        {
+            continue;
+        }
 
-loc_4A601:              ; CODE XREF: sub_4A5E0+Ej
-                ; sub_4A5E0+16j ...
-    add si, 2
-    inc bx
-    loop    loc_4A5E9
-    return;
+        if (afterWordTile < 0)
+        {
+//loc_4A608:              ; CODE XREF: sub_4A5E0+10j
+            gCurrentLevelAfterWord.tiles[i] = afterWordTile + 1;
 
-loc_4A608:              ; CODE XREF: sub_4A5E0+10j
-    inc byte ptr [bx+2434h]
-    jnz short loc_4A601
-    push    si
-    push(cx);
-    push    bx
-    mov word ptr leveldata[si], 0FF18h
-    call    detonateBigExplosion
-    pop bx
-    pop(cx);
-    pop si
-    jmp short loc_4A601
-    */
+            if (gCurrentLevelAfterWord.tiles[i] == 0)
+            {
+                MovingLevelTile *tile = &gCurrentLevelWord[i];
+                tile->movingObject = 0xFF;
+                tile->tile = LevelTileTypeElectron;
+                detonateBigExplosion(i);
+            }
+        }
+        else
+        {
+            gCurrentLevelAfterWord.tiles[i] = afterWordTile - 1;
+
+            if (gCurrentLevelAfterWord.tiles[i] == 0)
+            {
+                detonateBigExplosion(i);
+            }
+        }
+    }
 }
 
 // Creates an explossion of 3x3 tiles around a position
