@@ -19462,7 +19462,7 @@ uint8_t sub_4F21F(uint16_t position) //   proc near       ; CODE XREF: update?+2
     // Parameters:
     // - si: position
     // - ax: value of that position (movingObject + tile)
-    // - bl: ???
+    // - bl: gCurrentUserInput
     MovingLevelTile *tile = &gCurrentLevelWord[position];
 
     if ((tile->movingObject == 0xFF && tile->tile == 0xFF)
@@ -19475,14 +19475,14 @@ uint8_t sub_4F21F(uint16_t position) //   proc near       ; CODE XREF: update?+2
     else if (tile->tile == LevelTileTypeZonk)
     {
 //loc_4F24F:              ; CODE XREF: sub_4F21F+11j
-        if (bl == 2)
+        if (gCurrentUserInput == UserInputLeft)
         {
 //loc_4F25E:              ; CODE XREF: sub_4F21F+33j
-            ah = (tile->movingObject & 0xF0);
-            if (ah == 0x20
-                || ah == 0x40
-                || ah == 0x50
-                || ah == 0x70)
+            uint8_t movingObjectType = (tile->movingObject & 0xF0);
+            if (movingObjectType == 0x20
+                || movingObjectType == 0x40
+                || movingObjectType == 0x50
+                || movingObjectType == 0x70)
             {
 //loc_4F278:              ; CODE XREF: sub_4F21F+45j
 //                ; sub_4F21F+4Aj ...
@@ -19494,7 +19494,7 @@ uint8_t sub_4F21F(uint16_t position) //   proc near       ; CODE XREF: update?+2
 //                ; sub_4F21F+4Aj ...
             return 1;
         }
-        else if (bl != 4)
+        else if (gCurrentUserInput != UserInputRight)
         {
             detonateBigExplosion(position);
             return 1;
