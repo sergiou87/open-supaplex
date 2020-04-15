@@ -1097,10 +1097,11 @@ static const Point kInfotronExplosionAnimationFrameCoordinates[8] = {
     { 240, 196 }, // -> 0x1bec -> 12f4
 };
 
+// { 128, 64 }, // -> 0x2a02 -> 12f6 -> orange disk falling
+
 AnimationFrameCoordinates frameCoordinates_515C6[10] = {
     { // 0
         {
-            { 128, 64 }, // -> 0x2a02 -> 12f6
             { 48, 32 }, // -> 0x1ab8 -> 12f8
             { 80, 32 }, // -> 0x1abc -> 12fa
             { 112, 32 }, // -> 0x1ac0 -> 12fc
@@ -1110,7 +1111,7 @@ AnimationFrameCoordinates frameCoordinates_515C6[10] = {
             { 240, 32 }, // -> 0x1ad0 -> 1304
             { 272, 32 }, // -> 0x1ad4 -> 1306
         },
-        9
+        8
     },
     { // 1
         {
@@ -10544,100 +10545,121 @@ void sub_4A463() //   proc near       ; CODE XREF: sub_4945D:loc_4953Bp
     sub_48A20();
     findMurphy();
 }
-/*
-movefun3  proc near       ; DATA XREF: data:161Ao
- // 01ED:3826
-        cmp byte ptr leveldata[si], 8
-        jz  short loc_4A491
+
+void movefun3(uint16_t position) //  proc near       ; DATA XREF: data:161Ao
+{
+    // 01ED:3826
+    MovingLevelTile *currentTile = &gCurrentLevelWord[position];
+    MovingLevelTile *belowTile = &gCurrentLevelWord[position + kLevelWidth];
+
+    if (currentTile->tile != LevelTileTypeOrangeDisk)
+    {
         return;
+    }
 
-loc_4A491:              ; CODE XREF: movefun3+5j
-        mov ax, [si+1834h]
-        cmp ax, 3008h
-        jge short loc_4A4D4
-        cmp ax, 2008h
-        jge short loc_4A4B4
-        mov ax, [si+18ACh]
-        cmp ax, 0
-        jz  short loc_4A4A9
+//loc_4A491:              ; CODE XREF: movefun3+5j
+    uint8_t tileValue = ((currentTile->movingObject << 8)
+                         | currentTile->tile);
+
+    if (tileValue >= 0x3008)
+    {
+        // jge short loc_4A4D4
+    }
+    if (tileValue >= 0x2008)
+    {
+        // jge short loc_4A4B4
+    }
+
+    if (belowTile->movingObject != 0 || belowTile->tile != LevelTileTypeSpace)
+    {
         return;
+    }
 
-loc_4A4A9:              ; CODE XREF: movefun3+1Dj
-        mov byte ptr [si+1835h], 20h ; ' '
-        mov byte ptr [si+18ADh], 8
+//loc_4A4A9:              ; CODE XREF: movefun3+1Dj
+    currentTile->movingObject = 0x20;
+    belowTile->movingObject = 8;
+    return;
+
+//loc_4A4B4:              ; CODE XREF: movefun3+14j
+    if (belowTile->movingObject != 0 || belowTile->tile != LevelTileTypeSpace)
+    {
+        // jnz short loc_4A4C2
+    }
+    currentTile->movingObject = 0;
+    currentTile->tile = LevelTileTypeOrangeDisk;
+    return;
+
+//loc_4A4C2:              ; CODE XREF: movefun3+30j
+    bl = currentTile->movingObject;
+    bl++;
+    if (bl == 0x22)
+    {
+        bl = 0x30;
+    }
+
+//loc_4A4CF:              ; CODE XREF: movefun3+42j
+    currentTile->movingObject = bl;
+    return;
+
+//loc_4A4D4:              ; CODE XREF: movefun3+Fj
+//    push    si
+    bl = currentTile->movingObject;
+    bh = 0;
+    al = bl;
+//    bx *= 2;
+//    ;and bx, byte ptr 0Fh
+//    db 83h, 0E3h, 0Fh
+    bl &= 0xF; // 16 frames?
+
+//    mov di, [si+6155h]
+//    shl bx, 1
+//    add di, [bx+6C95h]
+//    mov si, 12F6h
+//    mov si, [si]
+    uint16_t offset = someZonkBinaryData[bl];
+
+    uint8_t tileX = (position % kLevelWidth);
+    uint8_t tileY = (position / kLevelWidth);
+
+    uint16_t dstX = tileX * kTileSize + (offset % 122);
+    uint16_t dstY = tileY * kTileSize + (offset / 122);
+
+    drawMovingSpriteFrameInLevel(128, 64,
+                                 kTileSize,
+                                 kTileSize + 2,
+                                 dstX, dstY);
+
+    bl = currentTile->movingObject;
+    bl++;
+    al = bl;
+    al &= 7;
+    if (al != 0)
+    {
+        currentTile->movingObject = bl;
         return;
+    }
 
-loc_4A4B4:              ; CODE XREF: movefun3+14j
-        cmp word ptr [si+18ACh], 0
-        jnz short loc_4A4C2
-        mov word ptr leveldata[si], 8
-        return;
+//loc_4A516:              ; CODE XREF: movefun3+86j
+    currentTile->movingObject = 0;
+    currentTile->tile = LevelTileTypeSpace;
+    belowTile->movingObject = 0;
+    belowTile->tile = LevelTileTypeOrangeDisk;
+    add si, 78h ; 'x'
+    cmp word ptr [si+18ACh], 0
+    jnz short loc_4A537
+    mov byte ptr [si+1835h], 30h ; '0'
+    mov byte ptr [si+18ADh], 8
+    return;
 
-loc_4A4C2:              ; CODE XREF: movefun3+30j
-        mov bl, [si+1835h]
-        inc bl
-        cmp bl, 22h ; '"'
-        jnz short loc_4A4CF
-        mov bl, 30h ; '0'
+//loc_4A537:              ; CODE XREF: movefun3+A1j
+    cmp byte ptr [si+18ACh], 1Fh
+    jnz short loc_4A53F
+    return;
 
-loc_4A4CF:              ; CODE XREF: movefun3+42j
-        mov [si+1835h], bl
-        return;
-
-loc_4A4D4:              ; CODE XREF: movefun3+Fj
-        push    si
-        mov bl, [si+1835h]
-        xor bh, bh
-        al = bl
-        shl bx, 1
-        ;and bx, byte ptr 0Fh
-        db 83h, 0E3h, 0Fh
-        mov di, [si+6155h]
-        shl bx, 1
-        add di, [bx+6C95h]
-        mov si, 12F6h
-        mov si, [si]
-        push    ds
-        mov ax, es
-        mov ds, ax
-        mov cx, 12h
-
-loc_4A4F9:              ; CODE XREF: movefun3+78j
-        movsb
-        movsb
-        add si, 78h ; 'x'
-        add di, 78h ; 'x'
-        loop    loc_4A4F9
-        pop ds
-        pop si
-        mov bl, [si+1835h]
-        inc bl
-        al = bl
-        and al, 7
-        jz  short loc_4A516
-        mov [si+1835h], bl
-        return;
-
-loc_4A516:              ; CODE XREF: movefun3+86j
-        mov word ptr leveldata[si], 0
-        mov word ptr [si+18ACh], 8
-        add si, 78h ; 'x'
-        cmp word ptr [si+18ACh], 0
-        jnz short loc_4A537
-        mov byte ptr [si+1835h], 30h ; '0'
-        mov byte ptr [si+18ADh], 8
-        return;
-
-loc_4A537:              ; CODE XREF: movefun3+A1j
-        cmp byte ptr [si+18ACh], 1Fh
-        jnz short loc_4A53F
-        return;
-
-loc_4A53F:              ; CODE XREF: movefun3+B3j
-        call    detonateBigExplosion
-        return;
-movefun3  endp
-*/
+//loc_4A53F:              ; CODE XREF: movefun3+B3j
+    call    detonateBigExplosion
+    return;
+}
 
 void updateExplosionTiles(uint16_t position) //loc_4A543:              ; DATA XREF: data:1648o
 {
