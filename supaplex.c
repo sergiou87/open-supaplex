@@ -1099,7 +1099,7 @@ static const Point kInfotronExplosionAnimationFrameCoordinates[8] = {
 
 // { 128, 64 }, // -> 0x2a02 -> 12f6 -> orange disk falling
 
-AnimationFrameCoordinates frameCoordinates_515C6[10] = {
+AnimationFrameCoordinates frameCoordinates_515C6[8] = {
     { // 0
         {
             { 48, 32 }, // -> 0x1ab8 -> 12f8
@@ -1203,106 +1203,117 @@ AnimationFrameCoordinates frameCoordinates_515C6[10] = {
             { 304, 132 }, // -> 0x4a80 -> 1384
         },
         8
-    },
-    { // 8
+    }
+};
+
+// Snik snak animations
+Point frameCoordinates_51654[48] = {
+    { 192, 388 }, // -> 0x2a5a -> 1388
+    { 64, 260 }, // -> 0x3a56 -> 138a
+    { 96, 244 }, // -> 0x32ba -> 138c
+    { 80, 260 }, // -> 0x3a58 -> 138e
+    { 208, 388 }, // -> 0x2a5c -> 1390
+    { 96, 260 }, // -> 0x3a5a -> 1392
+    { 48, 260 }, // -> 0x3a54 -> 1394
+    { 112, 260 }, // -> 0x3a5c -> 1396
+    { 192, 388 }, // -> 0x2a5a -> 1398
+    { 112, 260 }, // -> 0x3a5c -> 139a
+    { 48, 260 }, // -> 0x3a54 -> 139c
+    { 96, 260 }, // -> 0x3a5a -> 139e
+    { 208, 388 }, // -> 0x2a5c -> 13a0
+    { 80, 260 }, // -> 0x3a58 -> 13a2
+    { 96, 244 }, // -> 0x32ba -> 13a4
+    { 64, 260 }, // -> 0x3a56 -> 13a6
+    { 0, 424 }, // -> 0x3b6a -> 13a8
+    { 16, 424 }, // -> 0x3b6c -> 13aa
+    { 32, 424 }, // -> 0x3b6e -> 13ac
+    { 48, 424 }, // -> 0x3b70 -> 13ae
+    { 64, 424 }, // -> 0x3b72 -> 13b0
+    { 80, 424 }, // -> 0x3b74 -> 13b2
+    { 96, 424 }, // -> 0x3b76 -> 13b4
+    { 112, 424 }, // -> 0x3b78 -> 13b6
+    { 192, 228 }, // -> 0x2b26 -> 13b8
+    { 224, 228 }, // -> 0x2b2a -> 13ba
+    { 256, 228 }, // -> 0x2b2e -> 13bc
+    { 288, 228 }, // -> 0x2b32 -> 13be
+    { 0, 244 }, // -> 0x32ae -> 13c0
+    { 32, 244 }, // -> 0x32b2 -> 13c2
+    { 64, 244 }, // -> 0x32b6 -> 13c4
+    { 96, 244 }, // -> 0x32ba -> 13c6
+    { 0, 424 }, // -> 0x3a88 -> 13c8
+    { 16, 424 }, // -> 0x3a8a -> 13ca
+    { 32, 424 }, // -> 0x3a8c -> 13cc
+    { 48, 424 }, // -> 0x3a8e -> 13ce
+    { 64, 424 }, // -> 0x3a90 -> 13d0
+    { 80, 424 }, // -> 0x3a92 -> 13d2
+    { 96, 424 }, // -> 0x3a94 -> 13d4
+    { 112, 424 }, // -> 0x3a96 -> 13d6
+    { 128, 244 }, // -> 0x32be -> 13d8
+    { 160, 244 }, // -> 0x32c2 -> 13da
+    { 192, 244 }, // -> 0x32c6 -> 13dc
+    { 224, 244 }, // -> 0x32ca -> 13de
+    { 256, 244 }, // -> 0x32ce -> 13e0
+    { 288, 244 }, // -> 0x32d2 -> 13e2
+    { 0, 260 }, // -> 0x3a4e -> 13e4
+    { 32, 260 }, // -> 0x3a52 -> 13e6
+};
+
+// Electron animations
+Point frameCoordinates_516B4[48] = {
+    { 0, 404 }, // -> 0x31e2 -> 13e8
+    { 16, 404 }, // -> 0x31e4 -> 13ea
+    { 32, 404 }, // -> 0x31e6 -> 13ec
+    { 48, 404 }, // -> 0x31e8 -> 13ee
+    { 64, 404 }, // -> 0x31ea -> 13f0
+    { 80, 404 }, // -> 0x31ec -> 13f2
+    { 96, 404 }, // -> 0x31ee -> 13f4
+    { 112, 404 }, // -> 0x31f0 -> 13f6
+    { 0, 404 }, // -> 0x31e2 -> 13f8
+    { 112, 404 }, // -> 0x31f0 -> 13fa
+    { 96, 404 }, // -> 0x31ee -> 13fc
+    { 80, 404 }, // -> 0x31ec -> 13fe
+    { 64, 404 }, // -> 0x31ea -> 1400
+    { 48, 404 }, // -> 0x31e8 -> 1402
+    { 32, 404 }, // -> 0x31e6 -> 1404
+    { 16, 404 }, // -> 0x31e4 -> 1406
+    { 144, 404 }, // -> 0x31f4 -> 1408
+    { 160, 404 }, // -> 0x31f6 -> 140a
+    { 176, 404 }, // -> 0x31f8 -> 140c
+    { 192, 404 }, // -> 0x31fa -> 140e
+    { 208, 404 }, // -> 0x31fc -> 1410
+    { 224, 404 }, // -> 0x31fe -> 1412
+    { 240, 404 }, // -> 0x3200 -> 1414
+    { 256, 404 }, // -> 0x3202 -> 1416
+    { 0, 372 }, // -> 0x22a2 -> 1418
+    { 32, 372 }, // -> 0x22a6 -> 141a
+    { 64, 372 }, // -> 0x22aa -> 141c
+    { 96, 372 }, // -> 0x22ae -> 141e
+    { 128, 372 }, // -> 0x22b2 -> 1420
+    { 160, 372 }, // -> 0x22b6 -> 1422
+    { 192, 372 }, // -> 0x22ba -> 1424
+    { 224, 372 }, // -> 0x22be -> 1426
+    { 0, 402 }, // -> 0x30ee -> 1428
+    { 16, 402 }, // -> 0x30f0 -> 142a
+    { 32, 402 }, // -> 0x30f2 -> 142c
+    { 48, 402 }, // -> 0x30f4 -> 142e
+    { 64, 402 }, // -> 0x30f6 -> 1430
+    { 80, 403 }, // -> 0x3172 -> 1432
+    { 96, 403 }, // -> 0x3174 -> 1434
+    { 112, 402 }, // -> 0x30fc -> 1436
+    { 256, 372 }, // -> 0x22c2 -> 1438
+    { 288, 372 }, // -> 0x22c6 -> 143a
+    { 0, 388 }, // -> 0x2a42 -> 143c
+    { 32, 388 }, // -> 0x2a46 -> 143e
+    { 64, 388 }, // -> 0x2a4a -> 1440
+    { 96, 388 }, // -> 0x2a4e -> 1442
+    { 128, 388 }, // -> 0x2a52 -> 1444
+    { 160, 388 }, // -> 0x2a56 -> 1446
+};
+
+AnimationFrameCoordinates frameCoordinates_51714[2] = {
+    { // 0
         {
-            { 192, 388 }, // -> 0x2a5a -> 1388
-            { 64, 260 }, // -> 0x3a56 -> 138a
-            { 96, 244 }, // -> 0x32ba -> 138c
-            { 80, 260 }, // -> 0x3a58 -> 138e
-            { 208, 388 }, // -> 0x2a5c -> 1390
-            { 96, 260 }, // -> 0x3a5a -> 1392
-            { 48, 260 }, // -> 0x3a54 -> 1394
-            { 112, 260 }, // -> 0x3a5c -> 1396
-            { 192, 388 }, // -> 0x2a5a -> 1398
-            { 112, 260 }, // -> 0x3a5c -> 139a
-            { 48, 260 }, // -> 0x3a54 -> 139c
-            { 96, 260 }, // -> 0x3a5a -> 139e
-            { 208, 388 }, // -> 0x2a5c -> 13a0
-            { 80, 260 }, // -> 0x3a58 -> 13a2
-            { 96, 244 }, // -> 0x32ba -> 13a4
-            { 64, 260 }, // -> 0x3a56 -> 13a6
-            { 0, 424 }, // -> 0x3b6a -> 13a8
-            { 16, 424 }, // -> 0x3b6c -> 13aa
-            { 32, 424 }, // -> 0x3b6e -> 13ac
-            { 48, 424 }, // -> 0x3b70 -> 13ae
-            { 64, 424 }, // -> 0x3b72 -> 13b0
-            { 80, 424 }, // -> 0x3b74 -> 13b2
-            { 96, 424 }, // -> 0x3b76 -> 13b4
-            { 112, 424 }, // -> 0x3b78 -> 13b6
-            { 192, 228 }, // -> 0x2b26 -> 13b8
-            { 224, 228 }, // -> 0x2b2a -> 13ba
-            { 256, 228 }, // -> 0x2b2e -> 13bc
-            { 288, 228 }, // -> 0x2b32 -> 13be
-            { 0, 244 }, // -> 0x32ae -> 13c0
-            { 32, 244 }, // -> 0x32b2 -> 13c2
-            { 64, 244 }, // -> 0x32b6 -> 13c4
-            { 96, 244 }, // -> 0x32ba -> 13c6
-            { 0, 424 }, // -> 0x3a88 -> 13c8
-            { 16, 424 }, // -> 0x3a8a -> 13ca
-            { 32, 424 }, // -> 0x3a8c -> 13cc
-            { 48, 424 }, // -> 0x3a8e -> 13ce
-            { 64, 424 }, // -> 0x3a90 -> 13d0
-            { 80, 424 }, // -> 0x3a92 -> 13d2
-            { 96, 424 }, // -> 0x3a94 -> 13d4
-            { 112, 424 }, // -> 0x3a96 -> 13d6
-            { 128, 244 }, // -> 0x32be -> 13d8
-            { 160, 244 }, // -> 0x32c2 -> 13da
-            { 192, 244 }, // -> 0x32c6 -> 13dc
-            { 224, 244 }, // -> 0x32ca -> 13de
-            { 256, 244 }, // -> 0x32ce -> 13e0
-            { 288, 244 }, // -> 0x32d2 -> 13e2
-            { 0, 260 }, // -> 0x3a4e -> 13e4
-            { 32, 260 }, // -> 0x3a52 -> 13e6
-            { 0, 404 }, // -> 0x31e2 -> 13e8
-            { 16, 404 }, // -> 0x31e4 -> 13ea
-            { 32, 404 }, // -> 0x31e6 -> 13ec
-            { 48, 404 }, // -> 0x31e8 -> 13ee
-            { 64, 404 }, // -> 0x31ea -> 13f0
-            { 80, 404 }, // -> 0x31ec -> 13f2
-            { 96, 404 }, // -> 0x31ee -> 13f4
-            { 112, 404 }, // -> 0x31f0 -> 13f6
-            { 0, 404 }, // -> 0x31e2 -> 13f8
-            { 112, 404 }, // -> 0x31f0 -> 13fa
-            { 96, 404 }, // -> 0x31ee -> 13fc
-            { 80, 404 }, // -> 0x31ec -> 13fe
-            { 64, 404 }, // -> 0x31ea -> 1400
-            { 48, 404 }, // -> 0x31e8 -> 1402
-            { 32, 404 }, // -> 0x31e6 -> 1404
-            { 16, 404 }, // -> 0x31e4 -> 1406
-            { 144, 404 }, // -> 0x31f4 -> 1408
-            { 160, 404 }, // -> 0x31f6 -> 140a
-            { 176, 404 }, // -> 0x31f8 -> 140c
-            { 192, 404 }, // -> 0x31fa -> 140e
-            { 208, 404 }, // -> 0x31fc -> 1410
-            { 224, 404 }, // -> 0x31fe -> 1412
-            { 240, 404 }, // -> 0x3200 -> 1414
-            { 256, 404 }, // -> 0x3202 -> 1416
-            { 0, 372 }, // -> 0x22a2 -> 1418
-            { 32, 372 }, // -> 0x22a6 -> 141a
-            { 64, 372 }, // -> 0x22aa -> 141c
-            { 96, 372 }, // -> 0x22ae -> 141e
-            { 128, 372 }, // -> 0x22b2 -> 1420
-            { 160, 372 }, // -> 0x22b6 -> 1422
-            { 192, 372 }, // -> 0x22ba -> 1424
-            { 224, 372 }, // -> 0x22be -> 1426
-            { 0, 402 }, // -> 0x30ee -> 1428
-            { 16, 402 }, // -> 0x30f0 -> 142a
-            { 32, 402 }, // -> 0x30f2 -> 142c
-            { 48, 402 }, // -> 0x30f4 -> 142e
-            { 64, 402 }, // -> 0x30f6 -> 1430
-            { 80, 403 }, // -> 0x3172 -> 1432
-            { 96, 403 }, // -> 0x3174 -> 1434
-            { 112, 402 }, // -> 0x30fc -> 1436
-            { 256, 372 }, // -> 0x22c2 -> 1438
-            { 288, 372 }, // -> 0x22c6 -> 143a
-            { 0, 388 }, // -> 0x2a42 -> 143c
-            { 32, 388 }, // -> 0x2a46 -> 143e
-            { 64, 388 }, // -> 0x2a4a -> 1440
-            { 96, 388 }, // -> 0x2a4e -> 1442
-            { 128, 388 }, // -> 0x2a52 -> 1444
-            { 160, 388 }, // -> 0x2a56 -> 1446
-            // Murphy eating red disk
+            // Murphy eating red disk left
             { 128, 260 }, // -> 0x3a5e -> 1448
             { 160, 260 }, // -> 0x3a62 -> 144a
             { 192, 260 }, // -> 0x3a66 -> 144c
@@ -1314,17 +1325,18 @@ AnimationFrameCoordinates frameCoordinates_515C6[10] = {
         },
         104
     },
-    { // 9
+    { // 1
         {
-            { 832, -16 }, // -> 0x043a -> 145a
-            { 864, -16 }, // -> 0x043e -> 145c
-            { 896, -16 }, // -> 0x0442 -> 145e
-            { 928, -16 }, // -> 0x0446 -> 1460
-            { 928, -16 }, // -> 0x0446 -> 1462
-            { 928, 0 }, // -> 0x0be6 -> 1464
-            { 928, 16 }, // -> 0x1386 -> 1466
-            { 832, 32 }, // -> 0x1b1a -> 1468
-            { 864, 32 }, // -> 0x1b1e -> 146a
+            // Murphy eating red disk right
+            { 192, 308 }, // -> 0x043a -> 145a
+            { 224, 308 }, // -> 0x043e -> 145c
+            { 256, 308 }, // -> 0x0442 -> 145e
+            { 288, 308 }, // -> 0x0446 -> 1460
+            { 288, 308 }, // -> 0x0446 -> 1462
+            { 288, 324 }, // -> 0x0be6 -> 1464
+            { 288, 340 }, // -> 0x1386 -> 1466
+            { 192, 356 }, // -> 0x1b1a -> 1468
+            { 224, 356 }, // -> 0x1b1e -> 146a
         },
         9
     },
@@ -2332,7 +2344,7 @@ static const MovingFunction movingFunctions[32] = {
 
 void sub_4F312(uint16_t position, uint8_t frame);
 void sub_4F40D(uint16_t position, uint8_t frame);
-void sub_4F50A(uint16_t position, uint8_t frame);
+void updateSnikSnakMovementUp(uint16_t position, uint8_t frame);
 void sub_4F5B5(uint16_t position, uint8_t frame);
 void sub_4F65B(uint16_t position, uint8_t frame);
 void sub_4F708(uint16_t position, uint8_t frame);
@@ -2354,14 +2366,14 @@ static const SnikSnakMovingFunction movingFunctions3[48] = {
     sub_4F40D,
     sub_4F40D,
     sub_4F40D,
-    sub_4F50A,
-    sub_4F50A,
-    sub_4F50A,
-    sub_4F50A,
-    sub_4F50A,
-    sub_4F50A,
-    sub_4F50A,
-    sub_4F50A,
+    updateSnikSnakMovementUp,
+    updateSnikSnakMovementUp,
+    updateSnikSnakMovementUp,
+    updateSnikSnakMovementUp,
+    updateSnikSnakMovementUp,
+    updateSnikSnakMovementUp,
+    updateSnikSnakMovementUp,
+    updateSnikSnakMovementUp,
     sub_4F5B5,
     sub_4F5B5,
     sub_4F5B5,
@@ -19705,8 +19717,7 @@ void sub_4F312(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
     if ((word_5195D & 3) == 0)
     {
 //loc_4F320:              ; CODE XREF: sub_4F312+6j
-        AnimationFrameCoordinates animationFrameCoordinates = frameCoordinates_515C6[8];
-        Point frameCoordinates = animationFrameCoordinates.coordinates[frame];
+        Point frameCoordinates = frameCoordinates_51654[frame];
         drawMovingFrame(frameCoordinates.x, frameCoordinates.y, position);
         frame++;
         frame &= 7;
@@ -19821,8 +19832,7 @@ void sub_4F40D(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
     if ((word_5195D & 3) == 0)
     {
 //loc_4F41B:              ; CODE XREF: sub_4F40D+6j
-        AnimationFrameCoordinates animationFrameCoordinates = frameCoordinates_515C6[8];
-        Point frameCoordinates = animationFrameCoordinates.coordinates[frame];
+        Point frameCoordinates = frameCoordinates_51654[frame];
         drawMovingFrame(frameCoordinates.x, frameCoordinates.y, position);
         frame++;
         frame &= 7;
@@ -19922,86 +19932,99 @@ void sub_4F40D(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
     }
 }
 
-void sub_4F50A(uint16_t position, uint8_t frame) //   proc near       ; DATA XREF: data:156Ao
+void updateSnikSnakMovementUp(uint16_t position, uint8_t frame) // sub_4F50A    proc near       ; DATA XREF: data:156Ao
 {
-    /*
-    push    si
-    mov di, [si+61CDh]
-    mov si, [bx+1388h]
-    sub bx, 1Eh
-    sub di, [bx+6C95h]
-    sub di, [bx+6C95h]
-    push    ds
-    mov ax, es
-    mov ds, ax
-    mov cx, 12h
+    MovingLevelTile *currentTile = &gCurrentLevelWord[position];
+    MovingLevelTile *belowTile = &gCurrentLevelWord[position + kLevelWidth];
+    MovingLevelTile *leftTile = &gCurrentLevelWord[position - 1];
+    MovingLevelTile *aboveTile = &gCurrentLevelWord[position - kLevelWidth];
+    MovingLevelTile *rightTile = &gCurrentLevelWord[position + 1];
 
-loc_4F526:              ; CODE XREF: sub_4F50A+24j
-    movsb
-    movsb
-    add di, 78h ; 'x'
-    add si, 78h ; 'x'
-    loop    loc_4F526
-    pop ds
-    pop si
-    shr bx, 1
-    cmp bl, 7
-    jnz short loc_4F546
-    cmp byte ptr [si+18ACh], 1Fh
-    jz  short loc_4F546
-    mov word ptr [si+18ACh], 0
+    uint16_t finalPosition = position + kLevelWidth;
+    Point frameCoordinates = frameCoordinates_51654[frame];
+    // sub bx, 1Eh
+    frame -= 15; // 0x1E / 2
+    uint16_t offset = someZonkBinaryData[frame];
 
-loc_4F546:              ; CODE XREF: sub_4F50A+2Dj
-                ; sub_4F50A+34j
-    cmp bl, 8
-    jge short loc_4F553
-    add bl, 10h
-    mov [si+1835h], bl
+    uint8_t tileX = (finalPosition % kLevelWidth);
+    uint8_t tileY = (finalPosition / kLevelWidth);
+
+    uint16_t dstX = tileX * kTileSize - (offset % 122) * 2;
+    uint16_t dstY = tileY * kTileSize - (offset / 122) * 2;
+
+    drawMovingSpriteFrameInLevel(frameCoordinates.x, frameCoordinates.y,
+                                 kTileSize,
+                                 kTileSize + 2,
+                                 dstX, dstY);
+    frame &= 7;
+    if (frame == 0)
+    {
+        if (belowTile->tile != LevelTileTypeExplosion)
+        {
+            belowTile->movingObject = 0;
+            belowTile->tile = LevelTileTypeSpace;
+        }
+    }
+//loc_4F546:              ; CODE XREF: updateSnikSnakMovementUp+2Dj
+//                ; updateSnikSnakMovementUp+34j
+    if (frame < 8)
+    {
+        frame += 0x10;
+        currentTile->movingObject = frame;
+        return;
+    }
+
+//loc_4F553:              ; CODE XREF: updateSnikSnakMovementUp+3Fj
+    currentTile->movingObject = 0;
+    currentTile->tile = LevelTileTypeSnikSnak;
+
+    if (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeSpace)
+    {
+        currentTile->movingObject = 1;
+        return;
+    }
+
+//loc_4F566:              ; CODE XREF: updateSnikSnakMovementUp+54j
+    if (leftTile->tile == LevelTileTypeMurphy)
+    {
+        currentTile->movingObject = 1;
+        return;
+    }
+
+//loc_4F573:              ; CODE XREF: updateSnikSnakMovementUp+61j
+    if (aboveTile->movingObject == 0 && aboveTile->tile == LevelTileTypeSpace)
+    {
+        currentTile->movingObject = 1;
+        currentTile->tile = 0xBB;
+        aboveTile->movingObject = 0x10;
+        aboveTile->tile = LevelTileTypeSnikSnak;
+        return;
+    }
+
+//loc_4F58A:              ; CODE XREF: updateSnikSnakMovementUp+6Ej
+    if (aboveTile->tile == LevelTileTypeMurphy)
+    {
+        detonateBigExplosion(position);
+        return;
+    }
+
+//loc_4F595:              ; CODE XREF: updateSnikSnakMovementUp+85j
+    if (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeSpace)
+    {
+        currentTile->movingObject = 9;
+        return;
+    }
+
+//loc_4F5A2:              ; CODE XREF: updateSnikSnakMovementUp+90j
+    if (rightTile->tile == LevelTileTypeMurphy)
+    {
+        currentTile->movingObject = 9;
+        return;
+    }
+
+//loc_4F5AF:              ; CODE XREF: updateSnikSnakMovementUp+9Dj
+    currentTile->movingObject = 1;
     return;
-
-loc_4F553:              ; CODE XREF: sub_4F50A+3Fj
-    mov word ptr leveldata[si], 11h
-    cmp word ptr [si+1832h], 0
-    jnz short loc_4F566
-    mov byte ptr [si+1835h], 1
-    return;
-
-loc_4F566:              ; CODE XREF: sub_4F50A+54j
-    cmp byte ptr [si+1832h], 3
-    jnz short loc_4F573
-    mov byte ptr [si+1835h], 1
-    return;
-
-loc_4F573:              ; CODE XREF: sub_4F50A+61j
-    cmp word ptr [si+17BCh], 0
-    jnz short loc_4F58A
-    mov word ptr leveldata[si], 1BBh
-    sub si, 78h ; 'x'
-    mov word ptr leveldata[si], 1011h
-    return;
-
-loc_4F58A:              ; CODE XREF: sub_4F50A+6Ej
-    cmp byte ptr [si+17BCh], 3
-    jnz short loc_4F595
-    call    detonateBigExplosion
-    return;
-
-loc_4F595:              ; CODE XREF: sub_4F50A+85j
-    cmp word ptr [si+1836h], 0
-    jnz short loc_4F5A2
-    mov byte ptr [si+1835h], 9
-    return;
-
-loc_4F5A2:              ; CODE XREF: sub_4F50A+90j
-    cmp byte ptr [si+1836h], 3
-    jnz short loc_4F5AF
-    mov byte ptr [si+1835h], 9
-    return;
-
-loc_4F5AF:              ; CODE XREF: sub_4F50A+9Dj
-    mov byte ptr [si+1835h], 1
-    return;
-     */
 }
 
 void sub_4F5B5(uint16_t position, uint8_t frame) //   proc near       ; DATA XREF: data:157Ao
