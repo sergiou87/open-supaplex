@@ -1206,110 +1206,111 @@ AnimationFrameCoordinates frameCoordinates_515C6[10] = {
     },
     { // 8
         {
-            { 832, 64 }, // -> 0x2a5a -> 1388
-            { 384, 98 }, // -> 0x3a56 -> 138a
-            { 416, 82 }, // -> 0x32ba -> 138c
-            { 400, 98 }, // -> 0x3a58 -> 138e
-            { 848, 64 }, // -> 0x2a5c -> 1390
-            { 416, 98 }, // -> 0x3a5a -> 1392
-            { 368, 98 }, // -> 0x3a54 -> 1394
-            { 432, 98 }, // -> 0x3a5c -> 1396
-            { 832, 64 }, // -> 0x2a5a -> 1398
-            { 432, 98 }, // -> 0x3a5c -> 139a
-            { 368, 98 }, // -> 0x3a54 -> 139c
-            { 416, 98 }, // -> 0x3a5a -> 139e
-            { 848, 64 }, // -> 0x2a5c -> 13a0
-            { 400, 98 }, // -> 0x3a58 -> 13a2
-            { 416, 82 }, // -> 0x32ba -> 13a4
-            { 384, 98 }, // -> 0x3a56 -> 13a6
-            { 640, 100 }, // -> 0x3b6a -> 13a8
-            { 656, 100 }, // -> 0x3b6c -> 13aa
-            { 672, 100 }, // -> 0x3b6e -> 13ac
-            { 688, 100 }, // -> 0x3b70 -> 13ae
-            { 704, 100 }, // -> 0x3b72 -> 13b0
-            { 720, 100 }, // -> 0x3b74 -> 13b2
-            { 736, 100 }, // -> 0x3b76 -> 13b4
-            { 752, 100 }, // -> 0x3b78 -> 13b6
-            { 512, 66 }, // -> 0x2b26 -> 13b8
-            { 544, 66 }, // -> 0x2b2a -> 13ba
-            { 576, 66 }, // -> 0x2b2e -> 13bc
-            { 608, 66 }, // -> 0x2b32 -> 13be
-            { 320, 82 }, // -> 0x32ae -> 13c0
-            { 352, 82 }, // -> 0x32b2 -> 13c2
-            { 384, 82 }, // -> 0x32b6 -> 13c4
-            { 416, 82 }, // -> 0x32ba -> 13c6
-            { 784, 98 }, // -> 0x3a88 -> 13c8
-            { 800, 98 }, // -> 0x3a8a -> 13ca
-            { 816, 98 }, // -> 0x3a8c -> 13cc
-            { 832, 98 }, // -> 0x3a8e -> 13ce
-            { 848, 98 }, // -> 0x3a90 -> 13d0
-            { 864, 98 }, // -> 0x3a92 -> 13d2
-            { 880, 98 }, // -> 0x3a94 -> 13d4
-            { 896, 98 }, // -> 0x3a96 -> 13d6
-            { 448, 82 }, // -> 0x32be -> 13d8
-            { 480, 82 }, // -> 0x32c2 -> 13da
-            { 512, 82 }, // -> 0x32c6 -> 13dc
-            { 544, 82 }, // -> 0x32ca -> 13de
-            { 576, 82 }, // -> 0x32ce -> 13e0
-            { 608, 82 }, // -> 0x32d2 -> 13e2
-            { 320, 98 }, // -> 0x3a4e -> 13e4
-            { 352, 98 }, // -> 0x3a52 -> 13e6
-            { 640, 80 }, // -> 0x31e2 -> 13e8
-            { 656, 80 }, // -> 0x31e4 -> 13ea
-            { 672, 80 }, // -> 0x31e6 -> 13ec
-            { 688, 80 }, // -> 0x31e8 -> 13ee
-            { 704, 80 }, // -> 0x31ea -> 13f0
-            { 720, 80 }, // -> 0x31ec -> 13f2
-            { 736, 80 }, // -> 0x31ee -> 13f4
-            { 752, 80 }, // -> 0x31f0 -> 13f6
-            { 640, 80 }, // -> 0x31e2 -> 13f8
-            { 752, 80 }, // -> 0x31f0 -> 13fa
-            { 736, 80 }, // -> 0x31ee -> 13fc
-            { 720, 80 }, // -> 0x31ec -> 13fe
-            { 704, 80 }, // -> 0x31ea -> 1400
-            { 688, 80 }, // -> 0x31e8 -> 1402
-            { 672, 80 }, // -> 0x31e6 -> 1404
-            { 656, 80 }, // -> 0x31e4 -> 1406
-            { 784, 80 }, // -> 0x31f4 -> 1408
-            { 800, 80 }, // -> 0x31f6 -> 140a
-            { 816, 80 }, // -> 0x31f8 -> 140c
-            { 832, 80 }, // -> 0x31fa -> 140e
-            { 848, 80 }, // -> 0x31fc -> 1410
-            { 864, 80 }, // -> 0x31fe -> 1412
-            { 880, 80 }, // -> 0x3200 -> 1414
-            { 896, 80 }, // -> 0x3202 -> 1416
-            { 640, 48 }, // -> 0x22a2 -> 1418
-            { 672, 48 }, // -> 0x22a6 -> 141a
-            { 704, 48 }, // -> 0x22aa -> 141c
-            { 736, 48 }, // -> 0x22ae -> 141e
-            { 768, 48 }, // -> 0x22b2 -> 1420
-            { 800, 48 }, // -> 0x22b6 -> 1422
-            { 832, 48 }, // -> 0x22ba -> 1424
-            { 864, 48 }, // -> 0x22be -> 1426
-            { 640, 78 }, // -> 0x30ee -> 1428
-            { 656, 78 }, // -> 0x30f0 -> 142a
-            { 672, 78 }, // -> 0x30f2 -> 142c
-            { 688, 78 }, // -> 0x30f4 -> 142e
-            { 704, 78 }, // -> 0x30f6 -> 1430
-            { 720, 79 }, // -> 0x3172 -> 1432
-            { 736, 79 }, // -> 0x3174 -> 1434
-            { 752, 78 }, // -> 0x30fc -> 1436
-            { 896, 48 }, // -> 0x22c2 -> 1438
-            { 928, 48 }, // -> 0x22c6 -> 143a
-            { 640, 64 }, // -> 0x2a42 -> 143c
-            { 672, 64 }, // -> 0x2a46 -> 143e
-            { 704, 64 }, // -> 0x2a4a -> 1440
-            { 736, 64 }, // -> 0x2a4e -> 1442
-            { 768, 64 }, // -> 0x2a52 -> 1444
-            { 800, 64 }, // -> 0x2a56 -> 1446
-            { 448, 98 }, // -> 0x3a5e -> 1448
-            { 480, 98 }, // -> 0x3a62 -> 144a
-            { 512, 98 }, // -> 0x3a66 -> 144c
-            { 544, 98 }, // -> 0x3a6a -> 144e
-            { 576, 98 }, // -> 0x3a6e -> 1450
-            { 608, 98 }, // -> 0x3a72 -> 1452
-            { 608, 114 }, // -> 0x4212 -> 1454
-            { 608, 130 }, // -> 0x49b2 -> 1456
+            { 192, 388 }, // -> 0x2a5a -> 1388
+            { 64, 260 }, // -> 0x3a56 -> 138a
+            { 96, 244 }, // -> 0x32ba -> 138c
+            { 80, 260 }, // -> 0x3a58 -> 138e
+            { 208, 388 }, // -> 0x2a5c -> 1390
+            { 96, 260 }, // -> 0x3a5a -> 1392
+            { 48, 260 }, // -> 0x3a54 -> 1394
+            { 112, 260 }, // -> 0x3a5c -> 1396
+            { 192, 388 }, // -> 0x2a5a -> 1398
+            { 112, 260 }, // -> 0x3a5c -> 139a
+            { 48, 260 }, // -> 0x3a54 -> 139c
+            { 96, 260 }, // -> 0x3a5a -> 139e
+            { 208, 388 }, // -> 0x2a5c -> 13a0
+            { 80, 260 }, // -> 0x3a58 -> 13a2
+            { 96, 244 }, // -> 0x32ba -> 13a4
+            { 64, 260 }, // -> 0x3a56 -> 13a6
+            { 0, 424 }, // -> 0x3b6a -> 13a8
+            { 16, 424 }, // -> 0x3b6c -> 13aa
+            { 32, 424 }, // -> 0x3b6e -> 13ac
+            { 48, 424 }, // -> 0x3b70 -> 13ae
+            { 64, 424 }, // -> 0x3b72 -> 13b0
+            { 80, 424 }, // -> 0x3b74 -> 13b2
+            { 96, 424 }, // -> 0x3b76 -> 13b4
+            { 112, 424 }, // -> 0x3b78 -> 13b6
+            { 192, 228 }, // -> 0x2b26 -> 13b8
+            { 224, 228 }, // -> 0x2b2a -> 13ba
+            { 256, 228 }, // -> 0x2b2e -> 13bc
+            { 288, 228 }, // -> 0x2b32 -> 13be
+            { 0, 244 }, // -> 0x32ae -> 13c0
+            { 32, 244 }, // -> 0x32b2 -> 13c2
+            { 64, 244 }, // -> 0x32b6 -> 13c4
+            { 96, 244 }, // -> 0x32ba -> 13c6
+            { 0, 424 }, // -> 0x3a88 -> 13c8
+            { 16, 424 }, // -> 0x3a8a -> 13ca
+            { 32, 424 }, // -> 0x3a8c -> 13cc
+            { 48, 424 }, // -> 0x3a8e -> 13ce
+            { 64, 424 }, // -> 0x3a90 -> 13d0
+            { 80, 424 }, // -> 0x3a92 -> 13d2
+            { 96, 424 }, // -> 0x3a94 -> 13d4
+            { 112, 424 }, // -> 0x3a96 -> 13d6
+            { 128, 244 }, // -> 0x32be -> 13d8
+            { 160, 244 }, // -> 0x32c2 -> 13da
+            { 192, 244 }, // -> 0x32c6 -> 13dc
+            { 224, 244 }, // -> 0x32ca -> 13de
+            { 256, 244 }, // -> 0x32ce -> 13e0
+            { 288, 244 }, // -> 0x32d2 -> 13e2
+            { 0, 260 }, // -> 0x3a4e -> 13e4
+            { 32, 260 }, // -> 0x3a52 -> 13e6
+            { 0, 404 }, // -> 0x31e2 -> 13e8
+            { 16, 404 }, // -> 0x31e4 -> 13ea
+            { 32, 404 }, // -> 0x31e6 -> 13ec
+            { 48, 404 }, // -> 0x31e8 -> 13ee
+            { 64, 404 }, // -> 0x31ea -> 13f0
+            { 80, 404 }, // -> 0x31ec -> 13f2
+            { 96, 404 }, // -> 0x31ee -> 13f4
+            { 112, 404 }, // -> 0x31f0 -> 13f6
+            { 0, 404 }, // -> 0x31e2 -> 13f8
+            { 112, 404 }, // -> 0x31f0 -> 13fa
+            { 96, 404 }, // -> 0x31ee -> 13fc
+            { 80, 404 }, // -> 0x31ec -> 13fe
+            { 64, 404 }, // -> 0x31ea -> 1400
+            { 48, 404 }, // -> 0x31e8 -> 1402
+            { 32, 404 }, // -> 0x31e6 -> 1404
+            { 16, 404 }, // -> 0x31e4 -> 1406
+            { 144, 404 }, // -> 0x31f4 -> 1408
+            { 160, 404 }, // -> 0x31f6 -> 140a
+            { 176, 404 }, // -> 0x31f8 -> 140c
+            { 192, 404 }, // -> 0x31fa -> 140e
+            { 208, 404 }, // -> 0x31fc -> 1410
+            { 224, 404 }, // -> 0x31fe -> 1412
+            { 240, 404 }, // -> 0x3200 -> 1414
+            { 256, 404 }, // -> 0x3202 -> 1416
+            { 0, 372 }, // -> 0x22a2 -> 1418
+            { 32, 372 }, // -> 0x22a6 -> 141a
+            { 64, 372 }, // -> 0x22aa -> 141c
+            { 96, 372 }, // -> 0x22ae -> 141e
+            { 128, 372 }, // -> 0x22b2 -> 1420
+            { 160, 372 }, // -> 0x22b6 -> 1422
+            { 192, 372 }, // -> 0x22ba -> 1424
+            { 224, 372 }, // -> 0x22be -> 1426
+            { 0, 402 }, // -> 0x30ee -> 1428
+            { 16, 402 }, // -> 0x30f0 -> 142a
+            { 32, 402 }, // -> 0x30f2 -> 142c
+            { 48, 402 }, // -> 0x30f4 -> 142e
+            { 64, 402 }, // -> 0x30f6 -> 1430
+            { 80, 403 }, // -> 0x3172 -> 1432
+            { 96, 403 }, // -> 0x3174 -> 1434
+            { 112, 402 }, // -> 0x30fc -> 1436
+            { 256, 372 }, // -> 0x22c2 -> 1438
+            { 288, 372 }, // -> 0x22c6 -> 143a
+            { 0, 388 }, // -> 0x2a42 -> 143c
+            { 32, 388 }, // -> 0x2a46 -> 143e
+            { 64, 388 }, // -> 0x2a4a -> 1440
+            { 96, 388 }, // -> 0x2a4e -> 1442
+            { 128, 388 }, // -> 0x2a52 -> 1444
+            { 160, 388 }, // -> 0x2a56 -> 1446
+            // Murphy eating red disk
+            { 128, 260 }, // -> 0x3a5e -> 1448
+            { 160, 260 }, // -> 0x3a62 -> 144a
+            { 192, 260 }, // -> 0x3a66 -> 144c
+            { 224, 260 }, // -> 0x3a6a -> 144e
+            { 256, 260 }, // -> 0x3a6e -> 1450
+            { 288, 260 }, // -> 0x3a72 -> 1452
+            { 288, 276 }, // -> 0x4212 -> 1454
+            { 288, 292 }, // -> 0x49b2 -> 1456
         },
         104
     },
@@ -2283,11 +2284,12 @@ ColorPaletteData gTitle2PaletteData = {
 };
 
 typedef void (*MovingFunction)(uint16_t);
+typedef void (*SnikSnakMovingFunction)(uint16_t, uint8_t);
 
 void updateZonkTiles(uint16_t position);
 void updateInfotronTiles(uint16_t position);
 void updateOrangeDiskTiles(uint16_t position);
-//void movefun4(void);
+void updateSnikSnakTiles(uint16_t position);
 void updateTerminalTiles(uint16_t position);
 //void movefun6(void);
 void updateBugTiles(uint16_t position);
@@ -2311,7 +2313,7 @@ static const MovingFunction movingFunctions[32] = {
     NULL,
     NULL,
     NULL,
-    NULL, //movefun4,
+    updateSnikSnakTiles,
     NULL,
     updateTerminalTiles,
     NULL,
@@ -2326,6 +2328,64 @@ static const MovingFunction movingFunctions[32] = {
     NULL,
     NULL,
     updateExplosionTiles,
+};
+
+void sub_4F312(uint16_t position, uint8_t frame);
+void sub_4F40D(uint16_t position, uint8_t frame);
+void sub_4F50A(uint16_t position, uint8_t frame);
+void sub_4F5B5(uint16_t position, uint8_t frame);
+void sub_4F65B(uint16_t position, uint8_t frame);
+void sub_4F708(uint16_t position, uint8_t frame);
+
+static const SnikSnakMovingFunction movingFunctions3[48] = {
+    sub_4F312,
+    sub_4F312,
+    sub_4F312,
+    sub_4F312,
+    sub_4F312,
+    sub_4F312,
+    sub_4F312,
+    sub_4F312,
+    sub_4F40D,
+    sub_4F40D,
+    sub_4F40D,
+    sub_4F40D,
+    sub_4F40D,
+    sub_4F40D,
+    sub_4F40D,
+    sub_4F40D,
+    sub_4F50A,
+    sub_4F50A,
+    sub_4F50A,
+    sub_4F50A,
+    sub_4F50A,
+    sub_4F50A,
+    sub_4F50A,
+    sub_4F50A,
+    sub_4F5B5,
+    sub_4F5B5,
+    sub_4F5B5,
+    sub_4F5B5,
+    sub_4F5B5,
+    sub_4F5B5,
+    sub_4F5B5,
+    sub_4F5B5,
+    sub_4F65B,
+    sub_4F65B,
+    sub_4F65B,
+    sub_4F65B,
+    sub_4F65B,
+    sub_4F65B,
+    sub_4F65B,
+    sub_4F65B,
+    sub_4F708,
+    sub_4F708,
+    sub_4F708,
+    sub_4F708,
+    sub_4F708,
+    sub_4F708,
+    sub_4F708,
+    sub_4F708,
 };
 
 SDL_Surface *gScreenSurface = NULL;
@@ -10571,6 +10631,7 @@ void updateOrangeDiskTiles(uint16_t position) // movefun3  proc near       ; DAT
     //    bx *= 2;
     //    ;and bx, byte ptr 0Fh
     //    db 83h, 0E3h, 0Fh
+        movingObjectFrame *= 2;
         movingObjectFrame &= 0xF; // 16 frames?
 
     //    mov di, [si+6155h]
@@ -19607,466 +19668,452 @@ void sub_4F2AF(uint16_t position) //   proc near       ; CODE XREF: update?+116A
         db 0C0h ; +
         db  8Bh ; ?
         db 0C0h ; +
+*/
 
-; =============== S U B R O U T I N E =======================================
-
-
-movefun4  proc near       ; DATA XREF: data:162Co
-        cmp byte_510D7, 1
-        jz  short notSnikSnak
-        cmp byte ptr leveldata[si], sniksnak ; 17
-        jnz short notSnikSnak
-        mov bl, byte ptr leveldata[si+1]
-        xor bh, bh
-        shl bx, 1
-        mov ax, movingFunctions3[bx]
-        cmp ax, 0FFFFh
-        jz  short notSnikSnak
-        call    ax
-
-notSnikSnak:                ; CODE XREF: movefun4+5j
-                    ; movefun4+Cj ...
+void updateSnikSnakTiles(uint16_t position) // movefun4  proc near       ; DATA XREF: data:162Co
+{
+    if (byte_510D7 == 1)
+    {
         return;
-movefun4  endp
+    }
 
+    MovingLevelTile *currentTile = &gCurrentLevelWord[position];
 
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4F312   proc near       ; DATA XREF: data:movingFunctions3o
-        mov ax, word_5195D
-        and ax, 3
-        jz  short loc_4F320
-        cmp ax, 3
-        jz  short loc_4F362
+    if (currentTile->tile != LevelTileTypeSnikSnak)
+    {
         return;
+    }
 
-loc_4F320:              ; CODE XREF: sub_4F312+6j
-        push    ds
-        push    si
-        push    bx
-        mov di, [si+6155h]
-        mov si, [bx+1388h]
-        mov ax, es
-        mov ds, ax
-        mov cx, 10h
+    uint8_t frame = currentTile->movingObject;
 
-loc_4F332:              ; CODE XREF: sub_4F312+28j
-        movsb
-        movsb
-        add si, 78h ; 'x'
-        add di, 78h ; 'x'
-        loop    loc_4F332
-        pop bx
-        pop si
-        pop ds
-        shr bx, 1
-        inc bx
-        db  83h, 0E3h, 07h ;and bx, 7
-        mov [si+1835h], bl
+    SnikSnakMovingFunction function = movingFunctions3[frame];
+
+    if (function != NULL)
+    {
+        function(position, frame);
+    }
+}
+
+void sub_4F312(uint16_t position, uint8_t frame) //   proc near       ; DATA XREF: data:movingFunctions3o
+{
+    MovingLevelTile *currentTile = &gCurrentLevelWord[position];
+    MovingLevelTile *aboveTile = &gCurrentLevelWord[position - kLevelWidth];
+    MovingLevelTile *leftTile = &gCurrentLevelWord[position - 1];
+    MovingLevelTile *belowTile = &gCurrentLevelWord[position + kLevelWidth];
+    MovingLevelTile *rightTile = &gCurrentLevelWord[position + 1];
+
+    if ((word_5195D & 3) == 0)
+    {
+//loc_4F320:              ; CODE XREF: sub_4F312+6j
+        AnimationFrameCoordinates animationFrameCoordinates = frameCoordinates_515C6[8];
+        Point frameCoordinates = animationFrameCoordinates.coordinates[frame];
+        drawMovingFrame(frameCoordinates.x, frameCoordinates.y, position);
+        frame++;
+        frame &= 7;
+        currentTile->movingObject = frame;
         return;
-
-loc_4F34A:              ; CODE XREF: sub_4F312+79j
-                    ; sub_4F312+9Cj ...
-        cmp ah, 1Bh
-        jz  short locret_4F361
-        cmp ah, 19h
-        jz  short locret_4F361
-        cmp ah, 18h
-        jz  short locret_4F361
-        cmp ah, 1Ah
-        jz  short locret_4F361
-        call    detonateBigExplosion
-
-locret_4F361:               ; CODE XREF: sub_4F312+3Bj
-                    ; sub_4F312+40j ...
+    }
+    else if (word_5195D != 3)
+    {
         return;
+    }
 
-loc_4F362:              ; CODE XREF: sub_4F312+Bj
-        mov bl, [si+1835h]
-        cmp bl, 0
-        jz  short loc_4F37B
-        cmp bl, 2
-        jz  short loc_4F39E
-        cmp bl, 4
-        jz  short loc_4F3C1
-        cmp bl, 6
-        jz  short loc_4F3E7
+//loc_4F362:              ; CODE XREF: sub_4F312+Bj
+    uint8_t movingObject = currentTile->movingObject;
+    uint8_t nextMovingObject = 0;
+
+    if (movingObject == 0)
+    {
+//loc_4F37B:              ; CODE XREF: sub_4F312+57j
+        if (aboveTile->movingObject == 0 && aboveTile->tile == LevelTileTypeSpace)
+        {
+//loc_4F38E:              ; CODE XREF: sub_4F312+6Ej
+            currentTile->movingObject = 0x1;
+            currentTile->tile = 0xBB;
+            aboveTile->movingObject = 0x10;
+            aboveTile->tile = LevelTileTypeSnikSnak;
+            return;
+        }
+        nextMovingObject = aboveTile->movingObject;
+        if (aboveTile->tile != LevelTileTypeMurphy)
+        {
+            return;
+        }
+    }
+    else if (movingObject == 2)
+    {
+//loc_4F39E:              ; CODE XREF: sub_4F312+5Cj
+        if (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeSpace)
+        {
+//loc_4F3B1:              ; CODE XREF: sub_4F312+91j
+            currentTile->movingObject = 0x2;
+            currentTile->tile = 0xBB;
+            leftTile->movingObject = 0x18;
+            leftTile->tile = LevelTileTypeSnikSnak;
+            return;
+        }
+        nextMovingObject = leftTile->movingObject;
+        if (leftTile->tile != LevelTileTypeMurphy)
+        {
+            return;
+        }
+    }
+    else if (movingObject == 4)
+    {
+//loc_4F3C1:              ; CODE XREF: sub_4F312+61j
+        if (belowTile->movingObject == 0 && belowTile->tile == LevelTileTypeSpace)
+        {
+//loc_4F3D7:              ; CODE XREF: sub_4F312+B4j
+            currentTile->movingObject = 0x3;
+            currentTile->tile = 0xBB;
+            belowTile->movingObject = 0x20;
+            belowTile->tile = LevelTileTypeSnikSnak;
+            return;
+        }
+        nextMovingObject = belowTile->movingObject;
+        if (belowTile->tile != LevelTileTypeMurphy)
+        {
+            return;
+        }
+    }
+    else if (movingObject == 6)
+    {
+//loc_4F3E7:              ; CODE XREF: sub_4F312+66j
+        if (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeSpace)
+        {
+//loc_4F3FD:              ; CODE XREF: sub_4F312+DAj
+            currentTile->movingObject = 0x4;
+            currentTile->tile = 0xBB;
+            rightTile->movingObject = 0x28;
+            rightTile->tile = LevelTileTypeSnikSnak;
+            return;
+        }
+        nextMovingObject = rightTile->movingObject;
+        if (rightTile->tile != LevelTileTypeMurphy)
+        {
+            return;
+        }
+    }
+    else
+    {
         return;
+    }
 
-loc_4F37B:              ; CODE XREF: sub_4F312+57j
-        cmp word ptr [si+17BCh], 0
-        jz  short loc_4F38E
-        mov ax, [si+17BCh]
-        cmp byte ptr [si+17BCh], 3
-        jz  short loc_4F34A
-        return;
+//loc_4F34A:              ; CODE XREF: sub_4F312+79j
+//                ; sub_4F312+9Cj ...
+    if (nextMovingObject != 0x1B
+        && nextMovingObject != 0x19
+        && nextMovingObject != 0x18
+        && nextMovingObject != 0x1A)
+    {
+        detonateBigExplosion(position);
+    }
+}
 
-loc_4F38E:              ; CODE XREF: sub_4F312+6Ej
-        mov word ptr leveldata[si], 1BBh
-        sub si, 78h ; 'x'
-        mov word ptr leveldata[si], 1011h
-        return;
-
-loc_4F39E:              ; CODE XREF: sub_4F312+5Cj
-        cmp word ptr [si+1832h], 0
-        jz  short loc_4F3B1
-        mov ax, [si+1832h]
-        cmp byte ptr [si+1832h], 3
-        jz  short loc_4F34A
-        return;
-
-loc_4F3B1:              ; CODE XREF: sub_4F312+91j
-        mov word ptr leveldata[si], 2BBh
-        sub si, 2
-        mov word ptr leveldata[si], 1811h
-        return;
-
-loc_4F3C1:              ; CODE XREF: sub_4F312+61j
-        cmp word ptr [si+18ACh], 0
-        jz  short loc_4F3D7
-        mov ax, [si+18ACh]
-        cmp byte ptr [si+18ACh], 3
-        jnz short locret_4F3D6
-        jmp loc_4F34A
-
-locret_4F3D6:               ; CODE XREF: sub_4F312+BFj
-        return;
-
-loc_4F3D7:              ; CODE XREF: sub_4F312+B4j
-        mov word ptr leveldata[si], 3BBh
-        add si, 78h ; 'x'
-        mov word ptr leveldata[si], 2011h
-        return;
-
-loc_4F3E7:              ; CODE XREF: sub_4F312+66j
-        cmp word ptr [si+1836h], 0
-        jz  short loc_4F3FD
-        mov ax, [si+1836h]
-        cmp byte ptr [si+1836h], 3
-        jnz short locret_4F3FC
-        jmp loc_4F34A
-
-locret_4F3FC:               ; CODE XREF: sub_4F312+E5j
-        return;
-
-loc_4F3FD:              ; CODE XREF: sub_4F312+DAj
-        mov word ptr leveldata[si], 4BBh
-        add si, 2
-        mov word ptr leveldata[si], 2811h
-        return;
-sub_4F312   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4F40D   proc near       ; DATA XREF: data:155Ao
-        mov ax, word_5195D
-        and ax, 3
-        jz  short loc_4F41B
-        cmp ax, 3
-        jz  short loc_4F45F
-        return;
+void sub_4F40D(uint16_t position, uint8_t frame) //   proc near       ; DATA XREF: data:155Ao
+{
+    /*
+    mov ax, word_5195D
+    and ax, 3
+    jz  short loc_4F41B
+    cmp ax, 3
+    jz  short loc_4F45F
+    return;
 
 loc_4F41B:              ; CODE XREF: sub_4F40D+6j
-        push    ds
-        push    si
-        mov di, [si+6155h]
-        mov si, [bx+1388h]
-        mov ax, es
-        mov ds, ax
-        mov cx, 10h
+    push    ds
+    push    si
+    mov di, [si+6155h]
+    mov si, [bx+1388h]
+    mov ax, es
+    mov ds, ax
+    mov cx, 10h
 
 loc_4F42C:              ; CODE XREF: sub_4F40D+27j
-        movsb
-        movsb
-        add si, 78h ; 'x'
-        add di, 78h ; 'x'
-        loop    loc_4F42C
-        pop si
-        pop ds
-        shr bx, 1
-        inc bl
-        and bl, 7
-        or  bl, 8
-        mov [si+1835h], bl
-        return;
+    movsb
+    movsb
+    add si, 78h ; 'x'
+    add di, 78h ; 'x'
+    loop    loc_4F42C
+    pop si
+    pop ds
+    shr bx, 1
+    inc bl
+    and bl, 7
+    or  bl, 8
+    mov [si+1835h], bl
+    return;
 
 loc_4F447:              ; CODE XREF: sub_4F40D+7Bj
-                    ; sub_4F40D+9Ej ...
-        cmp ah, 1Bh
-        jz  short locret_4F45E
-        cmp ah, 19h
-        jz  short locret_4F45E
-        cmp ah, 18h
-        jz  short locret_4F45E
-        cmp ah, 1Ah
-        jz  short locret_4F45E
-        call    detonateBigExplosion
+                ; sub_4F40D+9Ej ...
+    cmp ah, 1Bh
+    jz  short locret_4F45E
+    cmp ah, 19h
+    jz  short locret_4F45E
+    cmp ah, 18h
+    jz  short locret_4F45E
+    cmp ah, 1Ah
+    jz  short locret_4F45E
+    call    detonateBigExplosion
 
 locret_4F45E:               ; CODE XREF: sub_4F40D+3Dj
-                    ; sub_4F40D+42j ...
-        return;
+                ; sub_4F40D+42j ...
+    return;
 
 loc_4F45F:              ; CODE XREF: sub_4F40D+Bj
-        mov bl, [si+1835h]
-        cmp bl, 8
-        jz  short loc_4F478
-        cmp bl, 0Ah
-        jz  short loc_4F4E4
-        cmp bl, 0Ch
-        jz  short loc_4F4BE
-        cmp bl, 0Eh
-        jz  short loc_4F49B
-        return;
+    mov bl, [si+1835h]
+    cmp bl, 8
+    jz  short loc_4F478
+    cmp bl, 0Ah
+    jz  short loc_4F4E4
+    cmp bl, 0Ch
+    jz  short loc_4F4BE
+    cmp bl, 0Eh
+    jz  short loc_4F49B
+    return;
 
 loc_4F478:              ; CODE XREF: sub_4F40D+59j
-        cmp word ptr [si+17BCh], 0
-        jz  short loc_4F48B
-        mov ax, [si+17BCh]
-        cmp byte ptr [si+17BCh], 3
-        jz  short loc_4F447
-        return;
+    cmp word ptr [si+17BCh], 0
+    jz  short loc_4F48B
+    mov ax, [si+17BCh]
+    cmp byte ptr [si+17BCh], 3
+    jz  short loc_4F447
+    return;
 
 loc_4F48B:              ; CODE XREF: sub_4F40D+70j
-        mov word ptr leveldata[si], 1BBh
-        sub si, 78h ; 'x'
-        mov word ptr leveldata[si], 1011h
-        return;
+    mov word ptr leveldata[si], 1BBh
+    sub si, 78h ; 'x'
+    mov word ptr leveldata[si], 1011h
+    return;
 
 loc_4F49B:              ; CODE XREF: sub_4F40D+68j
-        cmp word ptr [si+1832h], 0
-        jz  short loc_4F4AE
-        mov ax, [si+1832h]
-        cmp byte ptr [si+1832h], 3
-        jz  short loc_4F447
-        return;
+    cmp word ptr [si+1832h], 0
+    jz  short loc_4F4AE
+    mov ax, [si+1832h]
+    cmp byte ptr [si+1832h], 3
+    jz  short loc_4F447
+    return;
 
 loc_4F4AE:              ; CODE XREF: sub_4F40D+93j
-        mov word ptr leveldata[si], 2BBh
-        sub si, 2
-        mov word ptr leveldata[si], 1811h
-        return;
+    mov word ptr leveldata[si], 2BBh
+    sub si, 2
+    mov word ptr leveldata[si], 1811h
+    return;
 
 loc_4F4BE:              ; CODE XREF: sub_4F40D+63j
-        cmp word ptr [si+18ACh], 0
-        jz  short loc_4F4D4
-        mov ax, [si+18ACh]
-        cmp byte ptr [si+18ACh], 3
-        jnz short locret_4F4D3
-        jmp loc_4F447
+    cmp word ptr [si+18ACh], 0
+    jz  short loc_4F4D4
+    mov ax, [si+18ACh]
+    cmp byte ptr [si+18ACh], 3
+    jnz short locret_4F4D3
+    jmp loc_4F447
 
 locret_4F4D3:               ; CODE XREF: sub_4F40D+C1j
-        return;
+    return;
 
 loc_4F4D4:              ; CODE XREF: sub_4F40D+B6j
-        mov word ptr leveldata[si], 3BBh
-        add si, 78h ; 'x'
-        mov word ptr leveldata[si], 2011h
-        return;
+    mov word ptr leveldata[si], 3BBh
+    add si, 78h ; 'x'
+    mov word ptr leveldata[si], 2011h
+    return;
 
 loc_4F4E4:              ; CODE XREF: sub_4F40D+5Ej
-        cmp word ptr [si+1836h], 0
-        jz  short loc_4F4FA
-        mov ax, [si+1836h]
-        cmp byte ptr [si+1836h], 3
-        jnz short locret_4F4F9
-        jmp loc_4F447
+    cmp word ptr [si+1836h], 0
+    jz  short loc_4F4FA
+    mov ax, [si+1836h]
+    cmp byte ptr [si+1836h], 3
+    jnz short locret_4F4F9
+    jmp loc_4F447
 
 locret_4F4F9:               ; CODE XREF: sub_4F40D+E7j
-        return;
+    return;
 
 loc_4F4FA:              ; CODE XREF: sub_4F40D+DCj
-        mov word ptr leveldata[si], 4BBh
-        add si, 2
-        mov word ptr leveldata[si], 2811h
-        return;
-sub_4F40D   endp
+    mov word ptr leveldata[si], 4BBh
+    add si, 2
+    mov word ptr leveldata[si], 2811h
+    return;
+     */
+}
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4F50A   proc near       ; DATA XREF: data:156Ao
-        push    si
-        mov di, [si+61CDh]
-        mov si, [bx+1388h]
-        sub bx, 1Eh
-        sub di, [bx+6C95h]
-        sub di, [bx+6C95h]
-        push    ds
-        mov ax, es
-        mov ds, ax
-        mov cx, 12h
+void sub_4F50A(uint16_t position, uint8_t frame) //   proc near       ; DATA XREF: data:156Ao
+{
+    /*
+    push    si
+    mov di, [si+61CDh]
+    mov si, [bx+1388h]
+    sub bx, 1Eh
+    sub di, [bx+6C95h]
+    sub di, [bx+6C95h]
+    push    ds
+    mov ax, es
+    mov ds, ax
+    mov cx, 12h
 
 loc_4F526:              ; CODE XREF: sub_4F50A+24j
-        movsb
-        movsb
-        add di, 78h ; 'x'
-        add si, 78h ; 'x'
-        loop    loc_4F526
-        pop ds
-        pop si
-        shr bx, 1
-        cmp bl, 7
-        jnz short loc_4F546
-        cmp byte ptr [si+18ACh], 1Fh
-        jz  short loc_4F546
-        mov word ptr [si+18ACh], 0
+    movsb
+    movsb
+    add di, 78h ; 'x'
+    add si, 78h ; 'x'
+    loop    loc_4F526
+    pop ds
+    pop si
+    shr bx, 1
+    cmp bl, 7
+    jnz short loc_4F546
+    cmp byte ptr [si+18ACh], 1Fh
+    jz  short loc_4F546
+    mov word ptr [si+18ACh], 0
 
 loc_4F546:              ; CODE XREF: sub_4F50A+2Dj
-                    ; sub_4F50A+34j
-        cmp bl, 8
-        jge short loc_4F553
-        add bl, 10h
-        mov [si+1835h], bl
-        return;
+                ; sub_4F50A+34j
+    cmp bl, 8
+    jge short loc_4F553
+    add bl, 10h
+    mov [si+1835h], bl
+    return;
 
 loc_4F553:              ; CODE XREF: sub_4F50A+3Fj
-        mov word ptr leveldata[si], 11h
-        cmp word ptr [si+1832h], 0
-        jnz short loc_4F566
-        mov byte ptr [si+1835h], 1
-        return;
+    mov word ptr leveldata[si], 11h
+    cmp word ptr [si+1832h], 0
+    jnz short loc_4F566
+    mov byte ptr [si+1835h], 1
+    return;
 
 loc_4F566:              ; CODE XREF: sub_4F50A+54j
-        cmp byte ptr [si+1832h], 3
-        jnz short loc_4F573
-        mov byte ptr [si+1835h], 1
-        return;
+    cmp byte ptr [si+1832h], 3
+    jnz short loc_4F573
+    mov byte ptr [si+1835h], 1
+    return;
 
 loc_4F573:              ; CODE XREF: sub_4F50A+61j
-        cmp word ptr [si+17BCh], 0
-        jnz short loc_4F58A
-        mov word ptr leveldata[si], 1BBh
-        sub si, 78h ; 'x'
-        mov word ptr leveldata[si], 1011h
-        return;
+    cmp word ptr [si+17BCh], 0
+    jnz short loc_4F58A
+    mov word ptr leveldata[si], 1BBh
+    sub si, 78h ; 'x'
+    mov word ptr leveldata[si], 1011h
+    return;
 
 loc_4F58A:              ; CODE XREF: sub_4F50A+6Ej
-        cmp byte ptr [si+17BCh], 3
-        jnz short loc_4F595
-        call    detonateBigExplosion
-        return;
+    cmp byte ptr [si+17BCh], 3
+    jnz short loc_4F595
+    call    detonateBigExplosion
+    return;
 
 loc_4F595:              ; CODE XREF: sub_4F50A+85j
-        cmp word ptr [si+1836h], 0
-        jnz short loc_4F5A2
-        mov byte ptr [si+1835h], 9
-        return;
+    cmp word ptr [si+1836h], 0
+    jnz short loc_4F5A2
+    mov byte ptr [si+1835h], 9
+    return;
 
 loc_4F5A2:              ; CODE XREF: sub_4F50A+90j
-        cmp byte ptr [si+1836h], 3
-        jnz short loc_4F5AF
-        mov byte ptr [si+1835h], 9
-        return;
+    cmp byte ptr [si+1836h], 3
+    jnz short loc_4F5AF
+    mov byte ptr [si+1835h], 9
+    return;
 
 loc_4F5AF:              ; CODE XREF: sub_4F50A+9Dj
-        mov byte ptr [si+1835h], 1
-        return;
-sub_4F50A   endp
+    mov byte ptr [si+1835h], 1
+    return;
+     */
+}
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4F5B5   proc near       ; DATA XREF: data:157Ao
-        push    si
-        mov di, [si+6155h]
-        mov si, [bx+1388h]
-        push    ds
-        mov ax, es
-        mov ds, ax
-        mov cx, 10h
+void sub_4F5B5(uint16_t position, uint8_t frame) //   proc near       ; DATA XREF: data:157Ao
+{
+    /*
+    push    si
+    mov di, [si+6155h]
+    mov si, [bx+1388h]
+    push    ds
+    mov ax, es
+    mov ds, ax
+    mov cx, 10h
 
 loc_4F5C6:              ; CODE XREF: sub_4F5B5+1Bj
-        movsb
-        movsb
-        movsb
-        movsb
-        add di, 76h ; 'v'
-        add si, 76h ; 'v'
-        loop    loc_4F5C6
-        pop ds
-        pop si
-        shr bx, 1
-        db  83h, 0E3h, 07h ;and bx, 7
-        inc bx
-        cmp bl, 7
-        jnz short loc_4F5EC
-        cmp byte ptr [si+1836h], 1Fh
-        jz  short loc_4F5EC
-        mov word ptr [si+1836h], 0
+    movsb
+    movsb
+    movsb
+    movsb
+    add di, 76h ; 'v'
+    add si, 76h ; 'v'
+    loop    loc_4F5C6
+    pop ds
+    pop si
+    shr bx, 1
+    db  83h, 0E3h, 07h ;and bx, 7
+    inc bx
+    cmp bl, 7
+    jnz short loc_4F5EC
+    cmp byte ptr [si+1836h], 1Fh
+    jz  short loc_4F5EC
+    mov word ptr [si+1836h], 0
 
 loc_4F5EC:              ; CODE XREF: sub_4F5B5+28j
-                    ; sub_4F5B5+2Fj
-        cmp bl, 8
-        jge short loc_4F5F9
-        add bl, 18h
-        mov [si+1835h], bl
-        return;
+                ; sub_4F5B5+2Fj
+    cmp bl, 8
+    jge short loc_4F5F9
+    add bl, 18h
+    mov [si+1835h], bl
+    return;
 
 loc_4F5F9:              ; CODE XREF: sub_4F5B5+3Aj
-        mov word ptr leveldata[si], 11h
-        cmp word ptr [si+18ACh], 0
-        jnz short loc_4F60C
-        mov byte ptr [si+1835h], 3
-        return;
+    mov word ptr leveldata[si], 11h
+    cmp word ptr [si+18ACh], 0
+    jnz short loc_4F60C
+    mov byte ptr [si+1835h], 3
+    return;
 
 loc_4F60C:              ; CODE XREF: sub_4F5B5+4Fj
-        cmp byte ptr [si+18ACh], 3
-        jnz short loc_4F619
-        mov byte ptr [si+1835h], 3
-        return;
+    cmp byte ptr [si+18ACh], 3
+    jnz short loc_4F619
+    mov byte ptr [si+1835h], 3
+    return;
 
 loc_4F619:              ; CODE XREF: sub_4F5B5+5Cj
-        cmp word ptr [si+1832h], 0
-        jnz short loc_4F630
-        mov word ptr leveldata[si], 2BBh
-        sub si, 2
-        mov word ptr leveldata[si], 1811h
-        return;
+    cmp word ptr [si+1832h], 0
+    jnz short loc_4F630
+    mov word ptr leveldata[si], 2BBh
+    sub si, 2
+    mov word ptr leveldata[si], 1811h
+    return;
 
 loc_4F630:              ; CODE XREF: sub_4F5B5+69j
-        cmp byte ptr [si+1832h], 3
-        jnz short loc_4F63B
-        call    detonateBigExplosion
-        return;
+    cmp byte ptr [si+1832h], 3
+    jnz short loc_4F63B
+    call    detonateBigExplosion
+    return;
 
 loc_4F63B:              ; CODE XREF: sub_4F5B5+80j
-        cmp word ptr [si+17BCh], 0
-        jnz short loc_4F648
-        mov byte ptr [si+1835h], 0Fh
-        return;
+    cmp word ptr [si+17BCh], 0
+    jnz short loc_4F648
+    mov byte ptr [si+1835h], 0Fh
+    return;
 
 loc_4F648:              ; CODE XREF: sub_4F5B5+8Bj
-        cmp byte ptr [si+17BCh], 3
-        jnz short loc_4F655
-        mov byte ptr [si+1835h], 0Fh
-        return;
+    cmp byte ptr [si+17BCh], 3
+    jnz short loc_4F655
+    mov byte ptr [si+1835h], 0Fh
+    return;
 
 loc_4F655:              ; CODE XREF: sub_4F5B5+98j
-        mov byte ptr [si+1835h], 3
-        return;
-sub_4F5B5   endp
+    mov byte ptr [si+1835h], 3
+    return;
+     */
+}
 
+void sub_4F65B(uint16_t position, uint8_t frame) //   proc near       ; DATA XREF: data:158Ao
+{
+    /*
+    push    si
+    mov di, [si+60DDh]
+    mov si, [bx+1388h]
+    sub bx, 40h ; '@'
+    add di, [bx+6C95h]
+    call sub_4F66B
+     */
+}
 
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4F65B   proc near       ; DATA XREF: data:158Ao
-        push    si
-        mov di, [si+60DDh]
-        mov si, [bx+1388h]
-        sub bx, 40h ; '@'
-        add di, [bx+6C95h]
-sub_4F65B   endp ; sp-analysis failed
-
-
-; =============== S U B R O U T I N E =======================================
-
-
+/*
 sub_4F66B   proc near
         add di, [bx+6C95h]
         push    ds
@@ -20141,95 +20188,91 @@ loc_4F702:              ; CODE XREF: sub_4F66B+8Fj
         mov byte ptr [si+1835h], 5
         return;
 sub_4F66B   endp ; sp-analysis failed
+*/
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4F708   proc near       ; DATA XREF: data:159Ao
-        push    si
-        mov di, [si+6153h]
-        mov si, [bx+1388h]
-        push    ds
-        mov ax, es
-        mov ds, ax
-        mov cx, 10h
+void sub_4F708(uint16_t position, uint8_t frame) //   proc near       ; DATA XREF: data:159Ao
+{
+    /*
+    push    si
+    mov di, [si+6153h]
+    mov si, [bx+1388h]
+    push    ds
+    mov ax, es
+    mov ds, ax
+    mov cx, 10h
 
 loc_4F719:              ; CODE XREF: sub_4F708+1Bj
-        movsb
-        movsb
-        movsb
-        movsb
-        add di, 76h ; 'v'
-        add si, 76h ; 'v'
-        loop    loc_4F719
-        pop ds
-        pop si
-        shr bx, 1
-        and bl, 7
-        inc bl
-        cmp bl, 7
-        jnz short loc_4F740
-        cmp byte ptr [si+1832h], 1Fh
-        jz  short loc_4F740
-        mov word ptr [si+1832h], 0
+    movsb
+    movsb
+    movsb
+    movsb
+    add di, 76h ; 'v'
+    add si, 76h ; 'v'
+    loop    loc_4F719
+    pop ds
+    pop si
+    shr bx, 1
+    and bl, 7
+    inc bl
+    cmp bl, 7
+    jnz short loc_4F740
+    cmp byte ptr [si+1832h], 1Fh
+    jz  short loc_4F740
+    mov word ptr [si+1832h], 0
 
 loc_4F740:              ; CODE XREF: sub_4F708+29j
-                    ; sub_4F708+30j
-        cmp bl, 8
-        jge short loc_4F74D
-        add bl, 28h ; '('
-        mov [si+1835h], bl
-        return;
+                ; sub_4F708+30j
+    cmp bl, 8
+    jge short loc_4F74D
+    add bl, 28h ; '('
+    mov [si+1835h], bl
+    return;
 
 loc_4F74D:              ; CODE XREF: sub_4F708+3Bj
-        mov word ptr leveldata[si], 11h
-        cmp word ptr [si+17BCh], 0
-        jnz short loc_4F760
-        mov byte ptr [si+1835h], 7
-        return;
+    mov word ptr leveldata[si], 11h
+    cmp word ptr [si+17BCh], 0
+    jnz short loc_4F760
+    mov byte ptr [si+1835h], 7
+    return;
 
 loc_4F760:              ; CODE XREF: sub_4F708+50j
-        cmp byte ptr [si+17BCh], 3
-        jnz short loc_4F76D
-        mov byte ptr [si+1835h], 7
-        return;
+    cmp byte ptr [si+17BCh], 3
+    jnz short loc_4F76D
+    mov byte ptr [si+1835h], 7
+    return;
 
 loc_4F76D:              ; CODE XREF: sub_4F708+5Dj
-        cmp word ptr [si+1836h], 0
-        jnz short loc_4F784
-        mov word ptr leveldata[si], 4BBh
-        add si, 2
-        mov word ptr leveldata[si], 2811h
-        return;
+    cmp word ptr [si+1836h], 0
+    jnz short loc_4F784
+    mov word ptr leveldata[si], 4BBh
+    add si, 2
+    mov word ptr leveldata[si], 2811h
+    return;
 
 loc_4F784:              ; CODE XREF: sub_4F708+6Aj
-        cmp byte ptr [si+1836h], 3
-        jnz short loc_4F78F
-        call    detonateBigExplosion
-        return;
+    cmp byte ptr [si+1836h], 3
+    jnz short loc_4F78F
+    call    detonateBigExplosion
+    return;
 
 loc_4F78F:              ; CODE XREF: sub_4F708+81j
-        cmp word ptr [si+18ACh], 0
-        jnz short loc_4F79C
-        mov byte ptr [si+1835h], 0Bh
-        return;
+    cmp word ptr [si+18ACh], 0
+    jnz short loc_4F79C
+    mov byte ptr [si+1835h], 0Bh
+    return;
 
 loc_4F79C:              ; CODE XREF: sub_4F708+8Cj
-        cmp byte ptr [si+18ACh], 3
-        jnz short loc_4F7A9
-        mov byte ptr [si+1835h], 0Bh
-        return;
+    cmp byte ptr [si+18ACh], 3
+    jnz short loc_4F7A9
+    mov byte ptr [si+1835h], 0Bh
+    return;
 
 loc_4F7A9:              ; CODE XREF: sub_4F708+99j
-        mov byte ptr [si+1835h], 7
-        return;
-sub_4F708   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
+    mov byte ptr [si+1835h], 7
+    return;
+     */
+}
+/*
 movefun6  proc near       ; DATA XREF: data:163Ao
         cmp byte_510D7, 1
         jz  short locret_4F7D0
