@@ -1405,7 +1405,7 @@ int8_t gameSpeed = 5;
 uint8_t demoFileName = 0; // Probably should be another type but whatever for now
 uint32_t flashingbackgroundon = 0;
 
-uint16_t someZonkBinaryData[] = {
+uint16_t someZonkBinaryData[18] = {
     0x0000, // -> 0x6C95
     0x007A, // -> 0x6C97
     0x00F4, // -> 0x6C99
@@ -2286,7 +2286,7 @@ typedef void (*MovingFunction)(uint16_t);
 
 void updateZonkTiles(uint16_t position);
 void updateInfotronTiles(uint16_t position);
-//void movefun3(void);
+void updateOrangeDiskTiles(uint16_t position);
 //void movefun4(void);
 void updateTerminalTiles(uint16_t position);
 //void movefun6(void);
@@ -2302,7 +2302,7 @@ static const MovingFunction movingFunctions[32] = {
     NULL,
     NULL,
     NULL,
-    NULL, //movefun3,
+    updateOrangeDiskTiles,
     NULL,
     NULL,
     NULL,
@@ -10546,7 +10546,7 @@ void sub_4A463() //   proc near       ; CODE XREF: sub_4945D:loc_4953Bp
     findMurphy();
 }
 
-void movefun3(uint16_t position) //  proc near       ; DATA XREF: data:161Ao
+void updateOrangeDiskTiles(uint16_t position) // movefun3  proc near       ; DATA XREF: data:161Ao
 {
     // 01ED:3826
     MovingLevelTile *currentTile = &gCurrentLevelWord[position];
@@ -10558,107 +10558,103 @@ void movefun3(uint16_t position) //  proc near       ; DATA XREF: data:161Ao
     }
 
 //loc_4A491:              ; CODE XREF: movefun3+5j
-    uint8_t tileValue = ((currentTile->movingObject << 8)
+    uint16_t tileValue = ((currentTile->movingObject << 8)
                          | currentTile->tile);
 
     if (tileValue >= 0x3008)
     {
-        // jge short loc_4A4D4
-    }
-    if (tileValue >= 0x2008)
-    {
-        // jge short loc_4A4B4
-    }
-
-    if (belowTile->movingObject != 0 || belowTile->tile != LevelTileTypeSpace)
-    {
-        return;
-    }
-
-//loc_4A4A9:              ; CODE XREF: movefun3+1Dj
-    currentTile->movingObject = 0x20;
-    belowTile->movingObject = 8;
-    return;
-
-//loc_4A4B4:              ; CODE XREF: movefun3+14j
-    if (belowTile->movingObject != 0 || belowTile->tile != LevelTileTypeSpace)
-    {
-        // jnz short loc_4A4C2
-    }
-    currentTile->movingObject = 0;
-    currentTile->tile = LevelTileTypeOrangeDisk;
-    return;
-
-//loc_4A4C2:              ; CODE XREF: movefun3+30j
-    bl = currentTile->movingObject;
-    bl++;
-    if (bl == 0x22)
-    {
-        bl = 0x30;
-    }
-
-//loc_4A4CF:              ; CODE XREF: movefun3+42j
-    currentTile->movingObject = bl;
-    return;
-
 //loc_4A4D4:              ; CODE XREF: movefun3+Fj
-//    push    si
-    bl = currentTile->movingObject;
-    bh = 0;
-    al = bl;
-//    bx *= 2;
-//    ;and bx, byte ptr 0Fh
-//    db 83h, 0E3h, 0Fh
-    bl &= 0xF; // 16 frames?
+    //    push    si
+        uint8_t movingObjectFrame = currentTile->movingObject;
+//        bh = 0;
+//        al = movingObject;
+    //    bx *= 2;
+    //    ;and bx, byte ptr 0Fh
+    //    db 83h, 0E3h, 0Fh
+        movingObjectFrame &= 0xF; // 16 frames?
 
-//    mov di, [si+6155h]
-//    shl bx, 1
-//    add di, [bx+6C95h]
-//    mov si, 12F6h
-//    mov si, [si]
-    uint16_t offset = someZonkBinaryData[bl];
+    //    mov di, [si+6155h]
+    //    shl bx, 1
+    //    add di, [bx+6C95h]
+    //    mov si, 12F6h
+    //    mov si, [si]
+        uint16_t offset = someZonkBinaryData[movingObjectFrame];
 
-    uint8_t tileX = (position % kLevelWidth);
-    uint8_t tileY = (position / kLevelWidth);
+        uint8_t tileX = (position % kLevelWidth);
+        uint8_t tileY = (position / kLevelWidth);
 
-    uint16_t dstX = tileX * kTileSize + (offset % 122);
-    uint16_t dstY = tileY * kTileSize + (offset / 122);
+        uint16_t dstX = tileX * kTileSize + (offset % 122);
+        uint16_t dstY = tileY * kTileSize + (offset / 122);
 
-    drawMovingSpriteFrameInLevel(128, 64,
-                                 kTileSize,
-                                 kTileSize + 2,
-                                 dstX, dstY);
+        drawMovingSpriteFrameInLevel(128, 64,
+                                     kTileSize,
+                                     kTileSize + 2,
+                                     dstX, dstY);
 
-    bl = currentTile->movingObject;
-    bl++;
-    al = bl;
-    al &= 7;
-    if (al != 0)
-    {
-        currentTile->movingObject = bl;
-        return;
-    }
+        uint8_t movingObject = currentTile->movingObject;
+        movingObject++;
+        uint8_t otherMovingObject = movingObject;
+        otherMovingObject &= 7;
+        if (otherMovingObject != 0)
+        {
+            currentTile->movingObject = movingObject;
+            return;
+        }
 
 //loc_4A516:              ; CODE XREF: movefun3+86j
-    currentTile->movingObject = 0;
-    currentTile->tile = LevelTileTypeSpace;
-    belowTile->movingObject = 0;
-    belowTile->tile = LevelTileTypeOrangeDisk;
-    add si, 78h ; 'x'
-    cmp word ptr [si+18ACh], 0
-    jnz short loc_4A537
-    mov byte ptr [si+1835h], 30h ; '0'
-    mov byte ptr [si+18ADh], 8
-    return;
+        currentTile->movingObject = 0;
+        currentTile->tile = LevelTileTypeSpace;
+        belowTile->movingObject = 0;
+        belowTile->tile = LevelTileTypeOrangeDisk;
 
+        position += kLevelWidth;
+
+        // Update tiles
+        currentTile = &gCurrentLevelWord[position];
+        belowTile = &gCurrentLevelWord[position + kLevelWidth];
+
+        if (belowTile->movingObject == 0 && belowTile->tile == LevelTileTypeSpace)
+        {
+            currentTile->movingObject = 0x30;
+            belowTile->movingObject = 8;
+        }
 //loc_4A537:              ; CODE XREF: movefun3+A1j
-    cmp byte ptr [si+18ACh], 1Fh
-    jnz short loc_4A53F
-    return;
-
+        else if (belowTile->tile != LevelTileTypeExplosion)
+        {
 //loc_4A53F:              ; CODE XREF: movefun3+B3j
-    call    detonateBigExplosion
-    return;
+            detonateBigExplosion(position);
+        }
+
+        return;
+    }
+    else if (tileValue >= 0x2008)
+    {
+//loc_4A4B4:              ; CODE XREF: movefun3+14j
+        if (belowTile->movingObject != 0 || belowTile->tile != LevelTileTypeSpace)
+        {
+//loc_4A4C2:              ; CODE XREF: movefun3+30j
+            uint8_t movingObject = currentTile->movingObject;
+            movingObject++;
+            if (movingObject == 0x22)
+            {
+                movingObject = 0x30;
+            }
+
+//loc_4A4CF:              ; CODE XREF: movefun3+42j
+            currentTile->movingObject = movingObject;
+            return;
+        }
+        currentTile->movingObject = 0;
+        currentTile->tile = LevelTileTypeOrangeDisk;
+        return;
+    }
+
+    if (belowTile->movingObject == 0 && belowTile->tile == LevelTileTypeSpace)
+    {
+//loc_4A4A9:              ; CODE XREF: movefun3+1Dj
+        currentTile->movingObject = 0x20;
+        belowTile->movingObject = 8;
+    }
 }
 
 void updateExplosionTiles(uint16_t position) //loc_4A543:              ; DATA XREF: data:1648o
