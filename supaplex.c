@@ -2346,8 +2346,8 @@ void sub_4F312(uint16_t position, uint8_t frame);
 void sub_4F40D(uint16_t position, uint8_t frame);
 void updateSnikSnakMovementUp(uint16_t position, uint8_t frame);
 void updateSnikSnakMovementLeft(uint16_t position, uint8_t frame);
-void sub_4F65B(uint16_t position, uint8_t frame);
-void sub_4F708(uint16_t position, uint8_t frame);
+void updateSnikSnakMovementDown(uint16_t position, uint8_t frame);
+void updateSnikSnakMovementRight(uint16_t position, uint8_t frame);
 
 static const SnikSnakMovingFunction movingFunctions3[48] = {
     sub_4F312,
@@ -2382,22 +2382,22 @@ static const SnikSnakMovingFunction movingFunctions3[48] = {
     updateSnikSnakMovementLeft,
     updateSnikSnakMovementLeft,
     updateSnikSnakMovementLeft,
-    sub_4F65B,
-    sub_4F65B,
-    sub_4F65B,
-    sub_4F65B,
-    sub_4F65B,
-    sub_4F65B,
-    sub_4F65B,
-    sub_4F65B,
-    sub_4F708,
-    sub_4F708,
-    sub_4F708,
-    sub_4F708,
-    sub_4F708,
-    sub_4F708,
-    sub_4F708,
-    sub_4F708,
+    updateSnikSnakMovementDown,
+    updateSnikSnakMovementDown,
+    updateSnikSnakMovementDown,
+    updateSnikSnakMovementDown,
+    updateSnikSnakMovementDown,
+    updateSnikSnakMovementDown,
+    updateSnikSnakMovementDown,
+    updateSnikSnakMovementDown,
+    updateSnikSnakMovementRight,
+    updateSnikSnakMovementRight,
+    updateSnikSnakMovementRight,
+    updateSnikSnakMovementRight,
+    updateSnikSnakMovementRight,
+    updateSnikSnakMovementRight,
+    updateSnikSnakMovementRight,
+    updateSnikSnakMovementRight,
 };
 
 SDL_Surface *gScreenSurface = NULL;
@@ -19714,7 +19714,9 @@ void sub_4F312(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
     MovingLevelTile *belowTile = &gCurrentLevelWord[position + kLevelWidth];
     MovingLevelTile *rightTile = &gCurrentLevelWord[position + 1];
 
-    if ((word_5195D & 3) == 0)
+    uint16_t value = word_5195D & 3;
+
+    if (value == 0)
     {
 //loc_4F320:              ; CODE XREF: sub_4F312+6j
         Point frameCoordinates = frameCoordinates_51654[frame];
@@ -19724,7 +19726,7 @@ void sub_4F312(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
         currentTile->movingObject = frame;
         return;
     }
-    else if (word_5195D != 3)
+    else if (value != 3)
     {
         return;
     }
@@ -19829,7 +19831,9 @@ void sub_4F40D(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
     MovingLevelTile *leftTile = &gCurrentLevelWord[position - 1];
     MovingLevelTile *belowTile = &gCurrentLevelWord[position + kLevelWidth];
 
-    if ((word_5195D & 3) == 0)
+    uint16_t value = word_5195D & 3;
+
+    if (value == 0)
     {
 //loc_4F41B:              ; CODE XREF: sub_4F40D+6j
         Point frameCoordinates = frameCoordinates_51654[frame];
@@ -19840,7 +19844,7 @@ void sub_4F40D(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
         currentTile->movingObject = frame;
         return;
     }
-    else if (word_5195D != 3)
+    else if (value != 3)
     {
         return;
     }
@@ -19956,8 +19960,7 @@ void updateSnikSnakMovementUp(uint16_t position, uint8_t frame) // sub_4F50A    
                                  kTileSize,
                                  kTileSize + 2,
                                  dstX, dstY);
-    frame &= 7;
-    if (frame == 0)
+    if (frame == 7)
     {
         if (belowTile->tile != LevelTileTypeExplosion)
         {
@@ -20118,176 +20121,193 @@ void updateSnikSnakMovementLeft(uint16_t position, uint8_t frame) // sub_4F5B5  
     currentTile->movingObject = 3;
 }
 
-void sub_4F65B(uint16_t position, uint8_t frame) //   proc near       ; DATA XREF: data:158Ao
+void updateSnikSnakMovementDown(uint16_t position, uint8_t frame) // sub_4F65B   proc near       ; DATA XREF: data:158Ao
 {
-    /*
-    push    si
-    mov di, [si+60DDh]
-    mov si, [bx+1388h]
-    sub bx, 40h ; '@'
-    add di, [bx+6C95h]
-    call sub_4F66B
-     */
+    MovingLevelTile *currentTile = &gCurrentLevelWord[position];
+    MovingLevelTile *belowTile = &gCurrentLevelWord[position + kLevelWidth];
+    MovingLevelTile *leftTile = &gCurrentLevelWord[position - 1];
+    MovingLevelTile *aboveTile = &gCurrentLevelWord[position - kLevelWidth];
+    MovingLevelTile *rightTile = &gCurrentLevelWord[position + 1];
+
+    uint16_t finalPosition = position - kLevelWidth;
+    Point frameCoordinates = frameCoordinates_51654[frame];
+    //sub bx, 40h ; '@'
+    frame -= 0x20; // 0x40 / 2
+
+    uint16_t offset = someZonkBinaryData[frame];
+
+    uint8_t tileX = (finalPosition % kLevelWidth);
+    uint8_t tileY = (finalPosition / kLevelWidth);
+
+    uint16_t dstX = tileX * kTileSize + (offset % 122) * 2;
+    uint16_t dstY = tileY * kTileSize + (offset / 122) * 2;
+
+    drawMovingSpriteFrameInLevel(frameCoordinates.x, frameCoordinates.y,
+                                 kTileSize,
+                                 kTileSize + 2,
+                                 dstX, dstY);
+
+    frame++;
+    if (frame == 7)
+    {
+        if (aboveTile->tile != LevelTileTypeExplosion)
+        {
+            aboveTile->movingObject = 0;
+            aboveTile->tile = LevelTileTypeSpace;
+        }
+    }
+//loc_4F699:              ; CODE XREF: sub_4F66B+1Fj
+//                ; sub_4F66B+26j
+    if (frame < 8)
+    {
+        frame += 0x20;
+        currentTile->movingObject = frame;
+        return;
+    }
+
+//loc_4F6A6:              ; CODE XREF: sub_4F66B+31j
+    currentTile->movingObject = 0;
+    currentTile->tile = LevelTileTypeSnikSnak;
+
+    if (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeSpace)
+    {
+        currentTile->movingObject = 5;
+        return;
+    }
+
+//loc_4F6B9:              ; CODE XREF: sub_4F66B+46j
+    if (rightTile->tile == LevelTileTypeMurphy)
+    {
+        currentTile->movingObject = 5;
+        return;
+    }
+
+//loc_4F6C6:              ; CODE XREF: sub_4F66B+53j
+    if (belowTile->movingObject == 0 && belowTile->tile == LevelTileTypeSpace)
+    {
+        currentTile->movingObject = 3;
+        currentTile->tile = 0xBB;
+        belowTile->movingObject = 0x20;
+        belowTile->tile = LevelTileTypeSnikSnak;
+        return;
+    }
+
+//loc_4F6DD:              ; CODE XREF: sub_4F66B+60j
+    if (belowTile->tile == LevelTileTypeMurphy)
+    {
+        detonateBigExplosion(position);
+        return;
+    }
+
+//loc_4F6E8:              ; CODE XREF: sub_4F66B+77j
+    if (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeSpace)
+    {
+        currentTile->movingObject = 0xD;
+        return;
+    }
+
+//loc_4F6F5:              ; CODE XREF: sub_4F66B+82j
+    if (leftTile->tile == LevelTileTypeMurphy)
+    {
+        currentTile->movingObject = 0xD;
+        return;
+    }
+
+//loc_4F702:              ; CODE XREF: sub_4F66B+8Fj
+    currentTile->movingObject = 5;
 }
 
-/*
-sub_4F66B   proc near
-        add di, [bx+6C95h]
-        push    ds
-        mov ax, es
-        mov ds, ax
-        mov cx, 12h
-
-loc_4F677:              ; CODE XREF: sub_4F66B+14j
-        movsb
-        movsb
-        add di, 78h ; 'x'
-        add si, 78h ; 'x'
-        loop    loc_4F677
-        pop ds
-        pop si
-        shr bx, 1
-        inc bl
-        cmp bl, 7
-        jnz short loc_4F699
-        cmp byte ptr [si+17BCh], 1Fh
-        jz  short loc_4F699
-        mov word ptr [si+17BCh], 0
-
-loc_4F699:              ; CODE XREF: sub_4F66B+1Fj
-                    ; sub_4F66B+26j
-        cmp bl, 8
-        jge short loc_4F6A6
-        add bl, 20h ; ' '
-        mov [si+1835h], bl
-        return;
-
-loc_4F6A6:              ; CODE XREF: sub_4F66B+31j
-        mov word ptr leveldata[si], 11h
-        cmp word ptr [si+1836h], 0
-        jnz short loc_4F6B9
-        mov byte ptr [si+1835h], 5
-        return;
-
-loc_4F6B9:              ; CODE XREF: sub_4F66B+46j
-        cmp byte ptr [si+1836h], 3
-        jnz short loc_4F6C6
-        mov byte ptr [si+1835h], 5
-        return;
-
-loc_4F6C6:              ; CODE XREF: sub_4F66B+53j
-        cmp word ptr [si+18ACh], 0
-        jnz short loc_4F6DD
-        mov word ptr leveldata[si], 3BBh
-        add si, 78h ; 'x'
-        mov word ptr leveldata[si], 2011h
-        return;
-
-loc_4F6DD:              ; CODE XREF: sub_4F66B+60j
-        cmp byte ptr [si+18ACh], 3
-        jnz short loc_4F6E8
-        call    detonateBigExplosion
-        return;
-
-loc_4F6E8:              ; CODE XREF: sub_4F66B+77j
-        cmp word ptr [si+1832h], 0
-        jnz short loc_4F6F5
-        mov byte ptr [si+1835h], 0Dh
-        return;
-
-loc_4F6F5:              ; CODE XREF: sub_4F66B+82j
-        cmp byte ptr [si+1832h], 3
-        jnz short loc_4F702
-        mov byte ptr [si+1835h], 0Dh
-        return;
-
-loc_4F702:              ; CODE XREF: sub_4F66B+8Fj
-        mov byte ptr [si+1835h], 5
-        return;
-sub_4F66B   endp ; sp-analysis failed
-*/
-
-void sub_4F708(uint16_t position, uint8_t frame) //   proc near       ; DATA XREF: data:159Ao
+void updateSnikSnakMovementRight(uint16_t position, uint8_t frame) // sub_4F708   proc near       ; DATA XREF: data:159Ao
 {
-    /*
-    push    si
-    mov di, [si+6153h]
-    mov si, [bx+1388h]
-    push    ds
-    mov ax, es
-    mov ds, ax
-    mov cx, 10h
+    MovingLevelTile *currentTile = &gCurrentLevelWord[position];
+    MovingLevelTile *belowTile = &gCurrentLevelWord[position + kLevelWidth];
+    MovingLevelTile *leftTile = &gCurrentLevelWord[position - 1];
+    MovingLevelTile *aboveTile = &gCurrentLevelWord[position - kLevelWidth];
+    MovingLevelTile *rightTile = &gCurrentLevelWord[position + 1];
 
-loc_4F719:              ; CODE XREF: sub_4F708+1Bj
-    movsb
-    movsb
-    movsb
-    movsb
-    add di, 76h ; 'v'
-    add si, 76h ; 'v'
-    loop    loc_4F719
-    pop ds
-    pop si
-    shr bx, 1
-    and bl, 7
-    inc bl
-    cmp bl, 7
-    jnz short loc_4F740
-    cmp byte ptr [si+1832h], 1Fh
-    jz  short loc_4F740
-    mov word ptr [si+1832h], 0
+    Point frameCoordinates = frameCoordinates_51654[frame];
 
-loc_4F740:              ; CODE XREF: sub_4F708+29j
-                ; sub_4F708+30j
-    cmp bl, 8
-    jge short loc_4F74D
-    add bl, 28h ; '('
-    mov [si+1835h], bl
-    return;
+    uint16_t finalPosition = position - 1;
 
-loc_4F74D:              ; CODE XREF: sub_4F708+3Bj
-    mov word ptr leveldata[si], 11h
-    cmp word ptr [si+17BCh], 0
-    jnz short loc_4F760
-    mov byte ptr [si+1835h], 7
-    return;
+    uint8_t tileX = (finalPosition % kLevelWidth);
+    uint8_t tileY = (finalPosition / kLevelWidth);
 
-loc_4F760:              ; CODE XREF: sub_4F708+50j
-    cmp byte ptr [si+17BCh], 3
-    jnz short loc_4F76D
-    mov byte ptr [si+1835h], 7
-    return;
+    uint16_t dstX = tileX * kTileSize;
+    uint16_t dstY = tileY * kTileSize;
 
-loc_4F76D:              ; CODE XREF: sub_4F708+5Dj
-    cmp word ptr [si+1836h], 0
-    jnz short loc_4F784
-    mov word ptr leveldata[si], 4BBh
-    add si, 2
-    mov word ptr leveldata[si], 2811h
-    return;
+    drawMovingSpriteFrameInLevel(frameCoordinates.x, frameCoordinates.y,
+                                 kTileSize * 2,
+                                 kTileSize,
+                                 dstX, dstY);
+    frame &= 7;
+    frame++;
+    if (frame == 7)
+    {
+        if (leftTile->tile != LevelTileTypeExplosion)
+        {
+            leftTile->movingObject = 0;
+            leftTile->tile = LevelTileTypeSpace;
+        }
+    }
+//loc_4F740:              ; CODE XREF: updateSnikSnakMovementRight+29j
+//                ; updateSnikSnakMovementRight+30j
+    if (frame < 8)
+    {
+        frame += 0x28;
+        currentTile->movingObject = frame;
+        return;
+    }
 
-loc_4F784:              ; CODE XREF: sub_4F708+6Aj
-    cmp byte ptr [si+1836h], 3
-    jnz short loc_4F78F
-    call    detonateBigExplosion
-    return;
+//loc_4F74D:              ; CODE XREF: updateSnikSnakMovementRight+3Bj
+    currentTile->movingObject = 0;
+    currentTile->tile = LevelTileTypeSnikSnak;
 
-loc_4F78F:              ; CODE XREF: sub_4F708+81j
-    cmp word ptr [si+18ACh], 0
-    jnz short loc_4F79C
-    mov byte ptr [si+1835h], 0Bh
-    return;
+    if (aboveTile->movingObject == 0 && aboveTile->tile == LevelTileTypeSpace)
+    {
+        currentTile->movingObject = 7;
+        return;
+    }
 
-loc_4F79C:              ; CODE XREF: sub_4F708+8Cj
-    cmp byte ptr [si+18ACh], 3
-    jnz short loc_4F7A9
-    mov byte ptr [si+1835h], 0Bh
-    return;
+//loc_4F760:              ; CODE XREF: updateSnikSnakMovementRight+50j
+    if (aboveTile->tile == LevelTileTypeMurphy)
+    {
+        currentTile->movingObject = 7;
+        return;
+    }
 
-loc_4F7A9:              ; CODE XREF: sub_4F708+99j
-    mov byte ptr [si+1835h], 7
-    return;
-     */
+//loc_4F76D:              ; CODE XREF: updateSnikSnakMovementRight+5Dj
+    if (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeSpace)
+    {
+        currentTile->movingObject = 4;
+        currentTile->tile = 0xBB;
+        rightTile->movingObject = 0x28;
+        rightTile->tile = LevelTileTypeSnikSnak;
+        return;
+    }
+
+//loc_4F784:              ; CODE XREF: updateSnikSnakMovementRight+6Aj
+    if (rightTile->tile == LevelTileTypeMurphy)
+    {
+        detonateBigExplosion(position);
+        return;
+    }
+
+//loc_4F78F:              ; CODE XREF: updateSnikSnakMovementRight+81j
+    if (belowTile->movingObject == 0 && belowTile->tile == LevelTileTypeSpace)
+    {
+        currentTile->movingObject = 0xB;
+        return;
+    }
+
+//loc_4F79C:              ; CODE XREF: updateSnikSnakMovementRight+8Cj
+    if (belowTile->tile == LevelTileTypeMurphy)
+    {
+        currentTile->movingObject = 0xB;
+        return;
+    }
+
+//loc_4F7A9:              ; CODE XREF: updateSnikSnakMovementRight+99j
+    currentTile->movingObject = 7;
 }
 /*
 movefun6  proc near       ; DATA XREF: data:163Ao
