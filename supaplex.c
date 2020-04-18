@@ -2296,14 +2296,14 @@ ColorPaletteData gTitle2PaletteData = {
 };
 
 typedef void (*MovingFunction)(uint16_t);
-typedef void (*SnikSnakMovingFunction)(uint16_t, uint8_t);
+typedef void (*FrameBasedMovingFunction)(uint16_t, uint8_t);
 
 void updateZonkTiles(uint16_t position);
 void updateInfotronTiles(uint16_t position);
 void updateOrangeDiskTiles(uint16_t position);
 void updateSnikSnakTiles(uint16_t position);
 void updateTerminalTiles(uint16_t position);
-//void movefun6(void);
+void movefun6(uint16_t position);
 void updateBugTiles(uint16_t position);
 void updateExplosionTiles(uint16_t position);
 
@@ -2332,7 +2332,7 @@ static const MovingFunction movingFunctions[32] = {
     NULL,
     NULL,
     NULL,
-    NULL, //movefun6,
+    movefun6,
     updateBugTiles,
     NULL,
     NULL,
@@ -2342,6 +2342,64 @@ static const MovingFunction movingFunctions[32] = {
     updateExplosionTiles,
 };
 
+void sub_4F7D1(uint16_t position, uint8_t frame);
+void sub_4F8A5(uint16_t position, uint8_t frame);
+void sub_4F97B(uint16_t position, uint8_t frame);
+void sub_4FA26(uint16_t position, uint8_t frame);
+void sub_4FACC(uint16_t position, uint8_t frame);
+void sub_4FB79(uint16_t position, uint8_t frame);
+
+static const FrameBasedMovingFunction movingFunctions2[] = {
+    sub_4F7D1,
+    sub_4F7D1,
+    sub_4F7D1,
+    sub_4F7D1,
+    sub_4F7D1,
+    sub_4F7D1,
+    sub_4F7D1,
+    sub_4F7D1,
+    sub_4F8A5,
+    sub_4F8A5,
+    sub_4F8A5,
+    sub_4F8A5,
+    sub_4F8A5,
+    sub_4F8A5,
+    sub_4F8A5,
+    sub_4F8A5,
+    sub_4F97B,
+    sub_4F97B,
+    sub_4F97B,
+    sub_4F97B,
+    sub_4F97B,
+    sub_4F97B,
+    sub_4F97B,
+    sub_4F97B,
+    sub_4FA26,
+    sub_4FA26,
+    sub_4FA26,
+    sub_4FA26,
+    sub_4FA26,
+    sub_4FA26,
+    sub_4FA26,
+    sub_4FA26,
+    sub_4FACC,
+    sub_4FACC,
+    sub_4FACC,
+    sub_4FACC,
+    sub_4FACC,
+    sub_4FACC,
+    sub_4FACC,
+    sub_4FACC,
+    sub_4FB79,
+    sub_4FB79,
+    sub_4FB79,
+    sub_4FB79,
+    sub_4FB79,
+    sub_4FB79,
+    sub_4FB79,
+    sub_4FB79,
+};
+
 void updateSnikSnakTurnLeft(uint16_t position, uint8_t frame);
 void updateSnikSnakTurnRight(uint16_t position, uint8_t frame);
 void updateSnikSnakMovementUp(uint16_t position, uint8_t frame);
@@ -2349,7 +2407,7 @@ void updateSnikSnakMovementLeft(uint16_t position, uint8_t frame);
 void updateSnikSnakMovementDown(uint16_t position, uint8_t frame);
 void updateSnikSnakMovementRight(uint16_t position, uint8_t frame);
 
-static const SnikSnakMovingFunction movingFunctions3[48] = {
+static const FrameBasedMovingFunction movingFunctions3[48] = {
     updateSnikSnakTurnLeft,
     updateSnikSnakTurnLeft,
     updateSnikSnakTurnLeft,
@@ -19703,7 +19761,7 @@ void updateSnikSnakTiles(uint16_t position) // movefun4  proc near       ; DATA 
 
     uint8_t frame = currentTile->movingObject;
 
-    SnikSnakMovingFunction function = movingFunctions3[frame];
+    FrameBasedMovingFunction function = movingFunctions3[frame];
 
     if (function != NULL)
     {
@@ -20327,587 +20385,571 @@ void updateSnikSnakMovementRight(uint16_t position, uint8_t frame) // sub_4F708 
 //loc_4F7A9:              ; CODE XREF: updateSnikSnakMovementRight+99j
     currentTile->movingObject = 7;
 }
-/*
-movefun6  proc near       ; DATA XREF: data:163Ao
-        // 01ED:8B4C
-        cmp byte_510D7, 1
-        jz  short locret_4F7D0
-        cmp byte ptr leveldata[si], 18h
-        jnz short locret_4F7D0
-        mov bl, byte ptr leveldata[si+1]
-        xor bh, bh
-        shl bx, 1
-        mov ax, movingFunctions2[bx]
-        cmp ax, 0FFFFh
-        jz  short locret_4F7D0
+
+void movefun6(uint16_t position) //  proc near       ; DATA XREF: data:163Ao
+{
+    // 01ED:8B4C
+    if (byte_510D7 == 1)
+    {
+        return;
+    }
+    MovingLevelTile *currentTile = &gCurrentLevelWord[position];
+
+    if (currentTile->tile != LevelTileTypeElectron)
+    {
+        return;
+    }
+
+    uint8_t frame = currentTile->movingObject;
+
+    FrameBasedMovingFunction function = movingFunctions2[frame];
+
+    if (function != NULL)
+    {
         // 01ED:8B6B
-        call    ax
+        function(position, frame);
+    }
+}
 
-locret_4F7D0:               ; CODE XREF: movefun6+5j
-                    ; movefun6+Cj ...
-        return;
-movefun6  endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4F7D1   proc near       ; DATA XREF: data:movingFunctions2o
+void sub_4F7D1(uint16_t position, uint8_t frame) //   proc near       ; DATA XREF: data:movingFunctions2o
+{
     // 01ED:8B6E
-        mov ax, word_5195D
-        and ax, 3
-        jz  short loc_4F7DF
-        cmp ax, 3
-        jz  short loc_4F80D
+    MovingLevelTile *currentTile = &gCurrentLevelWord[position];
+    MovingLevelTile *aboveTile = &gCurrentLevelWord[position - kLevelWidth];
+    MovingLevelTile *leftTile = &gCurrentLevelWord[position - 1];
+    MovingLevelTile *belowTile = &gCurrentLevelWord[position + kLevelWidth];
+    MovingLevelTile *rightTile = &gCurrentLevelWord[position + 1];
+
+    uint16_t value = word_5195D & 3;
+
+    if (value == 0)
+    {
+//loc_4F7DF:              ; CODE XREF: sub_4F7D1+6j
+        Point frameCoordinates = frameCoordinates_516B4[frame];
+        drawMovingFrame(frameCoordinates.x, frameCoordinates.y, position);
+        frame++;
+        frame &= 7;
+        currentTile->movingObject = frame;
         return;
-
-loc_4F7DF:              ; CODE XREF: sub_4F7D1+6j
-        push    ds
-        push    si
-        push    bx
-        mov di, [si+6155h]
-        mov si, [bx+13E8h]
-        mov ax, es
-        mov ds, ax
-        mov cx, 10h
-
-loc_4F7F1:              ; CODE XREF: sub_4F7D1+28j
-        movsb
-        movsb
-        add si, 78h ; 'x'
-        add di, 78h ; 'x'
-        loop    loc_4F7F1
-        pop bx
-        pop si
-        pop ds
-        shr bx, 1
-        inc bx
-        db  83h, 0E3h, 07h ;and bx, 7
-        mov [si+1835h], bl
+    }
+    else if (value != 3)
+    {
         return;
+    }
 
-loc_4F809:              ; CODE XREF: sub_4F7D1+61j
-                    ; sub_4F7D1+80j ...
-        call    detonateBigExplosion
+//loc_4F80D:              ; CODE XREF: sub_4F7D1+Bj
+    uint8_t movingObject = currentTile->movingObject;
+    if (movingObject == 0)
+    {
+//loc_4F826:              ; CODE XREF: sub_4F7D1+43j
+        if (aboveTile->movingObject == 0 && aboveTile->tile == LevelTileTypeSpace)
+        {
+//loc_4F835:              ; CODE XREF: sub_4F7D1+5Aj
+            currentTile->movingObject = 0x1;
+            currentTile->tile = 0xBB;
+            aboveTile->movingObject = 0x10;
+            aboveTile->tile = LevelTileTypeElectron;
+            return;
+        }
+        else if (aboveTile->tile != LevelTileTypeMurphy)
+        {
+            return;
+        }
+    }
+    else if (movingObject == 2)
+    {
+//loc_4F845:              ; CODE XREF: sub_4F7D1+48j
+        if (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeSpace)
+        {
+//loc_4F854:              ; CODE XREF: sub_4F7D1+79j
+            currentTile->movingObject = 0x2;
+            currentTile->tile = 0xBB;
+            leftTile->movingObject = 0x18;
+            leftTile->tile = LevelTileTypeElectron;
+            return;
+        }
+        else if (leftTile->tile != LevelTileTypeMurphy)
+        {
+            return;
+        }
+    }
+    else if (movingObject == 4)
+    {
+//loc_4F864:              ; CODE XREF: sub_4F7D1+4Dj
+        if (belowTile->movingObject == 0 && belowTile->tile == LevelTileTypeSpace)
+        {
+//loc_4F873:              ; CODE XREF: sub_4F7D1+98j
+            currentTile->movingObject = 0x3;
+            currentTile->tile = 0xBB;
+            belowTile->movingObject = 0x20;
+            belowTile->tile = LevelTileTypeElectron;
+            return;
+        }
+        else if (belowTile->tile != LevelTileTypeMurphy)
+        {
+            return;
+        }
+    }
+    else if (movingObject == 6)
+    {
+//loc_4F883:              ; CODE XREF: sub_4F7D1+52j
+        if (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeSpace)
+        {
+//loc_4F895:              ; CODE XREF: sub_4F7D1+B7j
+            currentTile->movingObject = 0x4;
+            currentTile->tile = 0xBB;
+            rightTile->movingObject = 0x28;
+            rightTile->tile = LevelTileTypeElectron;
+            return;
+        }
+        else if (rightTile->tile != LevelTileTypeMurphy)
+        {
+            return;
+        }
+    }
+    else
+    {
         return;
+    }
 
-loc_4F80D:              ; CODE XREF: sub_4F7D1+Bj
-        mov bl, [si+1835h]
-        cmp bl, 0
-        jz  short loc_4F826
-        cmp bl, 2
-        jz  short loc_4F845
-        cmp bl, 4
-        jz  short loc_4F864
-        cmp bl, 6
-        jz  short loc_4F883
+//loc_4F809:              ; CODE XREF: sub_4F7D1+61j
+//                ; sub_4F7D1+80j ...
+    detonateBigExplosion(position);
+}
+
+void sub_4F8A5(uint16_t position, uint8_t frame) //   proc near       ; DATA XREF: data:15BAo
+{
+    // 01ED:8C42
+    MovingLevelTile *currentTile = &gCurrentLevelWord[position];
+    MovingLevelTile *aboveTile = &gCurrentLevelWord[position - kLevelWidth];
+    MovingLevelTile *leftTile = &gCurrentLevelWord[position - 1];
+    MovingLevelTile *belowTile = &gCurrentLevelWord[position + kLevelWidth];
+    MovingLevelTile *rightTile = &gCurrentLevelWord[position + 1];
+
+    uint16_t value = word_5195D & 3;
+
+    if (value == 0)
+    {
+//loc_4F8B3:              ; CODE XREF: sub_4F8A5+6j
+        Point frameCoordinates = frameCoordinates_516B4[frame];
+        drawMovingFrame(frameCoordinates.x, frameCoordinates.y, position);
+        frame++;
+        frame &= 7;
+        frame |= 8;
+        currentTile->movingObject = frame;
         return;
-
-loc_4F826:              ; CODE XREF: sub_4F7D1+43j
-        cmp word ptr [si+17BCh], 0
-        jz  short loc_4F835
-        cmp byte ptr [si+17BCh], 3
-        jz  short loc_4F809
+    }
+    else if (value != 3)
+    {
         return;
+    }
 
-loc_4F835:              ; CODE XREF: sub_4F7D1+5Aj
-        mov word ptr leveldata[si], 1BBh
-        sub si, 78h ; 'x'
-        mov word ptr leveldata[si], 1018h
+//loc_4F8E3:              ; CODE XREF: sub_4F8A5+Bj
+    uint8_t movingObject = currentTile->movingObject;
+    if (movingObject == 8)
+    {
+//loc_4F8FC:              ; CODE XREF: sub_4F8A5+45j
+        if (aboveTile->movingObject == 0 && aboveTile->tile == LevelTileTypeSpace)
+        {
+//loc_4F90B:              ; CODE XREF: sub_4F8A5+5Cj
+            currentTile->movingObject = 0x1;
+            currentTile->tile = 0xBB;
+            aboveTile->movingObject = 0x10;
+            aboveTile->tile = LevelTileTypeElectron;
+            return;
+        }
+        else if (aboveTile->tile != LevelTileTypeMurphy)
+        {
+            return;
+        }
+    }
+    else if (movingObject == 0xA)
+    {
+//loc_4F959:              ; CODE XREF: sub_4F8A5+4Aj
+        if (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeSpace)
+        {
+//loc_4F96B:              ; CODE XREF: sub_4F8A5+B9j
+            currentTile->movingObject = 0x4;
+            currentTile->tile = 0xBB;
+            rightTile->movingObject = 0x28;
+            rightTile->tile = LevelTileTypeElectron;
+            return;
+        }
+        else if (rightTile->tile != LevelTileTypeMurphy)
+        {
+            return;
+        }
+    }
+    else if (movingObject == 0xC)
+    {
+//loc_4F93A:              ; CODE XREF: sub_4F8A5+4Fj
+        if (belowTile->movingObject == 0 && belowTile->tile == LevelTileTypeSpace)
+        {
+//loc_4F949:              ; CODE XREF: sub_4F8A5+9Aj
+            currentTile->movingObject = 0x3;
+            currentTile->tile = 0xBB;
+            belowTile->movingObject = 0x20;
+            belowTile->tile = LevelTileTypeElectron;
+            return;
+        }
+        else if (belowTile->tile != LevelTileTypeMurphy)
+        {
+            return;
+        }
+    }
+    else if (movingObject == 0xE)
+    {
+//loc_4F91B:              ; CODE XREF: sub_4F8A5+54j
+        if (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeSpace)
+        {
+//loc_4F92A:              ; CODE XREF: sub_4F8A5+7Bj
+            currentTile->movingObject = 0x2;
+            currentTile->tile = 0xBB;
+            leftTile->movingObject = 0x18;
+            leftTile->tile = LevelTileTypeElectron;
+            return;
+        }
+        else if (leftTile->tile != LevelTileTypeMurphy)
+        {
+            return;
+        }
+    }
+    else
+    {
         return;
+    }
 
-loc_4F845:              ; CODE XREF: sub_4F7D1+48j
-        cmp word ptr [si+1832h], 0
-        jz  short loc_4F854
-        cmp byte ptr [si+1832h], 3
-        jz  short loc_4F809
-        return;
+//loc_4F8DF:              ; CODE XREF: sub_4F8A5+63j
+//                ; sub_4F8A5+82j ...
+    detonateBigExplosion(position);
+}
 
-loc_4F854:              ; CODE XREF: sub_4F7D1+79j
-        mov word ptr leveldata[si], 2BBh
-        sub si, 2
-        mov word ptr leveldata[si], 1818h
-        return;
-
-loc_4F864:              ; CODE XREF: sub_4F7D1+4Dj
-        cmp word ptr [si+18ACh], 0
-        jz  short loc_4F873
-        cmp byte ptr [si+18ACh], 3
-        jz  short loc_4F809
-        return;
-
-loc_4F873:              ; CODE XREF: sub_4F7D1+98j
-        mov word ptr leveldata[si], 3BBh
-        add si, 78h ; 'x'
-        mov word ptr leveldata[si], 2018h
-        return;
-
-loc_4F883:              ; CODE XREF: sub_4F7D1+52j
-        cmp word ptr [si+1836h], 0
-        jz  short loc_4F895
-        cmp byte ptr [si+1836h], 3
-        jnz short locret_4F894
-        jmp loc_4F809
-
-locret_4F894:               ; CODE XREF: sub_4F7D1+BEj
-        return;
-
-loc_4F895:              ; CODE XREF: sub_4F7D1+B7j
-        mov word ptr leveldata[si], 4BBh
-        add si, 2
-        mov word ptr leveldata[si], 2818h
-        return;
-sub_4F7D1   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4F8A5   proc near       ; DATA XREF: data:15BAo
-        // 01ED:8C42
-        mov ax, word_5195D
-        and ax, 3
-        jz  short loc_4F8B3
-        cmp ax, 3
-        jz  short loc_4F8E3
-        return;
-
-loc_4F8B3:              ; CODE XREF: sub_4F8A5+6j
-        push    ds
-        push    si
-        mov di, [si+6155h]
-        mov si, [bx+13E8h]
-        mov ax, es
-        mov ds, ax
-        mov cx, 10h
-
-loc_4F8C4:              ; CODE XREF: sub_4F8A5+27j
-        movsb
-        movsb
-        add si, 78h ; 'x'
-        add di, 78h ; 'x'
-        loop    loc_4F8C4
-        pop si
-        pop ds
-        shr bx, 1
-        inc bl
-        and bl, 7
-        or  bl, 8
-        mov [si+1835h], bl
-        return;
-
-loc_4F8DF:              ; CODE XREF: sub_4F8A5+63j
-                    ; sub_4F8A5+82j ...
-        call    detonateBigExplosion
-        return;
-
-loc_4F8E3:              ; CODE XREF: sub_4F8A5+Bj
-        mov bl, [si+1835h]
-        cmp bl, 8
-        jz  short loc_4F8FC
-        cmp bl, 0Ah
-        jz  short loc_4F959
-        cmp bl, 0Ch
-        jz  short loc_4F93A
-        cmp bl, 0Eh
-        jz  short loc_4F91B
-        return;
-
-loc_4F8FC:              ; CODE XREF: sub_4F8A5+45j
-        cmp word ptr [si+17BCh], 0
-        jz  short loc_4F90B
-        cmp byte ptr [si+17BCh], 3
-        jz  short loc_4F8DF
-        return;
-
-loc_4F90B:              ; CODE XREF: sub_4F8A5+5Cj
-        mov word ptr leveldata[si], 1BBh
-        sub si, 78h ; 'x'
-        mov word ptr leveldata[si], 1018h
-        return;
-
-loc_4F91B:              ; CODE XREF: sub_4F8A5+54j
-        cmp word ptr [si+1832h], 0
-        jz  short loc_4F92A
-        cmp byte ptr [si+1832h], 3
-        jz  short loc_4F8DF
-        return;
-
-loc_4F92A:              ; CODE XREF: sub_4F8A5+7Bj
-        mov word ptr leveldata[si], 2BBh
-        sub si, 2
-        mov word ptr leveldata[si], 1818h
-        return;
-
-loc_4F93A:              ; CODE XREF: sub_4F8A5+4Fj
-        cmp word ptr [si+18ACh], 0
-        jz  short loc_4F949
-        cmp byte ptr [si+18ACh], 3
-        jz  short loc_4F8DF
-        return;
-
-loc_4F949:              ; CODE XREF: sub_4F8A5+9Aj
-        mov word ptr leveldata[si], 3BBh
-        add si, 78h ; 'x'
-        mov word ptr leveldata[si], 2018h
-        return;
-
-loc_4F959:              ; CODE XREF: sub_4F8A5+4Aj
-        cmp word ptr [si+1836h], 0
-        jz  short loc_4F96B
-        cmp byte ptr [si+1836h], 3
-        jnz short locret_4F96A
-        jmp loc_4F8DF
-
-locret_4F96A:               ; CODE XREF: sub_4F8A5+C0j
-        return;
-
-loc_4F96B:              ; CODE XREF: sub_4F8A5+B9j
-        mov word ptr leveldata[si], 4BBh
-        add si, 2
-        mov word ptr leveldata[si], 2818h
-        return;
-sub_4F8A5   endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4F97B   proc near       ; DATA XREF: data:15CAo
-        // 01ED:8D18
-        push    si
-        mov di, [si+61CDh]
-        mov si, [bx+13E8h]
-        sub bx, 1Eh
-        sub di, [bx+6C95h]
-        sub di, [bx+6C95h]
-        push    ds
-        mov ax, es
-        mov ds, ax
-        mov cx, 12h
+void sub_4F97B(uint16_t position, uint8_t frame) //   proc near       ; DATA XREF: data:15CAo
+{
+    // 01ED:8D18
+    /*push    si
+    mov di, [si+61CDh]
+    mov si, [bx+13E8h]
+    sub bx, 1Eh
+    sub di, [bx+6C95h]
+    sub di, [bx+6C95h]
+    push    ds
+    mov ax, es
+    mov ds, ax
+    mov cx, 12h
 
 loc_4F997:              ; CODE XREF: sub_4F97B+24j
-        movsb
-        movsb
-        add di, 78h ; 'x'
-        add si, 78h ; 'x'
-        loop    loc_4F997
-        pop ds
-        pop si
-        shr bx, 1
-        cmp bl, 7
-        jnz short loc_4F9B7
-        cmp byte ptr [si+18ACh], 1Fh
-        jz  short loc_4F9B7
-        mov word ptr [si+18ACh], 0
+    movsb
+    movsb
+    add di, 78h ; 'x'
+    add si, 78h ; 'x'
+    loop    loc_4F997
+    pop ds
+    pop si
+    shr bx, 1
+    cmp bl, 7
+    jnz short loc_4F9B7
+    cmp byte ptr [si+18ACh], 1Fh
+    jz  short loc_4F9B7
+    mov word ptr [si+18ACh], 0
 
 loc_4F9B7:              ; CODE XREF: sub_4F97B+2Dj
-                    ; sub_4F97B+34j
-        cmp bl, 8
-        jge short loc_4F9C4
-        add bl, 10h
-        mov [si+1835h], bl
-        return;
+                ; sub_4F97B+34j
+    cmp bl, 8
+    jge short loc_4F9C4
+    add bl, 10h
+    mov [si+1835h], bl
+    return;
 
 loc_4F9C4:              ; CODE XREF: sub_4F97B+3Fj
-        mov word ptr leveldata[si], 18h
-        cmp word ptr [si+1832h], 0
-        jnz short loc_4F9D7
-        mov byte ptr [si+1835h], 1
-        return;
+    mov word ptr leveldata[si], 18h
+    cmp word ptr [si+1832h], 0
+    jnz short loc_4F9D7
+    mov byte ptr [si+1835h], 1
+    return;
 
 loc_4F9D7:              ; CODE XREF: sub_4F97B+54j
-        cmp byte ptr [si+1832h], 3
-        jnz short loc_4F9E4
-        mov byte ptr [si+1835h], 1
-        return;
+    cmp byte ptr [si+1832h], 3
+    jnz short loc_4F9E4
+    mov byte ptr [si+1835h], 1
+    return;
 
 loc_4F9E4:              ; CODE XREF: sub_4F97B+61j
-        cmp word ptr [si+17BCh], 0
-        jnz short loc_4F9FB
-        mov word ptr leveldata[si], 1BBh
-        sub si, 78h ; 'x'
-        mov word ptr leveldata[si], 1018h
-        return;
+    cmp word ptr [si+17BCh], 0
+    jnz short loc_4F9FB
+    mov word ptr leveldata[si], 1BBh
+    sub si, 78h ; 'x'
+    mov word ptr leveldata[si], 1018h
+    return;
 
 loc_4F9FB:              ; CODE XREF: sub_4F97B+6Ej
-        cmp byte ptr [si+17BCh], 3
-        jnz short loc_4FA06
-        call    detonateBigExplosion
-        return;
+    cmp byte ptr [si+17BCh], 3
+    jnz short loc_4FA06
+    call    detonateBigExplosion
+    return;
 
 loc_4FA06:              ; CODE XREF: sub_4F97B+85j
-        cmp word ptr [si+1836h], 0
-        jnz short loc_4FA13
-        mov byte ptr [si+1835h], 9
-        return;
+    cmp word ptr [si+1836h], 0
+    jnz short loc_4FA13
+    mov byte ptr [si+1835h], 9
+    return;
 
 loc_4FA13:              ; CODE XREF: sub_4F97B+90j
-        cmp byte ptr [si+1836h], 3
-        jnz short loc_4FA20
-        mov byte ptr [si+1835h], 9
-        return;
+    cmp byte ptr [si+1836h], 3
+    jnz short loc_4FA20
+    mov byte ptr [si+1835h], 9
+    return;
 
 loc_4FA20:              ; CODE XREF: sub_4F97B+9Dj
-        mov byte ptr [si+1835h], 1
-        return;
-sub_4F97B   endp
+    mov byte ptr [si+1835h], 1
+    return;*/
+}
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4FA26   proc near       ; DATA XREF: data:15DAo
-        // 01ED:8DC3
-        push    si
-        mov di, [si+6155h]
-        mov si, [bx+13E8h]
-        push    ds
-        mov ax, es
-        mov ds, ax
-        mov cx, 10h
+void sub_4FA26(uint16_t position, uint8_t frame) //   proc near       ; DATA XREF: data:15DAo
+{
+    // 01ED:8DC3
+    /*push    si
+    mov di, [si+6155h]
+    mov si, [bx+13E8h]
+    push    ds
+    mov ax, es
+    mov ds, ax
+    mov cx, 10h
 
 loc_4FA37:              ; CODE XREF: sub_4FA26+1Bj
-        movsb
-        movsb
-        movsb
-        movsb
-        add di, 76h ; 'v'
-        add si, 76h ; 'v'
-        loop    loc_4FA37
-        pop ds
-        pop si
-        shr bx, 1
-        db  83h, 0E3h, 07h ;and bx, 7
-        inc bx
-        cmp bl, 7
-        jnz short loc_4FA5D
-        cmp byte ptr [si+1836h], 1Fh
-        jz  short loc_4FA5D
-        mov word ptr [si+1836h], 0
+    movsb
+    movsb
+    movsb
+    movsb
+    add di, 76h ; 'v'
+    add si, 76h ; 'v'
+    loop    loc_4FA37
+    pop ds
+    pop si
+    shr bx, 1
+    db  83h, 0E3h, 07h ;and bx, 7
+    inc bx
+    cmp bl, 7
+    jnz short loc_4FA5D
+    cmp byte ptr [si+1836h], 1Fh
+    jz  short loc_4FA5D
+    mov word ptr [si+1836h], 0
 
 loc_4FA5D:              ; CODE XREF: sub_4FA26+28j
-                    ; sub_4FA26+2Fj
-        cmp bl, 8
-        jge short loc_4FA6A
-        add bl, 18h
-        mov [si+1835h], bl
-        return;
+                ; sub_4FA26+2Fj
+    cmp bl, 8
+    jge short loc_4FA6A
+    add bl, 18h
+    mov [si+1835h], bl
+    return;
 
 loc_4FA6A:              ; CODE XREF: sub_4FA26+3Aj
-        mov word ptr leveldata[si], 18h
-        cmp word ptr [si+18ACh], 0
-        jnz short loc_4FA7D
-        mov byte ptr [si+1835h], 3
-        return;
+    mov word ptr leveldata[si], 18h
+    cmp word ptr [si+18ACh], 0
+    jnz short loc_4FA7D
+    mov byte ptr [si+1835h], 3
+    return;
 
 loc_4FA7D:              ; CODE XREF: sub_4FA26+4Fj
-        cmp byte ptr [si+18ACh], 3
-        jnz short loc_4FA8A
-        mov byte ptr [si+1835h], 3
-        return;
+    cmp byte ptr [si+18ACh], 3
+    jnz short loc_4FA8A
+    mov byte ptr [si+1835h], 3
+    return;
 
 loc_4FA8A:              ; CODE XREF: sub_4FA26+5Cj
-        cmp word ptr [si+1832h], 0
-        jnz short loc_4FAA1
-        mov word ptr leveldata[si], 2BBh
-        sub si, 2
-        mov word ptr leveldata[si], 1818h
-        return;
+    cmp word ptr [si+1832h], 0
+    jnz short loc_4FAA1
+    mov word ptr leveldata[si], 2BBh
+    sub si, 2
+    mov word ptr leveldata[si], 1818h
+    return;
 
 loc_4FAA1:              ; CODE XREF: sub_4FA26+69j
-        cmp byte ptr [si+1832h], 3
-        jnz short loc_4FAAC
-        call    detonateBigExplosion
-        return;
+    cmp byte ptr [si+1832h], 3
+    jnz short loc_4FAAC
+    call    detonateBigExplosion
+    return;
 
 loc_4FAAC:              ; CODE XREF: sub_4FA26+80j
-        cmp word ptr [si+17BCh], 0
-        jnz short loc_4FAB9
-        mov byte ptr [si+1835h], 0Fh
-        return;
+    cmp word ptr [si+17BCh], 0
+    jnz short loc_4FAB9
+    mov byte ptr [si+1835h], 0Fh
+    return;
 
 loc_4FAB9:              ; CODE XREF: sub_4FA26+8Bj
-        cmp byte ptr [si+17BCh], 3
-        jnz short loc_4FAC6
-        mov byte ptr [si+1835h], 0Fh
-        return;
+    cmp byte ptr [si+17BCh], 3
+    jnz short loc_4FAC6
+    mov byte ptr [si+1835h], 0Fh
+    return;
 
 loc_4FAC6:              ; CODE XREF: sub_4FA26+98j
-        mov byte ptr [si+1835h], 3
-        return;
-sub_4FA26   endp
+    mov byte ptr [si+1835h], 3
+    return;*/
+}
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4FACC   proc near       ; DATA XREF: data:15EAo
-        // 01ED:8E69
-        push    si
-        mov di, [si+60DDh]
-        mov si, [bx+13E8h]
-        sub bx, 40h ; '@'
-        add di, [bx+6C95h]
-        add di, [bx+6C95h]
-        push    ds
-        mov ax, es
-        mov ds, ax
-        mov cx, 12h
+void sub_4FACC(uint16_t position, uint8_t frame) //   proc near       ; DATA XREF: data:15EAo
+{
+    // 01ED:8E69
+    /*push    si
+    mov di, [si+60DDh]
+    mov si, [bx+13E8h]
+    sub bx, 40h ; '@'
+    add di, [bx+6C95h]
+    add di, [bx+6C95h]
+    push    ds
+    mov ax, es
+    mov ds, ax
+    mov cx, 12h
 
 loc_4FAE8:              ; CODE XREF: sub_4FACC+24j
-        movsb
-        movsb
-        add di, 78h ; 'x'
-        add si, 78h ; 'x'
-        loop    loc_4FAE8
-        pop ds
-        pop si
-        shr bx, 1
-        inc bl
-        cmp bl, 7
-        jnz short loc_4FB0A
-        cmp byte ptr [si+17BCh], 1Fh
-        jz  short loc_4FB0A
-        mov word ptr [si+17BCh], 0
+    movsb
+    movsb
+    add di, 78h ; 'x'
+    add si, 78h ; 'x'
+    loop    loc_4FAE8
+    pop ds
+    pop si
+    shr bx, 1
+    inc bl
+    cmp bl, 7
+    jnz short loc_4FB0A
+    cmp byte ptr [si+17BCh], 1Fh
+    jz  short loc_4FB0A
+    mov word ptr [si+17BCh], 0
 
 loc_4FB0A:              ; CODE XREF: sub_4FACC+2Fj
-                    ; sub_4FACC+36j
-        cmp bl, 8
-        jge short loc_4FB17
-        add bl, 20h ; ' '
-        mov [si+1835h], bl
-        return;
+                ; sub_4FACC+36j
+    cmp bl, 8
+    jge short loc_4FB17
+    add bl, 20h ; ' '
+    mov [si+1835h], bl
+    return;
 
 loc_4FB17:              ; CODE XREF: sub_4FACC+41j
-        mov word ptr leveldata[si], 18h
-        cmp word ptr [si+1836h], 0
-        jnz short loc_4FB2A
-        mov byte ptr [si+1835h], 5
-        return;
+    mov word ptr leveldata[si], 18h
+    cmp word ptr [si+1836h], 0
+    jnz short loc_4FB2A
+    mov byte ptr [si+1835h], 5
+    return;
 
 loc_4FB2A:              ; CODE XREF: sub_4FACC+56j
-        cmp byte ptr [si+1836h], 3
-        jnz short loc_4FB37
-        mov byte ptr [si+1835h], 5
-        return;
+    cmp byte ptr [si+1836h], 3
+    jnz short loc_4FB37
+    mov byte ptr [si+1835h], 5
+    return;
 
 loc_4FB37:              ; CODE XREF: sub_4FACC+63j
-        cmp word ptr [si+18ACh], 0
-        jnz short loc_4FB4E
-        mov word ptr leveldata[si], 3BBh
-        add si, 78h ; 'x'
-        mov word ptr leveldata[si], 2018h
-        return;
+    cmp word ptr [si+18ACh], 0
+    jnz short loc_4FB4E
+    mov word ptr leveldata[si], 3BBh
+    add si, 78h ; 'x'
+    mov word ptr leveldata[si], 2018h
+    return;
 
 loc_4FB4E:              ; CODE XREF: sub_4FACC+70j
-        cmp byte ptr [si+18ACh], 3
-        jnz short loc_4FB59
-        call    detonateBigExplosion
-        return;
+    cmp byte ptr [si+18ACh], 3
+    jnz short loc_4FB59
+    call    detonateBigExplosion
+    return;
 
 loc_4FB59:              ; CODE XREF: sub_4FACC+87j
-        cmp word ptr [si+1832h], 0
-        jnz short loc_4FB66
-        mov byte ptr [si+1835h], 0Dh
-        return;
+    cmp word ptr [si+1832h], 0
+    jnz short loc_4FB66
+    mov byte ptr [si+1835h], 0Dh
+    return;
 
 loc_4FB66:              ; CODE XREF: sub_4FACC+92j
-        cmp byte ptr [si+1832h], 3
-        jnz short loc_4FB73
-        mov byte ptr [si+1835h], 0Dh
-        return;
+    cmp byte ptr [si+1832h], 3
+    jnz short loc_4FB73
+    mov byte ptr [si+1835h], 0Dh
+    return;
 
 loc_4FB73:              ; CODE XREF: sub_4FACC+9Fj
-        mov byte ptr [si+1835h], 5
-        return;
-sub_4FACC   endp
+    mov byte ptr [si+1835h], 5
+    return;*/
+}
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-sub_4FB79   proc near       ; DATA XREF: data:15FAo
-        // 01ED:8F16
-        push    si
-        mov di, [si+6153h]
-        mov si, [bx+13E8h]
-        push    ds
-        mov ax, es
-        mov ds, ax
-        mov cx, 10h
+void sub_4FB79(uint16_t position, uint8_t frame) //   proc near       ; DATA XREF: data:15FAo
+{
+    // 01ED:8F16
+    /*push    si
+    mov di, [si+6153h]
+    mov si, [bx+13E8h]
+    push    ds
+    mov ax, es
+    mov ds, ax
+    mov cx, 10h
 
 loc_4FB8A:              ; CODE XREF: sub_4FB79+1Bj
-        movsb
-        movsb
-        movsb
-        movsb
-        add di, 76h ; 'v'
-        add si, 76h ; 'v'
-        loop    loc_4FB8A
-        pop ds
-        pop si
-        shr bx, 1
-        and bl, 7
-        inc bl
-        cmp bl, 7
-        jnz short loc_4FBB1
-        cmp byte ptr [si+1832h], 1Fh
-        jz  short loc_4FBB1
-        mov word ptr [si+1832h], 0
+    movsb
+    movsb
+    movsb
+    movsb
+    add di, 76h ; 'v'
+    add si, 76h ; 'v'
+    loop    loc_4FB8A
+    pop ds
+    pop si
+    shr bx, 1
+    and bl, 7
+    inc bl
+    cmp bl, 7
+    jnz short loc_4FBB1
+    cmp byte ptr [si+1832h], 1Fh
+    jz  short loc_4FBB1
+    mov word ptr [si+1832h], 0
 
 loc_4FBB1:              ; CODE XREF: sub_4FB79+29j
-                    ; sub_4FB79+30j
-        cmp bl, 8
-        jge short loc_4FBBE
-        add bl, 28h ; '('
-        mov [si+1835h], bl
-        return;
+                ; sub_4FB79+30j
+    cmp bl, 8
+    jge short loc_4FBBE
+    add bl, 28h ; '('
+    mov [si+1835h], bl
+    return;
 
 loc_4FBBE:              ; CODE XREF: sub_4FB79+3Bj
-        mov word ptr leveldata[si], 18h
-        cmp word ptr [si+17BCh], 0
-        jnz short loc_4FBD1
-        mov byte ptr [si+1835h], 7
-        return;
+    mov word ptr leveldata[si], 18h
+    cmp word ptr [si+17BCh], 0
+    jnz short loc_4FBD1
+    mov byte ptr [si+1835h], 7
+    return;
 
 loc_4FBD1:              ; CODE XREF: sub_4FB79+50j
-        cmp byte ptr [si+17BCh], 3
-        jnz short loc_4FBDE
-        mov byte ptr [si+1835h], 7
-        return;
+    cmp byte ptr [si+17BCh], 3
+    jnz short loc_4FBDE
+    mov byte ptr [si+1835h], 7
+    return;
 
 loc_4FBDE:              ; CODE XREF: sub_4FB79+5Dj
-        cmp word ptr [si+1836h], 0
-        jnz short loc_4FBF5
-        mov word ptr leveldata[si], 4BBh
-        add si, 2
-        mov word ptr leveldata[si], 2818h
-        return;
+    cmp word ptr [si+1836h], 0
+    jnz short loc_4FBF5
+    mov word ptr leveldata[si], 4BBh
+    add si, 2
+    mov word ptr leveldata[si], 2818h
+    return;
 
 loc_4FBF5:              ; CODE XREF: sub_4FB79+6Aj
-        cmp byte ptr [si+1836h], 3
-        jnz short loc_4FC00
-        call    detonateBigExplosion
-        return;
+    cmp byte ptr [si+1836h], 3
+    jnz short loc_4FC00
+    call    detonateBigExplosion
+    return;
 
 loc_4FC00:              ; CODE XREF: sub_4FB79+81j
-        cmp word ptr [si+18ACh], 0
-        jnz short loc_4FC0D
-        mov byte ptr [si+1835h], 0Bh
-        return;
+    cmp word ptr [si+18ACh], 0
+    jnz short loc_4FC0D
+    mov byte ptr [si+1835h], 0Bh
+    return;
 
 loc_4FC0D:              ; CODE XREF: sub_4FB79+8Cj
-        cmp byte ptr [si+18ACh], 3
-        jnz short loc_4FC1A
-        mov byte ptr [si+1835h], 0Bh
-        return;
+    cmp byte ptr [si+18ACh], 3
+    jnz short loc_4FC1A
+    mov byte ptr [si+1835h], 0Bh
+    return;
 
 loc_4FC1A:              ; CODE XREF: sub_4FB79+99j
-        mov byte ptr [si+1835h], 7
-        return;
-sub_4FB79   endp
-*/
+    mov byte ptr [si+1835h], 7
+    return;*/
+}
 
 void drawGamePanelText() // sub_4FC20  proc near       ; CODE XREF: somethingspsig:loc_4944Fp
                    // ; drawGamePanel+22p ...
