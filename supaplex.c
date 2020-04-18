@@ -21504,7 +21504,7 @@ void drawCurrentLevelViewport()
         scrollY = gMurphyPositionY - kScreenHeight / 2;
     }
 
-    drawLevelViewport(scrollX, scrollY, kScreenWidth, kScreenHeight);
+    drawLevelViewport(scrollX, scrollY, kScreenWidth, kScreenHeight - kPanelBitmapHeight);
 }
 
 void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, uint16_t height, uint16_t dstX, uint16_t dstY)
