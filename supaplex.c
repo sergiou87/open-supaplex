@@ -1418,7 +1418,7 @@ int8_t gameSpeed = 5;
 uint8_t demoFileName = 0; // Probably should be another type but whatever for now
 uint32_t flashingbackgroundon = 0;
 
-uint16_t someZonkBinaryData[18] = {
+static const uint16_t kFallAnimationGravityOffsets[18] = {
     0x0000, // -> 0x6C95
     0x007A, // -> 0x6C97
     0x00F4, // -> 0x6C99
@@ -2303,7 +2303,7 @@ void updateInfotronTiles(uint16_t position);
 void updateOrangeDiskTiles(uint16_t position);
 void updateSnikSnakTiles(uint16_t position);
 void updateTerminalTiles(uint16_t position);
-void movefun6(uint16_t position);
+void updateElectronTiles(uint16_t position);
 void updateBugTiles(uint16_t position);
 void updateExplosionTiles(uint16_t position);
 
@@ -2332,7 +2332,7 @@ static const MovingFunction movingFunctions[32] = {
     NULL,
     NULL,
     NULL,
-    movefun6,
+    updateElectronTiles,
     updateBugTiles,
     NULL,
     NULL,
@@ -2342,62 +2342,62 @@ static const MovingFunction movingFunctions[32] = {
     updateExplosionTiles,
 };
 
-void sub_4F7D1(uint16_t position, uint8_t frame);
-void sub_4F8A5(uint16_t position, uint8_t frame);
-void sub_4F97B(uint16_t position, uint8_t frame);
-void sub_4FA26(uint16_t position, uint8_t frame);
-void sub_4FACC(uint16_t position, uint8_t frame);
-void sub_4FB79(uint16_t position, uint8_t frame);
+void updateElectronTurnLeft(uint16_t position, uint8_t frame);
+void updateElectronTurnRight(uint16_t position, uint8_t frame);
+void updateElectronMovementUp(uint16_t position, uint8_t frame);
+void updateElectronMovementDown(uint16_t position, uint8_t frame);
+void updateElectronMovementRight(uint16_t position, uint8_t frame);
+void updateElectronMovementLeft(uint16_t position, uint8_t frame);
 
-static const FrameBasedMovingFunction movingFunctions2[] = {
-    sub_4F7D1,
-    sub_4F7D1,
-    sub_4F7D1,
-    sub_4F7D1,
-    sub_4F7D1,
-    sub_4F7D1,
-    sub_4F7D1,
-    sub_4F7D1,
-    sub_4F8A5,
-    sub_4F8A5,
-    sub_4F8A5,
-    sub_4F8A5,
-    sub_4F8A5,
-    sub_4F8A5,
-    sub_4F8A5,
-    sub_4F8A5,
-    sub_4F97B,
-    sub_4F97B,
-    sub_4F97B,
-    sub_4F97B,
-    sub_4F97B,
-    sub_4F97B,
-    sub_4F97B,
-    sub_4F97B,
-    sub_4FA26,
-    sub_4FA26,
-    sub_4FA26,
-    sub_4FA26,
-    sub_4FA26,
-    sub_4FA26,
-    sub_4FA26,
-    sub_4FA26,
-    sub_4FACC,
-    sub_4FACC,
-    sub_4FACC,
-    sub_4FACC,
-    sub_4FACC,
-    sub_4FACC,
-    sub_4FACC,
-    sub_4FACC,
-    sub_4FB79,
-    sub_4FB79,
-    sub_4FB79,
-    sub_4FB79,
-    sub_4FB79,
-    sub_4FB79,
-    sub_4FB79,
-    sub_4FB79,
+static const FrameBasedMovingFunction kElectronMovingFunctions[] = {
+    updateElectronTurnLeft,
+    updateElectronTurnLeft,
+    updateElectronTurnLeft,
+    updateElectronTurnLeft,
+    updateElectronTurnLeft,
+    updateElectronTurnLeft,
+    updateElectronTurnLeft,
+    updateElectronTurnLeft,
+    updateElectronTurnRight,
+    updateElectronTurnRight,
+    updateElectronTurnRight,
+    updateElectronTurnRight,
+    updateElectronTurnRight,
+    updateElectronTurnRight,
+    updateElectronTurnRight,
+    updateElectronTurnRight,
+    updateElectronMovementUp,
+    updateElectronMovementUp,
+    updateElectronMovementUp,
+    updateElectronMovementUp,
+    updateElectronMovementUp,
+    updateElectronMovementUp,
+    updateElectronMovementUp,
+    updateElectronMovementUp,
+    updateElectronMovementDown,
+    updateElectronMovementDown,
+    updateElectronMovementDown,
+    updateElectronMovementDown,
+    updateElectronMovementDown,
+    updateElectronMovementDown,
+    updateElectronMovementDown,
+    updateElectronMovementDown,
+    updateElectronMovementRight,
+    updateElectronMovementRight,
+    updateElectronMovementRight,
+    updateElectronMovementRight,
+    updateElectronMovementRight,
+    updateElectronMovementRight,
+    updateElectronMovementRight,
+    updateElectronMovementRight,
+    updateElectronMovementLeft,
+    updateElectronMovementLeft,
+    updateElectronMovementLeft,
+    updateElectronMovementLeft,
+    updateElectronMovementLeft,
+    updateElectronMovementLeft,
+    updateElectronMovementLeft,
+    updateElectronMovementLeft,
 };
 
 void updateSnikSnakTurnLeft(uint16_t position, uint8_t frame);
@@ -2407,7 +2407,7 @@ void updateSnikSnakMovementLeft(uint16_t position, uint8_t frame);
 void updateSnikSnakMovementDown(uint16_t position, uint8_t frame);
 void updateSnikSnakMovementRight(uint16_t position, uint8_t frame);
 
-static const FrameBasedMovingFunction movingFunctions3[48] = {
+static const FrameBasedMovingFunction kSnikSnakMovingFunctions[48] = {
     updateSnikSnakTurnLeft,
     updateSnikSnakTurnLeft,
     updateSnikSnakTurnLeft,
@@ -6055,7 +6055,7 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
         somePositionThing *= 2;
         somePositionThing &= 0x1F;
 
-        uint16_t offset = someZonkBinaryData[somePositionThing];
+        uint16_t offset = kFallAnimationGravityOffsets[somePositionThing];
 
         uint16_t finalPosition = position - kLevelWidth;
         uint8_t tileX = (finalPosition % kLevelWidth);
@@ -6636,7 +6636,7 @@ void updateInfotronTiles(uint16_t position) // movefun2  proc near       ; DATA 
         somePositionThing *= 2;
         somePositionThing &= 0x1F;
 
-        uint16_t offset = someZonkBinaryData[somePositionThing];
+        uint16_t offset = kFallAnimationGravityOffsets[somePositionThing];
 
         uint16_t finalPosition = position - kLevelWidth;
         uint8_t tileX = (finalPosition % kLevelWidth);
@@ -10710,7 +10710,7 @@ void updateOrangeDiskTiles(uint16_t position) // movefun3  proc near       ; DAT
     //    add di, [bx+6C95h]
     //    mov si, 12F6h
     //    mov si, [si]
-        uint16_t offset = someZonkBinaryData[movingObjectFrame];
+        uint16_t offset = kFallAnimationGravityOffsets[movingObjectFrame];
 
         uint8_t tileX = (position % kLevelWidth);
         uint8_t tileY = (position / kLevelWidth);
@@ -19755,7 +19755,7 @@ void updateSnikSnakTiles(uint16_t position) // movefun4  proc near       ; DATA 
 
     uint8_t frame = currentTile->movingObject;
 
-    FrameBasedMovingFunction function = movingFunctions3[frame];
+    FrameBasedMovingFunction function = kSnikSnakMovingFunctions[frame];
 
     if (function != NULL)
     {
@@ -20013,7 +20013,7 @@ void updateSnikSnakMovementUp(uint16_t position, uint8_t frame) // sub_4F50A    
     Point frameCoordinates = frameCoordinates_51654[frame];
     // sub bx, 1Eh
     frame -= 15; // 0x1E / 2
-    uint16_t offset = someZonkBinaryData[frame];
+    uint16_t offset = kFallAnimationGravityOffsets[frame];
 
     uint8_t tileX = (finalPosition % kLevelWidth);
     uint8_t tileY = (finalPosition / kLevelWidth);
@@ -20202,7 +20202,7 @@ void updateSnikSnakMovementDown(uint16_t position, uint8_t frame) // sub_4F65B  
     //sub bx, 40h ; '@'
     frame -= 0x20; // 0x40 / 2
 
-    uint16_t offset = someZonkBinaryData[frame];
+    uint16_t offset = kFallAnimationGravityOffsets[frame];
 
     uint8_t tileX = (finalPosition % kLevelWidth);
     uint8_t tileY = (finalPosition / kLevelWidth);
@@ -20380,7 +20380,7 @@ void updateSnikSnakMovementRight(uint16_t position, uint8_t frame) // sub_4F708 
     currentTile->movingObject = 7;
 }
 
-void movefun6(uint16_t position) //  proc near       ; DATA XREF: data:163Ao
+void updateElectronTiles(uint16_t position) // movefun6  proc near       ; DATA XREF: data:163Ao
 {
     // 01ED:8B4C
     if (byte_510D7 == 1)
@@ -20396,7 +20396,7 @@ void movefun6(uint16_t position) //  proc near       ; DATA XREF: data:163Ao
 
     uint8_t frame = currentTile->movingObject;
 
-    FrameBasedMovingFunction function = movingFunctions2[frame];
+    FrameBasedMovingFunction function = kElectronMovingFunctions[frame];
 
     if (function != NULL)
     {
@@ -20405,7 +20405,7 @@ void movefun6(uint16_t position) //  proc near       ; DATA XREF: data:163Ao
     }
 }
 
-void sub_4F7D1(uint16_t position, uint8_t frame) //   proc near       ; DATA XREF: data:movingFunctions2o
+void updateElectronTurnLeft(uint16_t position, uint8_t frame) // sub_4F7D1   proc near       ; DATA XREF: data:movingFunctions2o
 {
     // 01ED:8B6E
     MovingLevelTile *currentTile = &gCurrentLevelWord[position];
@@ -20418,7 +20418,7 @@ void sub_4F7D1(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
 
     if (value == 0)
     {
-//loc_4F7DF:              ; CODE XREF: sub_4F7D1+6j
+//loc_4F7DF:              ; CODE XREF: updateElectronTurnLeft+6j
         Point frameCoordinates = frameCoordinates_516B4[frame];
         drawMovingFrame(frameCoordinates.x, frameCoordinates.y, position);
         frame++;
@@ -20431,14 +20431,14 @@ void sub_4F7D1(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
         return;
     }
 
-//loc_4F80D:              ; CODE XREF: sub_4F7D1+Bj
+//loc_4F80D:              ; CODE XREF: updateElectronTurnLeft+Bj
     uint8_t movingObject = currentTile->movingObject;
     if (movingObject == 0)
     {
-//loc_4F826:              ; CODE XREF: sub_4F7D1+43j
+//loc_4F826:              ; CODE XREF: updateElectronTurnLeft+43j
         if (aboveTile->movingObject == 0 && aboveTile->tile == LevelTileTypeSpace)
         {
-//loc_4F835:              ; CODE XREF: sub_4F7D1+5Aj
+//loc_4F835:              ; CODE XREF: updateElectronTurnLeft+5Aj
             currentTile->movingObject = 0x1;
             currentTile->tile = 0xBB;
             aboveTile->movingObject = 0x10;
@@ -20452,10 +20452,10 @@ void sub_4F7D1(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
     }
     else if (movingObject == 2)
     {
-//loc_4F845:              ; CODE XREF: sub_4F7D1+48j
+//loc_4F845:              ; CODE XREF: updateElectronTurnLeft+48j
         if (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeSpace)
         {
-//loc_4F854:              ; CODE XREF: sub_4F7D1+79j
+//loc_4F854:              ; CODE XREF: updateElectronTurnLeft+79j
             currentTile->movingObject = 0x2;
             currentTile->tile = 0xBB;
             leftTile->movingObject = 0x18;
@@ -20469,10 +20469,10 @@ void sub_4F7D1(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
     }
     else if (movingObject == 4)
     {
-//loc_4F864:              ; CODE XREF: sub_4F7D1+4Dj
+//loc_4F864:              ; CODE XREF: updateElectronTurnLeft+4Dj
         if (belowTile->movingObject == 0 && belowTile->tile == LevelTileTypeSpace)
         {
-//loc_4F873:              ; CODE XREF: sub_4F7D1+98j
+//loc_4F873:              ; CODE XREF: updateElectronTurnLeft+98j
             currentTile->movingObject = 0x3;
             currentTile->tile = 0xBB;
             belowTile->movingObject = 0x20;
@@ -20486,10 +20486,10 @@ void sub_4F7D1(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
     }
     else if (movingObject == 6)
     {
-//loc_4F883:              ; CODE XREF: sub_4F7D1+52j
+//loc_4F883:              ; CODE XREF: updateElectronTurnLeft+52j
         if (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeSpace)
         {
-//loc_4F895:              ; CODE XREF: sub_4F7D1+B7j
+//loc_4F895:              ; CODE XREF: updateElectronTurnLeft+B7j
             currentTile->movingObject = 0x4;
             currentTile->tile = 0xBB;
             rightTile->movingObject = 0x28;
@@ -20506,12 +20506,12 @@ void sub_4F7D1(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
         return;
     }
 
-//loc_4F809:              ; CODE XREF: sub_4F7D1+61j
-//                ; sub_4F7D1+80j ...
+//loc_4F809:              ; CODE XREF: updateElectronTurnLeft+61j
+//                ; updateElectronTurnLeft+80j ...
     detonateBigExplosion(position);
 }
 
-void sub_4F8A5(uint16_t position, uint8_t frame) //   proc near       ; DATA XREF: data:15BAo
+void updateElectronTurnRight(uint16_t position, uint8_t frame) // sub_4F8A5   proc near       ; DATA XREF: data:15BAo
 {
     // 01ED:8C42
     MovingLevelTile *currentTile = &gCurrentLevelWord[position];
@@ -20524,7 +20524,7 @@ void sub_4F8A5(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
 
     if (value == 0)
     {
-//loc_4F8B3:              ; CODE XREF: sub_4F8A5+6j
+//loc_4F8B3:              ; CODE XREF: updateElectronTurnRight+6j
         Point frameCoordinates = frameCoordinates_516B4[frame];
         drawMovingFrame(frameCoordinates.x, frameCoordinates.y, position);
         frame++;
@@ -20538,14 +20538,14 @@ void sub_4F8A5(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
         return;
     }
 
-//loc_4F8E3:              ; CODE XREF: sub_4F8A5+Bj
+//loc_4F8E3:              ; CODE XREF: updateElectronTurnRight+Bj
     uint8_t movingObject = currentTile->movingObject;
     if (movingObject == 8)
     {
-//loc_4F8FC:              ; CODE XREF: sub_4F8A5+45j
+//loc_4F8FC:              ; CODE XREF: updateElectronTurnRight+45j
         if (aboveTile->movingObject == 0 && aboveTile->tile == LevelTileTypeSpace)
         {
-//loc_4F90B:              ; CODE XREF: sub_4F8A5+5Cj
+//loc_4F90B:              ; CODE XREF: updateElectronTurnRight+5Cj
             currentTile->movingObject = 0x1;
             currentTile->tile = 0xBB;
             aboveTile->movingObject = 0x10;
@@ -20559,10 +20559,10 @@ void sub_4F8A5(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
     }
     else if (movingObject == 0xA)
     {
-//loc_4F959:              ; CODE XREF: sub_4F8A5+4Aj
+//loc_4F959:              ; CODE XREF: updateElectronTurnRight+4Aj
         if (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeSpace)
         {
-//loc_4F96B:              ; CODE XREF: sub_4F8A5+B9j
+//loc_4F96B:              ; CODE XREF: updateElectronTurnRight+B9j
             currentTile->movingObject = 0x4;
             currentTile->tile = 0xBB;
             rightTile->movingObject = 0x28;
@@ -20576,10 +20576,10 @@ void sub_4F8A5(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
     }
     else if (movingObject == 0xC)
     {
-//loc_4F93A:              ; CODE XREF: sub_4F8A5+4Fj
+//loc_4F93A:              ; CODE XREF: updateElectronTurnRight+4Fj
         if (belowTile->movingObject == 0 && belowTile->tile == LevelTileTypeSpace)
         {
-//loc_4F949:              ; CODE XREF: sub_4F8A5+9Aj
+//loc_4F949:              ; CODE XREF: updateElectronTurnRight+9Aj
             currentTile->movingObject = 0x3;
             currentTile->tile = 0xBB;
             belowTile->movingObject = 0x20;
@@ -20593,10 +20593,10 @@ void sub_4F8A5(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
     }
     else if (movingObject == 0xE)
     {
-//loc_4F91B:              ; CODE XREF: sub_4F8A5+54j
+//loc_4F91B:              ; CODE XREF: updateElectronTurnRight+54j
         if (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeSpace)
         {
-//loc_4F92A:              ; CODE XREF: sub_4F8A5+7Bj
+//loc_4F92A:              ; CODE XREF: updateElectronTurnRight+7Bj
             currentTile->movingObject = 0x2;
             currentTile->tile = 0xBB;
             leftTile->movingObject = 0x18;
@@ -20613,12 +20613,12 @@ void sub_4F8A5(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
         return;
     }
 
-//loc_4F8DF:              ; CODE XREF: sub_4F8A5+63j
-//                ; sub_4F8A5+82j ...
+//loc_4F8DF:              ; CODE XREF: updateElectronTurnRight+63j
+//                ; updateElectronTurnRight+82j ...
     detonateBigExplosion(position);
 }
 
-void sub_4F97B(uint16_t position, uint8_t frame) //   proc near       ; DATA XREF: data:15CAo
+void updateElectronMovementUp(uint16_t position, uint8_t frame) // sub_4F97B   proc near       ; DATA XREF: data:15CAo
 {
     // 01ED:8D18
     MovingLevelTile *currentTile = &gCurrentLevelWord[position];
@@ -20631,7 +20631,7 @@ void sub_4F97B(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
     Point frameCoordinates = frameCoordinates_516B4[frame];
     // sub bx, 1Eh
     frame -= 15; // 0x1E / 2
-    uint16_t offset = someZonkBinaryData[frame];
+    uint16_t offset = kFallAnimationGravityOffsets[frame];
 
     uint8_t tileX = (finalPosition % kLevelWidth);
     uint8_t tileY = (finalPosition / kLevelWidth);
@@ -20653,8 +20653,8 @@ void sub_4F97B(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
         }
     }
 
-//loc_4F9B7:              ; CODE XREF: sub_4F97B+2Dj
-//                ; sub_4F97B+34j
+//loc_4F9B7:              ; CODE XREF: updateElectronMovementUp+2Dj
+//                ; updateElectronMovementUp+34j
     if (frame < 8)
     {
         frame += 0x10;
@@ -20662,7 +20662,7 @@ void sub_4F97B(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
         return;
     }
 
-//loc_4F9C4:              ; CODE XREF: sub_4F97B+3Fj
+//loc_4F9C4:              ; CODE XREF: updateElectronMovementUp+3Fj
     currentTile->movingObject = 0;
     currentTile->tile = LevelTileTypeElectron;
 
@@ -20672,14 +20672,14 @@ void sub_4F97B(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
         return;
     }
 
-//loc_4F9D7:              ; CODE XREF: sub_4F97B+54j
+//loc_4F9D7:              ; CODE XREF: updateElectronMovementUp+54j
     if (leftTile->tile == LevelTileTypeMurphy)
     {
         currentTile->movingObject = 1;
         return;
     }
 
-//loc_4F9E4:              ; CODE XREF: sub_4F97B+61j
+//loc_4F9E4:              ; CODE XREF: updateElectronMovementUp+61j
     if (aboveTile->movingObject == 0 && aboveTile->tile == LevelTileTypeSpace)
     {
         currentTile->movingObject = 1;
@@ -20689,32 +20689,32 @@ void sub_4F97B(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
         return;
     }
 
-//loc_4F9FB:              ; CODE XREF: sub_4F97B+6Ej
+//loc_4F9FB:              ; CODE XREF: updateElectronMovementUp+6Ej
     if (aboveTile->tile == LevelTileTypeMurphy)
     {
         detonateBigExplosion(position);
         return;
     }
 
-//loc_4FA06:              ; CODE XREF: sub_4F97B+85j
+//loc_4FA06:              ; CODE XREF: updateElectronMovementUp+85j
     if (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeSpace)
     {
         currentTile->movingObject = 9;
         return;
     }
 
-//loc_4FA13:              ; CODE XREF: sub_4F97B+90j
+//loc_4FA13:              ; CODE XREF: updateElectronMovementUp+90j
     if (rightTile->tile == LevelTileTypeMurphy)
     {
         currentTile->movingObject = 9;
         return;
     }
 
-//loc_4FA20:              ; CODE XREF: sub_4F97B+9Dj
+//loc_4FA20:              ; CODE XREF: updateElectronMovementUp+9Dj
     currentTile->movingObject = 1;
 }
 
-void sub_4FA26(uint16_t position, uint8_t frame) //   proc near       ; DATA XREF: data:15DAo
+void updateElectronMovementDown(uint16_t position, uint8_t frame) // sub_4FA26   proc near       ; DATA XREF: data:15DAo
 {
     // 01ED:8DC3
     MovingLevelTile *currentTile = &gCurrentLevelWord[position];
@@ -20747,8 +20747,8 @@ void sub_4FA26(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
         }
     }
 
-//loc_4FA5D:              ; CODE XREF: sub_4FA26+28j
-//                ; sub_4FA26+2Fj
+//loc_4FA5D:              ; CODE XREF: updateElectronMovementDown+28j
+//                ; updateElectronMovementDown+2Fj
     if (frame < 8)
     {
         frame += 0x18;
@@ -20756,7 +20756,7 @@ void sub_4FA26(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
         return;
     }
 
-//loc_4FA6A:              ; CODE XREF: sub_4FA26+3Aj
+//loc_4FA6A:              ; CODE XREF: updateElectronMovementDown+3Aj
     currentTile->movingObject = 0;
     currentTile->tile = LevelTileTypeElectron;
 
@@ -20766,14 +20766,14 @@ void sub_4FA26(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
         return;
     }
 
-//loc_4FA7D:              ; CODE XREF: sub_4FA26+4Fj
+//loc_4FA7D:              ; CODE XREF: updateElectronMovementDown+4Fj
     if (belowTile->tile == LevelTileTypeMurphy)
     {
         currentTile->movingObject = 3;
         return;
     }
 
-//loc_4FA8A:              ; CODE XREF: sub_4FA26+5Cj
+//loc_4FA8A:              ; CODE XREF: updateElectronMovementDown+5Cj
     if (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeSpace)
     {
         currentTile->movingObject = 2;
@@ -20783,32 +20783,32 @@ void sub_4FA26(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
         return;
     }
 
-//loc_4FAA1:              ; CODE XREF: sub_4FA26+69j
+//loc_4FAA1:              ; CODE XREF: updateElectronMovementDown+69j
     if (leftTile->tile == LevelTileTypeMurphy)
     {
         detonateBigExplosion(position);
         return;
     }
 
-//loc_4FAAC:              ; CODE XREF: sub_4FA26+80j
+//loc_4FAAC:              ; CODE XREF: updateElectronMovementDown+80j
     if (aboveTile->movingObject == 0 && aboveTile->tile == LevelTileTypeSpace)
     {
         currentTile->movingObject = 0xF;
         return;
     }
 
-//loc_4FAB9:              ; CODE XREF: sub_4FA26+8Bj
+//loc_4FAB9:              ; CODE XREF: updateElectronMovementDown+8Bj
     if (aboveTile->tile == LevelTileTypeMurphy)
     {
         currentTile->movingObject = 0xF;
         return;
     }
 
-//loc_4FAC6:              ; CODE XREF: sub_4FA26+98j
+//loc_4FAC6:              ; CODE XREF: updateElectronMovementDown+98j
     currentTile->movingObject = 3;
 }
 
-void sub_4FACC(uint16_t position, uint8_t frame) //   proc near       ; DATA XREF: data:15EAo
+void updateElectronMovementRight(uint16_t position, uint8_t frame) // sub_4FACC   proc near       ; DATA XREF: data:15EAo
 {
     // 01ED:8E69
     MovingLevelTile *currentTile = &gCurrentLevelWord[position];
@@ -20822,7 +20822,7 @@ void sub_4FACC(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
     //sub bx, 40h ; '@'
     frame -= 0x20; // 0x40 / 2
 
-    uint16_t offset = someZonkBinaryData[frame];
+    uint16_t offset = kFallAnimationGravityOffsets[frame];
 
     uint8_t tileX = (finalPosition % kLevelWidth);
     uint8_t tileY = (finalPosition / kLevelWidth);
@@ -20845,8 +20845,8 @@ void sub_4FACC(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
         }
     }
 
-//loc_4FB0A:              ; CODE XREF: sub_4FACC+2Fj
-//                ; sub_4FACC+36j
+//loc_4FB0A:              ; CODE XREF: updateElectronMovementRight+2Fj
+//                ; updateElectronMovementRight+36j
     if (frame < 8)
     {
         frame += 0x20;
@@ -20854,7 +20854,7 @@ void sub_4FACC(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
         return;
     }
 
-//loc_4FB17:              ; CODE XREF: sub_4FACC+41j
+//loc_4FB17:              ; CODE XREF: updateElectronMovementRight+41j
     currentTile->movingObject = 0;
     currentTile->tile = LevelTileTypeElectron;
 
@@ -20864,14 +20864,14 @@ void sub_4FACC(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
         return;
     }
 
-//loc_4FB2A:              ; CODE XREF: sub_4FACC+56j
+//loc_4FB2A:              ; CODE XREF: updateElectronMovementRight+56j
     if (rightTile->tile == LevelTileTypeMurphy)
     {
         currentTile->movingObject = 5;
         return;
     }
 
-//loc_4FB37:              ; CODE XREF: sub_4FACC+63j
+//loc_4FB37:              ; CODE XREF: updateElectronMovementRight+63j
     if (belowTile->movingObject == 0 && belowTile->tile == LevelTileTypeSpace)
     {
         currentTile->movingObject = 3;
@@ -20881,14 +20881,14 @@ void sub_4FACC(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
         return;
     }
 
-//loc_4FB4E:              ; CODE XREF: sub_4FACC+70j
+//loc_4FB4E:              ; CODE XREF: updateElectronMovementRight+70j
     if (belowTile->tile == LevelTileTypeMurphy)
     {
         detonateBigExplosion(position);
         return;
     }
 
-//loc_4FB59:              ; CODE XREF: sub_4FACC+87j
+//loc_4FB59:              ; CODE XREF: updateElectronMovementRight+87j
     if (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeSpace)
     {
         // 01ED:8A8C
@@ -20896,18 +20896,18 @@ void sub_4FACC(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
         return;
     }
 
-//loc_4FB66:              ; CODE XREF: sub_4FACC+92j
+//loc_4FB66:              ; CODE XREF: updateElectronMovementRight+92j
     if (leftTile->tile == LevelTileTypeMurphy)
     {
         currentTile->movingObject = 0xD;
         return;
     }
 
-//loc_4FB73:              ; CODE XREF: sub_4FACC+9Fj
+//loc_4FB73:              ; CODE XREF: updateElectronMovementRight+9Fj
     currentTile->movingObject = 5;
 }
 
-void sub_4FB79(uint16_t position, uint8_t frame) //   proc near       ; DATA XREF: data:15FAo
+void updateElectronMovementLeft(uint16_t position, uint8_t frame) // sub_4FB79   proc near       ; DATA XREF: data:15FAo
 {
     // 01ED:8F16
     MovingLevelTile *currentTile = &gCurrentLevelWord[position];
@@ -20941,8 +20941,8 @@ void sub_4FB79(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
         }
     }
 
-//loc_4FBB1:              ; CODE XREF: sub_4FB79+29j
-//                ; sub_4FB79+30j
+//loc_4FBB1:              ; CODE XREF: updateElectronMovementLeft+29j
+//                ; updateElectronMovementLeft+30j
     if (frame < 8)
     {
         frame += 0x28;
@@ -20950,7 +20950,7 @@ void sub_4FB79(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
         return;
     }
 
-//loc_4FBBE:              ; CODE XREF: sub_4FB79+3Bj
+//loc_4FBBE:              ; CODE XREF: updateElectronMovementLeft+3Bj
     currentTile->movingObject = 0;
     currentTile->tile = LevelTileTypeElectron;
 
@@ -20960,14 +20960,14 @@ void sub_4FB79(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
         return;
     }
 
-//loc_4FBD1:              ; CODE XREF: sub_4FB79+50j
+//loc_4FBD1:              ; CODE XREF: updateElectronMovementLeft+50j
     if (aboveTile->tile == LevelTileTypeMurphy)
     {
         currentTile->movingObject = 7;
         return;
     }
 
-//loc_4FBDE:              ; CODE XREF: sub_4FB79+5Dj
+//loc_4FBDE:              ; CODE XREF: updateElectronMovementLeft+5Dj
     if (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeSpace)
     {
         currentTile->movingObject = 4;
@@ -20977,28 +20977,28 @@ void sub_4FB79(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
         return;
     }
 
-//loc_4FBF5:              ; CODE XREF: sub_4FB79+6Aj
+//loc_4FBF5:              ; CODE XREF: updateElectronMovementLeft+6Aj
     if (rightTile->tile == LevelTileTypeMurphy)
     {
         detonateBigExplosion(position);
         return;
     }
 
-//loc_4FC00:              ; CODE XREF: sub_4FB79+81j
+//loc_4FC00:              ; CODE XREF: updateElectronMovementLeft+81j
     if (belowTile->movingObject == 0 && belowTile->tile == LevelTileTypeSpace)
     {
         currentTile->movingObject = 0xB;
         return;
     }
 
-//loc_4FC0D:              ; CODE XREF: sub_4FB79+8Cj
+//loc_4FC0D:              ; CODE XREF: updateElectronMovementLeft+8Cj
     if (belowTile->tile == LevelTileTypeMurphy)
     {
         currentTile->movingObject = 0xB;
         return;
     }
 
-//loc_4FC1A:              ; CODE XREF: sub_4FB79+99j
+//loc_4FC1A:              ; CODE XREF: updateElectronMovementLeft+99j
     currentTile->movingObject = 7;
 }
 
