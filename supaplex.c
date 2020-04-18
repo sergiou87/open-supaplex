@@ -20,6 +20,8 @@
 #include <SDL2/SDL.h>
 #include <time.h>
 
+#include "controller.h"
+
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 #define CLAMP(v, a, b) MIN(MAX(a, v), b)
@@ -2647,6 +2649,8 @@ int main(int argc, const char * argv[])
 
     SDL_SetWindowResizable(gWindow, SDL_TRUE);
     SDL_AddEventWatch(windowResizingEventWatcher, gWindow);
+
+    SDL_InitSubSystem(SDL_INIT_JOYSTICK);
 
     gRenderer = SDL_CreateRenderer(gWindow, -1, 0);
 
@@ -10287,8 +10291,12 @@ void updateUserInput() // sub_4A1BF   proc near       ; CODE XREF: sub_4955B+13
     // 01ED:355C
     uint8_t directionKeyWasPressed = 0;
 
+    int8_t gameControllerX = getGameControllerX();
+    int8_t gameControllerY = getGameControllerY();
+
     if (gIsUpKeyPressed != 0
-        || byte_519F9 != 0)
+        || byte_519F9 != 0
+        || gameControllerY < 0)
     {
 //loc_4A1CF:              ; CODE XREF: updateUserInput+7j
         gCurrentUserInput = UserInputUp;
@@ -10297,7 +10305,8 @@ void updateUserInput() // sub_4A1BF   proc near       ; CODE XREF: sub_4955B+13
 
 //loc_4A1D6:              ; CODE XREF: updateUserInput+Ej
     if (gIsLeftKeyPressed != 0
-        || byte_519F7 != 0)
+        || byte_519F7 != 0
+        || gameControllerX < 0)
     {
 //loc_4A1E4:              ; CODE XREF: updateUserInput+1Cj
         gCurrentUserInput = UserInputLeft;
@@ -10306,7 +10315,8 @@ void updateUserInput() // sub_4A1BF   proc near       ; CODE XREF: sub_4955B+13
 
 //loc_4A1EB:              ; CODE XREF: updateUserInput+23j
     if (gIsDownKeyPressed != 0
-        || byte_519F8 != 0)
+        || byte_519F8 != 0
+        || gameControllerY > 0)
     {
 //loc_4A1F9:              ; CODE XREF: updateUserInput+31j
         gCurrentUserInput = UserInputDown;
@@ -10315,7 +10325,8 @@ void updateUserInput() // sub_4A1BF   proc near       ; CODE XREF: sub_4955B+13
 
 //loc_4A200:              ; CODE XREF: updateUserInput+38j
     if (gIsRightKeyPressed != 0
-        || byte_519F6 != 0)
+        || byte_519F6 != 0
+        || gameControllerX > 0)
     {
 //loc_4A20E:              ; CODE XREF: updateUserInput+46j
         gCurrentUserInput = UserInputRight;
@@ -10325,7 +10336,8 @@ void updateUserInput() // sub_4A1BF   proc near       ; CODE XREF: sub_4955B+13
 //loc_4A215:              ; CODE XREF: updateUserInput+4Dj
     if (gIsSpaceKeyPressed != 0
         || byte_519F5 != 0
-        || byte_519F4 != 0)
+        || byte_519F4 != 0
+        || getGameControllerButton(SDL_CONTROLLER_BUTTON_X))
     {
 //loc_4A22A:              ; CODE XREF: updateUserInput+5Bj
 //                ; updateUserInput+62j
@@ -15172,12 +15184,48 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
         int x, y;
         Uint32 state = SDL_GetMouseState(&x, &y);
 
+        float controllerX = 0, controllerY = 0;
+        uint8_t controllerLeftButton = 0;
+        uint8_t controllerRightButton = 0;
+        gameControllerEmulateMouse(&controllerX,
+                                   &controllerY,
+                                   &controllerLeftButton,
+                                   &controllerRightButton);
+
+        if (controllerX != 0.0 || controllerY != 0.0)
+        {
+            int windowWidth, windowHeight;
+            SDL_GetWindowSize(gWindow, &windowWidth, &windowHeight);
+
+            int speed = windowWidth * 2 / 1280;
+
+            x += speed * controllerX;
+            y += speed * controllerY;
+
+            // Correct mouse position for future events
+            SDL_WarpMouseInWindow(gWindow, x, y);
+        }
+
         x = x * kScreenWidth / kWindowWidth;
         y = y * kScreenHeight / kWindowHeight;
+
+        uint8_t leftButtonPressed = (state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
+        uint8_t rightButtonPressed = (state & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0;
+
+        leftButtonPressed = leftButtonPressed || controllerLeftButton;
+        rightButtonPressed = rightButtonPressed || controllerRightButton;
+
+//        uint8_t shouldCorrectMousePosition = 0;
+
 
         // Limit coordinates as in the original game
         x = CLAMP(x, 16, 304);
         y = CLAMP(y, 8, 192);
+
+//        if (shouldCorrectMousePosition)
+        {
+//            SDL_WarpMouseInWindow(gWindow, x, y);
+        }
 
         if (mouseX != NULL)
         {
@@ -15187,11 +15235,6 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
         {
             *mouseY = y;
         }
-
-//        printf("mouse: %d, %d\n", x, y);
-
-        uint8_t leftButtonPressed = (state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
-        uint8_t rightButtonPressed = (state & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0;
 
         if (mouseButtonStatus != NULL)
         {
@@ -21404,7 +21447,8 @@ void drawSpeedFixCredits() //  proc near       ; CODE XREF: start+2ECp
         }
 //loc_50301:             // ; CODE XREF: drawSpeedFixCredits+1Ej
     }
-    while (keyPressed == SDL_SCANCODE_UNKNOWN);
+    while (keyPressed == SDL_SCANCODE_UNKNOWN
+           && isAnyGameControllerButtonPressed() == 0);
 
     byte_510AB = 1;
 }
