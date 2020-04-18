@@ -2461,6 +2461,7 @@ static const FrameBasedMovingFunction kSnikSnakMovingFunctions[48] = {
 SDL_Surface *gScreenSurface = NULL;
 uint8_t *gScreenPixels = NULL;
 SDL_Window *gWindow = NULL;
+SDL_Rect gWindowViewport;
 SDL_Renderer *gRenderer = NULL;
 SDL_Texture *gTexture = NULL;
 SDL_Surface *gTextureSurface = NULL;
@@ -2482,6 +2483,8 @@ uint8_t cf;
 uint8_t ah, al, bh, bl, ch, cl, dh, dl;
 uint16_t ax, bx, cx, dx, ds, cs, es, bp, sp, di, si;
 
+void updateWindowViewport(void);
+int windowResizingEventWatcher(void* data, SDL_Event* event);
 void setPalette(ColorPalette palette);
 void fadeToPalette(ColorPalette palette);
 void readTitleDatAndGraphics(void);
@@ -2635,11 +2638,15 @@ int main(int argc, const char * argv[])
                                kWindowWidth,
                                kWindowHeight,
                                0);
+
     if (gWindow == NULL)
     {
       SDL_Log("Could not create a window: %s", SDL_GetError());
       return -1;
     }
+
+    SDL_SetWindowResizable(gWindow, SDL_TRUE);
+    SDL_AddEventWatch(windowResizingEventWatcher, gWindow);
 
     gRenderer = SDL_CreateRenderer(gWindow, -1, 0);
 
@@ -2656,6 +2663,8 @@ int main(int argc, const char * argv[])
     // Get an event
     SDL_Event event;
     SDL_PollEvent(&event);
+
+    updateWindowViewport();
 
 /*
 //; FUNCTION CHUNK AT 027F SIZE 00000217 BYTES
@@ -15317,7 +15326,7 @@ void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
 
     SDL_UpdateTexture(gTexture, NULL, gTextureSurface->pixels, gTextureSurface->pitch);
     SDL_RenderClear(gRenderer);
-    SDL_RenderCopy(gRenderer, gTexture, NULL, NULL);
+    SDL_RenderCopy(gRenderer, gTexture, NULL, &gWindowViewport);
     SDL_RenderPresent(gRenderer);
     Uint32 time = (SDL_GetTicks() - start);
     if (time < kFrameDuration)
@@ -21467,4 +21476,36 @@ void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, 
             gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
         }
     }
+}
+
+void updateWindowViewport()
+{
+    int windowWidth, windowHeight;
+    SDL_GetRendererOutputSize(gRenderer, &windowWidth, &windowHeight);
+    float textureAspectRatio = (float)kScreenWidth / kScreenHeight;
+    float screenAspectRatio = (float)windowWidth / windowHeight;
+
+    if (textureAspectRatio > screenAspectRatio) {
+        gWindowViewport.x = 0;
+        gWindowViewport.w = windowWidth;
+        gWindowViewport.h = gWindowViewport.w / textureAspectRatio;
+        gWindowViewport.y = (windowHeight - gWindowViewport.h) >> 1;
+    }
+    else {
+        gWindowViewport.y = 0;
+        gWindowViewport.h = windowHeight;
+        gWindowViewport.w = gWindowViewport.h * textureAspectRatio;
+        gWindowViewport.x = (windowWidth - gWindowViewport.w) >> 1;
+    }
+}
+
+int windowResizingEventWatcher(void* data, SDL_Event* event)
+{
+  if (event->type == SDL_WINDOWEVENT
+      && event->window.event == SDL_WINDOWEVENT_RESIZED)
+  {
+      updateWindowViewport();
+      videoloop();
+  }
+  return 0;
 }
