@@ -10403,15 +10403,15 @@ void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
                 continue; // jmp short loc_4A3B0
             }
         }
-        if (byte_5A33F == 1 || currentTile->tile != LevelTileTypeSnikSnak) //jz  short loc_4A34B
+        if (byte_5A33F == 1 || currentTile->movingObject != 0 || currentTile->tile != LevelTileTypeSnikSnak) //jz  short loc_4A34B
         {
-            if (byte_5A33F == 1 || currentTile->tile != LevelTileTypeElectron) //jz  short loc_4A379
+            if (byte_5A33F == 1 || currentTile->movingObject != 0 || currentTile->tile != LevelTileTypeElectron) //jz  short loc_4A379
             {
 //loc_4A312:              ; CODE XREF: sub_4A2E6+1Bj
-                if (currentTile->tile == LevelTileTypeHorizontalChipLeft
-                    || currentTile->tile == LevelTileTypeHorizontalChipRight
-                    || currentTile->tile == LevelTileTypeHorizontalChipTop
-                    || currentTile->tile == LevelTileTypeHorizontalChipBottom)
+                if ((currentTile->movingObject == 0 && currentTile->tile == LevelTileTypeHorizontalChipLeft)
+                    || (currentTile->movingObject == 0 && currentTile->tile == LevelTileTypeHorizontalChipRight)
+                    || (currentTile->movingObject == 0 && currentTile->tile == LevelTileTypeHorizontalChipTop)
+                    || (currentTile->movingObject == 0 && currentTile->tile == LevelTileTypeHorizontalChipBottom))
                 {
 //loc_4A33F:              ; CODE XREF: sub_4A2E6+2Fj
 //                ; sub_4A2E6+34j ...
@@ -10419,7 +10419,8 @@ void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
                     currentTile->movingObject = 0;
                     continue; // jmp short loc_4A3B0
                 }
-                if (currentTile->tile >= LevelTileTypeHardware2
+                if (currentTile->movingObject == 0
+                    && currentTile->tile >= LevelTileTypeHardware2
                     && currentTile->tile <= LevelTileTypeHardware11)
                 {
 //loc_4A345:              ; CODE XREF: sub_4A2E6+48j
@@ -10429,7 +10430,8 @@ void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
                 }
 
 //loc_4A330:              ; CODE XREF: sub_4A2E6+43j
-                if (currentTile->tile >= LevelTileTypeSportRight
+                if (currentTile->movingObject == 0
+                    && currentTile->tile >= LevelTileTypeSportRight
                     && currentTile->tile <= LevelTileTypeSportUp)
                 {
 //loc_4A3A7:              ; CODE XREF: sub_4A2E6+52j
@@ -10450,7 +10452,7 @@ void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
         MovingLevelTile *aboveTile = &gCurrentLevelWord[i - kLevelWidth];
         MovingLevelTile *rightTile = &gCurrentLevelWord[i + 1];
 
-        if (currentTile->tile != LevelTileTypeElectron) //jz  short loc_4A379
+        if (currentTile->movingObject != 0 || currentTile->tile != LevelTileTypeElectron) //jz  short loc_4A379
         {
 //loc_4A34B:              ; CODE XREF: sub_4A2E6+25j
             if (leftTile->tile == LevelTileTypeSpace && leftTile->movingObject == 0) //cmp word ptr [si-2], 0
@@ -10463,6 +10465,7 @@ void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
         // 0x78 = 120
             if (aboveTile->tile == LevelTileTypeSpace && aboveTile->movingObject == 0) //cmp word ptr [si-78h], 0
             {
+                // 01ED:36FA
                 // mov word ptr [si-78h], 1011h
                 aboveTile->movingObject = 0x10;
                 aboveTile->tile = LevelTileTypeSnikSnak;
@@ -10474,6 +10477,7 @@ void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
 //loc_4A368:              ; CODE XREF: sub_4A2E6+75j
             if (rightTile->tile == LevelTileTypeSpace && rightTile->movingObject == 0) //cmp word ptr [si+2], 0
             {
+                // 01ED:370B
                 // mov word ptr [si+2], 2811h
                 rightTile->movingObject = 0x28;
                 rightTile->tile = LevelTileTypeSnikSnak;
@@ -10518,9 +10522,6 @@ void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
 //                ; sub_4A2E6:loc_4A33Aj ...
         bx++;
     }
-
-//locret_4A3BA:               ; CODE XREF: sub_4A2E6+CFj
-    return;
 }
 
 void resetNumberOfInfotrons() // sub_4A3BB   proc near       ; CODE XREF: start+33Ep sub_4A463+17p
@@ -19931,6 +19932,10 @@ void updateSnikSnakTurnRight(uint16_t position, uint8_t frame) // sub_4F40D   pr
             return;
         }
     }
+    else
+    {
+        return;
+    }
 
 //loc_4F447:              ; CODE XREF: updateSnikSnakTurnRight+7Bj
 //                ; updateSnikSnakTurnRight+9Ej ...
@@ -20213,6 +20218,7 @@ void updateSnikSnakMovementDown(uint16_t position, uint8_t frame) // sub_4F65B  
 //loc_4F6E8:              ; CODE XREF: sub_4F66B+77j
     if (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeSpace)
     {
+        // 01ED:8A8C
         currentTile->movingObject = 0xD;
         return;
     }
