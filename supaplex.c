@@ -20627,82 +20627,97 @@ void sub_4F8A5(uint16_t position, uint8_t frame) //   proc near       ; DATA XRE
 void sub_4F97B(uint16_t position, uint8_t frame) //   proc near       ; DATA XREF: data:15CAo
 {
     // 01ED:8D18
-    /*push    si
-    mov di, [si+61CDh]
-    mov si, [bx+13E8h]
-    sub bx, 1Eh
-    sub di, [bx+6C95h]
-    sub di, [bx+6C95h]
-    push    ds
-    mov ax, es
-    mov ds, ax
-    mov cx, 12h
+    MovingLevelTile *currentTile = &gCurrentLevelWord[position];
+    MovingLevelTile *belowTile = &gCurrentLevelWord[position + kLevelWidth];
+    MovingLevelTile *leftTile = &gCurrentLevelWord[position - 1];
+    MovingLevelTile *aboveTile = &gCurrentLevelWord[position - kLevelWidth];
+    MovingLevelTile *rightTile = &gCurrentLevelWord[position + 1];
 
-loc_4F997:              ; CODE XREF: sub_4F97B+24j
-    movsb
-    movsb
-    add di, 78h ; 'x'
-    add si, 78h ; 'x'
-    loop    loc_4F997
-    pop ds
-    pop si
-    shr bx, 1
-    cmp bl, 7
-    jnz short loc_4F9B7
-    cmp byte ptr [si+18ACh], 1Fh
-    jz  short loc_4F9B7
-    mov word ptr [si+18ACh], 0
+    uint16_t finalPosition = position + kLevelWidth;
+    Point frameCoordinates = frameCoordinates_516B4[frame];
+    // sub bx, 1Eh
+    frame -= 15; // 0x1E / 2
+    uint16_t offset = someZonkBinaryData[frame];
 
-loc_4F9B7:              ; CODE XREF: sub_4F97B+2Dj
-                ; sub_4F97B+34j
-    cmp bl, 8
-    jge short loc_4F9C4
-    add bl, 10h
-    mov [si+1835h], bl
-    return;
+    uint8_t tileX = (finalPosition % kLevelWidth);
+    uint8_t tileY = (finalPosition / kLevelWidth);
 
-loc_4F9C4:              ; CODE XREF: sub_4F97B+3Fj
-    mov word ptr leveldata[si], 18h
-    cmp word ptr [si+1832h], 0
-    jnz short loc_4F9D7
-    mov byte ptr [si+1835h], 1
-    return;
+    uint16_t dstX = tileX * kTileSize - (offset % 122) * 2;
+    uint16_t dstY = tileY * kTileSize - (offset / 122) * 2;
 
-loc_4F9D7:              ; CODE XREF: sub_4F97B+54j
-    cmp byte ptr [si+1832h], 3
-    jnz short loc_4F9E4
-    mov byte ptr [si+1835h], 1
-    return;
+    drawMovingSpriteFrameInLevel(frameCoordinates.x, frameCoordinates.y,
+                                 kTileSize,
+                                 kTileSize + 2,
+                                 dstX, dstY);
 
-loc_4F9E4:              ; CODE XREF: sub_4F97B+61j
-    cmp word ptr [si+17BCh], 0
-    jnz short loc_4F9FB
-    mov word ptr leveldata[si], 1BBh
-    sub si, 78h ; 'x'
-    mov word ptr leveldata[si], 1018h
-    return;
+    if (frame == 7)
+    {
+        if (belowTile->tile != LevelTileTypeExplosion)
+        {
+            belowTile->movingObject = 0;
+            belowTile->tile = LevelTileTypeSpace;
+        }
+    }
 
-loc_4F9FB:              ; CODE XREF: sub_4F97B+6Ej
-    cmp byte ptr [si+17BCh], 3
-    jnz short loc_4FA06
-    call    detonateBigExplosion
-    return;
+//loc_4F9B7:              ; CODE XREF: sub_4F97B+2Dj
+//                ; sub_4F97B+34j
+    if (frame < 8)
+    {
+        frame += 0x10;
+        currentTile->movingObject = frame;
+        return;
+    }
 
-loc_4FA06:              ; CODE XREF: sub_4F97B+85j
-    cmp word ptr [si+1836h], 0
-    jnz short loc_4FA13
-    mov byte ptr [si+1835h], 9
-    return;
+//loc_4F9C4:              ; CODE XREF: sub_4F97B+3Fj
+    currentTile->movingObject = 0;
+    currentTile->tile = LevelTileTypeSnikElectron;
 
-loc_4FA13:              ; CODE XREF: sub_4F97B+90j
-    cmp byte ptr [si+1836h], 3
-    jnz short loc_4FA20
-    mov byte ptr [si+1835h], 9
-    return;
+    if (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeSpace)
+    {
+        currentTile->movingObject = 1;
+        return;
+    }
 
-loc_4FA20:              ; CODE XREF: sub_4F97B+9Dj
-    mov byte ptr [si+1835h], 1
-    return;*/
+//loc_4F9D7:              ; CODE XREF: sub_4F97B+54j
+    if (leftTile->tile == LevelTileTypeMurphy)
+    {
+        currentTile->movingObject = 1;
+        return;
+    }
+
+//loc_4F9E4:              ; CODE XREF: sub_4F97B+61j
+    if (aboveTile->movingObject == 0 && aboveTile->tile == LevelTileTypeSpace)
+    {
+        currentTile->movingObject = 1;
+        currentTile->tile = 0xBB;
+        aboveTile->movingObject = 0x10;
+        aboveTile->tile = LevelTileTypeElectron;
+        return;
+    }
+
+//loc_4F9FB:              ; CODE XREF: sub_4F97B+6Ej
+    if (aboveTile->tile == LevelTileTypeMurphy)
+    {
+        detonateBigExplosion(position);
+        return;
+    }
+
+//loc_4FA06:              ; CODE XREF: sub_4F97B+85j
+    if (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeSpace)
+    {
+        currentTile->movingObject = 9;
+        return;
+    }
+
+//loc_4FA13:              ; CODE XREF: sub_4F97B+90j
+    if (rightTile->tile == LevelTileTypeMurphy)
+    {
+        currentTile->movingObject = 9;
+        return;
+    }
+
+//loc_4FA20:              ; CODE XREF: sub_4F97B+9Dj
+    currentTile->movingObject = 1;
 }
 
 void sub_4FA26(uint16_t position, uint8_t frame) //   proc near       ; DATA XREF: data:15DAo
