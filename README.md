@@ -10,7 +10,7 @@ be downloaded free from [here](http://www.elmerproductions.com/sp/dlinst.html).
 The source code for the speed fix is likewise, unavailable.
 
 # What this is
-This project  is an effort to disassemble and reimplement the game in C.
+This project is an effort to disassemble and reimplement the game in C.
 
 This project is based on [cilliemalan's work](https://github.com/cilliemalan/supaplex), and therefore here you'll find assembly files,
 and an IDA database that contains the dissasembled and analyzed source of the SPFIX63.EXE file.

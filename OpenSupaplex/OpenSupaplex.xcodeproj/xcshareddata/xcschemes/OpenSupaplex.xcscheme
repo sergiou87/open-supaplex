@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "40C0D72B24196126004742A9"
-               BuildableName = "SupaplexRE"
-               BlueprintName = "SupaplexRE"
-               ReferencedContainer = "container:SupaplexRE.xcodeproj">
+               BuildableName = "OpenSupaplex"
+               BlueprintName = "OpenSupaplex"
+               ReferencedContainer = "container:OpenSupaplex.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -46,9 +46,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "40C0D72B24196126004742A9"
-            BuildableName = "SupaplexRE"
-            BlueprintName = "SupaplexRE"
-            ReferencedContainer = "container:SupaplexRE.xcodeproj">
+            BuildableName = "OpenSupaplex"
+            BlueprintName = "OpenSupaplex"
+            ReferencedContainer = "container:OpenSupaplex.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -63,9 +63,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "40C0D72B24196126004742A9"
-            BuildableName = "SupaplexRE"
-            BlueprintName = "SupaplexRE"
-            ReferencedContainer = "container:SupaplexRE.xcodeproj">
+            BuildableName = "OpenSupaplex"
+            BlueprintName = "OpenSupaplex"
+            ReferencedContainer = "container:OpenSupaplex.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

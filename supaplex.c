@@ -1,5 +1,5 @@
 /*
- * This file is part of the Supaplex-RE distribution (https://github.com/sergiou87/supaplex-re).
+ * This file is part of the OpenSupaplex distribution (https://github.com/sergiou87/open-supaplex).
  * Copyright (c) 2020 Sergio Padrino
  * 
  * This program is free software: you can redistribute it and/or modify  
@@ -2770,7 +2770,7 @@ static const int kWindowHeight = kScreenHeight * 4;
 //         public start
 int main(int argc, const char * argv[])
 {
-    gWindow = SDL_CreateWindow("Supaplex",
+    gWindow = SDL_CreateWindow("OpenSupaplex",
                                SDL_WINDOWPOS_UNDEFINED,
                                SDL_WINDOWPOS_UNDEFINED,
                                kWindowWidth,
@@ -4076,7 +4076,7 @@ void int9handler() // proc far        ; DATA XREF: setint9+1Fo
 //    pop(cx);
 //    pop bx
 //    pop ax
- }
+}
 
 void int8handler() // proc far        ; DATA XREF: setint8+10o
 {
@@ -4085,6 +4085,7 @@ void int8handler() // proc far        ; DATA XREF: setint8+10o
 //    push    ax
 //    mov ax, seg data
 //    mov ds, ax
+
     byte_59B96++;
     if (byte_510AE != 0)
     {
@@ -4093,11 +4094,11 @@ void int8handler() // proc far        ; DATA XREF: setint8+10o
         {
             byte_510AF = 0;
             gGameSeconds++;
-            if (gGameSeconds >= 0x3C) // '<' or 60
+            if (gGameSeconds >= 60) // '<' or 60
             {
                 gGameSeconds = 0;
                 gGameMinutes++;
-                if (gGameMinutes >= 0x3C) // '<' or 60
+                if (gGameMinutes >= 60) // '<' or 60
                 {
                     gGameMinutes = 0;
                     gGameHours++;
@@ -4165,9 +4166,6 @@ void int8handler() // proc far        ; DATA XREF: setint8+10o
 //loc_47414:              ; CODE XREF: int8handler+A5j
         al = 0x20; // ' ' or 32
     //    out 20h, al     ; Interrupt controller, 8259A.
-    //    pop ax
-    //    pop dx
-    //    pop ds
         return; //iret
     }
 }
@@ -7328,6 +7326,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 
     do
     {
+        // int8handler();
         int9handler();
 
 //gamelooprep:                ; CODE XREF: runLevel+33Cj
@@ -21544,7 +21543,7 @@ void drawSpeedFixCredits() //  proc near       ; CODE XREF: start+2ECp
 {
     drawTextWithChars6FontWithOpaqueBackground(60, 168, 0xE, "VERSIONS 1-4 + 6.X BY HERMAN PERK");
     drawTextWithChars6FontWithOpaqueBackground(60, 176, 0xE, "VERSIONS 5.X BY ELMER PRODUCTIONS");
-    drawTextWithChars6FontWithOpaqueBackground(75, 184, 0xE, "VERSIONS 7.X BY SERGIO PADRINO");
+    drawTextWithChars6FontWithOpaqueBackground(60, 184, 0xE, "  VERSION 7.0 BY SERGIO PADRINO  ");
 
     videoloop();
 

@@ -26,7 +26,7 @@
 /* Begin PBXFileReference section */
 		4062C241244BBD65007A07F5 /* controller.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = controller.c; path = ../../controller.c; sourceTree = "<group>"; };
 		4062C242244BBD65007A07F5 /* controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = controller.h; path = ../../controller.h; sourceTree = "<group>"; };
-		40C0D72C24196126004742A9 /* SupaplexRE */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = SupaplexRE; sourceTree = BUILT_PRODUCTS_DIR; };
+		40C0D72C24196126004742A9 /* OpenSupaplex */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OpenSupaplex; sourceTree = BUILT_PRODUCTS_DIR; };
 		40C0D73624196143004742A9 /* supaplex.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = supaplex.c; path = ../../supaplex.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -44,7 +44,7 @@
 		40C0D72324196126004742A9 = {
 			isa = PBXGroup;
 			children = (
-				40C0D72E24196126004742A9 /* SupaplexRE */,
+				40C0D72E24196126004742A9 /* OpenSupaplex */,
 				40C0D72D24196126004742A9 /* Products */,
 				40C0D73824196423004742A9 /* Frameworks */,
 			);
@@ -53,19 +53,19 @@
 		40C0D72D24196126004742A9 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				40C0D72C24196126004742A9 /* SupaplexRE */,
+				40C0D72C24196126004742A9 /* OpenSupaplex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		40C0D72E24196126004742A9 /* SupaplexRE */ = {
+		40C0D72E24196126004742A9 /* OpenSupaplex */ = {
 			isa = PBXGroup;
 			children = (
 				40C0D73624196143004742A9 /* supaplex.c */,
 				4062C241244BBD65007A07F5 /* controller.c */,
 				4062C242244BBD65007A07F5 /* controller.h */,
 			);
-			path = SupaplexRE;
+			path = OpenSupaplex;
 			sourceTree = "<group>";
 		};
 		40C0D73824196423004742A9 /* Frameworks */ = {
@@ -78,9 +78,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		40C0D72B24196126004742A9 /* SupaplexRE */ = {
+		40C0D72B24196126004742A9 /* OpenSupaplex */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 40C0D73324196126004742A9 /* Build configuration list for PBXNativeTarget "SupaplexRE" */;
+			buildConfigurationList = 40C0D73324196126004742A9 /* Build configuration list for PBXNativeTarget "OpenSupaplex" */;
 			buildPhases = (
 				40C0D72824196126004742A9 /* Sources */,
 				40C0D72924196126004742A9 /* Frameworks */,
@@ -90,9 +90,9 @@
 			);
 			dependencies = (
 			);
-			name = SupaplexRE;
-			productName = SupaplexRE;
-			productReference = 40C0D72C24196126004742A9 /* SupaplexRE */;
+			name = OpenSupaplex;
+			productName = OpenSupaplex;
+			productReference = 40C0D72C24196126004742A9 /* OpenSupaplex */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -109,7 +109,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 40C0D72724196126004742A9 /* Build configuration list for PBXProject "SupaplexRE" */;
+			buildConfigurationList = 40C0D72724196126004742A9 /* Build configuration list for PBXProject "OpenSupaplex" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -122,7 +122,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				40C0D72B24196126004742A9 /* SupaplexRE */,
+				40C0D72B24196126004742A9 /* OpenSupaplex */,
 			);
 		};
 /* End PBXProject section */
@@ -300,7 +300,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		40C0D72724196126004742A9 /* Build configuration list for PBXProject "SupaplexRE" */ = {
+		40C0D72724196126004742A9 /* Build configuration list for PBXProject "OpenSupaplex" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				40C0D73124196126004742A9 /* Debug */,
@@ -309,7 +309,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		40C0D73324196126004742A9 /* Build configuration list for PBXNativeTarget "SupaplexRE" */ = {
+		40C0D73324196126004742A9 /* Build configuration list for PBXNativeTarget "OpenSupaplex" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				40C0D73424196126004742A9 /* Debug */,

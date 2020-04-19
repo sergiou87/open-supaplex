@@ -1,5 +1,5 @@
 /*
-* This file is part of the Supaplex-RE distribution (https://github.com/sergiou87/supaplex-re).
+* This file is part of the OpenSupaplex distribution (https://github.com/sergiou87/open-supaplex).
 * Copyright (c) 2020 Sergio Padrino
 *
 * This program is free software: you can redistribute it and/or modify
