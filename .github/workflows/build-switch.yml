@@ -1,0 +1,33 @@
+name: Build OpenSupaplex for Nintendo Switch
+on:
+  push:
+    branches:
+      - dev/github-actions
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-18.04 ]
+    steps:
+    - name: Install pacman
+      run: |
+        wget https://github.com/devkitPro/pacman/releases/latest/download/devkitpro-pacman.deb
+        sudo dpkg -i devkitpro-pacman.deb
+
+        export DEVKITPRO=/opt/devkitpro
+        export DEVKITARM=${DEVKITPRO}/devkitARM
+        export DEVKITPPC=${DEVKITPRO}/devkitPPC
+        export PATH=${DEVKITPRO}/tools/bin:$PATH
+      shell: bash
+    - name: Install devkitPro
+      run: |
+        sudo dkp-pacman -S switch-dev switch-sdl2 --noconfirm
+      shell: bash
+    - uses: actions/checkout@v1
+    - name: Build OpenSupaplex
+      run: |
+        source /etc/profile.d/devkit-env.sh
+        cd switch
+        make -j8
+      shell: bash
