@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4062C243244BBD65007A07F5 /* controller.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C241244BBD65007A07F5 /* controller.c */; };
-		40C0D73E241998A8004742A9 /* supaplex.c in Sources */ = {isa = PBXBuildFile; fileRef = 40C0D73624196143004742A9 /* supaplex.c */; };
+		4062C247244CE5D5007A07F5 /* controller.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C244244CE5D4007A07F5 /* controller.c */; };
+		4062C248244CE5D5007A07F5 /* supaplex.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C246244CE5D5007A07F5 /* supaplex.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,10 +24,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		4062C241244BBD65007A07F5 /* controller.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = controller.c; path = ../../controller.c; sourceTree = "<group>"; };
-		4062C242244BBD65007A07F5 /* controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = controller.h; path = ../../controller.h; sourceTree = "<group>"; };
+		4062C244244CE5D4007A07F5 /* controller.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = controller.c; path = ../../src/controller.c; sourceTree = "<group>"; };
+		4062C245244CE5D5007A07F5 /* controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = controller.h; path = ../../src/controller.h; sourceTree = "<group>"; };
+		4062C246244CE5D5007A07F5 /* supaplex.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = supaplex.c; path = ../../src/supaplex.c; sourceTree = "<group>"; };
 		40C0D72C24196126004742A9 /* OpenSupaplex */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OpenSupaplex; sourceTree = BUILT_PRODUCTS_DIR; };
-		40C0D73624196143004742A9 /* supaplex.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = supaplex.c; path = ../../supaplex.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,9 +61,9 @@
 		40C0D72E24196126004742A9 /* OpenSupaplex */ = {
 			isa = PBXGroup;
 			children = (
-				40C0D73624196143004742A9 /* supaplex.c */,
-				4062C241244BBD65007A07F5 /* controller.c */,
-				4062C242244BBD65007A07F5 /* controller.h */,
+				4062C244244CE5D4007A07F5 /* controller.c */,
+				4062C245244CE5D5007A07F5 /* controller.h */,
+				4062C246244CE5D5007A07F5 /* supaplex.c */,
 			);
 			path = OpenSupaplex;
 			sourceTree = "<group>";
@@ -132,8 +132,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				40C0D73E241998A8004742A9 /* supaplex.c in Sources */,
-				4062C243244BBD65007A07F5 /* controller.c in Sources */,
+				4062C247244CE5D5007A07F5 /* controller.c in Sources */,
+				4062C248244CE5D5007A07F5 /* supaplex.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
