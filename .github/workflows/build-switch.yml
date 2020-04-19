@@ -14,11 +14,6 @@ jobs:
       run: |
         wget https://github.com/devkitPro/pacman/releases/latest/download/devkitpro-pacman.deb
         sudo dpkg -i devkitpro-pacman.deb
-
-        export DEVKITPRO=/opt/devkitpro
-        export DEVKITARM=${DEVKITPRO}/devkitARM
-        export DEVKITPPC=${DEVKITPRO}/devkitPPC
-        export PATH=${DEVKITPRO}/tools/bin:$PATH
       shell: bash
     - name: Install devkitPro
       run: |
