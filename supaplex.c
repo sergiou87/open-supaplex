@@ -16076,9 +16076,6 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 //    si += 0x17;
     memcpy(levelName, fileLevelData.name, sizeof(fileLevelData.name) - 1);
 
-    fileLevelData.tiles[1230] = LevelTileTypeSpace;
-    fileLevelData.tiles[840] = LevelTileTypeMurphy;
-
 //    pop es
 //    assume es:nothing
 //    push    es
@@ -21593,6 +21590,8 @@ void drawLevelViewport(uint16_t x, uint16_t y, uint16_t width, uint16_t height)
 
 void drawCurrentLevelViewport()
 {
+    uint16_t viewportHeight = kScreenHeight - kPanelBitmapHeight;
+
     uint16_t scrollX = 0, scrollY = 0;
     if (gMurphyPositionX < kScreenWidth / 2)
     {
@@ -21606,20 +21605,20 @@ void drawCurrentLevelViewport()
     {
         scrollX = gMurphyPositionX - kScreenWidth / 2;
     }
-    if (gMurphyPositionY < kScreenHeight / 2)
+    if (gMurphyPositionY < viewportHeight / 2)
     {
         scrollY = 0;
     }
-    else if (gMurphyPositionY > kLevelBitmapHeight - kScreenHeight / 2)
+    else if (gMurphyPositionY > kLevelBitmapHeight - viewportHeight / 2)
     {
-        scrollY = kLevelBitmapHeight - kScreenHeight;
+        scrollY = kLevelBitmapHeight - viewportHeight;
     }
     else
     {
-        scrollY = gMurphyPositionY - kScreenHeight / 2;
+        scrollY = gMurphyPositionY - viewportHeight / 2;
     }
 
-    drawLevelViewport(scrollX, scrollY, kScreenWidth, kScreenHeight - kPanelBitmapHeight);
+    drawLevelViewport(scrollX, scrollY, kScreenWidth, viewportHeight);
 }
 
 void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, uint16_t height, uint16_t dstX, uint16_t dstY)
