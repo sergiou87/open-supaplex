@@ -26,8 +26,8 @@
 #define MAX(a,b) (((a)>(b))?(a):(b))
 #define CLAMP(v, a, b) MIN(MAX(a, v), b)
 
-static const int kScreenWidth = 320;
-static const int kScreenHeight = 200;
+#define kScreenWidth 320
+#define kScreenHeight 200
 
 // title1DataBuffer -> A000:4DAC - A000:CAAC
 // title2DataBuffer -> 0x4DD4 - 0xCAD4
@@ -51,7 +51,8 @@ typedef enum {
 
 static const uint8_t kUserInputSpaceAndDirectionOffset = (UserInputSpaceUp - 1);
 
-static const int levelDataLength = 1536; // exact length of a level file, even of each level inside the LEVELS.DAT file
+// exact length of a level file, even of each level inside the LEVELS.DAT file
+#define levelDataLength 1536
 uint8_t byte_50919 = 0;
 uint8_t byte_5091A = 0;
 UserInput gCurrentUserInput = 0; // byte_50941 -> 0x0631
@@ -125,7 +126,7 @@ uint8_t byte_519A0 = 0;//h
 uint8_t byte_519A1 = 0;//j
 //k
 uint32_t dword_519A3 = 0; // l ; ' `
-uint16_t word_519A7 = 0; // "left shift" \
+uint16_t word_519A7 = 0; // "left shift" slash
 uint16_t word_519A9 = 0; // z x
 uint16_t word_519AB = 0; // c v
 uint16_t word_519AD = 0; // b n
@@ -1505,7 +1506,6 @@ uint16_t word_51970 = 0;
 uint16_t word_51974 = 0;
 uint16_t gQuitLevelCountdown = 0; // word_51978 -> this is a counter to end the level after certain number of iterations (to let the game progress a bit before going back to the menu)
 uint16_t word_5197A = 0;
-uint16_t word_519A9 = 0;
 uint16_t word_51A01 = 0;
 uint16_t word_51A07 = 1;
 uint16_t word_58463 = 0;
@@ -1586,7 +1586,7 @@ uint16_t gLastMouseCursorOriginAddress = 0; // word_5847B
 // with the intention of restoring that area before rendering the mouse in a new
 // position, hence clearing the trail the mouse would leave.
 //
-static const int kLastMouseCursorAreaSize = 8;
+#define kLastMouseCursorAreaSize 8
 uint8_t gLastMouseCursorAreaBitmap[kLastMouseCursorAreaSize * kLastMouseCursorAreaSize];
 
 static const int kConfigDataLength = 4;
@@ -1660,9 +1660,9 @@ typedef enum
     LevelTileTypeHorizontalChipBottom = 39,
 } LevelTileType;
 
-static const size_t kLevelWidth = 60; // 3Ch
-static const size_t kLevelHeight = 24; // 18h
-static const size_t kLevelSize = kLevelWidth * kLevelHeight; // 1440  or 5A0h
+#define kLevelWidth 60 // 3Ch
+#define kLevelHeight 24 // 18h
+#define kLevelSize (kLevelWidth * kLevelHeight) // 1440  or 5A0h
 //static const size_t kLevelcells = levelSize
 uint16_t gLevelData[kLevelSize];
 uint16_t gMurphyLocation = 0;
@@ -1674,14 +1674,14 @@ uint16_t gMurphyLocation = 0;
 // Also, aside from the levels themselves, they seem to have some kind of informative entries at the end of the level
 // list encouraging the player to replay skipped levels.
 //
-static const int kNumberOfLevels = 111;
-static const int kNumberOfLevelsWithPadding = kNumberOfLevels + 5;
-static const int kFirstLevelIndex = 2;
-static const int kLastLevelIndex = kFirstLevelIndex + kNumberOfLevels;
-static const int kListLevelNameLength = 28; // In the list of levels, every level is 28 bytes long and looks like "001                        \n"
+#define kNumberOfLevels 111
+#define kNumberOfLevelsWithPadding (kNumberOfLevels + 5)
+#define kFirstLevelIndex 2
+#define kLastLevelIndex (kFirstLevelIndex + kNumberOfLevels)
+#define kListLevelNameLength 28 // In the list of levels, every level is 28 bytes long and looks like "001                        \n"
 uint8_t gPaddedLevelListData[kNumberOfLevelsWithPadding * kListLevelNameLength];
 
-static const int kLevelListDataLength = kNumberOfLevels * kListLevelNameLength;
+#define kLevelListDataLength (kNumberOfLevels * kListLevelNameLength)
 uint8_t *gLevelListData = &gPaddedLevelListData[kFirstLevelIndex * kListLevelNameLength];
 
 static const int kNotCompletedLevelEntryColor = 2;
@@ -1704,7 +1704,7 @@ uint8_t *gCurrentPlayerLevelData = &gCurrentPlayerPaddedLevelData[kFirstLevelInd
 
 char gCurrentLevelName[kListLevelNameLength]; // 0x87A8
 
-static const int kLevelNameLength = 24;
+#define kLevelNameLength 24
 
 typedef struct
 {
@@ -1738,29 +1738,29 @@ SoundType sndType = SoundTypeNone;
 SoundType musType = SoundTypeInternalStandard;
 uint8_t soundEnabled = 0;
 
-static const uint8_t kNumberOfColors = 16;
-static const size_t kPaleteDataSize = kNumberOfColors * 4;
-static const uint8_t kNumberOfPalettes = 4;
+#define kNumberOfColors 16
+#define kPaleteDataSize (kNumberOfColors * 4)
+#define kNumberOfPalettes 4
 
 typedef SDL_Color ColorPalette[kNumberOfColors];
 typedef uint8_t ColorPaletteData[kPaleteDataSize];
 
-static const size_t kBitmapFontCharacterHeight = 7;
-static const size_t kBitmapFontCharacter6Width = 6;
-static const size_t kBitmapFontCharacter8Width = 8;
-static const size_t kNumberOfCharactersInBitmapFont = 64;
-static const size_t kBitmapFontLength = kNumberOfCharactersInBitmapFont * 8; // The size of the bitmap is a round number, not 100% related to the size font, there is some padding :shrug:
+#define kBitmapFontCharacterHeight 7
+#define kBitmapFontCharacter6Width 6
+#define kBitmapFontCharacter8Width 8
+#define kNumberOfCharactersInBitmapFont 64
+#define kBitmapFontLength (kNumberOfCharactersInBitmapFont * 8) // The size of the bitmap is a round number, not 100% related to the size font, there is some padding :shrug:
 
 uint8_t gChars6BitmapFont[kBitmapFontLength];
 uint8_t gChars8BitmapFont[kBitmapFontLength];
 
 // This is a 320x24 bitmap
-static const int kPanelBitmapWidth = 320;
-static const int kPanelBitmapHeight = 24;
+#define kPanelBitmapWidth 320
+#define kPanelBitmapHeight 24
 static const int kPanelBitmapY = kScreenHeight - kPanelBitmapHeight;
 uint8_t gPanelDecodedBitmapData[kPanelBitmapWidth * kPanelBitmapHeight];
 
-static const size_t kFullScreenBitmapLength = kScreenWidth * kScreenHeight / 2; // They use 4 bits to encode pixels
+#define kFullScreenBitmapLength (kScreenWidth * kScreenHeight / 2) // They use 4 bits to encode pixels
 
 // These buffers contain the raw bitmap data of the corresponding DAT files, separated in 4 bitmaps:
 //  - The bitmap has 4 columns of 40 bytes width x 200 bytes height
@@ -1775,7 +1775,7 @@ uint8_t gControlsBitmapData[kFullScreenBitmapLength];
 uint8_t gBackBitmapData[kFullScreenBitmapLength];
 uint8_t gGfxBitmapData[kFullScreenBitmapLength];
 
-static const size_t kFullScreenFramebufferLength = kScreenWidth * kScreenHeight; // We only use 16 colors, but SDL doesn't support that mode, so we use 256 colors
+#define kFullScreenFramebufferLength (kScreenWidth * kScreenHeight) // We only use 16 colors, but SDL doesn't support that mode, so we use 256 colors
 
 // This buffer has the contents of TITLE2.DAT after it's been "decoded" (i.e. after picking the different channels
 // every 40 bytes and forming the 4 bit palette index for each pixel).
@@ -1784,10 +1784,10 @@ uint8_t gTitle2DecodedBitmapData[kFullScreenFramebufferLength];
 
 uint8_t gScrollDestinationScreenBitmapData[kFullScreenFramebufferLength];
 
-static const uint16_t kLevelEdgeSize = 8;
-static const int kTileSize = 16;
-static const int kLevelBitmapWidth = kTileSize * (kLevelWidth - 2) + kLevelEdgeSize + kLevelEdgeSize;
-static const int kLevelBitmapHeight = kTileSize * (kLevelHeight - 2) + kLevelEdgeSize + kLevelEdgeSize;
+#define kLevelEdgeSize 8
+#define kTileSize 16
+#define kLevelBitmapWidth (kTileSize * (kLevelWidth - 2) + kLevelEdgeSize + kLevelEdgeSize)
+#define kLevelBitmapHeight (kTileSize * (kLevelHeight - 2) + kLevelEdgeSize + kLevelEdgeSize)
 uint8_t gLevelBitmapData[kLevelBitmapWidth * kLevelBitmapHeight];
 
 typedef struct
@@ -1798,7 +1798,7 @@ typedef struct
     uint8_t seconds;
 } HallOfFameEntry;
 
-static const int kNumberOfHallOfFameEntries = 3;
+#define kNumberOfHallOfFameEntries 3
 HallOfFameEntry gHallOfFameData[kNumberOfHallOfFameEntries]; // 0x9514
 
 enum PlayerLevelState {
@@ -1831,7 +1831,7 @@ typedef struct
     uint8_t completedAllLevels; // Still not 100% sure
 } PlayerEntry;
 
-static const int kNumberOfPlayers = 20;
+#define kNumberOfPlayers 20
 //static const int kPlayerEntryLength = 128;
 PlayerEntry gPlayerListData[kNumberOfPlayers]; // 0x8A9C
 
@@ -1882,7 +1882,7 @@ void handleStatisticsOptionClick(void);
 void handleControlsOptionClick(void);
 void handleOkButtonClick(void);
 
-static const uint8_t kNumberOfMainMenuButtons = 17;
+#define kNumberOfMainMenuButtons 17
 static const ButtonDescriptor kMainMenuButtonDescriptors[kNumberOfMainMenuButtons] = { // located in DS:0000
     {
         5, 6,
@@ -1984,7 +1984,7 @@ void handleOptionsFXClick(void);
 void handleOptionsKeyboardClick(void);
 void handleOptionsJoystickClick(void);
 
-static const uint8_t kNumberOfOptionsMenuButtons = 13;
+#define kNumberOfOptionsMenuButtons 13
 static const ButtonDescriptor kOptionsMenuButtonDescriptors[kNumberOfOptionsMenuButtons] = { // located in DS:00AC
     {
         12, 13,
@@ -2072,7 +2072,7 @@ typedef struct {
     uint8_t numberOfLines;
 } ButtonBorderDescriptor;
 
-static const int kNumberOfOptionsMenuBorders = 20;
+#define kNumberOfOptionsMenuBorders 20
 static const ButtonBorderDescriptor kOptionsMenuBorders[kNumberOfOptionsMenuBorders] = {
     { // 0: 130
         {
@@ -2296,7 +2296,7 @@ static const ButtonBorderDescriptor kOptionsMenuBorders[kNumberOfOptionsMenuBord
     },
 };
 
-static const int kNumberOfMainMenuButtonBorders = 12;
+#define kNumberOfMainMenuButtonBorders 12
 static const ButtonBorderDescriptor kMainMenuButtonBorders[kNumberOfMainMenuButtonBorders] = { // starts on 0x504? or before?
     // Player List - Up Arrow - Left and Top borders
     {
@@ -2604,15 +2604,15 @@ SDL_Renderer *gRenderer = NULL;
 SDL_Texture *gTexture = NULL;
 SDL_Surface *gTextureSurface = NULL;
 
-static const uint16_t kFixedBitmapWidth = 640;
-static const uint16_t kFixedBitmapHeight = 16;
+#define kFixedBitmapWidth 640
+#define kFixedBitmapHeight 16
 uint8_t gFixedDecodedBitmapData[kFixedBitmapWidth * kFixedBitmapHeight];
 
-static const uint16_t kMovingBitmapWidth = 320;
-static const uint16_t kMovingBitmapHeight = 462;
+#define kMovingBitmapWidth 320
+#define kMovingBitmapHeight 462
 uint8_t gMovingDecodedBitmapData[kMovingBitmapWidth * kMovingBitmapHeight];
 
-static const uint16_t kSoundBufferSize = 40 * 1024; // 40KB
+#define kSoundBufferSize (40 * 1024) // 40KB
 uint8_t gSoundBuffer1[kSoundBufferSize];
 uint8_t gSoundBuffer2[kSoundBufferSize];
 
@@ -3715,21 +3715,23 @@ bail:                   //; CODE XREF: fileReadUnk1+11j
 done:                   //; CODE XREF: fileReadUnk1+57j
         pop(bx);
 }
+*/
+void slideDownGameDash() // proc near     ; CODE XREF: start:isNotFastMode2p
+{
+    /*
+    if ((word_510C1 & 0xFF) == 0)
+    {
+//loc_4715C:              ; CODE XREF: crt?2+5j
+        cx = 0x90; // 144
+    }
+    else
+    {
+        cx = 0x5F; // 95
+    }
 
-
-; =============== S U B R O U T I N E =======================================
-
-
-crt?2       proc near       ; CODE XREF: slideDownGameDash:loc_4720Cp
-        cmp byte ptr word_510C1, 0
-        jz  short loc_4715C
-        mov cx, 5Fh ; '_'
-        jmp short loc_4715F
-
-loc_4715C:              ; CODE XREF: crt?2+5j
-        mov cx, 90h ; '?'
-
-loc_4715F:              ; CODE XREF: crt?2+Aj crt?2+5Fj
+    do
+    {
+//loc_4715F:              ; CODE XREF: crt?2+Aj crt?2+5Fj
         mov dx, 3D4h
         al = 18h
         out dx, al      ; Video: CRT cntrlr addr
@@ -3763,7 +3765,7 @@ loc_4715F:              ; CODE XREF: crt?2+Aj crt?2+5Fj
         sub bx, 7Ah ; 'z'
         mov word_51967, bx
 
-loc_4718E:              ; CODE XREF: crt?2+35j
+    //loc_4718E:              ; CODE XREF: crt?2+35j
         mov dx, 3D4h
         al = 0Dh
         out dx, al      ; Video: CRT cntrlr addr
@@ -3778,76 +3780,11 @@ loc_4718E:              ; CODE XREF: crt?2+35j
         inc dx
         al = bh
         out dx, al      ; Video: CRT controller internal registers
-        call    videoloop
-        call    loopForVSync
-        add cx, 1
-        cmp cx, 90h ; '?'
-        jbe short loc_4715F
-        return;
-crt?2       endp
-
-
-; =============== S U B R O U T I N E =======================================
-
-
-crt?1       proc near       ; CODE XREF: slideDownGameDash+7p
-        cmp byte ptr word_510C1, 0
-        jz  short loc_471BE
-        mov cx, 0B0h ; '?'
-        jmp short loc_471C1
-
-loc_471BE:              ; CODE XREF: crt?1+5j
-        mov cx, 0C8h ; '?'
-
-loc_471C1:              ; CODE XREF: crt?1+Aj crt?1+4Bj
-        mov dx, 3D4h
-        al = 18h
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; line compare (scan line). Used for split screen operations.
-        inc dx
-        al = cl
-        out dx, al      ; Video: CRT controller internal registers
-        mov bx, word_51967
-        cmp bx, 4DAEh
-        jbe short loc_471DC
-        sub bx, 7Ah ; 'z'
-        mov word_51967, bx
-
-loc_471DC:              ; CODE XREF: crt?1+21j
-        mov dx, 3D4h
-        al = 0Dh
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (low)
-        inc dx
-        al = bl
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 0Ch
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (high)
-        inc dx
-        al = bh
-        out dx, al      ; Video: CRT controller internal registers
-        call    videoloop
-        call    loopForVSync
-        add cx, 1
-        cmp cx, 0C8h ; '?'
-        jbe short loc_471C1
-        return;
-crt?1       endp
-*/
-void slideDownGameDash() // proc near     ; CODE XREF: start:isNotFastMode2p
-{
-    /*
-    cmp videoStatusUnk, 2
-    jnz short loc_4720C
-    call    crt?1
-    jmp short locret_4720F
-
-loc_4720C:              ; CODE XREF: slideDownGameDash+5j
-    call    crt?2
-
-locret_4720F:               ; CODE XREF: slideDownGameDash+Aj
+        videoloop();
+        loopForVSync();
+        cx++;
+    }
+    while (cx <= 0x90); // 144
     return;
      */
 }
