@@ -266,23 +266,23 @@ uint16_t word_510CB = 0;
 uint16_t word_510CD = 0;
 uint16_t word_510CF = 0;
 uint16_t word_510D1 = 0;
-uint16_t word_510D9 = 0;
+uint16_t gIsMurphyGoingThroughPortal = 0; // word_510D9
 uint16_t word_510DC = 0;
 uint16_t word_510E6 = 0;
 uint16_t word_510EE = 0;
 
 typedef struct {
     int16_t word_510F0; // value1; -> seems like an offset from the destination position (in tiles * 2)
-    uint16_t word_510F2; // value2;
+    int16_t word_510F2; // value2; -> this increases the offset above frame by frame
     uint16_t width; // value3;
     uint16_t height; // value4;
-    uint16_t word_510F8; // value5; -> memory address in someBinaryData_5142E, looks like a list of coordinates of frames in MOVING.DAT
+    uint16_t animationIndex; // word_510F8; -> memory address in someBinaryData_5142E, looks like a list of coordinates of frames in MOVING.DAT
     int16_t speedX; // value6; -> applied to Murphy X position... speedX?
     int16_t speedY; // value7; -> applied to Murphy Y position... speedY?
     uint16_t currentFrame; // Not used in the original code, I will use it to keep track of the current animation frame
-} SomeUnknownMurphyData;
+} MurphyAnimationDescriptor;
 
-SomeUnknownMurphyData gSomeUnknownMurphyData; // -> starts at 0x0DE0
+MurphyAnimationDescriptor gCurrentMurphyAnimation; // -> starts at 0x0DE0
 //uint16_t word_510F0 = 0; // -> 0x0DE0 value1
 //uint16_t word_510F2 = 0; // value2
 //uint16_t word_510F4 = 0; // value3
@@ -310,7 +310,7 @@ uint8_t someBinaryData_510FE[16] = {
     0, // -> 0xdfd
 };
 
-SomeUnknownMurphyData someBinaryData_5110E[50] = {
+MurphyAnimationDescriptor someBinaryData_5110E[50] = {
     { // 0
         0x06ac, // -> dfe
         0xff0c, // -> e00
@@ -1060,12 +1060,12 @@ AnimationFrameCoordinates frameCoordinates_5142E[37] = {
         {
             { 304, 134 }, // -> 0x4b74 -> 1340
             { 304, 136 }, // -> 0x4c68 -> 1342
-            { 624, -24 }, // -> 0x0050 -> 1344
-            { 624, -22 }, // -> 0x0144 -> 1346
-            { 624, -20 }, // -> 0x0238 -> 1348
-            { 624, -18 }, // -> 0x032c -> 134a
-            { 624, -16 }, // -> 0x0420 -> 134c
-            { 624, -14 }, // -> 0x0514 -> 134e
+            { 304, 138 }, // -> 0x0050 -> 1344
+            { 304, 140 }, // -> 0x0144 -> 1346
+            { 304, 142 }, // -> 0x0238 -> 1348
+            { 304, 144 }, // -> 0x032c -> 134a
+            { 304, 146 }, // -> 0x0420 -> 134c
+            { 304, 148 }, // -> 0x0514 -> 134e
         },
         8
     },
@@ -1097,11 +1097,11 @@ AnimationFrameCoordinates frameCoordinates_5142E[37] = {
     },
     { // 22
         {
-            { 624, -16 }, // -> 0x0420 -> 1376
-            { 624, -18 }, // -> 0x032c -> 1378
-            { 624, -20 }, // -> 0x0238 -> 137a
-            { 624, -22 }, // -> 0x0144 -> 137c
-            { 624, -24 }, // -> 0x0050 -> 137e
+            { 304, 146 }, // -> 0x0420 -> 1376
+            { 304, 144 }, // -> 0x032c -> 1378
+            { 304, 142 }, // -> 0x0238 -> 137a
+            { 304, 140 }, // -> 0x0144 -> 137c
+            { 304, 138 }, // -> 0x0050 -> 137e
             { 304, 136 }, // -> 0x4c68 -> 1380
             { 304, 134 }, // -> 0x4b74 -> 1382
             { 304, 132 }, // -> 0x4a80 -> 1384
@@ -2728,7 +2728,7 @@ void levelScanThing(void);
 void gameloop(void);
 uint16_t updateMurphy(uint16_t position);
 uint16_t updateMurphyAnimation(uint16_t position);
-uint16_t updateMurphyAnimationInfo(uint16_t position, SomeUnknownMurphyData unknownMurphyData);
+uint16_t updateMurphyAnimationInfo(uint16_t position, MurphyAnimationDescriptor unknownMurphyData);
 uint16_t handleMurphyDirectionRight(uint16_t position);
 uint16_t handleMurphyDirectionDown(uint16_t position);
 uint16_t handleMurphyDirectionLeft(uint16_t position);
@@ -7274,7 +7274,7 @@ void sub_48A20() //   proc near       ; CODE XREF: start+32Fp
     word_510C1 = 0x0001;
     byte_510D7 = 0;
     gNumberOfDotsToShiftDataLeft = 0;
-    word_510D9 &= 0xFF00; // mov byte ptr word_510D9, 0
+    gIsMurphyGoingThroughPortal &= 0xFF00; // mov byte ptr gIsMurphyGoingThroughPortal, 0
     byte_510DB = 0;
     word_510DC = 0;
 }
@@ -17001,7 +17001,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
         byte_510D3 =  1;
         if (byte_510D8 != 0)
         {
-            SomeUnknownMurphyData unknownMurphyData;
+            MurphyAnimationDescriptor unknownMurphyData;
 //loc_4E38A:              ; CODE XREF: update?+69j update?+2FFj
             if (word_510CB != 0)
             {
@@ -17019,7 +17019,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
             murphyTile->movingObject = 3;
             murphyTile->tile = LevelTileTypeSpace;
             word_510EE = 0;
-            word_510D9 = 0;
+            gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position + kLevelWidth, unknownMurphyData);
         }
 
@@ -17216,7 +17216,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //            dx = 0x0ECE;
             murphyTile->movingObject = 0x10;
             word_510EE = 0;
-            word_510D9 = 0;
+            gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[13]);
         }
 //loc_4E26C:              ; CODE XREF: update?+3D7j
@@ -17242,7 +17242,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //            dx = 0x0ECE;
             murphyTile->movingObject = 0x10;
             word_510EE = 0;
-            word_510D9 = 0;
+            gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[13]);
         }
 //loc_4E273:              ; CODE XREF: update?+3DEj
@@ -17259,7 +17259,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
             murphyTile->movingObject = 0x14;
             aboveTile->movingObject = 0xFF;
             word_510EE = 0;
-            word_510D9 = 0;
+            gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[23]);
         }
 //loc_4E27B:              ; CODE XREF: update?+3E6j
@@ -17294,7 +17294,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
             murphyTile->movingObject = 0x20;
             aboveTile->movingObject = 3;
             word_510EE = 0;
-            word_510D9 = 0;
+            gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[39]);
         }
         else
@@ -17321,7 +17321,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //            dx = 0x0EDE;
             murphyTile->movingObject = 0x11;
             word_510EE = 0;
-            word_510D9 = 0;
+            gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[14]);
         }
 //loc_4E29C:              ; CODE XREF: update?+407j
@@ -17347,7 +17347,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //            dx = 0x0EDE;
             murphyTile->movingObject = 0x11;
             word_510EE = 0;
-            word_510D9 = 0;
+            gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[14]);
         }
 //loc_4E2A3:              ; CODE XREF: update?+40Ej
@@ -17364,7 +17364,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
             murphyTile->movingObject = 0x15;
             leftTile->movingObject = 0xFF;
             word_510EE = 0;
-            word_510D9 = 0;
+            gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[24]);
         }
 //loc_4E2AB:              ; CODE XREF: update?+416j
@@ -17399,7 +17399,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
             murphyTile->movingObject = 0x21;
             leftTile->movingObject = 3;
             word_510EE = 0;
-            word_510D9 = 0;
+            gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[40]);
         }
         else
@@ -17425,7 +17425,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //            dx = 0x0EEE;
             murphyTile->movingObject = 0x12;
             word_510EE = 0;
-            word_510D9 = 0;
+            gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[15]);
         }
 //loc_4E2C6:              ; CODE XREF: update?+431j
@@ -17451,7 +17451,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //            dx = 0x0EEE;
             murphyTile->movingObject = 0x12;
             word_510EE = 0;
-            word_510D9 = 0;
+            gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[15]);
         }
 //loc_4E2CD:              ; CODE XREF: update?+438j
@@ -17468,7 +17468,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
             murphyTile->movingObject = 0x16;
             belowTile->movingObject = 0xFF;
             word_510EE = 0;
-            word_510D9 = 0;
+            gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[25]);
         }
 //loc_4E2D5:              ; CODE XREF: update?+440j
@@ -17503,7 +17503,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
             murphyTile->movingObject = 0x22;
             belowTile->movingObject = 3;
             word_510EE = 0;
-            word_510D9 = 0;
+            gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[41]);
         }
         else
@@ -17530,7 +17530,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //            dx = 0x0EFE;
             murphyTile->movingObject = 0x13;
             word_510EE = 0;
-            word_510D9 = 0;
+            gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[16]);
         }
 //loc_4E2F6:              ; CODE XREF: update?+461j
@@ -17556,7 +17556,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //            dx = 0x0EFE;
             murphyTile->movingObject = 0x13;
             word_510EE = 0;
-            word_510D9 = 0;
+            gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[16]);
         }
 //loc_4E2FD:              ; CODE XREF: update?+468j
@@ -17573,7 +17573,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
             murphyTile->movingObject = 0x17;
             rightTile->movingObject = 0xFF;
             word_510EE = 0;
-            word_510D9 = 0;
+            gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[26]);
         }
 //loc_4E305:              ; CODE XREF: update?+470j
@@ -17591,7 +17591,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 
 //loc_4E8F0:              ; CODE XREF: update?+4DAj update?+4F7j ...
             word_510EE = 0;
-            word_510D9 = 0;
+            gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[42]);
         }
         else
@@ -17655,7 +17655,7 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
 //loc_4E0AA:              ; CODE XREF: update?+1AFj update?+279j
     if (aboveTile->movingObject == 0 && aboveTile->tile == LevelTileTypeSpace)
     {
-        SomeUnknownMurphyData unknownMurphyData;
+        MurphyAnimationDescriptor unknownMurphyData;
 
 //loc_4E344:              ; CODE XREF: update?+223j
         if (word_510CB != 0)
@@ -17675,13 +17675,13 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
         murphyTile->tile = LevelTileTypeSpace;
 
         word_510EE = 0;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position - kLevelWidth, unknownMurphyData);
     }
 //loc_4E0B6:              ; CODE XREF: update?+221j
     else if (aboveTile->movingObject == 0 && aboveTile->tile == LevelTileTypeBase)
     {
-        SomeUnknownMurphyData unknownMurphyData;
+        MurphyAnimationDescriptor unknownMurphyData;
 
 //loc_4E3E1:              ; CODE XREF: update?+22Bj
         sound9();
@@ -17702,7 +17702,7 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position - kLevelWidth, unknownMurphyData);
     }
 //loc_4E0BE:              ; CODE XREF: update?+229j
@@ -17739,13 +17739,13 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + 1, someBinaryData_5110E[12]);
     }
 //loc_4E0C5:              ; CODE XREF: update?+230j
     else if (aboveTile->movingObject == 0 && aboveTile->tile == LevelTileTypeInfotron)
     {
-        SomeUnknownMurphyData unknownMurphyData;
+        MurphyAnimationDescriptor unknownMurphyData;
 
 //loc_4E55C:              ; CODE XREF: update?+23Aj
         sound5();
@@ -17765,7 +17765,7 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position - kLevelWidth, unknownMurphyData);
     }
 //loc_4E0CD:              ; CODE XREF: update?+238j
@@ -17795,7 +17795,7 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
 //        dx = 0x0E5E;
         murphyTile->movingObject = 0xD;
         word_510EE = 0;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[6]);
     }
 //loc_4E0D5:              ; CODE XREF: update?+240j
@@ -17839,13 +17839,13 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
         murphyTile->movingObject = 0x18;
         aboveAboveTile->movingObject = 3;
         word_510EE = 0;
-        word_510D9 = 1;
+        gIsMurphyGoingThroughPortal = 1;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[29]);
     }
 //loc_4E0F1:              ; CODE XREF: update?+25Cj
     else if (aboveTile->tile == LevelTileTypeRedDisk)
     {
-        SomeUnknownMurphyData unknownMurphyData;
+        MurphyAnimationDescriptor unknownMurphyData;
 
 //loc_4E847:              ; CODE XREF: update?+265j
         if (word_510CB != 0)
@@ -17862,7 +17862,7 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
         murphyTile->movingObject = 0x1C;
         aboveTile->movingObject = 3;
         word_510EE = 0;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, unknownMurphyData);
     }
 //loc_4E0F8:              ; CODE XREF: update?+263j
@@ -17884,7 +17884,7 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
 //        dx = 0x10AE;
         murphyTile->movingObject = 0x24;
         word_510EE = 8;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[43]);
     }
 //loc_4E0FF:              ; CODE XREF: update?+26Aj
@@ -17917,7 +17917,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position - 1, someBinaryData_5110E[2]);
     }
 //loc_4E11E:              ; CODE XREF: update?+289j
@@ -17932,7 +17932,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position - 1, someBinaryData_5110E[9]);
     }
 //loc_4E126:              ; CODE XREF: update?+291j
@@ -17958,7 +17958,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position - 1, someBinaryData_5110E[9]);
     }
 //loc_4E12D:              ; CODE XREF: update?+298j
@@ -17972,7 +17972,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position - 1, someBinaryData_5110E[19]);
     }
 //loc_4E135:              ; CODE XREF: update?+2A0j
@@ -18002,7 +18002,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
 //        dx = 0x0E5E;
         murphyTile->movingObject = 0xD;
         word_510EE = 0;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[6]);
     }
 //loc_4E13D:              ; CODE XREF: update?+2A8j
@@ -18025,7 +18025,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
 //        dx = 0x0FAE;
         murphyTile->movingObject = 0xE;
         word_510EE = 8;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[27]);
     }
 //loc_4E145:              ; CODE XREF: update?+2B0j
@@ -18068,7 +18068,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
         murphyTile->movingObject = 0x19;
         leftLeftTile->movingObject = 3;
         word_510EE = 0;
-        word_510D9 = 1;
+        gIsMurphyGoingThroughPortal = 1;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[30]);
     }
 //loc_4E161:              ; CODE XREF: update?+2CCj
@@ -18081,7 +18081,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position - 1, someBinaryData_5110E[35]);
     }
 //loc_4E169:              ; CODE XREF: update?+2D4j
@@ -18103,7 +18103,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
 //        dx = 0x10BE;
         murphyTile->movingObject = 0x25;
         word_510EE = 8;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[44]);
     }
 //loc_4E171:              ; CODE XREF: update?+2DCj
@@ -18125,7 +18125,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
 //        dx = 0x10EE;
         murphyTile->movingObject = 0x28;
         word_510EE = 8;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[47]);
     }
 //loc_4E179:              ; CODE XREF: update?+2E4j
@@ -18150,7 +18150,7 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
 //    mov ax, leveldata[si+78h]
     if (belowTile->movingObject == 0 && belowTile->tile == LevelTileTypeSpace)
     {
-        SomeUnknownMurphyData unknownMurphyData;
+        MurphyAnimationDescriptor unknownMurphyData;
 
 //loc_4E38A:              ; CODE XREF: update?+69j update?+2FFj
         if (word_510CB != 0)
@@ -18169,13 +18169,13 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + kLevelWidth, unknownMurphyData);
     }
 //loc_4E192:              ; CODE XREF: update?+2FDj
     else if (belowTile->movingObject == 0 && belowTile->tile == LevelTileTypeBase)
     {
-        SomeUnknownMurphyData unknownMurphyData;
+        MurphyAnimationDescriptor unknownMurphyData;
 
 //loc_4E44F:              ; CODE XREF: update?+307j
         sound9();
@@ -18195,7 +18195,7 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + kLevelWidth, unknownMurphyData);
     }
 //loc_4E19A:              ; CODE XREF: update?+305j
@@ -18211,7 +18211,7 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
 //loc_4E449:              ; CODE XREF: update?+5B3j
         belowTile->tile = LevelTileTypeBase;
 
-        SomeUnknownMurphyData unknownMurphyData;
+        MurphyAnimationDescriptor unknownMurphyData;
 
 //loc_4E44F:              ; CODE XREF: update?+307j
         sound9();
@@ -18231,13 +18231,13 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + kLevelWidth, unknownMurphyData);
     }
 //loc_4E1A1:              ; CODE XREF: update?+30Cj
     else if (belowTile->tile == LevelTileTypeInfotron)
     {
-        SomeUnknownMurphyData unknownMurphyData;
+        MurphyAnimationDescriptor unknownMurphyData;
 
 //loc_4E5A8:              ; CODE XREF: update?+316j
         sound5();
@@ -18257,7 +18257,7 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeBase;
         word_510EE = 0;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + kLevelWidth, unknownMurphyData);
     }
 //loc_4E1A9:              ; CODE XREF: update?+314j
@@ -18287,7 +18287,7 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
 //        dx = 0x0E5E;
         murphyTile->movingObject = 0xD;
         word_510EE = 0;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[6]);
     }
 //loc_4E1B1:              ; CODE XREF: update?+31Cj
@@ -18330,13 +18330,13 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
         murphyTile->movingObject = 0x1A;
         belowBelowTile->movingObject = 3;
         word_510EE = 0;
-        word_510D9 = 1;
+        gIsMurphyGoingThroughPortal = 1;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[31]);
     }
 //loc_4E1CD:              ; CODE XREF: update?+338j
     else if (belowTile->tile == LevelTileTypeRedDisk)
     {
-        SomeUnknownMurphyData unknownMurphyData;
+        MurphyAnimationDescriptor unknownMurphyData;
 
 //loc_4E87F:              ; CODE XREF: update?+341j
         if (word_510CB != 0)
@@ -18353,7 +18353,7 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
         murphyTile->movingObject = 0x1E;
         belowTile->movingObject = 3;
         word_510EE = 0;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, unknownMurphyData);
     }
 //loc_4E1D4:              ; CODE XREF: update?+33Fj
@@ -18375,7 +18375,7 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
 //        dx = 0x10CE;
         murphyTile->movingObject = 0x27;
         word_510EE = 8;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[45]);
     }
 //loc_4E1DB:              ; CODE XREF: update?+346j
@@ -18408,7 +18408,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + 1, someBinaryData_5110E[5]);
     }
 //loc_4E1FA:              ; CODE XREF: update?+365j
@@ -18422,7 +18422,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + 1, someBinaryData_5110E[12]);
     }
 //loc_4E202:              ; CODE XREF: update?+36Dj
@@ -18446,7 +18446,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + 1, someBinaryData_5110E[12]);
     }
 //loc_4E209:              ; CODE XREF: update?+374j
@@ -18460,7 +18460,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + 1, someBinaryData_5110E[22]);
     }
 //loc_4E211:              ; CODE XREF: update?+37Cj
@@ -18490,7 +18490,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
 //        dx = 0x0E5E;
         murphyTile->movingObject = 0xD;
         word_510EE = 0;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[6]);
     }
 //loc_4E219:              ; CODE XREF: update?+384j
@@ -18520,7 +18520,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
 //        dx = 0x0FBE;
         murphyTile->movingObject = 0xF;
         word_510EE = 8;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[28]);
     }
 //loc_4E221:              ; CODE XREF: update?+38Cj
@@ -18564,7 +18564,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
         murphyTile->movingObject = 0x1B;
         rightRightTile->movingObject = 3;
         word_510EE = 0;
-        word_510D9 = 1;
+        gIsMurphyGoingThroughPortal = 1;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[32]);
     }
 //loc_4E23D:              ; CODE XREF: update?+3A8j
@@ -18577,7 +18577,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + 1, someBinaryData_5110E[38]);
     }
 //loc_4E244:              ; CODE XREF: update?+3AFj
@@ -18599,7 +18599,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
 //        dx = 0x10DE;
         murphyTile->movingObject = 0x26;
         word_510EE = 8;
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[46]);
     }
 //loc_4E24B:              ; CODE XREF: update?+3B6j
@@ -18631,7 +18631,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
         word_510EE = 8;
 
 //loc_4E9ED:              ; CODE XREF: update?+A66j
-        word_510D9 = 0;
+        gIsMurphyGoingThroughPortal = 0;
 
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[48]);
     }
@@ -18646,7 +18646,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
     }
 }
 
-uint16_t updateMurphyAnimationInfo(uint16_t position, SomeUnknownMurphyData unknownMurphyData)
+uint16_t updateMurphyAnimationInfo(uint16_t position, MurphyAnimationDescriptor unknownMurphyData)
 {
     // 01ED:7D9F
 
@@ -18654,7 +18654,7 @@ uint16_t updateMurphyAnimationInfo(uint16_t position, SomeUnknownMurphyData unkn
 //    di = 0x0DE0;
 //    memcpy(di, si, 7 * 2); // rep movsw
 
-    gSomeUnknownMurphyData = unknownMurphyData;
+    gCurrentMurphyAnimation = unknownMurphyData;
 
     return updateMurphyAnimation(position);
 }
@@ -18680,24 +18680,25 @@ uint16_t updateMurphyAnimation(uint16_t position)
     if (word_510EE == 0)
     {
         // 01ED:7E08
-        AnimationFrameCoordinates animationFrameCoordinates = frameCoordinates_5142E[gSomeUnknownMurphyData.word_510F8];
-        Point frameCoordinates = animationFrameCoordinates.coordinates[gSomeUnknownMurphyData.currentFrame];
+        uint8_t currentFrame = gCurrentMurphyAnimation.currentFrame;
+        AnimationFrameCoordinates animationFrameCoordinates = frameCoordinates_5142E[gCurrentMurphyAnimation.animationIndex];
+        Point frameCoordinates = animationFrameCoordinates.coordinates[currentFrame];
 
 //loc_4EA6B:              ; CODE XREF: update?+B83j
     //    push    si
     //    push(di);
-        gMurphyPositionX += gSomeUnknownMurphyData.speedX;
-        gMurphyPositionY += gSomeUnknownMurphyData.speedY;
+        gMurphyPositionX += gCurrentMurphyAnimation.speedX;
+        gMurphyPositionY += gCurrentMurphyAnimation.speedY;
     //    mov di, [si+6155h]
 //        di += gSomeUnknownMurphyData.word_510F0; // destination offset
 //        si = gSomeUnknownMurphyData.word_510F8; // coordinates in MOVING.DAT
 //        ax = si;
         si += 2; // advance a frame (2 bytes = 1 word in the list of frames)
 //        gSomeUnknownMurphyData.word_510F8 = si;
-        gSomeUnknownMurphyData.currentFrame++;
+        gCurrentMurphyAnimation.currentFrame++;
         si = ax;
-        bx = gSomeUnknownMurphyData.width * 8;
-        dx = gSomeUnknownMurphyData.height;
+        bx = gCurrentMurphyAnimation.width * 8;
+        dx = gCurrentMurphyAnimation.height;
     //    push    ds
     //    mov ax, es
     //    mov ds, ax
@@ -18707,72 +18708,50 @@ uint16_t updateMurphyAnimation(uint16_t position)
         uint16_t dstX = (position % kLevelWidth) * kTileSize;
         uint16_t dstY = (position / kLevelWidth) * kTileSize;
 
-        int16_t offsetX = (gSomeUnknownMurphyData.word_510F0 % 122) * 8;
-        int16_t offsetY = (gSomeUnknownMurphyData.word_510F0 / 122);
+        int16_t offsetX = (gCurrentMurphyAnimation.word_510F0 % 122) * 8;
+        int16_t offsetY = (gCurrentMurphyAnimation.word_510F0 / 122);
 
 //loc_4EA9F:              ; CODE XREF: update?+C28j
         drawMovingSpriteFrameInLevel(frameCoordinates.x,
                                      frameCoordinates.y,
-                                     gSomeUnknownMurphyData.width * 8,
-                                     gSomeUnknownMurphyData.height,
+                                     gCurrentMurphyAnimation.width * 8,
+                                     gCurrentMurphyAnimation.height,
                                      dstX + offsetX,
                                      dstY + offsetY);
 
-        if (word_510D9 != 0)
+        if (gIsMurphyGoingThroughPortal != 0)
         {
-            di -= 0x7A0; // 1952
-            di += gSomeUnknownMurphyData.word_510F2;
-            si = gSomeUnknownMurphyData.word_510F8;
-            si += 16;
-    //      si = *si;
-            dx = gSomeUnknownMurphyData.height;
-    //      push    ds
-    //      mov ds, ax
+            // This +1 is because the "opposite" portal animation is always the next one
+            AnimationFrameCoordinates animationFrameCoordinates = frameCoordinates_5142E[gCurrentMurphyAnimation.animationIndex + 1];
+            Point frameCoordinates = animationFrameCoordinates.coordinates[currentFrame];
 
-            do
-            {
-//loc_4EADC:              ; CODE XREF: update?+C65j
-                cx = bx;
-    //          memcpy(di, si, cx); // rep movsb
-                si += 122;
-                si -= bx;
-                di += 122;
-                di -= bx;
-                if (si >= 0x4D34)
-                {
-                    si -= 0x4D0C;
-                }
+            int16_t offsetX = (gCurrentMurphyAnimation.word_510F2 % 122) * 8;
+            int16_t offsetY = (gCurrentMurphyAnimation.word_510F2 / 122);
 
-//loc_4EAF4:              ; CODE XREF: update?+C5Ej
-                dx--;
-            }
-            while (dx != 0);
-    //    pop ds
+            drawMovingSpriteFrameInLevel(frameCoordinates.x,
+                                         frameCoordinates.y,
+                                         gCurrentMurphyAnimation.width * 8,
+                                         gCurrentMurphyAnimation.height,
+                                         dstX + offsetX,
+                                         dstY + offsetY);
         }
         else
         {
 //loc_4EAFA:              ; CODE XREF: update?+C32j
-            ax = gSomeUnknownMurphyData.word_510F0;
-            ax += gSomeUnknownMurphyData.word_510F2;
-            gSomeUnknownMurphyData.word_510F0 = ax;
+            gCurrentMurphyAnimation.word_510F0 += gCurrentMurphyAnimation.word_510F2;
         }
 
 //loc_4EB04:              ; CODE XREF: update?+C68j
-//        si = gSomeUnknownMurphyData.word_510F8;
-        if (gSomeUnknownMurphyData.currentFrame < animationFrameCoordinates.numberOfCoordinates) // cmp word ptr [si], 0FFFFh
+        if (gCurrentMurphyAnimation.currentFrame < animationFrameCoordinates.numberOfCoordinates)
         {
-    //        pop(di);
-    //        pop si
               return position;
         }
 
 //loc_4EB10:              ; CODE XREF: update?+C7Bj
         // 01ED:7EAD
-    //    pop(di);
-    //    pop si
-        ax = gSomeUnknownMurphyData.speedX;
+        ax = gCurrentMurphyAnimation.speedX;
         ax /= 2;
-        bx = gSomeUnknownMurphyData.speedY;
+        bx = gCurrentMurphyAnimation.speedY;
         bx /= 2;
         gMurphyTileX += ax;
         gMurphyTileY += bx;
@@ -19122,7 +19101,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
 //loc_4EFE0:              ; CODE XREF: update?+1148j
             aboveAboveTile->movingObject = 0;
             aboveAboveTile->tile = LevelTileTypeMurphy;
-            word_510D9 = 0;
+            gIsMurphyGoingThroughPortal = 0;
             position -= kLevelWidth * 2;
             if (aboveTile->movingObject == 1)
             {
@@ -19144,7 +19123,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
 //loc_4F00E:              ; CODE XREF: update?+1176j
             leftLeftTile->movingObject = 0;
             leftLeftTile->tile = LevelTileTypeMurphy;
-            word_510D9 = 0;
+            gIsMurphyGoingThroughPortal = 0;
             position -= 2;
             if (leftTile->movingObject == 1)
             {
@@ -19166,7 +19145,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
 //loc_4F03B:              ; CODE XREF: update?+11A3j
             belowBelowTile->movingObject = 0;
             belowBelowTile->tile = LevelTileTypeMurphy;
-            word_510D9 = 0;
+            gIsMurphyGoingThroughPortal = 0;
             position += kLevelWidth * 2;
             if (belowTile->movingObject == 1)
             {
@@ -19188,7 +19167,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
 //loc_4F069:              ; CODE XREF: update?+11D1j
             rightRightTile->movingObject = 0;
             rightRightTile->tile = LevelTileTypeMurphy;
-            word_510D9 = 0;
+            gIsMurphyGoingThroughPortal = 0;
             position += 2;
             if (rightTile->movingObject == LevelTileTypeZonk)
             {
