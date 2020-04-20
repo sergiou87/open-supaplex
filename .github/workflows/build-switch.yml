@@ -1,40 +1,42 @@
-name: Build OpenSupaplex for Nintendo Switch
+name: Build OpenSupaplex
 on:
   push:
     branches:
-      - master
+      - dev/github-action-vita #master
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ ubuntu-18.04 ]
+  build-vita:
+    runs-on: ubuntu-18.04
     steps:
-    - name: Install pacman
+    - name: Install VitaSDK
       run: |
-        wget https://github.com/devkitPro/pacman/releases/latest/download/devkitpro-pacman.deb
-        sudo dpkg -i devkitpro-pacman.deb
-      shell: bash
-    - name: Install devkitPro
-      run: |
-        sudo dkp-pacman -S switch-dev switch-sdl2 --noconfirm
+        apt-get update && apt-get install make git-core cmake python
+        rm -rf vdpm # debug only, remove me
+        git clone https://github.com/vitasdk/vdpm
+        cd vdpm
+        export VITASDK=/usr/local/vitasdk
+        export PATH=$VITASDK/bin:$PATH # add vitasdk tool to $PATH
+        ./bootstrap-vitasdk.sh
+        ./install-all.sh
       shell: bash
     - uses: actions/checkout@v1
-    - name: Build OpenSupaplex
-      run: |
-        source /etc/profile.d/devkit-env.sh
-        cd switch
-        make -j8
-      shell: bash
     - name: Bundle OpenSupaplex
       run: |
-        cd switch
-        mkdir -p switch/OpenSupaplex
-        mv OpenSupaplex.nro switch/OpenSupaplex/OpenSupaplex.nro
+        cd vita
+        mkdir -p resources
         wget https://cdn.chills.co.za/supaplex.zip
-        unzip supaplex.zip -d switch/OpenSupaplex/
-        rm switch/OpenSupaplex/*.exe
-        zip -r OpenSupaplex-switch.zip switch
+        unzip supaplex.zip -d resources/
+        rm resources/*.exe
+      shell: bash
+    - name: Build OpenSupaplex
+      run: |
+        export VITASDK=/usr/local/vitasdk
+        export PATH=$VITASDK/bin:$PATH # add vitasdk tool to $PATH
+        cd vita
+        rm -rf build # debug only, remove me
+        mkdir build
+        cd build
+        cmake ..
+        make -j8
       shell: bash
     - name: Deploy Nightly
       uses: WebFreak001/deploy-nightly@v1.0.3
@@ -43,7 +45,47 @@ jobs:
       with:
         upload_url: https://uploads.github.com/repos/sergiou87/open-supaplex/releases/25661714/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
         release_id: 25661714 # same as above (id can just be taken out the upload_url, it's used to find old releases)
-        asset_path: switch/OpenSupaplex-switch.zip # path to archive to upload
-        asset_name: OpenSupaplex-switch-$$.zip # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
-        asset_content_type: application/zip # required by GitHub API
+        asset_path: vita/build/OpenSupaplex.vpk # path to archive to upload
+        asset_name: OpenSupaplex-vita-$$.vpk # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
+        asset_content_type: application/binary # required by GitHub API
         max_releases: 3 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
+  # build-switch:
+  #   runs-on: ubuntu-18.04
+  #   steps:
+  #   - name: Install pacman
+  #     run: |
+  #       wget https://github.com/devkitPro/pacman/releases/latest/download/devkitpro-pacman.deb
+  #       sudo dpkg -i devkitpro-pacman.deb
+  #     shell: bash
+  #   - name: Install devkitPro
+  #     run: |
+  #       sudo dkp-pacman -S switch-dev switch-sdl2 --noconfirm
+  #     shell: bash
+  #   - uses: actions/checkout@v1
+  #   - name: Build OpenSupaplex
+  #     run: |
+  #       source /etc/profile.d/devkit-env.sh
+  #       cd switch
+  #       make -j8
+  #     shell: bash
+  #   - name: Bundle OpenSupaplex
+  #     run: |
+  #       cd switch
+  #       mkdir -p switch/OpenSupaplex
+  #       mv OpenSupaplex.nro switch/OpenSupaplex/OpenSupaplex.nro
+  #       wget https://cdn.chills.co.za/supaplex.zip
+  #       unzip supaplex.zip -d switch/OpenSupaplex/
+  #       rm switch/OpenSupaplex/*.exe
+  #       zip -r OpenSupaplex-switch.zip switch
+  #     shell: bash
+  #   - name: Deploy Nightly
+  #     uses: WebFreak001/deploy-nightly@v1.0.3
+  #     env:
+  #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
+  #     with:
+  #       upload_url: https://uploads.github.com/repos/sergiou87/open-supaplex/releases/25661714/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
+  #       release_id: 25661714 # same as above (id can just be taken out the upload_url, it's used to find old releases)
+  #       asset_path: switch/OpenSupaplex-switch.zip # path to archive to upload
+  #       asset_name: OpenSupaplex-switch-$$.zip # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
+  #       asset_content_type: application/zip # required by GitHub API
+  #       max_releases: 3 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
