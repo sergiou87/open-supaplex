@@ -1835,25 +1835,29 @@ typedef struct
 //static const int kPlayerEntryLength = 128;
 PlayerEntry gPlayerListData[kNumberOfPlayers]; // 0x8A9C
 
-char gRankingTextEntries[kNumberOfPlayers][23] = { //0x880E
+char gRankingTextEntries[kNumberOfPlayers + 4][23] = { //0x880E
     "                      ",
     "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
-    "                      ",
+    "001 SUPAPLEX 000:00:00",
+    "002 SUPAPLEX 000:00:00",
+    "003 SUPAPLEX 000:00:00",
+    "004 SUPAPLEX 000:00:00",
+    "005 SUPAPLEX 000:00:00",
+    "006 SUPAPLEX 000:00:00",
+    "007 SUPAPLEX 000:00:00",
+    "008 SUPAPLEX 000:00:00",
+    "009 SUPAPLEX 000:00:00",
+    "010 SUPAPLEX 000:00:00",
+    "011 SUPAPLEX 000:00:00",
+    "012 SUPAPLEX 000:00:00",
+    "013 SUPAPLEX 000:00:00",
+    "014 SUPAPLEX 000:00:00",
+    "015 SUPAPLEX 000:00:00",
+    "016 SUPAPLEX 000:00:00",
+    "017 SUPAPLEX 000:00:00",
+    "018 SUPAPLEX 000:00:00",
+    "019 SUPAPLEX 000:00:00",
+    "020 SUPAPLEX 000:00:00",
     "                      ",
     "                      ",
 };
@@ -5496,6 +5500,11 @@ void readPlayersLst() //  proc near       ; CODE XREF: readEverything+1Bp
         return;
     }
 
+    for (int i = 0; i < kNumberOfPlayers; ++i)
+    {
+        strcpy(gPlayerListData[i].name, "--------");
+    }
+
     FILE *file = fopen("PLAYER.LST", "r");
     if (file == NULL)
     {
@@ -5509,8 +5518,6 @@ void readPlayersLst() //  proc near       ; CODE XREF: readEverything+1Bp
     }
     
     fclose(file);
-
-// readPlayersLst  endp
 }
 
 void readHallfameLst() // proc near       ; CODE XREF: readEverything+18p
@@ -13317,7 +13324,7 @@ void drawRankings() //   proc near       ; CODE XREF: handleNewPlayerOptionClick
     }
 
     char numberString[4] = "001"; // 0x8359
-    convertNumberTo3DigitStringWithPadding0(byte_58D46, numberString);
+    convertNumberTo3DigitStringWithPadding0(byte_58D46 + 1, numberString);
     drawTextWithChars6FontWithOpaqueBackground(144, 110, 6, &numberString[1]); // Remove the first (left most) digit
 }
 
@@ -13359,7 +13366,8 @@ void drawHallOfFame() //   proc near       ; CODE XREF: handleFloppyDiskButtonCl
 
         convertNumberTo3DigitPaddedString(entry.hours, &text[9], 1);
 
-        memcpy(text, entry.playerName, sizeof(entry.playerName) - 1);
+        uint8_t playerNameLength = MIN(strlen(entry.playerName), sizeof(entry.playerName) - 1);
+        memcpy(text, entry.playerName, playerNameLength);
 
         drawTextWithChars6FontWithOpaqueBackground(184, 28 + i * 9, 8, text);
     }
