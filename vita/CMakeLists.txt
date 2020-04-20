@@ -43,7 +43,7 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
     if (DEBUGNET)
         message("Debugnet turned on")
         add_definitions(-DDEBUGNET)
-        target_link_libraries(${SHORT_NAME} debugnet)
+        target_link_libraries(${SHORT_NAME} debugnet sceNetCtl_stub)
 
         get_filename_component(debugnetipFilePath debugnetip.txt REALPATH)
         if (NOT EXISTS ${debugnetipFilePath})

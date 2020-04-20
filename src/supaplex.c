@@ -22,6 +22,10 @@
 
 #include "controller.h"
 
+#ifdef __vita__
+#include <debugnet.h>
+#endif
+
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 #define CLAMP(v, a, b) MIN(MAX(a, v), b)
@@ -30,14 +34,53 @@
 #define kScreenHeight 200
 
 #ifdef __vita__
-FILE *openFile(const char *pathname, const char *mode)
+FILE *openReadonlyFile(const char *pathname, const char *mode)
 {
-    char finalPathname[256] = "ux0:app/OSPX00001/";
-    strcat(finalPathname, pathname);    
-    return fopen(finalPathname, mode);
+    char finalPathname[256] = "app0:/";
+    strcat(finalPathname, pathname);
+	debugNetPrintf(DEBUG,"Before opening readonly (%s)\n",finalPathname);
+    // finalPathname = "/app/OSPX00001/test.txt";
+    //mode = "w";
+    FILE *file = fopen(finalPathname, mode);
+    if (file == NULL)
+    {
+        debugNetPrintf("after opening readonly: FAIL (%s)\n", strerror(errno));
+    }
+    else
+    {
+        debugNetPrintf("after opening readonly %s: SUCCESS\n", finalPathname);
+    }
+    return file;
+}
+
+FILE *openWritableFile(const char *pathname, const char *mode)
+{
+    char finalPathname[256] = "ux0:/data/OpenSupaplex/";
+
+    sceIoMkdir(finalPathname, 0777);
+
+    strcat(finalPathname, pathname);
+	debugNetPrintf(DEBUG,"Before opening writable (%s)\n",finalPathname);
+    // finalPathname = "/app/OSPX00001/test.txt";
+    //mode = "w";
+    FILE *file = fopen(finalPathname, mode);
+    if (file == NULL)
+    {
+        debugNetPrintf("after opening writable: FAIL (%s)\n", strerror(errno));
+    }
+    else
+    {
+        debugNetPrintf("after opening writable %s: SUCCESS\n", finalPathname);
+    }
+    return file;
 }
 #else
-FILE *openFile(const char *pathname, const char *mode)
+FILE *openReadonlyFile(const char *pathname, const char *mode)
+{
+    return fopen(pathname, mode);
+}
+
+FILE *openWritableFile(const char *pathname, const char *mode)
 {
     return fopen(pathname, mode);
 }
@@ -2782,18 +2825,39 @@ void drawLevelViewport(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
 void drawCurrentLevelViewport(void);
 void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, uint16_t height, uint16_t dstX, uint16_t dstY);
 
+#ifdef __vita__
+static const int kWindowWidth = kScreenWidth;
+static const int kWindowHeight = kScreenHeight;
+#else
 static const int kWindowWidth = kScreenWidth * 4;
 static const int kWindowHeight = kScreenHeight * 4;
+#endif
 
 //         public start
 int main(int argc, const char * argv[])
 {
+#ifdef __vita__
+    int ret;
+	ret=debugNetInit("192.168.0.251",18194,DEBUG);
+	debugNetPrintf(DEBUG,"Test debug level %d\n",ret);
+	debugNetPrintf(ERROR,"Test error level %d\n",ret);
+	debugNetPrintf(INFO,"Test info level %d\n",ret);
+#endif
+
+	// debugNetFinish();
+
+    // debugNetInit(DEBUGNETIP, 18194, 3);
+    // debugNetUDPSend("Hello world\n");
     gWindow = SDL_CreateWindow("OpenSupaplex",
                                SDL_WINDOWPOS_UNDEFINED,
                                SDL_WINDOWPOS_UNDEFINED,
                                kWindowWidth,
                                kWindowHeight,
+#ifdef __vita__
+                               SDL_WINDOW_FULLSCREEN);
+#else
                                0);
+#endif
 
     if (gWindow == NULL)
     {
@@ -2939,7 +3003,7 @@ removeArgumentByteFromCommandLine:              //; CODE XREF: start+6Aj
 openDemoFile:              //; CODE XREF: start+67j
         ax = 0x3D00;
         dx = &demoFileName;
-        FILE *file = openFile(demoFileName, 'r');
+        FILE *file = openReadonlyFile(demoFileName, 'r');
         // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
         //             ; DS:DX -> ASCIZ filename
         //             ; AX = action -> 0x3D - open file
@@ -4242,7 +4306,7 @@ void int24handler() //    proc far        ; DATA XREF: setint24+10o
 
 void readConfig() //  proc near       ; CODE XREF: start:loc_46F0Fp
 {
-    FILE *file = openFile("SUPAPLEX.CFG", "r");
+    FILE *file = openWritableFile("SUPAPLEX.CFG", "r");
     if (file == NULL)
     {
         if (errno == ENOENT) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
@@ -4324,7 +4388,7 @@ void readConfig() //  proc near       ; CODE XREF: start:loc_46F0Fp
 
 void saveConfiguration() // sub_4755A      proc near               ; CODE XREF: code:loc_4CAECp
 {
-    FILE *file = openFile("SUPAPLEX.CFG", "w");
+    FILE *file = openWritableFile("SUPAPLEX.CFG", "w");
     if (file == NULL)
     {
         exitWithError("Error opening SUPAPLEX.CFG\n");
@@ -4457,7 +4521,7 @@ loc_47647:             // ; CODE XREF: readDemoFiles+31j
         //             ; DS:DX -> ASCIZ filename
         //             ; AL = access mode
         //             ; 0 - read
-        FILE *file = openFile(bx, "r"); // bx will store the name of the demo file after changing the number (DEMOx.BIN)
+        FILE *file = openReadonlyFile(bx, "r"); // bx will store the name of the demo file after changing the number (DEMOx.BIN)
         if (file != NULL)
         { 
             goto loc_47651;
@@ -4717,7 +4781,7 @@ void convertPaletteDataToPalette(ColorPaletteData paletteData, ColorPalette outP
 
 void readPalettes()  // proc near       ; CODE XREF: readEverythingp
 {
-    FILE *file = openFile("PALETTES.DAT", "r");
+    FILE *file = openReadonlyFile("PALETTES.DAT", "r");
     if (file == NULL)
     {
         if (errno == ENOENT) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
@@ -4818,7 +4882,7 @@ void openCreditsBlock() // proc near      ; CODE XREF: start+2E9p
 void loadScreen2() // proc near       ; CODE XREF: start:loc_46F00p
 {
 //loc_478C0:              // ; CODE XREF: loadScreen2+8j
-    FILE *file = openFile("TITLE1.DAT", "r");
+    FILE *file = openReadonlyFile("TITLE1.DAT", "r");
     if (file == NULL)
     {
         exitWithError("Error opening TITLE1.DAT\n");
@@ -4873,7 +4937,7 @@ void loadScreen2() // proc near       ; CODE XREF: start:loc_46F00p
     convertPaletteDataToPalette(gTitle1PaletteData, title1DatPalette);
     setPalette(title1DatPalette);
 
-    file = openFile("TITLE2.DAT", "r");
+    file = openReadonlyFile("TITLE2.DAT", "r");
     if (file == NULL)
     {
         exitWithError("Error opening TITLE2.DAT\n");
@@ -4942,7 +5006,7 @@ void loadMurphySprites() // readMoving  proc near       ; CODE XREF: start:isFas
 // IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
 // IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
 
-    FILE *file = openFile("MOVING.DAT", "r");
+    FILE *file = openReadonlyFile("MOVING.DAT", "r");
 
     if (file == NULL)
     {
@@ -5064,7 +5128,7 @@ void loadMurphySprites() // readMoving  proc near       ; CODE XREF: start:isFas
     // IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
     // IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
 
-    file = openFile("FIXED.DAT", "r");
+    file = openReadonlyFile("FIXED.DAT", "r");
     if (file == NULL)
     {
         exitWithError("Error opening FIXED.DAT\n");
@@ -5127,7 +5191,7 @@ void loadMurphySprites() // readMoving  proc near       ; CODE XREF: start:isFas
 void readPanelDat() //    proc near       ; CODE XREF: readPanelDat+14j
                     // ; readEverything+6p
 {
-    FILE *file = openFile("PANEL.DAT", "r");
+    FILE *file = openReadonlyFile("PANEL.DAT", "r");
     if (file == NULL)
     {
         if (errno == ENOENT) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
@@ -5184,7 +5248,7 @@ void readBackDat() // proc near       ; CODE XREF: readBackDat+14j
                     // ; readEverything+15p
 {
     // address: 01ED:0ECD
-    FILE *file = openFile("BACK.DAT", "r");
+    FILE *file = openReadonlyFile("BACK.DAT", "r");
     if (file == NULL)
     {
         if (errno == ENOENT) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
@@ -5223,7 +5287,7 @@ void readBackDat() // proc near       ; CODE XREF: readBackDat+14j
 void readBitmapFonts() //   proc near       ; CODE XREF: readBitmapFonts+14j
                     // ; readEverything+3p
 {
-    FILE *file = openFile("CHARS6.DAT", "r");
+    FILE *file = openReadonlyFile("CHARS6.DAT", "r");
     if (file == NULL)
     {
         if (errno == ENOENT) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
@@ -5252,7 +5316,7 @@ void readBitmapFonts() //   proc near       ; CODE XREF: readBitmapFonts+14j
     }
 
 //loc_47BB5:              //; CODE XREF: readBitmapFonts+39j
-    file = openFile("CHARS8.DAT", "r");
+    file = openReadonlyFile("CHARS8.DAT", "r");
     if (file == NULL)
     {
         exitWithError("Error opening CHARS8.DAT\n");
@@ -5277,7 +5341,7 @@ void readTitleDatAndGraphics() // proc near  ; CODE XREF: start+2BBp
 //  word_51967 = 0x4D84; // address where the bitmap will be rendered
     videoloop();
 //  gNumberOfDotsToShiftDataLeft = 0;
-    FILE *file = openFile("TITLE.DAT", "r");
+    FILE *file = openReadonlyFile("TITLE.DAT", "r");
 
     if (file == NULL)
     {
@@ -5349,11 +5413,11 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
            "---- UNBELIEVEABLE!!!! ----",
            kListLevelNameLength);
 
-    FILE *file = openFile("LEVEL.LST", "r");
+    FILE *file = openWritableFile("LEVEL.LST", "r");
     if (file == NULL)
     {
 //errorOpeningLevelLst:             // ; CODE XREF: readLevelsLst+8j
-        FILE *file = openFile("LEVELS.DAT", "r");
+        FILE *file = openReadonlyFile("LEVELS.DAT", "r");
         if (file == NULL)
         {
 //errorOpeningLevelsDat:             // ; CODE XREF: readLevelsLst+17j
@@ -5408,7 +5472,7 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
         }
 
 //    loc_47D35:             // ; CODE XREF: readLevelsLst+95j
-        file = openFile("LEVEL.LST", "w");
+        file = openWritableFile("LEVEL.LST", "w");
         if (file == NULL)
         {
             exitWithError("Error opening LEVEL.LST\n");
@@ -5448,7 +5512,7 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
 void readGfxDat() //  proc near       ; CODE XREF: readGfxDat+14j
                    // ; readEverything+1Ep
 {
-    FILE *file = openFile("GFX.DAT", "r");
+    FILE *file = openReadonlyFile("GFX.DAT", "r");
     if (file == NULL)
     {
         if (errno == ENOENT) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
@@ -5478,7 +5542,7 @@ void readGfxDat() //  proc near       ; CODE XREF: readGfxDat+14j
 void readControlsDat() // proc near       ; CODE XREF: readControlsDat+14j
                     // ; readEverything+Cp
 {
-    FILE *file = openFile("CONTROLS.DAT", "r");
+    FILE *file = openReadonlyFile("CONTROLS.DAT", "r");
     if (file == NULL)
     {
         if (errno == ENOENT) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
@@ -5519,7 +5583,7 @@ void readPlayersLst() //  proc near       ; CODE XREF: readEverything+1Bp
         strcpy(gPlayerListData[i].name, "--------");
     }
 
-    FILE *file = openFile("PLAYER.LST", "r");
+    FILE *file = openWritableFile("PLAYER.LST", "r");
     if (file == NULL)
     {
         return;
@@ -5542,7 +5606,7 @@ void readHallfameLst() // proc near       ; CODE XREF: readEverything+18p
         return;
     }
     
-    FILE *file = openFile("HALLFAME.LST", "r");
+    FILE *file = openWritableFile("HALLFAME.LST", "r");
     if (file == NULL)
     {
         return;
@@ -9184,7 +9248,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     }
 
 //loc_499C8:              ; CODE XREF: sub_4955B+454j
-    FILE *file = openFile("SAVEGAME.SAV", "w");
+    FILE *file = openWritableFile("SAVEGAME.SAV", "w");
     if (file == NULL)
     {
 //        jmp loc_49C28
@@ -9298,7 +9362,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 
 //loc_49A89:              ; CODE XREF: sub_4955B+3FAj
 //                    ; sub_4955B+529j
-    file = openFile("SAVEGAME.SAV", "r");
+    file = openWritableFile("SAVEGAME.SAV", "r");
     if (file == NULL)
     {
 //        jmp loc_49C28
@@ -11839,7 +11903,7 @@ void sub_4AAB4(uint16_t position) //   proc near       ; CODE XREF: detonateZonk
 
 void readMenuDat() // proc near       ; CODE XREF: readEverything+9p
 {
-    FILE *file = openFile("MENU.DAT", "r");
+    FILE *file = openReadonlyFile("MENU.DAT", "r");
     if (file == NULL)
     {
         exitWithError("Error opening MENU.DAT\n");
@@ -14720,7 +14784,7 @@ void savePlayerListData() //   proc near       ; CODE XREF: handleNewPlayerOptio
     {
         return;
     }
-    FILE *file = openFile("PLAYER.LST", "w");
+    FILE *file = openWritableFile("PLAYER.LST", "w");
     if (file == NULL)
     {
         return;
@@ -14741,7 +14805,7 @@ void saveHallOfFameData() //   proc near       ; CODE XREF: handleNewPlayerOptio
         return;
     }
 
-    FILE *file = openFile("HALLFAME.LST", "w");
+    FILE *file = openWritableFile("HALLFAME.LST", "w");
     if (file == NULL)
     {
         return;
@@ -15903,7 +15967,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
         }
 
 //loc_4D5BB:              ; CODE XREF: readLevels+63j
-        file = openFile(filename, "r");
+        file = openReadonlyFile(filename, "r");
         if (file == NULL)
         {
             exitWithError("Error opening %s\n", filename);
@@ -16276,7 +16340,7 @@ void activateCombinedSound() // loadCombined proc near       ; CODE XREF: readCo
 void readSound(char *filename, size_t size) //   proc near       ; CODE XREF: activateInternalStandardSound+9p activateInternalSamplesSound+9p ...
 {
     // 01ED:6DE4
-    FILE *file = openFile(filename, "r");
+    FILE *file = openReadonlyFile(filename, "r");
     if (file == NULL)
     {
         exitWithError("Error opening %s\n", filename);
@@ -16311,7 +16375,7 @@ void readSound(char *filename, size_t size) //   proc near       ; CODE XREF: ac
 void readSound2(char *filename, size_t size) //  proc near       ; CODE XREF: activateInternalSamplesSound+12p
 //                    ; activateSoundBlasterSound+12p ...
 {
-    FILE *file = openFile(filename, "r");
+    FILE *file = openReadonlyFile(filename, "r");
     if (file == NULL)
     {
         exitWithError("Error opening %s\n", filename);
