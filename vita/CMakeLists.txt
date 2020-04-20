@@ -8,12 +8,15 @@ if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
   endif()
 endif()
 
-project(OpenSupaplex)
+set(SHORT_NAME OpenSupaplex)
+project(${SHORT_NAME})
 include("${VITASDK}/share/vita.cmake" REQUIRED)
 
 set(VITA_APP_NAME "OpenSupaplex")
 set(VITA_TITLEID  "OSPX00001")
 set(VITA_VERSION  "07.00")
+
+option(DEBUGNET "Enable debugnet for logging" ON)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
@@ -22,10 +25,35 @@ include_directories(
   ../common
 )
 
-add_executable(${PROJECT_NAME}
+set(VITA_ELF_NAME ${SHORT_NAME}.elf)
+add_executable(${SHORT_NAME}
   ../src/supaplex.c
   ../src/controller.c
 )
+
+target_compile_definitions(${SHORT_NAME}
+        PRIVATE
+        VITA_VERSION="${VITA_VERSION}"
+        VITA_TITLEID="${VITA_TITLEID}"
+        )
+
+if (CMAKE_BUILD_TYPE MATCHES Debug)
+    message("Debug mode")
+    add_definitions(-DDEBUG)
+    if (DEBUGNET)
+        message("Debugnet turned on")
+        add_definitions(-DDEBUGNET)
+        target_link_libraries(${SHORT_NAME} debugnet)
+
+        get_filename_component(debugnetipFilePath debugnetip.txt REALPATH)
+        if (NOT EXISTS ${debugnetipFilePath})
+            message(FATAL_ERROR "You need to put an IP in debugnetip.txt to enable the DEBUGNET option.")
+        endif ()
+
+        file(STRINGS ${debugnetipFilePath} DEBUGNETIP)
+        add_definitions(-DDEBUGNETIP="${DEBUGNETIP}")
+    endif ()
+endif (CMAKE_BUILD_TYPE MATCHES Debug)
 
 target_link_libraries(${PROJECT_NAME}
   SDL2
