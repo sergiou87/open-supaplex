@@ -1,8 +1,8 @@
-name: Build OpenSupaplex
+name: Build OpenSupaplex Nightly
 on:
   push:
-    branches:
-      - dev/github-action-vita #master
+    tag:
+      - nightly
 jobs:
   build-vita:
     runs-on: ubuntu-18.04
