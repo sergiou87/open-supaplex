@@ -46,6 +46,7 @@ INCLUDES	:=	include
 APP_TITLE	:= OpenSupaplex
 APP_AUTHOR	:= sergiou87
 APP_VERSION	:= 7.0
+ICON        := resources/launcher-icon.jpg
 
 #---------------------------------------------------------------------------------
 # options for code generation

@@ -11979,7 +11979,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
 
     restoreLastMouseAreaBitmap();
 
-#if defined(SWITCH) || defined(__vita__)
+#if defined(__SWITCH__) || defined(__vita__)
     do
     {
 //loc_4AB7F:              ; CODE XREF: handleNewPlayerOptionClick+6Aj
