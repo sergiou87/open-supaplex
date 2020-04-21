@@ -29,6 +29,7 @@ set(VITA_ELF_NAME ${SHORT_NAME}.elf)
 add_executable(${SHORT_NAME}
   ../src/supaplex.c
   ../src/controller.c
+  ../src/file.c
 )
 
 target_compile_definitions(${SHORT_NAME}

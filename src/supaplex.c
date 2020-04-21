@@ -21,6 +21,7 @@
 #include <time.h>
 
 #include "controller.h"
+#include "file.h"
 
 // #ifdef __vita__
 // #include <debugnet.h>
@@ -32,37 +33,6 @@
 
 #define kScreenWidth 320
 #define kScreenHeight 200
-
-#ifdef __vita__
-FILE *openReadonlyFile(const char *pathname, const char *mode)
-{
-    char finalPathname[256] = "app0:/";
-    strcat(finalPathname, pathname);
-    return fopen(finalPathname, mode);
-}
-
-FILE *openWritableFile(const char *pathname, const char *mode)
-{
-    char finalPathname[256] = "ux0:/data/OpenSupaplex/";
-
-    // Create base folder in a writable area
-    sceIoMkdir(finalPathname, 0777);
-
-    strcat(finalPathname, pathname);
-
-    return fopen(finalPathname, mode);
-}
-#else
-FILE *openReadonlyFile(const char *pathname, const char *mode)
-{
-    return fopen(pathname, mode);
-}
-
-FILE *openWritableFile(const char *pathname, const char *mode)
-{
-    return fopen(pathname, mode);
-}
-#endif
 
 // title1DataBuffer -> A000:4DAC - A000:CAAC
 // title2DataBuffer -> 0x4DD4 - 0xCAD4
