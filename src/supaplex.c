@@ -22,9 +22,9 @@
 
 #include "controller.h"
 
-#ifdef __vita__
-#include <debugnet.h>
-#endif
+// #ifdef __vita__
+// #include <debugnet.h>
+// #endif
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -38,41 +38,19 @@ FILE *openReadonlyFile(const char *pathname, const char *mode)
 {
     char finalPathname[256] = "app0:/";
     strcat(finalPathname, pathname);
-	debugNetPrintf(DEBUG,"Before opening readonly (%s)\n",finalPathname);
-    // finalPathname = "/app/OSPX00001/test.txt";
-    //mode = "w";
-    FILE *file = fopen(finalPathname, mode);
-    if (file == NULL)
-    {
-        debugNetPrintf("after opening readonly: FAIL (%s)\n", strerror(errno));
-    }
-    else
-    {
-        debugNetPrintf("after opening readonly %s: SUCCESS\n", finalPathname);
-    }
-    return file;
+    return fopen(finalPathname, mode);
 }
 
 FILE *openWritableFile(const char *pathname, const char *mode)
 {
     char finalPathname[256] = "ux0:/data/OpenSupaplex/";
 
+    // Create base folder in a writable area
     sceIoMkdir(finalPathname, 0777);
 
     strcat(finalPathname, pathname);
-	debugNetPrintf(DEBUG,"Before opening writable (%s)\n",finalPathname);
-    // finalPathname = "/app/OSPX00001/test.txt";
-    //mode = "w";
-    FILE *file = fopen(finalPathname, mode);
-    if (file == NULL)
-    {
-        debugNetPrintf("after opening writable: FAIL (%s)\n", strerror(errno));
-    }
-    else
-    {
-        debugNetPrintf("after opening writable %s: SUCCESS\n", finalPathname);
-    }
-    return file;
+
+    return fopen(finalPathname, mode);
 }
 #else
 FILE *openReadonlyFile(const char *pathname, const char *mode)
@@ -2836,18 +2814,14 @@ static const int kWindowHeight = kScreenHeight * 4;
 //         public start
 int main(int argc, const char * argv[])
 {
-#ifdef __vita__
-    int ret;
-	ret=debugNetInit("192.168.0.251",18194,DEBUG);
-	debugNetPrintf(DEBUG,"Test debug level %d\n",ret);
-	debugNetPrintf(ERROR,"Test error level %d\n",ret);
-	debugNetPrintf(INFO,"Test info level %d\n",ret);
-#endif
+// #ifdef __vita__
+//     int ret;
+// 	ret=debugNetInit("192.168.0.251",18194,DEBUG);
+// 	debugNetPrintf(DEBUG,"Test debug level %d\n",ret);
+// 	debugNetPrintf(ERROR,"Test error level %d\n",ret);
+// 	debugNetPrintf(INFO,"Test info level %d\n",ret);
+// #endif
 
-	// debugNetFinish();
-
-    // debugNetInit(DEBUGNETIP, 18194, 3);
-    // debugNetUDPSend("Hello world\n");
     gWindow = SDL_CreateWindow("OpenSupaplex",
                                SDL_WINDOWPOS_UNDEFINED,
                                SDL_WINDOWPOS_UNDEFINED,
@@ -12027,15 +12001,27 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
 
 //loc_4AB56:              ; CODE XREF: handleNewPlayerOptionClick+25j
     gNewPlayerEntryIndex = newPlayerIndex;
-    restoreLastMouseAreaBitmap();
-//    mov di, 89F7h
-    drawTextWithChars6FontWithOpaqueBackground(168, 127, 4, "YOUR NAME:             ");
 
     char newPlayerName[9] = "        ";
     gNewPlayerNameLength = 0;
-
     uint16_t mouseX, mouseY;
     uint16_t mouseButtonStatus;
+
+    restoreLastMouseAreaBitmap();
+
+#if defined(SWITCH) || defined(__vita__)
+    do
+    {
+//loc_4AB7F:              ; CODE XREF: handleNewPlayerOptionClick+6Aj
+        getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
+    }
+    while (mouseButtonStatus != 0);
+
+    sprintf(newPlayerName, "PLAYER%2d", gNewPlayerEntryIndex + 1);
+    gNewPlayerNameLength = strlen(newPlayerName);
+#else
+//    mov di, 89F7h
+    drawTextWithChars6FontWithOpaqueBackground(168, 127, 4, "YOUR NAME:             ");
 
     do
     {
@@ -12110,6 +12096,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
         getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
     }
     while (mouseButtonStatus != 0);
+#endif
 
     // Completely empty name: ignore
     if (strcmp(newPlayerName, "        ") == 0)
@@ -16196,7 +16183,25 @@ void setPalette(ColorPalette palette) //   proc near       ; CODE XREF: start+2B
 
 //    old_word_510A2 = word_510A2;
 //    word_510A2 = 0;
+#ifdef __vita__
+    // For some reason (SDL bug?) in PS Vita using SDL_SetPaletteColors here
+    // specifically breaks the game colors. This seems to work, will investigate later...
+    //
+    for (uint8_t i = 0; i < kNumberOfColors; ++i)
+    {
+        gScreenSurface->format->palette->colors[i].r = palette[i].r;
+        gScreenSurface->format->palette->colors[i].g = palette[i].g;
+        gScreenSurface->format->palette->colors[i].b = palette[i].b;
+    }
+    gScreenSurface->format->palette->version++;
+    if (gScreenSurface->format->palette->version == 0)
+    {
+        gScreenSurface->format->palette->version = 1;
+    }
+#else
     SDL_SetPaletteColors(gScreenSurface->format->palette, palette, 0, kNumberOfColors);
+#endif
+
     memcpy(gCurrentPalette, palette, sizeof(ColorPalette));
 //        word_510A2 = old_word_510A2;
 }
