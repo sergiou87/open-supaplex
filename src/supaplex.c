@@ -3356,7 +3356,6 @@ loc_46E75:              //; CODE XREF: start+251j
     initializeFadePalette(); // 01ED:026F
     initializeMouse();
 //    setint8(); // Timer or sound speaker?
-//    setint24(); // Fatal error handler?
 //    setint9(); // Keyboard
 //    initializeSound();
     if (fastMode == 0)
@@ -3573,7 +3572,6 @@ loc_46E75:              //; CODE XREF: start+251j
         fadeToPalette(gBlackPalette); // 0x60D5
 /*
 doneWithDemoPlayback:           //; CODE XREF: start+375j
-        resetint9();
         resetVideoMode();
         if (fastMode != 1)
         {
@@ -3612,7 +3610,6 @@ printMessageAfterward:          //; CODE XREF: start+46Cj start+472j ...
         conprintln();
 
 isNotFastMode3:              //; CODE XREF: start+458j
-        resetint24();
         resetint8();
         soundShutdown?();
 
@@ -3639,8 +3636,6 @@ exit:                   //; CODE XREF: readConfig:loc_474BBj
 
 //    //; readConfig+3Bj ...
 //        push(ax);
-//        resetint9();
-//        resetint24();
 //        soundShutdown?();
 //        resetVideoMode();
 //        resetint8();
@@ -3818,43 +3813,6 @@ void setint9()
 //         assume ds:data
 //         return;
 // setint9     endp
-}
-
-void resetint9() //   proc near       ; CODE XREF: start:doneWithDemoPlaybackp
-// ; loadScreen2-7E0p ...
-{
-    /*
-    cmp byte_5199A, 0
-    jnz short resetint9
-    cmp byte ptr word_519A7, 0
-    jnz short resetint9
-    cmp byte ptr word_519B3, 0
-    jnz short resetint9
-    cmp byte_519B5, 0
-    jnz short resetint9
-    cmp byte_519B7, 0
-    jnz short resetint9
-    cmp byte_519C2, 0
-    jnz short resetint9
-    cmp byte_519C3, 0
-    jnz short resetint9
-    cmp byte_519CF, 0
-    jnz short resetint9
-    cmp byte_519D1, 0
-    jnz short resetint9
-    push    ds
-    push    es
-    mov dx, originalInt9Handler
-    mov ax, originalInt9Handler+2
-    mov ds, ax
-    mov ah, 25h ; '%'
-    al = 9
-    int 21h     ; DOS - SET INTERRUPT VECTOR
-                ; AL = interrupt number
-                ; DS:DX = new vector to be used for specified interrupt
-    pop es
-    pop ds
-     */
 }
 
 void int9handler() // proc far        ; DATA XREF: setint9+1Fo
@@ -4156,57 +4114,6 @@ void resetint8() //   proc near       ; CODE XREF: start+48Bp
 //    out 40h, al     ; Timer 8253-5 (AT: 8254.2).
 //    pop es
 //    pop ds
-}
-
-void setint24() //    proc near       ; CODE XREF: start+29Fp
-{
-    // This function replaces the handler of interruption 24 with our own (int24handler) and stores the original in originalInt24Handler
-        // push    ds
-        // push    es
-        // mov ah, 35h ; '5'
-        // al = 24h ; '$'
-        // int 21h     ; DOS - 2+ - GET INTERRUPT VECTOR
-        //             ; AL = interrupt number
-        //             ; Return: ES:BX = value of interrupt vector
-        // mov originalInt24Handler+2, es
-        // mov originalInt24Handler, bx
-        // mov dx, offset int24handler
-        // mov ax, seg code
-        // mov ds, ax
-        // assume ds:code
-        // mov ah, 25h ; '%'
-        // al = 24h ; '$'
-        // int 21h     ; DOS - SET INTERRUPT VECTOR
-        //             ; AL = interrupt number
-        //             ; DS:DX = new vector to be used for specified interrupt
-        // pop es
-        // pop ds
-        // assume ds:data
-        // return;
-}
-
-void resetint24() //  proc near       ; CODE XREF: start:isNotFastMode3p
-//                    ; loadScreen2-7DDp
-{
-//        push    ds
-//        push    es
-//        mov dx, originalInt24Handler
-//        mov ax, originalInt24Handler+2
-//        mov ds, ax
-//        mov ah, 25h ; '%'
-//        al = 24h ; '$'
-//        int 21h     ; DOS - SET INTERRUPT VECTOR
-//                    ; AL = interrupt number
-//                    ; DS:DX = new vector to be used for specified interrupt
-//        pop es
-//        pop ds
-//        return;
-}
-
-void int24handler() //    proc far        ; DATA XREF: setint24+10o
-{
-//    al = 1
-//    iret
 }
 
 void readConfig() //  proc near       ; CODE XREF: start:loc_46F0Fp
