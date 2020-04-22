@@ -216,6 +216,7 @@ uint8_t byte_59B94 = 0;
 uint8_t byte_59B95 = 0;
 uint8_t byte_59B96 = 0;
 uint16_t word_5A199 = 0;
+uint8_t byte_5A140 = 0;
 uint8_t byte_5A19B = 0;
 uint8_t byte_5A19C = 0;
 uint8_t byte_5A2F8 = 0;
@@ -1532,11 +1533,16 @@ uint16_t word_5870D = 0;
 uint16_t word_58710 = 0;
 uint16_t word_58712 = 0;
 uint16_t word_58714 = 0;
+uint16_t word_58AB8 = 0x3231;
+uint16_t word_58ABA = 0x3433;
+uint16_t word_58AEA = 0x3030;
+uint16_t word_58AEC = 0x0030;
 uint16_t word_5988E = 0x4650;
 uint16_t word_59891 = 0x3336;
 uint16_t word_599D6 = 0;
 uint16_t word_599D8 = 0;
 uint16_t word_599DA = 0;
+uint16_t word_59B6E = 0;
 uint16_t word_59B73 = 0;
 uint16_t word_59B88 = 0;
 uint16_t word_59B8A = 0;
@@ -7806,6 +7812,7 @@ void sub_492F1() //   proc near       ; CODE XREF: sub_4955B+1Dp
 //    mov dx, 0DD1h
 //    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
 //                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
+    // TODO: Implement
 //    fwrite(NULL, sizeof(uint8_t), 1, word_510E4);
     byte_510E2 = 0xFF;
     bl = gCurrentUserInput;
@@ -7817,6 +7824,7 @@ void sub_492F1() //   proc near       ; CODE XREF: sub_4955B+1Dp
 void somethingspsig() //  proc near       ; CODE XREF: runLevel+355p
                      // ; sub_4945D+30p ...
 {
+    // TODO: Implement
     /*
     al = speed2
     xor al, byte_59B5F
@@ -7959,100 +7967,115 @@ loc_4944F:              ; CODE XREF: somethingspsig+EEj
      */
 }
 
+// TODO: revisit. this is related to demos... finish recording demo? start recording demo?
 void sub_4945D() //   proc near       ; CODE XREF: sub_4955B+294p
                    // ; sub_4955B+2A4p ...
 {
-    /*
-    mov word_51A01, 0
-    mov word_51963, 0
-    mov word_51965, 0
-    mov word ptr flashingbackgroundon, 0
-    mov word_51A07, 1
-    push    ax
-    mov dx, 3C8h
-    xor al, al
-    out dx, al
-    inc dx
-    out dx, al
-    out dx, al
-    out dx, al
-    cmp gIsRecordingDemo, 0
-    jz  short loc_49490
-    call    somethingspsig
+    word_51A01 = 0;
+    word_51963 = 0;
+    word_51965 = 0;
+    flashingbackgroundon = (flashingbackgroundon & 0xFFFF0000) + 0; // mov word ptr flashingbackgroundon, 0
+    word_51A07 = 1;
+//    push    ax
+//    mov dx, 3C8h
+//    xor al, al
+//    out dx, al
+//    inc dx
+//    out dx, al
+//    out dx, al
+//    out dx, al
+    if (gIsRecordingDemo != 0)
+    {
+        somethingspsig();
+    }
 
-loc_49490:              ; CODE XREF: sub_4945D+2Ej
-    pop ax
-    mov bx, 380Ah
-    add al, 30h ; '0'
-    mov [bx+4], al
-    cmp byte ptr word_59B6E, 0
-    jnz short loc_494A6
-    mov bx, 0A014h
-    mov [bx+7], al
+//loc_49490:              ; CODE XREF: sub_4945D+2Ej
+//    pop ax
+    bx = 0x380A;
+    al += 0x30;
+//    bx[4] = al; // mov [bx+4], al
+    if ((word_59B6E & 0xFF) == 0) // cmp byte ptr word_59B6E, 0
+    {
+        bx = 0xA014;
+//        *(bx + 7) = al; // [bx+7], al
+    }
 
-loc_494A6:              ; CODE XREF: sub_4945D+41j
-    mov byte ptr aRecordingDemo0+12h, al ; "0 ---"
-    mov cx, 0
-    mov dx, bx
-    mov ax, 3C00h
-    int 21h     ; DOS - 2+ - CREATE A FILE WITH HANDLE (CREAT)
-                ; CX = attributes for file
-                ; DS:DX -> ASCIZ filename (may include drive and path)
-    jnb short loc_494B8
-    jmp locret_49543
+//loc_494A6:              ; CODE XREF: sub_4945D+41j
+    // aRecordingDemo0 has "--- RECORDING DEMO0 ---"
+    // This code changes the "0" from "DEMO0" with another value
+//    mov byte ptr aRecordingDemo0+12h, al ; "0 ---"
+//    mov cx, 0
+//    mov dx, bx
+//    mov ax, 3C00h
+//    int 21h     ; DOS - 2+ - CREATE A FILE WITH HANDLE (CREAT)
+//                ; CX = attributes for file
+//                ; DS:DX -> ASCIZ filename (may include drive and path)
+    FILE *file = fopen("some-name-probably-DEMO0", "w");
+    if (file == NULL)
+    {
+        return;
+    }
 
-loc_494B8:              ; CODE XREF: sub_4945D+56j
-    mov word_510E4, ax
-    mov byte_5A140, 83h ; '?'
-    mov bl, speed3
-    mov cl, 4
-    shl bl, cl
-    or  bl, gameSpeed
-    mov speed2, bl
-    mov bx, word_510E4
-    mov ax, 4000h
-    mov cx, levelDataLength
-    mov dx, offset levelBuffer
-    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
-                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
-    jb  short locret_49543
-    mov ax, gCurrentSelectedLevelIndex
-    or  al, 80h
-    mov byte_510E2, al
-    mov ax, 4000h
-    mov bx, word_510E4
-    mov cx, 1
-    mov dx, 0DD2h
-    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
-                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
-    jb  short locret_49543
-    mov byte_510E1, 0
-    mov byte_5A2F8, 1
-    mov gIsPlayingDemo, 0
-    mov byte_510E2, 0FEh ; '?'
-    mov word_51A07, 1
-    cmp byte_599D4, 0
-    jnz short loc_4952A
-    mov ax, word_58AB8
-    mov word_58AEA, ax
-    mov ax, word_58ABA
-    and ax, 0FFh
-    mov word_58AEC, ax
+//loc_494B8:              ; CODE XREF: sub_4945D+56j
+    word_510E4 = ax; // file handle
+    byte_5A140 = 0x83; // 131
+    bl = speed3;
+    cl = 4;
+    bl = bl << cl;
+    bl |= gameSpeed;
+    speed2 = bl;
+//    mov bx, word_510E4
+//    mov ax, 4000h
+//    mov cx, levelDataLength
+//    mov dx, offset levelBuffer
+//    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
+//                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
+    uint8_t buffer[levelDataLength];
+    size_t bytes = fwrite(buffer, levelDataLength, 1, file);
+    if (bytes < levelDataLength)
+    {
+        return;
+    }
+    ax = gCurrentSelectedLevelIndex;
+    al |= 0x80; // 128
+    byte_510E2 = al;
+//    mov ax, 4000h
+//    mov bx, word_510E4
+//    mov cx, 1
+//    mov dx, 0DD2h // TODO: what is in 0xDD2??
+//    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
+//                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
+    uint8_t otherBuffer[1];
+    bytes = fwrite(otherBuffer, 1, 1, file);
+    if (bytes < 1)
+    {
+        return;
+    }
+    byte_510E1 = 0;
+    byte_5A2F8 = 1;
+    gIsPlayingDemo = 0;
+    byte_510E2 = 0xFE; // 254
+    word_51A07 = 1;
+    if (byte_599D4 == 0)
+    {
+        ax = word_58AB8;
+        word_58AEA = ax;
+        ax = word_58ABA;
+        ax &= 0xFF;
+        word_58AEC = ax;
+    }
 
-loc_4952A:              ; CODE XREF: sub_4945D+BCj
-    mov gIsRecordingDemo, 1
-    cmp byte_5A33E, 0
-    jz  short loc_4953B
-    mov gIsPlayingDemo, 1
+//loc_4952A:              ; CODE XREF: sub_4945D+BCj
+    gIsRecordingDemo = 1;
+    if (byte_5A33E != 0)
+    {
+        gIsPlayingDemo = 1;
+    }
 
-loc_4953B:              ; CODE XREF: sub_4945D+D7j
-    call    sub_4A463
-    mov gIsPlayingDemo, 0
-
-locret_49543:               ; CODE XREF: sub_4945D+58j
-                ; sub_4945D+82j ...
+//loc_4953B:              ; CODE XREF: sub_4945D+D7j
+    sub_4A463();
+    gIsPlayingDemo = 0;
     return;
-    */
 }
 
 void prepareSomeKindOfLevelIdentifier() // sub_49544  proc near       ; CODE XREF: start+3A1p
