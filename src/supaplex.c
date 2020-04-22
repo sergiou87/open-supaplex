@@ -1505,7 +1505,7 @@ uint16_t word_5195F = 0;
 uint16_t word_51961 = 0;
 uint16_t word_51963 = 0;
 uint16_t word_51965 = 0;
-uint16_t word_51967 = 0;
+uint16_t word_51967 = 0; // scroll / first pixel of the scroll window
 uint16_t word_5196C = 0;
 uint16_t word_51970 = 0;
 uint16_t word_51974 = 0;
@@ -2770,7 +2770,7 @@ void sub_4FDB5(uint16_t position);
 void sub_4F2AF(uint16_t position);
 void sub_48957(uint16_t position);
 void drawLevelViewport(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
-void drawCurrentLevelViewport(void);
+void drawCurrentLevelViewport(uint16_t panelHeight);
 void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, uint16_t height, uint16_t dstX, uint16_t dstY);
 
 #ifdef __vita__
@@ -3434,7 +3434,7 @@ loc_46E75:              //; CODE XREF: start+251j
             resetNumberOfInfotrons();
 //            enableFloppy();
             findMurphy();
-            drawCurrentLevelViewport(); // Added by me
+            drawCurrentLevelViewport(kPanelBitmapHeight); // Added by me
 //            si = 0x6015;
             fadeToPalette(gPalettes[1]); // At this point the screen fades in and shows the game
 
@@ -3459,7 +3459,7 @@ loc_46E75:              //; CODE XREF: start+251j
             }
 
 //isNotFastMode2:              //; CODE XREF: start+373j
-            slideDownGameDash();
+            slideDownGameDash(); // 01ED:0351
             if (byte_59B71 != 0)
             {
                 loadMurphySprites();
@@ -3744,75 +3744,36 @@ done:                   //; CODE XREF: fileReadUnk1+57j
 */
 void slideDownGameDash() // proc near     ; CODE XREF: start:isNotFastMode2p
 {
-    /*
+    // 01ED:04ED
     if ((word_510C1 & 0xFF) == 0)
     {
 //loc_4715C:              ; CODE XREF: crt?2+5j
-        cx = 0x90; // 144
-    }
-    else
-    {
-        cx = 0x5F; // 95
+//        cx = 0x90; // 144
+        return;
     }
 
-    do
+    for (int panelHeight = kPanelBitmapHeight; panelHeight > 0; --panelHeight)
     {
-//loc_4715F:              ; CODE XREF: crt?2+Aj crt?2+5Fj
-        mov dx, 3D4h
-        al = 18h
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; line compare (scan line). Used for split screen operations.
-        inc dx
-        al = cl
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 7
-        out dx, al      ; Video: CRT cntrlr addr
-                    // ; bit 8 for certain CRTC regs. Data bits:
-                    // ; 0: vertical total (Reg 06)
-                    // ; 1: vert disp'd enable end (Reg 12H)
-                    // ; 2: vert retrace start (Reg 10H)
-                    // ; 3: start vert blanking (Reg 15H)
-                    // ; 4: line compare (Reg 18H)
-                    // ; 5: cursor location (Reg 0aH)
-        inc dx
-        al = 3Fh ; '?'
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 9
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; maximum scan line
-        inc dx
-        al = 80h ; '?'
-        out dx, al      ; Video: CRT controller internal registers
-        mov bx, word_51967
-        cmp bx, 4DAEh
-        jbe short loc_4718E
-        sub bx, 7Ah ; 'z'
-        mov word_51967, bx
+        // This code probably keeps the scroll in valid values
+        // bx = word_51967;
+        // if (bx > 0x4DAE)
+        // {
+        //     bx -= 122;
+        //     word_51967 = bx;
+        // }
 
-    //loc_4718E:              ; CODE XREF: crt?2+35j
-        mov dx, 3D4h
-        al = 0Dh
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (low)
-        inc dx
-        al = bl
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 0Ch
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (high)
-        inc dx
-        al = bh
-        out dx, al      ; Video: CRT controller internal registers
+        // Move the bottom panel line by line to the bottom of the screen
+        for (int y = kScreenHeight - 2; y >= kScreenHeight - panelHeight; --y)
+        {
+            uint16_t srcAddress = y * kScreenWidth;
+            uint16_t dstAddress = (y + 1) * kScreenWidth;
+            memcpy(&gScreenPixels[dstAddress], &gScreenPixels[srcAddress], kScreenWidth);
+        }
+
+        drawCurrentLevelViewport(panelHeight);
         videoloop();
         loopForVSync();
-        cx++;
     }
-    while (cx <= 0x90); // 144
-    return;
-     */
 }
 
 void setint9()
@@ -7702,7 +7663,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 //noFlashing4:              ; CODE XREF: runLevel+2D1j
         gNumberOfDotsToShiftDataLeft = ah;
 
-        drawCurrentLevelViewport(); // Added by me
+        drawCurrentLevelViewport(kPanelBitmapHeight); // Added by me
 
         if (fastMode != 1)
         {
@@ -21585,9 +21546,9 @@ void drawLevelViewport(uint16_t x, uint16_t y, uint16_t width, uint16_t height)
     }
 }
 
-void drawCurrentLevelViewport()
+void drawCurrentLevelViewport(uint16_t panelHeight)
 {
-    uint16_t viewportHeight = kScreenHeight - kPanelBitmapHeight;
+    uint16_t viewportHeight = kScreenHeight - panelHeight;
 
     uint16_t scrollX = 0, scrollY = 0;
     if (gMurphyPositionX < kScreenWidth / 2)
