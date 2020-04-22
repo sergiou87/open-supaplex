@@ -2656,7 +2656,6 @@ void activateCombinedSound(void);
 void activateInternalStandardSound(void);
 void activateInternalSamplesSound(void);
 void sub_4921B(void);
-void enableFloppy(void);
 void prepareSomeKindOfLevelIdentifier(void);
 void runMainMenu(void);
 void convertNumberTo3DigitPaddedString(uint8_t number, char numberString[3], char useSpacesForPadding);
@@ -2717,7 +2716,6 @@ void updateOptionsMenuState(uint8_t *destBuffer);
 void sub_4BF4A(uint8_t number);
 void readLevels(void);
 void sub_48A20(void);
-void sub_4D464(void);
 void drawFixedLevel(void);
 void drawGamePanel(void);
 void drawgNumberOfRemainingInfotrons(void);
@@ -2726,7 +2724,6 @@ void sub_4A2E6(void);
 void resetNumberOfInfotrons(void);
 void findMurphy(void);
 void drawGamePanelText(void);
-void sub_5024B(void);
 void sub_4A291(void);
 void drawMovingFrame(uint16_t srcX, uint16_t srcY, uint16_t destPosition);
 void runLevel(void);
@@ -3351,19 +3348,12 @@ loc_46E75:              //; CODE XREF: start+251j
     }
 
 //leaveVideoStatus:           //; CODE XREF: start+28Aj
-//        ax = 0xA000;
-//        es = ax;
-//         assume es:nothing
     initializeFadePalette(); // 01ED:026F
     initializeMouse();
 //    setint8(); // Timer or sound speaker?
-//    setint9(); // Keyboard
 //    initializeSound();
     if (fastMode == 0)
     {
-//    initializeVideo2();
-//    initializeVideo3();
-
         setPalette(gBlackPalette);
         readTitleDatAndGraphics();
         ColorPalette titleDatPalette; // si = 0x5F15;
@@ -3373,7 +3363,6 @@ loc_46E75:              //; CODE XREF: start+251j
 
 //isFastMode:              //; CODE XREF: start+2ADj
     loadMurphySprites(); // 01ED:029D
-//    initializeVideo3();
     // Conditions to whether show
     al = byte_59B6B;
     al |= byte_59B84;
@@ -3427,12 +3416,10 @@ loc_46E75:              //; CODE XREF: start+251j
             byte_5A33F = 0;
             drawPlayerList();
             sub_48A20();
-            sub_4D464(); // configures the viewport for the bottom panel, which is not very useful to this re-implementation?
             drawFixedLevel();
             drawGamePanel(); // 01ED:0311
             sub_4A2E6();
             resetNumberOfInfotrons();
-//            enableFloppy();
             findMurphy();
             drawCurrentLevelViewport(kPanelBitmapHeight); // Added by me
 //            si = 0x6015;
@@ -3482,8 +3469,7 @@ loc_46E75:              //; CODE XREF: start+251j
         shouldSkipFirstPart = 0;
 
 //loc_46FBE:              //; CODE XREF: start+30Cj start+31Bj ...
-        enableFloppy(); // 01ED:0377
-        prepareSomeKindOfLevelIdentifier();
+        prepareSomeKindOfLevelIdentifier(); // 01ED:037A
 
         uint8_t shouldDoSomething = 1; // still no idea what this is
 
@@ -3770,50 +3756,6 @@ void slideDownGameDash() // proc near     ; CODE XREF: start:isNotFastMode2p
         videoloop();
         loopForVSync();
     }
-}
-
-void setint9()
-{
-    // waits for shift, ctrl, alt, system, and suspend to NOT be pressed
-    // then replaces the int 9 handler with our own (int9handler) and stores the original one in originalInt9Handler
-// ; waits for shift, ctrl, alt, system, and suspend to NOT be pressed
-//         push    ds
-//         mov ax, 0040h;
-//         mov ds, ax
-//         assume ds:nothing
-
-// keysstillpressed:
-//         ; test keyboard state flags at 0040:0017 (BIOS keyboard status byte: http://www.powernet.co.za/info/bios/mem/40_0017.htm)
-//         test    word ptr [ds:0017h], 0F70Fh 
-//         jnz short keysstillpressed 
-
-// ; keys no longer pressed, we can continue
-//         pop ds
-//         assume ds:data
-//         push    ds
-//         push    es
-//         mov ah, 35h ; '5'
-//         al = 9
-//         int 21h     ; DOS - 2+ - GET INTERRUPT VECTOR
-//                     ; AL = interrupt number
-//                     ; Return: ES:BX = value of interrupt vector
-//         mov originalInt9Handler+2, es
-//         mov originalInt9Handler, bx
-//         mov dx, offset int9handler
-//         mov ax, seg code
-//         mov ds, ax
-//         assume ds:code
-//         mov ah, 25h ; '%'
-//         al = 9
-//         int 21h     ; DOS - SET INTERRUPT VECTOR
-//                     ; AL = interrupt number
-//                     ; DS:DX = new vector to be used for specified interrupt
-//         pop es
-//         assume es:nothing
-//         pop ds
-//         assume ds:data
-//         return;
-// setint9     endp
 }
 
 void int9handler() // proc far        ; DATA XREF: setint9+1Fo
@@ -4279,20 +4221,6 @@ void saveConfiguration() // sub_4755A      proc near               ; CODE XREF: 
     }
 }
 
-void enableFloppy() //   proc near       ; CODE XREF: start+341p
-                    // ; start:loc_46FBEp ...
-{
-    // mov dx, 3F2h
-    // al = 1111b
-    // out dx, al      ; Floppy: digital output reg bits:
-    //             ; 0-1: Drive to select 0-3 (AT: bit 1 not used)
-    //             ; 2:   0=reset diskette controller; 1=enable controller
-    //             ; 3:   1=enable diskette DMA and interrupts
-    //             ; 4-7: drive motor enable.  Set bits to turn drive ON.
-    //             ;
-    // return;
-// enableFloppy   endp
-}
 /*
 void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
                   //  ; sub_4B159p ...
@@ -4597,13 +4525,6 @@ void readPalettes()  // proc near       ; CODE XREF: readEverythingp
     FILE *file = openReadonlyFile("PALETTES.DAT", "r");
     if (file == NULL)
     {
-        if (errno == ENOENT) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
-        {
-    //        recoverFilesFromFloppyDisk();
-    //        jb  short loc_4779C // if success try again?
-    //        goto short loc_4779F;
-        }
-
         exitWithError("Error opening PALETTES.DAT\n");
     }
 
@@ -4823,25 +4744,6 @@ void loadMurphySprites() // readMoving  proc near       ; CODE XREF: start:isFas
 
     if (file == NULL)
     {
-        if (errno == ENOENT) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
-        {
-            // Try to recover files from floppy disk and retry
-            // We won't do that here
-//            recoverFilesFromFloppyDisk();
-//            pushf();
-//            if (byte_59B86 != 0FFh)
-//            {
-//                goto loc_47A0B;
-//            }
-//            popf();
-//            goto loc_47AE3;
-//
-// loc_47A0B:              ; CODE XREF: loadMurphySprites+1Ej
-//            popf
-//            jb  short loc_47A10
-//            jmp short loc_479ED
-        }
-
 //    loc_47A10:              ; CODE XREF: loadMurphySprites+13j
 //                    ; loadMurphySprites+25j
         exitWithError("Error opening MOVING.DAT\n");
@@ -5007,12 +4909,6 @@ void readPanelDat() //    proc near       ; CODE XREF: readPanelDat+14j
     FILE *file = openReadonlyFile("PANEL.DAT", "r");
     if (file == NULL)
     {
-        if (errno == ENOENT) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
-        {
-            // recoverFilesFromFloppyDisk();
-            // jb  short loc_47B07 // try again
-        }
-
         exitWithError("Error opening PANEL.DAT\n");
     }
 
@@ -5064,12 +4960,6 @@ void readBackDat() // proc near       ; CODE XREF: readBackDat+14j
     FILE *file = openReadonlyFile("BACK.DAT", "r");
     if (file == NULL)
     {
-        if (errno == ENOENT) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
-        {
-            // recoverFilesFromFloppyDisk();
-            // jb  short loc_47B46 // Try again
-        }
-
         exitWithError("Error opening BACK.DAT\n");
     }
 
@@ -5103,12 +4993,6 @@ void readBitmapFonts() //   proc near       ; CODE XREF: readBitmapFonts+14j
     FILE *file = openReadonlyFile("CHARS6.DAT", "r");
     if (file == NULL)
     {
-        if (errno == ENOENT) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
-        {
-            // recoverFilesFromFloppyDisk();
-            // jb  short loc_47B8D // try again
-        }
-
         exitWithError("Error opening CHARS6.DAT\n");
     }
 
@@ -5234,16 +5118,6 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
         if (file == NULL)
         {
 //errorOpeningLevelsDat:             // ; CODE XREF: readLevelsLst+17j
-            if (errno == ENOENT) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
-            {
-                // This would try to recover the files from the floppy disk
-                // in the original game and then try again to load the level
-                // list. That won't be an option here...
-                //
-                // recoverFilesFromFloppyDisk();
-                // jb  short loc_47D6A
-//                goto readLevelsLst; // wtf?
-            }
             exitWithError("Error opening LEVELS.DAT\n");
         }
 //successOpeningLevelsDat:             // ; CODE XREF: readLevelsLst+15j
@@ -5328,11 +5202,6 @@ void readGfxDat() //  proc near       ; CODE XREF: readGfxDat+14j
     FILE *file = openReadonlyFile("GFX.DAT", "r");
     if (file == NULL)
     {
-        if (errno == ENOENT) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
-        {
-            // recoverFilesFromFloppyDisk();
-            // jb  short loc_47DB2 // try again
-        }
         exitWithError("Error opening GFX.DAT\n");
     }
 
@@ -5358,12 +5227,6 @@ void readControlsDat() // proc near       ; CODE XREF: readControlsDat+14j
     FILE *file = openReadonlyFile("CONTROLS.DAT", "r");
     if (file == NULL)
     {
-        if (errno == ENOENT) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
-        {
-//          recoverFilesFromFloppyDisk();
-//          jb  short loc_47DF9 // try again
-        }
-
         exitWithError("Error opening CONTROLS.DAT\n");
     }
 
@@ -5444,7 +5307,7 @@ void readEverything() //  proc near       ; CODE XREF: start+2DBp start+2E3p .
     readPanelDat();
     readMenuDat();
     readControlsDat();
-    readLevelsLst(); // TODO: need to test & debug when LEVEL.LST is not available and it's generated from LEVELS.DAT
+    readLevelsLst();
 //    readDemoFiles(); // TODO: just crazy, needs more RE work
     readBackDat();
     readHallfameLst();
@@ -5564,57 +5427,6 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
 //    stc // returns error?
     }
 }
-
-/*
-void recoverFilesFromFloppyDisk() //   proc near       ; CODE XREF: readPalettes+Fp
-                   // ; loadMurphySprites+15p ...
-{
-        call    enableFloppy
-        mov si, 60D5h
-        call    setPalette
-        call    drawBackBackground
-        cmp byte_53A10, 1
-        jnz short loc_47F56
-        mov si, 370Fh
-        mov byte_53A10, 2
-        jmp short loc_47F5E
-
-loc_47F56:              ; CODE XREF: recoverFilesFromFloppyDisk+11j
-        mov si, 3701h
-        mov byte_53A10, 1
-
-loc_47F5E:              ; CODE XREF: recoverFilesFromFloppyDisk+1Bj
-        mov di, 7D3Bh
-        mov ah, 0Fh
-        call    drawTextWithChars6FontWithTransparentBackground
-        mov si, palettesDataBuffer
-        call    setPalette
-        mov bx, 4D84h
-        mov dx, 3D4h
-        al = 0Dh
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (low)
-        inc dx
-        al = bl
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 0Ch
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (high)
-        inc dx
-        al = bh
-        out dx, al      ; Video: CRT controller internal registers
-        call    waitForKeyMouseOrJoystick
-        pushf
-        mov si, 60D5h
-        call    setPalette
-        popf
-        return;
-// recoverFilesFromFloppyDisk   endp
-}
-
-        nop
-*/
 
 void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:160Co
 {
@@ -9685,12 +9497,6 @@ void gameloop() //   proc near       ; CODE XREF: runLevel:noFlashingp
 //        out dx, al
     }
 
-//loc_49E0A:
-    if ((word_510C1 & 0xFF) != 0) //cmp byte ptr word_510C1, 0
-    {
-        sub_5024B();
-    }
-
 //loc_49E14:
 //    ; set graphics write mode = 1
 //    mov dx, 3CEh
@@ -10656,7 +10462,6 @@ void sub_4A463() //   proc near       ; CODE XREF: sub_4945D:loc_4953Bp
                    // ; sub_4A3E9+43p
 {
     readLevels();
-    sub_4D464();
     drawFixedLevel();
     drawGamePanel();
     byte_5A33F = -byte_5A33F;
@@ -15458,259 +15263,6 @@ void loopForVSync() //   proc near       ; CODE XREF: crt?2+55p crt?1+41p ...
 
 // loopForVSync   endp
 }
-
-void sub_4D464() //   proc near       ; CODE XREF: start+332p sub_4A463+3p
-{
-    // The comments added by IDA say something about split screen, so maybe
-    // this is doing some work to show the bottom panel during a game.
-    /*
-    mov dx, 3CEh
-    al = 1
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; enable set/reset
-    inc dx
-    al = 0Fh
-    out dx, al      ; EGA port: graphics controller data register
-    mov dx, 3CEh
-    al = 5
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; mode register.Data bits:
-                ; 0-1: Write mode 0-2
-                ; 2: test condition
-                ; 3: read mode: 1=color compare, 0=direct
-                ; 4: 1=use odd/even RAM addressing
-                ; 5: 1=use CGA mid-res map (2-bits/pixel)
-    inc dx
-    al = 1
-    out dx, al      ; EGA port: graphics controller data register
-    mov dx, 3C4h
-    al = 2
-    out dx, al      ; EGA: sequencer address reg
-                ; map mask: data bits 0-3 enable writes to bit planes 0-3
-    inc dx
-    al = 0Fh
-    out dx, al      ; EGA port: sequencer data register
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    inc dx
-    al = 0FFh
-    out dx, al      ; EGA port: graphics controller data register
-    mov dx, 3D4h
-    al = 13h
-    out dx, al      ; Video: CRT cntrlr addr
-                ; vertical displayed adjustment
-    inc dx
-    al = 3Dh ; '='
-    out dx, al      ; Video: CRT controller internal registers
-    cmp videoStatusUnk, 1
-    jnz short loc_4D4CF
-    mov dx, 3D4h
-    al = 18h
-    out dx, al      ; Video: CRT cntrlr addr
-                ; line compare (scan line). Used for split screen operations.
-    inc dx
-    al = 5Fh ; '_'
-    out dx, al      ; Video: CRT controller internal registers
-    mov dx, 3D4h
-    al = 7
-    out dx, al      ; Video: CRT cntrlr addr
-                ; bit 8 for certain CRTC regs. Data bits:
-                ; 0: vertical total (Reg 06)
-                ; 1: vert disp'd enable end (Reg 12H)
-                ; 2: vert retrace start (Reg 10H)
-                ; 3: start vert blanking (Reg 15H)
-                ; 4: line compare (Reg 18H)
-                ; 5: cursor location (Reg 0aH)
-    inc dx
-    al = 3Fh ; '?'
-    out dx, al      ; Video: CRT controller internal registers
-    mov dx, 3D4h
-    al = 9
-    out dx, al      ; Video: CRT cntrlr addr
-                ; maximum scan line
-    inc dx
-    al = 80h ; '?'
-    out dx, al      ; Video: CRT controller internal registers
-     */
-    videoloop();
-    /*
-    mov dx, 3DAh
-    cli
-    in  al, dx      ; Video status bits:
-                ; 0: retrace.  1=display is in vert or horiz retrace.
-                ; 1: 1=light pen is triggered; 0=armed
-                ; 2: 1=light pen switch is open; 0=closed
-                ; 3: 1=vertical sync pulse is occurring.
-    mov dx, 3C0h
-    al = 30h ; '0'
-    out dx, al      ; EGA: mode control bits:
-                ; 0: 1=graph modes, 0=text
-                ; 1: 1=MDA
-                ; 2: 1=9th dot=8th dot for line/box chars
-                ;    0=use bkgd colr as 9th dot of char
-                ; 3: 1=enable blink, 0=allow 4-bit bkgd
-    al = 21h ; '!'
-    out dx, al      ; EGA: palette register: select colors for attribute AL:
-                ; 0: RED
-                ; 1: GREEN
-                ; 2: BLUE
-                ; 3: blue
-                ; 4: green
-                ; 5: red
-    sti
-     */
-    return;
-/*
-loc_4D4CF:              ; CODE XREF: sub_4D464+37j
-    mov dx, 3D4h
-    al = 18h
-    out dx, al      ; Video: CRT cntrlr addr
-                ; line compare (scan line). Used for split screen operations.
-    inc dx
-    al = 0B0h ; '?'
-    out dx, al      ; Video: CRT controller internal registers
-    mov dx, 3D4h
-    al = 7
-    out dx, al      ; Video: CRT cntrlr addr
-                ; bit 8 for certain CRTC regs. Data bits:
-                ; 0: vertical total (Reg 06)
-                ; 1: vert disp'd enable end (Reg 12H)
-                ; 2: vert retrace start (Reg 10H)
-                ; 3: start vert blanking (Reg 15H)
-                ; 4: line compare (Reg 18H)
-                ; 5: cursor location (Reg 0aH)
-    inc dx
-    al = 1
-    out dx, al      ; Video: CRT controller internal registers
-
-locret_4D4E3:               ; CODE XREF: sub_4D464+69j
- */
-    return;
-}
-/*
-void initializeVideo3() //   proc near       ; CODE XREF: start+2B2p start+2C7p
-{
-        // mov dx, 3CEh
-        // al = 1
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; enable set/reset
-        ports[0x3CE] = 1; // enable set/reset
-        // inc dx
-        // al = 0Fh
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0x0F; // enable set/reset in all planes
-        // mov dx, 3CEh
-        // al = 5
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; mode register.Data bits:
-        //             ; 0-1: Write mode 0-2
-        //             ; 2: test condition
-        //             ; 3: read mode: 1=color compare, 0=direct
-        //             ; 4: 1=use odd/even RAM addressing
-        //             ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        ports[0x3CE] = 5; // Select graphics mode
-        // inc dx
-        // al = 1
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0x1; // write mode 1: In write mode 1 the contents of the latch registers are first loaded by performing a read operation, then copied directly onto the color maps by performing a write operation. This mode is often used in moving areas of memory
-        // mov dx, 3C4h
-        // al = 2
-        // out dx, al      ; EGA: sequencer address reg
-        //             ; map mask: data bits 0-3 enable writes to bit planes 0-3
-        ports[0x3C4] = 2; // map mask
-        // inc dx
-        // al = 0Fh
-        // out dx, al      ; EGA port: sequencer data register
-        ports[0x3C5] = 0x0F; // enable writing in all planes (rgb and intensity)
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8; // bitmask
-        // inc dx
-        // al = 0FFh
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0xFF; // all bits protected from change
-        // mov dx, 3D4h
-        // al = 13h
-        // out dx, al      ; Video: CRT cntrlr addr
-        //             ; vertical displayed adjustment
-        ports[0x3D4] = 0x13; // 19: offset register: Additional word offset to next logical line (page 155 or http://www.osdever.net/FreeVGA/vga/crtcreg.htm#13)
-        // inc dx
-        // al = 3Dh ; '='
-        // out dx, al      ; Video: CRT controller internal registers
-        //
-        // This field specifies the address difference between consecutive scan lines or two lines of characters. Beginning with the second scan line, the starting scan line is increased by twice the value of this register multiplied by the current memory address size (byte = 1, word = 2, double-word = 4) each line. For text modes the following equation is used:
-        //         Offset = Width / ( MemoryAddressSize * 2 )
-        // and in graphics mode, the following equation is used:
-        //          Offset = Width / ( PixelsPerAddress * MemoryAddressSize * 2 )
-        // where Width is the width in pixels of the screen. This register can be modified to provide for a virtual resolution, in which case Width is the width is the width in pixels of the virtual screen. PixelsPerAddress is the number of pixels stored in one display memory address, and MemoryAddressSize is the current memory addressing size.
-        //
-        ports[0x3D5] = 0x3D; // 61: no idea what this is :joy: 
-        // return;
-// initializeVideo3   endp
-}
-
-void initializeVideo2() //   proc near       ; CODE XREF: start+2AFp
-{
-        // mov dx, 3CEh
-        // mov al, 5
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; mode register.Data bits:
-        //             ; 0-1: Write mode 0-2
-        //             ; 2: test condition
-        //             ; 3: read mode: 1=color compare, 0=direct
-        //             ; 4: 1=use odd/even RAM addressing
-        //             ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        ports[0x3CE] = 5; // Select graphics mode
-        // inc dx
-        // mov al, 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0; // write mode 0
-        // mov dx, 3CEh
-        // al = 0
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; set/reset.
-        //             ; Data bits 0-3 select planes for write mode 00
-        ports[0x3CE] = 0; // set/reset mode
-        // inc dx
-        // al = 0
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0; // clear all colors? 
-        // mov dx, 3CEh
-        // al = 1
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; enable set/reset
-        ports[0x3CE] = 1; // enable set/reset
-        // inc dx
-        // al = 0Fh
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0x0F; // enable it in all planes
-        // mov dx, 3CEh
-        // al = 8
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8; // bitmask
-        // inc dx
-        // al = 0FFh
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = 0xFF; // all bits protected from change
-        cx = 0xFFFF;
-        di = 0;
-        
-        memset(di, 0xFF, 0xFFFF);
-        // mov di, 0
-        // rep stosb // fill DI with 0xFFFF bytes with value 0xFF
-        // return;
-// initializeVideo2   endp
-}
-*/
 
 void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
                     // ; sub_4A463p
@@ -21269,112 +20821,6 @@ void drawGamePanel() // sub_501C0   proc near       ; CODE XREF: start+338p sub
     }
 
     drawGamePanelText();
-    sub_5024B();
-}
-
-void sub_5024B() //   proc near       ; CODE XREF: gameloop+31p
-                  //  ; drawGamePanel+25p
-{
-/*
-    cmp videoStatusUnk, 1
-    jnz short loc_50253
-    return;
-
-loc_50253:              ; CODE XREF: sub_5024B+5j
-    mov si, 0
-    mov bl, gNumberOfDotsToShiftDataLeft
-    xor bh, bh
-    mov ax, 0FC0h
-    mul bx
-    add si, ax
-    push    ds
-    mov ax, seg zeg000
-    mov ds, ax
-    assume ds:zeg000
-    mov di, 0
-    mov dx, 3CEh
-    al = 5
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; mode register.Data bits:
-                ; 0-1: Write mode 0-2
-                ; 2: test condition
-                ; 3: read mode: 1=color compare, 0=direct
-                ; 4: 1=use odd/even RAM addressing
-                ; 5: 1=use CGA mid-res map (2-bits/pixel)
-    // inc dx
-    // al = 0
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = 0;
-    mov dx, 3CEh
-    al = 1
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; enable set/reset
-    // inc dx
-    // al = 0
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = 0;
-    // mov dx, 3CEh
-    // al = 8
-    // out dx, al      ; EGA: graph 1 and 2 addr reg:
-    //             ; bit mask
-    //             ; Bits 0-7 select bits to be masked in all planes
-    ports[0x3CE] = 8;
-    inc dx
-    al = 0FFh
-    out dx, al      ; EGA port: graphics controller data register
-    mov cx, 18h
-
-loc_5028D:              ; CODE XREF: sub_5024B+62j
-    push(cx);
-    mov ah, 1
-
-loc_50290:              ; CODE XREF: sub_5024B+5Cj
-    mov dx, 3C4h
-    al = 2
-    out dx, al      ; EGA: sequencer address reg
-                ; map mask: data bits 0-3 enable writes to bit planes 0-3
-    inc dx
-    al = ah
-    out dx, al      ; EGA port: sequencer data register
-    mov cx, 2Ah ; '*'
-    rep movsb
-    sub di, 2Ah ; '*'
-    shl ah, 1
-    test    ah, 0Fh
-    jnz short loc_50290
-    add di, 7Ah ; 'z'
-    pop(cx);
-    loop    loc_5028D
-    mov dx, 3C4h
-    al = 2
-    out dx, al      ; EGA: sequencer address reg
-                ; map mask: data bits 0-3 enable writes to bit planes 0-3
-    inc dx
-    al = 0FFh
-    out dx, al      ; EGA port: sequencer data register
-    mov dx, 3CEh
-    al = 1
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; enable set/reset
-    inc dx
-    al = 0Fh
-    out dx, al      ; EGA port: graphics controller data register
-    pop ds
-    assume ds:data
-    mov dx, 3CEh
-    al = 5
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; mode register.Data bits:
-                ; 0-1: Write mode 0-2
-                ; 2: test condition
-                ; 3: read mode: 1=color compare, 0=direct
-                ; 4: 1=use odd/even RAM addressing
-                ; 5: 1=use CGA mid-res map (2-bits/pixel)
-    inc dx
-    al = 1
-    out dx, al      ; EGA port: graphics controller data register
-    return;
- */
 }
 
 void drawSpeedFixTitleAndVersion() //   proc near       ; CODE XREF: start+2E6p
@@ -21393,6 +20839,7 @@ void drawSpeedFixCredits() //  proc near       ; CODE XREF: start+2ECp
     do
     {
 //loc_502F1:             // ; CODE XREF: drawSpeedFixCredits+28j
+        SDL_Delay(10); // Avoid burning the CPU
         int9handler();
 
         if (byte_519C3 == 1)
@@ -21501,11 +20948,11 @@ void updateWindowViewport()
 
 int windowResizingEventWatcher(void* data, SDL_Event* event)
 {
-  if (event->type == SDL_WINDOWEVENT
-      && event->window.event == SDL_WINDOWEVENT_RESIZED)
-  {
-      updateWindowViewport();
-      videoloop();
-  }
-  return 0;
+    if (event->type == SDL_WINDOWEVENT
+        && event->window.event == SDL_WINDOWEVENT_RESIZED)
+    {
+        updateWindowViewport();
+        videoloop();
+    }
+    return 0;
 }
