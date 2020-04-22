@@ -1487,6 +1487,7 @@ Point frameCoordinates_516B4[48] = {
 // Here it should be frameCoordinates_51714 but I had to move it up
 
 uint16_t word_51790 = 0x4A7E; //  -> 0x129 -> (288, 132)
+uint16_t word_5182E = 0x2A64; // -> (272, 388)
 uint16_t word_51840 = 0x2A06; //  -> 0x129 -> (160, 64)
 uint16_t word_51842 = 0x132C; //  -> 0x129 -> (208, 16) confirmed
 uint16_t word_51844 = 0x2A08; //  -> 0x129 -> (176, 64)
@@ -21092,66 +21093,42 @@ void drawgNumberOfRemainingInfotrons() // sub_4FD21   proc near       ; CODE XRE
 
 void sub_4FD65() //   proc near       ; CODE XREF: runLevel+E9p
 {
-    /*
-    cmp videoStatusUnk, 1
-    jz  short loc_4FD6D
-    return;
+//loc_4FD6D:              ; CODE XREF: sub_4FD65+5j
+    al = byte_5197C;
+    if (al == 0)
+    {
+        return;
+    }
 
-loc_4FD6D:              ; CODE XREF: sub_4FD65+5j
-    al = byte_5197C
-    cmp al, 0
-    jnz short loc_4FD75
-    return;
+//loc_4FD75:              ; CODE XREF: sub_4FD65+Dj
+    al--;
+    if (al != 0)
+    {
+        byte_5197C = al;
+        return;
+    }
 
-loc_4FD75:              ; CODE XREF: sub_4FD65+Dj
-    dec al
-    jz  short loc_4FD7D
-    mov byte_5197C, al
-    return;
+//loc_4FD7D:              ; CODE XREF: sub_4FD65+12j
+    byte_5197C = al;
+    // si = word_5182E; // (272, 388)
+    // di = 0x6D2; // What's this?
 
-loc_4FD7D:              ; CODE XREF: sub_4FD65+12j
-    mov byte_5197C, al
-    mov dx, 3CEh
-    al = 5
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; mode register.Data bits:
-                ; 0-1: Write mode 0-2
-                ; 2: test condition
-                ; 3: read mode: 1=color compare, 0=direct
-                ; 4: 1=use odd/even RAM addressing
-                ; 5: 1=use CGA mid-res map (2-bits/pixel)
-    inc dx
-    al = 1
-    out dx, al      ; EGA port: graphics controller data register
-    push    ds
-    mov si, word_5182E
-    mov di, 6D2h
-    mov ax, es
-    mov ds, ax
-    mov cx, 7
+    uint8_t spriteHeight = 7; // Only draws 7 pixel height? That sprite is 8 pixel height
 
-loc_4FD99:              ; CODE XREF: sub_4FD65+3Cj
-    movsb
-    movsb
-    add si, 78h ; 'x'
-    add di, 78h ; 'x'
-    loop    loc_4FD99
-    pop ds
-    mov dx, 3CEh
-    al = 5
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; mode register.Data bits:
-                ; 0-1: Write mode 0-2
-                ; 2: test condition
-                ; 3: read mode: 1=color compare, 0=direct
-                ; 4: 1=use odd/even RAM addressing
-                ; 5: 1=use CGA mid-res map (2-bits/pixel)
-    // inc dx
-    // al = 0
-    // out dx, al      ; EGA port: graphics controller data register
-    ports[0x3CF] = 0;
-    return;
-    */
+    uint16_t srcX = 272;
+    uint16_t srcY = 388;
+
+    uint16_t startX = 0;
+    uint16_t startY = 0;
+
+//loc_4FD99:              ; CODE XREF: sub_4FD65+3Cj
+    for (int y = startY; y < startY + spriteHeight; ++y)
+    {
+        // FIXME: For now just copy it to the level bitmap to make it evident (or not) when this code is running
+        uint16_t srcAddress = srcY * kMovingBitmapWidth + srcX;
+        uint16_t dstAddress = y * kLevelBitmapWidth + startX;
+        memcpy(&gLevelBitmapData[dstAddress], &gMovingDecodedBitmapData[srcAddress], kTileSize);
+    }
 }
 
 void sub_4FDB5(uint16_t position) //   proc near       ; CODE XREF: update?+124Fp
