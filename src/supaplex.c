@@ -2680,7 +2680,6 @@ void getTime(void);
 void checkVideo(void);
 void initializeFadePalette(void);
 void initializeMouse(void);
-void setint8(void);
 void loadMurphySprites(void);
 void prepareLevelDataForCurrentPlayer(void);
 void drawPlayerList(void);
@@ -3350,7 +3349,6 @@ loc_46E75:              //; CODE XREF: start+251j
 //leaveVideoStatus:           //; CODE XREF: start+28Aj
     initializeFadePalette(); // 01ED:026F
     initializeMouse();
-//    setint8(); // Timer or sound speaker?
 //    initializeSound();
     if (fastMode == 0)
     {
@@ -3597,7 +3595,6 @@ printMessageAfterward:          //; CODE XREF: start+46Cj start+472j ...
         conprintln();
 
 isNotFastMode3:              //; CODE XREF: start+458j
-        resetint8();
         soundShutdown?();
 
 immediateexit:              //; CODE XREF: start+D1j start+114j ...
@@ -3625,7 +3622,6 @@ exit:                   //; CODE XREF: readConfig:loc_474BBj
 //        push(ax);
 //        soundShutdown?();
 //        resetVideoMode();
-//        resetint8();
 //        pop(ax);
 //        push(ax);
 //        writeexitmessage();
@@ -3894,23 +3890,10 @@ void int9handler() // proc far        ; DATA XREF: setint9+1Fo
     }
 
 //doneexit:                   ; CODE XREF: int9handler+A6j
-//                ; int9handler+ADj ...
-//    al = 100000b ; nonspecific EOI
-//    out 20h, al     ; Interrupt controller, 8259A.
-//    pop ds
-//    pop(cx);
-//    pop bx
-//    pop ax
 }
 
 void int8handler() // proc far        ; DATA XREF: setint8+10o
 {
-//    push    ds
-//    push    dx
-//    push    ax
-//    mov ax, seg data
-//    mov ds, ax
-
     byte_59B96++;
     if (byte_510AE != 0)
     {
@@ -3995,70 +3978,6 @@ void int8handler() // proc far        ; DATA XREF: setint8+10o
     }
 }
 
-
-void setint8() //     proc near       ; CODE XREF: start+29Cp
-{
-    // This replaces the current int 8 handler with our own one (int8handler), saves the previous one in originalInt8Handler
-        // push    ds
-        // push    es
-        // mov ah, 35h ; '5'
-        // al = 8
-        // int 21h     ; DOS - 2+ - GET INTERRUPT VECTOR
-        //             ; AL = interrupt number
-        //             ; Return: ES:BX = value of interrupt vector
-        // mov word ptr originalInt8Handler+2, es
-        // mov word ptr originalInt8Handler, bx
-        // mov dx, offset int8handler
-        // mov ax, seg code
-        // mov ds, ax
-        // assume ds:code
-        // mov ah, 25h ; '%'
-        // al = 8
-        // int 21h     ; DOS - SET INTERRUPT VECTOR
-        //             ; AL = interrupt number
-        //             ; DS:DX = new vector to be used for specified interrupt
-    
-        // Info about these ports: https://wiki.osdev.org/PIT
-        // Port 43 is the Mode/command register. 0x36 is 00110110, which means:
-        // It selects channel 0 (which port is 0x40), access mode lobyte/hibyte, mode 3 (square wave generator), 16-bit binary
-//        al = 36h ; '6'
-//        out 43h, al     ; Timer 8253-5 (AT: 8254.2).
-        
-        // No idea what this does exactly but seems to configure the timer
-        // al = 38h ; '8'
-        // out 40h, al     ; Timer 8253-5 (AT: 8254.2).
-        // al = 5Dh ; ']'
-        // out 40h, al     ; Timer 8253-5 (AT: 8254.2).
-        // pop es
-        // pop ds
-        // assume ds:data
-        // return;
-}
-
-
-void resetint8() //   proc near       ; CODE XREF: start+48Bp
-//                    ; loadScreen2-7D4p
-{
-//    push    ds
-//    push    es
-//    mov dx, word ptr originalInt8Handler
-//    mov ax, word ptr originalInt8Handler+2
-//    mov ds, ax
-//    mov ah, 25h ; '%'
-//    al = 8
-//    int 21h     ; DOS - SET INTERRUPT VECTOR
-//                ; AL = interrupt number
-//                ; DS:DX = new vector to be used for specified interrupt
-//    al = 36h ; '6'
-//    out 43h, al     ; Timer 8253-5 (AT: 8254.2).
-//    al = 0FFh
-//    out 40h, al     ; Timer 8253-5 (AT: 8254.2).
-//    al = 0FFh
-//    out 40h, al     ; Timer 8253-5 (AT: 8254.2).
-//    pop es
-//    pop ds
-}
-
 void readConfig() //  proc near       ; CODE XREF: start:loc_46F0Fp
 {
     FILE *file = openWritableFile("SUPAPLEX.CFG", "r");
@@ -4138,7 +4057,6 @@ void readConfig() //  proc near       ; CODE XREF: start:loc_46F0Fp
 
 //loc_47540:              //; CODE XREF: readConfig+98j
     isFXEnabled = (configData[3] == 'x');
-// readConfig  endp
 }
 
 void saveConfiguration() // sub_4755A      proc near               ; CODE XREF: code:loc_4CAECp
@@ -4221,6 +4139,7 @@ void saveConfiguration() // sub_4755A      proc near               ; CODE XREF: 
     }
 }
 
+// TODO: Implement
 /*
 void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
                   //  ; sub_4B159p ...
@@ -4502,9 +4421,6 @@ loc_47783:              //; CODE XREF: readDemoFiles+45j readDemoFiles+BFj ...
         // return;
 // readDemoFiles    endp
 }
-
-
-; =============== S U B R O U T I N E =======================================
 */
 
 void convertPaletteDataToPalette(ColorPaletteData paletteData, ColorPalette outPalette)
@@ -4546,8 +4462,6 @@ void readPalettes()  // proc near       ; CODE XREF: readEverythingp
     {
         exitWithError("Error closing PALETTES.DAT\n");
     }
-
-// readPalettes   endp
 }
 
 void openCreditsBlock() // proc near      ; CODE XREF: start+2E9p
@@ -4717,20 +4631,12 @@ void loadScreen2() // proc near       ; CODE XREF: start:loc_46F00p
         exitWithError("Error closing TITLE2.DAT\n");
     }
 //loc_479DC:             // ; CODE XREF: loadScreen2+124j
-// loadScreen2 endp ; sp-analysis failed
 }
 
 void loadMurphySprites() // readMoving  proc near       ; CODE XREF: start:isFastModep
                     //; start+382p ...
 {
     // 01ED:0D84
-//    int baseDestAddress;      // = word ptr -6
-//    int y;      // = word ptr -4
-//    char component;      // = byte ptr -1
-
-    // push    bp
-    // mov bp, sp
-    // add sp, 0FFFAh
 
 //loc_479ED:              // ; CODE XREF: loadMurphySprites+27j
 
@@ -4756,8 +4662,6 @@ void loadMurphySprites() // readMoving  proc near       ; CODE XREF: start:isFas
     // returns 0. The new implementation will fail on partial reads.
     for (int y = 0; y < kMovingBitmapHeight; ++y)
     {
-    // var_4 = 0;
-
         uint8_t fileData[kMovingBitmapWidth / 2];
 
         size_t bytes = fread(fileData, 1, sizeof(fileData), file);
@@ -4769,8 +4673,6 @@ void loadMurphySprites() // readMoving  proc near       ; CODE XREF: start:isFas
 //loc_47A40:              ; CODE XREF: loadMurphySprites+BAj
         for (int x = 0; x < kMovingBitmapWidth; ++x)
         {
-        // var_1 = 0;
-
 //loc_47A45:              ; CODE XREF: loadMurphySprites+AEj
             uint32_t destPixelAddress = y * kMovingBitmapWidth + x;
 
@@ -4789,46 +4691,6 @@ void loadMurphySprites() // readMoving  proc near       ; CODE XREF: start:isFas
 
             // Store a copy of the decoded value in a buffer with 4bit per pixel
             gMovingDecodedBitmapData[destPixelAddress] = finalColor;
-            /*
-
-//loc_47A59:              ; CODE XREF: loadMurphySprites+6Dj
-//            si = &fileLevelData;
-            // ax = var_4;
-            // bx = 0x7A; // 122
-            // ax = ax * bx;
-            di = y * 122;
-            di += baseDestAddress;
-
-//loc_47A69:              ; CODE XREF: loadMurphySprites+8Cj
-            while (di >= 19764)
-            {
-                di -= 0x4D0C; //19724
-                // goto loc_47A69;
-            }
-            // if (di < 0x4D34) //19764
-            // {
-            //     goto loc_47A75;
-            // }
-            // di -= 0x4D0C;
-
-//loc_47A75:              //; CODE XREF: loadMurphySprites+86j
-            cl = component;
-            ah = 1;
-            ah = ah << cl;
-            // mov dx, 3C4h
-            // al = 2
-            // out dx, al      ; EGA: sequencer address reg
-            //             ; map mask: data bits 0-3 enable writes to bit planes 0-3
-//            ports[0x3C4] = 2;
-            // inc dx
-            // al = ah
-            // out dx, al      ; EGA port: sequencer data register
-//            ports[0x3C5] = ah;
-            cx = 0x14; // 20
-            memcpy(di, si, 20); // rep movsw
-            di += 20;
-            si += 20;
-             */
         }
     }
     if (fclose(file) != 0)
@@ -4886,21 +4748,6 @@ void loadMurphySprites() // readMoving  proc near       ; CODE XREF: start:isFas
     {
         exitWithError("Error closing FIXED.DAT\n");
     }
-
-//loc_47AE3:              //; CODE XREF: loadMurphySprites+21j
-                // ; loadMurphySprites+F7j
-    // mov dx, 3C4h
-    // al = 2
-    // out dx, al      ; EGA: sequencer address reg
-    //             ; map mask: data bits 0-3 enable writes to bit planes 0-3
-//    ports[0x3C4] = 2;
-    // inc dx
-    // al = 0FFh
-    // out dx, al      ; EGA port: sequencer data register
-//    ports[0x3C5] = 0xFF;
-    // mov sp, bp
-    // pop bp
-    // return;
 }
 
 void readPanelDat() //    proc near       ; CODE XREF: readPanelDat+14j
@@ -4949,8 +4796,6 @@ void readPanelDat() //    proc near       ; CODE XREF: readPanelDat+14j
     {
         exitWithError("Error closing PANEL.DAT\n");
     }
-
-// readPanelDat    endp
 }
 
 void readBackDat() // proc near       ; CODE XREF: readBackDat+14j
@@ -4975,8 +4820,6 @@ void readBackDat() // proc near       ; CODE XREF: readBackDat+14j
     {
         exitWithError("Error closing BACK.DAT\n");
     }
-
-// readBackDat endp
 }
 
 // The bitmap fonts are bitmaps of 512x8 pixels. The way they're encoded is each bit is a pixel that
@@ -4995,9 +4838,6 @@ void readBitmapFonts() //   proc near       ; CODE XREF: readBitmapFonts+14j
     {
         exitWithError("Error opening CHARS6.DAT\n");
     }
-
-//loc_47B8D:             // ; CODE XREF: readBitmapFonts+Dj
-                //; readBitmapFonts+12j
 
 //loc_47B90:              // ; CODE XREF: readBitmapFonts+8j
     size_t bytes = fread(gChars6BitmapFont, sizeof(uint8_t), kBitmapFontLength, file);
@@ -5042,7 +4882,7 @@ void readTitleDatAndGraphics() // proc near  ; CODE XREF: start+2BBp
 
     if (file == NULL)
     {
-        return; //goto exit;
+        exitWithError("Error opening TITLE.DAT\n");
     }
 
 //loc_47C18:              // ; CODE XREF: readTitleDatAndGraphics+2Bj
@@ -5058,7 +4898,7 @@ void readTitleDatAndGraphics() // proc near  ; CODE XREF: start+2BBp
 
         if (bytesRead < kBytesPerRow)
         {
-            return; //goto exit;
+            exitWithError("Error reading TITLE.DAT\n");
         }
 
         for (int x = 0; x < kScreenWidth; ++x)
@@ -5086,10 +4926,8 @@ void readTitleDatAndGraphics() // proc near  ; CODE XREF: start+2BBp
 
     if (fclose(file) != 0)
     {
-        return; //goto exit;
+        exitWithError("Error closing TITLE.DAT\n");
     }
-
-//loc_47C86:              //; CODE XREF: readTitleDatAndGraphics+99j
 }
 
 void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
@@ -5097,7 +4935,6 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
 {
     // 01ED:1038
 
-//    memset(gLevelListData, 0, sizeof(gLevelListData));
     char paddingEntryText[kListLevelNameLength] = "                           ";
     for (int i = 0; i < kNumberOfLevelsWithPadding; ++i)
     {
@@ -5242,8 +5079,6 @@ void readControlsDat() // proc near       ; CODE XREF: readControlsDat+14j
     {
         exitWithError("Error closing CONTROLS.DAT\n");
     }
-
-// readControlsDat endp
 }
 
 void readPlayersLst() //  proc near       ; CODE XREF: readEverything+1Bp
@@ -5295,8 +5130,6 @@ void readHallfameLst() // proc near       ; CODE XREF: readEverything+18p
     }
     
     fclose (file);
-
-// readHallfameLst endp
 }
 
 void readEverything() //  proc near       ; CODE XREF: start+2DBp start+2E3p ...
