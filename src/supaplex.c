@@ -157,7 +157,7 @@ uint8_t gIsUpKeyPressed = 0; // byte_519C5 -> 16B5 -> numpad 8 or up arrow
 uint8_t byte_519C6 = 0; // numpad 9
 // numpad -
 uint8_t gIsLeftKeyPressed = 0; // byte_519C8 -> numpad 4
-uint8_t byte_519C9 = 0; // numpad 5
+uint8_t gIsNumpad5Pressed = 0; // byte_519C9 -> numpad 5
 uint8_t gIsRightKeyPressed = 0; // byte_519CA -> numpad 6
 // numpad +
 // numpad 1
@@ -2756,7 +2756,7 @@ void sub_4FD65(void);
 void sub_4A910(void);
 void sub_4A5E0(void);
 void sub_4A95F(void);
-void sub_488DC(uint16_t position);
+void handleZonkStateAfterFallingOneTile(uint16_t position);
 void detonateBigExplosion(uint16_t position);
 void detonateZonk(uint16_t position, uint8_t movingObject, uint8_t tile);
 void sub_4AA34(uint16_t position, uint8_t movingObject, uint8_t tile);
@@ -2765,7 +2765,7 @@ uint8_t sub_4F21F(uint16_t position);
 void sub_4ED29(uint16_t position);
 void sub_4FDB5(uint16_t position);
 void sub_4F2AF(uint16_t position);
-void sub_48957(uint16_t position);
+void handleInfotronStateAfterFallingOneTile(uint16_t position);
 void drawLevelViewport(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
 void drawCurrentLevelViewport(uint16_t panelHeight);
 void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, uint16_t height, uint16_t dstX, uint16_t dstY);
@@ -3624,7 +3624,6 @@ exit:                   //; CODE XREF: readConfig:loc_474BBj
 //        resetVideoMode();
 //        pop(ax);
 //        push(ax);
-//        writeexitmessage();
 //        pop(ax);
 //        if (al != 0)
 //        {
@@ -3639,9 +3638,6 @@ exit:                   //; CODE XREF: readConfig:loc_474BBj
 }
 
 /*
-//; =============== S U B R O U T I N E =======================================
-
-
 // Return value: carry flag = 0 on success, 1 on error
 void fileReadUnk1(FILE *file, long fileLength) //    proc near       ; CODE XREF: start+B6p readDemoFiles+81p
 {
@@ -5415,7 +5411,7 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
                 if (movingObject == 0x26) // 38
                 {
                     currentTile->movingObject = movingObject;
-                    sub_488DC(position + 1);
+                    handleZonkStateAfterFallingOneTile(position + 1);
                     return;
                 }
 //loc_4825D:              ; CODE XREF: movefun+2BDj
@@ -5467,7 +5463,7 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
                 if (movingObject == 0x36) // 54
                 {
                     currentTile->movingObject = movingObject;
-                    sub_488DC(position - 1); // left tile
+                    handleZonkStateAfterFallingOneTile(position - 1); // left tile
                     return;
                 }
 //loc_482C2:              ; CODE XREF: movefun+322j
@@ -5701,7 +5697,7 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
         if (newMovingObject == 0x16) // 22
         {
             currentTile->movingObject = newMovingObject;
-            sub_488DC(position - kLevelWidth); // Tile above
+            handleZonkStateAfterFallingOneTile(position - kLevelWidth); // Tile above
             return;
         }
 //loc_480BB:              ; CODE XREF: movefun+11Bj
@@ -6014,7 +6010,7 @@ void updateInfotronTiles(uint16_t position) // movefun2  proc near       ; DATA 
                 if (movingObject == 0x26) // 38
                 {
                     currentTile->movingObject = movingObject;
-                    sub_48957(position + 1);
+                    handleInfotronStateAfterFallingOneTile(position + 1);
                     return;
                 }
 //loc_48666:              ; CODE XREF: movefun2+24Ej
@@ -6063,7 +6059,7 @@ void updateInfotronTiles(uint16_t position) // movefun2  proc near       ; DATA 
                 if (movingObject == 0x36) // 54
                 {
                     currentTile->movingObject = movingObject;
-                    sub_48957(position - 1); // left tile
+                    handleInfotronStateAfterFallingOneTile(position - 1); // left tile
                     return;
                 }
 //loc_486C1:              ; CODE XREF: movefun2+2AAj
@@ -6283,7 +6279,7 @@ void updateInfotronTiles(uint16_t position) // movefun2  proc near       ; DATA 
         if (newMovingObject == 0x16) // 22
         {
             currentTile->movingObject = newMovingObject;
-            sub_48957(position - kLevelWidth); // Tile above
+            handleInfotronStateAfterFallingOneTile(position - kLevelWidth); // Tile above
             return;
         }
 //loc_48513:              ; CODE XREF: movefun2+FBj
@@ -6393,7 +6389,7 @@ void updateInfotronTiles(uint16_t position) // movefun2  proc near       ; DATA 
     while (1);
 }
 
-void sub_487FE(uint16_t position) //   proc near       ; CODE XREF: update?+E0Cp update?+E2Ap ...
+void handleMurphyCollisionAfterMovement(uint16_t position) // sub_487FE   proc near       ; CODE XREF: update?+E0Cp update?+E2Ap ...
 {
     // 01ED:1B9B
     MovingLevelTile *currentTile = &gCurrentLevelWord[position];
@@ -6409,21 +6405,21 @@ void sub_487FE(uint16_t position) //   proc near       ; CODE XREF: update?+E0C
         currentTile->tile = LevelTileTypeSpace;
     }
 
-//loc_4880B:              ; CODE XREF: sub_487FE+5j
+//loc_4880B:              ; CODE XREF: handleMurphyCollisionAfterMovement+5j
     if ((aboveTile->movingObject == 0 && aboveTile->tile == LevelTileTypeSpace)
         || (aboveTile->movingObject == 0x99 && aboveTile->tile == 0x99))
     {
-//loc_48835:              ; CODE XREF: sub_487FE+12j
-//                ; sub_487FE+1Aj
+//loc_48835:              ; CODE XREF: handleMurphyCollisionAfterMovement+12j
+//                ; handleMurphyCollisionAfterMovement+1Aj
         if (aboveLeftTile->movingObject == 0 && aboveLeftTile->tile == LevelTileTypeZonk)
         {
-//loc_48852:              ; CODE XREF: sub_487FE+3Cj
+//loc_48852:              ; CODE XREF: handleMurphyCollisionAfterMovement+3Cj
             if ((leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeZonk)
                 || (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeInfotron)
                 || (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeChip))
             {
-//loc_48869:              ; CODE XREF: sub_487FE+59j
-//                ; sub_487FE+60j ...
+//loc_48869:              ; CODE XREF: handleMurphyCollisionAfterMovement+59j
+//                ; handleMurphyCollisionAfterMovement+60j ...
                 aboveLeftTile->movingObject = 0x60;
                 aboveTile->movingObject = 0x88;
                 aboveTile->tile = 0x88;
@@ -6432,30 +6428,30 @@ void sub_487FE(uint16_t position) //   proc near       ; CODE XREF: update?+E0C
         }
         else if (aboveLeftTile->movingObject == 0 && aboveLeftTile->tile == LevelTileTypeInfotron)
         {
-//loc_48897:              ; CODE XREF: sub_487FE+43j
+//loc_48897:              ; CODE XREF: handleMurphyCollisionAfterMovement+43j
             if ((leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeZonk)
                 || (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeInfotron)
                 || (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeChip))
             {
-//loc_488AE:              ; CODE XREF: sub_487FE+9Ej
-//                ; sub_487FE+A5j ...
+//loc_488AE:              ; CODE XREF: handleMurphyCollisionAfterMovement+9Ej
+//                ; handleMurphyCollisionAfterMovement+A5j ...
                 aboveLeftTile->movingObject = 0x60;
                 aboveTile->movingObject = 0x88;
                 aboveTile->tile = 0x88;
                 return;
             }
         }
-//loc_48843:              ; CODE XREF: sub_487FE+69j
-//                ; sub_487FE+AEj
+//loc_48843:              ; CODE XREF: handleMurphyCollisionAfterMovement+69j
+//                ; handleMurphyCollisionAfterMovement+AEj
         if (aboveRightTile->movingObject == 0 && aboveRightTile->tile == LevelTileTypeZonk)
         {
-//loc_48875:              ; CODE XREF: sub_487FE+4Aj
+//loc_48875:              ; CODE XREF: handleMurphyCollisionAfterMovement+4Aj
             if ((rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeZonk)
                 || (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeInfotron)
                 || (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeChip))
             {
-//loc_4888B:              ; CODE XREF: sub_487FE+7Cj
-//                ; sub_487FE+83j ...
+//loc_4888B:              ; CODE XREF: handleMurphyCollisionAfterMovement+7Cj
+//                ; handleMurphyCollisionAfterMovement+83j ...
                 aboveRightTile->movingObject = 0x50;
                 aboveTile->movingObject = 0x88;
                 aboveTile->tile = 0x88;
@@ -6463,13 +6459,13 @@ void sub_487FE(uint16_t position) //   proc near       ; CODE XREF: update?+E0C
         }
         else if (aboveRightTile->movingObject == 0 && aboveRightTile->tile == LevelTileTypeInfotron)
         {
-//loc_488BA:              ; CODE XREF: sub_487FE+51j
+//loc_488BA:              ; CODE XREF: handleMurphyCollisionAfterMovement+51j
             if ((rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeZonk)
                 || (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeInfotron)
                 || (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeChip))
             {
-//loc_488D0:              ; CODE XREF: sub_487FE+C1j
-//                ; sub_487FE+C8j ...
+//loc_488D0:              ; CODE XREF: handleMurphyCollisionAfterMovement+C1j
+//                ; handleMurphyCollisionAfterMovement+C8j ...
                 aboveRightTile->movingObject = 0x50;
                 aboveTile->movingObject = 0x88;
                 aboveTile->tile = 0x88;
@@ -6478,17 +6474,17 @@ void sub_487FE(uint16_t position) //   proc near       ; CODE XREF: update?+E0C
     }
     else if (aboveTile->movingObject == 0 && aboveTile->tile == LevelTileTypeZonk)
     {
-//loc_48829:              ; CODE XREF: sub_487FE+21j
+//loc_48829:              ; CODE XREF: handleMurphyCollisionAfterMovement+21j
         aboveTile->movingObject = 0x40;
     }
     else if (aboveTile->movingObject == 0 && aboveTile->tile == LevelTileTypeInfotron)
     {
-//loc_4882F:              ; CODE XREF: sub_487FE+28j
+//loc_4882F:              ; CODE XREF: handleMurphyCollisionAfterMovement+28j
         aboveTile->movingObject = 0x40;
     }
 }
 
-void sub_488DC(uint16_t position) //   proc near       ; CODE XREF: movefun+124p
+void handleZonkStateAfterFallingOneTile(uint16_t position) // sub_488DC   proc near       ; CODE XREF: movefun+124p
                    // ; movefun+2C6p ...
 {
     // 01ED:1C79
@@ -6506,7 +6502,7 @@ void sub_488DC(uint16_t position) //   proc near       ; CODE XREF: movefun+124
         currentTile->tile = LevelTileTypeSpace;
     }
 
-//loc_488E9:              ; CODE XREF: sub_488DC+5j
+//loc_488E9:              ; CODE XREF: handleZonkStateAfterFallingOneTile+5j
     if (aboveTile->movingObject != 0 || aboveTile->tile != LevelTileTypeSpace) // cmp word ptr [si+17BCh], 0
     {
         if (aboveTile->movingObject != 0x99 || aboveTile->tile != 0x99) // cmp word ptr [si+17BCh], 9999h
@@ -6514,25 +6510,25 @@ void sub_488DC(uint16_t position) //   proc near       ; CODE XREF: movefun+124
             return;
         }
 
-//loc_488F9:              ; CODE XREF: sub_488DC+1Aj
+//loc_488F9:              ; CODE XREF: handleZonkStateAfterFallingOneTile+1Aj
         if (aboveAboveTile->movingObject != 0 || aboveAboveTile->tile != LevelTileTypeInfotron) // cmp byte ptr [si+1744h], 4
         {
             return;
         }
     }
 
-//loc_48901:              ; CODE XREF: sub_488DC+12j
-//                ; sub_488DC+22j
+//loc_48901:              ; CODE XREF: handleZonkStateAfterFallingOneTile+12j
+//                ; handleZonkStateAfterFallingOneTile+22j
     if (aboveLeftTile->movingObject == 0 && aboveLeftTile->tile == LevelTileTypeZonk) // cmp word ptr [si+17BAh], 1
     {
-//loc_48910:              ; CODE XREF: sub_488DC+2Aj
+//loc_48910:              ; CODE XREF: handleZonkStateAfterFallingOneTile+2Aj
         if (leftTile->movingObject == 0
             && (leftTile->tile == LevelTileTypeZonk
                 || leftTile->tile == LevelTileTypeInfotron
                 || leftTile->tile == LevelTileTypeChip))
         {
-//loc_48927:              ; CODE XREF: sub_488DC+39j
-//                ; sub_488DC+40j ...
+//loc_48927:              ; CODE XREF: handleZonkStateAfterFallingOneTile+39j
+//                ; handleZonkStateAfterFallingOneTile+40j ...
             // mov word ptr [si+17BAh], 6001h
             aboveLeftTile->movingObject = 0x60;
             aboveLeftTile->tile = LevelTileTypeZonk;
@@ -6543,10 +6539,10 @@ void sub_488DC(uint16_t position) //   proc near       ; CODE XREF: movefun+124
         }
     }
 
-//loc_48908:              ; CODE XREF: sub_488DC+49j
+//loc_48908:              ; CODE XREF: handleZonkStateAfterFallingOneTile+49j
     if (aboveRightTile->movingObject == 0 && aboveRightTile->tile == LevelTileTypeZonk) // cmp word ptr [si+17BEh], 1
     {
-//loc_48934:              ; CODE XREF: sub_488DC+31j
+//loc_48934:              ; CODE XREF: handleZonkStateAfterFallingOneTile+31j
         if (rightTile->movingObject != 0
             || (rightTile->tile != LevelTileTypeZonk
                 && rightTile->tile != LevelTileTypeInfotron
@@ -6555,8 +6551,8 @@ void sub_488DC(uint16_t position) //   proc near       ; CODE XREF: movefun+124
             return;
         }
 
-//loc_4894A:              ; CODE XREF: sub_488DC+5Dj
-//                ; sub_488DC+64j ...
+//loc_4894A:              ; CODE XREF: handleZonkStateAfterFallingOneTile+5Dj
+//                ; handleZonkStateAfterFallingOneTile+64j ...
         // mov word ptr [si+17BEh], 5001h
         aboveRightTile->movingObject = 0x50;
         aboveRightTile->tile = LevelTileTypeZonk;
@@ -6568,7 +6564,7 @@ void sub_488DC(uint16_t position) //   proc near       ; CODE XREF: movefun+124
     return;
 }
 
-void sub_48957(uint16_t position) //   proc near       ; CODE XREF: movefun2+104p
+void handleInfotronStateAfterFallingOneTile(uint16_t position) // sub_48957   proc near       ; CODE XREF: movefun2+104p
 //                    ; movefun2+257p ...
 {
     MovingLevelTile *currentTile = &gCurrentLevelWord[position];
@@ -6584,12 +6580,12 @@ void sub_48957(uint16_t position) //   proc near       ; CODE XREF: movefun2+104
         currentTile->movingObject = 0;
         currentTile->tile = LevelTileTypeSpace;
     }
-//loc_48964:              ; CODE XREF: sub_48957+5j
+//loc_48964:              ; CODE XREF: handleInfotronStateAfterFallingOneTile+5j
     if (aboveTile->movingObject != 0 || aboveTile->tile != LevelTileTypeSpace)
     {
         if (aboveTile->movingObject == 0x99 && aboveTile->tile == 0x99)
         {
-//loc_48974:              ; CODE XREF: sub_48957+1Aj
+//loc_48974:              ; CODE XREF: handleInfotronStateAfterFallingOneTile+1Aj
             if (aboveAboveTile->tile != LevelTileTypeZonk)
             {
                 return;
@@ -6602,17 +6598,17 @@ void sub_48957(uint16_t position) //   proc near       ; CODE XREF: movefun2+104
     }
 
 
-//loc_4897C:              ; CODE XREF: sub_48957+12j
-//                ; sub_48957+22j
+//loc_4897C:              ; CODE XREF: handleInfotronStateAfterFallingOneTile+12j
+//                ; handleInfotronStateAfterFallingOneTile+22j
     if (aboveLeftTile->movingObject == 0 && aboveLeftTile->tile == LevelTileTypeInfotron)
     {
-//loc_4898B:              ; CODE XREF: sub_48957+2Aj
+//loc_4898B:              ; CODE XREF: handleInfotronStateAfterFallingOneTile+2Aj
         if ((leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeZonk)
             || (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeInfotron)
             || (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeChip))
         {
-//loc_489A2:              ; CODE XREF: sub_48957+39j
-//                ; sub_48957+40j ...
+//loc_489A2:              ; CODE XREF: handleInfotronStateAfterFallingOneTile+39j
+//                ; handleInfotronStateAfterFallingOneTile+40j ...
             aboveLeftTile->movingObject = 0x60;
             aboveLeftTile->tile = LevelTileTypeInfotron;
             aboveTile->movingObject = 0x88;
@@ -6621,13 +6617,13 @@ void sub_48957(uint16_t position) //   proc near       ; CODE XREF: movefun2+104
         }
     }
 
-//loc_48983:              ; CODE XREF: sub_48957+49j
+//loc_48983:              ; CODE XREF: handleInfotronStateAfterFallingOneTile+49j
     if (aboveRightTile->movingObject != 0 || aboveRightTile->tile != LevelTileTypeInfotron)
     {
         return;
     }
 
-//loc_489AF:              ; CODE XREF: sub_48957+31j
+//loc_489AF:              ; CODE XREF: handleInfotronStateAfterFallingOneTile+31j
     if ((rightTile->movingObject != 0 || rightTile->tile != LevelTileTypeZonk)
         && (rightTile->movingObject != 0 || rightTile->tile != LevelTileTypeInfotron)
         && (rightTile->movingObject != 0 || rightTile->tile != LevelTileTypeChip))
@@ -6635,90 +6631,14 @@ void sub_48957(uint16_t position) //   proc near       ; CODE XREF: movefun2+104
         return;
     }
 
-//loc_489C5:              ; CODE XREF: sub_48957+5Dj
-//                ; sub_48957+64j ...
+//loc_489C5:              ; CODE XREF: handleInfotronStateAfterFallingOneTile+5Dj
+//                ; handleInfotronStateAfterFallingOneTile+64j ...
     aboveRightTile->movingObject = 0x50;
     aboveRightTile->tile = LevelTileTypeInfotron;
     aboveTile->movingObject = 0x88;
     aboveTile->tile = 0x88;
 }
-/*
-        db  2Eh ; .
-        db  8Bh ; ?
-        db 0C0h ; +
-        db  2Eh ; .
-        db  8Bh ; ?
-        db 0C0h ; +
-        db  2Eh ; .
-        db  8Bh ; ?
-        db 0C0h ; +
-        db  2Eh ; .
-        db  8Bh ; ?
-        db 0C0h ; +
-        db  8Bh ; ?
-        db 0C0h ; +
 
-// ; =============== S U B R O U T I N E =======================================
-
-// ; ax contains a status code if a DOS function fails.
-void writeexitmessage() //    proc near       ; CODE XREF: loadScreen2-7CFp
-{
-        push    es
-        mov bx, ax
-        mov ax, seg doserrors
-        mov es, ax
-        assume es:doserrors
-        mov di, 0
-        al = 0
-
-        ; find message #bx
-keeplooking:              ; CODE XREF: writeexitmessage+13j
-        mov cx, 1000
-        repne scasb             ; look for zero term
-        dec bx
-        jnz short keeplooking
-
-writechar:              ; CODE XREF: writeexitmessage+23j
-        mov ah, 0Eh
-        al = es:[di]
-        cmp al, 0
-        jz  short write_crlf
-        inc di
-        mov bh, 0
-        int 10h     ; - VIDEO - WRITE CHARACTER AND ADVANCE CURSOR (TTY WRITE)
-                    ; AL = character, BH = display page (alpha modes)
-                    ; BL = foreground color (graphics modes)
-        jmp short writechar
-
-write_crlf:              ; CODE XREF: writeexitmessage+1Cj
-        mov ah, 0Eh
-        al = 0Ah
-        mov bh, 0
-        int 10h     ; - VIDEO - WRITE CHARACTER AND ADVANCE CURSOR (TTY WRITE)
-                    ; AL = character, BH = display page (alpha modes)
-                    ; BL = foreground color (graphics modes)
-        mov ah, 0Eh
-        al = 0Dh
-        mov bh, 0
-        int 10h     ; - VIDEO - WRITE CHARACTER AND ADVANCE CURSOR (TTY WRITE)
-                    ; AL = character, BH = display page (alpha modes)
-                    ; BL = foreground color (graphics modes)
-        pop es
-        assume es:nothing
-        return;
-}
-
-//         db  2Eh ; .
-//         db  8Bh ; ?
-//         db 0C0h ; +
-//         db  2Eh ; .
-//         db  8Bh ; ?
-//         db 0C0h ; +
-//         db  2Eh ; .
-//         db  8Bh ; ?
-//         db 0C0h ; +
-
-*/
 void sub_48A20() //   proc near       ; CODE XREF: start+32Fp
                 // ; runLevel:notFunctionKeyp ...
 {
@@ -7319,6 +7239,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
     return;
 }
 
+// TODO: seems to be the function that reads joystick input. worth keeping it or should I just delete it?
 void sub_48E59() //   proc near       ; CODE XREF: waitForKeyMouseOrJoystick:loc_47EB8p
 //                    ; waitForKeyMouseOrJoystick+4Dp ...
 {
@@ -7442,7 +7363,6 @@ void sub_48E59() //   proc near       ; CODE XREF: waitForKeyMouseOrJoystick:loc
 //loc_48F68:              ; CODE XREF: sub_48E59+Bj
 //                ; sub_48E59+27j ...
     gCurrentUserInput = userInput;
-    return;
 }
 
 // Draws the fixed stuff from the level (edges of the screen + tiles from FIXED.DAT)
@@ -7644,7 +7564,7 @@ loc_49177:              ; CODE XREF: sub_4914A+23j
     inc word_51965
 
 loc_49186:              ; CODE XREF: sub_4914A+32j
-    cmp byte_519C9, 0
+    cmp gIsNumpad5Pressed, 0
     jz  short loc_49199
     mov word_51963, 0
     mov word_51965, 0
@@ -9524,7 +9444,7 @@ void sub_49EBE() //   proc near       ; CODE XREF: runLevel+109p
 //loc_49F17:              ; CODE XREF: sub_49EBE:loc_49F0Dj
 //                ; sub_49EBE+54j
     if (word_51A01 == 0
-        || byte_519C9 != 0)
+        || gIsNumpad5Pressed != 0)
     {
 //loc_49F25:              ; CODE XREF: sub_49EBE+5Ej
         word_59B88 = bx;
@@ -18009,7 +17929,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         {
 //loc_4EC93:              ; CODE XREF: update?+CA3j update?+CC3j
             murphyTile->tile = LevelTileTypeMurphy;
-            sub_487FE(position + kLevelWidth);
+            handleMurphyCollisionAfterMovement(position + kLevelWidth);
             return position;
         }
 //loc_4EB36:              ; CODE XREF: update?+CA1j
@@ -18017,7 +17937,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         {
 //loc_4ECB1:              ; CODE XREF: update?+CABj update?+CCBj
             murphyTile->tile = LevelTileTypeMurphy;
-            sub_487FE(position + 1);
+            handleMurphyCollisionAfterMovement(position + 1);
             return position;
         }
 //loc_4EB3E:              ; CODE XREF: update?+CA9j
@@ -18039,7 +17959,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 4)
         {
 //loc_4EF53:              ; CODE XREF: update?+CBBj update?+CDBj
-            sub_487FE(position - 1);
+            handleMurphyCollisionAfterMovement(position - 1);
             murphyTile->movingObject = 0;
             murphyTile->tile = LevelTileTypeMurphy;
             return position;
@@ -18049,7 +17969,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         {
 //loc_4EC93:              ; CODE XREF: update?+CA3j update?+CC3j
             murphyTile->tile = LevelTileTypeMurphy;
-            sub_487FE(position + kLevelWidth);
+            handleMurphyCollisionAfterMovement(position + kLevelWidth);
             return position;
         }
 //loc_4EB56:              ; CODE XREF: update?+CC1j
@@ -18057,7 +17977,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         {
 //loc_4ECB1:              ; CODE XREF: update?+CABj update?+CCBj
             murphyTile->tile = LevelTileTypeMurphy;
-            sub_487FE(position + 1);
+            handleMurphyCollisionAfterMovement(position + 1);
             return position;
         }
 //loc_4EB5E:              ; CODE XREF: update?+CC9j
@@ -18080,7 +18000,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         {
 //loc_4EF53:              ; CODE XREF: update?+CBBj update?+CDBj
             // 01ED:82F0
-            sub_487FE(position - 1);
+            handleMurphyCollisionAfterMovement(position - 1);
             murphyTile->movingObject = 0;
             murphyTile->tile = LevelTileTypeMurphy;
             return position;
@@ -18099,7 +18019,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
 
 //loc_4EC93:              ; CODE XREF: update?+CA3j update?+CC3j
             murphyTile->tile = LevelTileTypeMurphy;
-            sub_487FE(position + kLevelWidth);
+            handleMurphyCollisionAfterMovement(position + kLevelWidth);
             return position;
         }
 //loc_4EB76:              ; CODE XREF: update?+CE1j
@@ -18116,7 +18036,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
 
 //loc_4ECB1:              ; CODE XREF: update?+CABj update?+CCBj
             murphyTile->tile = LevelTileTypeMurphy;
-            sub_487FE(position + 1);
+            handleMurphyCollisionAfterMovement(position + 1);
             return position;
         }
 //loc_4EB7E:              ; CODE XREF: update?+CE9j
@@ -18156,7 +18076,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
             drawgNumberOfRemainingInfotrons();
 
 //loc_4EF53:              ; CODE XREF: update?+CBBj update?+CDBj
-            sub_487FE(position - 1);
+            handleMurphyCollisionAfterMovement(position - 1);
             murphyTile->movingObject = 0;
             murphyTile->tile = LevelTileTypeMurphy;
             return position;
@@ -18985,7 +18905,7 @@ void sub_4ED29(uint16_t position) //   proc near       ; CODE XREF: update?+E6F
         || belowTile->tile == 0xBB)
     {
 //loc_4ED38:              ; CODE XREF: sub_4ED29+5j sub_4ED29+Cj
-        sub_488DC(position + kLevelWidth);
+        handleZonkStateAfterFallingOneTile(position + kLevelWidth);
     }
 }
 
