@@ -152,19 +152,19 @@ uint8_t byte_519C0 = 0; // F9
 uint8_t byte_519C1 = 0; // F10
 uint8_t byte_519C2 = 0; // -> 16B2 -> Num lock
 uint8_t byte_519C3 = 0; // Scroll lock
-uint8_t byte_519C4 = 0; // numpad 7
+uint8_t gIsNumpad7Pressed = 0; // byte_519C4 -> numpad 7
 uint8_t gIsUpKeyPressed = 0; // byte_519C5 -> 16B5 -> numpad 8 or up arrow
-uint8_t byte_519C6 = 0; // numpad 9
+uint8_t gIsNumpad9Pressed = 0; // byte_519C6 -> numpad 9
 // numpad -
 uint8_t gIsLeftKeyPressed = 0; // byte_519C8 -> numpad 4
 uint8_t gIsNumpad5Pressed = 0; // byte_519C9 -> numpad 5
 uint8_t gIsRightKeyPressed = 0; // byte_519CA -> numpad 6
 // numpad +
-// numpad 1
+uint8_t gIsNumpad1Pressed = 0; // byte_519CC -> numpad 1
 uint8_t gIsDownKeyPressed = 0; // byte_519CD -> numpad 2
-uint8_t byte_519CE = 0; // numpad 3
-uint8_t byte_519CF = 0; // numpad 0
-uint8_t byte_519D0 = 0; // numpad .
+uint8_t gIsNumpad3Pressed = 0; // byte_519CE -> numpad 3
+uint8_t gIsNumpad0Pressed = 0; // byte_519CF -> numpad 0
+uint8_t gIsNumpadPeriodPressed = 0; // byte_519D0 -> numpad .
 uint8_t byte_519D1 = 0; // numpad SysReq
 // Key 45
 // numpad Enter
@@ -3807,6 +3807,13 @@ void int9handler() // proc far        ; DATA XREF: setint9+1Fo
     gIsDownKeyPressed = keys[SDL_SCANCODE_DOWN];
     gIsLeftKeyPressed = keys[SDL_SCANCODE_LEFT];
     gIsRightKeyPressed = keys[SDL_SCANCODE_RIGHT];
+    gIsNumpad0Pressed = keys[SDL_SCANCODE_KP_0];
+    gIsNumpad1Pressed = keys[SDL_SCANCODE_KP_1];
+    gIsNumpad3Pressed = keys[SDL_SCANCODE_KP_3];
+    gIsNumpad5Pressed = keys[SDL_SCANCODE_KP_5];
+    gIsNumpad7Pressed = keys[SDL_SCANCODE_KP_7];
+    gIsNumpad9Pressed = keys[SDL_SCANCODE_KP_9];
+    gIsNumpadPeriodPressed = keys[SDL_SCANCODE_KP_PERIOD];
 
     // 01ED:0659
     if (keyPressed == SDL_SCANCODE_UNKNOWN) //test    cl, 80h     ; think key up
@@ -7537,92 +7544,100 @@ void drawFixedLevel() // sub_48F6D   proc near       ; CODE XREF: start+335p ru
     word_51967 = bx;
 }
 
+// TODO: investigate what's this for. DEMO related?
 void sub_4914A() //   proc near       ; CODE XREF: sub_4955B+7p
 {
-    /*
-    cmp gIsLeftKeyPressed, 0
-    jz  short loc_49159
-    dec word_51963
-    dec word_51963
+    if (gIsLeftKeyPressed != 0)
+    {
+        word_51963--;
+        word_51963--;
+    }
 
-loc_49159:              ; CODE XREF: sub_4914A+5j
-    cmp gIsRightKeyPressed, 0
-    jz  short loc_49168
-    inc word_51963
-    inc word_51963
+//loc_49159:              ; CODE XREF: sub_4914A+5j
+    if (gIsRightKeyPressed != 0)
+    {
+        word_51963++;
+        word_51963++;
+    }
 
-loc_49168:              ; CODE XREF: sub_4914A+14j
-    cmp gIsUpKeyPressed, 0
-    jz  short loc_49177
-    dec word_51965
-    dec word_51965
+//loc_49168:              ; CODE XREF: sub_4914A+14j
+    if (gIsUpKeyPressed != 0)
+    {
+        word_51965--;
+        word_51965--;
+    }
 
-loc_49177:              ; CODE XREF: sub_4914A+23j
-    cmp gIsDownKeyPressed, 0
-    jz  short loc_49186
-    inc word_51965
-    inc word_51965
+//loc_49177:              ; CODE XREF: sub_4914A+23j
+    if (gIsDownKeyPressed != 0)
+    {
+        word_51965++;
+        word_51965++;
+    }
 
-loc_49186:              ; CODE XREF: sub_4914A+32j
-    cmp gIsNumpad5Pressed, 0
-    jz  short loc_49199
-    mov word_51963, 0
-    mov word_51965, 0
+//loc_49186:              ; CODE XREF: sub_4914A+32j
+    if (gIsNumpad5Pressed != 0)
+    {
+        word_51963 = 0;
+        word_51965 = 0;
+    }
 
-loc_49199:              ; CODE XREF: sub_4914A+41j
-    mov bx, 8
-    sub bx, word_59B88
-    mov ax, word_59B8A
-    neg ax
-    cmp byte_519CF, 0
-    jz  short loc_491B3
-    mov word_51963, bx
-    mov word_51965, ax
+//loc_49199:              ; CODE XREF: sub_4914A+41j
+    bx = 8;
+    bx -= word_59B88;
+    ax = word_59B8A;
+    ax = ~ax;
+    if (gIsNumpad0Pressed != 0)
+    {
+        word_51963 = bx;
+        word_51965 = ax;
+    }
 
-loc_491B3:              ; CODE XREF: sub_4914A+60j
-    add bx, 138h
-    cmp byte_519C4, 0
-    jz  short loc_491C5
-    mov word_51963, bx
-    mov word_51965, ax
+//loc_491B3:              ; CODE XREF: sub_4914A+60j
+    bx += 0x138; // 312
+    if (gIsNumpad7Pressed != 0)
+    {
+        word_51963 = bx;
+        word_51965 = ax;
+    }
 
-loc_491C5:              ; CODE XREF: sub_4914A+72j
-    add bx, 138h
-    cmp byte_519C6, 0
-    jz  short loc_491D7
-    mov word_51963, bx
-    mov word_51965, ax
+//loc_491C5:              ; CODE XREF: sub_4914A+72j
+    bx += 0x138; // 312
+    if (gIsNumpad9Pressed != 0)
+    {
+        word_51963 = bx;
+        word_51965 = ax;
+    }
 
-loc_491D7:              ; CODE XREF: sub_4914A+84j
-    sub bx, 270h
-    add ax, 0A8h ; '?'
-    cmp byte ptr word_510C1, 0
-    jz  short loc_491E8
-    add ax, 18h
+//loc_491D7:              ; CODE XREF: sub_4914A+84j
+    bx -= 0x270; // 312
+    ax += 0xA8;
+    if ((word_510C1 & 0xFF) != 0)
+    {
+        ax += 0x18;
+    }
 
-loc_491E8:              ; CODE XREF: sub_4914A+99j
-    cmp byte_519D0, 0
-    jz  short loc_491F6
-    mov word_51963, bx
-    mov word_51965, ax
+//loc_491E8:              ; CODE XREF: sub_4914A+99j
+    if (gIsNumpadPeriodPressed != 0)
+    {
+        word_51963 = bx;
+        word_51965 = ax;
+    }
 
-loc_491F6:              ; CODE XREF: sub_4914A+A3j
-    add bx, 138h
-    cmp byte_519CC, 0
-    jz  short loc_49208
-    mov word_51963, bx
-    mov word_51965, ax
+//loc_491F6:              ; CODE XREF: sub_4914A+A3j
+    bx += 0x138; // 312
+    if (gIsNumpad1Pressed != 0)
+    {
+        word_51963 = bx;
+        word_51965 = ax;
+    }
 
-loc_49208:              ; CODE XREF: sub_4914A+B5j
-    add bx, 138h
-    cmp byte_519CE, 0
-    jz  short locret_4921A
-    mov word_51963, bx
-    mov word_51965, ax
-
-locret_4921A:               ; CODE XREF: sub_4914A+C7j
-    return;
-    */
+//loc_49208:              ; CODE XREF: sub_4914A+B5j
+    bx += 0x138; // 312
+    if (gIsNumpad3Pressed != 0)
+    {
+        word_51963 = bx;
+        word_51965 = ax;
+    }
 }
 
 void sub_4921B() //   proc near       ; CODE XREF: readConfig+8Cp
