@@ -12935,11 +12935,11 @@ void drawPlayerList() // sub_4C293  proc near       ; CODE XREF: start+32Cp sta
     drawCurrentPlayerRanking();
 }
 
-void drawMenuTitleAndDemoLevelResult() //   proc near       ; CODE XREF: handleGfxTutorOptionClick+Cp
+void drawMenuTitleAndDemoLevelResult() // sub_4C2F2   proc near       ; CODE XREF: handleGfxTutorOptionClick+Cp
                     // ; sub_4C407+1Fp ...
 {
     // 01ED:568F
-    drawTextWithChars6FontWithOpaqueBackground(180, 127, 4, "WELCOME TO SUPAPLEX");
+    drawTextWithChars6FontWithOpaqueBackground(168, 127, 4, "  WELCOME TO SUPAPLEX  ");
     drawPlayerList();
     drawLevelList();
     drawHallOfFame();
@@ -12955,22 +12955,22 @@ void drawMenuTitleAndDemoLevelResult() //   proc near       ; CODE XREF: handleG
     {
         if (byte_5A19C == 0)
         {
-            message = "LEVEL FAILED";
+            message = "     LEVEL FAILED      ";
         }
         else
         {
-            message = "DEMO FAILED";
+            message = "      DEMO FAILED      ";
         }
     }
     else
     {
         if (byte_5A19C == 0)
         {
-            message = "LEVEL SUCCESSFUL";
+            message = "   LEVEL SUCCESSFUL    ";
         }
         else
         {
-            message = "DEMO SUCCESSFUL";
+            message = "    DEMO SUCCESSFUL    ";
         }
     }
 
@@ -13099,18 +13099,26 @@ void prepareLevelDataForCurrentPlayer() //   proc near       ; CODE XREF: start+
 
 void sub_4C407() //   proc near       ; CODE XREF: runMainMenu+5Dp
 {
+    // 01ED:57A4
     gNumberOfDotsToShiftDataLeft = 0;
     if (byte_510BA != 0)
     {
         byte_510BA = 0;
-        sub_4C4F9();
-        drawMenuBackground();
+        sub_4C4F9(); // 01ED:57B5
+        drawMenuBackground(); // 01ED:57B8
         byte_51ABE = 0;
         prepareLevelDataForCurrentPlayer();
         drawMenuTitleAndDemoLevelResult();
     //    mov si, 6015h
         fadeToPalette(gPalettes[1]);
-//        jmp short loc_4C499
+
+        // gNumberOfDotsToShiftDataLeft = 0;
+        videoloop();
+
+        // This will prevent to leave traces of the options menu
+        // area in the main menu.
+        //
+        saveLastMouseAreaBitmap();
     }
     else
     {
@@ -13131,16 +13139,15 @@ void sub_4C407() //   proc near       ; CODE XREF: runMainMenu+5Dp
          */
         if (word_5195F >= 0x140) // 320
         {
-//            mov di, 4D34h
-//            sub_4C4BD();
+            // mov di, 4D34h
+            // sub_4C4BD();
         }
-    }
-
 //loc_4C449:              ; CODE XREF: sub_4C407+3Aj
-//    mov di, 4D84h
-//    sub_4C4BD();
+        // mov di, 4D84h
+        // sub_4C4BD();
 
-    scrollLeftToMainMenu();
+        scrollLeftToMainMenu();
+    }
 }
 
 void scrollLeftToMainMenu() //loc_4C44F:              ; CODE XREF: handleGfxTutorOptionClick+9p
@@ -13205,47 +13212,46 @@ void scrollLeftToMainMenu() //loc_4C44F:              ; CODE XREF: handleGfxTuto
     saveLastMouseAreaBitmap();
 }
 
-//sub_4C407   endp
+void sub_4C4BD() //   proc near       ; CODE XREF: sub_4C407+3Fp
+                   // ; sub_4C407+45p
+{
+    si = word_51967;
+    word_51967 = di;
+    bx = di;
+    dx = 0xC8; // 200
+//    push    ds
+//    mov ax, es
+//    mov ds, ax
 
-/*
+    do
+    {
+//loc_4C4CF:              ; CODE XREF: sub_4C4BD+1Ej
+        cx = 40;
+        // memcpy(di, si, 40); // rep movsb
+        si += 0x52; // 82
+        di += 0x52; // 82
+        dx--;
+    }
+    while (dx != 0);
+//    pop ds
+//    mov dx, 3D4h
+//    al = 0Dh
+//    out dx, al      ; Video: CRT cntrlr addr
+//                ; regen start address (low)
+//    inc dx
+//    al = bl
+//    out dx, al      ; Video: CRT controller internal registers
+//    mov dx, 3D4h
+//    al = 0Ch
+//    out dx, al      ; Video: CRT cntrlr addr
+//                ; regen start address (high)
+//    inc dx
+//    al = bh
+//    out dx, al      ; Video: CRT controller internal registers
+    videoloop();
+    loopForVSync();
+}
 
-sub_4C4BD   proc near       ; CODE XREF: sub_4C407+3Fp
-                    ; sub_4C407+45p
-        mov si, word_51967
-        mov word_51967, di
-        mov bx, di
-        mov dx, 0C8h ; '?'
-        push    ds
-        mov ax, es
-        mov ds, ax
-
-loc_4C4CF:              ; CODE XREF: sub_4C4BD+1Ej
-        mov cx, 28h ; '('
-        rep movsb
-        add si, 52h ; 'R'
-        add di, 52h ; 'R'
-        dec dx
-        jnz short loc_4C4CF
-        pop ds
-        mov dx, 3D4h
-        al = 0Dh
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (low)
-        inc dx
-        al = bl
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 0Ch
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (high)
-        inc dx
-        al = bh
-        out dx, al      ; Video: CRT controller internal registers
-        call    videoloop
-        call    loopForVSync
-        return;
-sub_4C4BD   endp
-*/
 void sub_4C4F9() //   proc near       ; CODE XREF: sub_4C407+11p
 {
     setPalette(gBlackPalette);
