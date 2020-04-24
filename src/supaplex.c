@@ -87,7 +87,7 @@ uint16_t word_510DF = 0;
 uint8_t byte_510E1 = 0;
 uint8_t byte_510E2 = 0;
 uint16_t word_510E4 = 0; // This is probably a FILE *
-uint8_t byte_5195B = 0;
+uint8_t gTotalNumberOfInfotrons = 0; // byte_5195B
 uint8_t byte_5195C = 0;
 uint8_t byte_51969 = 0;
 uint8_t byte_5196A = 0;
@@ -2762,6 +2762,7 @@ void sub_4FD65(void);
 void sub_4A910(void);
 void sub_4A5E0(void);
 void sub_4A95F(void);
+void sub_4C4F9(void);
 void handleZonkStateAfterFallingOneTile(uint16_t position);
 void detonateBigExplosion(uint16_t position);
 void detonateZonk(uint16_t position, uint8_t movingObject, uint8_t tile);
@@ -9157,13 +9158,12 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 void sub_49D53() //   proc near       ; CODE XREF: sub_4955B+626p
                    // ; sub_4A23C+21p
 {
-//    byte_59B7B == 0;
+//    byte_59B7B = 0;
 //        call    levelScanThing // added by me, seems like code continues from here? see what happens with the debugger
 }
 
 void levelScanThing() //   proc near       ; CODE XREF: runLevel+A7p
 {
-    /*
 //    push    es
 //    push    ds
 //    pop es
@@ -9254,7 +9254,6 @@ void levelScanThing() //   proc near       ; CODE XREF: runLevel+A7p
 
 //loc_49DD9:              ; CODE XREF: levelScanThing+59j
     byte_59B7B = 1;
- */
 }
 
 void gameloop() //   proc near       ; CODE XREF: runLevel:noFlashingp
@@ -10180,7 +10179,7 @@ void resetNumberOfInfotrons() // sub_4A3BB   proc near       ; CODE XREF: start+
 
 //loc_4A3C6:              ; CODE XREF: resetNumberOfInfotrons+5j
     gNumberOfRemainingInfotrons = numberOfInfotrons;
-    byte_5195B = numberOfInfotrons;
+    gTotalNumberOfInfotrons = numberOfInfotrons;
     drawgNumberOfRemainingInfotrons();
 }
 
@@ -13104,7 +13103,7 @@ void sub_4C407() //   proc near       ; CODE XREF: runMainMenu+5Dp
     if (byte_510BA != 0)
     {
         byte_510BA = 0;
-//        sub_4C4F9();
+        sub_4C4F9();
         drawMenuBackground();
         byte_51ABE = 0;
         prepareLevelDataForCurrentPlayer();
@@ -13246,94 +13245,45 @@ loc_4C4CF:              ; CODE XREF: sub_4C4BD+1Ej
         call    loopForVSync
         return;
 sub_4C4BD   endp
-
-sub_4C4F9   proc near       ; CODE XREF: sub_4C407+11p
-        mov si, 60D5h
-        call    setPalette
-        call    drawBackBackground
-        mov si, 8577h
-        mov di, 6A2Ch
-        mov ah, 0Fh
-        call    drawTextWithChars6FontWithTransparentBackground
-        cmp gNumberOfRemainingInfotrons, 0
-        jnz short loc_4C52C
-        mov si, 8582h
-        mov di, 73A9h
-        mov ah, 0Fh
-        call    drawTextWithChars6FontWithTransparentBackground
-        mov si, 85ACh
-        mov di, 7D35h
-        mov ah, 0Fh
-        call    drawTextWithChars6FontWithTransparentBackground
-        jmp short loc_4C55C
-
-loc_4C52C:              ; CODE XREF: sub_4C4F9+19j
-        mov si, 85DCh
-        al = byte_5195B
-        sub al, gNumberOfRemainingInfotrons
-        mov ah, 20h ; ' '
-        call    convertNumberTo3DigitPaddedString
-        mov si, 85EBh
-        al = byte_5195B
-        mov ah, 20h ; ' '
-        call    convertNumberTo3DigitPaddedString
-        mov si, 85C9h
-        mov di, 73A9h
-        mov ah, 0Fh
-        call    drawTextWithChars6FontWithTransparentBackground
-        mov si, 85EFh
-        mov di, 7D39h
-        mov ah, 0Fh
-        call    drawTextWithChars6FontWithTransparentBackground
-
-loc_4C55C:              ; CODE XREF: sub_4C4F9+31j
-        mov si, 8600h
-        mov di, 86BDh
-        mov ah, 0Fh
-        call    drawTextWithChars6FontWithTransparentBackground
-        mov bx, 4D84h
-        mov dx, 3D4h
-        al = 0Dh
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (low)
-        inc dx
-        al = bl
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 0Ch
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (high)
-        inc dx
-        al = bh
-        out dx, al      ; Video: CRT controller internal registers
-        call    videoloop
-        mov si, palettesDataBuffer
-        call    setPalette
-        cmp word_5197A, 1
-        jz  short loc_4C591
-        call    waitForKeyMouseOrJoystick
-
-loc_4C591:              ; CODE XREF: sub_4C4F9+93j
-        mov si, 60D5h
-        call    setPalette
-        mov bx, 4D5Ch
-        mov dx, 3D4h
-        al = 0Dh
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (low)
-        inc dx
-        al = bl
-        out dx, al      ; Video: CRT controller internal registers
-        mov dx, 3D4h
-        al = 0Ch
-        out dx, al      ; Video: CRT cntrlr addr
-                    ; regen start address (high)
-        inc dx
-        al = bh
-        out dx, al      ; Video: CRT controller internal registers
-        return;
-sub_4C4F9   endp
 */
+void sub_4C4F9() //   proc near       ; CODE XREF: sub_4C407+11p
+{
+    setPalette(gBlackPalette);
+    drawBackBackground();
+
+    drawTextWithChars6FontWithTransparentBackground(128, 60, 0xF, "HARD LUCK!");
+    if (gNumberOfRemainingInfotrons == 0)
+    {
+        drawTextWithChars6FontWithTransparentBackground(40, 80, 0xF, "YOU COMPLETED ALL THE NECESSARY INFOTRONS");
+        drawTextWithChars6FontWithTransparentBackground(72, 100, 0xF, "BUT FAILED TO REACH THE EXIT");
+    }
+    else
+    {
+//loc_4C52C:              ; CODE XREF: sub_4C4F9+19j
+        char message[] = "YOU HAVE COLLECTED ??? OUT OF THE ???";
+
+        uint8_t collectedInfotrons = gTotalNumberOfInfotrons - gNumberOfRemainingInfotrons;
+        convertNumberTo3DigitPaddedString(collectedInfotrons, &message[19], 1);
+
+        convertNumberTo3DigitPaddedString(gTotalNumberOfInfotrons, &message[34], 1);
+
+        drawTextWithChars6FontWithTransparentBackground(40, 80, 0xF, message);
+        drawTextWithChars6FontWithTransparentBackground(104, 100, 0xF, "INFOTRONS NEEDED");
+    }
+
+//loc_4C55C:              ; CODE XREF: sub_4C4F9+31j
+    drawTextWithChars6FontWithTransparentBackground(72, 120, 0xF, "WHY NOT GIVE IT ANOTHER TRY?");
+
+    videoloop();
+    setPalette(gPalettes[0]);
+    if (word_5197A != 1)
+    {
+        waitForKeyMouseOrJoystick();
+    }
+
+//loc_4C591:              ; CODE XREF: sub_4C4F9+93j
+    setPalette(gBlackPalette);
+}
 
 void scrollRightToNewScreen() // sub_4C5AF   proc near       ; CODE XREF: handleGfxTutorOptionClick+3p
 {
