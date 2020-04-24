@@ -76,7 +76,7 @@ uint8_t byte_510B3 = 0;
 uint8_t byte_510B4 = 0;
 uint8_t byte_510B5 = 0;
 uint8_t byte_510B6 = 0;
-uint8_t byte_510BA = 0;
+uint8_t gShouldShowFailedLevelResultScreen = 0; // byte_510BA
 uint8_t byte_510BB = 0;
 uint8_t byte_510C0 = 0;
 uint8_t byte_510D3 = 0;
@@ -176,7 +176,7 @@ uint8_t byte_519F6 = 0; //
 uint8_t byte_519F7 = 0; //
 uint8_t byte_519F8 = 0; //
 uint8_t byte_519F9 = 0; //
-uint8_t byte_51ABE = 0; //
+uint8_t gShouldAutoselectNextLevelToPlay = 0; // byte_51ABE
 uint8_t byte_5870F = 0; //
 uint8_t byte_58D46 = 0; //
 uint8_t byte_58D47 = 0; //
@@ -2762,7 +2762,7 @@ void sub_4FD65(void);
 void sub_4A910(void);
 void sub_4A5E0(void);
 void sub_4A95F(void);
-void sub_4C4F9(void);
+void drawFailedLevelResultScreen(void);
 void handleZonkStateAfterFallingOneTile(uint16_t position);
 void detonateBigExplosion(uint16_t position);
 void detonateZonk(uint16_t position, uint8_t movingObject, uint8_t tile);
@@ -3535,7 +3535,7 @@ loc_46E75:              //; CODE XREF: start+251j
         {
 //loc_4701A:              //; CODE XREF: start+3DDj start+433j
             byte_5A33F = 1;
-            byte_51ABE = 1;
+            gShouldAutoselectNextLevelToPlay = 1;
             prepareLevelDataForCurrentPlayer();
             drawPlayerList();
             word_58467 = 0;
@@ -6698,12 +6698,12 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
     {
 //loc_48ACE:              ; CODE XREF: runLevel+5j
         byte_5A19C = 0;
-        byte_510BA = 1;
+        gShouldShowFailedLevelResultScreen = 1;
     }
     else
     {
         byte_5A19C = 1;
-        byte_510BA = 0;
+        gShouldShowFailedLevelResultScreen = 0;
     }
 
 //loc_48AD8:              ; CODE XREF: runLevel+11j
@@ -6730,7 +6730,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 
 //loc_48AFF:              ; CODE XREF: runLevel+3Fj
         byte_5A19C = 0;
-        byte_510BA = 1;
+        gShouldShowFailedLevelResultScreen = 1;
     }
 
 //loc_48B09:              ; CODE XREF: runLevel+22j
@@ -11590,7 +11590,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
     drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, "                       ");
     savePlayerListData();
     saveHallOfFameData();
-    byte_51ABE = 1;
+    gShouldAutoselectNextLevelToPlay = 1;
     prepareLevelDataForCurrentPlayer();
     drawPlayerList();
     drawLevelList();
@@ -11666,7 +11666,7 @@ void handleDeletePlayerOptionClick() // sub_4AD0E  proc near
     drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, "                       ");
     savePlayerListData();
     saveHallOfFameData();
-    byte_51ABE = 1;
+    gShouldAutoselectNextLevelToPlay = 1;
     prepareLevelDataForCurrentPlayer();
     drawPlayerList();
     drawLevelList();
@@ -11766,7 +11766,7 @@ void handleSkipLevelOptionClick() // sub_4ADFF  proc near
         changePlayerCurrentLevelState(); // 01ED:4275
         savePlayerListData();
         saveHallOfFameData();
-        byte_51ABE = 0;
+        gShouldAutoselectNextLevelToPlay = 0;
         prepareLevelDataForCurrentPlayer();
     }
 
@@ -12336,7 +12336,7 @@ void handlePlayerListScrollDown() // sub_4B671  proc near
 //loc_4B6B1:              ; CODE XREF: handlePlayerListScrollDown+33j
 //                ; handlePlayerListScrollDown+3Aj
     restoreLastMouseAreaBitmap();
-    byte_51ABE = 1;
+    gShouldAutoselectNextLevelToPlay = 1;
     prepareLevelDataForCurrentPlayer();
     drawPlayerList();
     drawLevelList();
@@ -12373,7 +12373,7 @@ void handlePlayerListScrollUp() // sub_4B6C9  proc near
 //loc_4B709:              ; CODE XREF: handlePlayerListScrollUp+33j
 //                ; handlePlayerListScrollUp+3Aj
     restoreLastMouseAreaBitmap(); // Clears mouse trail
-    byte_51ABE = 1;
+    gShouldAutoselectNextLevelToPlay = 1;
     prepareLevelDataForCurrentPlayer();
     drawPlayerList();
     drawLevelList();
@@ -13057,7 +13057,7 @@ void prepareLevelDataForCurrentPlayer() //   proc near       ; CODE XREF: start+
 
     if (hasCompletedAllLevels == 1)
     {
-        if (byte_51ABE != 0)
+        if (gShouldAutoselectNextLevelToPlay != 0)
         {
             gCurrentSelectedLevelIndex = kLastLevelIndex;
         }
@@ -13069,7 +13069,7 @@ void prepareLevelDataForCurrentPlayer() //   proc near       ; CODE XREF: start+
 
 //loc_4C3D6:              // ; CODE XREF: prepareLevelDataForCurrentPlayer+61j
                 // ; prepareLevelDataForCurrentPlayer+74j
-    if (byte_51ABE != 0)
+    if (gShouldAutoselectNextLevelToPlay != 0)
     {
         gCurrentSelectedLevelIndex = nextLevelToPlay;
     }
@@ -13101,12 +13101,12 @@ void sub_4C407() //   proc near       ; CODE XREF: runMainMenu+5Dp
 {
     // 01ED:57A4
     gNumberOfDotsToShiftDataLeft = 0;
-    if (byte_510BA != 0)
+    if (gShouldShowFailedLevelResultScreen != 0)
     {
-        byte_510BA = 0;
-        sub_4C4F9(); // 01ED:57B5
+        gShouldShowFailedLevelResultScreen = 0;
+        drawFailedLevelResultScreen(); // 01ED:57B5
         drawMenuBackground(); // 01ED:57B8
-        byte_51ABE = 0;
+        gShouldAutoselectNextLevelToPlay = 0;
         prepareLevelDataForCurrentPlayer();
         drawMenuTitleAndDemoLevelResult();
     //    mov si, 6015h
@@ -13133,7 +13133,7 @@ void scrollLeftToMainMenu() //loc_4C44F:              ; CODE XREF: handleGfxTuto
     memcpy(currentScreenPixels, gScreenPixels, kFullScreenFramebufferLength);
 
     drawMenuBackground();
-    byte_51ABE = 0;
+    gShouldAutoselectNextLevelToPlay = 0;
 
     prepareLevelDataForCurrentPlayer();
     drawMenuTitleAndDemoLevelResult();
@@ -13189,7 +13189,7 @@ void scrollLeftToMainMenu() //loc_4C44F:              ; CODE XREF: handleGfxTuto
     saveLastMouseAreaBitmap();
 }
 
-void sub_4C4F9() //   proc near       ; CODE XREF: sub_4C407+11p
+void drawFailedLevelResultScreen() // sub_4C4F9   proc near       ; CODE XREF: sub_4C407+11p
 {
     setPalette(gBlackPalette);
     drawBackBackground();
@@ -13202,7 +13202,7 @@ void sub_4C4F9() //   proc near       ; CODE XREF: sub_4C407+11p
     }
     else
     {
-//loc_4C52C:              ; CODE XREF: sub_4C4F9+19j
+//loc_4C52C:              ; CODE XREF: drawFailedLevelResultScreen+19j
         char message[] = "YOU HAVE COLLECTED ??? OUT OF THE ???";
 
         uint8_t collectedInfotrons = gTotalNumberOfInfotrons - gNumberOfRemainingInfotrons;
@@ -13214,7 +13214,7 @@ void sub_4C4F9() //   proc near       ; CODE XREF: sub_4C407+11p
         drawTextWithChars6FontWithTransparentBackground(104, 100, 0xF, "INFOTRONS NEEDED");
     }
 
-//loc_4C55C:              ; CODE XREF: sub_4C4F9+31j
+//loc_4C55C:              ; CODE XREF: drawFailedLevelResultScreen+31j
     drawTextWithChars6FontWithTransparentBackground(72, 120, 0xF, "WHY NOT GIVE IT ANOTHER TRY?");
 
     videoloop();
@@ -13224,7 +13224,7 @@ void sub_4C4F9() //   proc near       ; CODE XREF: sub_4C407+11p
         waitForKeyMouseOrJoystick();
     }
 
-//loc_4C591:              ; CODE XREF: sub_4C4F9+93j
+//loc_4C591:              ; CODE XREF: drawFailedLevelResultScreen+93j
     setPalette(gBlackPalette);
 }
 
@@ -13457,7 +13457,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
     {
 //        goto loc_4C7EC; <- if word_58467 == 0
         drawMenuBackground(); // 01ED:5B4E
-        byte_51ABE = 1;
+        gShouldAutoselectNextLevelToPlay = 1;
         prepareLevelDataForCurrentPlayer(); // 01ED:5B56
         drawMenuTitleAndDemoLevelResult(); // 01ED:5B59
 
@@ -16879,7 +16879,7 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
     //    push    si
         byte_5A19B = 1;
         byte_510BB = 1;
-        byte_510BA = 0;
+        gShouldShowFailedLevelResultScreen = 0;
         if (byte_5A2F9 == 0
             && byte_510B3 != 0)
         {
@@ -17086,7 +17086,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
     //    push    si
         byte_5A19B = 1;
         byte_510BB = 1;
-        byte_510BA = 0;
+        gShouldShowFailedLevelResultScreen = 0;
         if (byte_5A2F9 == 0
             && byte_510B3 != 0)
         {
@@ -17371,7 +17371,7 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
     //    push    si
         byte_5A19B = 1;
         byte_510BB = 1;
-        byte_510BA = 0;
+        gShouldShowFailedLevelResultScreen = 0;
         if (byte_5A2F9 == 0
             && byte_510B3 != 0)
         {
@@ -17574,7 +17574,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
     //    push    si
         byte_5A19B = 1;
         byte_510BB = 1;
-        byte_510BA = 0;
+        gShouldShowFailedLevelResultScreen = 0;
         if (byte_5A2F9 == 0
             && byte_510B3 != 0)
         {
