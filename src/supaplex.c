@@ -131,15 +131,15 @@ uint8_t byte_519A0 = 0;//h
 uint8_t byte_519A1 = 0;//j
 //k
 uint32_t dword_519A3 = 0; // l ; ' `
-uint16_t word_519A7 = 0; // "left shift" slash
+// "left shift" slash
 uint16_t word_519A9 = 0; // z x
 uint16_t word_519AB = 0; // c v
 uint16_t word_519AD = 0; // b n
 uint32_t dword_519AF = 0; // m , . /
 uint16_t word_519B3 = 0; // "right shift" "numpad *"
-uint8_t byte_519B5 = 0; // "left alt"
+uint8_t gIsLeftAltPressed = 0; // byte_519B5 -> "left alt"
 uint8_t gIsSpaceKeyPressed = 0; // byte_519B6 -> space
-uint8_t byte_519B7 = 0; // caps lock
+// caps lock
 uint8_t byte_519B8 = 0; // F1
 uint8_t byte_519B9 = 0; // F2
 uint8_t byte_519BA = 0; // F3
@@ -150,8 +150,8 @@ uint8_t byte_519BE = 0; // F7
 uint8_t byte_519BF = 0; // F8
 uint8_t byte_519C0 = 0; // F9
 uint8_t byte_519C1 = 0; // F10
-uint8_t byte_519C2 = 0; // -> 16B2 -> Num lock
-uint8_t byte_519C3 = 0; // Scroll lock
+uint8_t gIsNumLockPressed = 0; // byte_519C2 -> 16B2 -> Num lock
+uint8_t gIsScrollLockPressed = 0; // byte_519C3 -> Scroll lock
 uint8_t gIsNumpad7Pressed = 0; // byte_519C4 -> numpad 7
 uint8_t gIsUpKeyPressed = 0; // byte_519C5 -> 16B5 -> numpad 8 or up arrow
 uint8_t gIsNumpad9Pressed = 0; // byte_519C6 -> numpad 9
@@ -165,10 +165,10 @@ uint8_t gIsDownKeyPressed = 0; // byte_519CD -> numpad 2
 uint8_t gIsNumpad3Pressed = 0; // byte_519CE -> numpad 3
 uint8_t gIsNumpad0Pressed = 0; // byte_519CF -> numpad 0
 uint8_t gIsNumpadPeriodPressed = 0; // byte_519D0 -> numpad .
-uint8_t byte_519D1 = 0; // numpad SysReq
+// numpad SysReq
 // Key 45
 // numpad Enter
-uint8_t byte_519D4 = 0; // numpad /
+uint8_t gIsNumpadDividePressed = 0; // byte_519D4 -> numpad /
 uint8_t byte_519D5 = 0; //
 uint8_t byte_519F4 = 0; //
 uint8_t byte_519F5 = 0; //
@@ -3821,6 +3821,10 @@ void int9handler() // proc far        ; DATA XREF: setint9+1Fo
     gIsNumpad7Pressed = keys[SDL_SCANCODE_KP_7];
     gIsNumpad9Pressed = keys[SDL_SCANCODE_KP_9];
     gIsNumpadPeriodPressed = keys[SDL_SCANCODE_KP_PERIOD];
+    gIsNumpadDividePressed = keys[SDL_SCANCODE_KP_DIVIDE];
+    gIsNumLockPressed = keys[SDL_SCANCODE_NUMLOCKCLEAR];
+    gIsScrollLockPressed = keys[SDL_SCANCODE_SCROLLLOCK];
+    gIsLeftAltPressed = keys[SDL_SCANCODE_LALT];
 
     // 01ED:0659
     if (keyPressed == SDL_SCANCODE_UNKNOWN) //test    cl, 80h     ; think key up
@@ -3893,13 +3897,11 @@ void int9handler() // proc far        ; DATA XREF: setint9+1Fo
 //checkX:                 ; CODE XREF: int9handler+39j
 //                ; int9handler+60j ...
     if (cl == SDL_SCANCODE_X // Key X
-        && byte_519B5 != 0)
+        && gIsLeftAltPressed != 0)
     {
         word_51974 = 1;
         word_5197A = 1;
     }
-
-//doneexit:                   ; CODE XREF: int9handler+A6j
 }
 
 void int8handler() // proc far        ; DATA XREF: setint8+10o
@@ -8643,7 +8645,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 
 //loc_49984:              ; CODE XREF: sub_4955B+40Cj
 //                ; sub_4955B+413j
-    if (byte_519C3 == 1)
+    if (gIsScrollLockPressed == 1)
     {
         word_51970 = 1;
         if (videoStatusUnk == 1)
@@ -9012,8 +9014,8 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 
 //loc_49C41:              ; CODE XREF: sub_4955B+404j
 //                    ; sub_4955B+52Bj
-    if (byte_519B5 == 1
-        && byte_519C3 == 1)
+    if (gIsLeftAltPressed == 1
+        && gIsScrollLockPressed == 1)
     {
         // 01ED:2FEC
         word_51970 = 0;
@@ -9073,7 +9075,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     }
 
 //loc_49CC8:              ; CODE XREF: sub_4955B+740j
-    if (byte_519C2 != 0)
+    if (gIsNumLockPressed != 0)
     {
         // 01ED:306C
         byte_510AE = 0;
@@ -9085,7 +9087,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 //loc_49CDA:              ; CODE XREF: sub_4955B+784j
             int9handler();
         }
-        while (byte_519C2 == 1);
+        while (gIsNumLockPressed == 1);
 
 //        mov si, 179Ah
 
@@ -9109,7 +9111,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 //                }
 
 //loc_49CFC:              ; CODE XREF: sub_4955B+79Dj
-                if (byte_519C2 != 0)
+                if (gIsNumLockPressed != 0)
                 {
                     break;
                 }
@@ -9123,7 +9125,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 //                    ; sub_4955B+7ADj
             assert(0); // WTF?? infinite loop??
         }
-        while (byte_519C2 == 1);
+        while (gIsNumLockPressed == 1);
 //        mov si, 6015h
         fadeToPalette(gPalettes[1]);
         byte_510AE = 1;
@@ -13618,7 +13620,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
     //        demoSomething();
         }
 //loc_4C955:              // ; CODE XREF: runMainMenu+1B7j
-        else if (byte_519D4 == 1
+        else if (gIsNumpadDividePressed == 1
                  && demoFileName != 0
                  && fileIsDemo == 1)
         {
@@ -20526,7 +20528,7 @@ void drawSpeedFixCredits() //  proc near       ; CODE XREF: start+2ECp
         SDL_Delay(10); // Avoid burning the CPU
         int9handler();
 
-        if (byte_519C3 == 1)
+        if (gIsScrollLockPressed == 1)
         {
             word_51970 = 1;
         }
