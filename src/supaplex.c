@@ -13122,30 +13122,7 @@ void sub_4C407() //   proc near       ; CODE XREF: runMainMenu+5Dp
     }
     else
     {
-//loc_4C431:              ; CODE XREF: sub_4C407+Aj
-        /*
-        mov dx, 3CEh
-        al = 5
-        out dx, al      ; EGA: graph 1 and 2 addr reg:
-                    ; mode register.Data bits:
-                    ; 0-1: Write mode 0-2
-                    ; 2: test condition
-                    ; 3: read mode: 1=color compare, 0=direct
-                    ; 4: 1=use odd/even RAM addressing
-                    ; 5: 1=use CGA mid-res map (2-bits/pixel)
-        inc dx
-        al = 1
-        out dx, al      ; EGA port: graphics controller data register
-         */
-        if (word_5195F >= 0x140) // 320
-        {
-            // mov di, 4D34h
-            // sub_4C4BD();
-        }
 //loc_4C449:              ; CODE XREF: sub_4C407+3Aj
-        // mov di, 4D84h
-        // sub_4C4BD();
-
         scrollLeftToMainMenu();
     }
 }
@@ -13210,46 +13187,6 @@ void scrollLeftToMainMenu() //loc_4C44F:              ; CODE XREF: handleGfxTuto
     // area in the main menu.
     //
     saveLastMouseAreaBitmap();
-}
-
-void sub_4C4BD() //   proc near       ; CODE XREF: sub_4C407+3Fp
-                   // ; sub_4C407+45p
-{
-    si = word_51967;
-    word_51967 = di;
-    bx = di;
-    dx = 0xC8; // 200
-//    push    ds
-//    mov ax, es
-//    mov ds, ax
-
-    do
-    {
-//loc_4C4CF:              ; CODE XREF: sub_4C4BD+1Ej
-        cx = 40;
-        // memcpy(di, si, 40); // rep movsb
-        si += 0x52; // 82
-        di += 0x52; // 82
-        dx--;
-    }
-    while (dx != 0);
-//    pop ds
-//    mov dx, 3D4h
-//    al = 0Dh
-//    out dx, al      ; Video: CRT cntrlr addr
-//                ; regen start address (low)
-//    inc dx
-//    al = bl
-//    out dx, al      ; Video: CRT controller internal registers
-//    mov dx, 3D4h
-//    al = 0Ch
-//    out dx, al      ; Video: CRT cntrlr addr
-//                ; regen start address (high)
-//    inc dx
-//    al = bh
-//    out dx, al      ; Video: CRT controller internal registers
-    videoloop();
-    loopForVSync();
 }
 
 void sub_4C4F9() //   proc near       ; CODE XREF: sub_4C407+11p
