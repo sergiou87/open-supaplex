@@ -199,7 +199,7 @@ uint8_t byte_599D4 = 0;
 uint8_t byte_59B5C = 0;
 uint8_t byte_59B5F = 0;
 uint8_t byte_59B62 = 0;
-uint8_t byte_59B64 = 0;
+// uint8_t byte_59B64 = 0;
 uint8_t byte_59B6B = 0;
 uint8_t byte_59B6C = 0;
 uint8_t byte_59B6D = 0;
@@ -1565,7 +1565,6 @@ uint8_t fileIsDemo = 0;
 uint8_t isJoystickEnabled = 0; // byte_50940
 uint8_t isMusicEnabled = 0; // byte_59886
 uint8_t isFXEnabled = 0; // byte_59885
-uint8_t videoStatusUnk = 0;
 SDL_Scancode keyPressed = 0;
 uint8_t speed1 = 0xFF;
 int8_t speed2 = 0;
@@ -2692,7 +2691,6 @@ void drawMainMenuButtonBorders(void);
 void drawMainMenuButtonBorder(ButtonBorderDescriptor border, uint8_t color);
 uint8_t waitForJoystickKeyReleased(uint8_t keyOrAxis, uint16_t *outTime); // sub_49FED
 void getTime(void);
-void checkVideo(void);
 void initializeFadePalette(void);
 void initializeMouse(void);
 void loadMurphySprites(void);
@@ -3365,11 +3363,7 @@ loc_46E75:              //; CODE XREF: start+251j
 
 //doesNotHaveCommandLine:         //; CODE XREF: start+13j start+23Fj ...
     getTime();
-    checkVideo();
-    if (byte_59B64 != 0)
-    {
-        videoStatusUnk = 2;
-    }
+    // checkVideo();
 
 //leaveVideoStatus:           //; CODE XREF: start+28Aj
     initializeFadePalette(); // 01ED:026F
@@ -8656,15 +8650,8 @@ void loc_49949() //:              ; CODE XREF: sub_4955B+E1j
     if (gIsScrollLockPressed == 1)
     {
         gIsDebugModeEnabled = 1;
-        if (videoStatusUnk == 1)
-        {
-//            mov di, 6D2h
-//            mov ah, 6
-//            push    si
-//            mov si, 0A00Ah "DB"
-            drawTextWithChars8Font(304, 190, 6, "DB"); // Debug mode enabled
-            byte_5197C = 0x46; // 70
-        }
+        drawTextWithChars8Font(304, 190, 6, "DB"); // Debug mode enabled
+        byte_5197C = 0x46; // 70
     }
 
 //loc_499AA:              ; CODE XREF: sub_4955B+42Ej
@@ -9091,15 +9078,9 @@ void loc_49A89() // :              ; CODE XREF: sub_4955B+3FAj
     drawGameTime();
     byte_5A2F9 = 1;
     gIsRecordingDemo = 0;
-//    push    si
-//    mov si, 0A004h "LD"
-    if (videoStatusUnk == 1)
-    {
-//        mov di, 6D2h
-//        mov ah, 6
-        drawTextWithChars8Font(304, 190, 6, "LD"); // Means snapshot was loaded successfully
-        byte_5197C = 0x46; // 70 or '&'
-    }
+
+    drawTextWithChars8Font(304, 190, 6, "LD"); // Means snapshot was loaded successfully
+    byte_5197C = 0x46; // 70 or '&'
 
 //loc_49C12:              ; CODE XREF: sub_4955B+6A8j
 //    mov si, 6015h
@@ -9122,13 +9103,8 @@ void loc_49C28() //:              ; CODE XREF: sub_4955B+47Aj
 
 void loc_49C2C(char text[3]) // :              ; CODE XREF: sub_4955B+521j
 {
-    if (videoStatusUnk == 1)
-    {
-//        mov di, 6D2h
-//        mov ah, 6
-        drawTextWithChars8Font(304, 190, 6, text);
-        byte_5197C = 0x46; // 70 or '&'
-    }
+    drawTextWithChars8Font(304, 190, 6, text);
+    byte_5197C = 0x46; // 70 or '&'
 
 //loc_49C40:              ; CODE XREF: sub_4955B+6BDj
 //                    ; sub_4955B+6D6j
@@ -9152,16 +9128,8 @@ void loc_49C41() //              ; CODE XREF: sub_4955B+404j
         word_51A07 = 1;
         replaceCurrentPaletteColor(0, (SDL_Color) { 0, 0, 0 });
 
-        if (videoStatusUnk == 1)
-        {
-//            mov di, 6D2h
-//            mov ah, 6
-//            push    si
-//            mov si, 0A00Dh "--"
-            drawTextWithChars8Font(304, 190, 6, "--"); // Debug mode disabled
-//            pop si
-            byte_5197C = 0x46; // 70 or '&'
-        }
+        drawTextWithChars8Font(304, 190, 6, "--"); // Debug mode disabled
+        byte_5197C = 0x46; // 70 or '&'
     }
 
 //loc_49C96:              ; CODE XREF: sub_4955B+6EBj
@@ -12396,6 +12364,349 @@ void handleOkButtonClick() // sub_4B375  proc near       ; CODE XREF: runMainMen
 void handleFloppyDiskButtonClick() // sub_4B419  proc near
 {
     drawTextWithChars6FontWithOpaqueBackground(168, 127, 6, "WHAT'S A FLOPPY DISK?  ");
+    // TODO: implement support for switching level sets
+    // According to the speed fix documentation this had two behaviors that could be switched pressing ALT:
+    // -
+    /*
+    xor al, al
+    cmp byte_519B5, al
+    jz  short loc_4B423
+    not al
+
+loc_4B423:              ; CODE XREF: sub_4B419+6j
+    cmp byte ptr word_59B65, 0
+    jz  short loc_4B42C
+    not al
+
+loc_4B42C:              ; CODE XREF: sub_4B419+Fj
+    inc al
+    jnz short loc_4B433
+    jmp loc_4B583
+; ---------------------------------------------------------------------------
+
+loc_4B433:              ; CODE XREF: sub_4B419+15j
+    mov ax, word_5195D
+    sub ax, word_59B8C
+    cmp ax, word_59B8E
+    jnb short loc_4B443
+    jmp locret_4B582
+; ---------------------------------------------------------------------------
+
+loc_4B443:              ; CODE XREF: sub_4B419+25j
+    mov ax, word_5195D
+    mov word_59B8E, ax
+    cmp word_59B8C, 1
+    jbe short loc_4B454
+    dec word_59B8C
+
+loc_4B454:              ; CODE XREF: sub_4B419+35j
+                ; sub_4B419+9Aj
+    mov ax, word ptr aLevels_dat_0+8 ; "AT"
+    mov dl, byte ptr word_519B3
+    or  dl, byte ptr word_519A7
+    jnz short loc_4B482
+    cmp ax, 5441h
+    jnz short loc_4B46B
+    mov ax, 3030h
+    jmp short loc_4B4A3
+; ---------------------------------------------------------------------------
+
+loc_4B46B:              ; CODE XREF: sub_4B419+4Bj
+    cmp ax, 3939h
+    jnz short loc_4B475
+    mov ax, 5441h
+    jmp short loc_4B4A3
+; ---------------------------------------------------------------------------
+
+loc_4B475:              ; CODE XREF: sub_4B419+55j
+    inc ah
+    cmp ah, 39h ; '9'
+    jbe short loc_4B4A3
+    mov ah, 30h ; '0'
+    inc al
+    jmp short loc_4B4A3
+; ---------------------------------------------------------------------------
+
+loc_4B482:              ; CODE XREF: sub_4B419+46j
+    cmp ax, 5441h
+    jnz short loc_4B48C
+    mov ax, 3939h
+    jmp short loc_4B4A3
+; ---------------------------------------------------------------------------
+
+loc_4B48C:              ; CODE XREF: sub_4B419+6Cj
+    cmp ax, 3030h
+    jnz short loc_4B496
+    mov ax, 5441h
+    jmp short loc_4B4A3
+; ---------------------------------------------------------------------------
+
+loc_4B496:              ; CODE XREF: sub_4B419+76j
+    dec ah
+    cmp ah, 30h ; '0'
+    jnb short loc_4B4A3
+    mov ah, 39h ; '9'
+    dec al
+    jmp short $+2
+; ---------------------------------------------------------------------------
+
+loc_4B4A3:              ; CODE XREF: sub_4B419+50j
+                ; sub_4B419+5Aj ...
+    mov word ptr aLevels_dat_0+8, ax ; "AT"
+    mov ax, 3D00h
+    mov dx, 17AFh
+    int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
+                ; DS:DX -> ASCIZ filename
+                ; AL = access mode
+                ; 0 - read
+    jnb short loc_4B4B8
+    cmp ax, 2
+    jz  short loc_4B454
+    jmp exit
+; ---------------------------------------------------------------------------
+
+loc_4B4B8:              ; CODE XREF: sub_4B419+95j
+    mov ax, 3E00h
+    mov bx, lastFileHandle
+    int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
+                ; BX = file handle
+    jnb short loc_4B4C6
+    jmp exit
+; ---------------------------------------------------------------------------
+
+loc_4B4C6:              ; CODE XREF: sub_4B419+A8j
+    mov ax, word ptr aLevels_dat_0+8 ; "AT"
+    mov word ptr aLevelSet??+0Fh, ax ; "??  "
+    cmp ah, 54h ; 'T'
+    jnz short loc_4B4D3
+    mov al, 53h ; 'S'
+
+loc_4B4D3:              ; CODE XREF: sub_4B419+B6j
+    mov word ptr aLevel_lst+7, ax ; "ST"
+    mov word ptr aPlayer_lst+8, ax ; "ST"
+    mov word ptr aHallfame_lst+0Ah, ax ; "ST"
+    cmp ah, 54h ; 'T'
+    jnz short loc_4B4E4
+    mov ax, 4E49h
+
+loc_4B4E4:              ; CODE XREF: sub_4B419+C6j
+    mov word ptr aDemo0_bin+7, ax ; "IN"
+    cmp ah, 4Eh ; 'N'
+    jnz short loc_4B4EF
+    mov ax, 5641h
+
+loc_4B4EF:              ; CODE XREF: sub_4B419+D1j
+    cmp byte ptr dword_59B76, 0
+    jnz short loc_4B4F9
+    mov word ptr aSavegame_sav+0Ah, ax ; "AV"
+
+loc_4B4F9:              ; CODE XREF: sub_4B419+DBj
+    mov si, 9EEDh
+    cmp ah, 56h ; 'V'
+    jnz short loc_4B504
+    mov si, 9F05h
+
+loc_4B504:              ; CODE XREF: sub_4B419+E6j
+    mov di, 89F7h
+    mov ah, 4
+    call    sub_4BA5F
+    call    readLevelsLst
+    call    readDemo
+    push    es
+    push    ds
+    pop es
+    assume es:data
+    cmp byte_59B85, 0
+    jz  short loc_4B52A
+    lea di, byte_58DB4+4
+    mov cx, 6Fh ; 'o'
+    mov al, 2
+    rep stosb
+    pop es
+    assume es:nothing
+    jmp short loc_4B565
+; ---------------------------------------------------------------------------
+
+loc_4B52A:              ; CODE XREF: sub_4B419+101j
+    lea di, word_58DAC
+    mov cx, 14h
+
+loc_4B531:              ; CODE XREF: sub_4B419+129j
+    push    cx
+    mov ax, 2D2Dh
+    mov cx, 4
+    rep stosw
+    xor ax, ax
+    mov cx, 3Ch ; '<'
+    rep stosw
+    pop cx
+    loop    loc_4B531
+    lea di, asc_59824   ; "    "
+    mov cx, 3
+
+loc_4B54B:              ; CODE XREF: sub_4B419+143j
+    push    cx
+    mov ax, 2020h
+    mov cx, 4
+    rep stosw
+    xor ax, ax
+    mov cx, 2
+    rep stosw
+    pop cx
+    loop    loc_4B54B
+    pop es
+    call    readHallfameLst
+    call    readPlayersLst
+
+loc_4B565:              ; CODE XREF: sub_4B419+10Fj
+    mov byte_51ABE, 1
+    call    sub_4C34A
+    call    sub_4C293
+    call    sub_4C141
+    call    sub_4C1A9
+    call    sub_4C0DD
+    call    sub_4B899
+    call    sub_4B85C
+    call    sub_4B8BE
+
+locret_4B582:               ; CODE XREF: sub_4B419+27j
+    retn
+; ---------------------------------------------------------------------------
+
+loc_4B583:              ; CODE XREF: sub_4B419+17j
+    mov si, 60D5h
+    call    fade
+    call    vgaloadbackseg
+    mov si, 84FFh
+    mov di, 786Dh
+    mov ah, 0Fh
+    call    sub_4BDF0
+    mov ah, 19h
+    int 21h     ; DOS - GET DEFAULT DISK NUMBER
+    mov byte_59B9A, al
+    cmp al, 0
+    jz  short loc_4B5B3
+    cmp al, 1
+    jz  short loc_4B5B3
+    mov si, 851Bh
+    mov di, 81F5h
+    mov ah, 0Fh
+    call    sub_4BDF0
+    jmp short loc_4B5BE
+; ---------------------------------------------------------------------------
+
+loc_4B5B3:              ; CODE XREF: sub_4B419+187j
+                ; sub_4B419+18Bj
+    mov si, 853Ah
+    mov di, 81F5h
+    mov ah, 0Fh
+    call    sub_4BDF0
+
+loc_4B5BE:              ; CODE XREF: sub_4B419+198j
+    mov si, 8562h
+    mov di, 0A81Ah
+    mov ah, 0Fh
+    call    sub_4BDF0
+    mov bx, 4D84h
+    mov dx, 3D4h
+    mov al, 0Dh
+    out dx, al      ; Video: CRT cntrlr addr
+                ; regen start address (low)
+    inc dx
+    mov al, bl
+    out dx, al      ; Video: CRT controller internal registers
+    mov dx, 3D4h
+    mov al, 0Ch
+    out dx, al      ; Video: CRT cntrlr addr
+                ; regen start address (high)
+    inc dx
+    mov al, bh
+    out dx, al      ; Video: CRT controller internal registers
+    mov si, 5FD5h
+    call    fade
+
+loc_4B5E6:              ; CODE XREF: sub_4B419+1D3j
+    call    getMouseStatus
+    cmp bx, 0
+    jnz short loc_4B5E6
+
+loc_4B5EE:              ; CODE XREF: sub_4B419+20Fj
+    cmp word_5197A, 1
+    jz  short loc_4B63D
+    mov al, keyPressed
+    xor dl, dl
+    cmp al, 1Eh     ; A
+    jz  short loc_4B62A
+    inc dl
+    cmp al, 30h ; '0'   ; B
+    jz  short loc_4B62A
+    inc dl
+    cmp al, 2Eh ; '.'   ; C
+    jz  short loc_4B62A
+    inc dl
+    cmp al, 20h ; ' '   ; D
+    jz  short loc_4B62A
+    inc dl
+    cmp al, 12h     ; E
+    jz  short loc_4B62A
+    inc dl
+    cmp al, 21h ; '!'   ; F
+    jz  short loc_4B62A
+    mov dl, byte_59B9A
+    cmp al, 1Ch     ; Enter
+    jz  short loc_4B62A
+    cmp al, 1       ; Esc
+    jz  short loc_4B63D
+    jmp short loc_4B5EE
+; ---------------------------------------------------------------------------
+
+loc_4B62A:              ; CODE XREF: sub_4B419+1E3j
+                ; sub_4B419+1E9j ...
+    mov ah, 0Eh
+    int 21h     ; DOS - SELECT DISK
+                ; DL = new default drive number (0 = A, 1 = B, etc.)
+                ; Return: AL = number of logical drives
+    mov byte_59B86, 0
+    call    readMoving
+    cmp byte_59B86, 0FFh
+    jnz short loc_4B647
+
+loc_4B63D:              ; CODE XREF: sub_4B419+1DAj
+                ; sub_4B419+20Dj
+    mov dl, byte_59B9A
+    mov ah, 0Eh
+    int 21h     ; DOS - SELECT DISK
+                ; DL = new default drive number (0 = A, 1 = B, etc.)
+                ; Return: AL = number of logical drives
+    jmp short loc_4B64D
+; ---------------------------------------------------------------------------
+
+loc_4B647:              ; CODE XREF: sub_4B419+222j
+    call    readEverything
+    call    vgaloadbackseg
+
+loc_4B64D:              ; CODE XREF: sub_4B419+22Cj
+    mov si, 60D5h
+    call    fade
+    mov bx, 4D5Ch
+    mov dx, 3D4h
+    mov al, 0Dh
+    out dx, al      ; Video: CRT cntrlr addr
+                ; regen start address (low)
+    inc dx
+    mov al, bl
+    out dx, al      ; Video: CRT controller internal registers
+    mov dx, 3D4h
+    mov al, 0Ch
+    out dx, al      ; Video: CRT cntrlr addr
+                ; regen start address (high)
+    inc dx
+    mov al, bh
+    out dx, al      ; Video: CRT controller internal registers
+    mov si, 6015h
+    call    fade
+    retn
+*/
 }
 
 void handlePlayerListScrollDown() // sub_4B671  proc near
@@ -14561,100 +14872,8 @@ void changePlayerCurrentLevelState() // sub_4D24D  proc near       ; CODE XREF: 
     updateHallOfFameEntries(); // 01ED:6618
 }
 
-void checkVideo() //  proc near       ; CODE XREF: start+282p
-{
-    videoStatusUnk = 1; // THIS IS NOT IN THE ASM!! I think we can do just this and trust is the best video mode
-    return;
-    /*
-        // mov ah, 0Fh
-        // int 10h     ; - VIDEO - GET CURRENT VIDEO MODE
-        //             ; Return: AH = number of columns on screen
-        //             ; AL = current video mode
-        //             ; BH = current active display page
-    currVideoMode = al;
-    ax = 0x0D; // 320x200 16 color graphics (EGA, VGA) according to http://stanislavs.org/helppc/int_10-0.html
-        // int 10h     ; - VIDEO - SET VIDEO MODE
-        //             ; AL = mode
-    bx = 0;
-
-    cx = 0x100; // 256
-
-    // The code below is something like this? Is trying to set different values to the bitmask
-    // and then checking if the value was correctly stored??
-    // Maybe to check some kind of capability?
-    for (int i = 256; i > 0; ++i)
-    {
-videoCheckStart:            // ; CODE XREF: checkVideo:checkAgainj
-        // dx = 0x3CE; // This is a VGA port
-        // al = 8;
-        // out dx, al      ; EGA: graph 1 and 2 addr reg:
-        //             ; bit mask
-        //             ; Bits 0-7 select bits to be masked in all planes
-        ports[0x3CE] = 8; // this is to check the bitmask
-        // dx++;
-        // al = cl;
-        // out dx, al      ; EGA port: graphics controller data register
-        ports[0x3CF] = i;
-        // in  al, dx      ; EGA port: graphics controller data register
-        al = ports[0x3CF];
-
-        if (ports[0x3CF] != i)
-        {
-            bx++; // increase number of "incompatible" bitmasks
-        }
-
-checkAgain:             //; CODE XREF: checkVideo+29j
-        // cx--;
-        // if (cx > 0)
-        // {
-        //     goto videoCheckStart;
-        // }
-    }
-    
-    if (bx != 0) // if there is at least 1 incompatible bitmask... set status flag to 2. less colors maybe?
-    {
-        goto setStatusBit2;
-    }
-    
-    videoStatusUnk = 1;
-    goto returnout;
-
-setStatusBit2:              // ; CODE XREF: checkVideo+30j
-    videoStatusUnk = 2;
-
-returnout:                  // ; CODE XREF: checkVideo+37j
-        //return;
-     */
-}
-
 void initializeFadePalette() //   proc near       ; CODE XREF: start+296p
 {
-    if (videoStatusUnk == 1)
-    {
-        // Probably useless?
-        /*
-        // grayscale palette?
-        for (int i = 16; i > 0; i--)
-        {
-//loc_4D2C9:              //; CODE XREF: initializeFadePalette+17j
-            // push(cx);
-            // ax = 0x1000;
-            // bl = cl;
-            // bl--;
-            // bh = bl;
-            // int 10h     ; - VIDEO - SET PALETTE REGISTER (Jr, PS, TANDY 1000, EGA, VGA)
-            //             ; BL = palette register to set
-            //             ; BH = color value to store
-            // pop(cx);
-            
-            set_palette_register(i-1, i-1); // (number of register, value)
-        }
-//        jmp short $+2
-         */
-    }
-
-//loc_4D2DA:              //; CODE XREF: initializeFadePalette+5j
-                    //; initializeFadePalette+19j
     fadeToPalette(gBlackPalette);
 }
 
