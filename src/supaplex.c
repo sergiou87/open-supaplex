@@ -88,7 +88,7 @@ uint8_t byte_510E1 = 0;
 uint8_t byte_510E2 = 0;
 uint16_t word_510E4 = 0; // This is probably a FILE *
 uint8_t gTotalNumberOfInfotrons = 0; // byte_5195B
-uint8_t byte_5195C = 0;
+uint8_t gNumberOfRemainingRedDisks = 0; // byte_5195C
 uint8_t byte_51969 = 0;
 uint8_t byte_5196A = 0;
 uint8_t byte_5196B = 0;
@@ -1515,11 +1515,11 @@ uint16_t word_51963 = 0;
 uint16_t word_51965 = 0;
 uint16_t word_51967 = 0; // scroll / first pixel of the scroll window
 uint16_t word_5196C = 0;
-uint16_t word_51970 = 0;
+uint16_t gIsDebugModeEnabled = 0; // word_51970
 uint16_t word_51974 = 0;
 uint16_t gQuitLevelCountdown = 0; // word_51978 -> this is a counter to end the level after certain number of iterations (to let the game progress a bit before going back to the menu)
 uint16_t word_5197A = 0;
-uint16_t word_51A01 = 0;
+uint16_t gIsMoveScrollModeEnabled = 0; // word_51A01
 uint16_t word_51A07 = 1;
 uint16_t word_58463 = 0;
 uint16_t word_58465 = 0;
@@ -1572,7 +1572,7 @@ int8_t speed2 = 0;
 int8_t speed3 = 0xFF;
 int8_t gameSpeed = 5;
 uint8_t demoFileName = 0; // Probably should be another type but whatever for now
-uint32_t flashingbackgroundon = 0;
+uint8_t gIsFlashingBackgroundModeEnabled = 0; // flashingbackgroundon
 
 static const uint16_t kFallAnimationGravityOffsets[18] = {
     0x0000, // -> 0x6C95
@@ -2647,6 +2647,7 @@ void updateWindowViewport(void);
 int windowResizingEventWatcher(void* data, SDL_Event* event);
 Uint32 timerHandler(Uint32 interval, void *param);
 void handleSDLEvents(void);
+void replaceCurrentPaletteColor(uint8_t index, SDL_Color color);
 void setPalette(ColorPalette palette);
 void fadeToPalette(ColorPalette palette);
 void readTitleDatAndGraphics(void);
@@ -2760,7 +2761,7 @@ uint16_t handleMurphyDirectionDown(uint16_t position);
 uint16_t handleMurphyDirectionLeft(uint16_t position);
 uint16_t handleMurphyDirectionUp(uint16_t position);
 void detonateYellowDisks(void);
-void sub_4914A(void);
+void updateUserInputInScrollMovementMode(void);
 void updateUserInput(void);
 void sub_492F1(void);
 void sub_492A8(void);
@@ -2771,8 +2772,8 @@ void sub_4945D(void);
 void somethingspsig(void);
 void sub_4A3D2(void);
 void sub_49D53(void);
-void sub_4FDCE(void);
-void sub_4FD65(void);
+void drawNumberOfRemainingRedDisks(void);
+void clearNumberOfRemainingRedDisks(void);
 void sub_4A910(void);
 void sub_4A5E0(void);
 void sub_4A95F(void);
@@ -3182,7 +3183,7 @@ loc_46D64:              //; CODE XREF: start+140j
         {
             goto loc_46D82;
         }
-        word_51970 = 1;
+        gIsDebugModeEnabled = 1;
 
 loc_46D82:              //; CODE XREF: start+15Aj
         al = 0x21; // '!'
@@ -6727,7 +6728,7 @@ void sub_48A20() //   proc near       ; CODE XREF: start+32Fp
     word_510D1 = 0;
     word_51974 = 0;
     gQuitLevelCountdown = 0;
-    byte_5195C = 0;
+    gNumberOfRemainingRedDisks = 0;
     byte_5197C = 0;
     word_510CD = 0;
     gLastDrawnMinutesAndSeconds = 0xFFFF;
@@ -6824,7 +6825,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         }
 
 //loc_48B38:              ; CODE XREF: runLevel+6Ej runLevel+75j
-        if (word_51970 != 0)
+        if (gIsDebugModeEnabled != 0)
         {
             if (byte_59B7A != 0)
             {
@@ -6853,53 +6854,24 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         }
 
 //loc_48B78:              ; CODE XREF: runLevel+B8j
-        if ((flashingbackgroundon & 0xFFFF) != 0) // cmp word ptr flashingbackgroundon, 0
+        if (gIsFlashingBackgroundModeEnabled != 0)
         {
-            /*
-            mov dx, 3C8h
-            xor al, al
-            out dx, al
-            inc dx
-            al = 35h ; '5'
-            out dx, al
-            out dx, al
-            out dx, al
-             */
+            replaceCurrentPaletteColor(0, (SDL_Color) { 0x35, 0x35, 0x35 });
         }
 
 //noFlashing:              ; CODE XREF: runLevel+C2j
         gameloop(); // 01ED:1F28
-        if ((flashingbackgroundon & 0xFFFF) != 0) //cmp word ptr flashingbackgroundon, 0
+        if (gIsFlashingBackgroundModeEnabled != 0)
         {
-            /*
-            mov dx, 3C8h
-            xor al, al
-            out dx, al
-            inc dx
-            al = 21h ; '!'
-            out dx, al
-            out dx, al
-            out dx, al
-             */
+            replaceCurrentPaletteColor(0, (SDL_Color) { 0x21, 0x21, 0x21 });
         }
 
 //noFlashing2:              ; CODE XREF: runLevel+D8j
         drawGameTime();
-        sub_4FD65();
-        if ((flashingbackgroundon & 0xFFFF) != 0) //cmp word ptr flashingbackgroundon, 0
+        clearNumberOfRemainingRedDisks();
+        if (gIsFlashingBackgroundModeEnabled != 0)
         {
-            /*
-            mov dx, 3C8h
-            xor al, al
-            out dx, al
-            inc dx
-            al = 2Dh ; '-'
-            out dx, al
-            al = 21h ; '!'
-            out dx, al
-            al = 0Fh
-            out dx, al
-             */
+            replaceCurrentPaletteColor(0, (SDL_Color) { 0x2d, 0x21, 0x0f });
         }
 
 //noFlashing3:              ; CODE XREF: runLevel+F1j
@@ -7198,16 +7170,9 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 //        mov cx, word_5195F
 //        mov ah, cl
 //        and ah, 7
-        if ((flashingbackgroundon & 0xFFFF) != 0) //cmp word ptr flashingbackgroundon, 0
+        if (gIsFlashingBackgroundModeEnabled != 0)
         {
-//            mov dx, 3C8h
-//            xor al, al
-//            out dx, al
-//            inc dx
-//            al = 3Fh ; '?'
-//            out dx, al
-//            out dx, al
-//            out dx, al
+            replaceCurrentPaletteColor(0, (SDL_Color) { 0x3f, 0x3f, 0x3f });
         }
 
 //noFlashing4:              ; CODE XREF: runLevel+2D1j
@@ -7245,15 +7210,9 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         }
 
 //loc_48DCD:              ; CODE XREF: runLevel+2FCj
-        if ((flashingbackgroundon & 0xFFFF) != 0) //cmp word ptr flashingbackgroundon, 0
+        if (gIsFlashingBackgroundModeEnabled != 0)
         {
-//          mov dx, 3C8h
-//          xor al, al
-//          out dx, al
-//          inc dx
-//          out dx, al
-//          out dx, al
-//          out dx, al
+            replaceCurrentPaletteColor(0, (SDL_Color) { 0, 0, 0 });
         }
 
 //noFlashing5:              ; CODE XREF: runLevel+317j
@@ -7301,19 +7260,12 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 
 //loc_48E30:              ; CODE XREF: runLevel+362j
 //                ; runLevel+369j ...
-    word_51A01 = 0;
+    gIsMoveScrollModeEnabled = 0;
     word_51963 = 0;
     word_51965 = 0;
-    flashingbackgroundon = (flashingbackgroundon & 0xFFFF0000) + 0; // mov word ptr flashingbackgroundon, 0
+    gIsFlashingBackgroundModeEnabled = 0;
     word_51A07 = 1;
-//    mov dx, 3C8h
-//    xor al, al
-//    out dx, al
-//    inc dx
-//    out dx, al
-//    out dx, al
-//    out dx, al
-    return;
+    replaceCurrentPaletteColor(0, (SDL_Color) { 0, 0, 0 });
 }
 
 // TODO: seems to be the function that reads joystick input. worth keeping it or should I just delete it?
@@ -7614,8 +7566,7 @@ void drawFixedLevel() // sub_48F6D   proc near       ; CODE XREF: start+335p ru
     word_51967 = bx;
 }
 
-// TODO: investigate what's this for. DEMO related?
-void sub_4914A() //   proc near       ; CODE XREF: sub_4955B+7p
+void updateUserInputInScrollMovementMode() // sub_4914A   proc near       ; CODE XREF: sub_4955B+7p
 {
     if (gIsLeftKeyPressed != 0)
     {
@@ -7623,35 +7574,35 @@ void sub_4914A() //   proc near       ; CODE XREF: sub_4955B+7p
         word_51963--;
     }
 
-//loc_49159:              ; CODE XREF: sub_4914A+5j
+//loc_49159:              ; CODE XREF: updateUserInputInScrollMovementMode+5j
     if (gIsRightKeyPressed != 0)
     {
         word_51963++;
         word_51963++;
     }
 
-//loc_49168:              ; CODE XREF: sub_4914A+14j
+//loc_49168:              ; CODE XREF: updateUserInputInScrollMovementMode+14j
     if (gIsUpKeyPressed != 0)
     {
         word_51965--;
         word_51965--;
     }
 
-//loc_49177:              ; CODE XREF: sub_4914A+23j
+//loc_49177:              ; CODE XREF: updateUserInputInScrollMovementMode+23j
     if (gIsDownKeyPressed != 0)
     {
         word_51965++;
         word_51965++;
     }
 
-//loc_49186:              ; CODE XREF: sub_4914A+32j
+//loc_49186:              ; CODE XREF: updateUserInputInScrollMovementMode+32j
     if (gIsNumpad5Pressed != 0)
     {
         word_51963 = 0;
         word_51965 = 0;
     }
 
-//loc_49199:              ; CODE XREF: sub_4914A+41j
+//loc_49199:              ; CODE XREF: updateUserInputInScrollMovementMode+41j
     bx = 8;
     bx -= word_59B88;
     ax = word_59B8A;
@@ -7662,7 +7613,7 @@ void sub_4914A() //   proc near       ; CODE XREF: sub_4955B+7p
         word_51965 = ax;
     }
 
-//loc_491B3:              ; CODE XREF: sub_4914A+60j
+//loc_491B3:              ; CODE XREF: updateUserInputInScrollMovementMode+60j
     bx += 0x138; // 312
     if (gIsNumpad7Pressed != 0)
     {
@@ -7670,7 +7621,7 @@ void sub_4914A() //   proc near       ; CODE XREF: sub_4955B+7p
         word_51965 = ax;
     }
 
-//loc_491C5:              ; CODE XREF: sub_4914A+72j
+//loc_491C5:              ; CODE XREF: updateUserInputInScrollMovementMode+72j
     bx += 0x138; // 312
     if (gIsNumpad9Pressed != 0)
     {
@@ -7678,7 +7629,7 @@ void sub_4914A() //   proc near       ; CODE XREF: sub_4955B+7p
         word_51965 = ax;
     }
 
-//loc_491D7:              ; CODE XREF: sub_4914A+84j
+//loc_491D7:              ; CODE XREF: updateUserInputInScrollMovementMode+84j
     bx -= 0x270; // 312
     ax += 0xA8;
     if ((word_510C1 & 0xFF) != 0)
@@ -7686,14 +7637,14 @@ void sub_4914A() //   proc near       ; CODE XREF: sub_4955B+7p
         ax += 0x18;
     }
 
-//loc_491E8:              ; CODE XREF: sub_4914A+99j
+//loc_491E8:              ; CODE XREF: updateUserInputInScrollMovementMode+99j
     if (gIsNumpadPeriodPressed != 0)
     {
         word_51963 = bx;
         word_51965 = ax;
     }
 
-//loc_491F6:              ; CODE XREF: sub_4914A+A3j
+//loc_491F6:              ; CODE XREF: updateUserInputInScrollMovementMode+A3j
     bx += 0x138; // 312
     if (gIsNumpad1Pressed != 0)
     {
@@ -7701,7 +7652,7 @@ void sub_4914A() //   proc near       ; CODE XREF: sub_4955B+7p
         word_51965 = ax;
     }
 
-//loc_49208:              ; CODE XREF: sub_4914A+B5j
+//loc_49208:              ; CODE XREF: updateUserInputInScrollMovementMode+B5j
     bx += 0x138; // 312
     if (gIsNumpad3Pressed != 0)
     {
@@ -8035,19 +7986,14 @@ loc_4944F:              ; CODE XREF: somethingspsig+EEj
 void sub_4945D() //   proc near       ; CODE XREF: sub_4955B+294p
                    // ; sub_4955B+2A4p ...
 {
-    word_51A01 = 0;
+    gIsMoveScrollModeEnabled = 0;
     word_51963 = 0;
     word_51965 = 0;
-    flashingbackgroundon = (flashingbackgroundon & 0xFFFF0000) + 0; // mov word ptr flashingbackgroundon, 0
+    gIsFlashingBackgroundModeEnabled = 0;
     word_51A07 = 1;
-//    push    ax
-//    mov dx, 3C8h
-//    xor al, al
-//    out dx, al
-//    inc dx
-//    out dx, al
-//    out dx, al
-//    out dx, al
+
+    replaceCurrentPaletteColor(0, (SDL_Color) { 0, 0, 0 });
+
     if (gIsRecordingDemo != 0)
     {
         somethingspsig();
@@ -8199,9 +8145,9 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 
 // ; FUNCTION CHUNK AT 2DA8 SIZE 0000038B BYTES
 
-    if (word_51A01 != 0)
+    if (gIsMoveScrollModeEnabled != 0)
     {
-        sub_4914A(); // 01ED:28FF
+        updateUserInputInScrollMovementMode(); // 01ED:28FF
     }
 //loc_49567:              ; CODE XREF: sub_4955B+5j
     else if (gIsPlayingDemo == 0)
@@ -8318,7 +8264,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 
 //loc_49635:              ; CODE XREF: sub_4955B+4Bj
 //                ; sub_4955B+55j ...
-    if (word_51970 != 1)
+    if (gIsDebugModeEnabled != 1)
     {
         loc_49949();
         return;
@@ -8330,13 +8276,13 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 //loc_49649:              ; CODE XREF: sub_4955B+E9j
         if (gIsMKeyPressed != 0) // cmp byte ptr gIsMKeyPressed, 0
         {
-            word_51A01 = 1;
+            gIsMoveScrollModeEnabled = 1;
         }
 
 //loc_49656:              ; CODE XREF: sub_4955B+F3j
         if (gIsDKeyPressed != 0)
         {
-            flashingbackgroundon = (flashingbackgroundon & 0xFFFF0000) + 1; // mov word ptr flashingbackgroundon, 1
+            gIsFlashingBackgroundModeEnabled = 1;
         }
 
 //loc_49663:              ; CODE XREF: sub_4955B+100j
@@ -8709,14 +8655,14 @@ void loc_49949() //:              ; CODE XREF: sub_4955B+E1j
 //                ; sub_4955B+413j
     if (gIsScrollLockPressed == 1)
     {
-        word_51970 = 1;
+        gIsDebugModeEnabled = 1;
         if (videoStatusUnk == 1)
         {
 //            mov di, 6D2h
 //            mov ah, 6
 //            push    si
 //            mov si, 0A00Ah "DB"
-            drawTextWithChars8Font(304, 190, 6, "");
+            drawTextWithChars8Font(304, 190, 6, "DB"); // Debug mode enabled
             byte_5197C = 0x46; // 70
         }
     }
@@ -8871,7 +8817,7 @@ void loc_49949() //:              ; CODE XREF: sub_4955B+E1j
 //loc_49A78:              ; CODE XREF: sub_4955B+518j
 //    push    si
 //    si = 0xA001; // "WR"
-    loc_49C2C("WR");
+    loc_49C2C("WR"); // Means snapshot saved with no issues
     return;
 }
 
@@ -9084,10 +9030,10 @@ void loc_49A89() // :              ; CODE XREF: sub_4955B+3FAj
 //    mov dx, 164Ah
 //    push    word_51961
 //    push    word_51967
-//    push    word_51970
+//    push    gIsDebugModeEnabled
 //    call    readFromFh1
     bytes = fread(NULL, 1, 0x23, file); // 35
-//    pop word_51970
+//    pop gIsDebugModeEnabled
 //    pop word_51967
 //    pop word_51961
     if (bytes < 0x23)
@@ -9122,18 +9068,12 @@ void loc_49A89() // :              ; CODE XREF: sub_4955B+3FAj
     gIsPlayingDemo = 0;
     gIsRecordingDemo = 0;
     gCurrentUserInput = UserInputNone;
-    word_51A01 = 0;
+    gIsMoveScrollModeEnabled = 0;
     word_51963 = 0;
     word_51965 = 0;
-    flashingbackgroundon = (flashingbackgroundon & 0xFFFF0000);
+    gIsFlashingBackgroundModeEnabled = 0;
     word_51A07 = 1;
-//    mov dx, 3C8h
-//    xor al, al
-//    out dx, al
-//    inc dx
-//    out dx, al
-//    out dx, al
-//    out dx, al
+    replaceCurrentPaletteColor(0, (SDL_Color) { 0, 0, 0 });
     getTime();
     sub_4A1AE();
 //    mov si, 60D5h
@@ -9157,7 +9097,7 @@ void loc_49A89() // :              ; CODE XREF: sub_4955B+3FAj
     {
 //        mov di, 6D2h
 //        mov ah, 6
-        drawTextWithChars8Font(304, 190, 6, "");
+        drawTextWithChars8Font(304, 190, 6, "LD"); // Means snapshot was loaded successfully
         byte_5197C = 0x46; // 70 or '&'
     }
 
@@ -9177,7 +9117,7 @@ void loc_49C28() //:              ; CODE XREF: sub_4955B+47Aj
 //                    ; sub_4955B+51Aj ...
 //    push    si
 //    mov si, 0A007h "XX"
-    loc_49C2C("XX");
+    loc_49C2C("XX"); // Means problem writing/loading snapshot
 }
 
 void loc_49C2C(char text[3]) // :              ; CODE XREF: sub_4955B+521j
@@ -9204,26 +9144,21 @@ void loc_49C41() //              ; CODE XREF: sub_4955B+404j
         && gIsScrollLockPressed == 1)
     {
         // 01ED:2FEC
-        word_51970 = 0;
-        word_51A01 = 0;
+        gIsDebugModeEnabled = 0;
+        gIsMoveScrollModeEnabled = 0;
         word_51963 = 0;
         word_51965 = 0;
-        flashingbackgroundon = (flashingbackgroundon & 0xFFFF0000);
+        gIsFlashingBackgroundModeEnabled = 0;
         word_51A07 = 1;
-//        mov dx, 3C8h
-//        xor al, al
-//        out dx, al
-//        inc dx
-//        out dx, al
-//        out dx, al
-//        out dx, al
+        replaceCurrentPaletteColor(0, (SDL_Color) { 0, 0, 0 });
+
         if (videoStatusUnk == 1)
         {
 //            mov di, 6D2h
 //            mov ah, 6
 //            push    si
 //            mov si, 0A00Dh "--"
-            drawTextWithChars8Font(304, 190, 6, "");
+            drawTextWithChars8Font(304, 190, 6, "--"); // Debug mode disabled
 //            pop si
             byte_5197C = 0x46; // 70 or '&'
         }
@@ -9287,13 +9222,14 @@ void loc_49C41() //              ; CODE XREF: sub_4955B+404j
 //          bx = [si];
             if (bx == 0xFFFF)
             {
-                word_51970 = 0;
+                gIsDebugModeEnabled = 0;
                 break;
             }
             else
             {
 //loc_49CF3:              ; CODE XREF: sub_4955B+78Ej
                 // TODO: checks for keys pressed
+                // In theory this is looking for "cant sto" according to the speedfix doc
 //                if (bx[0x166D] != 0) // cmp byte ptr [bx+166Dh], 0
 //                {
 //                    si++;
@@ -9334,16 +9270,16 @@ void loc_49C41() //              ; CODE XREF: sub_4955B+404j
     if (gIsQKeyPressed != 0)
     {
         // 01ED:30CD
-        word_51A01 = 0;
+        gIsMoveScrollModeEnabled = 0;
         word_51963 = 0;
         word_51965 = 0;
-        flashingbackgroundon = (flashingbackgroundon & 0xFFFF0000);
+        gIsFlashingBackgroundModeEnabled = 0;
     }
 
 //loc_49D48:              ; CODE XREF: sub_4955B+7D3j
     if (gIsRightShiftPressed != 0)
     {
-        sub_4FDCE(); // 01ED:30EC
+        drawNumberOfRemainingRedDisks(); // 01ED:30EC
     }
 }
 
@@ -9464,19 +9400,9 @@ void gameloop() //   proc near       ; CODE XREF: runLevel:noFlashingp
     gMurphyLocation = updateMurphy(gMurphyLocation); // 01ED:318B
 //    mov murphyloc, si
 
-    if ((flashingbackgroundon & 0xFFFF) != 0) // cmp word ptr flashingbackgroundon, 0
+    if (gIsFlashingBackgroundModeEnabled != 0)
     {
-//    ; flashes background
-//    ; set palette ix 0 = #3f2121 (maroon)
-//        mov dx, 3C8h
-//        xor al, al
-//        out dx, al
-//        inc dx
-//        al = 3Fh
-//        out dx, al
-//        out dx, al
-//        al = 21h
-//        out dx, al
+        replaceCurrentPaletteColor(0, (SDL_Color) { 0x3f, 0x3f, 0x21 });
     }
 
 //loc_49E14:
@@ -9488,19 +9414,9 @@ void gameloop() //   proc near       ; CODE XREF: runLevel:noFlashingp
 //    al = 1
 //    out dx, al
 
-    if ((flashingbackgroundon & 0xFFFF) != 0) // cmp word ptr flashingbackgroundon, 0
+    if (gIsFlashingBackgroundModeEnabled != 0)
     {
-//    ; flashes background
-//    ; set palette ix 0 = #3f2121 (maroon)
-//        mov dx, 3C8h
-//        xor al, al
-//        out dx, al
-//        inc dx
-//        al = 3Fh
-//        out dx, al
-//        al = 21h
-//        out dx, al
-//        out dx, al
+        replaceCurrentPaletteColor(0, (SDL_Color) { 0x3f, 0x21, 0x21 });
     }
 
 //loc_49E33:
@@ -9553,18 +9469,11 @@ void gameloop() //   proc near       ; CODE XREF: runLevel:noFlashingp
 
     if (numberOfMovingObjects != 0)
     {
-    //    mov di, offset movingObjects?
-
         // Call all the moving functions
         for (uint16_t i = 0; i < numberOfMovingObjects; ++i)
         {
-//; call moving functions one by one
-//callNextMovingFunction:
-//            mov si, [di]    ; the tile number for the moving object
-//            mov ax, [di+2]  ; the function to call
-//            call    ax
             // 01ED:3214
-            movingObjects[i].function(movingObjects[i].tilePosition); // the tile number is probably a parameter
+            movingObjects[i].function(movingObjects[i].tilePosition);
         }
     }
 
@@ -9672,7 +9581,7 @@ void sub_49EBE() //   proc near       ; CODE XREF: runLevel+109p
 
 //loc_49F17:              ; CODE XREF: sub_49EBE:loc_49F0Dj
 //                ; sub_49EBE+54j
-    if (word_51A01 == 0
+    if (gIsMoveScrollModeEnabled == 0
         || gIsNumpad5Pressed != 0)
     {
 //loc_49F25:              ; CODE XREF: sub_49EBE+5Ej
@@ -10392,18 +10301,13 @@ void sub_4A3E9() //   proc near       ; CODE XREF: sub_4955B+14Ep
 
 //loc_4A3F3:              ; CODE XREF: sub_4A3D2+15j
 //                ; sub_4A3E9+5j
-    word_51A01 = 0;
+    gIsMoveScrollModeEnabled = 0;
     word_51963 = 0;
     word_51965 = 0;
-    flashingbackgroundon = (flashingbackgroundon & 0xFFFF0000) + 0; // mov word ptr flashingbackgroundon, 0
+    gIsFlashingBackgroundModeEnabled = 0;
     word_51A07 = 1;
-//    mov dx, 3C8h
-//    xor al, al
-//    out dx, al
-//    inc dx
-//    out dx, al
-//    out dx, al
-//    out dx, al
+    replaceCurrentPaletteColor(0, (SDL_Color) { 0, 0, 0 });
+
     if (byte_5A33E != 0)
     {
         gIsPlayingDemo = 1;
@@ -11892,7 +11796,7 @@ void handleSkipLevelOptionClick() // sub_4ADFF  proc near
         }
 //loc_4AE3E:              ; CODE XREF: handleSkipLevelOptionClick+3Bj
     }
-    if (word_51970 == 0)
+    if (gIsDebugModeEnabled == 0)
     {
 //loc_4AE4A:              ; CODE XREF: handleSkipLevelOptionClick+47j
         if (numberOfSkippedLevels >= 3)
@@ -11996,7 +11900,7 @@ void handleStatisticsOptionClick() // sub_4AF0C   proc near
     word_58710 = someValue;
     word_58712 = someValue;
     word_58714 = someValue;
-    if (word_51970 != 0)
+    if (gIsDebugModeEnabled != 0)
     {
     //    al = 0Ah
     //    sub al, gameSpeed
@@ -15438,6 +15342,12 @@ void fadeToPalette(ColorPalette palette) //        proc near       ; CODE XREF: 
 //        word_510A2 = old_word_510A2;
 }
 
+void replaceCurrentPaletteColor(uint8_t index, SDL_Color color)
+{
+    gCurrentPalette[index] = color;
+    setPalette(gCurrentPalette);
+}
+
 void setPalette(ColorPalette palette) //   proc near       ; CODE XREF: start+2B8p
                    // ; loadScreen2+B5p ...
 {
@@ -16909,7 +16819,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
     else if (gCurrentUserInput == UserInputSpaceOnly)
     {
 //loc_4E314:              ; CODE XREF: update?+211j
-        if (byte_5195C == 0
+        if (gNumberOfRemainingRedDisks == 0
             || byte_510DB != 0
             || byte_510D3 != 1)
         {
@@ -18708,8 +18618,8 @@ uint16_t updateMurphyAnimation(uint16_t position)
             murphyTile->movingObject = 0;
             murphyTile->tile = LevelTileTypeMurphy;
             byte_510DB = 2;
-            byte_5195C--;
-            sub_4FDCE();
+            gNumberOfRemainingRedDisks--;
+            drawNumberOfRemainingRedDisks();
             sound6();
             return position;
         }
@@ -20514,17 +20424,16 @@ void drawgNumberOfRemainingInfotrons() // sub_4FD21   proc near       ; CODE XRE
     drawTextWithChars8Font(272, 190, color, number);
 }
 
-void sub_4FD65() //   proc near       ; CODE XREF: runLevel+E9p
+void clearNumberOfRemainingRedDisks() // sub_4FD65   proc near       ; CODE XREF: runLevel+E9p
 {
-    // This function clears the text drawn on the screen by sub_4FDCE
-//loc_4FD6D:              ; CODE XREF: sub_4FD65+5j
+//loc_4FD6D:              ; CODE XREF: clearNumberOfRemainingRedDisks+5j
     al = byte_5197C;
     if (al == 0)
     {
         return;
     }
 
-//loc_4FD75:              ; CODE XREF: sub_4FD65+Dj
+//loc_4FD75:              ; CODE XREF: clearNumberOfRemainingRedDisks+Dj
     al--;
     if (al != 0)
     {
@@ -20532,12 +20441,12 @@ void sub_4FD65() //   proc near       ; CODE XREF: runLevel+E9p
         return;
     }
 
-//loc_4FD7D:              ; CODE XREF: sub_4FD65+12j
+//loc_4FD7D:              ; CODE XREF: clearNumberOfRemainingRedDisks+12j
     byte_5197C = al;
 
     // Only draws 7 pixel height? That sprite is 8 pixel height.
     // (A few days later...) it's 7 because this function just clears the text written
-    // in sub_4FDCE, and the text is just 7 pixel height, so no need for the 8th line.
+    // in drawNumberOfRemainingRedDisks, and the text is just 7 pixel height, so no need for the 8th line.
     //
     uint8_t spriteHeight = 7;
 
@@ -20547,7 +20456,7 @@ void sub_4FD65() //   proc near       ; CODE XREF: runLevel+E9p
     uint16_t dstX = 304;
     uint16_t dstY = 190;
 
-//loc_4FD99:              ; CODE XREF: sub_4FD65+3Cj
+//loc_4FD99:              ; CODE XREF: clearNumberOfRemainingRedDisks+3Cj
     for (int y = 0; y < spriteHeight; ++y)
     {
         uint32_t srcAddress = (srcY + y) * kMovingBitmapWidth + srcX;
@@ -20567,33 +20476,29 @@ void sub_4FDB5(uint16_t position) //   proc near       ; CODE XREF: update?+124F
     }
 
 //loc_4FDCA:              ; CODE XREF: sub_4FDB5+5j sub_4FDB5+Cj ...
-    byte_5195C++;
-    sub_4FDCE();
+    gNumberOfRemainingRedDisks++;
+    drawNumberOfRemainingRedDisks();
 }
 
-void sub_4FDCE() //   proc near       ; CODE XREF: sub_4955B+7F4p
+void drawNumberOfRemainingRedDisks() // sub_4FDCE   proc near       ; CODE XREF: sub_4955B+7F4p
                    // ; update?+1369p
 {
-    // This draws some number on the right side of the bottom panel.
-    // No idea what that number means. It stays on the screen for a few seconds and then
-    // it's cleared by sub_4FD65
-    //
-//loc_4FDD6:              ; CODE XREF: sub_4FDCE+5j
+//loc_4FDD6:              ; CODE XREF: drawNumberOfRemainingRedDisks+5j
     char numberString[4] = "000";
-    convertNumberTo3DigitStringWithPadding0(byte_5195C, numberString);
+    convertNumberTo3DigitStringWithPadding0(gNumberOfRemainingRedDisks, numberString);
 //    mov di, 6D2h
 //    mov si, 87CAh
     uint8_t color = 0;
-    if (byte_5195C != 0)
+    if (gNumberOfRemainingRedDisks != 0)
     {
-//loc_4FDF1:              ; CODE XREF: sub_4FDCE+1Dj
+//loc_4FDF1:              ; CODE XREF: drawNumberOfRemainingRedDisks+1Dj
         color = 6;
     }
     {
         color = 8;
     }
 
-//loc_4FDF3:              ; CODE XREF: sub_4FDCE+21j
+//loc_4FDF3:              ; CODE XREF: drawNumberOfRemainingRedDisks+21j
     drawTextWithChars8Font(304, 190, color, &numberString[1]);
     byte_5197C = 0x46; // 70
 }
@@ -20719,7 +20624,7 @@ void drawSpeedFixCredits() //  proc near       ; CODE XREF: start+2ECp
 
         if (gIsScrollLockPressed == 1)
         {
-            word_51970 = 1;
+            gIsDebugModeEnabled = 1;
         }
 //loc_50301:             // ; CODE XREF: drawSpeedFixCredits+1Ej
     }
