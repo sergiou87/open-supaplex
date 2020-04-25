@@ -3769,10 +3769,11 @@ void slideDownGameDash() // proc near     ; CODE XREF: start:isNotFastMode2p
     }
 }
 
-void int9handler() // proc far        ; DATA XREF: setint9+1Fo
+/// This alternative int9 handler seems to control the keys +, -, *, / in the numpad
+/// to alter the game speed, and also the key X for something else.
+/// @param shouldYieldCpu If 1, will sleep the thread for a bit to prevent 100% CPU usage.
+void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9+1Fo
 {
-    // This alternative int9 handler seems to control the keys +, -, *, / in the numpad
-    // to alter the game speed, and also the key X for something else.
 //    push    ax
 //    push    bx
 //    push(cx);
@@ -3879,6 +3880,10 @@ void int9handler() // proc far        ; DATA XREF: setint9+1Fo
     // 01ED:0659
     if (keyPressed == SDL_SCANCODE_UNKNOWN) //test    cl, 80h     ; think key up
     {
+        if (shouldYieldCpu)
+        {
+            SDL_Delay(10); // Avoid burning the CPU
+        }
         return;
     }
 //storeKey:               ; CODE XREF: int9handler+2Bj
@@ -3951,6 +3956,11 @@ void int9handler() // proc far        ; DATA XREF: setint9+1Fo
     {
         word_51974 = 1;
         word_5197A = 1;
+    }
+
+    if (shouldYieldCpu)
+    {
+        SDL_Delay(10); // Avoid burning the CPU
     }
 }
 
@@ -5223,7 +5233,7 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
             byte_59B86 = 0xFF;
         }
 
-        int9handler();
+        int9handler(1);
 //loc_47EA9:              ; CODE XREF: waitForKeyMouseOrJoystick+Aj
     }
     while (keyPressed != SDL_SCANCODE_UNKNOWN);
@@ -5251,7 +5261,7 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
         loopForVSync();
 
         getMouseStatus(NULL, NULL, &mouseButtonsStatus);
-        int9handler();
+        int9handler(0);
 
         if (mouseButtonsStatus != 0)
         {
@@ -5284,12 +5294,12 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
         {
 //loc_47F0C:              ; CODE XREF: waitForKeyMouseOrJoystick+4Bj
 //                ; waitForKeyMouseOrJoystick+85j
-        if (gIsEscapeKeyPressed != 0)
-        {
-            byte_59B86 = 0xFF;
-        }
+            if (gIsEscapeKeyPressed != 0)
+            {
+                byte_59B86 = 0xFF;
+            }
 
-        int9handler();
+            int9handler(1);
 
 //loc_47F18:              ; CODE XREF: waitForKeyMouseOrJoystick+79j
         }
@@ -6768,7 +6778,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         do
         {
 //isFunctionKey:              ; CODE XREF: runLevel+35j
-            int9handler();
+            int9handler(1);
         }
         while (keyPressed >= SDL_SCANCODE_F1
                && keyPressed <= SDL_SCANCODE_F10);
@@ -6793,7 +6803,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
     do
     {
         // int8handler();
-        int9handler();
+        int9handler(0);
 
 //gamelooprep:                ; CODE XREF: runLevel+33Cj
 //                ; runLevel+345j
@@ -9227,26 +9237,29 @@ void loc_49C41() //              ; CODE XREF: sub_4955B+404j
 //        mov si, 6095h
         fadeToPalette(gPalettes[3]);
 
-//loc_49CA8:              ; CODE XREF: sub_4955B+752j
-        if (gIsPKeyPressed != 1)
+        do
         {
-            do
-            {
-//loc_49CAF:              ; CODE XREF: sub_4955B+759j
-                int9handler();
-            }
-            while (gIsPKeyPressed == 0);
-
-            do
-            {
-//loc_49CB6:              ; CODE XREF: sub_4955B+760j
-                int9handler();
-            }
-            while (gIsPKeyPressed == 1);
-//            mov si, 6015h
-            fadeToPalette(gPalettes[1]);
-            byte_510AE = 1;
+//loc_49CA8:              ; CODE XREF: sub_4955B+752j
+            int9handler(1);
         }
+        while (gIsPKeyPressed == 1);
+
+        do
+        {
+//loc_49CAF:              ; CODE XREF: sub_4955B+759j
+            int9handler(1);
+        }
+        while (gIsPKeyPressed == 0);
+
+        do
+        {
+//loc_49CB6:              ; CODE XREF: sub_4955B+760j
+            int9handler(1);
+        }
+        while (gIsPKeyPressed == 1);
+//            mov si, 6015h
+        fadeToPalette(gPalettes[1]);
+        byte_510AE = 1;
     }
 
 //loc_49CC8:              ; CODE XREF: sub_4955B+740j
@@ -9260,7 +9273,7 @@ void loc_49C41() //              ; CODE XREF: sub_4955B+404j
         do
         {
 //loc_49CDA:              ; CODE XREF: sub_4955B+784j
-            int9handler();
+            int9handler(1);
         }
         while (gIsNumLockPressed == 1);
 
@@ -9269,7 +9282,7 @@ void loc_49C41() //              ; CODE XREF: sub_4955B+404j
         do
         {
 //loc_49CE4:              ; CODE XREF: sub_4955B+7A6j
-            int9handler();
+            int9handler(1);
 //          bx = [si];
             if (bx == 0xFFFF)
             {
@@ -9279,7 +9292,7 @@ void loc_49C41() //              ; CODE XREF: sub_4955B+404j
             else
             {
 //loc_49CF3:              ; CODE XREF: sub_4955B+78Ej
-                // checks for keys pressed
+                // TODO: checks for keys pressed
 //                if (bx[0x166D] != 0) // cmp byte ptr [bx+166Dh], 0
 //                {
 //                    si++;
@@ -9299,7 +9312,7 @@ void loc_49C41() //              ; CODE XREF: sub_4955B+404j
         {
 //loc_49D03:              ; CODE XREF: sub_4955B+796j
 //                    ; sub_4955B+7ADj
-            int9handler();
+            int9handler(1);
         }
         while (gIsNumLockPressed == 1);
 //        mov si, 6015h
@@ -11645,7 +11658,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
 //                ; handleNewPlayerOptionClick+8Aj ...
         videoloop();
 
-        int9handler();
+        int9handler(0);
         getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
         if (mouseButtonStatus != 0)
         {
@@ -13653,7 +13666,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
 
     while (1)
     {
-        int9handler();
+        int9handler(0);
 
 //loc_4C7FD:              // ; CODE XREF: runMainMenu+121j
                    // ; runMainMenu+219j ...
@@ -13893,7 +13906,7 @@ void handleControlsOptionClick() //showControls:                              ; 
 
     do
     {
-        int9handler();
+        int9handler(0);
 
 //loc_4CA67:                              ; CODE XREF: code:5E89j
 //                            ; code:5EBFj ...
@@ -20530,16 +20543,15 @@ void sub_4FD65() //   proc near       ; CODE XREF: runLevel+E9p
     uint16_t srcX = 272;
     uint16_t srcY = 388;
 
-    uint16_t startX = 304;
-    uint16_t startY = 190;
+    uint16_t dstX = 304;
+    uint16_t dstY = 190;
 
 //loc_4FD99:              ; CODE XREF: sub_4FD65+3Cj
-    for (int y = startY; y < startY + spriteHeight; ++y)
+    for (int y = 0; y < spriteHeight; ++y)
     {
-        // FIXME: For now just copy it to the level bitmap to make it evident (or not) when this code is running
-        uint16_t srcAddress = srcY * kMovingBitmapWidth + srcX;
-        uint16_t dstAddress = y * kLevelBitmapWidth + startX;
-        memcpy(&gLevelBitmapData[dstAddress], &gMovingDecodedBitmapData[srcAddress], kTileSize);
+        uint32_t srcAddress = (srcY + y) * kMovingBitmapWidth + srcX;
+        uint32_t dstAddress = (dstY + y) * kScreenWidth + dstX;
+        memcpy(&gScreenPixels[dstAddress], &gMovingDecodedBitmapData[srcAddress], kTileSize);
     }
 }
 
@@ -20702,8 +20714,7 @@ void drawSpeedFixCredits() //  proc near       ; CODE XREF: start+2ECp
     do
     {
 //loc_502F1:             // ; CODE XREF: drawSpeedFixCredits+28j
-        SDL_Delay(10); // Avoid burning the CPU
-        int9handler();
+        int9handler(1);
 
         if (gIsScrollLockPressed == 1)
         {
