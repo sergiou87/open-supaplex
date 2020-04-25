@@ -2645,6 +2645,8 @@ uint16_t ax, bx, cx, dx, ds, cs, es, bp, sp, di, si;
 
 void updateWindowViewport(void);
 int windowResizingEventWatcher(void* data, SDL_Event* event);
+Uint32 timerHandler(Uint32 interval, void *param);
+void handleSDLEvents(void);
 void setPalette(ColorPalette palette);
 void fadeToPalette(ColorPalette palette);
 void readTitleDatAndGraphics(void);
@@ -2828,7 +2830,12 @@ int main(int argc, const char * argv[])
     SDL_SetWindowResizable(gWindow, SDL_TRUE);
     SDL_AddEventWatch(windowResizingEventWatcher, gWindow);
 
-    SDL_InitSubSystem(SDL_INIT_JOYSTICK);
+    SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_TIMER);
+
+    // Seems like int8handler is expected to be invoked every 20ms (since it increases the number of seconds
+    // after 50 invocations).
+    //
+    SDL_AddTimer(20, timerHandler, NULL);
 
     gRenderer = SDL_CreateRenderer(gWindow, -1, 0);
 
@@ -2842,9 +2849,7 @@ int main(int argc, const char * argv[])
     gScreenSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, kScreenWidth, kScreenHeight, 8, 0, 0, 0, 0);
     gScreenPixels = (uint8_t *)gScreenSurface->pixels;
 
-    // Get an event
-    SDL_Event event;
-    SDL_PollEvent(&event);
+    handleSDLEvents();
 
     updateWindowViewport();
 
@@ -3802,11 +3807,7 @@ void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9
 //    rcl al, 1
 //    bl = bl >> 1;
 //    bx[0x166D] = al;
-    SDL_Event e;
-    SDL_PumpEvents();
-    while (SDL_PollEvent(&e)) {
-        ;
-    }
+    handleSDLEvents();
 
     const Uint8 *keys = SDL_GetKeyboardState(NULL);
 
@@ -3908,7 +3909,7 @@ void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9
         {
 //checkSlash:             ; CODE XREF: int9handler+3Ej
 //                ; int9handler+45j
-            if (cl == SDL_SCANCODE_KP_DIVIDE) // Key / (numpad or not)
+            if (keyPressed == SDL_SCANCODE_KP_DIVIDE) // Key / (numpad or not)
             {
                 speed1 = 0;
                 gameSpeed = 10;
@@ -3916,7 +3917,7 @@ void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9
             else
             {
 //checkPlus:              ; CODE XREF: int9handler+54j
-                if (cl == SDL_SCANCODE_KP_PLUS) // Key + in the numpad, speed up
+                if (keyPressed == SDL_SCANCODE_KP_PLUS) // Key + in the numpad, speed up
                 {
                     speed1 = 0;
                     if (gameSpeed < 10) // 10
@@ -3926,7 +3927,7 @@ void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9
                 }
 //checkMinus:             ; CODE XREF: int9handler+65j
 //                ; int9handler+71j
-                if (cl == SDL_SCANCODE_KP_MINUS) // Key - in the numpad, speed down
+                if (keyPressed == SDL_SCANCODE_KP_MINUS) // Key - in the numpad, speed down
                 {
                     speed1 = 0;
                     if (gameSpeed != 0)
@@ -3951,7 +3952,7 @@ void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9
 
 //checkX:                 ; CODE XREF: int9handler+39j
 //                ; int9handler+60j ...
-    if (cl == SDL_SCANCODE_X // Key X
+    if (keyPressed == SDL_SCANCODE_X // Key X
         && gIsLeftAltPressed != 0)
     {
         word_51974 = 1;
@@ -14768,7 +14769,7 @@ void initializeMouse() //   proc near       ; CODE XREF: start+299p
 {
     gIsMouseAvailable = 1; // THIS IS NOT FROM THE ASM: assume there is a mouse available
     SDL_ShowCursor(SDL_DISABLE);
-    SDL_PumpEvents();
+    handleSDLEvents();
     return;
 /*
     // Check if mouse handler is available
@@ -14838,7 +14839,7 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
 
     if (gIsMouseAvailable != 0)
     {
-        SDL_PumpEvents();
+        handleSDLEvents();
 
         int x, y;
         Uint32 state = SDL_GetMouseState(&x, &y);
@@ -15021,7 +15022,7 @@ static const double kFrameDuration = 1000.0 / kFPS;
 
 void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
 {
-    SDL_PumpEvents(); // Make sure the app stays responsive
+    handleSDLEvents(); // Make sure the app stays responsive
 
     Uint32 start = SDL_GetTicks();
     SDL_BlitSurface(gScreenSurface, NULL, gTextureSurface, NULL);
@@ -20829,4 +20830,43 @@ int windowResizingEventWatcher(void* data, SDL_Event* event)
         videoloop();
     }
     return 0;
+}
+
+Uint32 timerHandler(Uint32 interval, void *param)
+{
+    SDL_Event event;
+    SDL_UserEvent userevent;
+
+    /* In this example, our callback pushes a function
+    into the queue, and causes our callback to be called again at the
+    same interval: */
+
+    userevent.type = SDL_USEREVENT;
+    userevent.code = 0;
+    userevent.data1 = &int8handler;
+
+    event.type = SDL_USEREVENT;
+    event.user = userevent;
+
+    SDL_PushEvent(&event);
+    return(interval);
+}
+
+void handleSDLEvents()
+{
+    SDL_PumpEvents();
+
+    SDL_Event event;
+    while (SDL_PollEvent(&event))
+    {
+        switch(event.type)
+        {
+            case SDL_USEREVENT: {
+                /* and now we can call the function we wanted to call in the timer but couldn't because of the multithreading problems */
+                void (*p)(void) = event.user.data1;
+                p();
+                break;
+            }
+        }
+    }
 }
