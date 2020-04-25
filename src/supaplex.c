@@ -2742,6 +2742,12 @@ void slideDownGameDash(void);
 void sub_49EBE(void);
 uint16_t sub_4A1AE(void);
 void sub_4955B(void);
+void loc_49C41(void);
+void loc_49C2C(char text[3]);
+void loc_49C28(void);
+void loc_49A89(void);
+void loc_49949(void);
+void loc_4988E(void);
 void levelScanThing(void);
 void gameloop(void);
 uint16_t updateMurphy(uint16_t position);
@@ -8298,21 +8304,13 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
             }
         }
     }
-    // TODO: remove this whole if, the good one is at the bottom of this function
-    // but I needed something meanwhile to exit the level
-    if (gIsEscapeKeyPressed != 0
-        && gQuitLevelCountdown <= 0)
-    {
-        // This is called when I press ESC to exit the game, but not when I die
-        word_510D1 = 1;
-    }
 
-    return; // TODO: remove this
 //loc_49635:              ; CODE XREF: sub_4955B+4Bj
 //                ; sub_4955B+55j ...
     if (word_51970 != 1)
     {
-        //jmp loc_49949
+        loc_49949();
+        return;
     }
 
 //loc_4963F:              ; CODE XREF: sub_4955B+DFj
@@ -8445,12 +8443,14 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 //loc_497D1:              ; CODE XREF: sub_4955B+1EEj
         if (gIsPlayingDemo != 0)
         {
-            // jmp loc_4988E
+            loc_4988E();
+            return;
         }
 //loc_497DB:              ; CODE XREF: sub_4955B+27Bj
         else if (speed3 < 0)
         {
-            // jmp loc_4988E
+            loc_4988E();
+            return;
         }
 //loc_497E5:              ; CODE XREF: sub_4955B+285j
         else if (gIsF1KeyPressed == 1)
@@ -8578,12 +8578,17 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
         }
     }
 
-//loc_4988E:              ; CODE XREF: sub_4955B+1F9j
+    loc_4988E();
+}
+
+void loc_4988E() // :              ; CODE XREF: sub_4955B+1F9j
+{
 //                ; sub_4955B+203j ...
     if (gIsRecordingDemo != 0
         || gIsPlayingDemo != 0)
     {
-//        jmp loc_49949
+        loc_49949();
+        return;
     }
 
 //loc_498A2:              ; CODE XREF: sub_4955B+342j
@@ -8661,20 +8666,27 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
         sub_4A3D2();
     }
 
-    // 01ED:2CE6
-//loc_49949:              ; CODE XREF: sub_4955B+E1j
+    loc_49949();
+}
+
+void loc_49949() //:              ; CODE XREF: sub_4955B+E1j
 //                ; sub_4955B+33Aj ...
+{
+    // 01ED:2CE6
+
     uint8_t was_byte_59B6B_NonZero = (byte_59B6B != 0);
     byte_59B6B = 0;
     if (was_byte_59B6B_NonZero)
     {
-//        jmp loc_49A89
+        loc_49A89();
+        return;
     }
 
 //loc_49958:              ; CODE XREF: sub_4955B+3F8j
     if (gIsLeftControlPressed != 1)
     {
-//        jmp loc_49C41
+        loc_49C41();
+        return;
     }
 
 //loc_49962:              ; CODE XREF: sub_4955B+402j
@@ -8697,8 +8709,8 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 //            mov di, 6D2h
 //            mov ah, 6
 //            push    si
-//            mov si, 0A00Ah
-            drawTextWithChars8Font(0, 0, 6, "");
+//            mov si, 0A00Ah "DB"
+            drawTextWithChars8Font(304, 190, 6, "");
             byte_5197C = 0x46; // 70
         }
     }
@@ -8707,14 +8719,23 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 //                ; sub_4955B+43Bj
     if (gIsWKeyPressed != 1)
     {
-//        jmp loc_49A7F
+//loc_49A7F:              ; CODE XREF: sub_4955B+456j
+        if (gIsLKeyPressed != 1)
+        {
+            loc_49C41();
+            return;
+        }
+
+        loc_49A89();
+        return;
     }
 
 //loc_499C8:              ; CODE XREF: sub_4955B+454j
     FILE *file = openWritableFile("SAVEGAME.SAV", "w");
     if (file == NULL)
     {
-//        jmp loc_49C28
+        loc_49C28();
+        return;
     }
 
 //loc_499D8:              ; CODE XREF: sub_4955B+478j
@@ -8722,7 +8743,11 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     size_t bytes = fwrite(NULL, 1, 4, file);
     if (bytes < 4)
     {
-//        jmp loc_49C1F
+//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
+//                    ; sub_4955B+499j ...
+        fclose(file);
+        loc_49C28();
+        return;
     }
 
 //loc_499E9:              ; CODE XREF: sub_4955B+489j
@@ -8731,7 +8756,11 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     bytes = fwrite(NULL, 1, 0x1238, file);
     if (bytes < 0x1238)
     {
-//        jmp loc_49C1F
+//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
+//                    ; sub_4955B+499j ...
+        fclose(file);
+        loc_49C28();
+        return;
     }
 
 //loc_499F7:              ; CODE XREF: sub_4955B+497j
@@ -8752,7 +8781,11 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 //    pop bx // recovers dx and stores it into bx
     if (bytes < 0x1C)
     {
-//        jmp loc_49C1F
+//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
+//                    ; sub_4955B+499j ...
+        fclose(file);
+        loc_49C28();
+        return;
     }
 
 //loc_49A13:              ; CODE XREF: sub_4955B+4B3j
@@ -8774,7 +8807,11 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     bytes = fwrite(NULL, 1, 6, file);
     if (bytes < 6)
     {
-//        jmp loc_49C1F
+//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
+//                    ; sub_4955B+499j ...
+        fclose(file);
+        loc_49C28();
+        return;
     }
 
 //loc_49A40:              ; CODE XREF: sub_4955B+4E0j
@@ -8784,7 +8821,11 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     bytes = fwrite(NULL, 1, 0xE6, file); // 230
     if (bytes < 0xE6)
     {
-//        jmp loc_49C1F
+//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
+//                    ; sub_4955B+499j ...
+        fclose(file);
+        loc_49C28();
+        return;
     }
 
 //loc_49A4E:              ; CODE XREF: sub_4955B+4EEj
@@ -8793,7 +8834,11 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     bytes = fwrite(NULL, 1, 0x23, file); // 35
     if (bytes < 0x23)
     {
-//        jmp loc_49C1F
+//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
+//                    ; sub_4955B+499j ...
+        fclose(file);
+        loc_49C28();
+        return;
     }
 
 //loc_49A5C:              ; CODE XREF: sub_4955B+4FCj
@@ -8803,32 +8848,35 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     bytes = fwrite(NULL, 1, levelDataLength, file); // 35
     if (bytes < levelDataLength)
     {
-//        jmp loc_49C1F
+//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
+//                    ; sub_4955B+499j ...
+        fclose(file);
+        loc_49C28();
+        return;
     }
 
 //loc_49A6A:              ; CODE XREF: sub_4955B+50Aj
     if (fclose(file) != 0)
     {
-//        jmp loc_49C28
+        loc_49C28();
+        return;
     }
 
 //loc_49A78:              ; CODE XREF: sub_4955B+518j
 //    push    si
-    si = 0xA001;
-//    jmp loc_49C2C
+//    si = 0xA001; // "WR"
+    loc_49C2C("WR");
+    return;
+}
 
-//loc_49A7F:              ; CODE XREF: sub_4955B+456j
-    if ((gIsLKeyPressed & 0xFF) != 1)
-    {
-//        jmp loc_49C41
-    }
-
-//loc_49A89:              ; CODE XREF: sub_4955B+3FAj
+void loc_49A89() // :              ; CODE XREF: sub_4955B+3FAj
+{
 //                    ; sub_4955B+529j
-    file = openWritableFile("SAVEGAME.SAV", "r");
+    FILE *file = openWritableFile("SAVEGAME.SAV", "r");
     if (file == NULL)
     {
-//        jmp loc_49C28
+        loc_49C28();
+        return;
     }
 
 //loc_49A96:              ; CODE XREF: sub_4955B+536j
@@ -8842,10 +8890,18 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 //    mov cx, 4
 //    mov dx, 9FFDh
 //    call    readFromFh1
-    bytes = fread(NULL, 1, 4, file);
+    size_t bytes = fread(NULL, 1, 4, file);
     if (bytes < 4)
     {
-//        jmp loc_49C1A
+//loc_49C1A:              ; CODE XREF: sub_4955B+553j
+//                    ; sub_4955B+581j ...
+        gIsRecordingDemo = 0;
+
+//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
+//                    ; sub_4955B+499j ...
+        fclose(file);
+        loc_49C28();
+        return;
     }
 
 //loc_49AB1:              ; CODE XREF: sub_4955B+551j
@@ -8862,21 +8918,31 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
             bytes = fread(NULL, 1, 0x1238, file);
             if (bytes < 0x1238)
             {
-//              jmp loc_49C1A
+//loc_49C1A:              ; CODE XREF: sub_4955B+553j
+//                    ; sub_4955B+581j ...
+                gIsRecordingDemo = 0;
+
+//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
+//                    ; sub_4955B+499j ...
+                fclose(file);
+                loc_49C28();
+                return;
             }
         }
         else
         {
 //loc_49AC5:              ; CODE XREF: sub_4955B+55Ej
             fclose(file);
-//          jmp loc_49C28
+            loc_49C28();
+            return;
         }
     }
     else
     {
 //loc_49AC5:              ; CODE XREF: sub_4955B+55Ej
         fclose(file);
-//      jmp loc_49C28
+        loc_49C28();
+        return;
     }
 
 //loc_49ADF:              ; CODE XREF: sub_4955B+57Fj
@@ -8886,7 +8952,15 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     bytes = fread(NULL, 1, 0x1C, file);
     if (bytes < 0x1C)
     {
-//      jmp loc_49C1A
+//loc_49C1A:              ; CODE XREF: sub_4955B+553j
+//                    ; sub_4955B+581j ...
+        gIsRecordingDemo = 0;
+
+//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
+//                    ; sub_4955B+499j ...
+        fclose(file);
+        loc_49C28();
+        return;
     }
 
 //loc_49AED:              ; CODE XREF: sub_4955B+58Dj
@@ -8896,7 +8970,15 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     bytes = fread(NULL, 1, 6, file);
     if (bytes < 6)
     {
-//      jmp loc_49C1A
+//loc_49C1A:              ; CODE XREF: sub_4955B+553j
+//                    ; sub_4955B+581j ...
+        gIsRecordingDemo = 0;
+
+//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
+//                    ; sub_4955B+499j ...
+        fclose(file);
+        loc_49C28();
+        return;
     }
 
 //loc_49AFB:              ; CODE XREF: sub_4955B+59Bj
@@ -8906,7 +8988,15 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     bytes = fread(NULL, 1, 0x84, file);
     if (bytes < 0x84)
     {
-//      jmp loc_49C1A
+//loc_49C1A:              ; CODE XREF: sub_4955B+553j
+//                    ; sub_4955B+581j ...
+        gIsRecordingDemo = 0;
+
+//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
+//                    ; sub_4955B+499j ...
+        fclose(file);
+        loc_49C28();
+        return;
     }
 
 //loc_49B09:              ; CODE XREF: sub_4955B+5A9j
@@ -8916,7 +9006,15 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     bytes = fread(NULL, 1, 4, file);
     if (bytes < 4)
     {
-//      jmp loc_49C1A
+//loc_49C1A:              ; CODE XREF: sub_4955B+553j
+//                    ; sub_4955B+581j ...
+        gIsRecordingDemo = 0;
+
+//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
+//                    ; sub_4955B+499j ...
+        fclose(file);
+        loc_49C28();
+        return;
     }
 
 //loc_49B17:              ; CODE XREF: sub_4955B+5B7j
@@ -8926,7 +9024,15 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     bytes = fread(NULL, 1, 7, file);
     if (bytes < 7)
     {
-//      jmp loc_49C1A
+//loc_49C1A:              ; CODE XREF: sub_4955B+553j
+//                    ; sub_4955B+581j ...
+        gIsRecordingDemo = 0;
+
+//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
+//                    ; sub_4955B+499j ...
+        fclose(file);
+        loc_49C28();
+        return;
     }
 
 //loc_49B25:              ; CODE XREF: sub_4955B+5C5j
@@ -8936,7 +9042,15 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     bytes = fread(NULL, 1, 4, file);
     if (bytes < 4)
     {
-//      jmp loc_49C1A
+//loc_49C1A:              ; CODE XREF: sub_4955B+553j
+//                    ; sub_4955B+581j ...
+        gIsRecordingDemo = 0;
+
+//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
+//                    ; sub_4955B+499j ...
+        fclose(file);
+        loc_49C28();
+        return;
     }
 
 //loc_49B33:              ; CODE XREF: sub_4955B+5D3j
@@ -8948,7 +9062,15 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 //    pop word_510C1
     if (bytes < 0x53)
     {
-//      jmp loc_49C1A
+//loc_49C1A:              ; CODE XREF: sub_4955B+553j
+//                    ; sub_4955B+581j ...
+        gIsRecordingDemo = 0;
+
+//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
+//                    ; sub_4955B+499j ...
+        fclose(file);
+        loc_49C28();
+        return;
     }
 
 //loc_49B49:              ; CODE XREF: sub_4955B+5E9j
@@ -8964,7 +9086,15 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 //    pop word_51961
     if (bytes < 0x23)
     {
-//      jmp loc_49C1A
+//loc_49C1A:              ; CODE XREF: sub_4955B+553j
+//                    ; sub_4955B+581j ...
+        gIsRecordingDemo = 0;
+
+//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
+//                    ; sub_4955B+499j ...
+        fclose(file);
+        loc_49C28();
+        return;
     }
 
 //loc_49B6F:              ; CODE XREF: sub_4955B+60Fj
@@ -9016,39 +9146,41 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     byte_5A2F9 = 1;
     gIsRecordingDemo = 0;
 //    push    si
-//    mov si, 0A004h
+//    mov si, 0A004h "LD"
     if (videoStatusUnk == 1)
     {
 //        mov di, 6D2h
 //        mov ah, 6
-        drawTextWithChars8Font(0, 0, 6, "");
+        drawTextWithChars8Font(304, 190, 6, "");
         byte_5197C = 0x46; // 70 or '&'
     }
 
 //loc_49C12:              ; CODE XREF: sub_4955B+6A8j
 //    mov si, 6015h
     fadeToPalette(gPalettes[1]);
-//    jmp short loc_49C40
 
-//loc_49C1A:              ; CODE XREF: sub_4955B+553j
-//                    ; sub_4955B+581j ...
-    gIsRecordingDemo = 0;
+//loc_49C40:              ; CODE XREF: sub_4955B+6BDj
+//                    ; sub_4955B+6D6j
+//    pop si
 
-//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
-//                    ; sub_4955B+499j ...
-    fclose(file);
+    loc_49C41();
+}
 
-//loc_49C28:              ; CODE XREF: sub_4955B+47Aj
+void loc_49C28() //:              ; CODE XREF: sub_4955B+47Aj
+{
 //                    ; sub_4955B+51Aj ...
 //    push    si
-//    mov si, 0A007h
+//    mov si, 0A007h "XX"
+    loc_49C2C("XX");
+}
 
-//loc_49C2C:              ; CODE XREF: sub_4955B+521j
+void loc_49C2C(char text[3]) // :              ; CODE XREF: sub_4955B+521j
+{
     if (videoStatusUnk == 1)
     {
 //        mov di, 6D2h
 //        mov ah, 6
-        drawTextWithChars8Font(0, 0, 6, "");
+        drawTextWithChars8Font(304, 190, 6, text);
         byte_5197C = 0x46; // 70 or '&'
     }
 
@@ -9056,8 +9188,12 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 //                    ; sub_4955B+6D6j
 //    pop si
 
-//loc_49C41:              ; CODE XREF: sub_4955B+404j
+    loc_49C41();
+}
+
+void loc_49C41() //              ; CODE XREF: sub_4955B+404j
 //                    ; sub_4955B+52Bj
+{
     if (gIsLeftAltPressed == 1
         && gIsScrollLockPressed == 1)
     {
@@ -9080,8 +9216,8 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 //            mov di, 6D2h
 //            mov ah, 6
 //            push    si
-//            mov si, 0A00Dh
-            drawTextWithChars8Font(0, 0, 6, "");
+//            mov si, 0A00Dh "--"
+            drawTextWithChars8Font(304, 190, 6, "");
 //            pop si
             byte_5197C = 0x46; // 70 or '&'
         }
@@ -9138,6 +9274,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
         do
         {
 //loc_49CE4:              ; CODE XREF: sub_4955B+7A6j
+            int9handler();
 //          bx = [si];
             if (bx == 0xFFFF)
             {
@@ -9167,7 +9304,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
         {
 //loc_49D03:              ; CODE XREF: sub_4955B+796j
 //                    ; sub_4955B+7ADj
-            assert(0); // WTF?? infinite loop??
+            int9handler();
         }
         while (gIsNumLockPressed == 1);
 //        mov si, 6015h
