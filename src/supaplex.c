@@ -94,62 +94,68 @@ uint8_t byte_5196A = 0;
 uint8_t byte_5196B = 0;
 uint8_t byte_5197C = 0;
 uint8_t gIsEscapeKeyPressed = 0; // byte_5197E -> ESC
-uint8_t byte_5197F = 0; // 1
-uint8_t byte_51980 = 0; // 2
-uint8_t byte_51981 = 0; // 3
-uint8_t byte_51982 = 0; // 4
-uint8_t byte_51983 = 0; // 5
-uint8_t byte_51984 = 0; // 6
-uint8_t byte_51985 = 0; // 7
-uint8_t byte_51986 = 0; // 8
-uint8_t byte_51987 = 0; // 9
-uint8_t byte_51988 = 0; // 0
-uint8_t byte_51989 = 0; // -
-uint8_t byte_5198A = 0; // =
+uint8_t gIs1KeyPressed = 0; // byte_5197F -> 1
+uint8_t gIs2KeyPressed = 0; // byte_51980 -> 2
+uint8_t gIs3KeyPressed = 0; // byte_51981 -> 3
+uint8_t gIs4KeyPressed = 0; // byte_51982 -> 4
+uint8_t gIs5KeyPressed = 0; // byte_51983 -> 5
+uint8_t gIs6KeyPressed = 0; // byte_51984 -> 6
+uint8_t gIs7KeyPressed = 0; // byte_51985 -> 7
+uint8_t gIs8KeyPressed = 0; // byte_51986 -> 8
+uint8_t gIs9KeyPressed = 0; // byte_51987 -> 9
+uint8_t gIs0KeyPressed = 0; // byte_51988 -> 0
+uint8_t gIsMinusKeyPressed = 0; // byte_51989 -> -
+uint8_t gIsEqualsKeyPressed = 0; // byte_5198A -> =
 // backspace
 // tab
-uint8_t byte_5198D = 0; // q
-uint8_t byte_5198E = 0; // w
+uint8_t gIsQKeyPressed = 0; // byte_5198D -> q
+uint8_t gIsWKeyPressed = 0; // byte_5198E -> w
 // e
-uint8_t byte_51990 = 0; // r
+uint8_t gIsRKeyPressed = 0; // byte_51990 -> r
 // t
 // y
 // u
 // i
 // o
-uint8_t byte_51996 = 0; // p
+uint8_t gIsPKeyPressed = 0; // byte_51996 -> p
 // [
 // ]
-uint8_t byte_51999 = 0; // enter
-uint8_t byte_5199A = 0; // left control
+uint8_t gIsEnterPressed = 0; // byte_51999 -> enter
+uint8_t gIsLeftControlPressed = 0; // byte_5199A -> left control
 //a
-uint8_t byte_5199C = 0;//s
-uint8_t byte_5199D = 0;//d
+uint8_t gIsSKeyPressed = 0; // byte_5199C -> s
+uint8_t gIsDKeyPressed = 0; // byte_5199D -> d
 //f
 //g
-uint8_t byte_519A0 = 0;//h
-uint8_t byte_519A1 = 0;//j
+uint8_t gIsHKeyPressed = 0; // byte_519A0 -> h
+uint8_t gIsJKeyPressed = 0; // byte_519A1 -> j
 //k
-uint32_t dword_519A3 = 0; // l ; ' `
+uint32_t gIsLKeyPressed = 0; // dword_519A3 -> l
+// ; ' `
 // "left shift" slash
-uint16_t word_519A9 = 0; // z x
-uint16_t word_519AB = 0; // c v
-uint16_t word_519AD = 0; // b n
-uint32_t dword_519AF = 0; // m , . /
-uint16_t word_519B3 = 0; // "right shift" "numpad *"
+uint8_t gIsZKeyPressed = 0; // word_519A9 -> z
+// x
+uint8_t gIsCKeyPressed = 0; // word_519AB -> c
+// v
+uint8_t gIsBKeyPressed = 0; // word_519AD -> b
+// n
+uint8_t gIsMKeyPressed = 0; // dword_519AF -> m
+// , . /
+uint8_t gIsRightShiftPressed = 0; // word_519B3 -> "right shift"
+// "numpad *"
 uint8_t gIsLeftAltPressed = 0; // byte_519B5 -> "left alt"
 uint8_t gIsSpaceKeyPressed = 0; // byte_519B6 -> space
 // caps lock
-uint8_t byte_519B8 = 0; // F1
-uint8_t byte_519B9 = 0; // F2
-uint8_t byte_519BA = 0; // F3
-uint8_t byte_519BB = 0; // F4
-uint8_t byte_519BC = 0; // F5
-uint8_t byte_519BD = 0; // F6
-uint8_t byte_519BE = 0; // F7
-uint8_t byte_519BF = 0; // F8
-uint8_t byte_519C0 = 0; // F9
-uint8_t byte_519C1 = 0; // F10
+uint8_t gIsF1KeyPressed = 0; // byte_519B8 -> F1
+uint8_t gIsF2KeyPressed = 0; // byte_519B9 -> F2
+uint8_t gIsF3KeyPressed = 0; // byte_519BA -> F3
+uint8_t gIsF4KeyPressed = 0; // byte_519BB -> F4
+uint8_t gIsF5KeyPressed = 0; // byte_519BC -> F5
+uint8_t gIsF6KeyPressed = 0; // byte_519BD -> F6
+uint8_t gIsF7KeyPressed = 0; // byte_519BE -> F7
+uint8_t gIsF8KeyPressed = 0; // byte_519BF -> F8
+uint8_t gIsF9KeyPressed = 0; // byte_519C0 -> F9
+uint8_t gIsF10KeyPressed = 0; // byte_519C1 -> F10
 uint8_t gIsNumLockPressed = 0; // byte_519C2 -> 16B2 -> Num lock
 uint8_t gIsScrollLockPressed = 0; // byte_519C3 -> Scroll lock
 uint8_t gIsNumpad7Pressed = 0; // byte_519C4 -> numpad 7
@@ -3825,6 +3831,44 @@ void int9handler() // proc far        ; DATA XREF: setint9+1Fo
     gIsNumLockPressed = keys[SDL_SCANCODE_NUMLOCKCLEAR];
     gIsScrollLockPressed = keys[SDL_SCANCODE_SCROLLLOCK];
     gIsLeftAltPressed = keys[SDL_SCANCODE_LALT];
+    gIsRightShiftPressed = keys[SDL_SCANCODE_RSHIFT];
+    gIsEnterPressed = keys[SDL_SCANCODE_RETURN];
+    gIsLeftControlPressed = keys[SDL_SCANCODE_LCTRL];
+    gIs1KeyPressed = keys[SDL_SCANCODE_1];
+    gIs2KeyPressed = keys[SDL_SCANCODE_2];
+    gIs3KeyPressed = keys[SDL_SCANCODE_3];
+    gIs4KeyPressed = keys[SDL_SCANCODE_4];
+    gIs5KeyPressed = keys[SDL_SCANCODE_5];
+    gIs6KeyPressed = keys[SDL_SCANCODE_6];
+    gIs7KeyPressed = keys[SDL_SCANCODE_7];
+    gIs8KeyPressed = keys[SDL_SCANCODE_8];
+    gIs9KeyPressed = keys[SDL_SCANCODE_9];
+    gIs0KeyPressed = keys[SDL_SCANCODE_0];
+    gIsMinusKeyPressed = keys[SDL_SCANCODE_MINUS];
+    gIsEqualsKeyPressed = keys[SDL_SCANCODE_EQUALS];
+    gIsQKeyPressed = keys[SDL_SCANCODE_Q];
+    gIsWKeyPressed = keys[SDL_SCANCODE_W];
+    gIsRKeyPressed = keys[SDL_SCANCODE_R];
+    gIsPKeyPressed = keys[SDL_SCANCODE_P];
+    gIsSKeyPressed = keys[SDL_SCANCODE_S];
+    gIsDKeyPressed = keys[SDL_SCANCODE_D];
+    gIsHKeyPressed = keys[SDL_SCANCODE_H];
+    gIsJKeyPressed = keys[SDL_SCANCODE_J];
+    gIsLKeyPressed = keys[SDL_SCANCODE_L];
+    gIsZKeyPressed = keys[SDL_SCANCODE_Z];
+    gIsCKeyPressed = keys[SDL_SCANCODE_C];
+    gIsBKeyPressed = keys[SDL_SCANCODE_B];
+    gIsMKeyPressed = keys[SDL_SCANCODE_M];
+    gIsF1KeyPressed = keys[SDL_SCANCODE_F1];
+    gIsF2KeyPressed = keys[SDL_SCANCODE_F2];
+    gIsF3KeyPressed = keys[SDL_SCANCODE_F3];
+    gIsF4KeyPressed = keys[SDL_SCANCODE_F4];
+    gIsF5KeyPressed = keys[SDL_SCANCODE_F5];
+    gIsF6KeyPressed = keys[SDL_SCANCODE_F6];
+    gIsF7KeyPressed = keys[SDL_SCANCODE_F7];
+    gIsF8KeyPressed = keys[SDL_SCANCODE_F8];
+    gIsF9KeyPressed = keys[SDL_SCANCODE_F9];
+    gIsF10KeyPressed = keys[SDL_SCANCODE_F10];
 
     // 01ED:0659
     if (keyPressed == SDL_SCANCODE_UNKNOWN) //test    cl, 80h     ; think key up
@@ -6771,7 +6815,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
             }
 
 //loc_48B4A:              ; CODE XREF: runLevel+89j
-            if (byte_51999 == 0
+            if (gIsEnterPressed == 0
                 && mouseButtonsStatus == 1 //cmp bx, 1
                 && byte_59B7A == 0)
             {
@@ -8160,7 +8204,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     }
 
 //loc_49585:              ; CODE XREF: sub_4955B+25j
-    if (byte_519A1 != 0)
+    if (gIsJKeyPressed != 0)
     {
         sub_4921B();
     }
@@ -8175,7 +8219,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     }
 
 //loc_4959A:              ; CODE XREF: sub_4955B+39j
-    if (byte_51999 == 0)
+    if (gIsEnterPressed == 0)
     {
         word_510C1 = word_510C1 & 0xFF; // mov byte ptr word_510C1+1, 0
     }
@@ -8275,54 +8319,54 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     if (gIsRecordingDemo == 0) // 01ED:29DC
     {
 //loc_49649:              ; CODE XREF: sub_4955B+E9j
-        if ((dword_519AF & 0xFF) != 0) // cmp byte ptr dword_519AF, 0
+        if (gIsMKeyPressed != 0) // cmp byte ptr gIsMKeyPressed, 0
         {
             word_51A01 = 1;
         }
 
 //loc_49656:              ; CODE XREF: sub_4955B+F3j
-        if (byte_5199D != 0)
+        if (gIsDKeyPressed != 0)
         {
             flashingbackgroundon = (flashingbackgroundon & 0xFFFF0000) + 1; // mov word ptr flashingbackgroundon, 1
         }
 
 //loc_49663:              ; CODE XREF: sub_4955B+100j
-        if ((word_519A9 & 0xFF) != 0) // cmp byte ptr word_519A9, 0
+        if (gIsZKeyPressed != 0) // cmp byte ptr gIsZKeyPressed, 0
         {
             ah = 1;
             sub_4A23C();
         }
 
 //loc_4966F:              ; CODE XREF: sub_4955B+10Dj
-        if ((word_519AD & 0xFF) != 0) // cmp byte ptr word_519AD, 0
+        if (gIsBKeyPressed != 0) // cmp byte ptr gIsBKeyPressed, 0
         {
             ah = 2;
             sub_4A23C();
         }
 
 //loc_4967B:              ; CODE XREF: sub_4955B+119j
-        if (byte_519A0 != 0)
+        if (gIsHKeyPressed != 0)
         {
             ah = 6;
             sub_4A23C();
         }
 
 //loc_49687:              ; CODE XREF: sub_4955B+125j
-        if ((word_519AB & 0xFF) != 0) // cmp byte ptr word_519AB, 0
+        if (gIsCKeyPressed != 0) // cmp byte ptr gIsCKeyPressed, 0
         {
             ah = 5;
             sub_4A23C();
         }
 
 //loc_49693:              ; CODE XREF: sub_4955B+131j
-        if (byte_5199C != 0)
+        if (gIsSKeyPressed != 0)
         {
             ah = 0x11;
             sub_4A23C();
         }
 
 //loc_4969F:              ; CODE XREF: sub_4955B+13Dj
-        if (byte_51990 != 0)
+        if (gIsRKeyPressed != 0)
         {
             videoloop();
             sub_4A3E9();
@@ -8333,61 +8377,61 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
             && speed3 >= 0)
         {
 //loc_496C0:              ; CODE XREF: sub_4955B+160j
-            if (byte_5197F != 0)
+            if (gIs1KeyPressed != 0)
             {
                 word_51A07 = 1;
             }
 
 //loc_496CD:              ; CODE XREF: sub_4955B+16Aj
-            if (byte_51980 != 0)
+            if (gIs2KeyPressed != 0)
             {
                 word_51A07 = 2;
             }
 
 //loc_496DA:              ; CODE XREF: sub_4955B+177j
-            if (byte_51981 != 0)
+            if (gIs3KeyPressed != 0)
             {
                 word_51A07 = 3;
             }
 
 //loc_496E7:              ; CODE XREF: sub_4955B+184j
-            if (byte_51982 != 0)
+            if (gIs4KeyPressed != 0)
             {
                 word_51A07 = 4;
             }
 
 //loc_496F4:              ; CODE XREF: sub_4955B+191j
-            if (byte_51983 != 0)
+            if (gIs5KeyPressed != 0)
             {
                 word_51A07 = 6;
             }
 
 //loc_49701:              ; CODE XREF: sub_4955B+19Ej
-            if (byte_51984 != 0)
+            if (gIs6KeyPressed != 0)
             {
                 word_51A07 = 8;
             }
 
 //loc_4970E:              ; CODE XREF: sub_4955B+1ABj
-            if (byte_51985 != 0)
+            if (gIs7KeyPressed != 0)
             {
                 word_51A07 = 0xC;
             }
 
 //loc_4971B:              ; CODE XREF: sub_4955B+1B8j
-            if (byte_51986 != 0)
+            if (gIs8KeyPressed != 0)
             {
                 word_51A07 = 0x10;
             }
 
 //loc_49728:              ; CODE XREF: sub_4955B+1C5j
-            if (byte_51987 != 0)
+            if (gIs9KeyPressed != 0)
             {
                 word_51A07 = 0x18;
             }
 
 //loc_49735:              ; CODE XREF: sub_4955B+1D2j
-            if (byte_51988 != 0)
+            if (gIs0KeyPressed != 0)
             {
                 word_51A07 = 0x20;
             }
@@ -8396,7 +8440,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 
 //loc_49742:              ; CODE XREF: sub_4955B+EBj
 //                ; sub_4955B+158j ...
-    if (byte_5199A == 1)
+    if (gIsLeftControlPressed == 1)
     {
 //loc_497D1:              ; CODE XREF: sub_4955B+1EEj
         if (gIsPlayingDemo != 0)
@@ -8409,61 +8453,61 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
             // jmp loc_4988E
         }
 //loc_497E5:              ; CODE XREF: sub_4955B+285j
-        else if (byte_519B8 == 1)
+        else if (gIsF1KeyPressed == 1)
         {
             ax = 0;
             sub_4945D();
         }
 //loc_497F5:              ; CODE XREF: sub_4955B+28Fj
-        else if (byte_519B9 == 1)
+        else if (gIsF2KeyPressed == 1)
         {
             ax = 1;
             sub_4945D();
         }
 //loc_49805:              ; CODE XREF: sub_4955B+29Fj
-        else if (byte_519BA == 1)
+        else if (gIsF3KeyPressed == 1)
         {
             ax = 2;
             sub_4945D();
         }
 //loc_49814:              ; CODE XREF: sub_4955B+2AFj
-        else if (byte_519BB == 1)
+        else if (gIsF4KeyPressed == 1)
         {
             ax = 3;
             sub_4945D();
         }
 //loc_49823:              ; CODE XREF: sub_4955B+2BEj
-        else if (byte_519BC == 1)
+        else if (gIsF5KeyPressed == 1)
         {
             ax = 4;
             sub_4945D();
         }
 //loc_49832:              ; CODE XREF: sub_4955B+2CDj
-        else if (byte_519BD == 1)
+        else if (gIsF6KeyPressed == 1)
         {
             ax = 5;
             sub_4945D();
         }
 //loc_49841:              ; CODE XREF: sub_4955B+2DCj
-        else if (byte_519BE == 1)
+        else if (gIsF7KeyPressed == 1)
         {
             ax = 6;
             sub_4945D();
         }
 //loc_49850:              ; CODE XREF: sub_4955B+2EBj
-        else if (byte_519BF == 1)
+        else if (gIsF8KeyPressed == 1)
         {
             ax = 7;
             sub_4945D();
         }
 //loc_4985F:              ; CODE XREF: sub_4955B+2FAj
-        else if (byte_519C0 == 1)
+        else if (gIsF9KeyPressed == 1)
         {
             ax = 8;
             sub_4945D();
         }
 //loc_4986E:              ; CODE XREF: sub_4955B+309j
-        else if (byte_519C1 == 1)
+        else if (gIsF10KeyPressed == 1)
         {
             ax = 9;
             sub_4945D();
@@ -8484,7 +8528,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
             && gIsRecordingDemo == 0)
         {
 //loc_49761:              ; CODE XREF: sub_4955B+201j
-            if (byte_519B8 == 0)
+            if (gIsF1KeyPressed == 0)
             {
                 byte_59B7C = 0;
             }
@@ -8496,12 +8540,12 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
                 byte_5101C = byte_5101C ^ 1;
             }
 
-            if (byte_519B8 == 0
+            if (gIsF1KeyPressed == 0
                 || byte_59B7C != 0)
             {
 //loc_49786:              ; CODE XREF: sub_4955B+212j
 //                ; sub_4955B+219j
-                if (byte_519B9 == 0)
+                if (gIsF2KeyPressed == 0)
                 {
                     byte_59B7D = 0;
                 }
@@ -8513,12 +8557,12 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
                     byte_51035 = byte_51035 ^ 2;
                 }
 
-                if (byte_519B9 == 0
+                if (gIsF2KeyPressed == 0
                     || byte_59B7D != 0)
                 {
 //loc_497AB:              ; CODE XREF: sub_4955B+237j
 //                ; sub_4955B+23Ej
-                    if (byte_519BA == 0)
+                    if (gIsF3KeyPressed == 0)
                     {
                         byte_59B7E = 0;
                     }
@@ -8543,7 +8587,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     }
 
 //loc_498A2:              ; CODE XREF: sub_4955B+342j
-    if (byte_51989 == 0)
+    if (gIsMinusKeyPressed == 0)
     {
         byte_59B7F = 0;
         byte_59B80 = 5;
@@ -8584,7 +8628,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 
 //loc_498FC:              ; CODE XREF: sub_4955B+358j
 //                ; sub_4955B+365j
-    if (byte_5198A == 0)
+    if (gIsEqualsKeyPressed == 0)
     {
         byte_59B81 = 0;
         byte_59B82 = 5;
@@ -8628,7 +8672,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     }
 
 //loc_49958:              ; CODE XREF: sub_4955B+3F8j
-    if (byte_5199A != 1)
+    if (gIsLeftControlPressed != 1)
     {
 //        jmp loc_49C41
     }
@@ -8661,7 +8705,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 
 //loc_499AA:              ; CODE XREF: sub_4955B+42Ej
 //                ; sub_4955B+43Bj
-    if (byte_5198E != 1)
+    if (gIsWKeyPressed != 1)
     {
 //        jmp loc_49A7F
     }
@@ -8774,7 +8818,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 //    jmp loc_49C2C
 
 //loc_49A7F:              ; CODE XREF: sub_4955B+456j
-    if ((dword_519A3 & 0xFF) != 1)
+    if ((gIsLKeyPressed & 0xFF) != 1)
     {
 //        jmp loc_49C41
     }
@@ -9045,7 +9089,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 
 //loc_49C96:              ; CODE XREF: sub_4955B+6EBj
 //                    ; sub_4955B+6F2j ...
-    if (byte_51996 != 0)
+    if (gIsPKeyPressed != 0)
     {
         // 01ED:303A
         byte_510AE = 0;
@@ -9053,21 +9097,21 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
         fadeToPalette(gPalettes[3]);
 
 //loc_49CA8:              ; CODE XREF: sub_4955B+752j
-        if (byte_51996 != 1)
+        if (gIsPKeyPressed != 1)
         {
             do
             {
 //loc_49CAF:              ; CODE XREF: sub_4955B+759j
                 int9handler();
             }
-            while (byte_51996 == 0);
+            while (gIsPKeyPressed == 0);
 
             do
             {
 //loc_49CB6:              ; CODE XREF: sub_4955B+760j
                 int9handler();
             }
-            while (byte_51996 == 1);
+            while (gIsPKeyPressed == 1);
 //            mov si, 6015h
             fadeToPalette(gPalettes[1]);
             byte_510AE = 1;
@@ -9141,7 +9185,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 
 //loc_49D29:              ; CODE XREF: sub_4955B+7BFj
 //                    ; sub_4955B+7C6j
-    if (byte_5198D != 0)
+    if (gIsQKeyPressed != 0)
     {
         // 01ED:30CD
         word_51A01 = 0;
@@ -9151,7 +9195,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     }
 
 //loc_49D48:              ; CODE XREF: sub_4955B+7D3j
-    if ((word_519B3 & 0xFF) != 0)
+    if (gIsRightShiftPressed != 0)
     {
         sub_4FDCE(); // 01ED:30EC
     }
@@ -13560,61 +13604,61 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
             handleOkButtonClick();
         }
 //loc_4C8B8:              // ; CODE XREF: runMainMenu+11Cj
-        else if (byte_519B8 == 1)
+        else if (gIsF1KeyPressed == 1)
         {
             ax = 0;
     //        demoSomething();
         }
 //loc_4C8C8:              // ; CODE XREF: runMainMenu+129j
-        else if (byte_519B9 == 1)
+        else if (gIsF2KeyPressed == 1)
         {
             ax = 1;
     //        demoSomething();
         }
 //loc_4C8D8:              // ; CODE XREF: runMainMenu+139j
-        else if (byte_519BA == 1)
+        else if (gIsF3KeyPressed == 1)
         {
             ax = 2;
     //        demoSomething();
         }
 //loc_4C8E8:              // ; CODE XREF: runMainMenu+149j
-        else if (byte_519BB == 1)
+        else if (gIsF4KeyPressed == 1)
         {
             ax = 3;
     //        demoSomething();
         }
 //loc_4C8F8:              // ; CODE XREF: runMainMenu+159j
-        else if (byte_519BC == 1)
+        else if (gIsF5KeyPressed == 1)
         {
             ax = 4;
     //        demoSomething();
         }
 //loc_4C908:              // ; CODE XREF: runMainMenu+169j
-        else if (byte_519BD == 1)
+        else if (gIsF6KeyPressed == 1)
         {
             ax = 5;
     //        demoSomething();
         }
 //loc_4C918:              // ; CODE XREF: runMainMenu+179j
-        else if (byte_519BE == 1)
+        else if (gIsF7KeyPressed == 1)
         {
             ax = 6;
     //        demoSomething();
         }
 //loc_4C928:              // ; CODE XREF: runMainMenu+189j
-        else if (byte_519BF == 1)
+        else if (gIsF8KeyPressed == 1)
         {
             ax = 7;
 //            demoSomething();
         }
 //loc_4C937:              // ; CODE XREF: runMainMenu+199j
-        else if (byte_519C0 == 1)
+        else if (gIsF9KeyPressed == 1)
         {
             ax = 8;
     //        demoSomething();
         }
 //loc_4C946:              // ; CODE XREF: runMainMenu+1A8j
-        else if (byte_519C1 == 1)
+        else if (gIsF10KeyPressed == 1)
         {
             ax = 9;
     //        demoSomething();
@@ -14733,7 +14777,7 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
 
 //loc_4D36C:              ; CODE XREF: getMouseStatus+18j
     // This emulates the left mouse button
-    if (byte_51999 == 1)
+    if (gIsEnterPressed == 1)
     {
         bx = 1;
     }
@@ -20331,6 +20375,7 @@ void drawgNumberOfRemainingInfotrons() // sub_4FD21   proc near       ; CODE XRE
 
 void sub_4FD65() //   proc near       ; CODE XREF: runLevel+E9p
 {
+    // This function clears the text drawn on the screen by sub_4FDCE
 //loc_4FD6D:              ; CODE XREF: sub_4FD65+5j
     al = byte_5197C;
     if (al == 0)
@@ -20348,16 +20393,18 @@ void sub_4FD65() //   proc near       ; CODE XREF: runLevel+E9p
 
 //loc_4FD7D:              ; CODE XREF: sub_4FD65+12j
     byte_5197C = al;
-    // si = word_5182E; // (272, 388)
-    // di = 0x6D2; // What's this?
 
-    uint8_t spriteHeight = 7; // Only draws 7 pixel height? That sprite is 8 pixel height
+    // Only draws 7 pixel height? That sprite is 8 pixel height.
+    // (A few days later...) it's 7 because this function just clears the text written
+    // in sub_4FDCE, and the text is just 7 pixel height, so no need for the 8th line.
+    //
+    uint8_t spriteHeight = 7;
 
     uint16_t srcX = 272;
     uint16_t srcY = 388;
 
-    uint16_t startX = 0;
-    uint16_t startY = 0;
+    uint16_t startX = 304;
+    uint16_t startY = 190;
 
 //loc_4FD99:              ; CODE XREF: sub_4FD65+3Cj
     for (int y = startY; y < startY + spriteHeight; ++y)
@@ -20387,25 +20434,28 @@ void sub_4FDB5(uint16_t position) //   proc near       ; CODE XREF: update?+124F
 void sub_4FDCE() //   proc near       ; CODE XREF: sub_4955B+7F4p
                    // ; update?+1369p
 {
+    // This draws some number on the right side of the bottom panel.
+    // No idea what that number means. It stays on the screen for a few seconds and then
+    // it's cleared by sub_4FD65
+    //
 //loc_4FDD6:              ; CODE XREF: sub_4FDCE+5j
-    al = byte_5195C;
-//    mov si, 87C9h
-    convertNumberTo3DigitStringWithPadding0(byte_5195C, "");
+    char numberString[4] = "000";
+    convertNumberTo3DigitStringWithPadding0(byte_5195C, numberString);
 //    mov di, 6D2h
 //    mov si, 87CAh
+    uint8_t color = 0;
     if (byte_5195C != 0)
     {
 //loc_4FDF1:              ; CODE XREF: sub_4FDCE+1Dj
-        ah = 6;
+        color = 6;
     }
     {
-        ah = 8;
+        color = 8;
     }
 
 //loc_4FDF3:              ; CODE XREF: sub_4FDCE+21j
-    drawTextWithChars8Font(0, 0, ah, ""); // TODO: missing text and coordinates
+    drawTextWithChars8Font(304, 190, color, &numberString[1]);
     byte_5197C = 0x46; // 70
-    return;
 }
 
 void drawGameTime() // sub_4FDFD   proc near       ; CODE XREF: runLevel+29p
