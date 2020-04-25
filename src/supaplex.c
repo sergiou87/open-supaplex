@@ -2763,7 +2763,7 @@ void updateUserInput(void);
 void sub_492F1(void);
 void sub_492A8(void);
 void sub_4A463(void);
-void sub_4A23C(void);
+void sub_4A23C(LevelTileType tileType);
 void sub_4A3E9(void);
 void sub_4945D(void);
 void somethingspsig(void);
@@ -8331,36 +8331,31 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 //loc_49663:              ; CODE XREF: sub_4955B+100j
         if (gIsZKeyPressed != 0) // cmp byte ptr gIsZKeyPressed, 0
         {
-            ah = 1;
-            sub_4A23C();
+            sub_4A23C(LevelTileTypeZonk);
         }
 
 //loc_4966F:              ; CODE XREF: sub_4955B+10Dj
         if (gIsBKeyPressed != 0) // cmp byte ptr gIsBKeyPressed, 0
         {
-            ah = 2;
-            sub_4A23C();
+            sub_4A23C(LevelTileTypeBase);
         }
 
 //loc_4967B:              ; CODE XREF: sub_4955B+119j
         if (gIsHKeyPressed != 0)
         {
-            ah = 6;
-            sub_4A23C();
+            sub_4A23C(LevelTileTypeHardware);
         }
 
 //loc_49687:              ; CODE XREF: sub_4955B+125j
         if (gIsCKeyPressed != 0) // cmp byte ptr gIsCKeyPressed, 0
         {
-            ah = 5;
-            sub_4A23C();
+            sub_4A23C(LevelTileTypeChip);
         }
 
 //loc_49693:              ; CODE XREF: sub_4955B+131j
         if (gIsSKeyPressed != 0)
         {
-            ah = 0x11;
-            sub_4A23C();
+            sub_4A23C(LevelTileTypeSnikSnak);
         }
 
 //loc_4969F:              ; CODE XREF: sub_4955B+13Dj
@@ -9341,8 +9336,8 @@ void loc_49C41() //              ; CODE XREF: sub_4955B+404j
 void sub_49D53() //   proc near       ; CODE XREF: sub_4955B+626p
                    // ; sub_4A23C+21p
 {
-//    byte_59B7B = 0;
-//        call    levelScanThing // added by me, seems like code continues from here? see what happens with the debugger
+    byte_59B7B = 0;
+    levelScanThing(); // added by me, seems like code continues from here? see what happens with the debugger
 }
 
 void levelScanThing() //   proc near       ; CODE XREF: runLevel+A7p
@@ -10102,37 +10097,32 @@ void updateUserInput() // sub_4A1BF   proc near       ; CODE XREF: sub_4955B+13
     }
 }
 
-void sub_4A23C() //   proc near       ; CODE XREF: sub_4955B+111p
+void sub_4A23C(LevelTileType tileType) //   proc near       ; CODE XREF: sub_4955B+111p
                    // ; sub_4955B+11Dp ...
 {
-    /*
-    mov si, 0
-    mov cx, 5A0h
+    // Looks like this function goes through every tile and clears those that match the parameter
+    for (uint16_t i = 0; i < kLevelSize; ++i)
+    {
+//loc_4A242:              ; CODE XREF: sub_4A23C+1Fj
+        MovingLevelTile *tile = &gCurrentLevelWord[i];
+        if (tile->tile != tileType)
+        {
+            if (tileType != LevelTileTypeSnikSnak
+                || tile->tile != 0xBB)
+            {
+                continue;
+            }
+        }
 
-loc_4A242:              ; CODE XREF: sub_4A23C+1Fj
-    al = [si+1834h]
-    cmp al, ah
-    jz  short loc_4A253
-    cmp ah, 11h
-    jnz short loc_4A259
-    cmp al, 0BBh ; '?'
-    jnz short loc_4A259
-
-loc_4A253:              ; CODE XREF: sub_4A23C+Cj
-    mov word ptr leveldata[si], 0
-
-loc_4A259:              ; CODE XREF: sub_4A23C+11j
-                ; sub_4A23C+15j
-    inc si
-    inc si
-    loop    loc_4A242
-    call    sub_49D53
-    call    drawFixedLevel
-    call    sub_4A2E6
-    mov byte_510B3, 0
-    mov byte_5A2F9, 1
-    return;
-     */
+//loc_4A253:              ; CODE XREF: sub_4A23C+Cj
+        tile->movingObject = 0;
+        tile->tile = LevelTileTypeSpace;
+    }
+    sub_49D53();
+    drawFixedLevel();
+    sub_4A2E6();
+    byte_510B3 = 0;
+    byte_5A2F9 = 1;
 }
 
 void findMurphy() //   proc near       ; CODE XREF: start+344p sub_4A463+22p
