@@ -1746,10 +1746,10 @@ MovingLevelTile gCurrentLevelWord[levelDataLength]; // 0x1834
 Level gCurrentLevelAfterWord; // 0x2434
 
 // 30 elements...
-int word_599DC[] = { 0x00CE, 0x016A, 0x0146, 0x00CD, 0x024D, 0x012C, 0x01A7, 0x01FB, 0x01D2,
-                    0x02FD, 0xF001, 0xF1F0, 0xF003, 0xF350, 0xF007, 0xF460,
-                    0xF00B, 0xF0F0, 0xF01D, 0xF0F0, 0xF026, 0x50F0, 0xF037,
-                    0x41D0, 0x105F, 0xF3F3, 0xF068, 0x10F0, 0x106C, 0x94F4 };
+uint16_t word_599DC[] = { 0x00CE, 0x016A, 0x0146, 0x00CD, 0x024D, 0x012C, 0x01A7, 0x01FB, 0x01D2,
+    0x02FD, 0xF001, 0xF1F0, 0xF003, 0xF350, 0xF007, 0xF460,
+    0xF00B, 0xF0F0, 0xF01D, 0xF0F0, 0xF026, 0x50F0, 0xF037,
+    0x41D0, 0x105F, 0xF3F3, 0xF068, 0x10F0, 0x106C, 0x94F4 };
 
 SoundType sndType = SoundTypeNone;
 SoundType musType = SoundTypeInternalStandard;
@@ -3660,85 +3660,88 @@ exit:                   //; CODE XREF: readConfig:loc_474BBj
 //// ; END OF FUNCTION CHUNK FOR loadScreen2 ; AL = exit code
 }
 
-/*
 // Return value: carry flag = 0 on success, 1 on error
-void fileReadUnk1(FILE *file, long fileLength) //    proc near       ; CODE XREF: start+B6p readDemoFiles+81p
+uint8_t fileReadUnk1(FILE *file, uint16_t fileLength) //    proc near       ; CODE XREF: start+B6p readDemoFiles+81p
 {
-        push(bx);
-        bx = word_599DC; // load array from word_599DC
-        cx = 10;
+    // 01ED:048F
+    return 0;
+    /*
+    // push(bx);
+//    bx = word_599DC; // load array from word_599DC
+//    cx = 10;
 
-loop_:                  //; CODE XREF: fileReadUnk1+Fj
-        if (*bx == fileLength)
-        {
-            goto loc_47105;
-        }
-        bx += 2;
-        cx--;
-        if (cx > 0)
-        {
-            goto loop_;
-        }
-        goto bail;
+    uint8_t shouldBail = 1;
 
-loc_47105:              //; CODE XREF: fileReadUnk1+Aj
-        pop(bx);
-        push(bx);
-        push(cx);
-        ax = 0x4200;
-        cx = 0;
-        dx = cx;
-        int result = fseek(file, 0, SEEK_SET);
-        // int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
-        //             ; AL = method: offset from beginning of file
-        pop(ax);
-        if (result < 0)
+    for (int i = 0; i < 10; ++i)
+    {
+//loop_:                  //; CODE XREF: fileReadUnk1+Fj
+        if (word_599DC[i] == fileLength)
         {
-            goto bail;
+            shouldBail = 0;
+            break;
         }
-        pop(bx);
-        push(bx);
-        push(ax);
-        cx = 4;
-        dx = *fileLevelData; // load string from fileLevelData?
-        ax = 0x3F00;
-        result = fread(fileLevelData, 1, 4, file); // Read the first 4 bytes into fileLevelData
-        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-        //             ; BX = file handle, CX = number of bytes to read
-        //             ; DS:DX -> buffer
-        pop(bx);
-        if (result == 0)
-        {
-            goto bail;
-        }
-        bx -= 10;
-        bx = -bx;
-        bx = bx << 1;
-        bx = bx << 1;
-        si = &fileLevelData;
-        ax = [bx-691Eh];
-        if (ax != word_50A7A)
-        {
-            goto bail;
-        }
-        ax = [bx-6920h];
-        if (ax != fileLevelData)
-        {
-            goto bail;
-        }
-        ah = 0;
-        clc(); // clears carry flag
-        goto done;
+    }
 
-bail:                   //; CODE XREF: fileReadUnk1+11j
-                    //; fileReadUnk1+20j ...
+    if (shouldBail)
+    {
         ax = 0;
-        stc(); // sets carry flag
+        return 1;
+    }
 
-done:                   //; CODE XREF: fileReadUnk1+57j
-        pop(bx);
+//loc_47105:              //; CODE XREF: fileReadUnk1+Aj
+    // pop(bx);
+    // push(bx);
+    // push(cx);
+    // ax = 0x4200;
+    // cx = 0;
+    // dx = cx;
+    int result = fseek(file, 0, SEEK_SET);
+    // int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
+    //             ; AL = method: offset from beginning of file
+    //pop(ax);
+    if (result < 0)
+    {
+        ax = 0;
+        return 1;
+    }
+    // pop(bx);
+    // push(bx);
+    // push(ax);
+    cx = 4;
+    dx = *fileLevelData; // load string from fileLevelData?
+    ax = 0x3F00;
+    size_t bytes = fread(fileLevelData, 1, 4, file); // Read the first 4 bytes into fileLevelData
+    // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+    //             ; BX = file handle, CX = number of bytes to read
+    //             ; DS:DX -> buffer
+    //pop(bx);
+    if (bytes < 4)
+    {
+        ax = 0;
+        return 1;
+    }
+    bx -= 10;
+    bx = -bx;
+    bx = bx << 1;
+    bx = bx << 1;
+    si = &fileLevelData;
+    ax = [bx-691Eh];
+    if (ax != word_50A7A)
+    {
+        ax = 0;
+        return 1;
+    }
+    ax = [bx-6920h];
+    if (ax != fileLevelData)
+    {
+        ax = 0;
+        return 1;
+    }
+    ah = 0;
+    return 0;
+     */
 }
-*/
+
 void slideDownGameDash() // proc near     ; CODE XREF: start:isNotFastMode2p
 {
     // 01ED:04ED
@@ -4211,289 +4214,242 @@ void saveConfiguration() // sub_4755A      proc near               ; CODE XREF: 
     }
 }
 
-// TODO: Implement
-/*
 void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
                   //  ; sub_4B159p ...
 {
-        push(es);
-        ax = seg demoseg;
-        es = ax;
-        // assume es:demoseg
-        word_510DF = 22;
-        word_5A33C = 22;
-        // ax = 0xFFFF;
-        // di = 0;
-        // cx = 0xB; // 11
-        // cld(); // clear direction flag
-        memset(di, 0xFF, 22); // rep stosw // fills 11 words (22 bytes) with 0xFFFF
-        di += 22;
-        cx = 0;
+//    push(es);
+//    ax = seg demoseg;
+//    es = ax;
+    // assume es:demoseg
+    word_510DF = 22;
+    word_5A33C = 22;
+    // ax = 0xFFFF;
+    // di = 0;
+    // cx = 0xB; // 11
+    // cld(); // clear direction flag
+    memset(di, 0xFF, 22); // rep stosw // fills 11 words (22 bytes) with 0xFFFF
+    di += 22;
+    cx = 0;
 
-loc_47629:              //; CODE XREF: readDemoFiles+175j
-        push(cx);
+    do
+    {
+//loc_47629:              //; CODE XREF: readDemoFiles+175j
+    //    push(cx);
         word_599D8 = 0;
-        if (byte_599D4 != 1)
+        if (byte_599D4 == 1)
         {
-            goto loc_4763C;
+            dx = &demoFileName;
         }
-        dx = &demoFileName;
-        goto loc_47647;
+        else
+        {
+//loc_4763C:             // ; CODE XREF: readDemoFiles+2Cj
+            bx = &aDemo0_bin; // "DEMO0.BIN"
+            cl += 0x30; // adds '0'. I assume at this point cl will take a value between 0 and 9,
+                        // and then by adding 0x30 that number will be converted to its character in ascii
+            *(bx + 4) = cl; // replaces the 0 in DEMO 0 with the value of cl
+            dx = bx;
+        }
 
-loc_4763C:             // ; CODE XREF: readDemoFiles+2Cj
-        bx = &aDemo0_bin; // "DEMO0.BIN"
-        cl += 0x30; // adds '0'. I assume at this point cl will take a value between 0 and 9,
-                    // and then by adding 0x30 that number will be converted to its character in ascii
-        *(bx + 4) = cl; // replaces the 0 in DEMO 0 with the value of cl 
-        dx = bx;
-
-loc_47647:             // ; CODE XREF: readDemoFiles+31j
+//loc_47647:             // ; CODE XREF: readDemoFiles+31j
         // mov ax, 3D00h
         // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
         //             ; DS:DX -> ASCIZ filename
         //             ; AL = access mode
         //             ; 0 - read
         FILE *file = openReadonlyFile(bx, "r"); // bx will store the name of the demo file after changing the number (DEMOx.BIN)
-        if (file != NULL)
-        { 
-            goto loc_47651;
+        if (file == NULL)
+        {
+            return;
         }
-        goto loc_47783;
 
-loc_47651:              //; CODE XREF: readDemoFiles+43j
-        lastFileHandle = ax;
+//loc_47651:              //; CODE XREF: readDemoFiles+43j
+//        lastFileHandle = ax;
         bx = ax;
-        if (byte_599D4 != 1)
+        if (byte_599D4 == 1)
         {
-            goto loc_47674;
+            if (word_599DA == 0)
+            {
+                // mov ax, 4200h
+                // cx = 0;
+                // mov dx, levelDataLength
+                // int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
+                //             ; AL = method: offset from beginning of file
+                fseek(file, levelDataLength, SEEK_SET);
+                // bx = lastFileHandle;
+            }
         }
-        if (word_599DA != 0)
+        else
         {
-            goto loc_476DB;
-        }
-        // mov ax, 4200h
-        // cx = 0;
-        // mov dx, levelDataLength
-        // int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
-        //             ; AL = method: offset from beginning of file
-        fseek(lastFileHandle, levelDataLength, SEEK_SET);
-        bx = lastFileHandle;
-        goto loc_476DB;
+//loc_47674:             // ; CODE XREF: readDemoFiles+52j
+            // push(bx);
+            // ax = 0x4202;
+            // cx = 0;
+            // dx = cx;
+            // int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
+            //             ; AL = method: offset from end of file
+            int result = fseek(file, 0, SEEK_END);
+            // value returned in dx:ax
+            // pop(bx);
+            if (result == 0
+                && dx == 0 // the file size shouldn't be more than 0xFFFF, so DX should be 0x0
+                && ax < levelDataLength)
+            {
+                fileReadUnk1();
+                word_599D8 = ax;
+            }
 
-loc_47674:             // ; CODE XREF: readDemoFiles+52j
-        push(bx);
-        // ax = 0x4202;
-        // cx = 0;
-        // dx = cx;
-        // int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
-        //             ; AL = method: offset from end of file
-        int result = fseek(lastFileHandle, 0, SEEK_END);
-        // value returned in dx:ax
-        pop(bx);
-        if (result != 0)
-        {
-            goto loc_47690;
-        }
-        if (dx != 0) // the file size shouldn't be more than 0xFFFF, so DX should be 0x0
-        {
-            goto loc_47690;
-        }
-        if (ax >= levelDataLength)
-        {
-            goto loc_47690;
-        }
-        fileReadUnk1();
-        word_599D8 = ax;
+//loc_47690:             // ; CODE XREF: readDemoFiles+76j readDemoFiles+7Aj ...
+            // mov ax, 4200h
+            // xor cx, cx
+            // mov dx, cx
+            // int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
+            //             ; AL = method: offset from beginning of file
+            fseek(file, 0, SEEK_SET);
+            if (word_599D8 == 0)
+            {
+                ax = 0x3F00;
+                // bx = lastFileHandle;
+                // pop(cx);
+                // push(cx);
+                dx = cx;
+                cx = cx << 1;
+                dx += cx;
+                cl = 9;
+                dx = dx << cl;
+                dx += 0xBE20;
+                cx = levelDataLength;
+                push(ds);
+                push(dx);
+                push(es);
+                pop(ds);
+                // assume ds:demoseg
+                // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+                //             ; BX = file handle, CX = number of bytes to read
+                //             ; DS:DX -> buffer
+                size_t bytes = fread(&some_buffer_in_demoseg, 1, levelDataLength, file);
+                pop(bx);
+                dx = *(bx + 0x5FE); // position 1534, so levelDataLength - 2, and it's copying a word... so it's copying the last 2 bytes into dx
+                pop(ds);
+                // assume ds:data
+                if (bytes < levelDataLength)
+                {
+                    return;
+                }
 
-loc_47690:             // ; CODE XREF: readDemoFiles+76j readDemoFiles+7Aj ...
-        // mov ax, 4200h
-        // xor cx, cx
-        // mov dx, cx
-        // int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
-        //             ; AL = method: offset from beginning of file
-        fseek(lastFileHandle, 0, SEEK_SET);
-        if (word_599D8 != 0)
-        {
-            goto loc_476DB;
+//loc_476D3:           //   ; CODE XREF: readDemoFiles+C5j
+                pop(bx);
+                push(bx);
+                bx = bx << 1;
+                *(bx - 0x67CA) = dx; // 26570 wtf??? dx still has the last 2 bytes of the level data
+            }
         }
-        ax = 0x3F00;
-        bx = lastFileHandle;
-        pop(cx);
-        push(cx);
-        dx = cx; 
-        cx = cx << 1;
-        dx += cx;
-        cl = 9;
-        dx = dx << cl;
-        dx += 0xBE20;
-        cx = levelDataLength;
-        push(ds);
-        push(dx);
-        push(es);
-        pop(ds);
-        // assume ds:demoseg
-        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-        //             ; BX = file handle, CX = number of bytes to read
-        //             ; DS:DX -> buffer
-        int bytes = fread(&some_buffer_in_demoseg, 1, levelDataLength, lastFileHandle);
-        pop(bx);
-        dx = *(bx + 0x5FE); // position 1534, so levelDataLength - 2, and it's copying a word... so it's copying the last 2 bytes into dx
-        pop(ds);
-        // assume ds:data
-        if (bytes > 0)
-        {
-            goto loc_476CB;
-        }
-        goto loc_47783;
 
-loc_476CB:             // ; CODE XREF: readDemoFiles+BDj
-        if (bytes == levelDataLength)
-        {
-            goto loc_476D3;
-        }
-        goto loc_47783;
-
-loc_476D3:           //   ; CODE XREF: readDemoFiles+C5j
-        pop(bx);
-        push(bx);
-        bx = bx << 1;
-        *(bx - 0x67CA) = dx; // 26570 wtf??? dx still has the last 2 bytes of the level data
-
-loc_476DB:             // ; CODE XREF: readDemoFiles+59j readDemoFiles+69j ...
+//loc_476DB:             // ; CODE XREF: readDemoFiles+59j readDemoFiles+69j ...
         cx = 0xBE09; // 48649
         cx -= word_510DF;
-        if (cx <= 0xBE09h) // weird way of checking if word_510DF > 0 ????
+//        if (cx <= 0xBE09h) // weird way of checking if word_510DF > 0 ????
+        if (cx > 0xBE09) // weird way of checking if word_510DF <= 0 ????
         {
-            goto loc_476EA;
+            cx = 0;
         }
-        cx = 0;
 
-loc_476EA:             // ; CODE XREF: readDemoFiles+DDj
-        if (cx != 0)
+//loc_476EA:             // ; CODE XREF: readDemoFiles+DDj
+        if (cx == 0)
         {
-            goto loc_476F3;
+            ax = 0;
         }
-        ax = 0;
-        goto loc_4771A;
+        else
+        {
+//loc_476F3:              // ; CODE XREF: readDemoFiles+E4j
+            dx = word_510DF;
+//            bx = lastFileHandle;
+            // push(ds);
+            // ax = es;
+            // ds = ax;
+            // assume ds:nothing
+            // mov ax, 3F00h
+            // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+            //             ; BX = file handle, CX = number of bytes to read
+            //             ; DS:DX -> buffer
+            size_t bytes = fread(word_510DF, 1, cx, file);
+            if (bytes < cx)
+            {
+                // pop(ds);
+                // assume ds:data
+                // mov ax, 3E00h
+                // mov bx, lastFileHandle
+                // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
+                //             ; BX = file handle
+                ax = 0;
+                if (fclose(file) != 0)
+                {
+                    // mov ax, 0
+                    exitWithError("Error closing DEMO file");
+                }
+                return;
+            }
 
-loc_476F3:              // ; CODE XREF: readDemoFiles+E4j
-        dx = word_510DF;
-        bx = lastFileHandle;
-        push(ds);
-        ax = es;
-        ds = ax;
-        // assume ds:nothing
-        // mov ax, 3F00h
-        // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-        //             ; BX = file handle, CX = number of bytes to read
-        //             ; DS:DX -> buffer
-        int bytes = fread(word_510DF, 1, cx, lastFileHandle);
-        if (bytes > 0)
-        {
-            goto loc_47719;
+//loc_47719:             // ; CODE XREF: readDemoFiles+FCj
         }
-        pop(ds);
-        // assume ds:data
+
+//loc_4771A:             // ; CODE XREF: readDemoFiles+E8j
+        // push(ax);
         // mov ax, 3E00h
         // mov bx, lastFileHandle
         // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
         //             ; BX = file handle
-        ax = 0;
-        if (fclose(lastFileHandle) == 0)
+        if (fclose(file) != 0)
         {
-            // mov ax, 0
-            goto loc_47783
+            exitWithError("Error closing DEMO file");
         }
-        // mov ax, 0
-        goto exit;
 
-loc_47719:             // ; CODE XREF: readDemoFiles+FCj
-        pop(ds);
-
-loc_4771A:             // ; CODE XREF: readDemoFiles+E8j
-        push(ax);
-        // mov ax, 3E00h
-        // mov bx, lastFileHandle
-        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-        //             ; BX = file handle
-        if (fclose(lastFileHandle) == 0)
-        {
-            goto loc_47729;
-        }
-        goto exit;
-
-loc_47729:              ; CODE XREF: readDemoFiles+11Bj
-        pop(ax)
+//loc_47729:              ; CODE XREF: readDemoFiles+11Bj
+        // pop(ax)
         bx = word_510DF;
         *bx = *bx & 0x7F; //and byte ptr es:[bx], 7Fh
-        int isNotZero = (word_599D8 != 0);
+        int isZero = (word_599D8 != 0);
         word_599D8 = 0;
-        if (isNotZero)
+        if (isZero)
         {
-            goto loc_47743;
+            *bx = *bx | 0x80;
         }
-        *bx = *bx | 0x80;
 
-loc_47743:             // ; CODE XREF: readDemoFiles+134j
+//loc_47743:             // ; CODE XREF: readDemoFiles+134j
         cx = bx;
         bx += ax;
-        push(ds);
-        push(es);
-        pop(ds);
+        // push(ds);
+        // push(es);
+        // pop(ds);
         // assume ds:nothing
         bx--;
-        if (bx == 0xFFFF)
+        if (bx == 0xFFFF
+            || ax <= 1
+            || *bx != 0xFF)
         {
-            goto loc_4775A;
-        }
-        if (ax <= 1)
-        {
-            goto loc_4775A;
-        }
-        if (*bx == 0xFF)
-        {
-            goto loc_47765;
+//loc_4775A:             // ; CODE XREF: readDemoFiles+145j
+           // ; readDemoFiles+14Aj
+            if (bx < maxdemolength)
+            {
+                bx++;
+                ax++;
+                *bx = 0xFF;
+            }
         }
 
-loc_4775A:             // ; CODE XREF: readDemoFiles+145j
-                   // ; readDemoFiles+14Aj
-        if (bx >= maxdemolength)
-        {
-            goto loc_47765;
-        }
-        bx++;
-        ax++;
-        *bx = 0xFF;
-
-loc_47765:             // ; CODE XREF: readDemoFiles+14Fj
+//loc_47765:             // ; CODE XREF: readDemoFiles+14Fj
                    // ; readDemoFiles+155j
-        pop(ds);
+        //pop(ds);
         // assume ds:data
-        pop(cx);
+        // pop(cx);
         bx = cx;
         bx = bx << 1;
         dx = word_510DF;
         *bx = dx;  // db 26h, 89h, 97h, 00h, 00h; mov es:[bx+0], dx
         word_510DF += ax;
         cx++;
-        if (cx == 10)
-        {
-            goto loc_47781;
-        }
-        goto loc_47629;
-
-loc_47781:             // ; CODE XREF: readDemoFiles+173j
-        pop(es);
-        // assume es:nothing
-        return;
-
-loc_47783:              //; CODE XREF: readDemoFiles+45j readDemoFiles+BFj ...
-        pop(cx);
-        pop(es);
-        // return;
-// readDemoFiles    endp
+    }
+    while (cx < 10)
 }
-*/
 
 void convertPaletteDataToPalette(ColorPaletteData paletteData, ColorPalette outPalette)
 {
@@ -19474,7 +19430,7 @@ void updateSnikSnakTurnRight(uint16_t position, uint8_t frame) // sub_4F40D   pr
 //loc_4F4BE:              ; CODE XREF: updateSnikSnakTurnRight+63j
         if (belowTile->movingObject == 0 && belowTile->tile == LevelTileTypeSpace)
         {
-            //loc_4F4D4:              ; CODE XREF: updateSnikSnakTurnRight+B6j
+//loc_4F4D4:              ; CODE XREF: updateSnikSnakTurnRight+B6j
             currentTile->movingObject = 0x3;
             currentTile->tile = 0xBB;
             belowTile->movingObject = 0x20;
