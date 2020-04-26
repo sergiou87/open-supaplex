@@ -2658,6 +2658,7 @@ void convertPaletteDataToPalette(ColorPaletteData paletteData, ColorPalette outP
 void loadScreen2(void);
 void readEverything(void);
 void exitWithError(const char *format, ...);
+char characterForSDLScancode(SDL_Scancode scancode);
 void readMenuDat(void);
 void drawSpeedFixTitleAndVersion(void);
 void openCreditsBlock(void);
@@ -9123,14 +9124,16 @@ void loc_49C41() //              ; CODE XREF: sub_4955B+404j
         }
         while (gIsNumLockPressed == 1);
 
-//        mov si, 179Ah
+        // From the speed fix mod, but in uppercase so I can use characterForSDLScancode
+        static const char kMagicDisableDebugModeCode[] = "CANT STO";
+        uint8_t index = 0;
 
         do
         {
 //loc_49CE4:              ; CODE XREF: sub_4955B+7A6j
             int9handler(1);
-//          bx = [si];
-            if (bx == 0xFFFF)
+
+            if (index >= strlen(kMagicDisableDebugModeCode))
             {
                 gIsDebugModeEnabled = 0;
                 break;
@@ -9138,13 +9141,10 @@ void loc_49C41() //              ; CODE XREF: sub_4955B+404j
             else
             {
 //loc_49CF3:              ; CODE XREF: sub_4955B+78Ej
-                // TODO: checks for keys pressed
-                // In theory this is looking for "cant sto" according to the speedfix doc
-//                if (bx[0x166D] != 0) // cmp byte ptr [bx+166Dh], 0
-//                {
-//                    si++;
-//                    si++;
-//                }
+                if (characterForSDLScancode(keyPressed) == kMagicDisableDebugModeCode[index])
+                {
+                    index++;
+                }
 
 //loc_49CFC:              ; CODE XREF: sub_4955B+79Dj
                 if (gIsNumLockPressed != 0)
