@@ -7829,8 +7829,6 @@ void sub_492F1() //   proc near       ; CODE XREF: sub_4955B+1Dp
     byte_510E2 = 0xFF;
     bl = gCurrentUserInput;
     byte_510E1 = bl;
-
-    return;
 }
 
 void somethingspsig() //  proc near       ; CODE XREF: runLevel+355p
@@ -7979,7 +7977,6 @@ loc_4944F:              ; CODE XREF: somethingspsig+EEj
      */
 }
 
-// TODO: revisit. this is related to demos... finish recording demo? start recording demo?
 void sub_4945D() //   proc near       ; CODE XREF: sub_4955B+294p
                    // ; sub_4955B+2A4p ...
 {
@@ -8017,6 +8014,7 @@ void sub_4945D() //   proc near       ; CODE XREF: sub_4955B+294p
 //    int 21h     ; DOS - 2+ - CREATE A FILE WITH HANDLE (CREAT)
 //                ; CX = attributes for file
 //                ; DS:DX -> ASCIZ filename (may include drive and path)
+    // TODO: Implement
     FILE *file = fopen("some-name-probably-DEMO0", "w");
     if (file == NULL)
     {
@@ -8082,7 +8080,6 @@ void sub_4945D() //   proc near       ; CODE XREF: sub_4955B+294p
 //loc_4953B:              ; CODE XREF: sub_4945D+D7j
     sub_4A463();
     gIsPlayingDemo = 0;
-    return;
 }
 
 void prepareSomeKindOfLevelIdentifier() // sub_49544  proc near       ; CODE XREF: start+3A1p
