@@ -1511,8 +1511,8 @@ uint16_t word_51858 = 0x2E39; //  -> 0x1268 -> (
 uint16_t word_5195D = 0xF000; //  -> 0x1268 -> (
 uint16_t word_5195F = 0;
 uint16_t word_51961 = 0;
-uint16_t word_51963 = 0;
-uint16_t word_51965 = 0;
+int16_t gAdditionalScrollOffsetX = 0; // word_51963
+int16_t gAdditionalScrollOffsetY = 0; // word_51965
 uint16_t word_51967 = 0; // scroll / first pixel of the scroll window
 uint16_t word_5196C = 0;
 uint16_t gIsDebugModeEnabled = 0; // word_51970
@@ -7255,8 +7255,8 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 //loc_48E30:              ; CODE XREF: runLevel+362j
 //                ; runLevel+369j ...
     gIsMoveScrollModeEnabled = 0;
-    word_51963 = 0;
-    word_51965 = 0;
+    gAdditionalScrollOffsetX = 0;
+    gAdditionalScrollOffsetY = 0;
     gIsFlashingBackgroundModeEnabled = 0;
     word_51A07 = 1;
     replaceCurrentPaletteColor(0, (SDL_Color) { 0, 0, 0 });
@@ -7564,36 +7564,36 @@ void updateUserInputInScrollMovementMode() // sub_4914A   proc near       ; CODE
 {
     if (gIsLeftKeyPressed != 0)
     {
-        word_51963--;
-        word_51963--;
+        gAdditionalScrollOffsetX--;
+        gAdditionalScrollOffsetX--;
     }
 
 //loc_49159:              ; CODE XREF: updateUserInputInScrollMovementMode+5j
     if (gIsRightKeyPressed != 0)
     {
-        word_51963++;
-        word_51963++;
+        gAdditionalScrollOffsetX++;
+        gAdditionalScrollOffsetX++;
     }
 
 //loc_49168:              ; CODE XREF: updateUserInputInScrollMovementMode+14j
     if (gIsUpKeyPressed != 0)
     {
-        word_51965--;
-        word_51965--;
+        gAdditionalScrollOffsetY--;
+        gAdditionalScrollOffsetY--;
     }
 
 //loc_49177:              ; CODE XREF: updateUserInputInScrollMovementMode+23j
     if (gIsDownKeyPressed != 0)
     {
-        word_51965++;
-        word_51965++;
+        gAdditionalScrollOffsetY++;
+        gAdditionalScrollOffsetY++;
     }
 
 //loc_49186:              ; CODE XREF: updateUserInputInScrollMovementMode+32j
     if (gIsNumpad5Pressed != 0)
     {
-        word_51963 = 0;
-        word_51965 = 0;
+        gAdditionalScrollOffsetX = 0;
+        gAdditionalScrollOffsetY = 0;
     }
 
 //loc_49199:              ; CODE XREF: updateUserInputInScrollMovementMode+41j
@@ -7603,24 +7603,24 @@ void updateUserInputInScrollMovementMode() // sub_4914A   proc near       ; CODE
     ax = ~ax;
     if (gIsNumpad0Pressed != 0)
     {
-        word_51963 = bx;
-        word_51965 = ax;
+        gAdditionalScrollOffsetX = bx;
+        gAdditionalScrollOffsetY = ax;
     }
 
 //loc_491B3:              ; CODE XREF: updateUserInputInScrollMovementMode+60j
     bx += 0x138; // 312
     if (gIsNumpad7Pressed != 0)
     {
-        word_51963 = bx;
-        word_51965 = ax;
+        gAdditionalScrollOffsetX = bx;
+        gAdditionalScrollOffsetY = ax;
     }
 
 //loc_491C5:              ; CODE XREF: updateUserInputInScrollMovementMode+72j
     bx += 0x138; // 312
     if (gIsNumpad9Pressed != 0)
     {
-        word_51963 = bx;
-        word_51965 = ax;
+        gAdditionalScrollOffsetX = bx;
+        gAdditionalScrollOffsetY = ax;
     }
 
 //loc_491D7:              ; CODE XREF: updateUserInputInScrollMovementMode+84j
@@ -7634,24 +7634,24 @@ void updateUserInputInScrollMovementMode() // sub_4914A   proc near       ; CODE
 //loc_491E8:              ; CODE XREF: updateUserInputInScrollMovementMode+99j
     if (gIsNumpadPeriodPressed != 0)
     {
-        word_51963 = bx;
-        word_51965 = ax;
+        gAdditionalScrollOffsetX = bx;
+        gAdditionalScrollOffsetY = ax;
     }
 
 //loc_491F6:              ; CODE XREF: updateUserInputInScrollMovementMode+A3j
     bx += 0x138; // 312
     if (gIsNumpad1Pressed != 0)
     {
-        word_51963 = bx;
-        word_51965 = ax;
+        gAdditionalScrollOffsetX = bx;
+        gAdditionalScrollOffsetY = ax;
     }
 
 //loc_49208:              ; CODE XREF: updateUserInputInScrollMovementMode+B5j
     bx += 0x138; // 312
     if (gIsNumpad3Pressed != 0)
     {
-        word_51963 = bx;
-        word_51965 = ax;
+        gAdditionalScrollOffsetX = bx;
+        gAdditionalScrollOffsetY = ax;
     }
 }
 
@@ -7981,8 +7981,8 @@ void sub_4945D() //   proc near       ; CODE XREF: sub_4955B+294p
                    // ; sub_4955B+2A4p ...
 {
     gIsMoveScrollModeEnabled = 0;
-    word_51963 = 0;
-    word_51965 = 0;
+    gAdditionalScrollOffsetX = 0;
+    gAdditionalScrollOffsetY = 0;
     gIsFlashingBackgroundModeEnabled = 0;
     word_51A07 = 1;
 
@@ -9056,8 +9056,8 @@ void loc_49A89() // :              ; CODE XREF: sub_4955B+3FAj
     gIsRecordingDemo = 0;
     gCurrentUserInput = UserInputNone;
     gIsMoveScrollModeEnabled = 0;
-    word_51963 = 0;
-    word_51965 = 0;
+    gAdditionalScrollOffsetX = 0;
+    gAdditionalScrollOffsetY = 0;
     gIsFlashingBackgroundModeEnabled = 0;
     word_51A07 = 1;
     replaceCurrentPaletteColor(0, (SDL_Color) { 0, 0, 0 });
@@ -9122,8 +9122,8 @@ void loc_49C41() //              ; CODE XREF: sub_4955B+404j
         // 01ED:2FEC
         gIsDebugModeEnabled = 0;
         gIsMoveScrollModeEnabled = 0;
-        word_51963 = 0;
-        word_51965 = 0;
+        gAdditionalScrollOffsetX = 0;
+        gAdditionalScrollOffsetY = 0;
         gIsFlashingBackgroundModeEnabled = 0;
         word_51A07 = 1;
         replaceCurrentPaletteColor(0, (SDL_Color) { 0, 0, 0 });
@@ -9239,8 +9239,8 @@ void loc_49C41() //              ; CODE XREF: sub_4955B+404j
     {
         // 01ED:30CD
         gIsMoveScrollModeEnabled = 0;
-        word_51963 = 0;
-        word_51965 = 0;
+        gAdditionalScrollOffsetX = 0;
+        gAdditionalScrollOffsetY = 0;
         gIsFlashingBackgroundModeEnabled = 0;
     }
 
@@ -9563,14 +9563,14 @@ void sub_49EBE() //   proc near       ; CODE XREF: runLevel+109p
         bx = word_59B88;
         ax = word_59B8A;
         cx = bx;
-        bx += word_51963;
+        bx += gAdditionalScrollOffsetX;
         if (bx < 8)
         {
             if (byte_59B6C == 0)
             {
 //loc_49F4C:              ; CODE XREF: sub_49EBE+87j
                 bx += 0x3D0; // 976
-                word_51965--;
+                gAdditionalScrollOffsetY--;
             //    jmp short loc_49F66
             }
             else
@@ -9583,7 +9583,7 @@ void sub_49EBE() //   proc near       ; CODE XREF: runLevel+109p
 //                ; sub_49EBE+96j
             cx -= bx;
             cx = -cx;
-            word_51963 = cx;
+//            gAdditionalScrollOffsetX = cx;
         }
         else
         {
@@ -9597,14 +9597,14 @@ void sub_49EBE() //   proc near       ; CODE XREF: runLevel+109p
 //                ; sub_49EBE+96j
                 cx -= bx;
                 cx = -cx;
-                word_51963 = cx;
+//                gAdditionalScrollOffsetX = cx;
             }
         }
 
 //loc_49F6E:              ; CODE XREF: sub_49EBE+9Dj
 //                ; sub_49EBE+A3j
         cx = ax;
-        ax += word_51965;
+        ax += gAdditionalScrollOffsetY;
         if (ax < 0) // in asm there wasn't a explicit "cmp", just the "add" above
         {
             if (byte_59B6C == 0)
@@ -9615,7 +9615,7 @@ void sub_49EBE() //   proc near       ; CODE XREF: runLevel+109p
 //                ; sub_49EBE+D9j
                 cx -= ax;
                 cx = -cx;
-                word_51965 = cx;
+//                gAdditionalScrollOffsetY = cx;
             }
         }
         else
@@ -9633,7 +9633,7 @@ void sub_49EBE() //   proc near       ; CODE XREF: runLevel+109p
 //                ; sub_49EBE+D9j
                     cx -= ax;
                     cx = -cx;
-                    word_51965 = cx;
+//                    gAdditionalScrollOffsetY = cx;
                 }
             }
             else
@@ -9646,7 +9646,7 @@ void sub_49EBE() //   proc near       ; CODE XREF: runLevel+109p
 //                ; sub_49EBE+D9j
                     cx -= ax;
                     cx = -cx;
-                    word_51965 = cx;
+//                    gAdditionalScrollOffsetY = cx;
                 }
             }
         }
@@ -10054,11 +10054,9 @@ void sub_4A291() //   proc near       ; CODE XREF: sub_4955B+686p
 //    si = kMurphyStillSpriteCoordinates;
     drawMovingFrame(304, 132, gMurphyLocation);
     sub_49EBE();
-    ax = word_51961;
     word_59B92 = word_51961;
-    ax = word_5195F;
     word_59B90 = word_5195F;
-    al = al & 7;
+    al = word_5195F & 7;
     gNumberOfDotsToShiftDataLeft = al;
     // centers the scroll on Murphy?
     /*
@@ -10078,7 +10076,6 @@ void sub_4A291() //   proc near       ; CODE XREF: sub_4955B+686p
     out dx, al      ; Video: CRT controller internal registers
      */
     videoloop();
-    return;
 }
 
 void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
@@ -10270,8 +10267,8 @@ void sub_4A3E9() //   proc near       ; CODE XREF: sub_4955B+14Ep
 //loc_4A3F3:              ; CODE XREF: sub_4A3D2+15j
 //                ; sub_4A3E9+5j
     gIsMoveScrollModeEnabled = 0;
-    word_51963 = 0;
-    word_51965 = 0;
+    gAdditionalScrollOffsetX = 0;
+    gAdditionalScrollOffsetY = 0;
     gIsFlashingBackgroundModeEnabled = 0;
     word_51A07 = 1;
     replaceCurrentPaletteColor(0, (SDL_Color) { 0, 0, 0 });
@@ -20880,31 +20877,22 @@ void drawCurrentLevelViewport(uint16_t panelHeight)
 {
     uint16_t viewportHeight = kScreenHeight - panelHeight;
 
-    uint16_t scrollX = 0, scrollY = 0;
-    if (gMurphyPositionX < kScreenWidth / 2)
-    {
-        scrollX = 0;
-    }
-    else if (gMurphyPositionX > kLevelBitmapWidth - kScreenWidth / 2)
-    {
-        scrollX = kLevelBitmapWidth - kScreenWidth;
-    }
-    else
-    {
-        scrollX = gMurphyPositionX - kScreenWidth / 2;
-    }
-    if (gMurphyPositionY < viewportHeight / 2)
-    {
-        scrollY = 0;
-    }
-    else if (gMurphyPositionY > kLevelBitmapHeight - viewportHeight / 2)
-    {
-        scrollY = kLevelBitmapHeight - viewportHeight;
-    }
-    else
-    {
-        scrollY = gMurphyPositionY - viewportHeight / 2;
-    }
+    uint16_t maxScrollX = kLevelBitmapWidth - kScreenWidth;
+    uint16_t maxScrollY = kLevelBitmapHeight - viewportHeight;
+
+    uint16_t scrollX = CLAMP(gMurphyPositionX - kScreenWidth / 2,
+                             0,
+                             maxScrollX);
+    scrollX = CLAMP(scrollX + gAdditionalScrollOffsetX,
+                    0,
+                    maxScrollX);
+
+    uint16_t scrollY = CLAMP(gMurphyPositionY - viewportHeight / 2,
+                             0,
+                             maxScrollY);
+    scrollY = CLAMP(scrollY + gAdditionalScrollOffsetY,
+                    0,
+                    maxScrollY);
 
     drawLevelViewport(scrollX, scrollY, kScreenWidth, viewportHeight);
 }
