@@ -1776,6 +1776,7 @@ uint8_t gChars8BitmapFont[kBitmapFontLength];
 #define kPanelBitmapHeight 24
 static const int kPanelBitmapY = kScreenHeight - kPanelBitmapHeight;
 uint8_t gPanelDecodedBitmapData[kPanelBitmapWidth * kPanelBitmapHeight];
+uint8_t gCurrentPanelHeight = kPanelBitmapHeight;
 
 #define kFullScreenBitmapLength (kScreenWidth * kScreenHeight / 2) // They use 4 bits to encode pixels
 
@@ -3438,7 +3439,8 @@ loc_46E75:              //; CODE XREF: start+251j
             sub_4A2E6();
             resetNumberOfInfotrons();
             findMurphy();
-            drawCurrentLevelViewport(kPanelBitmapHeight); // Added by me
+            gCurrentPanelHeight = kPanelBitmapHeight;
+            drawCurrentLevelViewport(gCurrentPanelHeight); // Added by me
 //            si = 0x6015;
             fadeToPalette(gPalettes[1]); // At this point the screen fades in and shows the game
 
@@ -7172,7 +7174,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 //noFlashing4:              ; CODE XREF: runLevel+2D1j
         gNumberOfDotsToShiftDataLeft = ah;
 
-        drawCurrentLevelViewport(kPanelBitmapHeight); // Added by me
+        drawCurrentLevelViewport(gCurrentPanelHeight); // Added by me
 
         if (fastMode != 1)
         {
@@ -8188,71 +8190,14 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
         if ((word_510C1 & 0xFF) != 0)
         {
             word_510C1 = (word_510C1 & 0xFF00); // mov byte ptr word_510C1, 0
-            cl = 0x90; // 144
-            {
-//            mov dx, 3D4h
-//            al = 18h
-//            out dx, al      ; Video: CRT cntrlr addr
-//            ; line compare (scan line). Used for split screen operations.
-//                inc dx
-//                al = cl
-//                out dx, al      ; Video: CRT controller internal registers
-//            mov dx, 3D4h
-//            al = 7
-//            out dx, al      ; Video: CRT cntrlr addr
-//            ; bit 8 for certain CRTC regs. Data bits:
-//                ; 0: vertical total (Reg 06)
-//            ; 1: vert disp'd enable end (Reg 12H)
-//            ; 2: vert retrace start (Reg 10H)
-//            ; 3: start vert blanking (Reg 15H)
-//            ; 4: line compare (Reg 18H)
-//            ; 5: cursor location (Reg 0aH)
-//            inc dx
-//            al = 3Fh ; '?'
-//            out dx, al      ; Video: CRT controller internal registers
-//            mov dx, 3D4h
-//            al = 9
-//            out dx, al      ; Video: CRT cntrlr addr
-//            ; maximum scan line
-//            inc dx
-//            al = 80h ; '?'
-//            out dx, al      ; Video: CRT controller internal registers
-            }
+            gCurrentPanelHeight = 0;
         }
         else
         {
 //loc_495FB:              ; CODE XREF: sub_4955B+62j
             word_510C1 = (word_510C1 & 0xFF00) + 1; // mov byte ptr word_510C1, 1
-            cl = 0x5F; // 95
-            {
-//            mov dx, 3D4h
-//            al = 18h
-//            out dx, al      ; Video: CRT cntrlr addr
-//            ; line compare (scan line). Used for split screen operations.
-//                inc dx
-//                al = cl
-//                out dx, al      ; Video: CRT controller internal registers
-//            mov dx, 3D4h
-//            al = 7
-//            out dx, al      ; Video: CRT cntrlr addr
-//            ; bit 8 for certain CRTC regs. Data bits:
-//                ; 0: vertical total (Reg 06)
-//            ; 1: vert disp'd enable end (Reg 12H)
-//            ; 2: vert retrace start (Reg 10H)
-//            ; 3: start vert blanking (Reg 15H)
-//            ; 4: line compare (Reg 18H)
-//            ; 5: cursor location (Reg 0aH)
-//            inc dx
-//            al = 3Fh ; '?'
-//            out dx, al      ; Video: CRT controller internal registers
-//            mov dx, 3D4h
-//            al = 9
-//            out dx, al      ; Video: CRT cntrlr addr
-//            ; maximum scan line
-//            inc dx
-//            al = 80h ; '?'
-//            out dx, al      ; Video: CRT controller internal registers
-            }
+            gCurrentPanelHeight = kPanelBitmapHeight;
+            drawGamePanel();
         }
     }
 
