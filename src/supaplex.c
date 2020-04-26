@@ -4650,11 +4650,11 @@ void loadScreen2() // proc near       ; CODE XREF: start:loc_46F00p
 
 //loc_4792E:              //; CODE XREF: loadScreen2+76j
 //    word_51967 = gScreenPixels??; // points to where title1.dat was RENDERED
-    videoloop();
 //    gNumberOfDotsToShiftDataLeft = 0;
     ColorPalette title1DatPalette;
     convertPaletteDataToPalette(gTitle1PaletteData, title1DatPalette);
     setPalette(title1DatPalette);
+    videoloop();
 
     file = openReadonlyFile("TITLE2.DAT", "r");
     if (file == NULL)
@@ -15509,7 +15509,7 @@ void replaceCurrentPaletteColor(uint8_t index, SDL_Color color)
     setPalette(gCurrentPalette);
 }
 
-void setPalette(ColorPalette palette) //   proc near       ; CODE XREF: start+2B8p
+void setPalette(ColorPalette palette) // sub_4D836   proc near       ; CODE XREF: start+2B8p
                    // ; loadScreen2+B5p ...
 {
 //    int old_word_510A2; //       = word ptr -2
