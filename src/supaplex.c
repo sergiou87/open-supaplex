@@ -1776,6 +1776,7 @@ uint8_t gChars8BitmapFont[kBitmapFontLength];
 #define kPanelBitmapHeight 24
 static const int kPanelBitmapY = kScreenHeight - kPanelBitmapHeight;
 uint8_t gPanelDecodedBitmapData[kPanelBitmapWidth * kPanelBitmapHeight];
+uint8_t gPanelRenderedBitmapData[kPanelBitmapWidth * kPanelBitmapHeight];
 uint8_t gCurrentPanelHeight = kPanelBitmapHeight;
 
 #define kFullScreenBitmapLength (kScreenWidth * kScreenHeight / 2) // They use 4 bits to encode pixels
@@ -2704,8 +2705,8 @@ void drawMouseCursor(void);
 void drawRankings(void);
 void drawTextWithChars6FontWithOpaqueBackground(size_t destX, size_t destY, uint8_t color, const char *text);
 void drawTextWithChars6FontWithTransparentBackground(size_t destX, size_t destY, uint8_t color, const char *text);
-void drawTextWithChars8Font_method1(size_t destX, size_t destY, uint8_t color, const char *text);
 void drawTextWithChars8Font(size_t destX, size_t destY, uint8_t color, const char *text);
+void drawTextWithChars8FontToBuffer(uint8_t *buffer, size_t destX, size_t destY, uint8_t color, const char *text);
 void sub_48E59(void);
 void waitForKeyMouseOrJoystick(void);
 void drawMenuTitleAndDemoLevelResult(void);
@@ -2731,7 +2732,7 @@ void readLevels(void);
 void sub_48A20(void);
 void drawFixedLevel(void);
 void drawGamePanel(void);
-void drawgNumberOfRemainingInfotrons(void);
+void drawNumberOfRemainingInfotrons(void);
 void drawGameTime(void);
 void sub_4A2E6(void);
 void resetNumberOfInfotrons(void);
@@ -8197,7 +8198,6 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 //loc_495FB:              ; CODE XREF: sub_4955B+62j
             word_510C1 = (word_510C1 & 0xFF00) + 1; // mov byte ptr word_510C1, 1
             gCurrentPanelHeight = kPanelBitmapHeight;
-            drawGamePanel();
         }
     }
 
@@ -8595,7 +8595,7 @@ void loc_49949() //:              ; CODE XREF: sub_4955B+E1j
     if (gIsScrollLockPressed == 1)
     {
         gIsDebugModeEnabled = 1;
-        drawTextWithChars8Font(304, 190, 6, "DB"); // Debug mode enabled
+        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 304, 14, 6, "DB"); // Debug mode enabled
         byte_5197C = 0x46; // 70
     }
 
@@ -9024,7 +9024,7 @@ void loc_49A89() // :              ; CODE XREF: sub_4955B+3FAj
     byte_5A2F9 = 1;
     gIsRecordingDemo = 0;
 
-    drawTextWithChars8Font(304, 190, 6, "LD"); // Means snapshot was loaded successfully
+    drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 304, 14, 6, "LD"); // Means snapshot was loaded successfully
     byte_5197C = 0x46; // 70 or '&'
 
 //loc_49C12:              ; CODE XREF: sub_4955B+6A8j
@@ -9048,7 +9048,7 @@ void loc_49C28() //:              ; CODE XREF: sub_4955B+47Aj
 
 void loc_49C2C(char text[3]) // :              ; CODE XREF: sub_4955B+521j
 {
-    drawTextWithChars8Font(304, 190, 6, text);
+    drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 304, 14, 6, text);
     byte_5197C = 0x46; // 70 or '&'
 
 //loc_49C40:              ; CODE XREF: sub_4955B+6BDj
@@ -9073,7 +9073,7 @@ void loc_49C41() //              ; CODE XREF: sub_4955B+404j
         word_51A07 = 1;
         replaceCurrentPaletteColor(0, (SDL_Color) { 0, 0, 0 });
 
-        drawTextWithChars8Font(304, 190, 6, "--"); // Debug mode disabled
+        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 304, 14, 6, "--"); // Debug mode disabled
         byte_5197C = 0x46; // 70 or '&'
     }
 
@@ -10186,7 +10186,7 @@ void resetNumberOfInfotrons() // sub_4A3BB   proc near       ; CODE XREF: start+
 //loc_4A3C6:              ; CODE XREF: resetNumberOfInfotrons+5j
     gNumberOfRemainingInfotrons = numberOfInfotrons;
     gTotalNumberOfInfotrons = numberOfInfotrons;
-    drawgNumberOfRemainingInfotrons();
+    drawNumberOfRemainingInfotrons();
 }
 
 void sub_4A3D2() //   proc near       ; CODE XREF: sub_4955B+39Ep
@@ -18204,7 +18204,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
             }
 
 //loc_4EC90:              ; CODE XREF: update?+DFAj
-            drawgNumberOfRemainingInfotrons();
+            drawNumberOfRemainingInfotrons();
 
 //loc_4EC93:              ; CODE XREF: update?+CA3j update?+CC3j
             murphyTile->tile = LevelTileTypeMurphy;
@@ -18221,7 +18221,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
             }
 
 //loc_4ECAE:              ; CODE XREF: update?+E18j
-            drawgNumberOfRemainingInfotrons();
+            drawNumberOfRemainingInfotrons();
 
 //loc_4ECB1:              ; CODE XREF: update?+CABj update?+CCBj
             murphyTile->tile = LevelTileTypeMurphy;
@@ -18238,7 +18238,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
             }
 
 //loc_4ECCC:              ; CODE XREF: update?+E36j
-            drawgNumberOfRemainingInfotrons();
+            drawNumberOfRemainingInfotrons();
 
 //loc_4ECCF:              ; CODE XREF: update?+CB3j update?+CD3j
             if (aboveTile->tile != LevelTileTypeExplosion)
@@ -18262,7 +18262,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
             }
 
 //loc_4EF50:              ; CODE XREF: update?+10BAj
-            drawgNumberOfRemainingInfotrons();
+            drawNumberOfRemainingInfotrons();
 
 //loc_4EF53:              ; CODE XREF: update?+CBBj update?+CDBj
             handleMurphyCollisionAfterMovement(position - 1);
@@ -18364,7 +18364,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
             }
 
 //loc_4EF6E:              ; CODE XREF: update?+10D8j
-            drawgNumberOfRemainingInfotrons();
+            drawNumberOfRemainingInfotrons();
 
 //loc_4EF71:              ; CODE XREF: update?+D13j
             if (aboveTile->tile != LevelTileTypeExplosion)
@@ -18385,7 +18385,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
             }
 
 //loc_4EF8A:              ; CODE XREF: update?+10F4j
-            drawgNumberOfRemainingInfotrons();
+            drawNumberOfRemainingInfotrons();
 
 //loc_4EF8D:              ; CODE XREF: update?+D1Bj
             if (leftTile->tile != LevelTileTypeExplosion)
@@ -18406,7 +18406,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
             }
 
 //loc_4EFC2:              ; CODE XREF: update?+112Cj
-            drawgNumberOfRemainingInfotrons();
+            drawNumberOfRemainingInfotrons();
 
 //loc_4EFC5:              ; CODE XREF: update?+D23j
             if (rightTile->tile != LevelTileTypeExplosion)
@@ -18427,7 +18427,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
             }
 
 //loc_4EFA6:              ; CODE XREF: update?+1110j
-            drawgNumberOfRemainingInfotrons();
+            drawNumberOfRemainingInfotrons();
 
 //loc_4EFA9:              ; CODE XREF: update?+D2Bj
             if (belowTile->tile != LevelTileTypeExplosion)
@@ -20533,38 +20533,38 @@ void drawGamePanelText() // sub_4FC20  proc near       ; CODE XREF: somethingsps
     if (gIsRecordingDemo != 0) // Recording demo?
     {
 //    mov si, 87D1h // "  DEMO  "
-        drawTextWithChars8Font(72, 179, 8, "  DEMO  ");
+        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 72, 3, 8, "  DEMO  ");
 //    mov si, 87DAh // "000"
-        drawTextWithChars8Font(16, 190, 8, "000");
+        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 16, 14, 8, "000");
 //        mov si, 87F6h // "--- RECORDING DEMO0 ---"
-        drawTextWithChars8Font(64, 190, 8, "--- RECORDING DEMO0 ---");
+        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 64, 14, 8, "--- RECORDING DEMO0 ---");
     }
 //loc_4FC6F:              ; CODE XREF: drawGamePanelText+5j
     else if (gIsPlayingDemo != 0) // Playing demo?
     {
-        drawTextWithChars8Font(72, 179, 8, "  DEMO  ");
+        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 72, 3, 8, "  DEMO  ");
 //      mov si, 87DAh // "000"
-        drawTextWithChars8Font(16, 190, 8, "000");
+        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 16, 14, 8, "000");
 //      mov si, 87DEh // "----- DEMO LEVEL! -----"
-        drawTextWithChars8Font(64, 190, 8, "----- DEMO LEVEL! -----");
+        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 64, 14, 8, "----- DEMO LEVEL! -----");
     }
     else
     {
 //loc_4FCD6:              ; CODE XREF: drawGamePanelText+B1j
-        drawTextWithChars8Font(72, 179, 6, gPlayerName);
+        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 72, 3, 6, gPlayerName);
         char levelNumber[4] = "000";
         memcpy(levelNumber, gCurrentLevelName, 3);
-        drawTextWithChars8Font(16, 190, 8, levelNumber);
-        drawTextWithChars8Font(64, 190, 8, &gCurrentLevelName[4]);
+        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 16, 14, 8, levelNumber);
+        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 64, 14, 8, &gCurrentLevelName[4]);
     }
 
 //loc_4FD1A:              ; CODE XREF: drawGamePanelText+4Cj
 //                ; drawGamePanelText+A0j ...
-    drawgNumberOfRemainingInfotrons();
+    drawNumberOfRemainingInfotrons();
     drawGameTime();
 }
 
-void drawgNumberOfRemainingInfotrons() // sub_4FD21   proc near       ; CODE XREF: resetNumberOfInfotrons+13p
+void drawNumberOfRemainingInfotrons() // sub_4FD21   proc near       ; CODE XREF: resetNumberOfInfotrons+13p
                    // ; update?:loc_4EC90p ...
 {
     if (gNumberOfRemainingInfotrons < 1)
@@ -20572,17 +20572,17 @@ void drawgNumberOfRemainingInfotrons() // sub_4FD21   proc near       ; CODE XRE
         gNumberOfRemainingInfotrons = 0; // WTF? Can this be negative? In theory not...
     }
 
-//loc_4FD2E:              ; CODE XREF: drawgNumberOfRemainingInfotrons+6j
+//loc_4FD2E:              ; CODE XREF: drawNumberOfRemainingInfotrons+6j
     char number[4] = "000";
     convertNumberTo3DigitStringWithPadding0(gNumberOfRemainingInfotrons, number);
 
-//loc_4FD46:              ; CODE XREF: drawgNumberOfRemainingInfotrons+20j
+//loc_4FD46:              ; CODE XREF: drawNumberOfRemainingInfotrons+20j
     uint8_t color = (gNumberOfRemainingInfotrons == 0
                      ? 6
                      : 8);
 
-//loc_4FD56:              ; CODE XREF: drawgNumberOfRemainingInfotrons+31j
-    drawTextWithChars8Font(272, 190, color, number);
+//loc_4FD56:              ; CODE XREF: drawNumberOfRemainingInfotrons+31j
+    drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 272, 14, color, number);
 }
 
 void clearNumberOfRemainingRedDisks() // sub_4FD65   proc near       ; CODE XREF: runLevel+E9p
@@ -20615,14 +20615,14 @@ void clearNumberOfRemainingRedDisks() // sub_4FD65   proc near       ; CODE XREF
     uint16_t srcY = 388;
 
     uint16_t dstX = 304;
-    uint16_t dstY = 190;
+    uint16_t dstY = 14;
 
 //loc_4FD99:              ; CODE XREF: clearNumberOfRemainingRedDisks+3Cj
     for (int y = 0; y < spriteHeight; ++y)
     {
         uint32_t srcAddress = (srcY + y) * kMovingBitmapWidth + srcX;
         uint32_t dstAddress = (dstY + y) * kScreenWidth + dstX;
-        memcpy(&gScreenPixels[dstAddress], &gMovingDecodedBitmapData[srcAddress], kTileSize);
+        memcpy(&gPanelRenderedBitmapData[dstAddress], &gMovingDecodedBitmapData[srcAddress], kTileSize);
     }
 }
 
@@ -20660,7 +20660,7 @@ void drawNumberOfRemainingRedDisks() // sub_4FDCE   proc near       ; CODE XREF:
     }
 
 //loc_4FDF3:              ; CODE XREF: drawNumberOfRemainingRedDisks+21j
-    drawTextWithChars8Font(304, 190, color, &numberString[1]);
+    drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 304, 14, color, &numberString[1]);
     byte_5197C = 0x46; // 70
 }
 
@@ -20675,7 +20675,7 @@ void drawGameTime() // sub_4FDFD   proc near       ; CODE XREF: runLevel+29p
         gLastDrawnMinutesAndSeconds = (gLastDrawnMinutesAndSeconds & 0xFF00) + gGameSeconds; // byte
         convertNumberTo3DigitStringWithPadding0(gGameSeconds, number);
 //loc_4FE2C:              ; CODE XREF: drawGameTime+2Aj
-        drawTextWithChars8Font(208, 179, 6, &number[1]); // seconds
+        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 208, 3, 6, &number[1]); // seconds
     }
 
 //loc_4FE36:              ; CODE XREF: drawGameTime+12j
@@ -20683,7 +20683,7 @@ void drawGameTime() // sub_4FDFD   proc near       ; CODE XREF: runLevel+29p
     {
         gLastDrawnMinutesAndSeconds = (gGameMinutes << 8) + (gLastDrawnMinutesAndSeconds & 0x00FF); // byte
         convertNumberTo3DigitStringWithPadding0(gGameMinutes, number);
-        drawTextWithChars8Font(184, 179, 6, &number[1]); // minutes
+        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 184, 3, 6, &number[1]); // minutes
     }
 
 //loc_4FE5F:              ; CODE XREF: drawGameTime+40j
@@ -20691,11 +20691,16 @@ void drawGameTime() // sub_4FDFD   proc near       ; CODE XREF: runLevel+29p
     {
         gLastDrawnHours = gGameHours;
         convertNumberTo3DigitStringWithPadding0(gGameHours, number);
-        drawTextWithChars8Font(160, 179, 6, &number[1]); // hours
+        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 160, 3, 6, &number[1]); // hours
     }
 }
 
-void drawTextWithChars8Font_method1(size_t destX, size_t destY, uint8_t color, const char *text) //   proc near       ; CODE XREF: drawTextWithChars8Font+7p
+void drawTextWithChars8Font(size_t destX, size_t destY, uint8_t color, const char *text) //   proc near       ; CODE XREF: drawTextWithChars8Font+7p
+{
+    drawTextWithChars8FontToBuffer(gScreenPixels, destX, destY, color, text);
+}
+
+void drawTextWithChars8FontToBuffer(uint8_t *buffer, size_t destX, size_t destY, uint8_t color, const char *text)
 {
     // Parameters:
     // - di is the destination surface
@@ -20737,31 +20742,15 @@ void drawTextWithChars8Font_method1(size_t destX, size_t destY, uint8_t color, c
 
                 // 6 is the wide (in pixels) of this font
                 size_t destAddress = (destY + y) * kScreenWidth + (idx * kBitmapFontCharacter8Width + destX + x);
-                gScreenPixels[destAddress] = color * pixelValue;
+                buffer[destAddress] = color * pixelValue;
             }
         }
     }
 }
 
-void drawTextWithChars8Font(size_t destX, size_t destY, uint8_t color, const char *text) //   proc near       ; CODE XREF: sub_4955B+446p
-                    // ; sub_4955B+6AFp ...
-{
-    drawTextWithChars8Font_method1(destX, destY, color, text);
-}
-
 void drawGamePanel() // sub_501C0   proc near       ; CODE XREF: start+338p sub_4955B+678p ...
 {
-    for (int y = kPanelBitmapY; y < kScreenHeight; ++y)
-    {
-        for (int x = 0; x < kScreenWidth; ++x)
-        {
-            uint32_t destPixelAddress = y * kScreenWidth + x;
-            uint32_t srcPixelAddress = (y - kPanelBitmapY) * kPanelBitmapWidth + x;
-
-            gScreenPixels[destPixelAddress] = gPanelDecodedBitmapData[srcPixelAddress];
-        }
-    }
-
+    memcpy(&gPanelRenderedBitmapData, &gPanelDecodedBitmapData, sizeof(gPanelRenderedBitmapData));
     drawGamePanelText();
 }
 
@@ -20840,6 +20829,13 @@ void drawCurrentLevelViewport(uint16_t panelHeight)
                     maxScrollY);
 
     drawLevelViewport(scrollX, scrollY, kScreenWidth, viewportHeight);
+
+    for (int y = 0; y < panelHeight; ++y)
+    {
+        uint32_t srcAddress = y * kPanelBitmapWidth;
+        uint32_t dstAddress = (viewportHeight + y) * kScreenWidth;
+        memcpy(&gScreenPixels[dstAddress], &gPanelRenderedBitmapData[srcAddress], kPanelBitmapWidth);
+    }
 }
 
 void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, uint16_t height, uint16_t dstX, uint16_t dstY)
