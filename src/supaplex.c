@@ -1726,11 +1726,87 @@ char gCurrentLevelName[kListLevelNameLength]; // 0x87A8
 typedef struct
 {
     uint8_t tiles[1440]; // [0-0x59F] of LevelTileType
-    uint8_t unknown0[6];
-    char name[kLevelNameLength];
-    uint8_t numberOfInfotrons;
-    uint8_t unknown1[65];
+    uint8_t unknown0[4];
+    uint8_t initialGravitation;
+    uint8_t speedFixMagicNumber; // Used from versions 5.3 and up as: 20h + SpeedFix version number in hex format: v5.3 -> 73h, v6.2 -> 82h
+    char name[kLevelNameLength - 1];
+    uint8_t freezeZonks; // 2 = on, anything else (including 1) = off
+    uint8_t numberOfInfotrons; // 0 means that Supaplex will count the total amount of Infotrons in the level, and use the low byte of that number. (A multiple of 256 Infotrons will then result in 0-to-eat, etc.!)
+    uint8_t numberOfSpecialPorts; // maximum 10
+    uint8_t specialPortsInfo[60];
+
+    // This byte carries the information of the slowest speed used during the demo recording. 0x00=fastest, 0x0A=slowest
+    // This information is exclusive-ored with the high random number byte (byte scrambledSpeed). (Each bit is toggled, where in byte highByteRandomSeed a 1 appears.)
+    // The result is the value of byte scrambledSpeed (and is used to scramble byte scrambledChecksum).
+    //
+    uint8_t scrambledSpeed;
+
+    // All upper nibbles of each demo byte (without first level number byte and without ending 0xFF), each nibble
+    // incremented by 1, are added up. This total equals the total number of demo frames and reflects the normalized
+    // demo time with 35 frames per second.
+    // To this total, of which only the lower 8 bits are used, the lower random number byte (byte lowByteRandomSeed) is added.
+    // The resulting lower 8 bits are exclusive-ored with the final contents of byte scrambledSpeed. (Each bit is toggled,
+    // where in byte scrambledSpeed a 1 appears.)
+    // The resulting lower 8 bits is the value of byte scrambledChecksum.
+    // Note: Megaplex does not put any information into bytes scrambledSpeed and scrambledChecksum.
+    //
+    uint8_t scrambledChecksum;
+
+    // All Bugs are fired randomly, so in order to be able to make a recording of a level with Bugs, it is necessary to let
+    // them fire exactly at the same time in each playback of that recording. In order to guarantee that, we need a
+    // predictable random number generator and start it each playback with the same starting value (seed) as when the
+    // recording was started. When the sequence of all following random numbers is repeatable, all Bugs will always fire
+    // the same way during each playback as during the creation of the recording.
+    // Luckily the original Supaplex uses a very simple random number generator for this purpose, which is not depending
+    // on external influences like date and time or a keypress. Start the random number generator with a random number
+    // seed and the next random number is calculated, which is also used as seed for the next calculation. A certain
+    // seed will always result in only one specific random number. The sequence of all following random numbers is
+    // thus fixed for each seed.
+    // So at the start of each recording, we need to remember the starting random number as seed for the random number
+    // generator during each playback.
+    // Each random number is a 16 bit number. After each random number calculation, only the lower 16 bits are kept as
+    // seed for the next calculation: new_random_number_seed = ((old_random_number_seed * 1509) + 49) modulo 65536
+    // This "modulo 65536" just signifies keeping only the lower 16 bits and reject all higher bits.
+    //
+    uint16_t randomSeed;
 } Level; // size 1536 = 0x600
+
+#define kMaxDemoInputSteps 48648
+
+// This struct defines the demo format of the original game (previous to the speed fix mods)
+typedef struct
+{
+    // In demos recorded with the original game (not speed fix versions), it was the level number. After the speed fix
+    // versions, the level itself was included in the demo file, so they set the MSB to 1 to mark them and this byte
+    // loses its original function.
+    //
+    uint8_t levelNumber;
+    uint8_t inputSteps[kMaxDemoInputSteps + 1]; // of UserInput, finishes with 0xFF
+} BaseDemo;
+
+#define kMaxDemoSignatureLength 511
+
+// This struct defines the demo format of the game after the speed fix mods (which includes a demo of the original
+// format inside).
+//
+typedef struct
+{
+    Level level;
+    BaseDemo baseDemo;
+    uint8_t signature[kMaxDemoSignatureLength + 1]; // text that ends with 0xFF
+} DemoFile;
+
+#define kNumberOfDemos 10
+
+typedef struct
+{
+    uint16_t unknown[11];
+    BaseDemo baseDemo[kNumberOfDemos];
+    uint8_t signature[kNumberOfDemos][kMaxDemoSignatureLength + 1]; // text that ends with 0xFF
+    Level level[kNumberOfDemos];
+} Demos;
+
+Demos gDemos;
 
 // fileLevelData starts at 0x768, when it contains a level goes to 0xD67
 Level gCurrentLevel; // 0x988B
@@ -1935,7 +2011,7 @@ static const ButtonDescriptor kMainMenuButtonDescriptors[kNumberOfMainMenuButton
     {
         5, 51,
         157, 59,
-        handleLevelListScrollDown, //sub_4B159, // Demo
+        sub_4B159, // Demo
     },
     {
         5, 60,
@@ -4217,6 +4293,7 @@ void saveConfiguration() // sub_4755A      proc near               ; CODE XREF: 
 void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
                   //  ; sub_4B159p ...
 {
+    // 01ED:09A6
 //    push(es);
 //    ax = seg demoseg;
 //    es = ax;
@@ -4227,36 +4304,31 @@ void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
     // di = 0;
     // cx = 0xB; // 11
     // cld(); // clear direction flag
-    memset(di, 0xFF, 22); // rep stosw // fills 11 words (22 bytes) with 0xFFFF
+
+    memset(&gDemos.unknown, 0xFF, 22); // rep stosw // fills 11 words (22 bytes) with 0xFFFF
     di += 22;
     cx = 0;
 
-    do
+    for (int i = 0; i < kNumberOfDemos; ++i)
     {
 //loc_47629:              //; CODE XREF: readDemoFiles+175j
+        char filename[256] = "DEMO0.BIN";
+
     //    push(cx);
         word_599D8 = 0;
         if (byte_599D4 == 1)
         {
-            dx = &demoFileName;
+            // TODO: Implement loading a demo from command line
+            // dx = &demoFileName;
         }
         else
         {
 //loc_4763C:             // ; CODE XREF: readDemoFiles+2Cj
-            bx = &aDemo0_bin; // "DEMO0.BIN"
-            cl += 0x30; // adds '0'. I assume at this point cl will take a value between 0 and 9,
-                        // and then by adding 0x30 that number will be converted to its character in ascii
-            *(bx + 4) = cl; // replaces the 0 in DEMO 0 with the value of cl
-            dx = bx;
+            filename[4] = '0' + i; // Replaces the number in "DEMO0.BIN" with the right value
         }
 
 //loc_47647:             // ; CODE XREF: readDemoFiles+31j
-        // mov ax, 3D00h
-        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-        //             ; DS:DX -> ASCIZ filename
-        //             ; AL = access mode
-        //             ; 0 - read
-        FILE *file = openReadonlyFile(bx, "r"); // bx will store the name of the demo file after changing the number (DEMOx.BIN)
+        FILE *file = openReadonlyFile(filename, "r");
         if (file == NULL)
         {
             return;
@@ -4269,11 +4341,6 @@ void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
         {
             if (word_599DA == 0)
             {
-                // mov ax, 4200h
-                // cx = 0;
-                // mov dx, levelDataLength
-                // int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
-                //             ; AL = method: offset from beginning of file
                 fseek(file, levelDataLength, SEEK_SET);
                 // bx = lastFileHandle;
             }
@@ -4281,55 +4348,46 @@ void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
         else
         {
 //loc_47674:             // ; CODE XREF: readDemoFiles+52j
-            // push(bx);
-            // ax = 0x4202;
-            // cx = 0;
-            // dx = cx;
-            // int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
-            //             ; AL = method: offset from end of file
             int result = fseek(file, 0, SEEK_END);
-            // value returned in dx:ax
-            // pop(bx);
+            long newOffset = ftell(file);
+
             if (result == 0
-                && dx == 0 // the file size shouldn't be more than 0xFFFF, so DX should be 0x0
-                && ax < levelDataLength)
+                && newOffset < levelDataLength)
             {
-                fileReadUnk1();
-                word_599D8 = ax;
+                fileReadUnk1(file, newOffset);
+                word_599D8 = ax; // this ax must be something fileReadUnk1 returns
             }
 
 //loc_47690:             // ; CODE XREF: readDemoFiles+76j readDemoFiles+7Aj ...
-            // mov ax, 4200h
-            // xor cx, cx
-            // mov dx, cx
-            // int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
-            //             ; AL = method: offset from beginning of file
             fseek(file, 0, SEEK_SET);
+
             if (word_599D8 == 0)
             {
-                ax = 0x3F00;
+                // ax = 0x3F00;
                 // bx = lastFileHandle;
                 // pop(cx);
                 // push(cx);
-                dx = cx;
-                cx = cx << 1;
-                dx += cx;
-                cl = 9;
-                dx = dx << cl;
-                dx += 0xBE20;
-                cx = levelDataLength;
-                push(ds);
-                push(dx);
-                push(es);
-                pop(ds);
+//                dx = cx;
+//                cx = cx << 1;
+//                dx += cx;
+//                cl = 9;
+//                dx = dx << cl;
+//                dx += 0xBE20;
+//                cx = levelDataLength;
+                // push(ds);
+                // push(dx);
+                // push(es);
+                // pop(ds);
                 // assume ds:demoseg
                 // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
                 //             ; BX = file handle, CX = number of bytes to read
                 //             ; DS:DX -> buffer
-                size_t bytes = fread(&some_buffer_in_demoseg, 1, levelDataLength, file);
-                pop(bx);
-                dx = *(bx + 0x5FE); // position 1534, so levelDataLength - 2, and it's copying a word... so it's copying the last 2 bytes into dx
-                pop(ds);
+                Level *level = &gDemos.level[i];
+                size_t bytes = fread(level, 1, levelDataLength, file);
+                //pop(bx);
+                // this is the seed for random numbers
+                dx = level->randomSeed; //*(bx + 0x5FE); // position 1534, so levelDataLength - 2, and it's copying a word... so it's copying the last 2 bytes into dx
+                //pop(ds);
                 // assume ds:data
                 if (bytes < levelDataLength)
                 {
@@ -4337,18 +4395,18 @@ void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
                 }
 
 //loc_476D3:           //   ; CODE XREF: readDemoFiles+C5j
-                pop(bx);
-                push(bx);
-                bx = bx << 1;
-                *(bx - 0x67CA) = dx; // 26570 wtf??? dx still has the last 2 bytes of the level data
+                // pop(bx);
+                // push(bx);
+                // bx = bx << 1; // bx is i at this point
+                // *(bx + 0x9836) = dx; // no idea what's this but is storing the random seeds, and it's in the normal segment, not in the demo segment
             }
         }
 
 //loc_476DB:             // ; CODE XREF: readDemoFiles+59j readDemoFiles+69j ...
-        cx = 0xBE09; // 48649
+        cx = kMaxDemoInputSteps + 1; // 48649
         cx -= word_510DF;
-//        if (cx <= 0xBE09h) // weird way of checking if word_510DF > 0 ????
-        if (cx > 0xBE09) // weird way of checking if word_510DF <= 0 ????
+//        if (cx <= 0xBE09h) // weird way of checking if word_510DF >= 0 ????
+        if (cx > kMaxDemoInputSteps + 1) // weird way of checking if word_510DF < 0 ????
         {
             cx = 0;
         }
@@ -4361,8 +4419,8 @@ void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
         else
         {
 //loc_476F3:              // ; CODE XREF: readDemoFiles+E4j
-            dx = word_510DF;
-//            bx = lastFileHandle;
+            // dx = word_510DF;
+            // bx = lastFileHandle;
             // push(ds);
             // ax = es;
             // ds = ax;
@@ -4371,7 +4429,7 @@ void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
             // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
             //             ; BX = file handle, CX = number of bytes to read
             //             ; DS:DX -> buffer
-            size_t bytes = fread(word_510DF, 1, cx, file);
+            size_t bytes = fread(&word_510DF, 1, cx, file); // TODO: that word_510DF feels wrong
             if (bytes < cx)
             {
                 // pop(ds);
@@ -4428,7 +4486,7 @@ void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
         {
 //loc_4775A:             // ; CODE XREF: readDemoFiles+145j
            // ; readDemoFiles+14Aj
-            if (bx < maxdemolength)
+            if (bx < sizeof(BaseDemo))
             {
                 bx++;
                 ax++;
@@ -4441,14 +4499,12 @@ void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
         //pop(ds);
         // assume ds:data
         // pop(cx);
-        bx = cx;
+        bx = cx; // cx is i at this point
         bx = bx << 1;
         dx = word_510DF;
         *bx = dx;  // db 26h, 89h, 97h, 00h, 00h; mov es:[bx+0], dx
         word_510DF += ax;
-        cx++;
     }
-    while (cx < 10)
 }
 
 void convertPaletteDataToPalette(ColorPaletteData paletteData, ColorPalette outPalette)
@@ -5169,7 +5225,7 @@ void readEverything() //  proc near       ; CODE XREF: start+2DBp start+2E3p .
     readMenuDat();
     readControlsDat();
     readLevelsLst();
-//    readDemoFiles(); // TODO: just crazy, needs more RE work
+    readDemoFiles();
     readBackDat();
     readHallfameLst();
     readPlayersLst();
@@ -7755,8 +7811,8 @@ void sub_492F1() //   proc near       ; CODE XREF: sub_4955B+1Dp
         byte_510E1 = bl;
         ax = gTimeOfDay;
         word_5A199 = ax;
-        byte_59B5F = ah;
-        byte_59B5C = al;
+        byte_59B5F = (ax >> 8); // ah;
+        byte_59B5C = (ax & 0xFF); // al;
     }
 
 //loc_49311:              ; CODE XREF: sub_492F1+Dj
@@ -11922,80 +11978,81 @@ void handleGfxTutorOptionClick() // sub_4B149   proc near
 
 void sub_4B159() //   proc near       ; CODE XREF: runMainMenu+6Fp
 {
-//    exitWithError("function sub_4B159 not implemented yet\n");
-    /*
-        call    readDemoFiles
-        or  cx, cx
-        jnz short loc_4B163
-        jmp locret_4B1F1
-
-loc_4B163:              ; CODE XREF: sub_4B159+5j
-        mov word_5196C, 1
-        mov gIsPlayingDemo, 1
-        push    es
-        mov ax, seg demoseg
-        mov es, ax
-        assume es:demoseg
-        mov bx, 0
-        mov cx, 0
-
-loc_4B17A:              ; CODE XREF: sub_4B159+2Dj
-        mov ax, es:[bx]
-        add bx, 2
-        cmp ax, 0FFFFh
-        jz  short loc_4B188
-        inc cx
-        jmp short loc_4B17A
-
-loc_4B188:              ; CODE XREF: sub_4B159+2Aj
-        push(cx);
-        call    getTime
-        call    sub_4A1AE
-        xor dx, dx
-        pop(cx);
-        div cx
-        mov bx, 0
-        shl dx, 1
-        add bx, dx
-        mov bx, es:[bx]
-        cmp bx, 0FFFFh
-        jnz short loc_4B1AE
-        mov word_5196C, 0
-        mov gIsPlayingDemo, 0
-
-loc_4B1AE:              ; CODE XREF: sub_4B159+48j
-        al = es:[bx]
-        xor ah, ah
-        push    bx
-        mov bx, dx
-        shr dx, 1
-        mov word_599D6, dx
-        mov word_599D8, 0
-        cmp al, 6Fh ; 'o'
-        ja  short loc_4B1CF
-        or  al, al
-        jz  short loc_4B1CF
-        mov byte ptr word_599D8, al
-        mov dl, al
-
-loc_4B1CF:              ; CODE XREF: sub_4B159+6Bj
-                    ; sub_4B159+6Fj
-        al = dl
-        mov bx, [bx-67CAh]
-        mov gTimeOfDay, bx
-        pop bx
-        mov word_510E6, ax
-        inc bx
-        pop es
-        assume es:nothing
-        mov word_510DF, bx
-        mov word_5A33C, bx
-        mov byte_510E1, 0
-        mov byte_510E2, 1
-
-locret_4B1F1:               ; CODE XREF: sub_4B159+7j
+    readDemoFiles(); // does it return something? cx is the number of demo files read maybe?
+    if (cx == 0)
+    {
         return;
-*/
+    }
+
+//loc_4B163:              ; CODE XREF: sub_4B159+5j
+    word_5196C = 1;
+    gIsPlayingDemo = 1;
+//    push    es
+//    mov ax, seg demoseg
+//    mov es, ax
+//    assume es:demoseg
+    bx = 0;
+    cx = 0;
+
+    do
+    {
+//loc_4B17A:              ; CODE XREF: sub_4B159+2Dj
+        ax = es:[bx];
+        bx += 2;
+        if (ax == 0xFFFF)
+        {
+            break;
+        }
+        cx++;
+    }
+    while (1);
+
+//loc_4B188:              ; CODE XREF: sub_4B159+2Aj
+    push(cx);
+    getTime();
+    sub_4A1AE();
+    dx = 0;
+    // pop(cx);
+    ax = ax / cx;    dx = ax % cx; // div cx
+    bx = 0;
+    dx = dx << 1;
+    bx += dx;
+    bx = es:[bx];
+    if (bx == 0xFFFF)
+    {
+        word_5196C = 0;
+        gIsPlayingDemo = 0;
+    }
+
+//loc_4B1AE:              ; CODE XREF: sub_4B159+48j
+    al = es:[bx];
+    ah = 0;
+    // push    bx
+    bx = dx;
+    dx = dx >> 1;
+    word_599D6 = dx;
+    word_599D8 = 0;
+    if (al <= 0x6F // 111
+        && al != 0)
+    {
+        word_599D8 = (word_599D8 & 0xFF00) | al; // mov byte ptr word_599D8, al
+        dl = al;
+    }
+
+//loc_4B1CF:              ; CODE XREF: sub_4B159+6Bj
+//                ; sub_4B159+6Fj
+    al = dl;
+    bx = [bx-67CAh];
+    gTimeOfDay = bx;
+    // pop bx
+    word_510E6 = ax;
+    bx++;
+    // pop es
+    // assume es:nothing
+    word_510DF = bx;
+    word_5A33C = bx;
+    byte_510E1 = 0;
+    byte_510E2 = 1;
 }
 
 /*
@@ -15363,7 +15420,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 //    memcpy(di, si, 0x17);// rep movsw // 01ED:6A32
 //    di += 0x17;
 //    si += 0x17;
-    memcpy(levelName, fileLevelData.name, sizeof(fileLevelData.name) - 1);
+    memcpy(levelName, fileLevelData.name, sizeof(fileLevelData.name));
 
 //    pop es
 //    assume es:nothing
