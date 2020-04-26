@@ -1,7 +1,7 @@
 name: Build OpenSupaplex Nightly
 on:
   push:
-    tag:
+    tags:
       - nightly
 jobs:
   build-vita:
