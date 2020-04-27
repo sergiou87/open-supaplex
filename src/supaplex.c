@@ -1800,13 +1800,12 @@ typedef struct
 
 typedef struct
 {
-    uint16_t unknown[11];
-    BaseDemo baseDemo[kNumberOfDemos];
-    uint8_t signature[kNumberOfDemos][kMaxDemoSignatureLength + 1]; // text that ends with 0xFF
+    uint16_t demoLastBytes[11]; // index of the last byte of all demos (starting at demo-segment:0000). why 11 if there are only 10 demos? 11th is for the signature?
+    BaseDemo baseDemo;
     Level level[kNumberOfDemos];
 } Demos;
 
-Demos gDemos;
+Demos gDemos; // this is located in the demo segment, starting at 0x0000
 
 // fileLevelData starts at 0x768, when it contains a level goes to 0xD67
 Level gCurrentLevel; // 0x988B
@@ -1850,7 +1849,7 @@ uint8_t gChars8BitmapFont[kBitmapFontLength];
 // This is a 320x24 bitmap
 #define kPanelBitmapWidth 320
 #define kPanelBitmapHeight 24
-static const int kPanelBitmapY = kScreenHeight - kPanelBitmapHeight;
+
 uint8_t gPanelDecodedBitmapData[kPanelBitmapWidth * kPanelBitmapHeight];
 uint8_t gPanelRenderedBitmapData[kPanelBitmapWidth * kPanelBitmapHeight];
 uint8_t gCurrentPanelHeight = kPanelBitmapHeight;
@@ -1974,6 +1973,7 @@ void handleRankingListScrollUp(void);
 void handleRankingListScrollDown(void);
 void handleLevelCreditsClick(void);
 void handleGfxTutorOptionClick(void);
+void sub_4B159(void);
 void handleSkipLevelOptionClick(void);
 void handleFloppyDiskButtonClick(void);
 void handleDeletePlayerOptionClick(void);
@@ -4304,8 +4304,9 @@ void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
     // di = 0;
     // cx = 0xB; // 11
     // cld(); // clear direction flag
+    uint8_t *demosAsByteArray = (uint8_t *)&gDemos;
 
-    memset(&gDemos.unknown, 0xFF, 22); // rep stosw // fills 11 words (22 bytes) with 0xFFFF
+    memset(&gDemos.demoLastBytes, 0xFF, 22); // rep stosw // fills 11 words (22 bytes) with 0xFFFF
     di += 22;
     cx = 0;
 
@@ -4349,12 +4350,13 @@ void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
         {
 //loc_47674:             // ; CODE XREF: readDemoFiles+52j
             int result = fseek(file, 0, SEEK_END);
-            long newOffset = ftell(file);
+            long fileSize = ftell(file);
 
+            // this is probably to support old level formats
             if (result == 0
-                && newOffset < levelDataLength)
+                && fileSize < levelDataLength)
             {
-                fileReadUnk1(file, newOffset);
+                fileReadUnk1(file, fileSize);
                 word_599D8 = ax; // this ax must be something fileReadUnk1 returns
             }
 
@@ -4363,25 +4365,6 @@ void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
 
             if (word_599D8 == 0)
             {
-                // ax = 0x3F00;
-                // bx = lastFileHandle;
-                // pop(cx);
-                // push(cx);
-//                dx = cx;
-//                cx = cx << 1;
-//                dx += cx;
-//                cl = 9;
-//                dx = dx << cl;
-//                dx += 0xBE20;
-//                cx = levelDataLength;
-                // push(ds);
-                // push(dx);
-                // push(es);
-                // pop(ds);
-                // assume ds:demoseg
-                // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-                //             ; BX = file handle, CX = number of bytes to read
-                //             ; DS:DX -> buffer
                 Level *level = &gDemos.level[i];
                 size_t bytes = fread(level, 1, levelDataLength, file);
                 //pop(bx);
@@ -4397,6 +4380,7 @@ void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
 //loc_476D3:           //   ; CODE XREF: readDemoFiles+C5j
                 // pop(bx);
                 // push(bx);
+                // TODO: Investigate where is it writing the random seed
                 // bx = bx << 1; // bx is i at this point
                 // *(bx + 0x9836) = dx; // no idea what's this but is storing the random seeds, and it's in the normal segment, not in the demo segment
             }
@@ -4411,10 +4395,12 @@ void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
             cx = 0;
         }
 
+        uint16_t numberOfDemoBytesRead = 0;
+
 //loc_476EA:             // ; CODE XREF: readDemoFiles+DDj
         if (cx == 0)
         {
-            ax = 0;
+            numberOfDemoBytesRead = 0;
         }
         else
         {
@@ -4429,19 +4415,12 @@ void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
             // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
             //             ; BX = file handle, CX = number of bytes to read
             //             ; DS:DX -> buffer
-            size_t bytes = fread(&word_510DF, 1, cx, file); // TODO: that word_510DF feels wrong
-            if (bytes < cx)
+            numberOfDemoBytesRead = fread(&demosAsByteArray[word_510DF], 1, cx, file); // TODO: that word_510DF feels wrong
+            if (numberOfDemoBytesRead == 0)
             {
-                // pop(ds);
-                // assume ds:data
-                // mov ax, 3E00h
-                // mov bx, lastFileHandle
-                // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                //             ; BX = file handle
                 ax = 0;
                 if (fclose(file) != 0)
                 {
-                    // mov ax, 0
                     exitWithError("Error closing DEMO file");
                 }
                 return;
@@ -4451,11 +4430,6 @@ void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
         }
 
 //loc_4771A:             // ; CODE XREF: readDemoFiles+E8j
-        // push(ax);
-        // mov ax, 3E00h
-        // mov bx, lastFileHandle
-        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-        //             ; BX = file handle
         if (fclose(file) != 0)
         {
             exitWithError("Error closing DEMO file");
@@ -4464,33 +4438,33 @@ void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
 //loc_47729:              ; CODE XREF: readDemoFiles+11Bj
         // pop(ax)
         bx = word_510DF;
-        *bx = *bx & 0x7F; //and byte ptr es:[bx], 7Fh
-        int isZero = (word_599D8 != 0);
+        demosAsByteArray[bx] = demosAsByteArray[bx] & 0x7F; // this removes the MSB from the levelNumber that was added in the speed fix mods
+        int isZero = (word_599D8 == 0);
         word_599D8 = 0;
         if (isZero)
         {
-            *bx = *bx | 0x80;
+            demosAsByteArray[bx] = demosAsByteArray[bx] | 0x80; // This sets the MSB?? maybe the "interpreter" later needs it
         }
 
 //loc_47743:             // ; CODE XREF: readDemoFiles+134j
-        cx = bx;
-        bx += ax;
+        cx = bx; // bx here has the value of word_510DF
+        bx += numberOfDemoBytesRead; // ax here has the number of bytes read regarding the level itself (levelNumber + inputSteps)
         // push(ds);
         // push(es);
         // pop(ds);
         // assume ds:nothing
         bx--;
-        if (bx == 0xFFFF
-            || ax <= 1
-            || *bx != 0xFF)
+        if (bx == 0xFFFF // this would mean bx was 0. is this possible?
+            || numberOfDemoBytesRead <= 1 // this means the demo is empty (only has levelNumber or nothing)
+            || demosAsByteArray[bx] != 0xFF)
         {
 //loc_4775A:             // ; CODE XREF: readDemoFiles+145j
            // ; readDemoFiles+14Aj
             if (bx < sizeof(BaseDemo))
             {
                 bx++;
-                ax++;
-                *bx = 0xFF;
+                numberOfDemoBytesRead++;
+                demosAsByteArray[bx] = 0xFF;
             }
         }
 
@@ -4499,11 +4473,11 @@ void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
         //pop(ds);
         // assume ds:data
         // pop(cx);
-        bx = cx; // cx is i at this point
+        bx = i; // cx is i at this point
         bx = bx << 1;
         dx = word_510DF;
-        *bx = dx;  // db 26h, 89h, 97h, 00h, 00h; mov es:[bx+0], dx
-        word_510DF += ax;
+        gDemos.demoLastBytes[i] = word_510DF;
+        word_510DF += numberOfDemoBytesRead;
     }
 }
 
@@ -10201,11 +10175,14 @@ void resetNumberOfInfotrons() // sub_4A3BB   proc near       ; CODE XREF: start+
 void sub_4A3D2() //   proc near       ; CODE XREF: sub_4955B+39Ep
                    // ; sub_4955B+3EBp
 {
-//    mov byte_599D4, 0
-//    mov word_599D8, 0
-//    cmp byte_5A33E, 0
-//    mov byte_5A33E, 0
-//    jnz short $+12
+    byte_599D4 = 0;
+    word_599D8 = 0;
+    uint8_t wasNotZero = (byte_5A33E != 0);
+    byte_5A33E = 0;
+    if (wasNotZero)
+    {
+        // jnz short $+12
+    }
 
     // continues with sub_4A3E9 ? or where does that jump lead? check with debugger
 //sub_4A3D2   endp ; sp-analysis failed
@@ -11997,7 +11974,7 @@ void sub_4B159() //   proc near       ; CODE XREF: runMainMenu+6Fp
     do
     {
 //loc_4B17A:              ; CODE XREF: sub_4B159+2Dj
-        ax = es:[bx];
+        //ax = es:[bx];
         bx += 2;
         if (ax == 0xFFFF)
         {
@@ -12008,7 +11985,7 @@ void sub_4B159() //   proc near       ; CODE XREF: runMainMenu+6Fp
     while (1);
 
 //loc_4B188:              ; CODE XREF: sub_4B159+2Aj
-    push(cx);
+    // push(cx);
     getTime();
     sub_4A1AE();
     dx = 0;
@@ -12017,7 +11994,7 @@ void sub_4B159() //   proc near       ; CODE XREF: runMainMenu+6Fp
     bx = 0;
     dx = dx << 1;
     bx += dx;
-    bx = es:[bx];
+    // bx = es:[bx];
     if (bx == 0xFFFF)
     {
         word_5196C = 0;
@@ -12025,7 +12002,7 @@ void sub_4B159() //   proc near       ; CODE XREF: runMainMenu+6Fp
     }
 
 //loc_4B1AE:              ; CODE XREF: sub_4B159+48j
-    al = es:[bx];
+    // al = es:[bx];
     ah = 0;
     // push    bx
     bx = dx;
@@ -12042,7 +12019,7 @@ void sub_4B159() //   proc near       ; CODE XREF: runMainMenu+6Fp
 //loc_4B1CF:              ; CODE XREF: sub_4B159+6Bj
 //                ; sub_4B159+6Fj
     al = dl;
-    bx = [bx-67CAh];
+    // bx = [bx-67CAh];
     gTimeOfDay = bx;
     // pop bx
     word_510E6 = ax;
