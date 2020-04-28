@@ -15197,52 +15197,13 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
         && (word_599D8 & 0xFF) == 0
         && byte_599D4 == 0)
     {
-        ax = gDemoLevelNumber;
-
-    //    push    es
-    //    push    ds
-    //    push    ds
-    //    pop es
-    //    assume es:data
-    //    mov si, seg demoseg
-    //    mov ds, si
-    //    assume ds:demoseg
-
-        Level *level = &gDemos.level[ax];
+        Level *level = &gDemos.level[gDemoLevelNumber];
 
         memcpy(&fileLevelData, level, levelDataLength);
-        //si = 0xBE20;
-    //    di = offset fileLevelData;
-        // cx = ax;
-        // cx *= 2;
-        // ax += cx;
-        // cl = 9;
-        // ax = ax << cl;
-        // si += ax;
-        // cx = 0x300; // 768
-    //    cld
-        // memcpy(di, si, 0x300 * 2);// rep movsw
-        // di -= 0x300 * 2;
-        // si -= 0x300 * 2;
+
         strcpy(gCurrentDemoLevelIdentifier, ".SP");
-        //di = 0x87DA; // Points to a .SP string
-        //ax = 0x532E; // this is ".S"
-    //    *di = *si; // stosw
-        //di++; si++;
-        //ax = 0x50; // this is P
-    //    *di = *si; // stosw
-        //di++; si++;
-        //si -= 0x5A; // 90
-        //cx = 0x17; // 23
+
         memcpy(gCurrentDemoLevelName, level->name, sizeof(level->name));
-         // memcpy(di, si, 0x17 * 2);// rep movsw copies the title somewhere
-        //di -= 0x17 * 2;
-        //si -= 0x17 * 2;
-    //    pop ds
-    //    assume ds:data
-    //    pop es
-    //    assume es:nothing
-    //    jmp loc_4D64B
     }
     else
     {
@@ -15355,32 +15316,21 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
     {
         gRandomGeneratorSeed = word_51076;
         levelName = gCurrentDemoLevelName;
-        di = 0x87DA; // this is the ".SP" string...
-//      jmp short loc_4D660
     }
     else
     {
-////loc_4D65D:              ; CODE XREF: readLevels+108j
+//loc_4D65D:              ; CODE XREF: readLevels+108j
         levelName = gCurrentLevelName;
     }
 
 //loc_4D660:              ; CODE XREF: readLevels+113j
-//    push    es
-//    push    ds
-//    pop es
-//    assume es:data
-
-//    cld
     if (word_599D8 != 0
         || (byte_599D4 != 0
             && word_599DA != 0))
     {
 //loc_4D679:              ; CODE XREF: readLevels+121j
+        // TODO: not sure if this code is executed only for demos
         strcpy(gCurrentDemoLevelIdentifier, "BIN");
-        //ax = 0x4942; BI
-    //    *di = ax; // stosw
-        // ax = 0x4E; // 78 N
-    //    *di = ax; // stosw
     }
     else if (byte_599D4 == 0)
     {
@@ -15390,45 +15340,14 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
     else if (word_599DA == 0)
     {
 //loc_4D682:              ; CODE XREF: readLevels+12Fj
-        ax = 0x532E;
-        //    *di = ax; // stosw
-        ax = 0x50; // 80
-        //    *di = ax; // stosw
+        // TODO: not sure if this code is executed only for demos
+        strcpy(gCurrentDemoLevelIdentifier, ".SP"); // TODO: not sure if this code is executed only for demos
     }
 
 //loc_4D68F:              ; CODE XREF: readLevels+142j
-//    si = 0x0D0E; // this is fileLevelData (buffer where data was read) + 1446 -> going to the title read from LEVELS.DAT
-//    cx = 0x17;
-//    memcpy(di, si, 0x17);// rep movsw // 01ED:6A32
-//    di += 0x17;
-//    si += 0x17;
     memcpy(levelName, fileLevelData.name, sizeof(fileLevelData.name));
 
-//    pop es
-//    assume es:nothing
-//    push    es
-//    push    ds
-//    pop es
-//    assume es:data
-//    si = offset fileLevelData;
-//    di = offset levelBuffer; // 0x988B
-
-//    cx = 0x300;
-//    cld
-//    memcpy(di, si, 0x300 * 2);// rep movsw // 01ED:6A42
-//    di += 0x300 * 2;
-//    si += 0x300 * 2;
     memcpy(&gCurrentLevel, &fileLevelData, sizeof(gCurrentLevel));
-//    pop es
-//    assume es:nothing
-//    push    es
-//    mov ax, ds
-//    mov es, ax
-//    assume es:data
-    cx = levelDataLength;
-//    si = offset fileLevelData;
-//    di = offset leveldata; // 0x1834
-    ah = 0;
 
     for (int i = 0; i < levelDataLength; ++i)
     {
@@ -15437,13 +15356,9 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
         tile->tile = fileLevelData.tiles[i];
         tile->movingObject = 0;
     }
-//    di = 0x2434; // this is leveldata (0x1834) + levelDataLength * 2... useless? when the loop finishes it should already have that value
-//    al = 0;
-//    cx = levelDataLength;
+
     memset(&gCurrentLevelAfterWord, 0, sizeof(gCurrentLevelAfterWord)); // rep stosb
-//    di += levelDataLength;
-//    pop es
-//    assume es:nothing
+
     if (gIsPlayingDemo == 0
         || (word_599D8 & 0xFF) != 0
         || byte_599D4 != 0)
