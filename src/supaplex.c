@@ -7742,12 +7742,14 @@ void sub_492A8() //   proc near       ; CODE XREF: sub_4955B+27p
     }
 
 //loc_492B3:              ; CODE XREF: sub_492A8+5j
-//    push    es
+    uint8_t *demosAsByteArray = (uint8_t *)&gDemos;
+
+    //    push    es
 //    mov ax, seg demoseg
 //    mov es, ax
 //    assume es:demoseg
     bx = word_510DF;
-//    al = es:[bx]
+    al = demosAsByteArray[bx];
     bx++;
 //    pop es
 //    assume es:nothing
