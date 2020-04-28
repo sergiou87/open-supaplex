@@ -1608,7 +1608,7 @@ uint8_t gLastMouseCursorAreaBitmap[kLastMouseCursorAreaSize * kLastMouseCursorAr
 
 static const int kConfigDataLength = 4;
 
-uint16_t gTimeOfDay = 0;
+uint16_t gRandomGeneratorSeed = 0;
 
 typedef enum
 {
@@ -1800,10 +1800,12 @@ typedef struct
 
 typedef struct
 {
-    uint16_t demoLastBytes[11]; // index of the last byte of all demos (starting at demo-segment:0000). why 11 if there are only 10 demos? 11th is for the signature?
+    uint16_t demoFirstIndices[kNumberOfDemos + 1]; // index of the last byte of all demos (starting at demo-segment:0000). there are 11 words because the end of this "list" is marked with 0xFFFF
     BaseDemo baseDemo;
     Level level[kNumberOfDemos];
 } Demos;
+
+uint16_t gDemoRandomSeeds[kNumberOfDemos];
 
 Demos gDemos; // this is located in the demo segment, starting at 0x0000
 
@@ -2769,7 +2771,7 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
 void drawMainMenuButtonBorders(void);
 void drawMainMenuButtonBorder(ButtonBorderDescriptor border, uint8_t color);
 uint8_t waitForJoystickKeyReleased(uint8_t keyOrAxis, uint16_t *outTime); // sub_49FED
-void getTime(void);
+void generateRandomSeedFromClock(void);
 void initializeFadePalette(void);
 void initializeMouse(void);
 void loadMurphySprites(void);
@@ -2820,7 +2822,7 @@ void drawMovingFrame(uint16_t srcX, uint16_t srcY, uint16_t destPosition);
 void runLevel(void);
 void slideDownGameDash(void);
 void sub_49EBE(void);
-uint16_t sub_4A1AE(void);
+uint16_t generateRandomNumber(void);
 void sub_4955B(void);
 void loc_49C41(void);
 void loc_49C2C(char text[3]);
@@ -3441,7 +3443,7 @@ loc_46E75:              //; CODE XREF: start+251j
  */
 
 //doesNotHaveCommandLine:         //; CODE XREF: start+13j start+23Fj ...
-    getTime();
+    generateRandomSeedFromClock();
     // checkVideo();
 
 //leaveVideoStatus:           //; CODE XREF: start+28Aj
@@ -4290,7 +4292,8 @@ void saveConfiguration() // sub_4755A      proc near               ; CODE XREF: 
     }
 }
 
-void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
+/// @return Number of demo files read
+uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
                   //  ; sub_4B159p ...
 {
     // 01ED:09A6
@@ -4306,7 +4309,7 @@ void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
     // cld(); // clear direction flag
     uint8_t *demosAsByteArray = (uint8_t *)&gDemos;
 
-    memset(&gDemos.demoLastBytes, 0xFF, 22); // rep stosw // fills 11 words (22 bytes) with 0xFFFF
+    memset(&gDemos.demoFirstIndices, 0xFF, 22); // rep stosw // fills 11 words (22 bytes) with 0xFFFF
     di += 22;
     cx = 0;
 
@@ -4332,7 +4335,7 @@ void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
         FILE *file = openReadonlyFile(filename, "r");
         if (file == NULL)
         {
-            return;
+            return i;
         }
 
 //loc_47651:              //; CODE XREF: readDemoFiles+43j
@@ -4374,7 +4377,7 @@ void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
                 // assume ds:data
                 if (bytes < levelDataLength)
                 {
-                    return;
+                    return i;
                 }
 
 //loc_476D3:           //   ; CODE XREF: readDemoFiles+C5j
@@ -4382,6 +4385,7 @@ void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
                 // push(bx);
                 // TODO: Investigate where is it writing the random seed
                 // bx = bx << 1; // bx is i at this point
+                gDemoRandomSeeds[i] = dx;
                 // *(bx + 0x9836) = dx; // no idea what's this but is storing the random seeds, and it's in the normal segment, not in the demo segment
             }
         }
@@ -4423,7 +4427,7 @@ void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
                 {
                     exitWithError("Error closing DEMO file");
                 }
-                return;
+                return i;
             }
 
 //loc_47719:             // ; CODE XREF: readDemoFiles+FCj
@@ -4476,9 +4480,11 @@ void readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
         bx = i; // cx is i at this point
         bx = bx << 1;
         dx = word_510DF;
-        gDemos.demoLastBytes[i] = word_510DF;
+        gDemos.demoFirstIndices[i] = word_510DF;
         word_510DF += numberOfDemoBytesRead;
     }
+
+    return kNumberOfDemos;
 }
 
 void convertPaletteDataToPalette(ColorPaletteData paletteData, ColorPalette outPalette)
@@ -7783,7 +7789,7 @@ void sub_492F1() //   proc near       ; CODE XREF: sub_4955B+1Dp
     if (byte_510E2 == 0xFF)
     {
         byte_510E1 = bl;
-        ax = gTimeOfDay;
+        ax = gRandomGeneratorSeed;
         word_5A199 = ax;
         byte_59B5F = (ax >> 8); // ah;
         byte_59B5C = (ax & 0xFF); // al;
@@ -8990,8 +8996,8 @@ void loc_49A89() // :              ; CODE XREF: sub_4955B+3FAj
     gIsFlashingBackgroundModeEnabled = 0;
     word_51A07 = 1;
     replaceCurrentPaletteColor(0, (SDL_Color) { 0, 0, 0 });
-    getTime();
-    sub_4A1AE();
+    generateRandomSeedFromClock();
+    generateRandomNumber();
 //    mov si, 60D5h
     setPalette(gBlackPalette);
     drawFixedLevel();
@@ -9419,7 +9425,7 @@ void sub_49EBE() //   proc near       ; CODE XREF: runLevel+109p
     dx = 0;
     if (byte_510C0 != 0)
     {
-        dx = sub_4A1AE();
+        dx = generateRandomNumber();
     }
 
 //loc_49ECC:              ; CODE XREF: sub_49EBE+7j
@@ -9727,7 +9733,7 @@ void updateBugTiles(uint16_t position) // movefun7  proc near       ; DATA XREF:
     frameNumber++;
     if (frameNumber >= 0xE)
     {
-        uint8_t value = sub_4A1AE() & 0xFF;
+        uint8_t value = generateRandomNumber() & 0xFF;
         value &= 0x3F;
         value += 0x20;
         value = ~value;
@@ -9780,7 +9786,7 @@ void updateTerminalTiles(uint16_t position) // movefun5  proc near       ; DATA 
     }
 
 //loc_4A0EA:              ; CODE XREF: updateTerminalTiles+11j
-    uint8_t value = sub_4A1AE() & 0xFF;
+    uint8_t value = generateRandomNumber() & 0xFF;
     value &= byte_5196A;
     value = ~value;
     currentTile->movingObject = value;
@@ -9814,7 +9820,8 @@ void updateTerminalTiles(uint16_t position) // movefun5  proc near       ; DATA 
     }
 }
 
-void getTime() //     proc near       ; CODE XREF: start:doesNotHaveCommandLinep
+/// Updates the random seed using the clock
+void generateRandomSeedFromClock() // getTime    proc near       ; CODE XREF: start:doesNotHaveCommandLinep
                     // ; sub_4955B+669p ...
 {
 //        mov ax, 0
@@ -9824,7 +9831,7 @@ void getTime() //     proc near       ; CODE XREF: start:doesNotHaveCommandLine
 //                    ; midnight
 //                    ; Otherwise, AL > 0
 //    xor cx, dx
-//    mov gTimeOfDay, cx
+//    mov gRandomGeneratorSeed, cx
     Uint32 timeInMilliseconds = SDL_GetTicks();
     // In order to keep the same behavior and values, this code will convert
     // the time in milliseconds to the clock count, as described in
@@ -9835,16 +9842,17 @@ void getTime() //     proc near       ; CODE XREF: start:doesNotHaveCommandLine
     uint32_t clockCount = timeInMilliseconds * 18.2 / 1000;
     uint16_t lowValue = (clockCount & 0xFFFF);
     uint16_t highValue = ((clockCount >> 16) & 0xFFFF);
-    gTimeOfDay = highValue ^ lowValue;
+    gRandomGeneratorSeed = highValue ^ lowValue;
 }
 
-uint16_t sub_4A1AE() //   proc near       ; CODE XREF: sub_4955B+66Cp
+/// Generates a random number based on time?
+uint16_t generateRandomNumber() // sub_4A1AE   proc near       ; CODE XREF: sub_4955B+66Cp
                    // ; sub_49EBE+9p ...
 {
-    uint16_t someValue = gTimeOfDay;
+    uint16_t someValue = gRandomGeneratorSeed;
     someValue *= 0x5E5; // 1509
     someValue += 0x31; // '1' or 49
-    gTimeOfDay = someValue;
+    gRandomGeneratorSeed = someValue;
     return someValue / 2;
 }
 
@@ -11955,8 +11963,8 @@ void handleGfxTutorOptionClick() // sub_4B149   proc near
 
 void sub_4B159() //   proc near       ; CODE XREF: runMainMenu+6Fp
 {
-    readDemoFiles(); // does it return something? cx is the number of demo files read maybe?
-    if (cx == 0)
+    // 01ED:44F6
+    if (readDemoFiles() == 0)
     {
         return;
     }
@@ -11969,32 +11977,37 @@ void sub_4B159() //   proc near       ; CODE XREF: runMainMenu+6Fp
 //    mov es, ax
 //    assume es:demoseg
     bx = 0;
-    cx = 0;
+    uint8_t numberOfDemos = 0;
 
+    uint8_t *demosAsByteArray = (uint8_t *)&gDemos;
+
+    uint8_t idx = 0;
     do
     {
 //loc_4B17A:              ; CODE XREF: sub_4B159+2Dj
-        //ax = es:[bx];
-        bx += 2;
-        if (ax == 0xFFFF)
+        if (gDemos.demoFirstIndices[idx] == 0xFFFF)
         {
             break;
         }
-        cx++;
+        idx++;
+        numberOfDemos++;
     }
     while (1);
 
 //loc_4B188:              ; CODE XREF: sub_4B159+2Aj
-    // push(cx);
-    getTime();
-    sub_4A1AE();
+    // push(cx); // stores numberOfDemos
+    // This picks a random demo
+    generateRandomSeedFromClock();
+    ax = generateRandomNumber();
     dx = 0;
-    // pop(cx);
-    ax = ax / cx;    dx = ax % cx; // div cx
+    // pop(cx); // restores numberOfDemos
+    dx = ax % numberOfDemos; // ax = ax / numberOfDemos; // div cx
     bx = 0;
-    dx = dx << 1;
+    // dx = dx << 1;
     bx += dx;
-    // bx = es:[bx];
+    bx = gDemos.demoFirstIndices[dx];
+
+    // This only happens if there are no demos...
     if (bx == 0xFFFF)
     {
         word_5196C = 0;
@@ -12002,13 +12015,14 @@ void sub_4B159() //   proc near       ; CODE XREF: runMainMenu+6Fp
     }
 
 //loc_4B1AE:              ; CODE XREF: sub_4B159+48j
-    // al = es:[bx];
+    al = demosAsByteArray[bx]; // reads the level number
     ah = 0;
     // push    bx
     bx = dx;
-    dx = dx >> 1;
-    word_599D6 = dx;
+//    dx = dx >> 1;
+    word_599D6 = dx; // stores the index of the demo we're playing (0-9)
     word_599D8 = 0;
+    // This checks if the level number has its MSB to 0 and is a valid level number (1-111) for the original DEMO format
     if (al <= 0x6F // 111
         && al != 0)
     {
@@ -12019,8 +12033,8 @@ void sub_4B159() //   proc near       ; CODE XREF: runMainMenu+6Fp
 //loc_4B1CF:              ; CODE XREF: sub_4B159+6Bj
 //                ; sub_4B159+6Fj
     al = dl;
-    // bx = [bx-67CAh];
-    gTimeOfDay = bx;
+    bx = gDemoRandomSeeds[bx];
+    gRandomGeneratorSeed = bx;
     // pop bx
     word_510E6 = ax;
     bx++;
@@ -12041,8 +12055,8 @@ demoSomething  proc near       ; CODE XREF: start+3BAp
         push    ax
         mov bx, ax
         shl bx, 1
-        mov ax, [bx-67CAh]
-        mov gTimeOfDay, ax
+        mov ax, [bx+0x9836] //  gDemoRandomSeeds
+        mov gRandomGeneratorSeed, ax
         pop ax
         mov word_5196C, 1
         mov gIsPlayingDemo, 1
@@ -15350,7 +15364,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 //                ; readLevels+D5j
     if (gIsPlayingDemo != 0)
     {
-        gTimeOfDay = word_51076;
+        gRandomGeneratorSeed = word_51076;
         di = 0x87DA;
 //      jmp short loc_4D660
     }
@@ -19233,7 +19247,7 @@ void sub_4F2AF(uint16_t position) //   proc near       ; CODE XREF: update?+116A
     al = [di+4]
     mov byte_510D7, al
     mov ax, word_510AC
-    xor ax, gTimeOfDay
+    xor ax, gRandomGeneratorSeed
     mov word_510AC, ax
     return;
      */
