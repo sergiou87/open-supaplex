@@ -281,7 +281,7 @@ uint16_t word_510CF = 0;
 uint16_t word_510D1 = 0;
 uint16_t gIsMurphyGoingThroughPortal = 0; // word_510D9
 uint16_t word_510DC = 0;
-uint16_t word_510E6 = 0;
+uint16_t gDemoLevelNumber = 0; // word_510E6
 uint16_t word_510EE = 0;
 
 typedef struct {
@@ -1808,6 +1808,8 @@ typedef struct
 uint16_t gDemoRandomSeeds[kNumberOfDemos];
 
 Demos gDemos; // this is located in the demo segment, starting at 0x0000
+char gCurrentDemoLevelIdentifier[4] = ".SP"; // 0x87DA
+char gCurrentDemoLevelName[kListLevelNameLength] = "??? ----- DEMO LEVEL! -----"; // 0x87DE
 
 // fileLevelData starts at 0x768, when it contains a level goes to 0xD67
 Level gCurrentLevel; // 0x988B
@@ -4310,8 +4312,6 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
     uint8_t *demosAsByteArray = (uint8_t *)&gDemos;
 
     memset(&gDemos.demoFirstIndices, 0xFF, 22); // rep stosw // fills 11 words (22 bytes) with 0xFFFF
-    di += 22;
-    cx = 0;
 
     for (int i = 0; i < kNumberOfDemos; ++i)
     {
@@ -4339,14 +4339,11 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
         }
 
 //loc_47651:              //; CODE XREF: readDemoFiles+43j
-//        lastFileHandle = ax;
-        bx = ax;
         if (byte_599D4 == 1)
         {
             if (word_599DA == 0)
             {
                 fseek(file, levelDataLength, SEEK_SET);
-                // bx = lastFileHandle;
             }
         }
         else
@@ -4359,6 +4356,7 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
             if (result == 0
                 && fileSize < levelDataLength)
             {
+                // TODO: test demos from the original game and recheck anything involving word_599D8
                 fileReadUnk1(file, fileSize);
                 word_599D8 = ax; // this ax must be something fileReadUnk1 returns
             }
@@ -4370,39 +4368,30 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
             {
                 Level *level = &gDemos.level[i];
                 size_t bytes = fread(level, 1, levelDataLength, file);
-                //pop(bx);
-                // this is the seed for random numbers
-                dx = level->randomSeed; //*(bx + 0x5FE); // position 1534, so levelDataLength - 2, and it's copying a word... so it's copying the last 2 bytes into dx
-                //pop(ds);
-                // assume ds:data
+
                 if (bytes < levelDataLength)
                 {
                     return i;
                 }
 
 //loc_476D3:           //   ; CODE XREF: readDemoFiles+C5j
-                // pop(bx);
-                // push(bx);
-                // TODO: Investigate where is it writing the random seed
-                // bx = bx << 1; // bx is i at this point
-                gDemoRandomSeeds[i] = dx;
-                // *(bx + 0x9836) = dx; // no idea what's this but is storing the random seeds, and it's in the normal segment, not in the demo segment
+                gDemoRandomSeeds[i] = level->randomSeed;
             }
         }
 
 //loc_476DB:             // ; CODE XREF: readDemoFiles+59j readDemoFiles+69j ...
-        cx = kMaxDemoInputSteps + 1; // 48649
-        cx -= word_510DF;
-//        if (cx <= 0xBE09h) // weird way of checking if word_510DF >= 0 ????
-        if (cx > kMaxDemoInputSteps + 1) // weird way of checking if word_510DF < 0 ????
+        uint16_t maxNumberOfBytesToRead = kMaxDemoInputSteps + 1; // 48649
+        maxNumberOfBytesToRead -= word_510DF;
+
+        if (maxNumberOfBytesToRead > kMaxDemoInputSteps + 1) // weird way of checking if word_510DF < 0 ????
         {
-            cx = 0;
+            maxNumberOfBytesToRead = 0;
         }
 
         uint16_t numberOfDemoBytesRead = 0;
 
 //loc_476EA:             // ; CODE XREF: readDemoFiles+DDj
-        if (cx == 0)
+        if (maxNumberOfBytesToRead == 0)
         {
             numberOfDemoBytesRead = 0;
         }
@@ -4419,7 +4408,7 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
             // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
             //             ; BX = file handle, CX = number of bytes to read
             //             ; DS:DX -> buffer
-            numberOfDemoBytesRead = fread(&demosAsByteArray[word_510DF], 1, cx, file); // TODO: that word_510DF feels wrong
+            numberOfDemoBytesRead = fread(&demosAsByteArray[word_510DF], 1, maxNumberOfBytesToRead, file); // TODO: that word_510DF feels wrong
             if (numberOfDemoBytesRead == 0)
             {
                 ax = 0;
@@ -4442,33 +4431,33 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
 //loc_47729:              ; CODE XREF: readDemoFiles+11Bj
         // pop(ax)
         bx = word_510DF;
-        demosAsByteArray[bx] = demosAsByteArray[bx] & 0x7F; // this removes the MSB from the levelNumber that was added in the speed fix mods
+        demosAsByteArray[word_510DF] = demosAsByteArray[word_510DF] & 0x7F; // this removes the MSB from the levelNumber that was added in the speed fix mods
         int isZero = (word_599D8 == 0);
         word_599D8 = 0;
         if (isZero)
         {
-            demosAsByteArray[bx] = demosAsByteArray[bx] | 0x80; // This sets the MSB?? maybe the "interpreter" later needs it
+            demosAsByteArray[word_510DF] = demosAsByteArray[word_510DF] | 0x80; // This sets the MSB?? maybe the "interpreter" later needs it
         }
 
 //loc_47743:             // ; CODE XREF: readDemoFiles+134j
-        cx = bx; // bx here has the value of word_510DF
-        bx += numberOfDemoBytesRead; // ax here has the number of bytes read regarding the level itself (levelNumber + inputSteps)
+        uint16_t demoLastByteIndex = word_510DF + numberOfDemoBytesRead - 1;
+        // cx = bx; // bx here has the value of word_510DF
+        // bx += numberOfDemoBytesRead; // ax here has the number of bytes read regarding the level itself (levelNumber + inputSteps)
         // push(ds);
         // push(es);
         // pop(ds);
         // assume ds:nothing
-        bx--;
-        if (bx == 0xFFFF // this would mean bx was 0. is this possible?
+        // bx--;
+        if (demoLastByteIndex == 0xFFFF // this would mean bx was 0. is this possible?
             || numberOfDemoBytesRead <= 1 // this means the demo is empty (only has levelNumber or nothing)
-            || demosAsByteArray[bx] != 0xFF)
+            || demosAsByteArray[demoLastByteIndex] != 0xFF)
         {
 //loc_4775A:             // ; CODE XREF: readDemoFiles+145j
            // ; readDemoFiles+14Aj
-            if (bx < sizeof(BaseDemo))
+            if (demoLastByteIndex < sizeof(BaseDemo))
             {
-                bx++;
                 numberOfDemoBytesRead++;
-                demosAsByteArray[bx] = 0xFF;
+                demosAsByteArray[demoLastByteIndex + 1] = 0xFF;
             }
         }
 
@@ -4477,9 +4466,9 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
         //pop(ds);
         // assume ds:data
         // pop(cx);
-        bx = i; // cx is i at this point
-        bx = bx << 1;
-        dx = word_510DF;
+        // bx = i; // cx is i at this point
+        // bx = bx << 1;
+        // dx = word_510DF;
         gDemos.demoFirstIndices[i] = word_510DF;
         word_510DF += numberOfDemoBytesRead;
     }
@@ -8640,12 +8629,12 @@ void loc_49949() //:              ; CODE XREF: sub_4955B+E1j
 //loc_499F7:              ; CODE XREF: sub_4955B+497j
     if (gIsPlayingDemo == 0)
     {
-//        mov dx, 87A8h
+//        mov dx, 87A8h -> this has the level name, like "005 ------ EASY DEAL ------"
     }
     else
     {
 //loc_49A03:              ; CODE XREF: sub_4955B+4A1j
-//        mov dx, 87DAh
+//        mov dx, 87DAh -> this address is the ".SP" text
     }
 
 //loc_49A06:              ; CODE XREF: sub_4955B+4A6j
@@ -11972,14 +11961,8 @@ void sub_4B159() //   proc near       ; CODE XREF: runMainMenu+6Fp
 //loc_4B163:              ; CODE XREF: sub_4B159+5j
     word_5196C = 1;
     gIsPlayingDemo = 1;
-//    push    es
-//    mov ax, seg demoseg
-//    mov es, ax
-//    assume es:demoseg
-    bx = 0;
-    uint8_t numberOfDemos = 0;
 
-    uint8_t *demosAsByteArray = (uint8_t *)&gDemos;
+    uint8_t numberOfDemos = 0;
 
     uint8_t idx = 0;
     do
@@ -11994,49 +11977,104 @@ void sub_4B159() //   proc near       ; CODE XREF: runMainMenu+6Fp
     }
     while (1);
 
+    uint8_t *demosAsByteArray = (uint8_t *)&gDemos;
+
 //loc_4B188:              ; CODE XREF: sub_4B159+2Aj
     // push(cx); // stores numberOfDemos
     // This picks a random demo
     generateRandomSeedFromClock();
-    ax = generateRandomNumber();
-    dx = 0;
+    uint16_t demoIndex = generateRandomNumber() % numberOfDemos;
+    // dx = 0;
     // pop(cx); // restores numberOfDemos
-    dx = ax % numberOfDemos; // ax = ax / numberOfDemos; // div cx
-    bx = 0;
+    // dx = ax % numberOfDemos; // ax = ax / numberOfDemos; // div cx
+    // bx = 0;
     // dx = dx << 1;
-    bx += dx;
-    bx = gDemos.demoFirstIndices[dx];
+    // bx += dx;
+    uint16_t demoFirstIndex = gDemos.demoFirstIndices[demoIndex];
 
     // This only happens if there are no demos...
-    if (bx == 0xFFFF)
+    if (demoFirstIndex == 0xFFFF)
     {
         word_5196C = 0;
         gIsPlayingDemo = 0;
     }
 
 //loc_4B1AE:              ; CODE XREF: sub_4B159+48j
-    al = demosAsByteArray[bx]; // reads the level number
-    ah = 0;
+    uint8_t demoLevelNumber = demosAsByteArray[bx]; // reads the level number
+    // ah = 0;
     // push    bx
-    bx = dx;
+    // bx = dx;
 //    dx = dx >> 1;
-    word_599D6 = dx; // stores the index of the demo we're playing (0-9)
+    word_599D6 = demoIndex; // stores the index of the demo we're playing (0-9)
     word_599D8 = 0;
     // This checks if the level number has its MSB to 0 and is a valid level number (1-111) for the original DEMO format
-    if (al <= 0x6F // 111
-        && al != 0)
+    if (demoLevelNumber <= 0x6F // 111
+        && demoLevelNumber != 0)
     {
-        word_599D8 = (word_599D8 & 0xFF00) | al; // mov byte ptr word_599D8, al
-        dl = al;
+        // TODO: test demos from the original game and recheck anything involving word_599D8
+        word_599D8 = (word_599D8 & 0xFF00) | demoLevelNumber; // mov byte ptr word_599D8, al
+        //dl = al; // TODO: does this mean gDemoLevelNumber might store the level number of the demo or the demo number depending on the value of word_599D8 ???
     }
 
 //loc_4B1CF:              ; CODE XREF: sub_4B159+6Bj
 //                ; sub_4B159+6Fj
-    al = dl;
-    bx = gDemoRandomSeeds[bx];
-    gRandomGeneratorSeed = bx;
-    // pop bx
-    word_510E6 = ax;
+    // al = dl;  // TODO: does this mean gDemoLevelNumber might store the level number of the demo or the demo number depending on the value of word_599D8 ???
+    gRandomGeneratorSeed = gDemoRandomSeeds[demoIndex];
+    gDemoLevelNumber = demoIndex; // originally stores al
+    demoFirstIndex++; // To skip the level number
+
+    word_510DF = demoFirstIndex;
+    word_5A33C = demoFirstIndex;
+    byte_510E1 = 0;
+    byte_510E2 = 1;
+}
+
+void demoSomething(uint16_t demoIndex) //  proc near       ; CODE XREF: start+3BAp
+                    // ; runMainMenu+12Ep ...
+{
+    uint8_t *demosAsByteArray = (uint8_t *)&gDemos;
+
+    //push    ax
+    readDemoFiles();
+    // pop ax
+    // push    ax
+    bx = demoIndex;
+    // shl bx, 1 not needed
+    ax = gDemoRandomSeeds[bx];
+    gRandomGeneratorSeed = ax;
+    //pop ax
+    word_5196C = 1;
+    gIsPlayingDemo = 1;
+    // push    es
+    // mov dx, seg demoseg
+    // mov es, dx
+    // assume es:demoseg
+    bx = 0;
+    // ax = ax << 1;
+    bx += demoIndex;
+    bx = gDemos.demoFirstIndices[bx];
+    if (bx == 0xFFFF)
+    {
+        word_5196C = 0;
+        gIsPlayingDemo = 0;
+    }
+
+//loc_4B22F:              ; CODE XREF: demoSomething+30j
+    word_599D8 = 0;
+    // shr al, 1
+    ah = demosAsByteArray[bx];
+    if (ah <= 0x6F // 111
+        && ah != 0)
+    {
+        // TODO: test demos from the original game and recheck anything involving word_599D8
+        al = ah;
+        word_599D8 = (word_599D8 & 0xFF00) | al; // mov byte ptr word_599D8, al
+    }
+
+//loc_4B248:              ; CODE XREF: demoSomething+4Bj
+//                ; demoSomething+4Fj
+    ah = 0;
+    gDemoLevelNumber = ax;
     bx++;
     // pop es
     // assume es:nothing
@@ -12045,60 +12083,6 @@ void sub_4B159() //   proc near       ; CODE XREF: runMainMenu+6Fp
     byte_510E1 = 0;
     byte_510E2 = 1;
 }
-
-/*
-demoSomething  proc near       ; CODE XREF: start+3BAp
-                    ; runMainMenu+12Ep ...
-        push    ax
-        call    readDemoFiles
-        pop ax
-        push    ax
-        mov bx, ax
-        shl bx, 1
-        mov ax, [bx+0x9836] //  gDemoRandomSeeds
-        mov gRandomGeneratorSeed, ax
-        pop ax
-        mov word_5196C, 1
-        mov gIsPlayingDemo, 1
-        push    es
-        mov dx, seg demoseg
-        mov es, dx
-        assume es:demoseg
-        mov bx, 0
-        shl ax, 1
-        add bx, ax
-        mov bx, es:[bx]
-        cmp bx, 0FFFFh
-        jnz short loc_4B22F
-        mov word_5196C, 0
-        mov gIsPlayingDemo, 0
-
-loc_4B22F:              ; CODE XREF: demoSomething+30j
-        mov word_599D8, 0
-        shr al, 1
-        mov ah, es:[bx]
-        cmp ah, 6Fh ; 'o'
-        ja  short loc_4B248
-        or  ah, ah
-        jz  short loc_4B248
-        al = ah
-        mov byte ptr word_599D8, al
-
-loc_4B248:              ; CODE XREF: demoSomething+4Bj
-                    ; demoSomething+4Fj
-        xor ah, ah
-        mov word_510E6, ax
-        inc bx
-        pop es
-        assume es:nothing
-        mov word_510DF, bx
-        mov word_5A33C, bx
-        mov byte_510E1, 0
-        mov byte_510E2, 1
-        return;
-demoSomething  endp
-
- */
 
 void handleRankingListScrollUp() // loc_4B262
 {
@@ -15213,7 +15197,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
         && (word_599D8 & 0xFF) == 0
         && byte_599D4 == 0)
     {
-        ax = word_510E6;
+        ax = gDemoLevelNumber;
 
     //    push    es
     //    push    ds
@@ -15224,31 +15208,36 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
     //    mov ds, si
     //    assume ds:demoseg
 
-        si = 0xBE20;
+        Level *level = &gDemos.level[ax];
+
+        memcpy(&fileLevelData, level, levelDataLength);
+        //si = 0xBE20;
     //    di = offset fileLevelData;
-        cx = ax;
-        cx *= 2;
-        ax += cx;
-        cl = 9;
-        ax = ax << cl;
-        si += ax;
-        cx = 0x300; // 768
+        // cx = ax;
+        // cx *= 2;
+        // ax += cx;
+        // cl = 9;
+        // ax = ax << cl;
+        // si += ax;
+        // cx = 0x300; // 768
     //    cld
-        memcpy(di, si, 0x300 * 2);// rep movsw
-        di -= 0x300 * 2;
-        si -= 0x300 * 2;
-        di = 0x87DA;
-        ax = 0x532E;
+        // memcpy(di, si, 0x300 * 2);// rep movsw
+        // di -= 0x300 * 2;
+        // si -= 0x300 * 2;
+        strcpy(gCurrentDemoLevelIdentifier, ".SP");
+        //di = 0x87DA; // Points to a .SP string
+        //ax = 0x532E; // this is ".S"
     //    *di = *si; // stosw
-        di--; si--;
-        ax = 0x50; // 80
+        //di++; si++;
+        //ax = 0x50; // this is P
     //    *di = *si; // stosw
-        di--; si--;
-        si -= 0x5A; // 90
-        cx = 0x17; // 23
-        memcpy(di, si, 0x17 * 2);// rep movsw
-        di -= 0x17 * 2;
-        si -= 0x17 * 2;
+        //di++; si++;
+        //si -= 0x5A; // 90
+        //cx = 0x17; // 23
+        memcpy(gCurrentDemoLevelName, level->name, sizeof(level->name));
+         // memcpy(di, si, 0x17 * 2);// rep movsw copies the title somewhere
+        //di -= 0x17 * 2;
+        //si -= 0x17 * 2;
     //    pop ds
     //    assume ds:data
     //    pop es
@@ -15293,7 +15282,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 //loc_4D5C2:              ; CODE XREF: readLevels+75j
         if (gIsPlayingDemo != 0)
         {
-            levelIndex = word_510E6;
+            levelIndex = gDemoLevelNumber;
         }
         else
         {
@@ -15341,7 +15330,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
         //    lea si, ds:[00768h]
         //    lea di, ds:[0BE20h]
             ax = word_599D6;
-            word_510E6 = ax;
+            gDemoLevelNumber = ax;
             cx = ax;
             cx = cx << 1;
             ax += cx;
@@ -15358,19 +15347,20 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
         }
     }
 
-    char *levelName = "";
+    char *levelName = NULL;
 
 //loc_4D64B:              ; CODE XREF: readLevels+4Ej
 //                ; readLevels+D5j
     if (gIsPlayingDemo != 0)
     {
         gRandomGeneratorSeed = word_51076;
-        di = 0x87DA;
+        levelName = gCurrentDemoLevelName;
+        di = 0x87DA; // this is the ".SP" string...
 //      jmp short loc_4D660
     }
     else
     {
-//loc_4D65D:              ; CODE XREF: readLevels+108j
+////loc_4D65D:              ; CODE XREF: readLevels+108j
         levelName = gCurrentLevelName;
     }
 
@@ -15386,9 +15376,10 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
             && word_599DA != 0))
     {
 //loc_4D679:              ; CODE XREF: readLevels+121j
-        ax = 0x4942;
+        strcpy(gCurrentDemoLevelIdentifier, "BIN");
+        //ax = 0x4942; BI
     //    *di = ax; // stosw
-        ax = 0x4E; // 78
+        // ax = 0x4E; // 78 N
     //    *di = ax; // stosw
     }
     else if (byte_599D4 == 0)
@@ -20535,8 +20526,8 @@ void drawGamePanelText() // sub_4FC20  proc near       ; CODE XREF: somethingsps
     {
 //    mov si, 87D1h // "  DEMO  "
         drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 72, 3, 8, "  DEMO  ");
-//    mov si, 87DAh // "000"
-        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 16, 14, 8, "000");
+//    mov si, 87DAh // "000" -> this address is the ".SP" text
+        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 16, 14, 8, gCurrentDemoLevelIdentifier);
 //        mov si, 87F6h // "--- RECORDING DEMO0 ---"
         drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 64, 14, 8, "--- RECORDING DEMO0 ---");
     }
@@ -20544,10 +20535,10 @@ void drawGamePanelText() // sub_4FC20  proc near       ; CODE XREF: somethingsps
     else if (gIsPlayingDemo != 0) // Playing demo?
     {
         drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 72, 3, 8, "  DEMO  ");
-//      mov si, 87DAh // "000"
-        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 16, 14, 8, "000");
+//      mov si, 87DAh // "000" -> this address is the ".SP" text
+        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 16, 14, 8, gCurrentDemoLevelIdentifier);
 //      mov si, 87DEh // "----- DEMO LEVEL! -----"
-        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 64, 14, 8, "----- DEMO LEVEL! -----");
+        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 64, 14, 8, &gCurrentDemoLevelName[4]);
     }
     else
     {
