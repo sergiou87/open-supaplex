@@ -1977,7 +1977,7 @@ void handleRankingListScrollUp(void);
 void handleRankingListScrollDown(void);
 void handleLevelCreditsClick(void);
 void handleGfxTutorOptionClick(void);
-void sub_4B159(void);
+void handleDemoOptionClick(void);
 void handleSkipLevelOptionClick(void);
 void handleFloppyDiskButtonClick(void);
 void handleDeletePlayerOptionClick(void);
@@ -2015,7 +2015,7 @@ static const ButtonDescriptor kMainMenuButtonDescriptors[kNumberOfMainMenuButton
     {
         5, 51,
         157, 59,
-        sub_4B159, // Demo
+        handleDemoOptionClick, // Demo
     },
     {
         5, 60,
@@ -3582,7 +3582,7 @@ loc_46E75:              //; CODE XREF: start+251j
             if (fileIsDemo == 1)
             {
 //              ax = 0;
-//              demoSomething();
+//              playDemo();
             }
             else
             {
@@ -4296,7 +4296,7 @@ void saveConfiguration() // sub_4755A      proc near               ; CODE XREF: 
 
 /// @return Number of demo files read
 uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
-                  //  ; sub_4B159p ...
+                  //  ; handleDemoOptionClickp ...
 {
     // 01ED:09A6
 //    push(es);
@@ -11952,7 +11952,7 @@ void handleGfxTutorOptionClick() // sub_4B149   proc near
     drawMenuTitleAndDemoLevelResult();
 }
 
-void sub_4B159() //   proc near       ; CODE XREF: runMainMenu+6Fp
+void handleDemoOptionClick() // sub_4B159   proc near       ; CODE XREF: runMainMenu+6Fp
 {
     // 01ED:44F6
     if (readDemoFiles() == 0)
@@ -11960,7 +11960,7 @@ void sub_4B159() //   proc near       ; CODE XREF: runMainMenu+6Fp
         return;
     }
 
-//loc_4B163:              ; CODE XREF: sub_4B159+5j
+//loc_4B163:              ; CODE XREF: handleDemoOptionClick+5j
     word_5196C = 1;
     gIsPlayingDemo = 1;
 
@@ -11969,7 +11969,7 @@ void sub_4B159() //   proc near       ; CODE XREF: runMainMenu+6Fp
     uint8_t idx = 0;
     do
     {
-//loc_4B17A:              ; CODE XREF: sub_4B159+2Dj
+//loc_4B17A:              ; CODE XREF: handleDemoOptionClick+2Dj
         if (gDemos.demoFirstIndices[idx] == 0xFFFF)
         {
             break;
@@ -11981,17 +11981,10 @@ void sub_4B159() //   proc near       ; CODE XREF: runMainMenu+6Fp
 
     uint8_t *demosAsByteArray = (uint8_t *)&gDemos;
 
-//loc_4B188:              ; CODE XREF: sub_4B159+2Aj
-    // push(cx); // stores numberOfDemos
+//loc_4B188:              ; CODE XREF: handleDemoOptionClick+2Aj
     // This picks a random demo
     generateRandomSeedFromClock();
     uint16_t demoIndex = generateRandomNumber() % numberOfDemos;
-    // dx = 0;
-    // pop(cx); // restores numberOfDemos
-    // dx = ax % numberOfDemos; // ax = ax / numberOfDemos; // div cx
-    // bx = 0;
-    // dx = dx << 1;
-    // bx += dx;
     uint16_t demoFirstIndex = gDemos.demoFirstIndices[demoIndex];
 
     // This only happens if there are no demos...
@@ -12001,87 +11994,75 @@ void sub_4B159() //   proc near       ; CODE XREF: runMainMenu+6Fp
         gIsPlayingDemo = 0;
     }
 
-//loc_4B1AE:              ; CODE XREF: sub_4B159+48j
-    uint8_t demoLevelNumber = demosAsByteArray[bx]; // reads the level number
-    // ah = 0;
-    // push    bx
-    // bx = dx;
-//    dx = dx >> 1;
-    word_599D6 = demoIndex; // stores the index of the demo we're playing (0-9)
+//loc_4B1AE:              ; CODE XREF: handleDemoOptionClick+48j
+    uint8_t demoLevelNumber = demosAsByteArray[demoFirstIndex];
+    uint8_t finalLevelNumber = demoIndex;
+
+    word_599D6 = demoIndex;
     word_599D8 = 0;
+
     // This checks if the level number has its MSB to 0 and is a valid level number (1-111) for the original DEMO format
     if (demoLevelNumber <= 0x6F // 111
         && demoLevelNumber != 0)
     {
         // TODO: test demos from the original game and recheck anything involving word_599D8
         word_599D8 = (word_599D8 & 0xFF00) | demoLevelNumber; // mov byte ptr word_599D8, al
+        finalLevelNumber = demoLevelNumber;
         //dl = al; // TODO: does this mean gDemoLevelNumber might store the level number of the demo or the demo number depending on the value of word_599D8 ???
     }
 
-//loc_4B1CF:              ; CODE XREF: sub_4B159+6Bj
-//                ; sub_4B159+6Fj
+//loc_4B1CF:              ; CODE XREF: handleDemoOptionClick+6Bj
+//                ; handleDemoOptionClick+6Fj
     // al = dl;  // TODO: does this mean gDemoLevelNumber might store the level number of the demo or the demo number depending on the value of word_599D8 ???
     gRandomGeneratorSeed = gDemoRandomSeeds[demoIndex];
-    gDemoLevelNumber = demoIndex; // originally stores al
-    demoFirstIndex++; // To skip the level number
+    gDemoLevelNumber = finalLevelNumber;
 
+    demoFirstIndex++; // To skip the level number
     word_510DF = demoFirstIndex;
     word_5A33C = demoFirstIndex;
     byte_510E1 = 0;
     byte_510E2 = 1;
 }
 
-void demoSomething(uint16_t demoIndex) //  proc near       ; CODE XREF: start+3BAp
+void playDemo(uint16_t demoIndex) // demoSomething  proc near       ; CODE XREF: start+3BAp
                     // ; runMainMenu+12Ep ...
 {
     uint8_t *demosAsByteArray = (uint8_t *)&gDemos;
 
-    //push    ax
     readDemoFiles();
-    // pop ax
-    // push    ax
-    bx = demoIndex;
-    // shl bx, 1 not needed
-    ax = gDemoRandomSeeds[bx];
-    gRandomGeneratorSeed = ax;
-    //pop ax
+
+    gRandomGeneratorSeed = gDemoRandomSeeds[demoIndex];
     word_5196C = 1;
     gIsPlayingDemo = 1;
-    // push    es
-    // mov dx, seg demoseg
-    // mov es, dx
-    // assume es:demoseg
-    bx = 0;
-    // ax = ax << 1;
-    bx += demoIndex;
-    bx = gDemos.demoFirstIndices[bx];
-    if (bx == 0xFFFF)
+
+    uint16_t demoFirstIndex = gDemos.demoFirstIndices[demoIndex];
+    if (demoFirstIndex == 0xFFFF)
     {
         word_5196C = 0;
         gIsPlayingDemo = 0;
     }
 
-//loc_4B22F:              ; CODE XREF: demoSomething+30j
+//loc_4B22F:              ; CODE XREF: playDemo+30j
     word_599D8 = 0;
-    // shr al, 1
-    ah = demosAsByteArray[bx];
-    if (ah <= 0x6F // 111
-        && ah != 0)
+
+    uint8_t demoLevelNumber = demosAsByteArray[demoFirstIndex];
+    uint8_t finalLevelNumber = demoIndex;
+
+    if (demoLevelNumber <= 0x6F // 111
+        && demoLevelNumber != 0)
     {
         // TODO: test demos from the original game and recheck anything involving word_599D8
-        al = ah;
-        word_599D8 = (word_599D8 & 0xFF00) | al; // mov byte ptr word_599D8, al
+        finalLevelNumber = demoLevelNumber;
+        word_599D8 = (word_599D8 & 0xFF00) | finalLevelNumber; // mov byte ptr word_599D8, al
     }
 
-//loc_4B248:              ; CODE XREF: demoSomething+4Bj
-//                ; demoSomething+4Fj
-    ah = 0;
-    gDemoLevelNumber = ax;
-    bx++;
-    // pop es
-    // assume es:nothing
-    word_510DF = bx;
-    word_5A33C = bx;
+//loc_4B248:              ; CODE XREF: playDemo+4Bj
+//                ; playDemo+4Fj
+    gDemoLevelNumber = finalLevelNumber;
+
+    demoFirstIndex++; // To skip the level number
+    word_510DF = demoFirstIndex;
+    word_5A33C = demoFirstIndex;
     byte_510E1 = 0;
     byte_510E2 = 1;
 }
@@ -13818,7 +13799,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
         word_58465++;
         if (word_58465 == 0)
         {
-            sub_4B159();
+            handleDemoOptionClick();
         }
 
 //loc_4C806:              // ; CODE XREF: runMainMenu+6Dj
@@ -13891,62 +13872,52 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
 //loc_4C8B8:              // ; CODE XREF: runMainMenu+11Cj
         else if (gIsF1KeyPressed == 1)
         {
-            ax = 0;
-    //        demoSomething();
+            playDemo(0);
         }
 //loc_4C8C8:              // ; CODE XREF: runMainMenu+129j
         else if (gIsF2KeyPressed == 1)
         {
-            ax = 1;
-    //        demoSomething();
+            playDemo(1);
         }
 //loc_4C8D8:              // ; CODE XREF: runMainMenu+139j
         else if (gIsF3KeyPressed == 1)
         {
-            ax = 2;
-    //        demoSomething();
+            playDemo(2);
         }
 //loc_4C8E8:              // ; CODE XREF: runMainMenu+149j
         else if (gIsF4KeyPressed == 1)
         {
-            ax = 3;
-    //        demoSomething();
+            playDemo(3);
         }
 //loc_4C8F8:              // ; CODE XREF: runMainMenu+159j
         else if (gIsF5KeyPressed == 1)
         {
-            ax = 4;
-    //        demoSomething();
+            playDemo(4);
         }
 //loc_4C908:              // ; CODE XREF: runMainMenu+169j
         else if (gIsF6KeyPressed == 1)
         {
-            ax = 5;
-    //        demoSomething();
+            playDemo(5);
         }
 //loc_4C918:              // ; CODE XREF: runMainMenu+179j
         else if (gIsF7KeyPressed == 1)
         {
-            ax = 6;
-    //        demoSomething();
+            playDemo(6);
         }
 //loc_4C928:              // ; CODE XREF: runMainMenu+189j
         else if (gIsF8KeyPressed == 1)
         {
-            ax = 7;
-//            demoSomething();
+            playDemo(7);
         }
 //loc_4C937:              // ; CODE XREF: runMainMenu+199j
         else if (gIsF9KeyPressed == 1)
         {
-            ax = 8;
-    //        demoSomething();
+            playDemo(8);
         }
 //loc_4C946:              // ; CODE XREF: runMainMenu+1A8j
         else if (gIsF10KeyPressed == 1)
         {
-            ax = 9;
-    //        demoSomething();
+            playDemo(9);
         }
 //loc_4C955:              // ; CODE XREF: runMainMenu+1B7j
         else if (gIsNumpadDividePressed == 1
@@ -13954,8 +13925,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
                  && fileIsDemo == 1)
         {
             byte_599D4 = 1;
-            ax = 0;
-//            demoSomething();
+            playDemo(0);
         }
 //loc_4C977:              // ; CODE XREF: runMainMenu+1C6j
                     // ; runMainMenu+1CDj ...
