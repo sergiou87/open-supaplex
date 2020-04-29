@@ -82,7 +82,7 @@ uint8_t byte_510C0 = 0;
 uint8_t byte_510D3 = 0;
 uint8_t byte_510D7 = 0;
 uint8_t byte_510D8 = 0;
-uint8_t byte_510DB = 0;
+uint8_t gPlantedRedDiskCountdown = 0; // byte_510DB
 uint16_t word_510DF = 0;
 uint8_t byte_510E1 = 0;
 uint8_t byte_510E2 = 0;
@@ -280,7 +280,7 @@ uint16_t word_510CD = 0;
 uint16_t word_510CF = 0;
 uint16_t word_510D1 = 0;
 uint16_t gIsMurphyGoingThroughPortal = 0; // word_510D9
-uint16_t word_510DC = 0;
+uint16_t gPlantedRedDiskPosition = 0; // word_510DC
 uint16_t gDemoLevelNumber = 0; // word_510E6
 uint16_t word_510EE = 0;
 
@@ -1493,6 +1493,7 @@ Point frameCoordinates_516B4[48] = {
 
 // Here it should be frameCoordinates_51714 but I had to move it up
 
+uint16_t word_5177E = 0x0CAE; //  -> 0x129 -> (256, 164)
 uint16_t word_51790 = 0x4A7E; //  -> 0x129 -> (288, 132)
 uint16_t word_5182E = 0x2A64; // -> (272, 388)
 uint16_t word_51840 = 0x2A06; //  -> 0x129 -> (160, 64)
@@ -2855,7 +2856,7 @@ void sub_4A3D2(void);
 void sub_49D53(void);
 void drawNumberOfRemainingRedDisks(void);
 void clearNumberOfRemainingRedDisks(void);
-void sub_4A910(void);
+void updatePlantedRedDisk(void);
 void sub_4A5E0(void);
 void sub_4A95F(void);
 void drawFailedLevelResultScreen(void);
@@ -2866,7 +2867,7 @@ void sub_4AA34(uint16_t position, uint8_t movingObject, uint8_t tile);
 void sub_4AAB4(uint16_t position);
 uint8_t sub_4F21F(uint16_t position);
 void sub_4ED29(uint16_t position);
-void sub_4FDB5(uint16_t position);
+void decreaseRemainingRedDisksIfNeeded(uint16_t position);
 void sub_4F2AF(uint16_t position);
 void handleInfotronStateAfterFallingOneTile(uint16_t position);
 void drawLevelViewport(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
@@ -6730,8 +6731,8 @@ void sub_48A20() //   proc near       ; CODE XREF: start+32Fp
     byte_510D7 = 0;
     gNumberOfDotsToShiftDataLeft = 0;
     gIsMurphyGoingThroughPortal &= 0xFF00; // mov byte ptr gIsMurphyGoingThroughPortal, 0
-    byte_510DB = 0;
-    word_510DC = 0;
+    gPlantedRedDiskCountdown = 0;
+    gPlantedRedDiskPosition = 0;
 }
 
 void runLevel() //    proc near       ; CODE XREF: start+35Cp
@@ -6777,7 +6778,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
     }
 
 //loc_48B09:              ; CODE XREF: runLevel+22j
-    byte_510DB = 0;
+    gPlantedRedDiskCountdown = 0;
     byte_5A323 = 0;
     word_510A2 = 1;
 
@@ -6855,7 +6856,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 
 //noFlashing3:              ; CODE XREF: runLevel+F1j
         // 01ED:1F5B
-        sub_4A910();
+        updatePlantedRedDisk();
         sub_4A5E0();
         sub_49EBE();
         ax = word_5195F;
@@ -11037,56 +11038,31 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
     // 01ED:3CAC
 }
 
-void sub_4A910() //   proc near       ; CODE XREF: runLevel:noFlashing3p
+void updatePlantedRedDisk() // sub_4A910   proc near       ; CODE XREF: runLevel:noFlashing3p
 {
-    /*
-    mov dx, 3CEh
-    al = 5
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; mode register.Data bits:
-                ; 0-1: Write mode 0-2
-                ; 2: test condition
-                ; 3: read mode: 1=color compare, 0=direct
-                ; 4: 1=use odd/even RAM addressing
-                ; 5: 1=use CGA mid-res map (2-bits/pixel)
-    inc dx
-    al = 1
-    out dx, al      ; EGA port: graphics controller data register
-    al = byte_510DB
-    cmp al, 1
-    jle short loc_4A954
-    mov si, word_510DC
-    cmp word ptr leveldata[si], 0
-    jnz short loc_4A932
-    mov word ptr leveldata[si], 14h
+    // 01ED:3CAD
+    if (gPlantedRedDiskCountdown <= 1)
+    {
+        return;
+    }
 
-loc_4A932:              ; CODE XREF: sub_4A910+1Aj
-    mov di, [si+6155h]
-    mov si, word_5177E
-    call    drawMovingFrame
-    inc byte_510DB
-    cmp byte_510DB, 28h ; '('
-    jl  short loc_4A954
-    mov si, word_510DC
-    call    detonateBigExplosion
-    mov byte_510DB, 0
+    MovingLevelTile *tile = &gCurrentLevelWord[gPlantedRedDiskPosition];
 
-loc_4A954:              ; CODE XREF: sub_4A910+Fj
-                ; sub_4A910+36j
-    mov dx, 3CEh
-    al = 5
-    out dx, al      ; EGA: graph 1 and 2 addr reg:
-                ; mode register.Data bits:
-                ; 0-1: Write mode 0-2
-                ; 2: test condition
-                ; 3: read mode: 1=color compare, 0=direct
-                ; 4: 1=use odd/even RAM addressing
-                ; 5: 1=use CGA mid-res map (2-bits/pixel)
-    inc dx
-    al = 1
-    out dx, al      ; EGA port: graphics controller data register
-    return;
-     */
+    if (tile->movingObject == 0 && tile->tile == LevelTileTypeSpace)
+    {
+        tile->movingObject = 0;
+        tile->tile = LevelTileTypeRedDisk;
+    }
+
+//loc_4A932:              ; CODE XREF: updatePlantedRedDisk+1Aj
+    // si = word_5177E;
+    drawMovingFrame(256, 164, gPlantedRedDiskPosition);
+    gPlantedRedDiskCountdown++;
+    if (gPlantedRedDiskCountdown >= 0x28)
+    {
+        detonateBigExplosion(gPlantedRedDiskPosition);
+        gPlantedRedDiskCountdown = 0;
+    }
 }
 
 void sub_4A95F() //   proc near       ; CODE XREF: runLevel+372p
@@ -16847,7 +16823,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
     {
 //loc_4E314:              ; CODE XREF: update?+211j
         if (gNumberOfRemainingRedDisks == 0
-            || byte_510DB != 0
+            || gPlantedRedDiskCountdown != 0
             || byte_510D3 != 1)
         {
             return position;
@@ -16855,8 +16831,8 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
         murphyTile->movingObject = 0x2A;
         word_510EE = 0x40; // 64
 //        dx = 0x110E;
-        byte_510DB = 1;
-        word_510DC = position;
+        gPlantedRedDiskCountdown = 1;
+        gPlantedRedDiskPosition = position;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[49]);
     }
     else
@@ -18412,7 +18388,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
 //            ; update?:loc_4F0A9j ...
             aboveTile->movingObject = 0;
             aboveTile->tile = LevelTileTypeMurphy;
-            sub_4FDB5(position);
+            decreaseRemainingRedDisksIfNeeded(position);
             return position;
         }
 //loc_4EC0E:              ; CODE XREF: update?+D79j
@@ -18429,7 +18405,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
 //            ; update?:loc_4F0A9j ...
             murphyTile->movingObject = 0;
             murphyTile->tile = LevelTileTypeMurphy;
-            sub_4FDB5(position);
+            decreaseRemainingRedDisksIfNeeded(position);
             return position;
         }
 //loc_4EC16:              ; CODE XREF: update?+D81j
@@ -18449,7 +18425,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
 //            ; update?:loc_4F0A9j ...
             belowTile->movingObject = 0;
             belowTile->tile = LevelTileTypeMurphy;
-            sub_4FDB5(position);
+            decreaseRemainingRedDisksIfNeeded(position);
             return position;
         }
 //loc_4EC1E:              ; CODE XREF: update?+D89j
@@ -18466,7 +18442,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
 //            ; update?:loc_4F0A9j ...
             murphyTile->movingObject = 0;
             murphyTile->tile = LevelTileTypeMurphy;
-            sub_4FDB5(position);
+            decreaseRemainingRedDisksIfNeeded(position);
             return position;
         }
 //loc_4EC26:              ; CODE XREF: update?+D91j
@@ -18480,7 +18456,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
             }
 
 //loc_4F0DC:              ; CODE XREF: update?+1244j
-            sub_4FDB5(position - kLevelWidth);
+            decreaseRemainingRedDisksIfNeeded(position - kLevelWidth);
             return position;
         }
 //loc_4EC2E:              ; CODE XREF: update?+D99j
@@ -18494,7 +18470,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
             }
 
 //loc_4F0F3:              ; CODE XREF: update?+125Bj
-            sub_4FDB5(position - 1);
+            decreaseRemainingRedDisksIfNeeded(position - 1);
             return position;
         }
 //loc_4EC36:              ; CODE XREF: update?+DA1j
@@ -18508,7 +18484,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
             }
 
 //loc_4F10A:              ; CODE XREF: update?+1272j
-            sub_4FDB5(position + kLevelWidth);
+            decreaseRemainingRedDisksIfNeeded(position + kLevelWidth);
             return position;
         }
 //loc_4EC3E:              ; CODE XREF: update?+DA9j
@@ -18522,7 +18498,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
             }
 
 //loc_4F121:              ; CODE XREF: update?+1289j
-            sub_4FDB5(position + 1);
+            decreaseRemainingRedDisksIfNeeded(position + 1);
             return position;
         }
 //loc_4EC46:              ; CODE XREF: update?+DB1j
@@ -18640,7 +18616,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
 //loc_4F1EA:              ; CODE XREF: update?+DEBj
             murphyTile->movingObject = 0;
             murphyTile->tile = LevelTileTypeMurphy;
-            byte_510DB = 2;
+            gPlantedRedDiskCountdown = 2;
             gNumberOfRemainingRedDisks--;
             drawNumberOfRemainingRedDisks();
             sound6();
@@ -18891,7 +18867,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
 
             // si = word_51790;
             drawMovingFrame(288, 132, position);
-            byte_510DB = 1;
+            gPlantedRedDiskCountdown = 1;
 
             return position;
         }
@@ -18902,7 +18878,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
 
         // si = kMurphyStillSpriteCoordinates;
         drawMovingFrame(304, 132, position);
-        byte_510DB = 0;
+        gPlantedRedDiskCountdown = 0;
 
         return position;
     }
@@ -18943,7 +18919,7 @@ void sub_4ED29(uint16_t position) //   proc near       ; CODE XREF: update?+E6F
 
 // srcX and srcY are the coordinates of the frame to draw in MOVING.DAT
 void drawMovingFrame(uint16_t srcX, uint16_t srcY, uint16_t destPosition) // sub_4F200   proc near       ; CODE XREF: sub_4A291+26p
-                   // ; sub_4A910+2Ap ...
+                   // ; updatePlantedRedDisk+2Ap ...
 {
     // 01ED:859D
     // Draws Murphy idle (from MOVING.DAT) on the screen
@@ -20469,17 +20445,17 @@ void clearNumberOfRemainingRedDisks() // sub_4FD65   proc near       ; CODE XREF
     }
 }
 
-void sub_4FDB5(uint16_t position) //   proc near       ; CODE XREF: update?+124Fp
+void decreaseRemainingRedDisksIfNeeded(uint16_t position) // sub_4FDB5   proc near       ; CODE XREF: update?+124Fp
                     // ; update?+1266p ...
 {
     if ((word_59B73 & 0xFF) == 0
-        && byte_510DB != 0
-        && word_510DC == position)
+        && gPlantedRedDiskCountdown != 0
+        && gPlantedRedDiskPosition == position)
     {
         return;
     }
 
-//loc_4FDCA:              ; CODE XREF: sub_4FDB5+5j sub_4FDB5+Cj ...
+//loc_4FDCA:              ; CODE XREF: decreaseRemainingRedDisksIfNeeded+5j decreaseRemainingRedDisksIfNeeded+Cj ...
     gNumberOfRemainingRedDisks++;
     drawNumberOfRemainingRedDisks();
 }
