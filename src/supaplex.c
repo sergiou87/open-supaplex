@@ -16271,11 +16271,9 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
         word_510CD++;
         if (word_510CD == 4)
         {
-    //        push    si
-    //        mov di, [si+6155h]
-            si = kMurphyStillSpriteCoordinates;
+            // si = kMurphyStillSpriteCoordinates;
             drawMovingFrame(304, 132, position);
-    //        pop si
+
             return position;
         }
 //loc_4DF1E:              ; CODE XREF: update?+7Ej
@@ -16286,16 +16284,15 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4DF27:              ; CODE XREF: update?+94j
         else if (word_510CD <= 0x020A)
         {
-    //        push    si
-    //        mov di, [si+6155h]
-    //        mov si, 14F4h
-    //        mov bx, word_510CD
-    //        sub bx, 1F4h
-    //        shr bx, 1
-    //        shl bx, 1
-    //        mov si, [bx+si]
-            drawMovingFrame(304, 132, position); // TODO: fix coordinates
-    //        pop si
+            // Yawning animation
+            uint16_t currentFrame = word_510CD - 0x1F4;
+            currentFrame = currentFrame >> 1;
+
+            AnimationFrameCoordinates animationFrameCoordinates = frameCoordinates_5142E[34];
+            Point frameCoordinates = animationFrameCoordinates.coordinates[currentFrame];
+
+            drawMovingFrame(frameCoordinates.x, frameCoordinates.y, position);
+
             return position;
         }
 //loc_4DF4A:              ; CODE XREF: update?+9Dj
@@ -16306,16 +16303,15 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4DF53:              ; CODE XREF: update?+C0j
         else if (word_510CD <= 0x03FE)
         {
-    //        push    si
-    //        mov di, [si+6155h]
-    //        mov si, 14F4h
-    //        mov bx, word_510CD
-    //        sub bx, 3E8h
-    //        shr bx, 1
-    //        shl bx, 1
-    //        mov si, [bx+si]
-            drawMovingFrame(304, 132, position); // TODO: fix coordinates
-    //        pop si
+            // Yawning animation
+            uint16_t currentFrame = word_510CD - 0x3E8;
+            currentFrame = currentFrame >> 1;
+
+            AnimationFrameCoordinates animationFrameCoordinates = frameCoordinates_5142E[34];
+            Point frameCoordinates = animationFrameCoordinates.coordinates[currentFrame];
+
+            drawMovingFrame(frameCoordinates.x, frameCoordinates.y, position);
+
             return position;
         }
 //loc_4DF76:              ; CODE XREF: update?+C9j
@@ -16326,16 +16322,15 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4DF7F:              ; CODE XREF: update?+ECj
         else if (word_510CD <= 0x0656)
         {
-    //        push    si
-    //        mov di, [si+6155h]
-    //        mov si, 14F4h
-    //        mov bx, word_510CD
-    //        sub bx, 640h
-    //        shr bx, 1
-    //        shl bx, 1
-    //        mov si, [bx+si]
-            drawMovingFrame(304, 132, position); // TODO: fix coordinates
-    //        pop si
+            // Yawning animation
+            uint16_t currentFrame = word_510CD - 0x640;
+            currentFrame = currentFrame >> 1;
+
+            AnimationFrameCoordinates animationFrameCoordinates = frameCoordinates_5142E[34];
+            Point frameCoordinates = animationFrameCoordinates.coordinates[currentFrame];
+
+            drawMovingFrame(frameCoordinates.x, frameCoordinates.y, position);
+
             return position;
         }
 //loc_4DFA2:              ; CODE XREF: update?+F5j
@@ -16346,37 +16341,29 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
         else if (leftTile->movingObject != 0 || leftTile->tile != LevelTileTypeSpace)
         {
 //loc_4DFBF:              ; CODE XREF: update?+11Fj
-    //        push    si
-    //        mov di, [si+6155h]
-    //        mov si, 150Eh
-    //        mov bx, word_510CD
-    //        sub bx, 656h
-    //        shr bx, 1
-    //        shr bx, 1
-    //        shr bx, 1
-    //        shr bx, 1
-    //        shl bx, 1
-    //        mov si, [bx+si]
-            drawMovingFrame(304, 132, position); // TODO: fix coordinates
-    //        pop si
+            // Sleep to left animation
+            uint16_t currentFrame = word_510CD - 0x656;
+            currentFrame = currentFrame >> 4;
+
+            AnimationFrameCoordinates animationFrameCoordinates = frameCoordinates_5142E[35];
+            Point frameCoordinates = animationFrameCoordinates.coordinates[currentFrame];
+
+            drawMovingFrame(frameCoordinates.x, frameCoordinates.y, position);
+
             return position;
         }
         else if (rightTile->movingObject != 0 || rightTile->tile != LevelTileTypeSpace)
         {
 //loc_4DFE0:              ; CODE XREF: update?+126j
-    //        push    si
-    //        mov di, [si+6155h]
-    //        mov si, 1516h
-            bx = word_510CD;
-    //        sub bx, 656h
-    //        shr bx, 1
-    //        shr bx, 1
-    //        shr bx, 1
-    //        shr bx, 1
-    //        shl bx, 1
-    //        mov si, [bx+si]
-            drawMovingFrame(304, 132, position); // TODO: fix coordinates
-    //        pop si
+            // Sleep to right animation
+            uint16_t currentFrame = word_510CD - 0x656;
+            currentFrame = currentFrame >> 4;
+
+            AnimationFrameCoordinates animationFrameCoordinates = frameCoordinates_5142E[36];
+            Point frameCoordinates = animationFrameCoordinates.coordinates[currentFrame];
+
+            drawMovingFrame(frameCoordinates.x, frameCoordinates.y, position);
+
             return position;
         }
         else
@@ -17912,7 +17899,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
 
 //loc_4EA07:              ; CODE XREF: update?+21j
     word_510CD = 0;
-    ax = word_510EE;
+
     if (word_510EE == 0)
     {
         // 01ED:7E08
@@ -18666,9 +18653,9 @@ uint16_t updateMurphyAnimation(uint16_t position)
             return position;
         }
     }
-    ax--;
-    word_510EE = ax;
-    if (ax == 0)
+
+    word_510EE--;
+    if (word_510EE == 0)
     {
         sound6();
     }
@@ -18695,11 +18682,9 @@ uint16_t updateMurphyAnimation(uint16_t position)
         }
 
 //loc_4ED73:              ; CODE XREF: update?+EDBj
-    //    push    si
-    //    mov di, [si+6155h]
-        si = kMurphyStillSpriteCoordinates;
-        drawMovingFrame(304, 132, position); // TODO: fix coordinates
-    //    pop si
+        // si = kMurphyStillSpriteCoordinates;
+        drawMovingFrame(304, 132, position);
+
         return position;
     }
 //loc_4EA2A:              ; CODE XREF: update?+B95j
@@ -18724,11 +18709,9 @@ uint16_t updateMurphyAnimation(uint16_t position)
         }
 
 //loc_4EDAB:              ; CODE XREF: update?+F13j
-    //    push    si
-    //    mov di, [si+6155h]
-        si = kMurphyStillSpriteCoordinates;
-        drawMovingFrame(304, 132, position); // TODO: fix coordinates
-    //    pop si
+        // si = kMurphyStillSpriteCoordinates;
+        drawMovingFrame(304, 132, position);
+
         return position;
     }
 //loc_4EA32:              ; CODE XREF: update?+B9Dj
@@ -18753,11 +18736,9 @@ uint16_t updateMurphyAnimation(uint16_t position)
         }
 
 //loc_4EDE3:              ; CODE XREF: update?+F4Bj
-    //    push    si
-    //    mov di, [si+6155h]
-        si = kMurphyStillSpriteCoordinates;
-        drawMovingFrame(304, 132, position); // TODO: fix coordinates
-    //    pop si
+        // si = kMurphyStillSpriteCoordinates;
+        drawMovingFrame(304, 132, position);
+
         return position;
     }
 //loc_4EA3A:              ; CODE XREF: update?+BA5j
@@ -18782,11 +18763,9 @@ uint16_t updateMurphyAnimation(uint16_t position)
         }
 
 //loc_4EE1B:              ; CODE XREF: update?+F83j
-    //    push    si
-    //    mov di, [si+6155h]
-        si = kMurphyStillSpriteCoordinates;
-        drawMovingFrame(304, 132, position); // TODO: fix coordinates
-    //    pop si
+        // si = kMurphyStillSpriteCoordinates;
+        drawMovingFrame(304, 132, position);
+
         return position;
     }
 //loc_4EA42:              ; CODE XREF: update?+BADj
@@ -18811,11 +18790,9 @@ uint16_t updateMurphyAnimation(uint16_t position)
         }
 
 //loc_4EE53:              ; CODE XREF: update?+FBBj
-    //    push    si
-    //    mov di, [si+6155h]
-        si = kMurphyStillSpriteCoordinates;
-        drawMovingFrame(304, 132, position); // TODO: fix coordinates
-    //    pop si
+        // si = kMurphyStillSpriteCoordinates;
+        drawMovingFrame(304, 132, position);
+
         return position;
     }
 //loc_4EA4A:              ; CODE XREF: update?+BB5j
@@ -18840,11 +18817,9 @@ uint16_t updateMurphyAnimation(uint16_t position)
         }
 
 //loc_4EE8B:              ; CODE XREF: update?+FF3j
-    //    push    si
-    //    mov di, [si+6155h]
-        si = kMurphyStillSpriteCoordinates;
-        drawMovingFrame(304, 132, position); // TODO: fix coordinates
-    //    pop si
+        // si = kMurphyStillSpriteCoordinates;
+        drawMovingFrame(304, 132, position);
+
         return position;
     }
 //loc_4EA52:              ; CODE XREF: update?+BBDj
@@ -18870,11 +18845,9 @@ uint16_t updateMurphyAnimation(uint16_t position)
         }
 
 //loc_4EEC3:              ; CODE XREF: update?+102Bj
-    //    push    si
-    //    mov di, [si+6155h]
-        si = kMurphyStillSpriteCoordinates;
-        drawMovingFrame(304, 132, position); // TODO: fix coordinates
-    //    pop si
+        // si = kMurphyStillSpriteCoordinates;
+        drawMovingFrame(304, 132, position);
+
         return position;
     }
 //loc_4EA5A:              ; CODE XREF: update?+BC5j
@@ -18900,11 +18873,9 @@ uint16_t updateMurphyAnimation(uint16_t position)
         }
 
 //loc_4EEFB:              ; CODE XREF: update?+1063j
-    //    push    si
-    //    mov di, [si+6155h]
-        si = kMurphyStillSpriteCoordinates;
-        drawMovingFrame(304, 132, position); // TODO: fix coordinates
-    //    pop si
+        // si = kMurphyStillSpriteCoordinates;
+        drawMovingFrame(304, 132, position);
+
         return position;
     }
 //loc_4EA62:              ; CODE XREF: update?+BCDj
@@ -18917,25 +18888,22 @@ uint16_t updateMurphyAnimation(uint16_t position)
             {
                 return position;
             }
-    //      push    si
-    //      mov di, [si+6155h]
-            si = word_51790;
-            drawMovingFrame(304, 132, position); // TODO: fix coordinates
+
+            // si = word_51790;
+            drawMovingFrame(288, 132, position);
             byte_510DB = 1;
-    //      pop si
 
             return position;
         }
 
 //loc_4EF2C:              ; CODE XREF: update?+1080j
-    //    push    si
         murphyTile->movingObject = 0;
         murphyTile->tile = LevelTileTypeMurphy;
-    //    mov di, [si+6155h]
-        si = kMurphyStillSpriteCoordinates;
-        drawMovingFrame(304, 132, position); // TODO: fix coordinates
+
+        // si = kMurphyStillSpriteCoordinates;
+        drawMovingFrame(304, 132, position);
         byte_510DB = 0;
-    //    pop si
+
         return position;
     }
     else
@@ -20530,6 +20498,7 @@ void drawNumberOfRemainingRedDisks() // sub_4FDCE   proc near       ; CODE XREF:
 //loc_4FDF1:              ; CODE XREF: drawNumberOfRemainingRedDisks+1Dj
         color = 6;
     }
+    else
     {
         color = 8;
     }
