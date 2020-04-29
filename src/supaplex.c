@@ -255,8 +255,6 @@ uint8_t gRankingListButtonPressed = 0; // byte_50915
 uint8_t gRankingListDownButtonPressed = 0; // byte_50913
 uint8_t gRankingListUpButtonPressed = 0; // byte_50914
 uint16_t gCurrentSelectedLevelIndex = 0; // word_51ABC
-uint16_t gCursorX = 0; // word_58481
-uint16_t gCursorY = 0; // word_58485
 uint16_t gLastDrawnMinutesAndSeconds = 0; // word_510B7
 uint16_t gMurphyPositionX = 0; // word_510E8
 uint16_t gMurphyPositionY = 0; // word_510EA
@@ -1561,7 +1559,6 @@ uint16_t word_5A309 = 0x5053;
 uint16_t word_5A30B = 0x1A0D;
 uint16_t word_5A30D = 0;
 uint16_t word_5A30F = 0;
-uint32_t dword_58488 = 0;
 uint8_t fileIsDemo = 0;
 uint8_t isJoystickEnabled = 0; // byte_50940
 uint8_t isMusicEnabled = 0; // byte_59886
@@ -14766,67 +14763,10 @@ void resetVideoMode() // sub_4D2E1   proc near       ; CODE XREF: start+450p
 void initializeMouse() //   proc near       ; CODE XREF: start+299p
 {
     gIsMouseAvailable = 1; // THIS IS NOT FROM THE ASM: assume there is a mouse available
+    gMouseX = kScreenWidth / 2;
+    gMouseY = kScreenHeight / 2;
     SDL_ShowCursor(SDL_DISABLE);
     handleSDLEvents();
-    return;
-/*
-    // Check if mouse handler is available
-    gIsMouseAvailable = 0;
-//    push    es
-//    mov ah, 35h ; '5'
-//    al = 33h ; '3'
-//    int 21h     ; DOS - 2+ - GET INTERRUPT VECTOR
-//                ; AL = interrupt number
-//                ; Return: ES:BX = value of interrupt vector
-    ax = es;
-    ax = ax | bx;
-    if (ax != 0)
-    {
-        if (*(es:bx) != 0xCF) // 207
-        {
-//            ax = 0;
-            // int 33h     ; - MS MOUSE - RESET DRIVER AND READ STATUS
-            //             ; Return: AX = status
-            //             ; BX = number of buttons
-            if (bx == 2 || bx == 3)
-            {
-//mouseHas2Or3Buttons:              ; CODE XREF: initializeMouse+20j
-                gIsMouseAvailable = 1;
-                // TODO: hide mouse
-
-            //    ax = 2;
-            //    int 33h     ; - MS MOUSE - HIDE MOUSE CURSOR
-            //                ; SeeAlso: AX=0001h, INT 16/AX=FFFFh
-                // TODO: limit mouse X between 16-304
-            //    ax = 0x7;
-            //    cx = 0x20; // 32
-            //    dx = 0x260; // 608
-            //    int 33h     ; - MS MOUSE - DEFINE HORIZONTAL CURSOR RANGE
-            //                ; CX = minimum column, DX = maximum column
-                // TODO: limit mouse Y between 8-192
-            //    ax = 0x8;
-            //    cx = 0x8; // 8
-            //    dx = 0x0C0; // 192
-            //    int 33h     ; - MS MOUSE - DEFINE VERTICAL CURSOR RANGE
-            //                ; CX = minimum row, DX = maximum row
-
-                // TODO: Center mouse on the screen: (160, 100)
-//                ax = 0x4;
-//                cx = 0x140;
-//                dx = 0x64; // ; 'd' 100
-            //    int 33h     ; - MS MOUSE - POSITION MOUSE CURSOR
-            //                ; CX = column, DX = row
-            }
-
-//loc_4D33B:              ; CODE XREF: initializeMouse+10j
-//                ; initializeMouse+16j ...
-            gCursorX = 0xA0; // '?' 160
-            gCursorY = 0x64; // 'd' 100
-            dword_58488 = (dword_58488 & 0xFFFF0000) + 1; //mov word ptr dword_58488, 1
-            //    pop es
-        }
-    }
-*/
 }
 
 void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonStatus) //   proc near       ; CODE XREF: waitForKeyMouseOrJoystick:mouseIsClickedp
@@ -14899,120 +14839,7 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
             *mouseButtonStatus = (rightButtonPressed << 1
                                   | leftButtonPressed);
         }
-
-        return;
     }
-
-/*
-    // No idea what is this? Maybe to control the mouse with a joystick or keyboard?
-
-//loc_4D360:              ; CODE XREF: getMouseStatus+5j
-    bx = 0;
-    // This emulates the right mouse button
-    if (gIsEscapeKeyPressed == 1)
-    {
-        bx = 2;
-    }
-
-//loc_4D36C:              ; CODE XREF: getMouseStatus+18j
-    // This emulates the left mouse button
-    if (gIsEnterPressed == 1)
-    {
-        bx = 1;
-    }
-
-//loc_4D376:              ; CODE XREF: getMouseStatus+22j
-    cx = 1;
-    // This might be something like the cursor speed?
-    ax = (dword_58488 & 0xFFFF); // mov ax, word ptr dword_58488
-    ax = ax / 8;
-    ax++;
-    if (gIsUpKeyPressed == 1)
-    {
-        gCursorY -= ax;
-        cx = 0;
-    }
-
-//loc_4D390:              ; CODE XREF: getMouseStatus+39j
-    if (gIsDownKeyPressed == 1)
-    {
-        gCursorY += ax;
-        cx = 0;
-    }
-
-//loc_4D39D:              ; CODE XREF: getMouseStatus+46j
-    if (gIsLeftKeyPressed == 1)
-    {
-        gCursorX -= ax;
-        cx = 0;
-    }
-
-//loc_4D3AA:              ; CODE XREF: getMouseStatus+53j
-    if (gIsRightKeyPressed == 1)
-    {
-        gCursorX += ax;
-        cx = 0;
-    }
-
-//loc_4D3B7:              ; CODE XREF: getMouseStatus+60j
-    // Maybe this makes the speed higher as you keep the joystick or whatever pressed
-    if (cx == 0)
-    {
-        uint16_t lowValue = (dword_58488 & 0xFFFF);
-        lowValue++;
-        dword_58488 = (dword_58488 & 0xFFFF0000) + lowValue; //inc word ptr dword_58488
-    }
-    else
-    {
-        dword_58488 = (dword_58488 & 0xFFFF0000) + 1; //mov word ptr dword_58488, 1
-    }
-
-//loc_4D3C7:              ; CODE XREF: getMouseStatus+70j
-    // With a maximum of 64 pixels
-    if ((dword_58488 & 0xFFFF) > 0x40) // 64 or '@'
-    {
-        dword_58488 = (dword_58488 & 0xFFFF0000) + 0x40; //mov word ptr dword_58488, 40h ; '@'
-    }
-
-//loc_4D3D4:              ; CODE XREF: getMouseStatus+7Dj
-    cx = gCursorX;
-    dx = gCursorY;
-
-    // Limit X between 16 and 304
-    if (cx <= 16)
-    {
-        cx = 16;
-        gCursorX = cx;
-    }
-
-//loc_4D3E8:              ; CODE XREF: getMouseStatus+90j
-    if (cx >= 0x130) // 304
-    {
-        cx = 0x130; //mov cx, 130h
-        gCursorX = cx;
-    }
-
-//loc_4D3F5:              ; CODE XREF: getMouseStatus+9Dj
-    // Limit Y between 8 and 192
-    if (dx <= 8)
-    {
-        dx = 8;
-        gCursorY = dx;
-    }
-
-//loc_4D401:              ; CODE XREF: getMouseStatus+A9j
-    if (dx >= 0xC0) // 192
-    {
-        dx = 0xC0;
-        gCursorY = dx;
-    }
-
-    // Returns coordinate X in CX (0-320) and coordinate Y in DX (0-200).
-    // Also button status in BX.
-    *mouseButtonStatus = bx;
-    *mouseX = cx;
-    *mouseY = dx;
- */
 }
 
 static const double kFPS = 60.0;
