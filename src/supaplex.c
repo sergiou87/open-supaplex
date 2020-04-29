@@ -1134,7 +1134,7 @@ AnimationFrameCoordinates frameCoordinates_5142E[37] = {
             { 288, 276 }, // -> 0x4212 -> 1454
             { 288, 292 }, // -> 0x49b2 -> 1456
         },
-        104
+        8
     },
     { // 24
         {
@@ -17985,12 +17985,8 @@ uint16_t updateMurphyAnimation(uint16_t position)
 
 //loc_4EB10:              ; CODE XREF: update?+C7Bj
         // 01ED:7EAD
-        ax = gCurrentMurphyAnimation.speedX;
-        ax /= 2;
-        bx = gCurrentMurphyAnimation.speedY;
-        bx /= 2;
-        gMurphyTileX += ax;
-        gMurphyTileY += bx;
+        gMurphyTileX += gCurrentMurphyAnimation.speedX / 2;
+        gMurphyTileY += gCurrentMurphyAnimation.speedY / 2;
         uint8_t previousMurphyMovingObject = murphyTile->movingObject;
         murphyTile->movingObject = 0;
         if (previousMurphyMovingObject == 1)
