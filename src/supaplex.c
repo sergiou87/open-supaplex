@@ -1566,7 +1566,7 @@ uint8_t isFXEnabled = 0; // byte_59885
 SDL_Scancode keyPressed = 0;
 uint8_t speed1 = 0xFF;
 int8_t speed2 = 0;
-int8_t speed3 = 0xFF;
+int8_t speed3 = 0xFF; // speed?3
 int8_t gameSpeed = 5;
 uint8_t demoFileName = 0; // Probably should be another type but whatever for now
 uint8_t gIsFlashingBackgroundModeEnabled = 0; // flashingbackgroundon
@@ -6865,6 +6865,9 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
             if ((speed3 & 0x80) != 0)
             {
                 al = gameSpeed;
+                int8_t temp = al;
+                al = speed3;
+                speed3 = temp;
         //      xchg    al, speed3
                 if (al != 0xBF) // 191
                 {
