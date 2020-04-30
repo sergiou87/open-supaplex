@@ -2843,7 +2843,7 @@ void detonateYellowDisks(void);
 void updateUserInputInScrollMovementMode(void);
 void updateUserInput(void);
 void sub_492F1(void);
-void sub_492A8(void);
+void simulateDemoInput(void);
 void sub_4A463(void);
 void sub_4A23C(LevelTileType tileType);
 void sub_4A3E9(void);
@@ -5942,6 +5942,8 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
 
 void updateInfotronTiles(uint16_t position) // movefun2  proc near       ; DATA XREF: data:1612o
 {
+    // 01ED:17A5
+
     MovingLevelTile *currentTile = &gCurrentLevelWord[position];
     MovingLevelTile *belowTile = &gCurrentLevelWord[position + kLevelWidth];
     MovingLevelTile *belowLeftTile = &gCurrentLevelWord[position + kLevelWidth - 1];
@@ -5973,8 +5975,8 @@ void updateInfotronTiles(uint16_t position) // movefun2  proc near       ; DATA 
         else
         {
             if ((belowTile->movingObject != 0 || belowTile->tile != LevelTileTypeZonk)
-            && (belowTile->movingObject != 0 || belowTile->tile != LevelTileTypeInfotron)
-            && (belowTile->movingObject != 0 || belowTile->tile != LevelTileTypeChip))
+                && (belowTile->movingObject != 0 || belowTile->tile != LevelTileTypeInfotron)
+                && (belowTile->movingObject != 0 || belowTile->tile != LevelTileTypeChip))
             {
                 return;
             }
@@ -6115,10 +6117,9 @@ void updateInfotronTiles(uint16_t position) // movefun2  proc near       ; DATA 
                 {
                     currentTile->movingObject = movingObject;
                     handleInfotronStateAfterFallingOneTile(position - 1); // left tile
-                    return;
                 }
 //loc_486C1:              ; CODE XREF: movefun2+2AAj
-                else if (movingObject < 0x38) // 54
+                if (movingObject < 0x38) // 54
                 {
                     currentTile->movingObject = movingObject;
                     return;
@@ -6566,7 +6567,7 @@ void handleZonkStateAfterFallingOneTile(uint16_t position) // sub_488DC   proc n
         }
 
 //loc_488F9:              ; CODE XREF: handleZonkStateAfterFallingOneTile+1Aj
-        if (aboveAboveTile->movingObject != 0 || aboveAboveTile->tile != LevelTileTypeInfotron) // cmp byte ptr [si+1744h], 4
+        if (aboveAboveTile->tile != LevelTileTypeInfotron) // cmp byte ptr [si+1744h], 4
         {
             return;
         }
@@ -7728,47 +7729,33 @@ void sub_4921B() //   proc near       ; CODE XREF: readConfig+8Cp
     return;
 }
 
-void sub_492A8() //   proc near       ; CODE XREF: sub_4955B+27p
+void simulateDemoInput() // sub_492A8   proc near       ; CODE XREF: sub_4955B+27p
                    // ; sub_4A3E9+76p
 {
-    al = byte_510E2;
-    al--;
-    if (al != 0)
+    if (byte_510E2 > 1)
     {
-        byte_510E2 = al;
+        byte_510E2--;
         return;
     }
 
-//loc_492B3:              ; CODE XREF: sub_492A8+5j
+//loc_492B3:              ; CODE XREF: simulateDemoInput+5j
     uint8_t *demosAsByteArray = (uint8_t *)&gDemos;
 
-    //    push    es
-//    mov ax, seg demoseg
-//    mov es, ax
-//    assume es:demoseg
-    bx = word_510DF;
-    al = demosAsByteArray[bx];
-    bx++;
-//    pop es
-//    assume es:nothing
-    if (al == 0xFF)
+    uint8_t newInput = demosAsByteArray[word_510DF];
+
+    if (newInput == 0xFF)
     {
         gQuitLevelCountdown = 0x64;
         word_51974 = 1;
     }
     else
     {
-        word_510DF = bx;
+        word_510DF++;
     }
 
-//loc_492CA:              ; CODE XREF: sub_492A8+47j
-    ah = al;
-    ah &= 0xF;
-    gCurrentUserInput = ah;
-    al &= 0xF0;
-    al = al >> 4;
-    al++;
-    byte_510E2 = al;
+//loc_492CA:              ; CODE XREF: simulateDemoInput+47j
+    gCurrentUserInput = newInput & 0xF;
+    byte_510E2 = (newInput >> 4) + 1;
 }
 
 void sub_492F1() //   proc near       ; CODE XREF: sub_4955B+1Dp
@@ -8139,7 +8126,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 //                ; sub_4955B+11j ...
     if (gIsPlayingDemo != 0)
     {
-        sub_492A8(); // 01ED:2929
+        simulateDemoInput(); // 01ED:2929
     }
 
 //loc_49585:              ; CODE XREF: sub_4955B+25j
@@ -9279,17 +9266,7 @@ void gameloop() //   proc near       ; CODE XREF: runLevel:noFlashingp
 {
     // 01ED:317D
 
-//    ; set graphics write mode = 1
-//    mov dx, 3CEh
-//    al = 5
-//    out dx, al
-//    inc dx
-//    al = 1
-//    out dx, al
-
-//    mov si, murphyloc
     gMurphyLocation = updateMurphy(gMurphyLocation); // 01ED:318B
-//    mov murphyloc, si
 
     if (gIsFlashingBackgroundModeEnabled != 0)
     {
@@ -9297,26 +9274,12 @@ void gameloop() //   proc near       ; CODE XREF: runLevel:noFlashingp
     }
 
 //loc_49E14:
-//    ; set graphics write mode = 1
-//    mov dx, 3CEh
-//    al = 5
-//    out dx, al
-//    inc dx
-//    al = 1
-//    out dx, al
-
     if (gIsFlashingBackgroundModeEnabled != 0)
     {
         replaceCurrentPaletteColor(0, (SDL_Color) { 0x3f, 0x21, 0x21 });
     }
 
 //loc_49E33:
-//    mov di, offset movingObjects?
-//    si = 0x7A; // 122: level width in words + 2 (index of first gamefiled cell)
-//    cx = 0x526; // 1318 = 1440 - 122 (rest of the tiles)
-//    dx = 0; // number of tiles with function?
-//    bh = 0;
-
     uint16_t numberOfMovingObjects = 0;
 
     typedef struct {
@@ -10229,7 +10192,7 @@ void sub_4A3E9() //   proc near       ; CODE XREF: sub_4955B+14Ep
 
     word_510DF = word_5A33C;
     byte_510E2 = 1;
-    sub_492A8();
+    simulateDemoInput();
 }
 
 void sub_4A463() //   proc near       ; CODE XREF: sub_4945D:loc_4953Bp
