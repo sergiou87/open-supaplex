@@ -2862,7 +2862,7 @@ void detonateBigExplosion(uint16_t position);
 void detonateZonk(uint16_t position, uint8_t movingObject, uint8_t tile);
 void sub_4AA34(uint16_t position, uint8_t movingObject, uint8_t tile);
 void sub_4AAB4(uint16_t position);
-uint8_t sub_4F21F(uint16_t position);
+uint8_t checkMurphyMovementToPosition(uint16_t position);
 void sub_4ED29(uint16_t position);
 void decreaseRemainingRedDisksIfNeeded(uint16_t position);
 void sub_4F2AF(uint16_t position);
@@ -16877,7 +16877,7 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[43]);
     }
 //loc_4E0FF:              ; CODE XREF: update?+26Aj
-    else if (sub_4F21F(position - kLevelWidth) != 1)
+    else if (checkMurphyMovementToPosition(position - kLevelWidth) != 1)
     {
         return handleMurphyDirectionUp(position);
     }
@@ -17118,7 +17118,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[47]);
     }
 //loc_4E179:              ; CODE XREF: update?+2E4j
-    else if (sub_4F21F(position - 1) != 1)
+    else if (checkMurphyMovementToPosition(position - 1) != 1)
     {
         return handleMurphyDirectionLeft(position);
     }
@@ -17368,7 +17368,7 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[45]);
     }
 //loc_4E1DB:              ; CODE XREF: update?+346j
-    else if (sub_4F21F(position + kLevelWidth) != 1)
+    else if (checkMurphyMovementToPosition(position + kLevelWidth) != 1)
     {
         return handleMurphyDirectionDown(position);
     }
@@ -17625,7 +17625,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[48]);
     }
 //loc_4E253:              ; CODE XREF: update?+3BEj
-    else if (sub_4F21F(position + 1) != 1)
+    else if (checkMurphyMovementToPosition(position + 1) != 1)
     {
         return handleMurphyDirectionRight(position);
     }
@@ -18732,8 +18732,9 @@ void drawMovingFrame(uint16_t srcX, uint16_t srcY, uint16_t destPosition) // sub
     }
 }
 
-uint8_t sub_4F21F(uint16_t position) //   proc near       ; CODE XREF: update?+273p update?+2EDp ...
+uint8_t checkMurphyMovementToPosition(uint16_t position) // sub_4F21F   proc near       ; CODE XREF: update?+273p update?+2EDp ...
 {
+    // 01ED:85BC
     // Parameters:
     // - si: position
     // - ax: value of that position (movingObject + tile)
@@ -18744,29 +18745,29 @@ uint8_t sub_4F21F(uint16_t position) //   proc near       ; CODE XREF: update?+2
         || (tile->movingObject == 0xAA && tile->tile == 0xAA)
         || (tile->movingObject == 0))
     {
-//loc_4F296:              ; CODE XREF: sub_4F21F+3j sub_4F21F+8j ...
+//loc_4F296:              ; CODE XREF: checkMurphyMovementToPosition+3j checkMurphyMovementToPosition+8j ...
         return 1;
     }
     else if (tile->tile == LevelTileTypeZonk)
     {
-//loc_4F24F:              ; CODE XREF: sub_4F21F+11j
+//loc_4F24F:              ; CODE XREF: checkMurphyMovementToPosition+11j
         if (gCurrentUserInput == UserInputLeft)
         {
-//loc_4F25E:              ; CODE XREF: sub_4F21F+33j
+//loc_4F25E:              ; CODE XREF: checkMurphyMovementToPosition+33j
             uint8_t movingObjectType = (tile->movingObject & 0xF0);
             if (movingObjectType == 0x20
                 || movingObjectType == 0x40
                 || movingObjectType == 0x50
                 || movingObjectType == 0x70)
             {
-//loc_4F278:              ; CODE XREF: sub_4F21F+45j
-//                ; sub_4F21F+4Aj ...
+//loc_4F278:              ; CODE XREF: checkMurphyMovementToPosition+45j
+//                ; checkMurphyMovementToPosition+4Aj ...
                 return 1;
             }
             detonateBigExplosion(position);
 
-//loc_4F278:              ; CODE XREF: sub_4F21F+45j
-//                ; sub_4F21F+4Aj ...
+//loc_4F278:              ; CODE XREF: checkMurphyMovementToPosition+45j
+//                ; checkMurphyMovementToPosition+4Aj ...
             return 1;
         }
         else if (gCurrentUserInput != UserInputRight)
@@ -18775,36 +18776,38 @@ uint8_t sub_4F21F(uint16_t position) //   proc near       ; CODE XREF: update?+2
             return 1;
         }
 
-//loc_4F27A:              ; CODE XREF: sub_4F21F+38j
-        ah = (tile->movingObject & 0xF0);
-        if (ah == 0x30
-            || ah == 0x40
-            || ah == 0x60
-            || ah == 0x70)
+//loc_4F27A:              ; CODE XREF: checkMurphyMovementToPosition+38j
+        uint8_t movingObjectType = (tile->movingObject & 0xF0);
+        if (movingObjectType == 0x30
+            || movingObjectType == 0x40
+            || movingObjectType == 0x60
+            || movingObjectType == 0x70)
         {
-//loc_4F294:              ; CODE XREF: sub_4F21F+61j
-//                ; sub_4F21F+66j ...
+//loc_4F294:              ; CODE XREF: checkMurphyMovementToPosition+61j
+//                ; checkMurphyMovementToPosition+66j ...
             return 1;
         }
         detonateBigExplosion(position);
 
-//loc_4F294:              ; CODE XREF: sub_4F21F+61j
-//                ; sub_4F21F+66j ...
+//loc_4F294:              ; CODE XREF: checkMurphyMovementToPosition+61j
+//                ; checkMurphyMovementToPosition+66j ...
         return 1;
     }
     else if (tile->tile == LevelTileTypeExplosion)
     {
-//loc_4F298:              ; CODE XREF: sub_4F21F+15j
+//loc_4F298:              ; CODE XREF: checkMurphyMovementToPosition+15j
+        // 01ED:8635
         if ((tile->movingObject & 0x80) != 0
             || tile->movingObject < 4)
         {
-//loc_4F2A2:              ; CODE XREF: sub_4F21F+7Cj
+//loc_4F2A2:              ; CODE XREF: checkMurphyMovementToPosition+7Cj
             detonateBigExplosion(position);
             return 1;
         }
         else
         {
-//loc_4F2A7:              ; CODE XREF: sub_4F21F+81j
+//loc_4F2A7:              ; CODE XREF: checkMurphyMovementToPosition+81j
+            tile->movingObject = 0;
             tile->tile = LevelTileTypeSpace;
             return 0;
         }
@@ -18815,7 +18818,7 @@ uint8_t sub_4F21F(uint16_t position) //   proc near       ; CODE XREF: update?+2
              || tile->tile == LevelTileTypePortLeft
              || tile->tile == LevelTileTypePortUp)
     {
-//loc_4F296:              ; CODE XREF: sub_4F21F+3j sub_4F21F+8j ...
+//loc_4F296:              ; CODE XREF: checkMurphyMovementToPosition+3j checkMurphyMovementToPosition+8j ...
         return 1;
     }
     else
