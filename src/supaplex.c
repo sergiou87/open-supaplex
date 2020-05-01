@@ -66,10 +66,12 @@ uint16_t word_50947 = 0;
 uint16_t word_50949 = 0;
 uint8_t byte_50953 = 0;
 uint8_t byte_50954 = 0;
-uint8_t byte_5101C = 0; // db 0, 18h dup(14h)
-uint8_t byte_51035 = 0;
+uint8_t gIsGravityEnabled = 0; // byte_5101C -> 1 = turn on, anything else (0) = turn off
+uint8_t gAreZonksFrozen = 0; // byte_51035 -> 2 = turn on, anything else (0) = turn off  (1=off!)
 uint8_t gNumberOfInfoTronsInCurrentLevel = 0; // byte_51036 -> this seems to be _inside_ of fileLevelData when a level is read
+uint8_t byte_51037 = 0; //  -> this seems to be _inside_ of fileLevelData when a level is read, and it's numberOfSpecialPorts
 uint8_t byte_510AB = 0;
+uint16_t word_510AC = 0;
 uint8_t byte_510AE = 0;
 uint8_t byte_510AF = 0;
 uint8_t byte_510B3 = 0;
@@ -80,7 +82,7 @@ uint8_t gShouldShowFailedLevelResultScreen = 0; // byte_510BA
 uint8_t byte_510BB = 0;
 uint8_t byte_510C0 = 0;
 uint8_t byte_510D3 = 0;
-uint8_t byte_510D7 = 0;
+uint8_t gAreEnemiesFrozen = 0; // byte_510D7 -> 1 = turn on, anything else (0) = turn off
 uint8_t byte_510D8 = 0;
 uint8_t gPlantedRedDiskCountdown = 0; // byte_510DB
 uint16_t word_510DF = 0;
@@ -1721,9 +1723,24 @@ char gCurrentLevelName[kListLevelNameLength]; // 0x87A8
 
 #define kLevelNameLength 24
 
+typedef struct {
+    uint16_t position; // If (x,y) are the coordinates of a port in the field
+                       // and (0,0) is the top-left corner, the 16 bit value
+                       // here calculates as 2*(x+(y*60)).  This is twice of
+                       // what you may have expected: Supaplex works with a
+                       // game field in memory, which is 2 bytes per sprite.
+
+    uint8_t gravity; // 1 = turn on, anything else (0) = turn off
+    uint8_t freezeZonks; // 2 = turn on, anything else (0) = turn off  (1=off!)
+    uint8_t freezeEnemies; // 1 = turn on, anything else (0) = turn off
+    uint8_t unused; // Doesn't matter: is ignored.
+} SpecialPortInfo;
+
+#define kLevelMaxNumberOfSpecialPorts 10
+
 typedef struct
 {
-    uint8_t tiles[1440]; // [0-0x59F] of LevelTileType
+    uint8_t tiles[kLevelSize]; // [0-0x59F] of LevelTileType
     uint8_t unknown0[4];
     uint8_t initialGravitation;
     uint8_t speedFixMagicNumber; // Used from versions 5.3 and up as: 20h + SpeedFix version number in hex format: v5.3 -> 73h, v6.2 -> 82h
@@ -1731,7 +1748,7 @@ typedef struct
     uint8_t freezeZonks; // 2 = on, anything else (including 1) = off
     uint8_t numberOfInfotrons; // 0 means that Supaplex will count the total amount of Infotrons in the level, and use the low byte of that number. (A multiple of 256 Infotrons will then result in 0-to-eat, etc.!)
     uint8_t numberOfSpecialPorts; // maximum 10
-    uint8_t specialPortsInfo[60];
+    SpecialPortInfo specialPortsInfo[kLevelMaxNumberOfSpecialPorts];
 
     // This byte carries the information of the slowest speed used during the demo recording. 0x00=fastest, 0x0A=slowest
     // This information is exclusive-ored with the high random number byte (byte scrambledSpeed). (Each bit is toggled, where in byte highByteRandomSeed a 1 appears.)
@@ -2885,7 +2902,7 @@ void sub_4AAB4(uint16_t position);
 uint8_t checkMurphyMovementToPosition(uint16_t position);
 void sub_4ED29(uint16_t position);
 void decreaseRemainingRedDisksIfNeeded(uint16_t position);
-void sub_4F2AF(uint16_t position);
+void updateSpecialPort(uint16_t position);
 void handleInfotronStateAfterFallingOneTile(uint16_t position);
 void drawLevelViewport(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
 void drawCurrentLevelViewport(uint16_t panelHeight);
@@ -5311,7 +5328,7 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
     else
     {
 //loc_47FA4:              ; CODE XREF: movefun+Fj
-        if (byte_51035 == 2)
+        if (gAreZonksFrozen == 2)
         {
             return;
         }
@@ -5509,7 +5526,7 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
                 }
             }
 //loc_48053:              ; CODE XREF: movefun+BEj
-            else if (byte_51035 == 2)
+            else if (gAreZonksFrozen == 2)
             {
                 return;
             }
@@ -5737,7 +5754,7 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
         // This part handles what to do when the zonk finished falling 1 tile
         // 01ED:1462
         currentTile->movingObject = 0;
-        if (byte_51035 == 2)
+        if (gAreZonksFrozen == 2)
         {
             return;
         }
@@ -6697,7 +6714,7 @@ void sub_48A20() //   proc near       ; CODE XREF: start+32Fp
 //    mov byte ptr word_510C1, 1
 //    mov byte ptr word_510C1+1, 0
     word_510C1 = 0x0001;
-    byte_510D7 = 0;
+    gAreEnemiesFrozen = 0;
     gNumberOfDotsToShiftDataLeft = 0;
     gIsMurphyGoingThroughPortal &= 0xFF00; // mov byte ptr gIsMurphyGoingThroughPortal, 0
     gPlantedRedDiskCountdown = 0;
@@ -8367,8 +8384,8 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
             else if (byte_59B7C == 0)
             {
                 byte_59B7C--;
-                byte_5101C &= 1;
-                byte_5101C = byte_5101C ^ 1;
+                gIsGravityEnabled &= 1;
+                gIsGravityEnabled = gIsGravityEnabled ^ 1;
             }
 
             if (gIsF1KeyPressed == 0
@@ -8384,8 +8401,8 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
                 if (byte_59B7D == 0)
                 {
                     byte_59B7D--;
-                    byte_51035 &= 2;
-                    byte_51035 = byte_51035 ^ 2;
+                    gAreZonksFrozen &= 2;
+                    gAreZonksFrozen = gAreZonksFrozen ^ 2;
                 }
 
                 if (gIsF2KeyPressed == 0
@@ -8401,8 +8418,8 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
                     else if (byte_59B7E == 0)
                     {
                         byte_59B7E--;
-                        byte_510D7 &= 1;
-                        byte_510D7 = byte_510D7 ^ 1;
+                        gAreEnemiesFrozen &= 1;
+                        gAreEnemiesFrozen = gAreEnemiesFrozen ^ 1;
                     }
                 }
             }
@@ -15946,7 +15963,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4DEB4:              ; CODE XREF: update?+1Fj
     byte_510D8 = 0;
 
-    if (byte_5101C != 0
+    if (gIsGravityEnabled != 0
         && aboveTile->tile != LevelTileTypePortUp
         && aboveTile->tile != LevelTileTypePortVertical
         && aboveTile->tile != LevelTileTypePort4Way
@@ -18050,7 +18067,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
             position -= kLevelWidth * 2;
             if (aboveTile->movingObject == 1)
             {
-                sub_4F2AF(position + kLevelWidth);
+                updateSpecialPort(position + kLevelWidth);
             }
 
             return position;
@@ -18072,7 +18089,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
             position -= 2;
             if (leftTile->movingObject == 1)
             {
-                sub_4F2AF(position + 1);
+                updateSpecialPort(position + 1);
             }
 
             return position;
@@ -18094,7 +18111,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
             position += kLevelWidth * 2;
             if (belowTile->movingObject == 1)
             {
-                sub_4F2AF(position - kLevelWidth);
+                updateSpecialPort(position - kLevelWidth);
             }
 
             return position;
@@ -18114,9 +18131,9 @@ uint16_t updateMurphyAnimation(uint16_t position)
             rightRightTile->tile = LevelTileTypeMurphy;
             gIsMurphyGoingThroughPortal = 0;
             position += 2;
-            if (rightTile->movingObject == LevelTileTypeZonk)
+            if (rightTile->movingObject == 1)
             {
-                sub_4F2AF(position - 1);
+                updateSpecialPort(position - 1);
             }
 
             return position;
@@ -18788,40 +18805,47 @@ uint8_t checkMurphyMovementToPosition(uint16_t position) // sub_4F21F   proc nea
     }
 }
 
-void sub_4F2AF(uint16_t position) //   proc near       ; CODE XREF: update?+116Ap
+void updateSpecialPort(uint16_t position) // sub_4F2AF   proc near       ; CODE XREF: update?+116Ap
                    // ; update?+1197p ...
 {
-    assert(0); // TODO: implement
-    /*
-    mov cl, byte_51037
-    xor ch, ch
-    cmp cx, 0
-    jz  short locret_4F2CA
-    mov di, 0D28h
+    // 01ED:864C
+    if (gCurrentLevel.numberOfSpecialPorts == 0)
+    {
+        return;
+    }
 
-//loc_4F2BD:              ; CODE XREF: sub_4F2AF+19j
-    mov bx, [di]
-    xchg    bl, bh
-    cmp bx, si
-    jz  short loc_4F2CB
-    add di, 6
-    loop    loc_4F2BD
+    uint8_t isPortInPosition = 0;
+    uint8_t portIndex = 0;
 
-//locret_4F2CA:               ; CODE XREF: sub_4F2AF+9j
-    return;
+    for (uint8_t i = 0; i < gCurrentLevel.numberOfSpecialPorts; ++i)
+    {
+//loc_4F2BD:              ; CODE XREF: updateSpecialPort+19j
+        SpecialPortInfo portInfo = gCurrentLevel.specialPortsInfo[i];
+        // For _reasons_ the port position has its bytes inverted (first high, then low), so we must reverse them
+        uint16_t portPosition = (((portInfo.position & 0xFF) << 8)
+                                 | (portInfo.position >> 8));
+        portPosition /= 2; // We must divide by 2 because the level format works with words
 
-//loc_4F2CB:              ; CODE XREF: sub_4F2AF+14j
-    al = [di+2]
-    mov byte_5101C, al
-    al = [di+3]
-    mov byte_51035, al
-    al = [di+4]
-    mov byte_510D7, al
-    mov ax, word_510AC
-    xor ax, gRandomGeneratorSeed
-    mov word_510AC, ax
-    return;
-     */
+        if (portPosition == position)
+        {
+            isPortInPosition = 1;
+            portIndex = i;
+            break;
+        }
+    }
+
+    if (isPortInPosition == 0)
+    {
+        return;
+    }
+
+//loc_4F2CB:              ; CODE XREF: updateSpecialPort+14j
+    SpecialPortInfo portInfo = gCurrentLevel.specialPortsInfo[portIndex];
+    gIsGravityEnabled = portInfo.gravity;
+    gAreZonksFrozen = portInfo.freezeZonks;
+    gAreEnemiesFrozen = portInfo.freezeEnemies;
+    // TODO: I still don't know where word_510AC is read :fearful:
+    word_510AC = word_510AC ^ gRandomGeneratorSeed;
 }
 /*
         db  2Eh ; .
@@ -18837,7 +18861,7 @@ void sub_4F2AF(uint16_t position) //   proc near       ; CODE XREF: update?+116A
 void updateSnikSnakTiles(uint16_t position) // movefun4  proc near       ; DATA XREF: data:162Co
 {
     // 01ED:868D
-    if (byte_510D7 == 1)
+    if (gAreEnemiesFrozen == 1)
     {
         return;
     }
@@ -19479,7 +19503,7 @@ void updateSnikSnakMovementRight(uint16_t position, uint8_t frame) // sub_4F708 
 void updateElectronTiles(uint16_t position) // movefun6  proc near       ; DATA XREF: data:163Ao
 {
     // 01ED:8B4C
-    if (byte_510D7 == 1)
+    if (gAreEnemiesFrozen == 1)
     {
         return;
     }
