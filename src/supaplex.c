@@ -2761,7 +2761,7 @@ uint16_t ax, bx, cx, dx, ds, cs, es, bp, sp, di, si;
 
 void updateWindowViewport(void);
 int windowResizingEventWatcher(void* data, SDL_Event* event);
-Uint32 timerHandler(Uint32 interval, void *param);
+void emulateClock(void);
 void handleSDLEvents(void);
 void replaceCurrentPaletteColor(uint8_t index, SDL_Color color);
 void setPalette(ColorPalette palette);
@@ -2948,11 +2948,6 @@ int main(int argc, const char * argv[])
     SDL_AddEventWatch(windowResizingEventWatcher, gWindow);
 
     SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_TIMER);
-
-    // Seems like int8handler is expected to be invoked every 20ms (since it increases the number of seconds
-    // after 50 invocations).
-    //
-    SDL_AddTimer(20, timerHandler, NULL);
 
     gRenderer = SDL_CreateRenderer(gWindow, -1, 0);
 
@@ -6770,7 +6765,6 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 
     do
     {
-        // int8handler();
         int9handler(0);
 
 //gamelooprep:                ; CODE XREF: runLevel+33Cj
@@ -20521,24 +20515,27 @@ int windowResizingEventWatcher(void* data, SDL_Event* event)
     return 0;
 }
 
-Uint32 timerHandler(Uint32 interval, void *param)
+void emulateClock()
 {
-    SDL_Event event;
-    SDL_UserEvent userevent;
+    static Uint32 sLastTickCount = 0;
+    static Uint32 sRemainingTicks = 0;
+    static const Uint32 sClockInterval = 20; // 20 ms is what the original game seemed to use
 
-    /* In this example, our callback pushes a function
-    into the queue, and causes our callback to be called again at the
-    same interval: */
+    if (sLastTickCount == 0)
+    {
+        sLastTickCount = SDL_GetTicks();
+        return;
+    }
 
-    userevent.type = SDL_USEREVENT;
-    userevent.code = 0;
-    userevent.data1 = &int8handler;
+    sRemainingTicks += SDL_GetTicks() - sLastTickCount;
 
-    event.type = SDL_USEREVENT;
-    event.user = userevent;
+    while (sRemainingTicks > sClockInterval)
+    {
+        int8handler();
+        sRemainingTicks -= sClockInterval;
+    }
 
-    SDL_PushEvent(&event);
-    return(interval);
+    sLastTickCount = SDL_GetTicks();
 }
 
 void handleSDLEvents()
@@ -20558,4 +20555,6 @@ void handleSDLEvents()
             }
         }
     }
+
+    emulateClock();
 }
