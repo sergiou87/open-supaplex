@@ -66,7 +66,7 @@ uint16_t word_50947 = 0;
 uint16_t word_50949 = 0;
 uint8_t byte_50953 = 0;
 uint8_t byte_50954 = 0;
-uint8_t byte_5101C = 0;
+uint8_t byte_5101C = 0; // db 0, 18h dup(14h)
 uint8_t byte_51035 = 0;
 uint8_t gNumberOfInfoTronsInCurrentLevel = 0; // byte_51036 -> this seems to be _inside_ of fileLevelData when a level is read
 uint8_t byte_510AB = 0;
@@ -1822,11 +1822,31 @@ MovingLevelTile gCurrentLevelWord[levelDataLength]; // 0x1834
 // And this is initialized to 0 in readLevels, and in memory it's supposed to exist right after gCurrentLevelWord
 Level gCurrentLevelAfterWord; // 0x2434
 
-// 30 elements...
-uint16_t word_599DC[] = { 0x00CE, 0x016A, 0x0146, 0x00CD, 0x024D, 0x012C, 0x01A7, 0x01FB, 0x01D2,
-    0x02FD, 0xF001, 0xF1F0, 0xF003, 0xF350, 0xF007, 0xF460,
-    0xF00B, 0xF0F0, 0xF01D, 0xF0F0, 0xF026, 0x50F0, 0xF037,
-    0x41D0, 0x105F, 0xF3F3, 0xF068, 0x10F0, 0x106C, 0x94F4 };
+uint16_t kOriginalDemoFileSizes[10] = { // word_599DC
+    0x00CE, 0x016A, 0x0146, 0x00CD, 0x024D,
+    0x012C, 0x01A7, 0x01FB, 0x01D2, 0x02FD
+};
+
+typedef struct {
+    uint8_t levelNumber;
+    uint8_t firstUserInputs[3];
+} FirstOriginalDemoFileChunk;
+
+// These are literally the first 4 bytes of the original files, used by the spfix version to detect when a demo from
+// the original game was being parsed (since those had a different format).
+//
+FirstOriginalDemoFileChunk kOriginalDemoFirstFileChunks[10] = { // word_599E4
+    { 0x01, { 0xF0, 0xF0, 0xF1 } },
+    { 0x03, { 0xF0, 0x50, 0xF3 } },
+    { 0x07, { 0xF0, 0x60, 0xF4 } },
+    { 0x0B, { 0xF0, 0xF0, 0xF0 } },
+    { 0x1D, { 0xF0, 0xF0, 0xF0 } },
+    { 0x26, { 0xF0, 0xF0, 0x50 } },
+    { 0x37, { 0xF0, 0xD0, 0x41 } },
+    { 0x5F, { 0x10, 0xF3, 0xF3 } },
+    { 0x68, { 0xF0, 0xF0, 0x10 } },
+    { 0x6C, { 0x10, 0xF4, 0x94 } },
+};
 
 SoundType sndType = SoundTypeNone;
 SoundType musType = SoundTypeInternalStandard;
@@ -3121,7 +3141,7 @@ loc_46CB7:              //; CODE XREF: start:loc_46CADj
         {
             goto loc_46CF4;
         }
-        int success = fileReadUnk1(file, fileLength);
+        int success = getLevelNumberFromOriginalDemoFile(file, fileLength);
         word_599DA = fileLength;
         pushf();
         ah = 0x3E;
@@ -3131,7 +3151,7 @@ loc_46CB7:              //; CODE XREF: start:loc_46CADj
         popf();
         if (success)
         {
-            goto loc_46CF6; // jnb short loc_46CF6  // the flag CF to check the jnb comes from the fileReadUnk1 result (CF=0 success, CF=1 error);
+            goto loc_46CF6; // jnb short loc_46CF6  // the flag CF to check the jnb comes from the getLevelNumberFromOriginalDemoFile result (CF=0 success, CF=1 error);
         }
 
 lookForAtSignInCommandLine:              //; CODE XREF: start+A6j start+ABj
@@ -3738,86 +3758,60 @@ exit:                   //; CODE XREF: readConfig:loc_474BBj
 //// ; END OF FUNCTION CHUNK FOR loadScreen2 ; AL = exit code
 }
 
-// Return value: carry flag = 0 on success, 1 on error
-uint8_t fileReadUnk1(FILE *file, uint16_t fileLength) //    proc near       ; CODE XREF: start+B6p readDemoFiles+81p
+uint8_t getLevelNumberFromOriginalDemoFile(FILE *file, uint16_t fileLength) // fileReadUnk1    proc near       ; CODE XREF: start+B6p readDemoFiles+81p
 {
     // 01ED:048F
-    return 0;
-    /*
-    // push(bx);
-//    bx = word_599DC; // load array from word_599DC
-//    cx = 10;
 
-    uint8_t shouldBail = 1;
+    // Return value:
+    //  - carry flag = 0 on success, 1 on error
+    //  - ax = 0 on error, level number of the original demo on success
+
+    uint8_t isDemoFromOriginalGame = 0;
+    uint8_t originalDemoIndex = 0;
 
     for (int i = 0; i < 10; ++i)
     {
-//loop_:                  //; CODE XREF: fileReadUnk1+Fj
-        if (word_599DC[i] == fileLength)
+//loop_:                  //; CODE XREF: getLevelNumberFromOriginalDemoFile+Fj
+        if (kOriginalDemoFileSizes[i] == fileLength)
         {
-            shouldBail = 0;
+            isDemoFromOriginalGame = 1;
+            originalDemoIndex = i;
             break;
         }
     }
 
-    if (shouldBail)
+    if (isDemoFromOriginalGame == 0)
     {
-        ax = 0;
-        return 1;
+        return 0;
     }
 
-//loc_47105:              //; CODE XREF: fileReadUnk1+Aj
-    // pop(bx);
-    // push(bx);
-    // push(cx);
-    // ax = 0x4200;
-    // cx = 0;
-    // dx = cx;
+//loc_47105:              //; CODE XREF: getLevelNumberFromOriginalDemoFile+Aj
     int result = fseek(file, 0, SEEK_SET);
-    // int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
-    //             ; AL = method: offset from beginning of file
-    //pop(ax);
+
     if (result < 0)
     {
-        ax = 0;
-        return 1;
+        return 0;
     }
-    // pop(bx);
-    // push(bx);
-    // push(ax);
-    cx = 4;
-    dx = *fileLevelData; // load string from fileLevelData?
-    ax = 0x3F00;
-    size_t bytes = fread(fileLevelData, 1, 4, file); // Read the first 4 bytes into fileLevelData
-    // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-    //             ; BX = file handle, CX = number of bytes to read
-    //             ; DS:DX -> buffer
-    //pop(bx);
-    if (bytes < 4)
+
+    FirstOriginalDemoFileChunk firstChunk;
+    size_t bytes = fread(&firstChunk, 1, sizeof(firstChunk), file);
+
+    if (bytes < sizeof(firstChunk))
     {
-        ax = 0;
-        return 1;
+        return 0;
     }
-    bx -= 10;
-    bx = -bx;
-    bx = bx << 1;
-    bx = bx << 1;
-    si = &fileLevelData;
-    ax = [bx-691Eh];
-    if (ax != word_50A7A)
+
+    FirstOriginalDemoFileChunk referenceChunk = kOriginalDemoFirstFileChunks[originalDemoIndex];
+
+    // If the first chunk we just read doesn't match the reference chunk, we won't
+    // consider it a demo from the original game.
+    //
+    if (memcmp(&referenceChunk, &firstChunk, sizeof(FirstOriginalDemoFileChunk)) != 0)
     {
-        ax = 0;
-        return 1;
+        return 0;
     }
-    ax = [bx-6920h];
-    if (ax != fileLevelData)
-    {
-        ax = 0;
-        return 1;
-    }
-    ah = 0;
-    return 0;
-     */
+
+    return firstChunk.levelNumber;
 }
 
 void slideDownGameDash() // proc near     ; CODE XREF: start:isNotFastMode2p
@@ -4355,8 +4349,7 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
                 && fileSize < levelDataLength)
             {
                 // TODO: test demos from the original game and recheck anything involving word_599D8
-                fileReadUnk1(file, fileSize);
-                word_599D8 = ax; // this ax must be something fileReadUnk1 returns
+                word_599D8 = getLevelNumberFromOriginalDemoFile(file, fileSize);
             }
 
 //loc_47690:             // ; CODE XREF: readDemoFiles+76j readDemoFiles+7Aj ...
