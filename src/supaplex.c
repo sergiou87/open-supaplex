@@ -283,6 +283,7 @@ uint16_t gIsMurphyGoingThroughPortal = 0; // word_510D9
 uint16_t gPlantedRedDiskPosition = 0; // word_510DC
 uint16_t gDemoIndexOrDemoLevelNumber = 0; // word_510E6
 uint16_t word_510EE = 0;
+uint8_t gShouldShowFPS = 0;
 
 typedef struct {
     int16_t word_510F0; // value1; -> seems like an offset from the destination position (in tiles * 2)
@@ -2919,6 +2920,10 @@ static const int kWindowHeight = kScreenHeight * 4;
 //         public start
 int main(int argc, const char * argv[])
 {
+#if DEBUG
+    gShouldShowFPS = 1;
+#endif
+
 // #ifdef __vita__
 //     int ret;
 // 	ret=debugNetInit("192.168.0.251",18194,DEBUG);
@@ -12926,7 +12931,6 @@ void drawTextWithChars6FontWithTransparentBackground(size_t destX, size_t destY,
             }
         }
     }
-
 }
 
 void sub_4BF4A(uint8_t number) //   proc near       ; CODE XREF: start+3F7p sub_4955B+398p ...
@@ -14833,6 +14837,20 @@ static const double kFrameDuration = 1000.0 / kFPS;
 
 void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
 {
+    static float sFrameRate = 0.f;
+
+    if (gShouldShowFPS)
+    {
+        char frameRateString[10] = "";
+        sprintf(frameRateString, "%.1f", MIN(sFrameRate, 99999999.9));
+
+        // TODO: No idea what this is _yet_ but I can't print on the screen if it's 1
+        uint8_t previousValue = byte_5A33F;
+        byte_5A33F = 0;
+        drawTextWithChars6FontWithOpaqueBackground(0, 0, 6, frameRateString);
+        byte_5A33F = previousValue;
+    }
+
     handleSDLEvents(); // Make sure the app stays responsive
 
     Uint32 start = SDL_GetTicks();
@@ -14848,6 +14866,26 @@ void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
         SDL_Delay(kFrameDuration - time);
     }
 
+    static Uint32 sLastFrameTime = 0;
+    static Uint32 sNumberOfFrames = 0;
+
+    sNumberOfFrames++;
+
+    if (sLastFrameTime == 0)
+    {
+        sLastFrameTime = SDL_GetTicks();
+    }
+    else
+    {
+        Uint32 difference = SDL_GetTicks() - sLastFrameTime;
+
+        if (difference > 1000)
+        {
+            sFrameRate = sNumberOfFrames * 1000.f / difference;
+            sNumberOfFrames = 0;
+            sLastFrameTime = SDL_GetTicks();
+        }
+    }
 //        push    dx
 //        push    ax
 //        cmp byte ptr dword_59B67, 0
