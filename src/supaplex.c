@@ -279,7 +279,7 @@ uint16_t word_510CF = 0;
 uint16_t word_510D1 = 0;
 uint16_t gIsMurphyGoingThroughPortal = 0; // word_510D9
 uint16_t gPlantedRedDiskPosition = 0; // word_510DC
-uint16_t gDemoLevelNumber = 0; // word_510E6
+uint16_t gDemoIndexOrDemoLevelNumber = 0; // word_510E6
 uint16_t word_510EE = 0;
 
 typedef struct {
@@ -4291,16 +4291,10 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
                   //  ; handleDemoOptionClickp ...
 {
     // 01ED:09A6
-//    push(es);
-//    ax = seg demoseg;
-//    es = ax;
-    // assume es:demoseg
+
     word_510DF = 22;
     word_5A33C = 22;
-    // ax = 0xFFFF;
-    // di = 0;
-    // cx = 0xB; // 11
-    // cld(); // clear direction flag
+
     uint8_t *demosAsByteArray = (uint8_t *)&gDemos;
 
     memset(&gDemos.demoFirstIndices, 0xFF, 22); // rep stosw // fills 11 words (22 bytes) with 0xFFFF
@@ -4310,7 +4304,6 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
 //loc_47629:              //; CODE XREF: readDemoFiles+175j
         char filename[256] = "DEMO0.BIN";
 
-    //    push(cx);
         word_599D8 = 0;
         if (byte_599D4 == 1)
         {
@@ -4348,7 +4341,6 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
             if (result == 0
                 && fileSize < levelDataLength)
             {
-                // TODO: test demos from the original game and recheck anything involving word_599D8
                 word_599D8 = getLevelNumberFromOriginalDemoFile(file, fileSize);
             }
 
@@ -4389,17 +4381,9 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
         else
         {
 //loc_476F3:              // ; CODE XREF: readDemoFiles+E4j
-            // dx = word_510DF;
-            // bx = lastFileHandle;
-            // push(ds);
-            // ax = es;
-            // ds = ax;
-            // assume ds:nothing
-            // mov ax, 3F00h
-            // int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-            //             ; BX = file handle, CX = number of bytes to read
-            //             ; DS:DX -> buffer
-            numberOfDemoBytesRead = fread(&demosAsByteArray[word_510DF], 1, maxNumberOfBytesToRead, file); // TODO: that word_510DF feels wrong
+            // TODO: that word_510DF feels wrong
+            numberOfDemoBytesRead = fread(&demosAsByteArray[word_510DF], 1, maxNumberOfBytesToRead, file);
+
             if (numberOfDemoBytesRead == 0)
             {
                 ax = 0;
@@ -4454,12 +4438,6 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
 
 //loc_47765:             // ; CODE XREF: readDemoFiles+14Fj
                    // ; readDemoFiles+155j
-        //pop(ds);
-        // assume ds:data
-        // pop(cx);
-        // bx = i; // cx is i at this point
-        // bx = bx << 1;
-        // dx = word_510DF;
         gDemos.demoFirstIndices[i] = word_510DF;
         word_510DF += numberOfDemoBytesRead;
     }
@@ -11910,7 +11888,7 @@ void handleDemoOptionClick() // sub_4B159   proc near       ; CODE XREF: runMain
         numberOfDemos++;
     }
     while (1);
-
+    // 01ED:4525
     uint8_t *demosAsByteArray = (uint8_t *)&gDemos;
 
 //loc_4B188:              ; CODE XREF: handleDemoOptionClick+2Aj
@@ -11940,14 +11918,14 @@ void handleDemoOptionClick() // sub_4B159   proc near       ; CODE XREF: runMain
         // TODO: test demos from the original game and recheck anything involving word_599D8
         word_599D8 = (word_599D8 & 0xFF00) | demoLevelNumber; // mov byte ptr word_599D8, al
         finalLevelNumber = demoLevelNumber;
-        //dl = al; // TODO: does this mean gDemoLevelNumber might store the level number of the demo or the demo number depending on the value of word_599D8 ???
+        //dl = al; // TODO: does this mean gDemoIndexOrDemoLevelNumber might store the level number of the demo or the demo number depending on the value of word_599D8 ???
     }
 
 //loc_4B1CF:              ; CODE XREF: handleDemoOptionClick+6Bj
 //                ; handleDemoOptionClick+6Fj
-    // al = dl;  // TODO: does this mean gDemoLevelNumber might store the level number of the demo or the demo number depending on the value of word_599D8 ???
+    // al = dl;  // TODO: does this mean gDemoIndexOrDemoLevelNumber might store the level number of the demo or the demo number depending on the value of word_599D8 ???
     gRandomGeneratorSeed = gDemoRandomSeeds[demoIndex];
-    gDemoLevelNumber = finalLevelNumber;
+    gDemoIndexOrDemoLevelNumber = finalLevelNumber;
 
     demoFirstIndex++; // To skip the level number
     word_510DF = demoFirstIndex;
@@ -11990,7 +11968,7 @@ void playDemo(uint16_t demoIndex) // demoSomething  proc near       ; CODE XREF:
 
 //loc_4B248:              ; CODE XREF: playDemo+4Bj
 //                ; playDemo+4Fj
-    gDemoLevelNumber = finalLevelNumber;
+    gDemoIndexOrDemoLevelNumber = finalLevelNumber;
 
     demoFirstIndex++; // To skip the level number
     word_510DF = demoFirstIndex;
@@ -14931,7 +14909,8 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
         && (word_599D8 & 0xFF) == 0
         && byte_599D4 == 0)
     {
-        Level *level = &gDemos.level[gDemoLevelNumber];
+        // Demos with the new format
+        Level *level = &gDemos.level[gDemoIndexOrDemoLevelNumber];
 
         memcpy(&fileLevelData, level, levelDataLength);
 
@@ -14958,7 +14937,8 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 //loc_4D5A3:              ; CODE XREF: readLevels+55j
         else if (byte_599D4 != 0)
         {
-//            filename = demoFileName; //    mov dx, offset demoFileName
+            // TODO: add support for demos run from command line
+            // filename = demoFileName; //    mov dx, offset demoFileName
         }
         else if (word_599DA != 0)
         {
@@ -14977,7 +14957,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 //loc_4D5C2:              ; CODE XREF: readLevels+75j
         if (gIsPlayingDemo != 0)
         {
-            levelIndex = gDemoLevelNumber;
+            levelIndex = gDemoIndexOrDemoLevelNumber;
         }
         else
         {
@@ -15018,27 +14998,12 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
         if ((word_599D8 & 0xFF) != 0) // cmp byte ptr word_599D8, 0
         {
             word_599D8 |= 0xFF00; // mov byte ptr word_599D8+1, 0FFh
-        //    push    es
-        //    mov ax, demoseg
-        //    mov es, ax
-        //    assume es:demoseg
-        //    lea si, ds:[00768h]
-        //    lea di, ds:[0BE20h]
-            ax = word_599D6;
-            gDemoLevelNumber = ax;
-            cx = ax;
-            cx = cx << 1;
-            ax += cx;
-            cl = 9;
-            ax = ax << cl;
-            di += ax;
-            cx = 0x300; // 768
-        //    cld
-            memcpy(di, si, 0x300 * 2);// rep movsw
-            di -= 0x300 * 2;
-            si -= 0x300 * 2;
-        //    pop es
-        //    assume es:nothing
+
+            gDemoIndexOrDemoLevelNumber = word_599D6;
+
+            Level *level = &gDemos.level[gDemoIndexOrDemoLevelNumber];
+
+            memcpy(level, &fileLevelData, levelDataLength);
         }
     }
 
@@ -15063,7 +15028,6 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
             && word_599DA != 0))
     {
 //loc_4D679:              ; CODE XREF: readLevels+121j
-        // TODO: not sure if this code is executed only for demos
         strcpy(gCurrentDemoLevelIdentifier, "BIN");
     }
     else if (byte_599D4 == 0)
