@@ -68,10 +68,10 @@ uint8_t byte_50953 = 0;
 uint8_t byte_50954 = 0;
 uint8_t gIsGravityEnabled = 0; // byte_5101C -> 1 = turn on, anything else (0) = turn off
 uint8_t gAreZonksFrozen = 0; // byte_51035 -> 2 = turn on, anything else (0) = turn off  (1=off!)
-uint8_t gNumberOfInfoTronsInCurrentLevel = 0; // byte_51036 -> this seems to be _inside_ of fileLevelData when a level is read
-uint8_t byte_51037 = 0; //  -> this seems to be _inside_ of fileLevelData when a level is read, and it's numberOfSpecialPorts
+// uint8_t gNumberOfInfoTronsInCurrentLevel = 0; // 0xd26 -> byte_51036 -> this seems to be _inside_ of fileLevelData when a level is read
+// uint8_t byte_51037 = 0; // 0xd27 -> this seems to be _inside_ of fileLevelData when a level is read, and it's numberOfSpecialPorts
 uint8_t byte_510AB = 0;
-uint16_t word_510AC = 0;
+uint16_t word_510AC = 0; // stored in 0B5D:0D9C
 uint8_t byte_510AE = 0;
 uint8_t byte_510AF = 0;
 uint8_t byte_510B3 = 0;
@@ -7975,7 +7975,7 @@ void sub_4945D() //   proc near       ; CODE XREF: sub_4955B+294p
 //                ; CX = attributes for file
 //                ; DS:DX -> ASCIZ filename (may include drive and path)
     // TODO: Implement
-    FILE *file = fopen("some-name-probably-DEMO0", "w");
+    FILE *file = openWritableFile("some-name-probably-DEMO0", "w");
     if (file == NULL)
     {
         return;
@@ -18845,6 +18845,7 @@ void updateSpecialPort(uint16_t position) // sub_4F2AF   proc near       ; CODE 
     gAreZonksFrozen = portInfo.freezeZonks;
     gAreEnemiesFrozen = portInfo.freezeEnemies;
     // TODO: I still don't know where word_510AC is read :fearful:
+    // I tried with a breakpoint on memory read and it was never accessed :shrug:
     word_510AC = word_510AC ^ gRandomGeneratorSeed;
 }
 /*
