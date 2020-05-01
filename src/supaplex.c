@@ -10432,9 +10432,12 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
     MovingLevelTile *belowLeftTile = &gCurrentLevelWord[position + kLevelWidth - 1];
     MovingLevelTile *belowRightTile = &gCurrentLevelWord[position + kLevelWidth + 1];
 
-    uint8_t movingObject = 0;
-    uint8_t tile = 0;
-    uint8_t afterWordTile = 0;
+    // These indicate the kind of the explosion created by this tile.
+    // Tiles around may create a different explosion if needed (like Electrons create Infotrons).
+    //
+    uint8_t mainMovingObject = 0;
+    uint8_t mainTile = 0;
+    uint8_t mainAfterWordTile = 0;
 
     if (currentTile->movingObject == 0 && currentTile->tile == LevelTileTypeHardware)
     {
@@ -10451,18 +10454,23 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //loc_4A639:              ; CODE XREF: detonateBigExplosion+12j
     if (currentTile->tile == LevelTileTypeElectron)
     {
-        movingObject = 0x80;
-        tile = LevelTileTypeExplosion;
-        afterWordTile = 0xF3; // 243
+        mainMovingObject = 0x80;
+        mainTile = LevelTileTypeExplosion;
+        mainAfterWordTile = 0xF3; // 243
     }
     else
     {
 //loc_4A647:              ; CODE XREF: detonateBigExplosion+1Fj
         // cx = 0x1F; // 31
-        movingObject = 0;
-        tile = LevelTileTypeExplosion;
-        afterWordTile = LevelTileTypeSportRight; // 13
+        mainMovingObject = 0;
+        mainTile = LevelTileTypeExplosion;
+        mainAfterWordTile = LevelTileTypeSportRight; // 13
     }
+
+    // These have the tile-specific explosion info, which might differ (or not) from the main type
+    uint8_t movingObject = mainMovingObject;
+    uint8_t tile = mainTile;
+    uint8_t afterWordTile = mainAfterWordTile;
 
 //loc_4A64C:              ; CODE XREF: detonateBigExplosion+26j
     uint8_t skipHardwareCheck7 = 0;
@@ -10528,6 +10536,11 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
         }
     }
 
+    // Restore to the main explosion type before evaluating the new tile
+    movingObject = mainMovingObject;
+    tile = mainTile;
+    afterWordTile = mainAfterWordTile;
+
 //loc_4A6A6:              ; CODE XREF: detonateBigExplosion:loc_4A690j
 //                ; detonateBigExplosion+7Bj ...
     uint8_t skipHardwareCheck6 = 0;
@@ -10591,6 +10604,11 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
             aboveTile->tile = tile;
         }
     }
+
+    // Restore to the main explosion type before evaluating the new tile
+    movingObject = mainMovingObject;
+    tile = mainTile;
+    afterWordTile = mainAfterWordTile;
 
 //loc_4A6FD:              ; CODE XREF: detonateBigExplosion:loc_4A6E7j
 //                ; detonateBigExplosion+D2j ...
@@ -10656,6 +10674,11 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
         }
     }
 
+    // Restore to the main explosion type before evaluating the new tile
+    movingObject = mainMovingObject;
+    tile = mainTile;
+    afterWordTile = mainAfterWordTile;
+
 //loc_4A754:              ; CODE XREF: detonateBigExplosion:loc_4A73Ej
 //                ; detonateBigExplosion+129j ...
     uint8_t skipHardwareCheck4 = 0;
@@ -10719,6 +10742,11 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
             leftTile->tile = tile;
         }
     }
+
+    // Restore to the main explosion type before evaluating the new tile
+    movingObject = mainMovingObject;
+    tile = mainTile;
+    afterWordTile = mainAfterWordTile;
 
 //loc_4A7AB:              ; CODE XREF: detonateBigExplosion:loc_4A795j
 //                ; detonateBigExplosion+180j ...
@@ -10788,6 +10816,11 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
         }
     }
 
+    // Restore to the main explosion type before evaluating the new tile
+    movingObject = mainMovingObject;
+    tile = mainTile;
+    afterWordTile = mainAfterWordTile;
+
 //loc_4A806:              ; CODE XREF: detonateBigExplosion:loc_4A7F0j
 //                ; detonateBigExplosion+1DBj ...
     // 01ED:3BA7
@@ -10851,6 +10884,11 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
             belowLeftTile->tile = tile;
         }
     }
+
+    // Restore to the main explosion type before evaluating the new tile
+    movingObject = mainMovingObject;
+    tile = mainTile;
+    afterWordTile = mainAfterWordTile;
 
 //loc_4A85D:              ; CODE XREF: detonateBigExplosion:loc_4A847j
 //                ; detonateBigExplosion+232j ...
