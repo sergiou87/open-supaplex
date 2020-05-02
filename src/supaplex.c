@@ -81,7 +81,7 @@ uint8_t byte_510B5 = 0;
 uint8_t byte_510B6 = 0;
 uint8_t gShouldShowFailedLevelResultScreen = 0; // byte_510BA
 uint8_t byte_510BB = 0;
-uint8_t byte_510C0 = 0;
+uint8_t gIsExplosionStarted = 0; // byte_510C0 -> Set to 1 when an explosion is just created. Set back to 0 when _any_ of the explosions on the screen disappears.
 uint8_t byte_510D3 = 0;
 uint8_t gAreEnemiesFrozen = 0; // byte_510D7 -> 1 = turn on, anything else (0) = turn off
 uint8_t byte_510D8 = 0;
@@ -204,7 +204,6 @@ uint8_t byte_59B5F = 0;
 uint8_t byte_59B62 = 0;
 // uint8_t byte_59B64 = 0;
 uint8_t byte_59B6B = 0;
-uint8_t byte_59B6C = 0;
 uint8_t byte_59B6D = 0;
 uint8_t byte_59B71 = 0;
 uint8_t byte_59B72 = 0;
@@ -1512,8 +1511,8 @@ uint16_t word_51854 = 0x2A69; //  -> 0x1268 -> (
 uint16_t word_51856 = 0x2E38; //  -> 0x1268 -> (
 uint16_t word_51858 = 0x2E39; //  -> 0x1268 -> (
 uint16_t word_5195D = 0xF000; //  -> 0x1268 -> (
-uint16_t word_5195F = 0;
-uint16_t word_51961 = 0;
+uint16_t gScrollOffsetX = 0; // word_5195F
+uint16_t gScrollOffsetY = 0; // word_51961
 int16_t gAdditionalScrollOffsetX = 0; // word_51963
 int16_t gAdditionalScrollOffsetY = 0; // word_51965
 uint16_t word_51967 = 0; // scroll / first pixel of the scroll window
@@ -2847,7 +2846,7 @@ void drawInputOptionsSelection(uint8_t *destBuffer);
 void updateOptionsMenuState(uint8_t *destBuffer);
 void sub_4BF4A(uint8_t number);
 void readLevels(void);
-void sub_48A20(void);
+void initializeGameInfo(void);
 void drawFixedLevel(void);
 void drawGamePanel(void);
 void drawNumberOfRemainingInfotrons(void);
@@ -2860,7 +2859,7 @@ void sub_4A291(void);
 void drawMovingFrame(uint16_t srcX, uint16_t srcY, uint16_t destPosition);
 void runLevel(void);
 void slideDownGameDash(void);
-void sub_49EBE(void);
+void updateScrollOffset(void);
 uint16_t generateRandomNumber(void);
 void sub_4955B(void);
 void loc_49C41(void);
@@ -3551,7 +3550,7 @@ loc_46E75:              //; CODE XREF: start+251j
             fadeToPalette(gBlackPalette);
             byte_5A33F = 0;
             drawPlayerList();
-            sub_48A20();
+            initializeGameInfo();
             drawFixedLevel();
             drawGamePanel(); // 01ED:0311
             sub_4A2E6();
@@ -6685,7 +6684,7 @@ void handleInfotronStateAfterFallingOneTile(uint16_t position) // sub_48957   pr
     aboveTile->tile = 0x88;
 }
 
-void sub_48A20() //   proc near       ; CODE XREF: start+32Fp
+void initializeGameInfo() // sub_48A20   proc near       ; CODE XREF: start+32Fp
                 // ; runLevel:notFunctionKeyp ...
 {
     // 01ED:1DBD
@@ -6709,7 +6708,7 @@ void sub_48A20() //   proc near       ; CODE XREF: start+32Fp
     byte_510B4 = 0;
     byte_510B5 = 0;
     byte_510B6 = 0;
-    byte_510C0 = 0;
+    gIsExplosionStarted = 0;
     byte_5196A = 0x7F; // 127
     byte_5196B = 0;
     word_5195D = 0;
@@ -6754,7 +6753,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
                && keyPressed <= SDL_SCANCODE_F10);
 
 //notFunctionKey:             ; CODE XREF: runLevel+31j
-        sub_48A20();
+        initializeGameInfo();
         if (isMusicEnabled == 0)
         {
             sound3();
@@ -6845,8 +6844,8 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         // 01ED:1F5B
         updatePlantedRedDisk();
         sub_4A5E0();
-        sub_49EBE();
-        ax = word_5195F;
+        updateScrollOffset();
+        ax = gScrollOffsetX;
         al &= 7;
         gNumberOfDotsToShiftDataLeft = al;
         if ((speed3 & 0x40) == 0)
@@ -7004,12 +7003,12 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
                 do
                 {
 //loc_48CBE:              ; CODE XREF: runLevel+29Aj
-                    int16_t someValue = word_5195F;
+                    int16_t someValue = gScrollOffsetX;
                     someValue -= word_59B90;
                     if (someValue <= 0x10
                         && someValue >= -0x10) // 0xFFF0 = -0x10?? or -0xF??
                     {
-                        int16_t someOtherValue = word_51961;
+                        int16_t someOtherValue = gScrollOffsetY;
                         someOtherValue -= word_59B92;
                         if (someOtherValue <= 0x10
                             && someOtherValue >= -0x10) // 0xFFF0 = -0x10?? or -0xF??
@@ -7114,10 +7113,10 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 
 //loc_48D59:              ; CODE XREF: runLevel+19Bj
 //                ; runLevel+1D2j ...
-//        ax = word_51961;
-        word_59B92 = word_51961;
-//        ax = word_5195F;
-        word_59B90 = word_5195F;
+//        ax = gScrollOffsetY;
+        word_59B92 = gScrollOffsetY;
+//        ax = gScrollOffsetX;
+        word_59B90 = gScrollOffsetX;
         al &= 7;
         gNumberOfDotsToShiftDataLeft = al;
 //        mov dx, 3D4h
@@ -7134,7 +7133,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 //        inc dx
 //        al = bh
 //        out dx, al      ; Video: CRT controller internal registers
-//        mov cx, word_5195F
+//        mov cx, gScrollOffsetX
 //        mov ah, cl
 //        and ah, 7
         if (gIsFlashingBackgroundModeEnabled != 0)
@@ -7522,10 +7521,10 @@ void drawFixedLevel() // sub_48F6D   proc near       ; CODE XREF: start+335p ru
 
 //loc_490FD:              ; CODE XREF: drawFixedLevel+18Cj
     // No idea what's this yet...
-    bx = word_5195F;
+    bx = gScrollOffsetX;
     cl = 3;
     bx = bx >> cl;
-    ax = word_51961;
+    ax = gScrollOffsetY;
     cx = 0x7A; // 122
     ax = ax * cx;
     bx += ax;
@@ -8915,14 +8914,14 @@ void loc_49A89() // :              ; CODE XREF: sub_4955B+3FAj
 //loc_49B49:              ; CODE XREF: sub_4955B+5E9j
 //    mov cx, 23h ; '#'
 //    mov dx, 164Ah
-//    push    word_51961
+//    push    gScrollOffsetY
 //    push    word_51967
 //    push    gIsDebugModeEnabled
 //    call    readFromFh1
     bytes = fread(NULL, 1, 0x23, file); // 35
 //    pop gIsDebugModeEnabled
 //    pop word_51967
-//    pop word_51961
+//    pop gScrollOffsetY
     if (bytes < 0x23)
     {
 //loc_49C1A:              ; CODE XREF: sub_4955B+553j
@@ -9360,204 +9359,168 @@ void gameloop() //   proc near       ; CODE XREF: runLevel:noFlashingp
     return;
 }
 
-void sub_49EBE() //   proc near       ; CODE XREF: runLevel+109p
+void updateScrollOffset() // sub_49EBE   proc near       ; CODE XREF: runLevel+109p
                    // ; sub_4A291+29p
 {
-    dx = 0;
-    if (byte_510C0 != 0)
+    // 01ED:325B
+
+//loc_49ECC:              ; CODE XREF: updateScrollOffset+7j
+    int16_t scrollX = gMurphyPositionX;
+    int16_t scrollY = gMurphyPositionY;
+    scrollX -= kScreenWidth / 2; // 152
+    if (scrollX < 0)
     {
-        dx = generateRandomNumber();
+        scrollX = 0;
     }
 
-//loc_49ECC:              ; CODE XREF: sub_49EBE+7j
-    bx = gMurphyPositionX;
-    ax = gMurphyPositionY;
-    bx -= 0x98; // 152
-    if (bx < 8)
+//loc_49EDF:              ; CODE XREF: updateScrollOffset+1Cj
+    uint16_t maxScrollX = kLevelBitmapWidth - kScreenWidth;
+    if (scrollX > maxScrollX) // 624
     {
-        bx = 8;
+        scrollX = maxScrollX; // 624
     }
 
-//loc_49EDF:              ; CODE XREF: sub_49EBE+1Cj
-    if (bx > 0x278) // 632
-    {
-        bx = 0x278; // 632
-    }
-
-//loc_49EE8:              ; CODE XREF: sub_49EBE+25j
+//loc_49EE8:              ; CODE XREF: updateScrollOffset+25j
     if ((word_510C1 & 0xFF) == 0)
     {
-//loc_49EF4:              ; CODE XREF: sub_49EBE+2Fj
-        ax -= 0x64; // 100
+//loc_49EF4:              ; CODE XREF: updateScrollOffset+2Fj
+        scrollY -= kScreenHeight / 2;
     }
     else
     {
-        ax -= 0x58; // 88
-//      jmp short loc_49EF7
+        scrollY -= (kScreenHeight - kPanelBitmapHeight) / 2;
     }
 
-//loc_49EF7:              ; CODE XREF: sub_49EBE+34j
-    if (ax < 0)
+//loc_49EF7:              ; CODE XREF: updateScrollOffset+34j
+    if (scrollY < 0)
     {
-        ax = 0;
+        scrollY = 0;
     }
 
-//loc_49EFE:              ; CODE XREF: sub_49EBE+3Cj
+//loc_49EFE:              ; CODE XREF: updateScrollOffset+3Cj
+    uint16_t maxScrollY = 0;
+
     if ((word_510C1 & 0xFF) == 0)
     {
-//loc_49F0F:              ; CODE XREF: sub_49EBE+45j
-        if (ax > 0xA8) // 168
+//loc_49F0F:              ; CODE XREF: updateScrollOffset+45j
+        maxScrollY = kLevelBitmapHeight - kScreenHeight;
+        if (scrollY > maxScrollY)
         {
-            ax = 0xA8; // 168
+            scrollY = maxScrollY;
         }
     }
     else
     {
-        if (ax > 0xC0) // 192
+        maxScrollY = kLevelBitmapHeight - kScreenHeight + kPanelBitmapHeight;
+        if (scrollY > maxScrollY)
         {
-            ax = 0xC0; // 192
+            scrollY = maxScrollY;
         }
-
-//loc_49F0D:              ; CODE XREF: sub_49EBE+4Aj
-//        jmp short loc_49F17
     }
 
-//loc_49F17:              ; CODE XREF: sub_49EBE:loc_49F0Dj
-//                ; sub_49EBE+54j
+//loc_49F17:              ; CODE XREF: updateScrollOffset:loc_49F0Dj
+//                ; updateScrollOffset+54j
     if (gIsMoveScrollModeEnabled == 0
         || gIsNumpad5Pressed != 0)
     {
-//loc_49F25:              ; CODE XREF: sub_49EBE+5Ej
-        word_59B88 = bx;
-        word_59B8A = ax;
-    //    jmp short loc_49FA9
+//loc_49F25:              ; CODE XREF: updateScrollOffset+5Ej
+        word_59B88 = scrollX;
+        word_59B8A = scrollY;
     }
     else
     {
-//loc_49F2E:              ; CODE XREF: sub_49EBE+65j
-        bx = word_59B88;
-        ax = word_59B8A;
-        cx = bx;
-        bx += gAdditionalScrollOffsetX;
-        if (bx < 8)
+//loc_49F2E:              ; CODE XREF: updateScrollOffset+65j
+        scrollX = word_59B88;
+        scrollY = word_59B8A;
+        
+        int16_t additionalScrollX = scrollX;
+        scrollX += gAdditionalScrollOffsetX;
+        if (scrollX < 0)
         {
-            if (byte_59B6C == 0)
-            {
-//loc_49F4C:              ; CODE XREF: sub_49EBE+87j
-                bx += 0x3D0; // 976
-                gAdditionalScrollOffsetY--;
-            //    jmp short loc_49F66
-            }
-            else
-            {
-                bx = 8;
-                //jmp short loc_49F66
-            }
-
-//loc_49F66:              ; CODE XREF: sub_49EBE+8Cj
-//                ; sub_49EBE+96j
-            cx -= bx;
-            cx = -cx;
-//            gAdditionalScrollOffsetX = cx;
+            // 01ED:32DD
+            scrollX = 0;
         }
         else
         {
-//loc_49F56:              ; CODE XREF: sub_49EBE+80j
-            if (byte_59B6C == 0
-                && bx > 0x278) // 632
+//loc_49F56:              ; CODE XREF: updateScrollOffset+80j
+            if (scrollX > maxScrollX)
             {
-                bx = 0x278; // 632
-
-//loc_49F66:              ; CODE XREF: sub_49EBE+8Cj
-//                ; sub_49EBE+96j
-                cx -= bx;
-                cx = -cx;
-//                gAdditionalScrollOffsetX = cx;
+                scrollX = maxScrollX;
             }
         }
 
-//loc_49F6E:              ; CODE XREF: sub_49EBE+9Dj
-//                ; sub_49EBE+A3j
-        cx = ax;
-        ax += gAdditionalScrollOffsetY;
-        if (ax < 0) // in asm there wasn't a explicit "cmp", just the "add" above
-        {
-            if (byte_59B6C == 0)
-            {
-                ax = 0;
+//loc_49F66:              ; CODE XREF: updateScrollOffset+8Cj
+//                ; updateScrollOffset+96j
+        additionalScrollX -= scrollX;
+        additionalScrollX = -additionalScrollX;
+        gAdditionalScrollOffsetX = additionalScrollX;
 
-//loc_49FA1:              ; CODE XREF: sub_49EBE+C1j
-//                ; sub_49EBE+D9j
-                cx -= ax;
-                cx = -cx;
-//                gAdditionalScrollOffsetY = cx;
-            }
+//loc_49F6E:              ; CODE XREF: updateScrollOffset+9Dj
+//                ; updateScrollOffset+A3j
+        int16_t additionalScrollY = scrollY;
+        scrollY += gAdditionalScrollOffsetY;
+        if (scrollY < 0) // in asm there wasn't a explicit "cmp", just the "add" above
+        {
+            scrollY = 0;
         }
         else
         {
-//loc_49F81:              ; CODE XREF: sub_49EBE+B6j
-            if (byte_59B6C != 0
-                || (word_510C1 & 0xFF) == 0)
+//loc_49F99:              ; CODE XREF: updateScrollOffset+CFj
+            if (scrollY > maxScrollY) // 168
             {
-//loc_49F99:              ; CODE XREF: sub_49EBE+CFj
-                if (ax > 0xA8) // 168
-                {
-                    ax = 0xA8; // 168
-
-//loc_49FA1:              ; CODE XREF: sub_49EBE+C1j
-//                ; sub_49EBE+D9j
-                    cx -= ax;
-                    cx = -cx;
-//                    gAdditionalScrollOffsetY = cx;
-                }
-            }
-            else
-            {
-                if (ax > 0xC0) // 192
-                {
-                    ax = 0xC0; // 192
-
-//loc_49FA1:              ; CODE XREF: sub_49EBE+C1j
-//                ; sub_49EBE+D9j
-                    cx -= ax;
-                    cx = -cx;
-//                    gAdditionalScrollOffsetY = cx;
-                }
+                scrollY = maxScrollY; // 168
             }
         }
+
+//loc_49FA1:              ; CODE XREF: updateScrollOffset+C1j
+//                ; updateScrollOffset+D9j
+        additionalScrollY -= scrollY;
+        additionalScrollY = -additionalScrollY;
+        gAdditionalScrollOffsetY = additionalScrollY;
     }
 
-//loc_49FA9:              ; CODE XREF: sub_49EBE+6Ej
-//                ; sub_49EBE+BDj ...
+//loc_49FA9:              ; CODE XREF: updateScrollOffset+6Ej
+//                ; updateScrollOffset+BDj ...
+    // This makes the screen shake when Murphy dies
     if (byte_59B72 != 0
         || (byte_59B6D == 0
             && (gQuitLevelCountdown & 0xFF) != 0))
     {
-//loc_49FBE:              ; CODE XREF: sub_49EBE+F0j
-        cx = 0;
-        dx = dx & 0x101;
-        SWAP(cl, dh, uint8_t);
-        ax += cx;
-        if (bx > 0x13C) // 316
+//loc_49FBE:              ; CODE XREF: updateScrollOffset+F0j
+        uint16_t randomNumber = 0;
+
+        // This makes the shaking effect stop after the explosion is finished
+        if (gIsExplosionStarted == 1)
         {
-            dx = -dx;
+            randomNumber = generateRandomNumber();
         }
 
-//loc_49FD0:              ; CODE XREF: sub_49EBE+10Ej
-        bx += dx;
+        randomNumber = randomNumber & 0x101;
+
+        uint16_t scrollShakeYOffset = randomNumber >> 8;
+        uint16_t scrollShakeXOffset = (randomNumber & 0xFF);
+
+        scrollY += scrollShakeYOffset;
+        if (scrollX > 0x13C) // 316
+        {
+            scrollShakeXOffset = ~scrollShakeXOffset;
+        }
+
+//loc_49FD0:              ; CODE XREF: updateScrollOffset+10Ej
+        scrollX += scrollShakeXOffset;
     }
 
-//loc_49FD2:              ; CODE XREF: sub_49EBE+F7j
-//                ; sub_49EBE+FEj
-    word_5195F = bx;
-    word_51961 = ax;
+//loc_49FD2:              ; CODE XREF: updateScrollOffset+F7j
+//                ; updateScrollOffset+FEj
+    gScrollOffsetX = scrollX;
+    gScrollOffsetY = scrollY;
     cl = 3;
-    bx = bx >> cl;
+    scrollX = scrollX >> cl;
     cx = 0x7A; // 122
-    ax = ax * cx;
-    bx += ax;
-    bx += 0x4D34;
-    word_51967 = bx;
+    scrollY = scrollY * cx;
+    scrollX += scrollY;
+    scrollX += 0x4D34;
+    word_51967 = scrollX;
 }
 
 uint8_t waitForJoystickKeyReleased(uint8_t keyOrAxis, uint16_t *outTime) // sub_49FED  proc near       ; CODE XREF: sub_48E59+2Cp
@@ -9785,7 +9748,7 @@ void generateRandomSeedFromClock() // getTime    proc near       ; CODE XREF: st
 
 /// Generates a random number based on time?
 uint16_t generateRandomNumber() // sub_4A1AE   proc near       ; CODE XREF: sub_4955B+66Cp
-                   // ; sub_49EBE+9p ...
+                   // ; updateScrollOffset+9p ...
 {
     uint16_t someValue = gRandomGeneratorSeed;
     someValue *= 0x5E5; // 1509
@@ -9927,10 +9890,10 @@ void sub_4A291() //   proc near       ; CODE XREF: sub_4955B+686p
 //    di = si[0x6155];
 //    si = kMurphyStillSpriteCoordinates;
     drawMovingFrame(304, 132, gMurphyLocation);
-    sub_49EBE();
-    word_59B92 = word_51961;
-    word_59B90 = word_5195F;
-    al = word_5195F & 7;
+    updateScrollOffset();
+    word_59B92 = gScrollOffsetY;
+    word_59B90 = gScrollOffsetX;
+    al = gScrollOffsetX & 7;
     gNumberOfDotsToShiftDataLeft = al;
     // centers the scroll on Murphy?
     /*
@@ -10192,7 +10155,7 @@ void sub_4A463() //   proc near       ; CODE XREF: sub_4945D:loc_4953Bp
     byte_5A33F = -byte_5A33F;
     resetNumberOfInfotrons();
     byte_59B7B = 1;
-    sub_48A20();
+    initializeGameInfo();
     findMurphy();
 }
 
@@ -10347,7 +10310,7 @@ void updateExplosionTiles(uint16_t position) //loc_4A543:              ; DATA XR
         {
             currentTile->movingObject = 0;
             currentTile->tile = LevelTileTypeInfotron;
-            byte_510C0 = 0;
+            gIsExplosionStarted = 0;
         }
     }
     else
@@ -10368,7 +10331,7 @@ void updateExplosionTiles(uint16_t position) //loc_4A543:              ; DATA XR
         {
             currentTile->movingObject = 0;
             currentTile->tile = LevelTileTypeSpace;
-            byte_510C0 = 0;
+            gIsExplosionStarted = 0;
         }
     }
 }
@@ -10440,7 +10403,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
     }
 
 //loc_4A627:              ; CODE XREF: detonateBigExplosion+5j
-    byte_510C0 = 1;
+    gIsExplosionStarted = 1;
     if (currentTile->tile == LevelTileTypeMurphy)
     {
         word_510D1 = 1;
@@ -14845,7 +14808,7 @@ void limitFPS()
             SDL_Delay(kFrameDuration - duration);
         }
     }
-    
+
     sLastFrameTime = SDL_GetTicks();
 }
 
@@ -20436,7 +20399,7 @@ void drawSpeedFixTitleAndVersion() //   proc near       ; CODE XREF: start+2E6p
     drawTextWithChars6FontWithOpaqueBackground(102, 11, 1, "SUPAPLEX VERSION 7.0");
 }
 
-void drawSpeedFixCredits() //  proc near       ; CODE XREF: start+2ECp
+void drawSpeedFixCredits() // showNewCredits  proc near       ; CODE XREF: start+2ECp
 {
     drawTextWithChars6FontWithOpaqueBackground(60, 168, 0xE, "VERSIONS 1-4 + 6.X BY HERMAN PERK");
     drawTextWithChars6FontWithOpaqueBackground(60, 176, 0xE, "VERSIONS 5.X BY ELMER PRODUCTIONS");
@@ -20488,24 +20451,7 @@ void drawCurrentLevelViewport(uint16_t panelHeight)
 {
     uint16_t viewportHeight = kScreenHeight - panelHeight;
 
-    uint16_t maxScrollX = kLevelBitmapWidth - kScreenWidth;
-    uint16_t maxScrollY = kLevelBitmapHeight - viewportHeight;
-
-    uint16_t scrollX = CLAMP(gMurphyPositionX - kScreenWidth / 2,
-                             0,
-                             maxScrollX);
-    scrollX = CLAMP(scrollX + gAdditionalScrollOffsetX,
-                    0,
-                    maxScrollX);
-
-    uint16_t scrollY = CLAMP(gMurphyPositionY - viewportHeight / 2,
-                             0,
-                             maxScrollY);
-    scrollY = CLAMP(scrollY + gAdditionalScrollOffsetY,
-                    0,
-                    maxScrollY);
-
-    drawLevelViewport(scrollX, scrollY, kScreenWidth, viewportHeight);
+    drawLevelViewport(gScrollOffsetX, gScrollOffsetY, kScreenWidth, viewportHeight);
 
     for (int y = 0; y < panelHeight; ++y)
     {
