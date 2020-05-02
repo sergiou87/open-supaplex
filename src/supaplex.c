@@ -221,7 +221,7 @@ uint8_t byte_59B84 = 0;
 uint8_t byte_59B85 = 0;
 uint8_t byte_59B86 = 0;
 uint8_t gGameIterationCounter = 0; // byte_59B94
-uint8_t byte_59B95 = 0;
+uint8_t gNumberOfGameIterationsBeforeDelay = 0; // byte_59B95 -> used to track the number of game iterations before adding a delay to adjust the speed
 uint8_t gGameTime20msAccumulator = 0; // byte_59B96 -> accumulates game time. The total time is its value * 20ms, so when it reaches 50 it means 1 second. Used to regulate game speed
 uint16_t word_5A199 = 0;
 uint8_t byte_5A140 = 0;
@@ -1569,7 +1569,7 @@ uint8_t isFXEnabled = 0; // byte_59885
 SDL_Scancode keyPressed = 0;
 
 // The variables below are used to adapt the game speed:
-// - gameSpeed: Game Speed in "Speed Fix values" from 0 to 10, but inverted. 10 is the
+// - gGameSpeed: Game Speed in "Speed Fix values" from 0 to 10, but inverted. 10 is the
 //   fastest, 0 the slowest. 5 means we adding an extra frame on every iteration,
 //   needed to have the original speed when the FPS is twice as the original (35 fps).
 // - gRemainingSpeedTestAttempts: indicates the number of remaining attempts to auto
@@ -1578,7 +1578,7 @@ SDL_Scancode keyPressed = 0;
 uint8_t gRemainingSpeedTestAttempts = 255; // speed1
 int8_t speed2 = 0;
 int8_t speed3 = 0xFF; // speed?3
-int8_t gameSpeed = 5;
+int8_t gGameSpeed = 5; // gameSpeed
 uint8_t demoFileName = 0; // Probably should be another type but whatever for now
 uint8_t gIsFlashingBackgroundModeEnabled = 0; // flashingbackgroundon
 
@@ -3966,11 +3966,11 @@ void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9
     {
         if (keyPressed == SDL_SCANCODE_KP_MULTIPLY) // Key * in the numpad, restore speed
         {
-            gameSpeed = speed3;
+            gGameSpeed = speed3;
 
             int8_t newSpeed2 = speed2;
             newSpeed2 = newSpeed2 & 0xF0;
-            newSpeed2 = newSpeed2 | gameSpeed;
+            newSpeed2 = newSpeed2 | gGameSpeed;
             if (speed2 > newSpeed2)
             {
                 speed2 = newSpeed2;
@@ -3981,15 +3981,15 @@ void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9
         else if (keyPressed == SDL_SCANCODE_KP_DIVIDE) // Keypad / -> fastest playback seed
         {
             gRemainingSpeedTestAttempts = 0;
-            gameSpeed = 10;
+            gGameSpeed = 10;
         }
 //checkPlus:              ; CODE XREF: int9handler+54j
         else if (keyPressed == SDL_SCANCODE_KP_PLUS) // Key + in the numpad, speed up
         {
             gRemainingSpeedTestAttempts = 0;
-            if (gameSpeed < 10) // 10
+            if (gGameSpeed < 10) // 10
             {
-                gameSpeed++;
+                gGameSpeed++;
             }
         }
 //checkMinus:             ; CODE XREF: int9handler+65j
@@ -3997,14 +3997,14 @@ void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9
         else if (keyPressed == SDL_SCANCODE_KP_MINUS) // Key - in the numpad, speed down
         {
             gRemainingSpeedTestAttempts = 0;
-            if (gameSpeed != 0)
+            if (gGameSpeed != 0)
             {
-                gameSpeed--;
+                gGameSpeed--;
 //loc_47320:              ; CODE XREF: int9handler+4Fj
 //                          push(cx);
                 int8_t newSpeed2 = speed2;
                 newSpeed2 = newSpeed2 & 0xF0;
-                newSpeed2 = newSpeed2 | gameSpeed;
+                newSpeed2 = newSpeed2 | gGameSpeed;
                 if (speed2 > newSpeed2)
                 {
                     speed2 = newSpeed2;
@@ -6830,17 +6830,17 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         {
             if ((speed3 & 0x80) != 0)
             {
-                al = gameSpeed;
+                al = gGameSpeed;
                 SWAP(al, speed3, uint8_t);
                 if (al != 0xBF) // 191
                 {
                     al &= 0xF;
-                    gameSpeed = al;
+                    gGameSpeed = al;
                 }
             }
         }
 
-        uint8_t shouldJumpTo_loc_48D59 = 0;
+        uint8_t shouldSkipAddingDelay = 0;
 
 //loc_48BED:              ; CODE XREF: runLevel+119j
 //                ; runLevel+120j ...
@@ -6865,11 +6865,11 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
                 if (isFastComputer)
                 {
 //loc_48C79:              ; CODE XREF: runLevel+164j
-                    if (gameSpeed > 0)
+                    if (gGameSpeed > 0)
                     {
 //loc_48C73:              ; CODE XREF: runLevel+1C3j
-                        gameSpeed--;
-                        printf("This device is fast. Decreasing speed to %d\n", gameSpeed);
+                        gGameSpeed--;
+                        printf("This device is fast. Decreasing speed to %d\n", gGameSpeed);
                     }
                     else
                     {
@@ -6879,12 +6879,12 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
                 else if (isSlowComputer)
                 {
 //loc_48C5F:              ; CODE XREF: runLevel+166j
-                    if (gameSpeed < 10)
+                    if (gGameSpeed < 10)
                     {
 //loc_48C59:              ; CODE XREF: runLevel+199j
 //                ; runLevel+1A9j
-                        gameSpeed++;
-                        printf("This device is slow. Increasing speed to %d\n", gameSpeed);
+                        gGameSpeed++;
+                        printf("This device is slow. Increasing speed to %d\n", gGameSpeed);
                     }
                     else
                     {
@@ -6893,50 +6893,50 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
                 }
                 else
                 {
-                    printf("This device is perfect to run the game with speed %d\n", gameSpeed);
+                    printf("This device is perfect to run the game with speed %d\n", gGameSpeed);
 
                     gRemainingSpeedTestAttempts--;
                     if (gRemainingSpeedTestAttempts <= 254) // 254
                     {
                         speed3 &= 0xBF; // 191
                         gRemainingSpeedTestAttempts = 0;
-                        if (gameSpeed == 4)
+                        if (gGameSpeed == 4)
                         {
 //loc_48C4F:              ; CODE XREF: runLevel+182j
 //                ; runLevel+190j
-                            if (gameSpeed >= 0xA)
+                            if (gGameSpeed >= 10)
                             {
-                                shouldJumpTo_loc_48D59 = 1;
+                                shouldSkipAddingDelay = 1;
                             }
                             else
                             {
 //loc_48C59:              ; CODE XREF: runLevel+199j
 //                ; runLevel+1A9j
-                                gameSpeed++;
+                                gGameSpeed++;
                             }
                         }
-                        else if (gameSpeed == 6)
+                        else if (gGameSpeed == 6)
                         {
 //loc_48C6C:              ; CODE XREF: runLevel+189j
-                            if (gameSpeed != 0)
+                            if (gGameSpeed != 0)
                             {
 //loc_48C73:              ; CODE XREF: runLevel+1C3j
-                                gameSpeed--;
+                                gGameSpeed--;
                             }
                         }
-                        else if (gameSpeed == 9)
+                        else if (gGameSpeed == 9)
                         {
 //loc_48C4F:              ; CODE XREF: runLevel+182j
 //                ; runLevel+190j
-                            if (gameSpeed >= 0xA)
+                            if (gGameSpeed >= 10)
                             {
-                                shouldJumpTo_loc_48D59 = 1;
+                                shouldSkipAddingDelay = 1;
                             }
                             else
                             {
 //loc_48C59:              ; CODE XREF: runLevel+199j
 //                ; runLevel+1A9j
-                                gameSpeed++;
+                                gGameSpeed++;
                             }
                         }
                     }
@@ -6947,172 +6947,54 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 //loc_48C86:              ; CODE XREF: runLevel+139j
 //                ; runLevel+147j ...
         if (fastMode != 1
-            && gameSpeed < 0xA
-            && shouldJumpTo_loc_48D59 == 0)
+            && gGameSpeed < 10
+            && shouldSkipAddingDelay == 0)
         {
 
 //loc_48C9A:              ; CODE XREF: runLevel+1DAj
-            int8_t numberOfVideoLoopIterations = 6;
-            numberOfVideoLoopIterations -= gameSpeed;
-            if (numberOfVideoLoopIterations <= 0)
+            int8_t numberOfDelays = 6;
+            numberOfDelays -= gGameSpeed;
+            if (numberOfDelays <= 0)
             {
-                al = gameSpeed;
-                byte_59B95++;
-                al -= 5;
-                if (al >= byte_59B95)
+                // This code takes care of the "fractional" delays, meaning delays that are added
+                // every (gGameSpeed - 5) iterations of the game.
+                //
+                uint8_t iterationsToDelay = gGameSpeed - 5;
+                gNumberOfGameIterationsBeforeDelay++;
+
+                if (gNumberOfGameIterationsBeforeDelay < iterationsToDelay)
                 {
-                    shouldJumpTo_loc_48D59 = 1;
+                    shouldSkipAddingDelay = 1;
                 }
                 else
                 {
 //loc_48CB5:              ; CODE XREF: runLevel+1F5j
-                    byte_59B95 = 0;
-                    numberOfVideoLoopIterations = 1;
+                    gNumberOfGameIterationsBeforeDelay = 0;
+                    numberOfDelays = 1;
                 }
             }
 
-            if (shouldJumpTo_loc_48D59 == 0)
+            if (shouldSkipAddingDelay == 0)
             {
 //loc_48CBD:              ; CODE XREF: runLevel+1E6j
-                // push    bx
-
-                // Is this loop the shake effect??
-                do
+                // This loop adds extra delays
+                for (int i = 0; i < numberOfDelays; ++i)
                 {
-//loc_48CBE:              ; CODE XREF: runLevel+29Aj
-                    int16_t someValue = gScrollOffsetX;
-                    someValue -= word_59B90;
-                    if (someValue <= 0x10
-                        && someValue >= -0x10) // 0xFFF0 = -0x10?? or -0xF??
-                    {
-                        int16_t someOtherValue = gScrollOffsetY;
-                        someOtherValue -= word_59B92;
-                        if (someOtherValue <= 0x10
-                            && someOtherValue >= -0x10) // 0xFFF0 = -0x10?? or -0xF??
-                        {
-                            // push(cx);
-                            int8_t otherNumberOfVideoLoopIterations = numberOfVideoLoopIterations;
-                            otherNumberOfVideoLoopIterations++;
-                            // idiv    cl -> signed division
-                            al = someOtherValue / otherNumberOfVideoLoopIterations;
-                            ah = someOtherValue % otherNumberOfVideoLoopIterations;
-                            uint8_t topBit = ah >> 7;
-                            ah = ah << 1;
-                            if (topBit != 0) // jnb -> cf==0 -> in shl, cf will be the MSB of the operand
-                            {
-//loc_48CF3:              ; CODE XREF: runLevel+22Cj
-                                if (ah >= otherNumberOfVideoLoopIterations)
-                                {
-                                    al++;
-                                }
-                            }
-                            else
-                            {
-                                ah = -ah;
-                                if (ah >= otherNumberOfVideoLoopIterations)
-                                {
-                                    al--;
-                                }
-                            }
-
-//loc_48CF9:              ; CODE XREF: runLevel+232j
-        //                ; runLevel+236j ...
-                            // cbw
-                            word_59B92 += ax;
-                            ax = someValue;
-                            // idiv    cl -> signed division
-                            al = ax / otherNumberOfVideoLoopIterations;
-                            ah = ax % otherNumberOfVideoLoopIterations;
-                            uint8_t topBit2 = ah >> 7;
-                            ah = ah << 1;
-                            if (topBit2 != 0) // jnb -> cf==0 -> in shl, cf will be the MSB of the operand
-                            {
-//loc_48D10:              ; CODE XREF: runLevel+249j
-                                if (ah >= otherNumberOfVideoLoopIterations)
-                                {
-                                    al++;
-                                }
-                            }
-                            else
-                            {
-                                ah = -ah;
-                                if (ah >= otherNumberOfVideoLoopIterations)
-                                {
-                                    al--;
-                                }
-                            }
-
-//loc_48D16:              ; CODE XREF: runLevel+24Fj
-//                        ; runLevel+253j ...
-                            // cbw
-                            word_59B90 += ax;
-                            ax = word_59B90;
-                            bx = ax;
-                            al &= 7;
-                            gNumberOfDotsToShiftDataLeft = al;
-                            cl = 3;
-                            bx = bx >> cl;
-                            ax = word_59B92;
-                            cx = 0x7A; // 122
-                            ax = ax * cx;
-                            bx += ax;
-                            bx += 0x4D34;
-                            // pop(cx);
-                        }
-                    }
-
 //loc_48D38:              ; CODE XREF: runLevel+20Ej
 //                ; runLevel+213j ...
-        //        mov dx, 3D4h
-        //        al = 0Dh
-        //        out dx, al      ; Video: CRT cntrlr addr
-        //                    ; regen start address (low)
-        //        inc dx
-        //        al = bl
-        //        out dx, al      ; Video: CRT controller internal registers
-        //        mov dx, 3D4h
-        //        al = 0Ch
-        //        out dx, al      ; Video: CRT cntrlr addr
-        //                    ; regen start address (high)
-        //        inc dx
-        //        al = bh
-        //        out dx, al      ; Video: CRT controller internal registers
                     videoloop(); // 01ED:20E9
                     loopForVSync();
-                    numberOfVideoLoopIterations--;
                 }
-                while (numberOfVideoLoopIterations != 0);
-
-//loc_48D58:              ; CODE XREF: runLevel+298j
-                // pop bx
             }
         }
 
 //loc_48D59:              ; CODE XREF: runLevel+19Bj
 //                ; runLevel+1D2j ...
-//        ax = gScrollOffsetY;
         word_59B92 = gScrollOffsetY;
-//        ax = gScrollOffsetX;
         word_59B90 = gScrollOffsetX;
         al &= 7;
         gNumberOfDotsToShiftDataLeft = al;
-//        mov dx, 3D4h
-//        al = 0Dh
-//        out dx, al      ; Video: CRT cntrlr addr
-//                    ; regen start address (low)
-//        inc dx
-//        al = bl
-//        out dx, al      ; Video: CRT controller internal registers
-//        mov dx, 3D4h
-//        al = 0Ch
-//        out dx, al      ; Video: CRT cntrlr addr
-//                    ; regen start address (high)
-//        inc dx
-//        al = bh
-//        out dx, al      ; Video: CRT controller internal registers
-//        mov cx, gScrollOffsetX
-//        mov ah, cl
-//        and ah, 7
+
         if (gIsFlashingBackgroundModeEnabled != 0)
         {
             replaceCurrentPaletteColor(0, (SDL_Color) { 0x3f, 0x3f, 0x3f });
@@ -7962,7 +7844,7 @@ void sub_4945D() //   proc near       ; CODE XREF: handleGameUserInput+294p
     bl = speed3;
     cl = 4;
     bl = bl << cl;
-    bl |= gameSpeed;
+    bl |= gGameSpeed;
     speed2 = bl;
 //    mov bx, word_510E4
 //    mov ax, 4000h
@@ -9829,17 +9711,10 @@ void sub_4A291() //   proc near       ; CODE XREF: handleGameUserInput+686p
     // Parameters:
     // - si: murphy location * 2
     // - al: murphy location
-//    bl = kLevelWidth; // 60
-//    al = ax / bl; // calculates coords: Y
-//    ah = ax % bl; // X
-//    bl = ah;
-//    bh = 0;
+
     gMurphyTileX = gMurphyLocation % kLevelWidth; // stores X coord
-//    ah = 0;
     gMurphyTileY = gMurphyLocation / kLevelWidth; // stores Y coord
-//    cl = 4;
-//    ax = gMurphyTileY * kTileSize;
-//    bx = gMurphyTileX * kTileSize;
+
     gMurphyPositionX = gMurphyTileX * kTileSize;
     gMurphyPositionY = gMurphyTileY * kTileSize;
 //    di = si[0x6155];
@@ -9850,23 +9725,7 @@ void sub_4A291() //   proc near       ; CODE XREF: handleGameUserInput+686p
     word_59B90 = gScrollOffsetX;
     al = gScrollOffsetX & 7;
     gNumberOfDotsToShiftDataLeft = al;
-    // centers the scroll on Murphy?
-    /*
-    mov dx, 3D4h
-    al = 0Dh
-    out dx, al      ; Video: CRT cntrlr addr
-                ; regen start address (low)
-    inc dx
-    al = bl
-    out dx, al      ; Video: CRT controller internal registers
-    mov dx, 3D4h
-    al = 0Ch
-    out dx, al      ; Video: CRT cntrlr addr
-                ; regen start address (high)
-    inc dx
-    al = bh
-    out dx, al      ; Video: CRT controller internal registers
-     */
+
     videoloop();
 }
 
@@ -11687,7 +11546,7 @@ void handleStatisticsOptionClick() // sub_4AF0C   proc near
         // statistics screen is called: you will notice a 1 second measuring delay.
 
     //    al = 0Ah
-    //    sub al, gameSpeed
+    //    sub al, gGameSpeed
     //    aam
     //    or  ax, 3030h
     //    xchg    al, ah
