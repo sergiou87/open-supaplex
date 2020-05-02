@@ -30,6 +30,7 @@
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 #define CLAMP(v, a, b) MIN(MAX(a, v), b)
+#define SWAP(x, y, __type) do { __type __temp__ = x; x = y; y = __temp__; } while (0)
 
 #define kScreenWidth 320
 #define kScreenHeight 200
@@ -6853,10 +6854,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
             if ((speed3 & 0x80) != 0)
             {
                 al = gameSpeed;
-                int8_t temp = al;
-                al = speed3;
-                speed3 = temp;
-        //      xchg    al, speed3
+                SWAP(al, speed3, uint8_t);
                 if (al != 0xBF) // 191
                 {
                     al &= 0xF;
@@ -9538,10 +9536,7 @@ void sub_49EBE() //   proc near       ; CODE XREF: runLevel+109p
 //loc_49FBE:              ; CODE XREF: sub_49EBE+F0j
         cx = 0;
         dx = dx & 0x101;
-//        xchg    cl, dh
-        uint8_t aux = cl;
-        cl = dh;
-        dh = aux;
+        SWAP(cl, dh, uint8_t);
         ax += cx;
         if (bx > 0x13C) // 316
         {
@@ -11762,6 +11757,7 @@ void handleStatisticsOptionClick() // sub_4AF0C   proc near
     word_58714 = someValue;
     if (gIsDebugModeEnabled != 0)
     {
+        // TODO: revisit this
     //    al = 0Ah
     //    sub al, gameSpeed
     //    aam
@@ -11778,10 +11774,11 @@ void handleStatisticsOptionClick() // sub_4AF0C   proc near
         byte_59B94 = 0x0;
         byte_59B96 = 0x0;
 
+        // TODO: revisit what's this loop for
         do
         {
 //loc_4AFAA:              ; CODE XREF: handleStatisticsOptionClick+A3j
-            // TODO: update timer
+            handleSDLEvents();
         }
         while ((byte_59B96 & 0xFF) == 0); // test    byte_59B96, 0FFh
         byte_59B96 = 0;
@@ -11795,6 +11792,7 @@ void handleStatisticsOptionClick() // sub_4AF0C   proc near
         }
         while (byte_59B96 < 0x32); // '2'
 
+        // TODO: revisit this
         al = byte_59B94;
         ah = 0;
     //    push(cx);
@@ -11807,7 +11805,7 @@ void handleStatisticsOptionClick() // sub_4AF0C   proc near
         al = ah;
     //    aam
         ax |= 0x3030;
-    //    xchg    al, ah
+        ax = SDL_Swap16(ax);
         word_58710 = ax;
     }
 
@@ -18904,8 +18902,7 @@ void updateSpecialPort(uint16_t position) // sub_4F2AF   proc near       ; CODE 
 //loc_4F2BD:              ; CODE XREF: updateSpecialPort+19j
         SpecialPortInfo portInfo = gCurrentLevel.specialPortsInfo[i];
         // For _reasons_ the port position has its bytes inverted (first high, then low), so we must reverse them
-        uint16_t portPosition = (((portInfo.position & 0xFF) << 8)
-                                 | (portInfo.position >> 8));
+        uint16_t portPosition = SDL_Swap16(portInfo.position);
         portPosition /= 2; // We must divide by 2 because the level format works with words
 
         if (portPosition == position)
