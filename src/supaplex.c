@@ -2937,7 +2937,7 @@ int main(int argc, const char * argv[])
                                SDL_WINDOWPOS_UNDEFINED,
                                kWindowWidth,
                                kWindowHeight,
-#ifdef __vita__
+#if defined(__SWITCH__) || defined(__vita__)
                                SDL_WINDOW_FULLSCREEN);
 #else
                                0);
@@ -2945,8 +2945,8 @@ int main(int argc, const char * argv[])
 
     if (gWindow == NULL)
     {
-      SDL_Log("Could not create a window: %s", SDL_GetError());
-      return -1;
+        SDL_Log("Could not create a window: %s", SDL_GetError());
+        return -1;
     }
 
     SDL_SetWindowResizable(gWindow, SDL_TRUE);
@@ -2954,7 +2954,7 @@ int main(int argc, const char * argv[])
 
     SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_TIMER);
 
-    gRenderer = SDL_CreateRenderer(gWindow, -1, 0);
+    gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_PRESENTVSYNC);
 
     gTexture = SDL_CreateTexture(gRenderer,
                                              SDL_PIXELFORMAT_ARGB32,
@@ -3748,6 +3748,7 @@ exit:                   //; CODE XREF: readConfig:loc_474BBj
 */
 
         // Tidy up
+        SDL_DelEventWatch(windowResizingEventWatcher, gWindow);
         SDL_FreeSurface(gTextureSurface);
         SDL_DestroyTexture(gTexture);
         SDL_DestroyRenderer(gRenderer);
@@ -14832,17 +14833,14 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
     }
 }
 
-static const double kFPS = 60.0;
-static const double kFrameDuration = 1000.0 / kFPS;
-
 void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
 {
     static float sFrameRate = 0.f;
 
     if (gShouldShowFPS)
     {
-        char frameRateString[10] = "";
-        sprintf(frameRateString, "%.1f", MIN(sFrameRate, 99999999.9));
+        char frameRateString[5] = "";
+        sprintf(frameRateString, "%4.1f", MIN(sFrameRate, 99.9)); // Don't show more than 99.9 FPS, not necessary
 
         // TODO: No idea what this is _yet_ but I can't print on the screen if it's 1
         uint8_t previousValue = byte_5A33F;
@@ -14853,18 +14851,12 @@ void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
 
     handleSDLEvents(); // Make sure the app stays responsive
 
-    Uint32 start = SDL_GetTicks();
     SDL_BlitSurface(gScreenSurface, NULL, gTextureSurface, NULL);
 
     SDL_UpdateTexture(gTexture, NULL, gTextureSurface->pixels, gTextureSurface->pitch);
     SDL_RenderClear(gRenderer);
     SDL_RenderCopy(gRenderer, gTexture, NULL, &gWindowViewport);
     SDL_RenderPresent(gRenderer);
-    Uint32 time = (SDL_GetTicks() - start);
-    if (time < kFrameDuration)
-    {
-        SDL_Delay(kFrameDuration - time);
-    }
 
     static Uint32 sLastFrameTime = 0;
     static Uint32 sNumberOfFrames = 0;
