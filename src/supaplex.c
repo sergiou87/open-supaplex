@@ -73,8 +73,8 @@ uint8_t gAreZonksFrozen = 0; // byte_51035 -> 2 = turn on, anything else (0) = t
 // uint8_t byte_51037 = 0; // 0xd27 -> this seems to be _inside_ of fileLevelData when a level is read, and it's numberOfSpecialPorts
 uint8_t byte_510AB = 0;
 uint16_t word_510AC = 0; // stored in 0B5D:0D9C
-uint8_t byte_510AE = 0;
-uint8_t byte_510AF = 0;
+uint8_t gIsGamePaused = 0; // byte_510AE
+uint8_t gAuxGameSeconds20msAccumulator = 0; // byte_510AF ->  -> accumulates game time. The total time is its value * 20ms, so when it reaches 50 it means 1 second. Used to increase the game time in the bottom panel
 uint8_t byte_510B3 = 0;
 uint8_t byte_510B4 = 0;
 uint8_t byte_510B5 = 0;
@@ -220,9 +220,9 @@ uint8_t byte_59B83 = 0;
 uint8_t byte_59B84 = 0;
 uint8_t byte_59B85 = 0;
 uint8_t byte_59B86 = 0;
-uint8_t byte_59B94 = 0;
+uint8_t gGameIterationCounter = 0; // byte_59B94
 uint8_t byte_59B95 = 0;
-uint8_t byte_59B96 = 0;
+uint8_t gGameTime20msAccumulator = 0; // byte_59B96 -> accumulates game time. The total time is its value * 20ms, so when it reaches 50 it means 1 second. Used to regulate game speed
 uint16_t word_5A199 = 0;
 uint8_t byte_5A140 = 0;
 uint8_t byte_5A19B = 0;
@@ -1567,7 +1567,15 @@ uint8_t isJoystickEnabled = 0; // byte_50940
 uint8_t isMusicEnabled = 0; // byte_59886
 uint8_t isFXEnabled = 0; // byte_59885
 SDL_Scancode keyPressed = 0;
-uint8_t speed1 = 0xFF;
+
+// The variables below are used to adapt the game speed:
+// - gameSpeed: Game Speed in "Speed Fix values" from 0 to 10, but inverted. 10 is the
+//   fastest, 0 the slowest. 5 means we adding an extra frame on every iteration,
+//   needed to have the original speed when the FPS is twice as the original (35 fps).
+// - gRemainingSpeedTestAttempts: indicates the number of remaining attempts to auto
+//   adjust the game speed depending on the device performance.
+//
+uint8_t gRemainingSpeedTestAttempts = 255; // speed1
 int8_t speed2 = 0;
 int8_t speed3 = 0xFF; // speed?3
 int8_t gameSpeed = 5;
@@ -2901,7 +2909,7 @@ void detonateZonk(uint16_t position, uint8_t movingObject, uint8_t tile);
 void sub_4AA34(uint16_t position, uint8_t movingObject, uint8_t tile);
 void sub_4AAB4(uint16_t position);
 uint8_t checkMurphyMovementToPosition(uint16_t position);
-void sub_4ED29(uint16_t position);
+void handleZonkPushedByMurphy(uint16_t position);
 void decreaseRemainingRedDisksIfNeeded(uint16_t position);
 void updateSpecialPort(uint16_t position);
 void handleInfotronStateAfterFallingOneTile(uint16_t position);
@@ -3247,7 +3255,7 @@ demoFileNotMissing:              //; CODE XREF: start+10Bj
 
 spHasAtAndDemo:              //; CODE XREF: start+11Cj
         fastMode = 1;
-        speed1 = 0
+        gRemainingSpeedTestAttempts = 0
 
 runSpFile:              //; CODE XREF: start+104j
         push(di);
@@ -3871,34 +3879,6 @@ void slideDownGameDash() // proc near     ; CODE XREF: start:isNotFastMode2p
 /// @param shouldYieldCpu If 1, will sleep the thread for a bit to prevent 100% CPU usage.
 void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9+1Fo
 {
-//    push    ax
-//    push    bx
-//    push(cx);
-//    push    ds
-//    mov ax, seg data
-//    mov ds, ax
-//    in  al, 60h     ; 8042 keyboard input buffer
-//    mov cl, al
-//    mov bl, al
-//    in  al, 61h     ; PC/XT PPI port B bits:
-//                ; 0: Tmr 2 gate ??? OR 03H=spkr ON
-//                ; 1: Tmr 2 data ?  AND  0fcH=spkr OFF
-//                ; 3: 1=read high switches
-//                ; 4: 0=enable RAM parity checking
-//                ; 5: 0=enable I/O channel check
-//                ; 6: 0=hold keyboard clock low
-//                ; 7: 0=enable kbrd
-//    or  al, 10000000b
-//    out 61h, al     ; enable keyboard
-//    and al, 1111111b
-//    out 61h, al     ; disable keyboard
-//    al = 0;
-//    bh = 0;
-//    bl = bl << 1;
-//    cf = 1 - cf; // cmc
-//    rcl al, 1
-//    bl = bl >> 1;
-//    bx[0x166D] = al;
     handleSDLEvents();
 
     const Uint8 *keys = SDL_GetKeyboardState(NULL);
@@ -3979,65 +3959,58 @@ void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9
         }
         return;
     }
+
 //storeKey:               ; CODE XREF: int9handler+2Bj
 //        keyPressed = cl;
     if (speed3 >= 0)
     {
-        if (keyPressed == SDL_SCANCODE_KP_MULTIPLY // Key * in the numpad, restore speed
-            && speed3 >= 0)
+        if (keyPressed == SDL_SCANCODE_KP_MULTIPLY) // Key * in the numpad, restore speed
         {
             gameSpeed = speed3;
-//              push(cx);
-            cl = speed2;
-            cl = cl & 0xF0;
-            cl = cl | gameSpeed;
-            if (speed2 > cl)
+
+            int8_t newSpeed2 = speed2;
+            newSpeed2 = newSpeed2 & 0xF0;
+            newSpeed2 = newSpeed2 | gameSpeed;
+            if (speed2 > newSpeed2)
             {
-                speed2 = cl;
+                speed2 = newSpeed2;
             }
-//              pop(cx);
         }
-        else
-        {
 //checkSlash:             ; CODE XREF: int9handler+3Ej
 //                ; int9handler+45j
-            if (keyPressed == SDL_SCANCODE_KP_DIVIDE) // Key / (numpad or not)
-            {
-                speed1 = 0;
-                gameSpeed = 10;
-            }
-            else
-            {
+        else if (keyPressed == SDL_SCANCODE_KP_DIVIDE) // Keypad / -> fastest playback seed
+        {
+            gRemainingSpeedTestAttempts = 0;
+            gameSpeed = 10;
+        }
 //checkPlus:              ; CODE XREF: int9handler+54j
-                if (keyPressed == SDL_SCANCODE_KP_PLUS) // Key + in the numpad, speed up
-                {
-                    speed1 = 0;
-                    if (gameSpeed < 10) // 10
-                    {
-                        gameSpeed++;
-                    }
-                }
+        else if (keyPressed == SDL_SCANCODE_KP_PLUS) // Key + in the numpad, speed up
+        {
+            gRemainingSpeedTestAttempts = 0;
+            if (gameSpeed < 10) // 10
+            {
+                gameSpeed++;
+            }
+        }
 //checkMinus:             ; CODE XREF: int9handler+65j
 //                ; int9handler+71j
-                if (keyPressed == SDL_SCANCODE_KP_MINUS) // Key - in the numpad, speed down
-                {
-                    speed1 = 0;
-                    if (gameSpeed != 0)
-                    {
-                        gameSpeed--;
+        else if (keyPressed == SDL_SCANCODE_KP_MINUS) // Key - in the numpad, speed down
+        {
+            gRemainingSpeedTestAttempts = 0;
+            if (gameSpeed != 0)
+            {
+                gameSpeed--;
 //loc_47320:              ; CODE XREF: int9handler+4Fj
 //                          push(cx);
-                        cl = speed2;
-                        cl = cl & 0xF0;
-                        cl = cl | gameSpeed;
-                        if (speed2 > cl)
-                        {
-                            speed2 = cl;
-                        }
+                int8_t newSpeed2 = speed2;
+                newSpeed2 = newSpeed2 & 0xF0;
+                newSpeed2 = newSpeed2 | gameSpeed;
+                if (speed2 > newSpeed2)
+                {
+                    speed2 = newSpeed2;
+                }
 //dontUpdatespeed2:          ; CODE XREF: int9handler+9Cj
 //                          pop(cx);
-                    }
-                }
             }
         }
     }
@@ -4059,19 +4032,19 @@ void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9
 
 void int8handler() // proc far        ; DATA XREF: setint8+10o
 {
-    byte_59B96++;
-    if (byte_510AE != 0)
+    gGameTime20msAccumulator++;
+    if (gIsGamePaused != 0)
     {
-        byte_510AF++;
-        if (byte_510AF >= 0x32) // '2' or 50
+        gAuxGameSeconds20msAccumulator++;
+        if (gAuxGameSeconds20msAccumulator >= 50)
         {
-            byte_510AF = 0;
+            gAuxGameSeconds20msAccumulator = 0;
             gGameSeconds++;
-            if (gGameSeconds >= 60) // '<' or 60
+            if (gGameSeconds >= 60)
             {
                 gGameSeconds = 0;
                 gGameMinutes++;
-                if (gGameMinutes >= 60) // '<' or 60
+                if (gGameMinutes >= 60)
                 {
                     gGameMinutes = 0;
                     gGameHours++;
@@ -6700,8 +6673,8 @@ void initializeGameInfo() // sub_48A20   proc near       ; CODE XREF: start+32F
     word_510CD = 0;
     gLastDrawnMinutesAndSeconds = 0xFFFF;
     gLastDrawnHours = 0xFF; // 255
-    byte_510AE = 1;
-    byte_510AF = 0;
+    gIsGamePaused = 1;
+    gAuxGameSeconds20msAccumulator = 0;
     gGameSeconds = 0;
     gGameMinutes = 0;
     gGameHours = 0;
@@ -6768,6 +6741,11 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
     gPlantedRedDiskCountdown = 0;
     byte_5A323 = 0;
     word_510A2 = 1;
+
+    // This wasn't in the original code but seems like a bug, makes the game always think
+    // the device is slow and can only get 1 iteration in the first 200 ms of game.
+    //
+    gGameTime20msAccumulator = 0;
 
     do
     {
@@ -6866,63 +6844,62 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 
 //loc_48BED:              ; CODE XREF: runLevel+119j
 //                ; runLevel+120j ...
-        if (speed1 != 0)
+        if (gRemainingSpeedTestAttempts != 0)
         {
 //loc_48BF7:              ; CODE XREF: runLevel+137j
-            byte_59B94++;
-            if (byte_59B96 >= 0xA)
+            gGameIterationCounter++;
+            if (gGameTime20msAccumulator >= 10) // 20ms * 10 = 200ms
             {
 //loc_48C05:              ; CODE XREF: runLevel+145j
-                byte_59B96 = 0;
+                gGameTime20msAccumulator = 0;
 
-                uint8_t condition1 = (byte_59B94 > 8);
-                uint8_t condition2 = (byte_59B94 < 6);
+                printf("Testing performance to adjust game speed: %d iterations in 200ms (ref is 7 iterations)\n", gGameIterationCounter);
 
-                if (condition1 == 0
-                    && condition2 == 0)
-                {
-                    // cmp al, al
-                    condition1 = (al > 0);
-                    condition2 = (al < 0);
-                }
+                // 7 iterations every 200ms is the reference
+                uint8_t isFastComputer = (gGameIterationCounter > 8);
+                uint8_t isSlowComputer = (gGameIterationCounter < 6);
 
 //loc_48C1A:              ; CODE XREF: runLevel+154j
 //                ; runLevel+15Bj
-                byte_59B94 = 0;
-                if (condition1)
+                gGameIterationCounter = 0;
+                if (isFastComputer)
                 {
 //loc_48C79:              ; CODE XREF: runLevel+164j
                     if (gameSpeed > 0)
                     {
 //loc_48C73:              ; CODE XREF: runLevel+1C3j
                         gameSpeed--;
+                        printf("This device is fast. Decreasing speed to %d\n", gameSpeed);
                     }
                     else
                     {
-                        speed1--;
+                        gRemainingSpeedTestAttempts--;
                     }
                 }
-                else if (condition2)
+                else if (isSlowComputer)
                 {
 //loc_48C5F:              ; CODE XREF: runLevel+166j
-                    if (gameSpeed < 0xA)
+                    if (gameSpeed < 10)
                     {
 //loc_48C59:              ; CODE XREF: runLevel+199j
 //                ; runLevel+1A9j
                         gameSpeed++;
+                        printf("This device is slow. Increasing speed to %d\n", gameSpeed);
                     }
                     else
                     {
-                        speed1--;
+                        gRemainingSpeedTestAttempts--;
                     }
                 }
                 else
                 {
-                    speed1--;
-                    if (speed1 <= 0xFE) // 254
+                    printf("This device is perfect to run the game with speed %d\n", gameSpeed);
+
+                    gRemainingSpeedTestAttempts--;
+                    if (gRemainingSpeedTestAttempts <= 254) // 254
                     {
                         speed3 &= 0xBF; // 191
-                        speed1 = 0;
+                        gRemainingSpeedTestAttempts = 0;
                         if (gameSpeed == 4)
                         {
 //loc_48C4F:              ; CODE XREF: runLevel+182j
@@ -9038,7 +9015,7 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
     if (gIsPKeyPressed != 0)
     {
         // 01ED:303A
-        byte_510AE = 0;
+        gIsGamePaused = 0;
 //        mov si, 6095h
         fadeToPalette(gPalettes[3]);
 
@@ -9064,14 +9041,14 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
         while (gIsPKeyPressed == 1);
 //            mov si, 6015h
         fadeToPalette(gPalettes[1]);
-        byte_510AE = 1;
+        gIsGamePaused = 1;
     }
 
 //loc_49CC8:              ; CODE XREF: handleGameUserInput+740j
     if (gIsNumLockPressed != 0)
     {
         // 01ED:306C
-        byte_510AE = 0;
+        gIsGamePaused = 0;
 //        mov si, 6095h
         fadeToPalette(gPalettes[3]);
 
@@ -9122,7 +9099,7 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
         while (gIsNumLockPressed == 1);
 //        mov si, 6015h
         fadeToPalette(gPalettes[1]);
-        byte_510AE = 1;
+        gIsGamePaused = 1;
     }
 
 //loc_49D15:              ; CODE XREF: handleGameUserInput+772j
@@ -11698,7 +11675,17 @@ void handleStatisticsOptionClick() // sub_4AF0C   proc near
     word_58714 = someValue;
     if (gIsDebugModeEnabled != 0)
     {
-        // TODO: revisit this
+        // TODO: revisit this. it's the stats screen with debug mode enabled
+        // SpeedFix version 4 and up display additional information in the statistics
+        // screen if the debug mode is on.  The normally dashed line shows delay info
+        // of the SpeedFix keys and the video frame frequency.
+        // Example of this line:     -------- <DLY:05> ------- <071HZ> --------
+        // DLY:00 refers to the original Supaplex speed (fastest).  DLY:10 is slowest.
+        // DLY:05 is the speed for computers that originally run exactly double speed.
+        // The video frame frequency information in this example shows 71 Hz, or 71
+        // frames per second.  This frequency is measured and displayed each time the
+        // statistics screen is called: you will notice a 1 second measuring delay.
+
     //    al = 0Ah
     //    sub al, gameSpeed
     //    aam
@@ -11712,29 +11699,30 @@ void handleStatisticsOptionClick() // sub_4AF0C   proc near
         word_5870D = 0x3C20;
         word_58712 = 0x5A48;
         word_58714 = 0x203E;
-        byte_59B94 = 0x0;
-        byte_59B96 = 0x0;
+        gGameIterationCounter = 0;
+        gGameTime20msAccumulator = 0;
 
-        // TODO: revisit what's this loop for
+        // This loop just makes sure the clock works?
         do
         {
 //loc_4AFAA:              ; CODE XREF: handleStatisticsOptionClick+A3j
             handleSDLEvents();
         }
-        while ((byte_59B96 & 0xFF) == 0); // test    byte_59B96, 0FFh
-        byte_59B96 = 0;
+        while ((gGameTime20msAccumulator & 0xFF) == 0); // test    gGameTime20msAccumulator, 0FFh
+        gGameTime20msAccumulator = 0;
 
+        // TODO: revisit what's this loop for. seems to be used to measure performance / display refresh rate
         do
         {
 //loc_4AFB6:              ; CODE XREF: handleStatisticsOptionClick+B9j
             videoloop();
             loopForVSync();
-            byte_59B94++;
+            gGameIterationCounter++;
         }
-        while (byte_59B96 < 0x32); // '2'
+        while (gGameTime20msAccumulator < 50); // 50 * 20ms = 1s
 
         // TODO: revisit this
-        al = byte_59B94;
+        al = gGameIterationCounter;
         ah = 0;
     //    push(cx);
         cl = 100;
@@ -14912,7 +14900,7 @@ void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
 // videoloop   endp
 }
 
-void loopForVSync() //   proc near       ; CODE XREF: crt?2+55p crt?1+41p ...
+void loopForVSync() // sub_4D457   proc near       ; CODE XREF: crt?2+55p crt?1+41p ...
 {
     // TODO: handle this properly to control FPS
 //    SDL_Delay(1000 / kFPS); // 60 fps
@@ -17911,7 +17899,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
             leftTile->tile = LevelTileTypeMurphy;
             leftLeftTile->movingObject = 0;
             leftLeftTile->tile = LevelTileTypeZonk;
-            sub_4ED29(position - 2);
+            handleZonkPushedByMurphy(position - 2);
             return position - 1;
         }
 //loc_4EB96:              ; CODE XREF: update?+D01j
@@ -17929,7 +17917,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
             rightTile->tile = LevelTileTypeMurphy;
             rightRightTile->movingObject = 0;
             rightRightTile->tile = LevelTileTypeZonk;
-            sub_4ED29(position + 2);
+            handleZonkPushedByMurphy(position + 2);
             return position + 1;
         }
 //loc_4EB9E:              ; CODE XREF: update?+D09j
@@ -18693,14 +18681,14 @@ void detonateYellowDisks()
     }
 }
 
-void sub_4ED29(uint16_t position) //   proc near       ; CODE XREF: update?+E6Fp update?+E92p
+void handleZonkPushedByMurphy(uint16_t position) // sub_4ED29   proc near       ; CODE XREF: update?+E6Fp update?+E92p
 {
     MovingLevelTile *belowTile = &gCurrentLevelWord[position + kLevelWidth];
 
     if (belowTile->tile == LevelTileTypeSnikSnak
         || belowTile->tile == 0xBB)
     {
-//loc_4ED38:              ; CODE XREF: sub_4ED29+5j sub_4ED29+Cj
+//loc_4ED38:              ; CODE XREF: handleZonkPushedByMurphy+5j handleZonkPushedByMurphy+Cj
         handleZonkStateAfterFallingOneTile(position + kLevelWidth);
     }
 }
