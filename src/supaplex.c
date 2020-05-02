@@ -14833,9 +14833,28 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
     }
 }
 
+void limitFPS()
+{
+    static const double kMaximumFPS = 70.0;
+    static const double kFrameDuration = 1000.0 / kMaximumFPS;
+    static Uint32 sLastFrameTime = 0;
+
+    if (sLastFrameTime != 0)
+    {
+        Uint32 duration = (SDL_GetTicks() - sLastFrameTime);
+        if (duration < kFrameDuration)
+        {
+            SDL_Delay(kFrameDuration - duration);
+        }
+    }
+    
+    sLastFrameTime = SDL_GetTicks();
+}
+
 void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
 {
     static float sFrameRate = 0.f;
+    static Uint32 sFrameRateReferenceTime = 0;
 
     if (gShouldShowFPS)
     {
@@ -14858,24 +14877,25 @@ void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
     SDL_RenderCopy(gRenderer, gTexture, NULL, &gWindowViewport);
     SDL_RenderPresent(gRenderer);
 
-    static Uint32 sLastFrameTime = 0;
+    limitFPS();
+
     static Uint32 sNumberOfFrames = 0;
 
     sNumberOfFrames++;
 
-    if (sLastFrameTime == 0)
+    if (sFrameRateReferenceTime == 0)
     {
-        sLastFrameTime = SDL_GetTicks();
+        sFrameRateReferenceTime = SDL_GetTicks();
     }
     else
     {
-        Uint32 difference = SDL_GetTicks() - sLastFrameTime;
+        Uint32 difference = SDL_GetTicks() - sFrameRateReferenceTime;
 
         if (difference > 1000)
         {
             sFrameRate = sNumberOfFrames * 1000.f / difference;
             sNumberOfFrames = 0;
-            sLastFrameTime = SDL_GetTicks();
+            sFrameRateReferenceTime = SDL_GetTicks();
         }
     }
 //        push    dx
@@ -20575,15 +20595,7 @@ void handleSDLEvents()
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
-        switch(event.type)
-        {
-            case SDL_USEREVENT: {
-                /* and now we can call the function we wanted to call in the timer but couldn't because of the multithreading problems */
-                void (*p)(void) = event.user.data1;
-                p();
-                break;
-            }
-        }
+        // do nothing
     }
 
     emulateClock();
