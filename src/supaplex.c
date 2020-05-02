@@ -2861,7 +2861,7 @@ void runLevel(void);
 void slideDownGameDash(void);
 void updateScrollOffset(void);
 uint16_t generateRandomNumber(void);
-void sub_4955B(void);
+void handleGameUserInput(void);
 void loc_49C41(void);
 void loc_49C2C(char text[3]);
 void loc_49C28(void);
@@ -2869,7 +2869,7 @@ void loc_49A89(void);
 void loc_49949(void);
 void loc_4988E(void);
 void levelScanThing(void);
-void gameloop(void);
+void updateMovingObjects(void);
 uint16_t updateMurphy(uint16_t position);
 uint16_t updateMurphyAnimation(uint16_t position);
 uint16_t updateMurphyAnimationInfo(uint16_t position, MurphyAnimationDescriptor unknownMurphyData);
@@ -6773,7 +6773,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
     {
         int9handler(0);
 
-//gamelooprep:                ; CODE XREF: runLevel+33Cj
+//updateMovingObjectsrep:                ; CODE XREF: runLevel+33Cj
 //                ; runLevel+345j
         if (gIsPlayingDemo == 0)
         {
@@ -6811,7 +6811,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         }
 
 //loc_48B6B:              ; CODE XREF: runLevel+82j runLevel+94j ...
-        sub_4955B(); // 01ED:1F08
+        handleGameUserInput(); // 01ED:1F08
         if (byte_5A2F8 == 1)
         {
             // TODO: This goes back to the beginning of this function WTF
@@ -6826,7 +6826,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         }
 
 //noFlashing:              ; CODE XREF: runLevel+C2j
-        gameloop(); // 01ED:1F28
+        updateMovingObjects(); // 01ED:1F28
         if (gIsFlashingBackgroundModeEnabled != 0)
         {
             replaceCurrentPaletteColor(0, (SDL_Color) { 0x21, 0x21, 0x21 });
@@ -7172,7 +7172,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
             }
 
 //isFastMode3:              ; CODE XREF: runLevel+303j
-            sub_4955B();
+            handleGameUserInput();
         }
 
 //loc_48DCD:              ; CODE XREF: runLevel+2FCj
@@ -7532,7 +7532,7 @@ void drawFixedLevel() // sub_48F6D   proc near       ; CODE XREF: start+335p ru
     word_51967 = bx;
 }
 
-void updateUserInputInScrollMovementMode() // sub_4914A   proc near       ; CODE XREF: sub_4955B+7p
+void updateUserInputInScrollMovementMode() // sub_4914A   proc near       ; CODE XREF: handleGameUserInput+7p
 {
     if (gIsLeftKeyPressed != 0)
     {
@@ -7628,7 +7628,7 @@ void updateUserInputInScrollMovementMode() // sub_4914A   proc near       ; CODE
 }
 
 void sub_4921B() //   proc near       ; CODE XREF: readConfig+8Cp
-                   // ; sub_4955B+31p ...
+                   // ; handleGameUserInput+31p ...
 {
 //    push    bp
     ax = 0;
@@ -7717,7 +7717,7 @@ void sub_4921B() //   proc near       ; CODE XREF: readConfig+8Cp
     return;
 }
 
-void simulateDemoInput() // sub_492A8   proc near       ; CODE XREF: sub_4955B+27p
+void simulateDemoInput() // sub_492A8   proc near       ; CODE XREF: handleGameUserInput+27p
                    // ; sub_4A3E9+76p
 {
     if (byte_510E2 > 1)
@@ -7746,7 +7746,7 @@ void simulateDemoInput() // sub_492A8   proc near       ; CODE XREF: sub_4955B+2
     byte_510E2 = (newInput >> 4) + 1;
 }
 
-void sub_492F1() //   proc near       ; CODE XREF: sub_4955B+1Dp
+void sub_492F1() //   proc near       ; CODE XREF: handleGameUserInput+1Dp
 {
     byte_510E2++;
     bl = gCurrentUserInput;
@@ -7934,8 +7934,9 @@ loc_4944F:              ; CODE XREF: somethingspsig+EEj
      */
 }
 
-void sub_4945D() //   proc near       ; CODE XREF: sub_4955B+294p
-                   // ; sub_4955B+2A4p ...
+// TODO: Implement recording demo support
+void sub_4945D() //   proc near       ; CODE XREF: handleGameUserInput+294p
+                   // ; handleGameUserInput+2A4p ...
 {
     gIsMoveScrollModeEnabled = 0;
     gAdditionalScrollOffsetX = 0;
@@ -8070,8 +8071,8 @@ void prepareSomeKindOfLevelIdentifier() // sub_49544  proc near       ; CODE XRE
     a00s0010_sp[1] = char9;
 }
 
-void readFromFh1() // proc near       ; CODE XREF: sub_4955B+54Ep
-                    //; sub_4955B+57Cp ...
+void readFromFh1() // proc near       ; CODE XREF: handleGameUserInput+54Ep
+                    //; handleGameUserInput+57Cp ...
 {
 //    mov ax, 3F00h
 //    mov bx, fh1
@@ -8080,8 +8081,8 @@ void readFromFh1() // proc near       ; CODE XREF: sub_4955B+54Ep
 //                ; DS:DX -> buffer
 }
 
-void writeToFh1() //  proc near       ; CODE XREF: sub_4955B+486p
-                    // ; sub_4955B+494p ...
+void writeToFh1() //  proc near       ; CODE XREF: handleGameUserInput+486p
+                    // ; handleGameUserInput+494p ...
 {
 //    mov ax, 4000h
 //    mov bx, fh1
@@ -8089,7 +8090,7 @@ void writeToFh1() //  proc near       ; CODE XREF: sub_4955B+486p
 //                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
 }
 
-void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
+void handleGameUserInput() // sub_4955B   proc near       ; CODE XREF: runLevel:loc_48B6Bp
                    // ; runLevel+30Cp
 {
     // 01ED:28F8
@@ -8100,7 +8101,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     {
         updateUserInputInScrollMovementMode(); // 01ED:28FF
     }
-//loc_49567:              ; CODE XREF: sub_4955B+5j
+//loc_49567:              ; CODE XREF: handleGameUserInput+5j
     else if (gIsPlayingDemo == 0)
     {
         updateUserInput(); // 01ED:290B
@@ -8110,20 +8111,20 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
         }
     }
 
-//loc_4957B:              ; CODE XREF: sub_4955B+Aj
-//                ; sub_4955B+11j ...
+//loc_4957B:              ; CODE XREF: handleGameUserInput+Aj
+//                ; handleGameUserInput+11j ...
     if (gIsPlayingDemo != 0)
     {
         simulateDemoInput(); // 01ED:2929
     }
 
-//loc_49585:              ; CODE XREF: sub_4955B+25j
+//loc_49585:              ; CODE XREF: handleGameUserInput+25j
     if (gIsJKeyPressed != 0)
     {
         sub_4921B();
     }
 
-//loc_4958F:              ; CODE XREF: sub_4955B+2Fj
+//loc_4958F:              ; CODE XREF: handleGameUserInput+2Fj
     if ((word_510C1 >> 8) != 0) // cmp byte ptr word_510C1+1, 0
     {
         // 01ED:293E
@@ -8132,15 +8133,15 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
         word_510C1 = (highValue << 8) + (word_510C1 & 0xFF);
     }
 
-//loc_4959A:              ; CODE XREF: sub_4955B+39j
+//loc_4959A:              ; CODE XREF: handleGameUserInput+39j
     if (gIsEnterPressed == 0)
     {
         word_510C1 = word_510C1 & 0xFF; // mov byte ptr word_510C1+1, 0
     }
-//loc_495A9:              ; CODE XREF: sub_4955B+44j
+//loc_495A9:              ; CODE XREF: handleGameUserInput+44j
     else if ((word_510C1 >> 8) == 0) // 01ED:2946
     {
-//loc_495B3:              ; CODE XREF: sub_4955B+53j
+//loc_495B3:              ; CODE XREF: handleGameUserInput+53j
         word_510C1 = 0x2000 + (word_510C1 & 0xFF); // mov byte ptr word_510C1+1, 20h ; ' '
         if ((word_510C1 & 0xFF) != 0)
         {
@@ -8149,132 +8150,132 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
         }
         else
         {
-//loc_495FB:              ; CODE XREF: sub_4955B+62j
+//loc_495FB:              ; CODE XREF: handleGameUserInput+62j
             word_510C1 = (word_510C1 & 0xFF00) + 1; // mov byte ptr word_510C1, 1
             gCurrentPanelHeight = kPanelBitmapHeight;
         }
     }
 
-//loc_49635:              ; CODE XREF: sub_4955B+4Bj
-//                ; sub_4955B+55j ...
+//loc_49635:              ; CODE XREF: handleGameUserInput+4Bj
+//                ; handleGameUserInput+55j ...
     if (gIsDebugModeEnabled != 1)
     {
         loc_49949();
         return;
     }
 
-//loc_4963F:              ; CODE XREF: sub_4955B+DFj
+//loc_4963F:              ; CODE XREF: handleGameUserInput+DFj
     if (gIsRecordingDemo == 0) // 01ED:29DC
     {
-//loc_49649:              ; CODE XREF: sub_4955B+E9j
+//loc_49649:              ; CODE XREF: handleGameUserInput+E9j
         if (gIsMKeyPressed != 0) // cmp byte ptr gIsMKeyPressed, 0
         {
             gIsMoveScrollModeEnabled = 1;
         }
 
-//loc_49656:              ; CODE XREF: sub_4955B+F3j
+//loc_49656:              ; CODE XREF: handleGameUserInput+F3j
         if (gIsDKeyPressed != 0)
         {
             gIsFlashingBackgroundModeEnabled = 1;
         }
 
-//loc_49663:              ; CODE XREF: sub_4955B+100j
+//loc_49663:              ; CODE XREF: handleGameUserInput+100j
         if (gIsZKeyPressed != 0) // cmp byte ptr gIsZKeyPressed, 0
         {
             // TODO: around 01ED:2A09 (check with ORIGINAL.EXE)
             removeTiles(LevelTileTypeZonk);
         }
 
-//loc_4966F:              ; CODE XREF: sub_4955B+10Dj
+//loc_4966F:              ; CODE XREF: handleGameUserInput+10Dj
         if (gIsBKeyPressed != 0) // cmp byte ptr gIsBKeyPressed, 0
         {
             removeTiles(LevelTileTypeBase);
         }
 
-//loc_4967B:              ; CODE XREF: sub_4955B+119j
+//loc_4967B:              ; CODE XREF: handleGameUserInput+119j
         if (gIsHKeyPressed != 0)
         {
             removeTiles(LevelTileTypeHardware);
         }
 
-//loc_49687:              ; CODE XREF: sub_4955B+125j
+//loc_49687:              ; CODE XREF: handleGameUserInput+125j
         if (gIsCKeyPressed != 0) // cmp byte ptr gIsCKeyPressed, 0
         {
             removeTiles(LevelTileTypeChip);
         }
 
-//loc_49693:              ; CODE XREF: sub_4955B+131j
+//loc_49693:              ; CODE XREF: handleGameUserInput+131j
         if (gIsSKeyPressed != 0)
         {
             removeTiles(LevelTileTypeSnikSnak);
         }
 
-//loc_4969F:              ; CODE XREF: sub_4955B+13Dj
+//loc_4969F:              ; CODE XREF: handleGameUserInput+13Dj
         if (gIsRKeyPressed != 0)
         {
             videoloop();
             sub_4A3E9();
         }
 
-//loc_496AC:              ; CODE XREF: sub_4955B+149j
+//loc_496AC:              ; CODE XREF: handleGameUserInput+149j
         if (gIsPlayingDemo == 0
             && speed3 >= 0)
         {
-//loc_496C0:              ; CODE XREF: sub_4955B+160j
+//loc_496C0:              ; CODE XREF: handleGameUserInput+160j
             if (gIs1KeyPressed != 0)
             {
                 word_51A07 = 1;
             }
 
-//loc_496CD:              ; CODE XREF: sub_4955B+16Aj
+//loc_496CD:              ; CODE XREF: handleGameUserInput+16Aj
             if (gIs2KeyPressed != 0)
             {
                 word_51A07 = 2;
             }
 
-//loc_496DA:              ; CODE XREF: sub_4955B+177j
+//loc_496DA:              ; CODE XREF: handleGameUserInput+177j
             if (gIs3KeyPressed != 0)
             {
                 word_51A07 = 3;
             }
 
-//loc_496E7:              ; CODE XREF: sub_4955B+184j
+//loc_496E7:              ; CODE XREF: handleGameUserInput+184j
             if (gIs4KeyPressed != 0)
             {
                 word_51A07 = 4;
             }
 
-//loc_496F4:              ; CODE XREF: sub_4955B+191j
+//loc_496F4:              ; CODE XREF: handleGameUserInput+191j
             if (gIs5KeyPressed != 0)
             {
                 word_51A07 = 6;
             }
 
-//loc_49701:              ; CODE XREF: sub_4955B+19Ej
+//loc_49701:              ; CODE XREF: handleGameUserInput+19Ej
             if (gIs6KeyPressed != 0)
             {
                 word_51A07 = 8;
             }
 
-//loc_4970E:              ; CODE XREF: sub_4955B+1ABj
+//loc_4970E:              ; CODE XREF: handleGameUserInput+1ABj
             if (gIs7KeyPressed != 0)
             {
                 word_51A07 = 0xC;
             }
 
-//loc_4971B:              ; CODE XREF: sub_4955B+1B8j
+//loc_4971B:              ; CODE XREF: handleGameUserInput+1B8j
             if (gIs8KeyPressed != 0)
             {
                 word_51A07 = 0x10;
             }
 
-//loc_49728:              ; CODE XREF: sub_4955B+1C5j
+//loc_49728:              ; CODE XREF: handleGameUserInput+1C5j
             if (gIs9KeyPressed != 0)
             {
                 word_51A07 = 0x18;
             }
 
-//loc_49735:              ; CODE XREF: sub_4955B+1D2j
+//loc_49735:              ; CODE XREF: handleGameUserInput+1D2j
             if (gIs0KeyPressed != 0)
             {
                 word_51A07 = 0x20;
@@ -8282,83 +8283,83 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
         }
     }
 
-//loc_49742:              ; CODE XREF: sub_4955B+EBj
-//                ; sub_4955B+158j ...
+//loc_49742:              ; CODE XREF: handleGameUserInput+EBj
+//                ; handleGameUserInput+158j ...
     if (gIsLeftControlPressed == 1)
     {
-//loc_497D1:              ; CODE XREF: sub_4955B+1EEj
+//loc_497D1:              ; CODE XREF: handleGameUserInput+1EEj
         if (gIsPlayingDemo != 0)
         {
             loc_4988E();
             return;
         }
-//loc_497DB:              ; CODE XREF: sub_4955B+27Bj
+//loc_497DB:              ; CODE XREF: handleGameUserInput+27Bj
         else if (speed3 < 0)
         {
             loc_4988E();
             return;
         }
-//loc_497E5:              ; CODE XREF: sub_4955B+285j
+//loc_497E5:              ; CODE XREF: handleGameUserInput+285j
         else if (gIsF1KeyPressed == 1)
         {
             ax = 0;
             sub_4945D();
         }
-//loc_497F5:              ; CODE XREF: sub_4955B+28Fj
+//loc_497F5:              ; CODE XREF: handleGameUserInput+28Fj
         else if (gIsF2KeyPressed == 1)
         {
             ax = 1;
             sub_4945D();
         }
-//loc_49805:              ; CODE XREF: sub_4955B+29Fj
+//loc_49805:              ; CODE XREF: handleGameUserInput+29Fj
         else if (gIsF3KeyPressed == 1)
         {
             ax = 2;
             sub_4945D();
         }
-//loc_49814:              ; CODE XREF: sub_4955B+2AFj
+//loc_49814:              ; CODE XREF: handleGameUserInput+2AFj
         else if (gIsF4KeyPressed == 1)
         {
             ax = 3;
             sub_4945D();
         }
-//loc_49823:              ; CODE XREF: sub_4955B+2BEj
+//loc_49823:              ; CODE XREF: handleGameUserInput+2BEj
         else if (gIsF5KeyPressed == 1)
         {
             ax = 4;
             sub_4945D();
         }
-//loc_49832:              ; CODE XREF: sub_4955B+2CDj
+//loc_49832:              ; CODE XREF: handleGameUserInput+2CDj
         else if (gIsF6KeyPressed == 1)
         {
             ax = 5;
             sub_4945D();
         }
-//loc_49841:              ; CODE XREF: sub_4955B+2DCj
+//loc_49841:              ; CODE XREF: handleGameUserInput+2DCj
         else if (gIsF7KeyPressed == 1)
         {
             ax = 6;
             sub_4945D();
         }
-//loc_49850:              ; CODE XREF: sub_4955B+2EBj
+//loc_49850:              ; CODE XREF: handleGameUserInput+2EBj
         else if (gIsF8KeyPressed == 1)
         {
             ax = 7;
             sub_4945D();
         }
-//loc_4985F:              ; CODE XREF: sub_4955B+2FAj
+//loc_4985F:              ; CODE XREF: handleGameUserInput+2FAj
         else if (gIsF9KeyPressed == 1)
         {
             ax = 8;
             sub_4945D();
         }
-//loc_4986E:              ; CODE XREF: sub_4955B+309j
+//loc_4986E:              ; CODE XREF: handleGameUserInput+309j
         else if (gIsF10KeyPressed == 1)
         {
             ax = 9;
             sub_4945D();
         }
-//loc_4987D:              ; CODE XREF: sub_4955B+318j
+//loc_4987D:              ; CODE XREF: handleGameUserInput+318j
         else if (byte_519D5 == 1
             && gIsRecordingDemo != 0)
         {
@@ -8367,18 +8368,18 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     }
     else
     {
-//loc_4974C:              ; CODE XREF: sub_4955B+1ECj
+//loc_4974C:              ; CODE XREF: handleGameUserInput+1ECj
         ax = word_5195D;
         ax &= 7;
         if (ax == 0
             && gIsRecordingDemo == 0)
         {
-//loc_49761:              ; CODE XREF: sub_4955B+201j
+//loc_49761:              ; CODE XREF: handleGameUserInput+201j
             if (gIsF1KeyPressed == 0)
             {
                 byte_59B7C = 0;
             }
-//loc_4976F:              ; CODE XREF: sub_4955B+20Bj
+//loc_4976F:              ; CODE XREF: handleGameUserInput+20Bj
             else if (byte_59B7C == 0)
             {
                 byte_59B7C--;
@@ -8389,13 +8390,13 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
             if (gIsF1KeyPressed == 0
                 || byte_59B7C != 0)
             {
-//loc_49786:              ; CODE XREF: sub_4955B+212j
-//                ; sub_4955B+219j
+//loc_49786:              ; CODE XREF: handleGameUserInput+212j
+//                ; handleGameUserInput+219j
                 if (gIsF2KeyPressed == 0)
                 {
                     byte_59B7D = 0;
                 }
-//loc_49794:              ; CODE XREF: sub_4955B+230j
+//loc_49794:              ; CODE XREF: handleGameUserInput+230j
                 else if (byte_59B7D == 0)
                 {
                     byte_59B7D--;
@@ -8406,13 +8407,13 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
                 if (gIsF2KeyPressed == 0
                     || byte_59B7D != 0)
                 {
-//loc_497AB:              ; CODE XREF: sub_4955B+237j
-//                ; sub_4955B+23Ej
+//loc_497AB:              ; CODE XREF: handleGameUserInput+237j
+//                ; handleGameUserInput+23Ej
                     if (gIsF3KeyPressed == 0)
                     {
                         byte_59B7E = 0;
                     }
-//loc_497B9:              ; CODE XREF: sub_4955B+255j
+//loc_497B9:              ; CODE XREF: handleGameUserInput+255j
                     else if (byte_59B7E == 0)
                     {
                         byte_59B7E--;
@@ -8427,9 +8428,9 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
     loc_4988E();
 }
 
-void loc_4988E() // :              ; CODE XREF: sub_4955B+1F9j
+void loc_4988E() // :              ; CODE XREF: handleGameUserInput+1F9j
 {
-//                ; sub_4955B+203j ...
+//                ; handleGameUserInput+203j ...
     if (gIsRecordingDemo != 0
         || gIsPlayingDemo != 0)
     {
@@ -8437,74 +8438,74 @@ void loc_4988E() // :              ; CODE XREF: sub_4955B+1F9j
         return;
     }
 
-//loc_498A2:              ; CODE XREF: sub_4955B+342j
+//loc_498A2:              ; CODE XREF: handleGameUserInput+342j
     if (gIsMinusKeyPressed == 0)
     {
         byte_59B7F = 0;
         byte_59B80 = 5;
     }
-//loc_498B5:              ; CODE XREF: sub_4955B+34Cj
+//loc_498B5:              ; CODE XREF: handleGameUserInput+34Cj
     else if (byte_59B7F != 0)
     {
         byte_59B7F--;
     }
     else
     {
-//loc_498C2:              ; CODE XREF: sub_4955B+35Fj
+//loc_498C2:              ; CODE XREF: handleGameUserInput+35Fj
         if (byte_59B80 != 0)
         {
             byte_59B80--;
             byte_59B7F = 0x10;
         }
 
-//loc_498D2:              ; CODE XREF: sub_4955B+36Cj
+//loc_498D2:              ; CODE XREF: handleGameUserInput+36Cj
         if (gCurrentSelectedLevelIndex <= 1)
         {
             gCurrentSelectedLevelIndex = 2;
         }
 
-//loc_498DF:              ; CODE XREF: sub_4955B+37Cj
+//loc_498DF:              ; CODE XREF: handleGameUserInput+37Cj
         gCurrentSelectedLevelIndex--;
         if (gCurrentSelectedLevelIndex > kNumberOfLevels)
         {
             gCurrentSelectedLevelIndex = kNumberOfLevels;
         }
 
-//loc_498F0:              ; CODE XREF: sub_4955B+38Dj
+//loc_498F0:              ; CODE XREF: handleGameUserInput+38Dj
         // ax = gCurrentSelectedLevelIndex;
         sub_4BF4A(gCurrentSelectedLevelIndex);
         drawLevelList();
         sub_4A3D2();
     }
 
-//loc_498FC:              ; CODE XREF: sub_4955B+358j
-//                ; sub_4955B+365j
+//loc_498FC:              ; CODE XREF: handleGameUserInput+358j
+//                ; handleGameUserInput+365j
     if (gIsEqualsKeyPressed == 0)
     {
         byte_59B81 = 0;
         byte_59B82 = 5;
     }
-//loc_4990F:              ; CODE XREF: sub_4955B+3A6j
+//loc_4990F:              ; CODE XREF: handleGameUserInput+3A6j
     else if (byte_59B81 != 0)
     {
         byte_59B81--;
     }
     else
     {
-//loc_4991C:              ; CODE XREF: sub_4955B+3B9j
+//loc_4991C:              ; CODE XREF: handleGameUserInput+3B9j
         if (byte_59B82 != 0)
         {
             byte_59B82--;
             byte_59B81 = 0x10; // 16
         }
 
-//loc_4992C:              ; CODE XREF: sub_4955B+3C6j
+//loc_4992C:              ; CODE XREF: handleGameUserInput+3C6j
         if (gCurrentSelectedLevelIndex >= kNumberOfLevels)
         {
             gCurrentSelectedLevelIndex = kNumberOfLevels;
         }
 
-//loc_49939:              ; CODE XREF: sub_4955B+3D6j
+//loc_49939:              ; CODE XREF: handleGameUserInput+3D6j
         gCurrentSelectedLevelIndex++;
     //    ax = gCurrentSelectedLevelIndex;
         sub_4BF4A(gCurrentSelectedLevelIndex); // 01ED:2CDD
@@ -8515,8 +8516,8 @@ void loc_4988E() // :              ; CODE XREF: sub_4955B+1F9j
     loc_49949();
 }
 
-void loc_49949() //:              ; CODE XREF: sub_4955B+E1j
-//                ; sub_4955B+33Aj ...
+void loc_49949() //:              ; CODE XREF: handleGameUserInput+E1j
+//                ; handleGameUserInput+33Aj ...
 {
     // 01ED:2CE6
 
@@ -8528,14 +8529,14 @@ void loc_49949() //:              ; CODE XREF: sub_4955B+E1j
         return;
     }
 
-//loc_49958:              ; CODE XREF: sub_4955B+3F8j
+//loc_49958:              ; CODE XREF: handleGameUserInput+3F8j
     if (gIsLeftControlPressed != 1)
     {
         loc_49C41();
         return;
     }
 
-//loc_49962:              ; CODE XREF: sub_4955B+402j
+//loc_49962:              ; CODE XREF: handleGameUserInput+402j
     if (byte_519D5 == 1
         && gIsPlayingDemo != 0)
     {
@@ -8545,8 +8546,8 @@ void loc_49949() //:              ; CODE XREF: sub_4955B+E1j
         byte_5A33E = 1;
     }
 
-//loc_49984:              ; CODE XREF: sub_4955B+40Cj
-//                ; sub_4955B+413j
+//loc_49984:              ; CODE XREF: handleGameUserInput+40Cj
+//                ; handleGameUserInput+413j
     if (gIsScrollLockPressed == 1)
     {
         gIsDebugModeEnabled = 1;
@@ -8554,11 +8555,11 @@ void loc_49949() //:              ; CODE XREF: sub_4955B+E1j
         byte_5197C = 0x46; // 70
     }
 
-//loc_499AA:              ; CODE XREF: sub_4955B+42Ej
-//                ; sub_4955B+43Bj
+//loc_499AA:              ; CODE XREF: handleGameUserInput+42Ej
+//                ; handleGameUserInput+43Bj
     if (gIsWKeyPressed != 1)
     {
-//loc_49A7F:              ; CODE XREF: sub_4955B+456j
+//loc_49A7F:              ; CODE XREF: handleGameUserInput+456j
         if (gIsLKeyPressed != 1)
         {
             loc_49C41();
@@ -8569,7 +8570,7 @@ void loc_49949() //:              ; CODE XREF: sub_4955B+E1j
         return;
     }
 
-//loc_499C8:              ; CODE XREF: sub_4955B+454j
+//loc_499C8:              ; CODE XREF: handleGameUserInput+454j
     FILE *file = openWritableFile("SAVEGAME.SAV", "w");
     if (file == NULL)
     {
@@ -8577,57 +8578,57 @@ void loc_49949() //:              ; CODE XREF: sub_4955B+E1j
         return;
     }
 
-//loc_499D8:              ; CODE XREF: sub_4955B+478j
+//loc_499D8:              ; CODE XREF: handleGameUserInput+478j
 //    mov dx, 9FF9h // address of data to write
     size_t bytes = fwrite(NULL, 1, 4, file);
     if (bytes < 4)
     {
-//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
-//                    ; sub_4955B+499j ...
+//loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
+//                    ; handleGameUserInput+499j ...
         fclose(file);
         loc_49C28();
         return;
     }
 
-//loc_499E9:              ; CODE XREF: sub_4955B+489j
+//loc_499E9:              ; CODE XREF: handleGameUserInput+489j
 //    mov cx, 1238h
 //    mov dx, offset leveldata // address of data to write
     bytes = fwrite(NULL, 1, 0x1238, file);
     if (bytes < 0x1238)
     {
-//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
-//                    ; sub_4955B+499j ...
+//loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
+//                    ; handleGameUserInput+499j ...
         fclose(file);
         loc_49C28();
         return;
     }
 
-//loc_499F7:              ; CODE XREF: sub_4955B+497j
+//loc_499F7:              ; CODE XREF: handleGameUserInput+497j
     if (gIsPlayingDemo == 0)
     {
 //        mov dx, 87A8h -> this has the level name, like "005 ------ EASY DEAL ------"
     }
     else
     {
-//loc_49A03:              ; CODE XREF: sub_4955B+4A1j
+//loc_49A03:              ; CODE XREF: handleGameUserInput+4A1j
 //        mov dx, 87DAh -> this address is the ".SP" text
     }
 
-//loc_49A06:              ; CODE XREF: sub_4955B+4A6j
+//loc_49A06:              ; CODE XREF: handleGameUserInput+4A6j
 //    mov cx, 1Ch
 //    push    dx
     bytes = fwrite(NULL, 1, 0x1C, file); // 28, level name?
 //    pop bx // recovers dx and stores it into bx
     if (bytes < 0x1C)
     {
-//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
-//                    ; sub_4955B+499j ...
+//loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
+//                    ; handleGameUserInput+499j ...
         fclose(file);
         loc_49C28();
         return;
     }
 
-//loc_49A13:              ; CODE XREF: sub_4955B+4B3j
+//loc_49A13:              ; CODE XREF: handleGameUserInput+4B3j
     cx = 6;
     byte_5988D = 0x63; // 99 or 'c'
 //    ax = "AT"; // mov ax, word ptr aLevels_dat_0+8 ; "AT"
@@ -8638,7 +8639,7 @@ void loc_49949() //:              ; CODE XREF: sub_4955B+E1j
         al |= 0x80;
     }
 
-//loc_49A2C:              ; CODE XREF: sub_4955B+4CDj
+//loc_49A2C:              ; CODE XREF: handleGameUserInput+4CDj
     byte_59890 = al;
 //    ax = [bx+1];
     word_59891 = ax;
@@ -8646,71 +8647,71 @@ void loc_49949() //:              ; CODE XREF: sub_4955B+E1j
     bytes = fwrite(NULL, 1, 6, file);
     if (bytes < 6)
     {
-//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
-//                    ; sub_4955B+499j ...
+//loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
+//                    ; handleGameUserInput+499j ...
         fclose(file);
         loc_49C28();
         return;
     }
 
-//loc_49A40:              ; CODE XREF: sub_4955B+4E0j
+//loc_49A40:              ; CODE XREF: handleGameUserInput+4E0j
 //    mov cx, 0E6h ; '?'
 //    mov dx, 0D08h
 //    call    writeToFh1
     bytes = fwrite(NULL, 1, 0xE6, file); // 230
     if (bytes < 0xE6)
     {
-//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
-//                    ; sub_4955B+499j ...
+//loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
+//                    ; handleGameUserInput+499j ...
         fclose(file);
         loc_49C28();
         return;
     }
 
-//loc_49A4E:              ; CODE XREF: sub_4955B+4EEj
+//loc_49A4E:              ; CODE XREF: handleGameUserInput+4EEj
 //    mov cx, 23h ; '#'
 //    mov dx, 164Ah
     bytes = fwrite(NULL, 1, 0x23, file); // 35
     if (bytes < 0x23)
     {
-//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
-//                    ; sub_4955B+499j ...
+//loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
+//                    ; handleGameUserInput+499j ...
         fclose(file);
         loc_49C28();
         return;
     }
 
-//loc_49A5C:              ; CODE XREF: sub_4955B+4FCj
+//loc_49A5C:              ; CODE XREF: handleGameUserInput+4FCj
 //    mov cx, levelDataLength
 //    mov dx, offset levelBuffer
 //    call    writeToFh1
     bytes = fwrite(NULL, 1, levelDataLength, file); // 35
     if (bytes < levelDataLength)
     {
-//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
-//                    ; sub_4955B+499j ...
+//loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
+//                    ; handleGameUserInput+499j ...
         fclose(file);
         loc_49C28();
         return;
     }
 
-//loc_49A6A:              ; CODE XREF: sub_4955B+50Aj
+//loc_49A6A:              ; CODE XREF: handleGameUserInput+50Aj
     if (fclose(file) != 0)
     {
         loc_49C28();
         return;
     }
 
-//loc_49A78:              ; CODE XREF: sub_4955B+518j
+//loc_49A78:              ; CODE XREF: handleGameUserInput+518j
 //    push    si
 //    si = 0xA001; // "WR"
     loc_49C2C("WR"); // Means snapshot saved with no issues
     return;
 }
 
-void loc_49A89() // :              ; CODE XREF: sub_4955B+3FAj
+void loc_49A89() // :              ; CODE XREF: handleGameUserInput+3FAj
 {
-//                    ; sub_4955B+529j
+//                    ; handleGameUserInput+529j
     FILE *file = openWritableFile("SAVEGAME.SAV", "r");
     if (file == NULL)
     {
@@ -8718,51 +8719,51 @@ void loc_49A89() // :              ; CODE XREF: sub_4955B+3FAj
         return;
     }
 
-//loc_49A96:              ; CODE XREF: sub_4955B+536j
+//loc_49A96:              ; CODE XREF: handleGameUserInput+536j
 //    mov fh1, ax
     if (gIsRecordingDemo != 0)
     {
         somethingspsig();
     }
 
-//loc_49AA3:              ; CODE XREF: sub_4955B+543j
+//loc_49AA3:              ; CODE XREF: handleGameUserInput+543j
 //    mov cx, 4
 //    mov dx, 9FFDh
 //    call    readFromFh1
     size_t bytes = fread(NULL, 1, 4, file);
     if (bytes < 4)
     {
-//loc_49C1A:              ; CODE XREF: sub_4955B+553j
-//                    ; sub_4955B+581j ...
+//loc_49C1A:              ; CODE XREF: handleGameUserInput+553j
+//                    ; handleGameUserInput+581j ...
         gIsRecordingDemo = 0;
 
-//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
-//                    ; sub_4955B+499j ...
+//loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
+//                    ; handleGameUserInput+499j ...
         fclose(file);
         loc_49C28();
         return;
     }
 
-//loc_49AB1:              ; CODE XREF: sub_4955B+551j
+//loc_49AB1:              ; CODE XREF: handleGameUserInput+551j
     cx = word_5A30D;
     if (cx == word_5A309)
     {
         cx = word_5A30F;
         if (cx == word_5A30B)
         {
-//loc_49AD1:              ; CODE XREF: sub_4955B+568j
+//loc_49AD1:              ; CODE XREF: handleGameUserInput+568j
 //            mov cx, 1238h
 //            mov dx, offset leveldata
 //            call    readFromFh1
             bytes = fread(NULL, 1, 0x1238, file);
             if (bytes < 0x1238)
             {
-//loc_49C1A:              ; CODE XREF: sub_4955B+553j
-//                    ; sub_4955B+581j ...
+//loc_49C1A:              ; CODE XREF: handleGameUserInput+553j
+//                    ; handleGameUserInput+581j ...
                 gIsRecordingDemo = 0;
 
-//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
-//                    ; sub_4955B+499j ...
+//loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
+//                    ; handleGameUserInput+499j ...
                 fclose(file);
                 loc_49C28();
                 return;
@@ -8770,7 +8771,7 @@ void loc_49A89() // :              ; CODE XREF: sub_4955B+3FAj
         }
         else
         {
-//loc_49AC5:              ; CODE XREF: sub_4955B+55Ej
+//loc_49AC5:              ; CODE XREF: handleGameUserInput+55Ej
             fclose(file);
             loc_49C28();
             return;
@@ -8778,121 +8779,121 @@ void loc_49A89() // :              ; CODE XREF: sub_4955B+3FAj
     }
     else
     {
-//loc_49AC5:              ; CODE XREF: sub_4955B+55Ej
+//loc_49AC5:              ; CODE XREF: handleGameUserInput+55Ej
         fclose(file);
         loc_49C28();
         return;
     }
 
-//loc_49ADF:              ; CODE XREF: sub_4955B+57Fj
+//loc_49ADF:              ; CODE XREF: handleGameUserInput+57Fj
 //    mov cx, 1Ch
 //    mov dx, 87A8h
 //    call    readFromFh1
     bytes = fread(NULL, 1, 0x1C, file);
     if (bytes < 0x1C)
     {
-//loc_49C1A:              ; CODE XREF: sub_4955B+553j
-//                    ; sub_4955B+581j ...
+//loc_49C1A:              ; CODE XREF: handleGameUserInput+553j
+//                    ; handleGameUserInput+581j ...
         gIsRecordingDemo = 0;
 
-//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
-//                    ; sub_4955B+499j ...
+//loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
+//                    ; handleGameUserInput+499j ...
         fclose(file);
         loc_49C28();
         return;
     }
 
-//loc_49AED:              ; CODE XREF: sub_4955B+58Dj
+//loc_49AED:              ; CODE XREF: handleGameUserInput+58Dj
 //    mov cx, 6
 //    mov dx, 957Dh
 //    call    readFromFh1
     bytes = fread(NULL, 1, 6, file);
     if (bytes < 6)
     {
-//loc_49C1A:              ; CODE XREF: sub_4955B+553j
-//                    ; sub_4955B+581j ...
+//loc_49C1A:              ; CODE XREF: handleGameUserInput+553j
+//                    ; handleGameUserInput+581j ...
         gIsRecordingDemo = 0;
 
-//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
-//                    ; sub_4955B+499j ...
+//loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
+//                    ; handleGameUserInput+499j ...
         fclose(file);
         loc_49C28();
         return;
     }
 
-//loc_49AFB:              ; CODE XREF: sub_4955B+59Bj
+//loc_49AFB:              ; CODE XREF: handleGameUserInput+59Bj
 //    mov cx, 84h ; '?'
 //    mov dx, 0D08h
 //    call    readFromFh1
     bytes = fread(NULL, 1, 0x84, file);
     if (bytes < 0x84)
     {
-//loc_49C1A:              ; CODE XREF: sub_4955B+553j
-//                    ; sub_4955B+581j ...
+//loc_49C1A:              ; CODE XREF: handleGameUserInput+553j
+//                    ; handleGameUserInput+581j ...
         gIsRecordingDemo = 0;
 
-//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
-//                    ; sub_4955B+499j ...
+//loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
+//                    ; handleGameUserInput+499j ...
         fclose(file);
         loc_49C28();
         return;
     }
 
-//loc_49B09:              ; CODE XREF: sub_4955B+5A9j
+//loc_49B09:              ; CODE XREF: handleGameUserInput+5A9j
 //    mov cx, 4
 //    mov dx, 0D9Bh
 //    call    readFromFh1
     bytes = fread(NULL, 1, 4, file);
     if (bytes < 4)
     {
-//loc_49C1A:              ; CODE XREF: sub_4955B+553j
-//                    ; sub_4955B+581j ...
+//loc_49C1A:              ; CODE XREF: handleGameUserInput+553j
+//                    ; handleGameUserInput+581j ...
         gIsRecordingDemo = 0;
 
-//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
-//                    ; sub_4955B+499j ...
+//loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
+//                    ; handleGameUserInput+499j ...
         fclose(file);
         loc_49C28();
         return;
     }
 
-//loc_49B17:              ; CODE XREF: sub_4955B+5B7j
+//loc_49B17:              ; CODE XREF: handleGameUserInput+5B7j
 //    mov cx, 7
 //    mov dx, 0D90h
 //    call    readFromFh1
     bytes = fread(NULL, 1, 7, file);
     if (bytes < 7)
     {
-//loc_49C1A:              ; CODE XREF: sub_4955B+553j
-//                    ; sub_4955B+581j ...
+//loc_49C1A:              ; CODE XREF: handleGameUserInput+553j
+//                    ; handleGameUserInput+581j ...
         gIsRecordingDemo = 0;
 
-//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
-//                    ; sub_4955B+499j ...
+//loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
+//                    ; handleGameUserInput+499j ...
         fclose(file);
         loc_49C28();
         return;
     }
 
-//loc_49B25:              ; CODE XREF: sub_4955B+5C5j
+//loc_49B25:              ; CODE XREF: handleGameUserInput+5C5j
 //    mov cx, 4
 //    mov dx, 0D9Bh
 //    call    readFromFh1
     bytes = fread(NULL, 1, 4, file);
     if (bytes < 4)
     {
-//loc_49C1A:              ; CODE XREF: sub_4955B+553j
-//                    ; sub_4955B+581j ...
+//loc_49C1A:              ; CODE XREF: handleGameUserInput+553j
+//                    ; handleGameUserInput+581j ...
         gIsRecordingDemo = 0;
 
-//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
-//                    ; sub_4955B+499j ...
+//loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
+//                    ; handleGameUserInput+499j ...
         fclose(file);
         loc_49C28();
         return;
     }
 
-//loc_49B33:              ; CODE XREF: sub_4955B+5D3j
+//loc_49B33:              ; CODE XREF: handleGameUserInput+5D3j
 //    mov cx, 53h ; 'S'
 //    mov dx, 0D9Bh
 //    push    word_510C1
@@ -8901,18 +8902,18 @@ void loc_49A89() // :              ; CODE XREF: sub_4955B+3FAj
 //    pop word_510C1
     if (bytes < 0x53)
     {
-//loc_49C1A:              ; CODE XREF: sub_4955B+553j
-//                    ; sub_4955B+581j ...
+//loc_49C1A:              ; CODE XREF: handleGameUserInput+553j
+//                    ; handleGameUserInput+581j ...
         gIsRecordingDemo = 0;
 
-//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
-//                    ; sub_4955B+499j ...
+//loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
+//                    ; handleGameUserInput+499j ...
         fclose(file);
         loc_49C28();
         return;
     }
 
-//loc_49B49:              ; CODE XREF: sub_4955B+5E9j
+//loc_49B49:              ; CODE XREF: handleGameUserInput+5E9j
 //    mov cx, 23h ; '#'
 //    mov dx, 164Ah
 //    push    gScrollOffsetY
@@ -8925,18 +8926,18 @@ void loc_49A89() // :              ; CODE XREF: sub_4955B+3FAj
 //    pop gScrollOffsetY
     if (bytes < 0x23)
     {
-//loc_49C1A:              ; CODE XREF: sub_4955B+553j
-//                    ; sub_4955B+581j ...
+//loc_49C1A:              ; CODE XREF: handleGameUserInput+553j
+//                    ; handleGameUserInput+581j ...
         gIsRecordingDemo = 0;
 
-//loc_49C1F:              ; CODE XREF: sub_4955B+48Bj
-//                    ; sub_4955B+499j ...
+//loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
+//                    ; handleGameUserInput+499j ...
         fclose(file);
         loc_49C28();
         return;
     }
 
-//loc_49B6F:              ; CODE XREF: sub_4955B+60Fj
+//loc_49B6F:              ; CODE XREF: handleGameUserInput+60Fj
     if (byte_5988D != 0)
     {
 //        mov cx, levelDataLength
@@ -8949,8 +8950,8 @@ void loc_49A89() // :              ; CODE XREF: sub_4955B+3FAj
         }
     }
 
-//loc_49B84:              ; CODE XREF: sub_4955B+619j
-//                    ; sub_4955B+624j
+//loc_49B84:              ; CODE XREF: handleGameUserInput+619j
+//                    ; handleGameUserInput+624j
     fclose(file);
     gIsPlayingDemo = 0;
     gIsRecordingDemo = 0;
@@ -8982,39 +8983,39 @@ void loc_49A89() // :              ; CODE XREF: sub_4955B+3FAj
     drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 304, 14, 6, "LD"); // Means snapshot was loaded successfully
     byte_5197C = 0x46; // 70 or '&'
 
-//loc_49C12:              ; CODE XREF: sub_4955B+6A8j
+//loc_49C12:              ; CODE XREF: handleGameUserInput+6A8j
 //    mov si, 6015h
     fadeToPalette(gPalettes[1]);
 
-//loc_49C40:              ; CODE XREF: sub_4955B+6BDj
-//                    ; sub_4955B+6D6j
+//loc_49C40:              ; CODE XREF: handleGameUserInput+6BDj
+//                    ; handleGameUserInput+6D6j
 //    pop si
 
     loc_49C41();
 }
 
-void loc_49C28() //:              ; CODE XREF: sub_4955B+47Aj
+void loc_49C28() //:              ; CODE XREF: handleGameUserInput+47Aj
 {
-//                    ; sub_4955B+51Aj ...
+//                    ; handleGameUserInput+51Aj ...
 //    push    si
 //    mov si, 0A007h "XX"
     loc_49C2C("XX"); // Means problem writing/loading snapshot
 }
 
-void loc_49C2C(char text[3]) // :              ; CODE XREF: sub_4955B+521j
+void loc_49C2C(char text[3]) // :              ; CODE XREF: handleGameUserInput+521j
 {
     drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 304, 14, 6, text);
     byte_5197C = 0x46; // 70 or '&'
 
-//loc_49C40:              ; CODE XREF: sub_4955B+6BDj
-//                    ; sub_4955B+6D6j
+//loc_49C40:              ; CODE XREF: handleGameUserInput+6BDj
+//                    ; handleGameUserInput+6D6j
 //    pop si
 
     loc_49C41();
 }
 
-void loc_49C41() //              ; CODE XREF: sub_4955B+404j
-//                    ; sub_4955B+52Bj
+void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
+//                    ; handleGameUserInput+52Bj
 {
     if (gIsLeftAltPressed == 1
         && gIsScrollLockPressed == 1)
@@ -9032,8 +9033,8 @@ void loc_49C41() //              ; CODE XREF: sub_4955B+404j
         byte_5197C = 0x46; // 70 or '&'
     }
 
-//loc_49C96:              ; CODE XREF: sub_4955B+6EBj
-//                    ; sub_4955B+6F2j ...
+//loc_49C96:              ; CODE XREF: handleGameUserInput+6EBj
+//                    ; handleGameUserInput+6F2j ...
     if (gIsPKeyPressed != 0)
     {
         // 01ED:303A
@@ -9043,21 +9044,21 @@ void loc_49C41() //              ; CODE XREF: sub_4955B+404j
 
         do
         {
-//loc_49CA8:              ; CODE XREF: sub_4955B+752j
+//loc_49CA8:              ; CODE XREF: handleGameUserInput+752j
             int9handler(1);
         }
         while (gIsPKeyPressed == 1);
 
         do
         {
-//loc_49CAF:              ; CODE XREF: sub_4955B+759j
+//loc_49CAF:              ; CODE XREF: handleGameUserInput+759j
             int9handler(1);
         }
         while (gIsPKeyPressed == 0);
 
         do
         {
-//loc_49CB6:              ; CODE XREF: sub_4955B+760j
+//loc_49CB6:              ; CODE XREF: handleGameUserInput+760j
             int9handler(1);
         }
         while (gIsPKeyPressed == 1);
@@ -9066,7 +9067,7 @@ void loc_49C41() //              ; CODE XREF: sub_4955B+404j
         byte_510AE = 1;
     }
 
-//loc_49CC8:              ; CODE XREF: sub_4955B+740j
+//loc_49CC8:              ; CODE XREF: handleGameUserInput+740j
     if (gIsNumLockPressed != 0)
     {
         // 01ED:306C
@@ -9076,7 +9077,7 @@ void loc_49C41() //              ; CODE XREF: sub_4955B+404j
 
         do
         {
-//loc_49CDA:              ; CODE XREF: sub_4955B+784j
+//loc_49CDA:              ; CODE XREF: handleGameUserInput+784j
             int9handler(1);
         }
         while (gIsNumLockPressed == 1);
@@ -9087,7 +9088,7 @@ void loc_49C41() //              ; CODE XREF: sub_4955B+404j
 
         do
         {
-//loc_49CE4:              ; CODE XREF: sub_4955B+7A6j
+//loc_49CE4:              ; CODE XREF: handleGameUserInput+7A6j
             int9handler(1);
 
             if (index >= strlen(kMagicDisableDebugModeCode))
@@ -9097,13 +9098,13 @@ void loc_49C41() //              ; CODE XREF: sub_4955B+404j
             }
             else
             {
-//loc_49CF3:              ; CODE XREF: sub_4955B+78Ej
+//loc_49CF3:              ; CODE XREF: handleGameUserInput+78Ej
                 if (characterForSDLScancode(keyPressed) == kMagicDisableDebugModeCode[index])
                 {
                     index++;
                 }
 
-//loc_49CFC:              ; CODE XREF: sub_4955B+79Dj
+//loc_49CFC:              ; CODE XREF: handleGameUserInput+79Dj
                 if (gIsNumLockPressed != 0)
                 {
                     break;
@@ -9114,8 +9115,8 @@ void loc_49C41() //              ; CODE XREF: sub_4955B+404j
 
         do
         {
-//loc_49D03:              ; CODE XREF: sub_4955B+796j
-//                    ; sub_4955B+7ADj
+//loc_49D03:              ; CODE XREF: handleGameUserInput+796j
+//                    ; handleGameUserInput+7ADj
             int9handler(1);
         }
         while (gIsNumLockPressed == 1);
@@ -9124,7 +9125,7 @@ void loc_49C41() //              ; CODE XREF: sub_4955B+404j
         byte_510AE = 1;
     }
 
-//loc_49D15:              ; CODE XREF: sub_4955B+772j
+//loc_49D15:              ; CODE XREF: handleGameUserInput+772j
     if (gIsEscapeKeyPressed != 0
         && gQuitLevelCountdown <= 0)
     {
@@ -9132,8 +9133,8 @@ void loc_49C41() //              ; CODE XREF: sub_4955B+404j
         word_510D1 = 1; // 01ED:30C0
     }
 
-//loc_49D29:              ; CODE XREF: sub_4955B+7BFj
-//                    ; sub_4955B+7C6j
+//loc_49D29:              ; CODE XREF: handleGameUserInput+7BFj
+//                    ; handleGameUserInput+7C6j
     if (gIsQKeyPressed != 0)
     {
         // 01ED:30CD
@@ -9143,14 +9144,14 @@ void loc_49C41() //              ; CODE XREF: sub_4955B+404j
         gIsFlashingBackgroundModeEnabled = 0;
     }
 
-//loc_49D48:              ; CODE XREF: sub_4955B+7D3j
+//loc_49D48:              ; CODE XREF: handleGameUserInput+7D3j
     if (gIsRightShiftPressed != 0)
     {
         drawNumberOfRemainingRedDisks(); // 01ED:30EC
     }
 }
 
-void sub_49D53() //   proc near       ; CODE XREF: sub_4955B+626p
+void sub_49D53() //   proc near       ; CODE XREF: handleGameUserInput+626p
                    // ; removeTiles+21p
 {
     // TODO: around 01ED:30F0 (check with ORIGINAL.EXE)
@@ -9226,7 +9227,7 @@ void levelScanThing() //   proc near       ; CODE XREF: runLevel+A7p
     byte_59B7B = 1;
 }
 
-void gameloop() //   proc near       ; CODE XREF: runLevel:noFlashingp
+void updateMovingObjects() // gameloop   proc near       ; CODE XREF: runLevel:noFlashingp
 {
     // 01ED:317D
 
@@ -9255,7 +9256,7 @@ void gameloop() //   proc near       ; CODE XREF: runLevel:noFlashingp
 
     for (uint16_t i = kLevelWidth + 1; i < kLevelSize; ++i) // starts from si, ends in si + cx
     {
-//checkCellForMovingObject:              ; CODE XREF: gameloop+84j
+//checkCellForMovingObject:              ; CODE XREF: updateMovingObjects+84j
         LevelTileType tile = gCurrentLevelWord[i].tile; //         mov bl, byte ptr leveldata[si]
 
         // Does this check filter out values except like 0, 2, 16 and 18??
@@ -9295,7 +9296,7 @@ void gameloop() //   proc near       ; CODE XREF: runLevel:noFlashingp
         }
     }
 
-//doneWithGameLoop:
+//doneWithupdateMovingObjects:
     // 01ED:321D
 //    ; set graphics write mode = 0
 //    mov dx, 3CEh
@@ -9312,8 +9313,8 @@ void gameloop() //   proc near       ; CODE XREF: runLevel:noFlashingp
         return;
     }
 
-//loc_49E99:              ; CODE XREF: gameloop+AFj
-//                ; gameloop+B6j
+//loc_49E99:              ; CODE XREF: updateMovingObjects+AFj
+//                ; updateMovingObjects+B6j
     if (gQuitLevelCountdown == 0) // 01ED:3236
     {
         // 01ED:323D
@@ -9699,7 +9700,7 @@ void updateTerminalTiles(uint16_t position) // movefun5  proc near       ; DATA 
 
 /// Updates the random seed using the clock
 void generateRandomSeedFromClock() // getTime    proc near       ; CODE XREF: start:doesNotHaveCommandLinep
-                    // ; sub_4955B+669p ...
+                    // ; handleGameUserInput+669p ...
 {
 //        mov ax, 0
 //        int 1Ah     ; CLOCK - GET TIME OF DAY
@@ -9723,7 +9724,7 @@ void generateRandomSeedFromClock() // getTime    proc near       ; CODE XREF: st
 }
 
 /// Generates a random number based on time?
-uint16_t generateRandomNumber() // sub_4A1AE   proc near       ; CODE XREF: sub_4955B+66Cp
+uint16_t generateRandomNumber() // sub_4A1AE   proc near       ; CODE XREF: handleGameUserInput+66Cp
                    // ; updateScrollOffset+9p ...
 {
     uint16_t someValue = gRandomGeneratorSeed;
@@ -9733,7 +9734,7 @@ uint16_t generateRandomNumber() // sub_4A1AE   proc near       ; CODE XREF: sub_
     return someValue / 2;
 }
 
-void updateUserInput() // sub_4A1BF   proc near       ; CODE XREF: sub_4955B+13p
+void updateUserInput() // sub_4A1BF   proc near       ; CODE XREF: handleGameUserInput+13p
                    // ; runMainMenu+BDp ...
 {
     // 01ED:355C
@@ -9801,8 +9802,8 @@ void updateUserInput() // sub_4A1BF   proc near       ; CODE XREF: sub_4955B+13
     }
 }
 
-void removeTiles(LevelTileType tileType) // sub_4A23C   proc near       ; CODE XREF: sub_4955B+111p
-                   // ; sub_4955B+11Dp ...
+void removeTiles(LevelTileType tileType) // sub_4A23C   proc near       ; CODE XREF: handleGameUserInput+111p
+                   // ; handleGameUserInput+11Dp ...
 {
     // TODO: around 01ED:35D9 (check with ORIGINAL.EXE)
     // Looks like this function goes through every tile and clears those that match the parameter
@@ -9845,7 +9846,7 @@ void findMurphy() //   proc near       ; CODE XREF: start+344p sub_4A463+22p
     sub_4A291();
 }
 
-void sub_4A291() //   proc near       ; CODE XREF: sub_4955B+686p
+void sub_4A291() //   proc near       ; CODE XREF: handleGameUserInput+686p
 {
     // 01ED:362E
     // Parameters:
@@ -10058,8 +10059,8 @@ void resetNumberOfInfotrons() // sub_4A3BB   proc near       ; CODE XREF: start+
     drawNumberOfRemainingInfotrons();
 }
 
-void sub_4A3D2() //   proc near       ; CODE XREF: sub_4955B+39Ep
-                   // ; sub_4955B+3EBp
+void sub_4A3D2() //   proc near       ; CODE XREF: handleGameUserInput+39Ep
+                   // ; handleGameUserInput+3EBp
 {
     byte_599D4 = 0;
     word_599D8 = 0;
@@ -10074,7 +10075,7 @@ void sub_4A3D2() //   proc near       ; CODE XREF: sub_4955B+39Ep
 //sub_4A3D2   endp ; sp-analysis failed
 }
 
-void sub_4A3E9() //   proc near       ; CODE XREF: sub_4955B+14Ep
+void sub_4A3E9() //   proc near       ; CODE XREF: handleGameUserInput+14Ep
 {
     if (byte_5A33E == 0)
     {
@@ -10316,7 +10317,7 @@ void updateExplosionTiles(uint16_t position) //loc_4A543:              ; DATA XR
 void sub_4A5E0() //   proc near       ; CODE XREF: runLevel+106p
 {
     // 01ED:397D
-    // This does something related to electrons?
+    // TODO: revisit to understand... this does something related to electrons?
     for (int i = 0; i < kLevelSize; ++i)
     {
 //loc_4A5E9:              ; CODE XREF: sub_4A5E0+25j
@@ -12872,7 +12873,7 @@ void drawTextWithChars6FontWithTransparentBackground(size_t destX, size_t destY,
     }
 }
 
-void sub_4BF4A(uint8_t number) //   proc near       ; CODE XREF: start+3F7p sub_4955B+398p ...
+void sub_4BF4A(uint8_t number) //   proc near       ; CODE XREF: start+3F7p handleGameUserInput+398p ...
 {
     convertNumberTo3DigitStringWithPadding0(number, &a00s0010_sp[3]);
 }
@@ -13041,7 +13042,7 @@ void drawRankings() //   proc near       ; CODE XREF: handleNewPlayerOptionClick
     drawTextWithChars6FontWithOpaqueBackground(144, 110, 6, &numberString[1]); // Remove the first (left most) digit
 }
 
-void drawLevelList() // sub_4C141  proc near       ; CODE XREF: start+41Ap sub_4955B+39Bp ...
+void drawLevelList() // sub_4C141  proc near       ; CODE XREF: start+41Ap handleGameUserInput+39Bp ...
 {
     // 01ED:54DE
     byte_59821 = gCurrentPlayerLevelData[gCurrentSelectedLevelIndex - 2];
@@ -15955,7 +15956,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 ; =============== S U B R O U T I N E =======================================
 */
 
- uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE XREF: gameloop+Ep
+ uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE XREF: updateMovingObjects+Ep
 {
     // 01ED:722D
 
@@ -20257,7 +20258,7 @@ void decreaseRemainingRedDisksIfNeeded(uint16_t position) // sub_4FDB5   proc ne
     drawNumberOfRemainingRedDisks();
 }
 
-void drawNumberOfRemainingRedDisks() // sub_4FDCE   proc near       ; CODE XREF: sub_4955B+7F4p
+void drawNumberOfRemainingRedDisks() // sub_4FDCE   proc near       ; CODE XREF: handleGameUserInput+7F4p
                    // ; update?+1369p
 {
 //loc_4FDD6:              ; CODE XREF: drawNumberOfRemainingRedDisks+5j
@@ -20365,7 +20366,7 @@ void drawTextWithChars8FontToBuffer(uint8_t *buffer, size_t destX, size_t destY,
     }
 }
 
-void drawGamePanel() // sub_501C0   proc near       ; CODE XREF: start+338p sub_4955B+678p ...
+void drawGamePanel() // sub_501C0   proc near       ; CODE XREF: start+338p handleGameUserInput+678p ...
 {
     memcpy(&gPanelRenderedBitmapData, &gPanelDecodedBitmapData, sizeof(gPanelRenderedBitmapData));
     drawGamePanelText();
