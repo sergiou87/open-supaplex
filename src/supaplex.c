@@ -2883,7 +2883,7 @@ void updateUserInput(void);
 void sub_492F1(void);
 void simulateDemoInput(void);
 void sub_4A463(void);
-void sub_4A23C(LevelTileType tileType);
+void removeTiles(LevelTileType tileType);
 void sub_4A3E9(void);
 void sub_4945D(void);
 void somethingspsig(void);
@@ -7504,7 +7504,7 @@ void drawFixedLevel() // sub_48F6D   proc near       ; CODE XREF: start+335p ru
 
             size_t startDstX = kLevelEdgeSize + bitmapTileX * kTileSize;
             size_t startDstY = kLevelEdgeSize + bitmapTileY * kTileSize;
-            uint16_t tileValue = gCurrentLevel.tiles[tileY * kLevelWidth + tileX];
+            uint16_t tileValue = gCurrentLevelWord[tileY * kLevelWidth + tileX].tile;
             size_t startSrcX = tileValue * kTileSize;
 
             for (int y = 0; y < kTileSize; ++y)
@@ -8181,31 +8181,32 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
 //loc_49663:              ; CODE XREF: sub_4955B+100j
         if (gIsZKeyPressed != 0) // cmp byte ptr gIsZKeyPressed, 0
         {
-            sub_4A23C(LevelTileTypeZonk);
+            // TODO: around 01ED:2A09 (check with ORIGINAL.EXE)
+            removeTiles(LevelTileTypeZonk);
         }
 
 //loc_4966F:              ; CODE XREF: sub_4955B+10Dj
         if (gIsBKeyPressed != 0) // cmp byte ptr gIsBKeyPressed, 0
         {
-            sub_4A23C(LevelTileTypeBase);
+            removeTiles(LevelTileTypeBase);
         }
 
 //loc_4967B:              ; CODE XREF: sub_4955B+119j
         if (gIsHKeyPressed != 0)
         {
-            sub_4A23C(LevelTileTypeHardware);
+            removeTiles(LevelTileTypeHardware);
         }
 
 //loc_49687:              ; CODE XREF: sub_4955B+125j
         if (gIsCKeyPressed != 0) // cmp byte ptr gIsCKeyPressed, 0
         {
-            sub_4A23C(LevelTileTypeChip);
+            removeTiles(LevelTileTypeChip);
         }
 
 //loc_49693:              ; CODE XREF: sub_4955B+131j
         if (gIsSKeyPressed != 0)
         {
-            sub_4A23C(LevelTileTypeSnikSnak);
+            removeTiles(LevelTileTypeSnikSnak);
         }
 
 //loc_4969F:              ; CODE XREF: sub_4955B+13Dj
@@ -8395,7 +8396,7 @@ void sub_4955B() //   proc near       ; CODE XREF: runLevel:loc_48B6Bp
                     byte_59B7D = 0;
                 }
 //loc_49794:              ; CODE XREF: sub_4955B+230j
-                if (byte_59B7D == 0)
+                else if (byte_59B7D == 0)
                 {
                     byte_59B7D--;
                     gAreZonksFrozen &= 2;
@@ -9150,22 +9151,16 @@ void loc_49C41() //              ; CODE XREF: sub_4955B+404j
 }
 
 void sub_49D53() //   proc near       ; CODE XREF: sub_4955B+626p
-                   // ; sub_4A23C+21p
+                   // ; removeTiles+21p
 {
+    // TODO: around 01ED:30F0 (check with ORIGINAL.EXE)
     byte_59B7B = 0;
     levelScanThing(); // added by me, seems like code continues from here? see what happens with the debugger
 }
 
 void levelScanThing() //   proc near       ; CODE XREF: runLevel+A7p
 {
-//    push    es
-//    push    ds
-//    pop es
-//    assume es:data
-//    cld
-    cx = 0x5A0; // 01ED:30F9
-//    mov di, offset leveldata // 0x1834 (gCurrentLevelWord)
-    ax = 0xF11F; // 61727
+    // TODO: around 01ED:30F5 (check with ORIGINAL.EXE)
 
     for (int i = 0; i < kLevelSize; ++i)
     {
@@ -9182,8 +9177,6 @@ void levelScanThing() //   proc near       ; CODE XREF: runLevel+A7p
     {
         return;
     }
-//    mov cx, 5A0h
-//    mov di, offset leveldata
 
     for (int i = 0; i < kLevelSize; ++i)
     {
@@ -9193,30 +9186,18 @@ void levelScanThing() //   proc near       ; CODE XREF: runLevel+A7p
         {
             continue;
         }
-//        ax = 6;
-//        repne scasw
-//        if (not found)
-//        {
-//            break;
-//        }
-        // Up to this is implemented in the lines above
-        bx = kLevelSize - 1; // 0x59F; // 1439
-        bx = bx - cx;
-//        al = [bx-6775h]
-        if (ax >= LevelTileTypeHardware2 // 28
-            && ax <= LevelTileTypeHardware11) // 37
+
+        LevelTileType originalTile = gCurrentLevel.tiles[i];
+
+        if (originalTile >= LevelTileTypeHardware2 // 28
+            && originalTile <= LevelTileTypeHardware11) // 37
         {
-            MovingLevelTile *previousTile = &gCurrentLevelWord[i - 1];
-            previousTile->tile = ax;
-            previousTile->movingObject = 0; // if ax is between 0x1C and 0x25, ah must be 0
-            //es:[di-2] = ax;
+            tile->tile = originalTile;
+            tile->movingObject = 0;
         }
     }
 
 //loc_49DA6:              ; CODE XREF: levelScanThing+31j
-//    mov cx, 5A0h
-//    mov di, offset leveldata
-
     for (int i = 0; i < kLevelSize; ++i)
     {
 //loc_49DAC:              ; CODE XREF: levelScanThing+7Fj
@@ -9225,23 +9206,18 @@ void levelScanThing() //   proc near       ; CODE XREF: runLevel+A7p
         {
             continue;
         }
-//        mov ax, 5
-//        repne scasw
-//        jnz short loc_49DD9 // Up to this is implemented in the lines above
-//        mov bx, 59Fh
-//        sub bx, cx
-//        al = [bx-6775h] // wtf is this??
-        if (ax >= LevelTileTypeHorizontalChipLeft // 26
-            && ax <= LevelTileTypeHorizontalChipBottom) // 39
+
+        LevelTileType originalTile = gCurrentLevel.tiles[i];
+
+        if (originalTile >= LevelTileTypeHorizontalChipLeft // 26
+            && originalTile <= LevelTileTypeHorizontalChipBottom) // 39
         {
-            ax -= 0x1C; // 28
-            if (ax >= LevelTileTypePortDown) // 10
+            originalTile -= LevelTileTypeHardware2; // 28
+            if (originalTile >= LevelTileTypePortDown) // 10
             {
-                ax += 0x1C; // 28
-                MovingLevelTile *previousTile = &gCurrentLevelWord[i - 1];
-                previousTile->tile = ax;
-                previousTile->movingObject = 0; // if ax is between 0x1C and 0x25, ah must be 0
-//                es:[di-2] = ax;
+                originalTile += LevelTileTypeHardware2; // 28
+                tile->tile = originalTile;
+                tile->movingObject = 0;
             }
         }
     }
@@ -9432,7 +9408,7 @@ void updateScrollOffset() // sub_49EBE   proc near       ; CODE XREF: runLevel+1
 //loc_49F2E:              ; CODE XREF: updateScrollOffset+65j
         scrollX = word_59B88;
         scrollY = word_59B8A;
-        
+
         int16_t additionalScrollX = scrollX;
         scrollX += gAdditionalScrollOffsetX;
         if (scrollX < 0)
@@ -9825,13 +9801,14 @@ void updateUserInput() // sub_4A1BF   proc near       ; CODE XREF: sub_4955B+13
     }
 }
 
-void sub_4A23C(LevelTileType tileType) //   proc near       ; CODE XREF: sub_4955B+111p
+void removeTiles(LevelTileType tileType) // sub_4A23C   proc near       ; CODE XREF: sub_4955B+111p
                    // ; sub_4955B+11Dp ...
 {
+    // TODO: around 01ED:35D9 (check with ORIGINAL.EXE)
     // Looks like this function goes through every tile and clears those that match the parameter
     for (uint16_t i = 0; i < kLevelSize; ++i)
     {
-//loc_4A242:              ; CODE XREF: sub_4A23C+1Fj
+//loc_4A242:              ; CODE XREF: removeTiles+1Fj
         MovingLevelTile *tile = &gCurrentLevelWord[i];
         if (tile->tile != tileType)
         {
@@ -9842,7 +9819,7 @@ void sub_4A23C(LevelTileType tileType) //   proc near       ; CODE XREF: sub_495
             }
         }
 
-//loc_4A253:              ; CODE XREF: sub_4A23C+Cj
+//loc_4A253:              ; CODE XREF: removeTiles+Cj
         tile->movingObject = 0;
         tile->tile = LevelTileTypeSpace;
     }
