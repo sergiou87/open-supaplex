@@ -1582,6 +1582,14 @@ int8_t gGameSpeed = 5; // gameSpeed
 uint8_t demoFileName = 0; // Probably should be another type but whatever for now
 uint8_t gIsFlashingBackgroundModeEnabled = 0; // flashingbackgroundon
 
+// Used to measure display frame rate
+static float gFrameRate = 0.f;
+static Uint32 gFrameRateReferenceTime = 0;
+
+// Used to measure game speed (reference is 35 iterations per second)
+static float gGameIterationRate = 0.f;
+static Uint32 gGameIterationRateReferenceTime = 0;
+
 static const uint16_t kFallAnimationGravityOffsets[18] = {
     0x0000, // -> 0x6C95
     0x007A, // -> 0x6C97
@@ -6695,6 +6703,29 @@ void initializeGameInfo() // sub_48A20   proc near       ; CODE XREF: start+32F
     gPlantedRedDiskPosition = 0;
 }
 
+void trackGameIterationFinished()
+{
+    static Uint32 sNumberOfIterations = 0;
+
+    sNumberOfIterations++;
+
+    if (gGameIterationRateReferenceTime == 0)
+    {
+        gGameIterationRateReferenceTime = SDL_GetTicks();
+    }
+    else
+    {
+        Uint32 difference = SDL_GetTicks() - gGameIterationRateReferenceTime;
+
+        if (difference > 1000)
+        {
+            gGameIterationRate = sNumberOfIterations * 1000.f / difference;
+            sNumberOfIterations = 0;
+            gGameIterationRateReferenceTime = SDL_GetTicks();
+        }
+    }
+}
+
 void runLevel() //    proc near       ; CODE XREF: start+35Cp
 {
     // 01ED:1E58
@@ -6983,7 +7014,6 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 //loc_48D38:              ; CODE XREF: runLevel+20Ej
 //                ; runLevel+213j ...
                     videoloop(); // 01ED:20E9
-                    loopForVSync();
                 }
             }
         }
@@ -7009,6 +7039,10 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         {
             videoloop(); // 01ED:2142
         }
+
+        loopForVSync();
+
+        trackGameIterationFinished();
 
 //isFastMode2:              ; CODE XREF: runLevel+2E8j
         if (word_51A07 > 1)
@@ -13563,6 +13597,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
 
 //loc_4C81A:              // ; CODE XREF: runMainMenu+77j
         videoloop();
+        loopForVSync();
 
         word_5195D++;
         uint16_t mouseX, mouseY;
@@ -14639,18 +14674,19 @@ void limitFPS()
 
 void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
 {
-    static float sFrameRate = 0.f;
-    static Uint32 sFrameRateReferenceTime = 0;
-
     if (gShouldShowFPS)
     {
         char frameRateString[5] = "";
-        sprintf(frameRateString, "%4.1f", MIN(sFrameRate, 99.9)); // Don't show more than 99.9 FPS, not necessary
+        sprintf(frameRateString, "%4.1f", MIN(gFrameRate, 99.9)); // Don't show more than 99.9 FPS, not necessary
+
+        char gameIterationRateString[5] = "";
+        sprintf(gameIterationRateString, "%4.1f", MIN(gGameIterationRate, 99.9)); // Don't show more than 99.9 FPS, not necessary
 
         // TODO: No idea what this is _yet_ but I can't print on the screen if it's 1
         uint8_t previousValue = byte_5A33F;
         byte_5A33F = 0;
         drawTextWithChars6FontWithOpaqueBackground(0, 0, 6, frameRateString);
+        drawTextWithChars6FontWithOpaqueBackground(0, 8, 8, gameIterationRateString);
         byte_5A33F = previousValue;
     }
 
@@ -14661,7 +14697,6 @@ void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
     SDL_UpdateTexture(gTexture, NULL, gTextureSurface->pixels, gTextureSurface->pitch);
     SDL_RenderClear(gRenderer);
     SDL_RenderCopy(gRenderer, gTexture, NULL, &gWindowViewport);
-    SDL_RenderPresent(gRenderer);
 
     limitFPS();
 
@@ -14669,117 +14704,26 @@ void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
 
     sNumberOfFrames++;
 
-    if (sFrameRateReferenceTime == 0)
+    if (gFrameRateReferenceTime == 0)
     {
-        sFrameRateReferenceTime = SDL_GetTicks();
+        gFrameRateReferenceTime = SDL_GetTicks();
     }
     else
     {
-        Uint32 difference = SDL_GetTicks() - sFrameRateReferenceTime;
+        Uint32 difference = SDL_GetTicks() - gFrameRateReferenceTime;
 
         if (difference > 1000)
         {
-            sFrameRate = sNumberOfFrames * 1000.f / difference;
+            gFrameRate = sNumberOfFrames * 1000.f / difference;
             sNumberOfFrames = 0;
-            sFrameRateReferenceTime = SDL_GetTicks();
+            gFrameRateReferenceTime = SDL_GetTicks();
         }
     }
-//        push    dx
-//        push    ax
-//        cmp byte ptr dword_59B67, 0
-//        jnz short waitForVsync
-//        mov dx, 3DAh // check http://stanislavs.org/helppc/6845.html
-//        cli
-//        in  al, dx      ; Video status bits:
-//                    ; 0: retrace.  1=display is in vert or horiz retrace.
-//                    ; 1: 1=light pen is triggered; 0=armed
-//                    ; 2: 1=light pen switch is open; 0=closed
-//                    ; 3: 1=vertical sync pulse is occurring.
-//        mov ah, al
-//        mov dx, 3C0h
-//        al = 33h ; '3'
-//        out dx, al      ; EGA: horizontal pixel panning:
-//                    ; Number of dots to shift data left.
-//                    ; Bits 0-3 valid (0-0fH)
-//        al = gNumberOfDotsToShiftDataLeft
-//        out dx, al      ; EGA: palette register: select colors for attribute AL:
-//                    ; 0: RED
-//                    ; 1: GREEN
-//                    ; 2: BLUE
-//                    ; 3: blue
-//                    ; 4: green
-//                    ; 5: red
-//        test    ah, 8
-//        jnz short loc_4D453
-//
-//waitForVsync:              ; CODE XREF: videoloop+7j
-//                    ; videoloop+31j
-//        sti
-//        nop
-//        nop
-//        nop
-//        nop
-//        nop
-//        nop
-//        nop
-//        nop
-//        nop
-//        nop
-//        mov dx, 3DAh
-//        cli
-//        in  al, dx      ; Video status bits:
-//                    ; 0: retrace.  1=display is in vert or horiz retrace.
-//                    ; 1: 1=light pen is triggered; 0=armed
-//                    ; 2: 1=light pen switch is open; 0=closed
-//                    ; 3: 1=vertical sync pulse is occurring.
-//        test    al, 1000b
-//        jz  short waitForVsync
-//        cmp byte ptr dword_59B67, 0
-//        jz  short loc_4D453
-//        mov dx, 3C0h
-//        al = 33h ; '3'
-//        out dx, al      ; EGA: horizontal pixel panning:
-//                    ; Number of dots to shift data left.
-//                    ; Bits 0-3 valid (0-0fH)
-//        al = gNumberOfDotsToShiftDataLeft
-//        out dx, al      ; EGA: palette register: select colors for attribute AL:
-//                    ; 0: RED
-//                    ; 1: GREEN
-//                    ; 2: BLUE
-//                    ; 3: blue
-//                    ; 4: green
-//                    ; 5: red
-//
-//loc_4D453:              ; CODE XREF: videoloop+1Dj
-//                    ; videoloop+38j
-//        sti
-//        pop ax
-//        pop dx
-//        return;
-// videoloop   endp
 }
 
 void loopForVSync() // sub_4D457   proc near       ; CODE XREF: crt?2+55p crt?1+41p ...
 {
-    // TODO: handle this properly to control FPS
-//    SDL_Delay(1000 / kFPS); // 60 fps
-//        push    dx
-//        push    ax
-//
-//loc_4D459:              ; CODE XREF: loopForVSync+8j
-//        mov dx, 3DAh
-//        in  al, dx      ; Video status bits:
-//                    ; 0: retrace.  1=display is in vert or horiz retrace.
-//                    ; 1: 1=light pen is triggered; 0=armed
-//                    ; 2: 1=light pen switch is open; 0=closed
-//                    ; 3: 1=vertical sync pulse is occurring.
-//        test    al, 8
-//        jnz short loc_4D459
-//        pop ax
-//        pop dx
-//        return;
-
-// loopForVSync   endp
+    SDL_RenderPresent(gRenderer);
 }
 
 void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
