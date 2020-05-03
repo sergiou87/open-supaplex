@@ -15629,13 +15629,14 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
         else if (aboveTile->tile == LevelTileTypeBug)
         {
 //loc_4E4AC:              ; CODE XREF: update?+3E0j
-            if (aboveLeftTile->movingObject >= 0) // TODO: should movingObject be signed?
+            if (aboveTile->movingObject < 0x80)
             {
                 detonateBigExplosion(position);
                 return position;
             }
 
 //loc_4E4B7:              ; CODE XREF: update?+621j
+            aboveTile->movingObject = 0;
             aboveTile->tile = LevelTileTypeBase;
 
 //loc_4E4BD:              ; CODE XREF: update?+3D9j
@@ -15734,13 +15735,14 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
         else if (leftTile->tile == LevelTileTypeBug)
         {
 //loc_4E4D8:              ; CODE XREF: update?+410j
-            if (leftTile->movingObject >= 0) // TODO: should movingObject be signed?
+            if (leftTile->movingObject < 0x80)
             {
                 detonateBigExplosion(position);
                 return position;
             }
 
 //loc_4E4E3:              ; CODE XREF: update?+64Dj
+            leftTile->movingObject = 0;
             leftTile->tile = LevelTileTypeBase;
 
 //loc_4E4E9:              ; CODE XREF: update?+409j
@@ -15838,14 +15840,15 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
         else if (belowTile->tile == LevelTileTypeBug)
         {
 //loc_4E504:              ; CODE XREF: update?+43Aj
-            if (aboveTile->movingObject >= 0) // TODO: should movingObject be signed?
+            if (belowTile->movingObject < 0x80)
             {
                 detonateBigExplosion(position);
                 return position;
             }
 
 //loc_4E50F:              ; CODE XREF: update?+679j
-            aboveTile->tile = LevelTileTypeBase;
+            belowTile->movingObject = 0;
+            belowTile->tile = LevelTileTypeBase;
 
 //loc_4E515:              ; CODE XREF: update?+433j
         //    push    si
@@ -15943,13 +15946,14 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
         else if (rightTile->tile == LevelTileTypeBug)
         {
 //loc_4E530:              ; CODE XREF: update?+46Aj
-            if (rightTile->movingObject >= 0) // TODO: should movingObject be signed?
+            if (rightTile->movingObject < 0x80)
             {
                 detonateBigExplosion(position);
                 return position;
             }
 
 //loc_4E53B:              ; CODE XREF: update?+6A5j
+            rightTile->movingObject = 0;
             rightTile->tile = LevelTileTypeBase;
 
 //loc_4E541:              ; CODE XREF: update?+463j
@@ -16117,7 +16121,7 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
 //loc_4E3D0:              ; CODE XREF: update?+232j
         //    cmp byte ptr [si+17BDh], 0
         //    jl  short loc_4E3DB
-        if (aboveTile->movingObject >= 0) // TODO: should movingObject be signed?
+        if (aboveTile->movingObject < 0x80)
         {
             detonateBigExplosion(position);
             return position;
@@ -16127,26 +16131,28 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
         aboveTile->movingObject = 0;
         aboveTile->tile = LevelTileTypeBase;
 
-//loc_4E47B:              ; CODE XREF: update?+376j
-        if (rightTile->movingObject >= 0) // TODO: should movingObject be signed?
+//loc_4E3E1:              ; CODE XREF: update?+22Bj
+        MurphyAnimationDescriptor animationDescriptor;
+        sound9();
+        if (word_510CB != 0)
         {
-            detonateBigExplosion(position);
-            return position;
+            animationDescriptor = someBinaryData_5110E[7]; // dx = 0x0E6E;
+        }
+        else
+        {
+//loc_4E3F0:              ; CODE XREF: update?+559j
+            animationDescriptor = someBinaryData_5110E[8]; // dx = 0x0E7E;
         }
 
-//loc_4E486:              ; CODE XREF: update?+5F0j
-        rightTile->tile = LevelTileTypeBase;
+//loc_4E3F3:              ; CODE XREF: update?+55Ej
 
-//loc_4E48C:              ; CODE XREF: update?+36Fj
-        sound9();
-//        dx = 0x0EBE;
-        rightTile->movingObject = 8;
-        rightTile->tile = LevelTileTypeMurphy;
+        aboveTile->movingObject = 5;
+        aboveTile->tile = LevelTileTypeMurphy;
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         word_510EE = 0;
         gIsMurphyGoingThroughPortal = 0;
-        return updateMurphyAnimationInfo(position + 1, someBinaryData_5110E[12]);
+        return updateMurphyAnimationInfo(position - kLevelWidth, animationDescriptor);
     }
 //loc_4E0C5:              ; CODE XREF: update?+230j
     else if (aboveTile->movingObject == 0 && aboveTile->tile == LevelTileTypeInfotron)
@@ -16345,7 +16351,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
     else if (leftTile->tile == LevelTileTypeBug) // 01ED:763B
     {
 //loc_4E40D:              ; CODE XREF: update?+29Aj
-        if (leftTile->movingObject >= 0) // TODO: should movingObject be signed?
+        if (leftTile->movingObject < 0x80)
         {
             detonateBigExplosion(position);
             return position;
@@ -16608,13 +16614,14 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
     else if (belowTile->tile == LevelTileTypeBug)
     {
 //loc_4E43E:              ; CODE XREF: update?+30Ej
-        if (belowLeftTile->movingObject >= 0) // TODO: should movingObject be signed?
+        if (belowTile->movingObject < 0x80)
         {
             detonateBigExplosion(position);
             return position;
         }
 
 //loc_4E449:              ; CODE XREF: update?+5B3j
+        belowTile->movingObject = 0;
         belowTile->tile = LevelTileTypeBase;
 
         MurphyAnimationDescriptor unknownMurphyData;
@@ -16835,13 +16842,14 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
     else if (rightTile->tile == LevelTileTypeBug)
     {
 //loc_4E47B:              ; CODE XREF: update?+376j
-        if (rightTile->movingObject >= 0) // TODO: should movingObject be signed?
+        if (rightTile->movingObject < 0x80)
         {
             detonateBigExplosion(position);
             return position;
         }
 
 //loc_4E486:              ; CODE XREF: update?+5F0j
+        rightTile->movingObject = 0;
         rightTile->tile = LevelTileTypeBase;
 
 //loc_4E48C:              ; CODE XREF: update?+36Fj
