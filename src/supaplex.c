@@ -2776,6 +2776,8 @@ uint8_t cf;
 uint8_t ah, al, bh, bl, ch, cl, dh, dl;
 uint16_t ax, bx, cx, dx, ds, cs, es, bp, sp, di, si;
 
+void startTrackingRenderDeltaTime();
+uint32_t updateRenderDeltaTime();
 void updateWindowViewport(void);
 int windowResizingEventWatcher(void* data, SDL_Event* event);
 void emulateClock(void);
@@ -2785,7 +2787,6 @@ void setPalette(ColorPalette palette);
 void fadeToPalette(ColorPalette palette);
 void readTitleDatAndGraphics(void);
 void videoloop(void);
-void loopForVSync(void);
 void convertPaletteDataToPalette(ColorPaletteData paletteData, ColorPalette outPalette);
 void loadScreen2(void);
 void readEverything(void);
@@ -3878,7 +3879,6 @@ void slideDownGameDash() // proc near     ; CODE XREF: start:isNotFastMode2p
 
         drawCurrentLevelViewport(panelHeight);
         videoloop();
-        loopForVSync();
     }
 }
 
@@ -4478,14 +4478,12 @@ void openCreditsBlock() // proc near      ; CODE XREF: start+2E9p
     int leftEdgeX = kInitialLeftEdgeX;
     int rightEdgeX = kInitialRightEdgeX;
 
-    videoloop();
-    loopForVSync();
+    startTrackingRenderDeltaTime();
 
-    //for (int j = 0; j < kNumberOfFrames; ++j)
     while (animationTime < kAnimationDuration)
     {
 //loc_47800:             // ; CODE XREF: openCreditsBlock+AFj
-        animationTime += gRenderDeltaTime;
+        animationTime += updateRenderDeltaTime();
         animationTime = MIN(animationTime, kAnimationDuration);
 
         float animationFactor = (float)animationTime / kAnimationDuration;
@@ -4534,7 +4532,6 @@ void openCreditsBlock() // proc near      ; CODE XREF: start+2E9p
         }
 
         videoloop();
-        loopForVSync();
     }
 
 //loc_47884:             // ; CODE XREF: openCreditsBlock+C7j
@@ -5209,7 +5206,6 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
     {
 //loc_47EC6:              ; CODE XREF: waitForKeyMouseOrJoystick+57j
         videoloop();
-        loopForVSync();
 
         getMouseStatus(NULL, NULL, &mouseButtonsStatus);
         int9handler(0);
@@ -6898,8 +6894,6 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
             videoloop(); // 01ED:2142
         }
 
-        loopForVSync();
-
         handleGameIterationFinished();
 
 //isFastMode2:              ; CODE XREF: runLevel+2E8j
@@ -6915,7 +6909,6 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 //loc_48DB6:              ; CODE XREF: runLevel+310j
             if (fastMode != 1)
             {
-                loopForVSync();
                 videoloop(); // 01ED:2160
             }
 
@@ -13012,25 +13005,29 @@ void scrollLeftToMainMenu() //loc_4C44F:              ; CODE XREF: handleGfxTuto
     prepareLevelDataForCurrentPlayer();
     drawMenuTitleAndDemoLevelResult();
 
-    // These two lines were in the original code, but will be
-    // left out here to prevent flickering.
-//    videoloop();
-//    loopForVSync();
-
     uint8_t menuScreenPixels[kFullScreenFramebufferLength];
     memcpy(menuScreenPixels, gScreenPixels, kFullScreenFramebufferLength);
 
     const int kNumberOfSteps = 40;
-    const int kStepSize = kScreenWidth / kNumberOfSteps;
+
+    static const uint32_t kAnimationDuration = kNumberOfSteps * 1000 / 70; // ~571 ms
+    uint32_t animationTime = 0;
+
+    startTrackingRenderDeltaTime();
 
     // Draws the current scroll animation step
-    for (int i = kNumberOfSteps; i >= 0; --i)
+    while (animationTime < kAnimationDuration)
     {
+        animationTime += updateRenderDeltaTime();
+        animationTime = MIN(animationTime, kAnimationDuration);
+
+        float animationFactor = (float)animationTime / kAnimationDuration;
+
+        int limitFromLeft = animationFactor * kScreenWidth;
+        int limitFromRight = kScreenWidth - limitFromLeft;
+
         for (int y = 0; y < kScreenHeight; ++y)
         {
-            int limitFromLeft = kStepSize * (kNumberOfSteps - i);
-            int limitFromRight = kScreenWidth - limitFromLeft;
-
             // Main menu side
             for (int x = 0; x < kScreenWidth - limitFromRight; ++x)
             {
@@ -13046,12 +13043,9 @@ void scrollLeftToMainMenu() //loc_4C44F:              ; CODE XREF: handleGfxTuto
 
 //loc_4C466:              ; CODE XREF: sub_4C407+90j
         videoloop();
-        loopForVSync();
     }
 
 //loc_4C499:              ; CODE XREF: sub_4C407+28j
-    videoloop();
-
     // This will prevent to leave traces of the options menu
     // area in the main menu.
     //
@@ -13106,16 +13100,25 @@ void scrollRightToNewScreen() // sub_4C5AF   proc near       ; CODE XREF: handle
     memcpy(screenPixelsBackup, gScreenPixels, kFullScreenFramebufferLength);
 
     const int kNumberOfSteps = 40;
-    const int kStepSize = kScreenWidth / kNumberOfSteps;
+
+    static const uint32_t kAnimationDuration = kNumberOfSteps * 1000 / 70; // ~571 ms
+    uint32_t animationTime = 0;
+
+    startTrackingRenderDeltaTime();
 
     // Draws the current scroll animation step
-    for (int i = 0; i <= kNumberOfSteps; ++i)
+    while (animationTime < kAnimationDuration)
     {
+        animationTime += updateRenderDeltaTime();
+        animationTime = MIN(animationTime, kAnimationDuration);
+
+        float animationFactor = (float)animationTime / kAnimationDuration;
+
+        int limitFromRight = animationFactor * kScreenWidth;
+        int limitFromLeft = kScreenWidth - limitFromRight;
+
         for (int y = 0; y < kScreenHeight; ++y)
         {
-            int limitFromLeft = kStepSize * (kNumberOfSteps - i);
-            int limitFromRight = kScreenWidth - limitFromLeft;
-
             // Main menu side
             for (int x = 0; x < kScreenWidth - limitFromRight; ++x)
             {
@@ -13131,10 +13134,7 @@ void scrollRightToNewScreen() // sub_4C5AF   proc near       ; CODE XREF: handle
 
 //loc_4C5BA:              ; CODE XREF: scrollRightToGfxTutor+3Cj
         videoloop();
-        loopForVSync();
     }
-
-    videoloop();
 }
 
 void drawMenuBackground() //   proc near       ; CODE XREF: sub_4C407+14p
@@ -14434,8 +14434,6 @@ void limitFPS()
         {
             SDL_Delay(kFrameDuration - duration);
         }
-
-        gRenderDeltaTime = (SDL_GetTicks() - sLastFrameTime);
     }
 
     sLastFrameTime = SDL_GetTicks();
@@ -14485,11 +14483,6 @@ void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
             gFrameRateReferenceTime = SDL_GetTicks();
         }
     }
-}
-
-void loopForVSync() // sub_4D457   proc near       ; CODE XREF: crt?2+55p crt?1+41p ...
-{
-    // Do nothing
 }
 
 void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
@@ -14683,12 +14676,12 @@ void fadeToPalette(ColorPalette palette) //        proc near       ; CODE XREF: 
     static const uint32_t kFadeDuration = 64 * 1000 / 70; // ~914 ms
     uint32_t fadeTime = 0;
 
-    videoloop();
+    startTrackingRenderDeltaTime();
 
     // for (uint8_t step = 0; step < totalSteps; ++step)
     while (fadeTime < kFadeDuration)
     {
-        fadeTime += gRenderDeltaTime;
+        fadeTime += updateRenderDeltaTime();
         fadeTime = MIN(fadeTime, kFadeDuration);
 
         float animationFactor = (float)fadeTime / kFadeDuration;
@@ -14706,7 +14699,6 @@ void fadeToPalette(ColorPalette palette) //        proc near       ; CODE XREF: 
         SDL_SetPaletteColors(gScreenSurface->format->palette, intermediatePalette, 0, kNumberOfColors);
 
         videoloop();
-        loopForVSync();
     }
 
     setPalette(palette);
@@ -20088,3 +20080,16 @@ void handleSDLEvents()
 
     emulateClock();
 }
+
+void startTrackingRenderDeltaTime()
+{
+    gRenderDeltaTime = SDL_GetTicks();
+}
+
+uint32_t updateRenderDeltaTime()
+{
+    uint32_t duration = SDL_GetTicks() - gRenderDeltaTime;
+    gRenderDeltaTime = SDL_GetTicks();
+    return duration;
+}
+
