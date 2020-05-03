@@ -3968,6 +3968,12 @@ void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9
         return;
     }
 
+    if (gIsLeftAltPressed && gIsEnterPressed)
+    {
+        uint8_t isFullscreen = SDL_GetWindowFlags(gWindow) & SDL_WINDOW_FULLSCREEN;
+        SDL_SetWindowFullscreen(gWindow, isFullscreen ? 0 : SDL_WINDOW_FULLSCREEN);
+    }
+
 //storeKey:               ; CODE XREF: int9handler+2Bj
     if (keyPressed == SDL_SCANCODE_KP_MULTIPLY) // Key * in the numpad, restore speed
     {
