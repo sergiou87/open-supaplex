@@ -30,6 +30,8 @@ add_executable(${SHORT_NAME}
   ../src/supaplex.c
   ../src/controller.c
   ../src/file.c
+  ../src/touchscreen.c
+  ../src/logging.c
 )
 
 target_compile_definitions(${SHORT_NAME}
@@ -53,6 +55,8 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
 
         file(STRINGS ${debugnetipFilePath} DEBUGNETIP)
         add_definitions(-DDEBUGNETIP="${DEBUGNETIP}")
+
+        message("The app will send logs to ${DEBUGNETIP}")
     endif ()
 endif (CMAKE_BUILD_TYPE MATCHES Debug)
 

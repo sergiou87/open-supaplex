@@ -99,7 +99,6 @@ int8_t getGameControllerY(void)
                                  SDL_CONTROLLER_BUTTON_DPAD_DOWN);
 }
 
-// TODO: improve mouse emulation on PS Vita (too fast!)
 void gameControllerEmulateMouse(float *x, float *y, uint8_t *leftButton, uint8_t *rightButton)
 {
     SDL_GameController *controller = getGameController();

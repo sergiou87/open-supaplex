@@ -22,10 +22,8 @@
 
 #include "controller.h"
 #include "file.h"
-
-// #ifdef __vita__
-// #include <debugnet.h>
-// #endif
+#include "logging.h"
+#include "touchscreen.h"
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -2952,13 +2950,7 @@ int main(int argc, const char * argv[])
     gShouldShowFPS = 1;
 #endif
 
-// #ifdef __vita__
-//     int ret;
-// 	ret=debugNetInit("192.168.0.251",18194,DEBUG);
-// 	debugNetPrintf(DEBUG,"Test debug level %d\n",ret);
-// 	debugNetPrintf(ERROR,"Test error level %d\n",ret);
-// 	debugNetPrintf(INFO,"Test info level %d\n",ret);
-// #endif
+    initializeLogging();
 
     gWindow = SDL_CreateWindow("OpenSupaplex",
                                SDL_WINDOWPOS_UNDEFINED,
@@ -2973,7 +2965,7 @@ int main(int argc, const char * argv[])
 
     if (gWindow == NULL)
     {
-        SDL_Log("Could not create a window: %s", SDL_GetError());
+        spLog("Could not create a window: %s", SDL_GetError());
         return -1;
     }
 
@@ -14221,6 +14213,9 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
         int x, y;
         Uint32 state = SDL_GetMouseState(&x, &y);
 
+        int windowWidth, windowHeight;
+        SDL_GetWindowSize(gWindow, &windowWidth, &windowHeight);
+
         float controllerX = 0, controllerY = 0;
         uint8_t controllerLeftButton = 0;
         uint8_t controllerRightButton = 0;
@@ -14231,10 +14226,7 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
 
         if (controllerX != 0.0 || controllerY != 0.0)
         {
-            int windowWidth, windowHeight;
-            SDL_GetWindowSize(gWindow, &windowWidth, &windowHeight);
-
-            int speed = windowWidth * 2 / 1280;
+            float speed = (float) windowWidth * 2 / 1280;
 
             x += speed * controllerX;
             y += speed * controllerY;
@@ -14243,14 +14235,29 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
             SDL_WarpMouseInWindow(gWindow, x, y);
         }
 
-        x = x * kScreenWidth / kWindowWidth;
-        y = y * kScreenHeight / kWindowHeight;
+        // Read touch screen where available
+        float touchScreenX, touchScreenY;
+        uint8_t touchScreenPressed = readTouchScreen(&touchScreenX, &touchScreenY);
+        if (touchScreenPressed)
+        {
+            x = touchScreenX * windowWidth;
+            y = touchScreenY * windowHeight;
+
+            // Correct mouse position for future events
+            SDL_WarpMouseInWindow(gWindow, x, y);
+        }
+
+        x = x * kScreenWidth / windowWidth;
+        y = y * kScreenHeight / windowHeight;
 
         uint8_t leftButtonPressed = (state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
         uint8_t rightButtonPressed = (state & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0;
 
-        leftButtonPressed = leftButtonPressed || controllerLeftButton;
-        rightButtonPressed = rightButtonPressed || controllerRightButton;
+        leftButtonPressed = (leftButtonPressed
+                             || controllerLeftButton
+                             || touchScreenPressed);
+        rightButtonPressed = (rightButtonPressed
+                              || controllerRightButton);
 
 //        uint8_t shouldCorrectMousePosition = 0;
 
