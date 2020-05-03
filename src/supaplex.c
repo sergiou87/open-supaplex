@@ -135,7 +135,8 @@ uint8_t gIsJKeyPressed = 0; // byte_519A1 -> j
 //k
 uint32_t gIsLKeyPressed = 0; // dword_519A3 -> l
 // ; ' `
-// "left shift" slash
+uint8_t gIsLeftShiftPressed = 0; // word_519A7 -> "left shift"
+// slash
 uint8_t gIsZKeyPressed = 0; // word_519A9 -> z
 // x
 uint8_t gIsCKeyPressed = 0; // word_519AB -> c
@@ -3919,6 +3920,7 @@ void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9
     gIsNumLockPressed = keys[SDL_SCANCODE_NUMLOCKCLEAR];
     gIsScrollLockPressed = keys[SDL_SCANCODE_SCROLLLOCK];
     gIsLeftAltPressed = keys[SDL_SCANCODE_LALT];
+    gIsLeftShiftPressed = keys[SDL_SCANCODE_LSHIFT];
     gIsRightShiftPressed = keys[SDL_SCANCODE_RSHIFT];
     gIsEnterPressed = keys[SDL_SCANCODE_RETURN];
     gIsLeftControlPressed = keys[SDL_SCANCODE_LCTRL];
@@ -4470,7 +4472,7 @@ void openCreditsBlock() // proc near      ; CODE XREF: start+2E9p
     static const int kEdgeHeight = 148;
     static const int kEdgeStep = 4;
     static const int kEdgeTopY = 26;
-    static const int kNumberOfFrames = 30;
+    static const int kNumberOfFrames = 60;
 
     static const uint32_t kAnimationDuration = kNumberOfFrames * 1000 / 70; // ~429 ms
 
@@ -4479,7 +4481,7 @@ void openCreditsBlock() // proc near      ; CODE XREF: start+2E9p
     static const int kInitialLeftEdgeX = 147;
     static const int kInitialRightEdgeX = kInitialLeftEdgeX + kEdgeWidth + 1;
 
-    static const int kEdgeAnimationDistance = kEdgeStep * kNumberOfFrames + 1;
+    static const int kEdgeAnimationDistance = (kEdgeStep * kNumberOfFrames) / 2 + 1;
 
     int leftEdgeX = kInitialLeftEdgeX;
     int rightEdgeX = kInitialRightEdgeX;
@@ -11838,92 +11840,97 @@ void handleFloppyDiskButtonClick() // sub_4B419  proc near
     drawTextWithChars6FontWithOpaqueBackground(168, 127, 6, "WHAT'S A FLOPPY DISK?  ");
     // TODO: implement support for switching level sets
     // According to the speed fix documentation this had two behaviors that could be switched pressing ALT:
-    // -
-    /*
-    xor al, al
-    cmp byte_519B5, al
-    jz  short loc_4B423
-    not al
+    // - with alt pressed: old method using floppy disks?
+    // - without alt: new method
+/*
+    al = 0;
+    if (gIsLeftAltPressed != 0)
+    {
+        al = ~al; // not al
+    }
 
-loc_4B423:              ; CODE XREF: sub_4B419+6j
-    cmp byte ptr word_59B65, 0
-    jz  short loc_4B42C
-    not al
+//loc_4B423:              ; CODE XREF: sub_4B419+6j
+    if ((word_59B65 & 0xFF) != 0)
+    {
+        al = ~al; // not al
+    }
 
-loc_4B42C:              ; CODE XREF: sub_4B419+Fj
-    inc al
-    jnz short loc_4B433
-    jmp loc_4B583
-; ---------------------------------------------------------------------------
+//loc_4B42C:              ; CODE XREF: sub_4B419+Fj
+    al++;
+    if (al == 0)
+    {
+        // jmp loc_4B583
+    }
 
-loc_4B433:              ; CODE XREF: sub_4B419+15j
-    mov ax, word_5195D
-    sub ax, word_59B8C
-    cmp ax, word_59B8E
-    jnb short loc_4B443
-    jmp locret_4B582
-; ---------------------------------------------------------------------------
+//loc_4B433:              ; CODE XREF: sub_4B419+15j
+    ax = word_5195D;
+    ax -= word_59B8C;
+    if (ax < word_59B8E)
+    {
+        // jmp locret_4B582
+    }
 
-loc_4B443:              ; CODE XREF: sub_4B419+25j
-    mov ax, word_5195D
-    mov word_59B8E, ax
-    cmp word_59B8C, 1
-    jbe short loc_4B454
-    dec word_59B8C
+//loc_4B443:              ; CODE XREF: sub_4B419+25j
+    ax = word_5195D;
+    word_59B8E = ax;
+    if (word_59B8C > 1)
+    {
+        word_59B8C--;
+    }
 
-loc_4B454:              ; CODE XREF: sub_4B419+35j
-                ; sub_4B419+9Aj
-    mov ax, word ptr aLevels_dat_0+8 ; "AT"
-    mov dl, byte ptr word_519B3
-    or  dl, byte ptr word_519A7
-    jnz short loc_4B482
-    cmp ax, 5441h
-    jnz short loc_4B46B
-    mov ax, 3030h
-    jmp short loc_4B4A3
-; ---------------------------------------------------------------------------
+//loc_4B454:              ; CODE XREF: sub_4B419+35j
+//                ; sub_4B419+9Aj
+    // Pressing the shift key will show the level sets in descending order
+    // mov ax, word ptr aLevels_dat_0+8 ; "AT"
+    dl = gIsRightShiftPressed;
+    dl |= gIsLeftShiftPressed;
+    if (dl != 0)
+    {
+        // jnz short loc_4B482
+    }
+    if (ax == 0x5441) // "AT"
+    {
+        ax = 0x3030; // "00"
+        // jmp short loc_4B4A3
+    }
 
-loc_4B46B:              ; CODE XREF: sub_4B419+4Bj
-    cmp ax, 3939h
-    jnz short loc_4B475
-    mov ax, 5441h
-    jmp short loc_4B4A3
-; ---------------------------------------------------------------------------
+//loc_4B46B:              ; CODE XREF: sub_4B419+4Bj
+    if (ax == 0x3939) // "99"
+    {
+        ax = 0x5441; // "AT"
+        // jmp short loc_4B4A3
+    }
 
-loc_4B475:              ; CODE XREF: sub_4B419+55j
-    inc ah
+//loc_4B475:              ; CODE XREF: sub_4B419+55j
+    ah++;
     cmp ah, 39h ; '9'
     jbe short loc_4B4A3
     mov ah, 30h ; '0'
     inc al
     jmp short loc_4B4A3
-; ---------------------------------------------------------------------------
 
-loc_4B482:              ; CODE XREF: sub_4B419+46j
+//loc_4B482:              ; CODE XREF: sub_4B419+46j
     cmp ax, 5441h
     jnz short loc_4B48C
     mov ax, 3939h
     jmp short loc_4B4A3
-; ---------------------------------------------------------------------------
 
-loc_4B48C:              ; CODE XREF: sub_4B419+6Cj
+//loc_4B48C:              ; CODE XREF: sub_4B419+6Cj
     cmp ax, 3030h
     jnz short loc_4B496
     mov ax, 5441h
     jmp short loc_4B4A3
-; ---------------------------------------------------------------------------
 
-loc_4B496:              ; CODE XREF: sub_4B419+76j
+//loc_4B496:              ; CODE XREF: sub_4B419+76j
     dec ah
     cmp ah, 30h ; '0'
     jnb short loc_4B4A3
     mov ah, 39h ; '9'
     dec al
     jmp short $+2
-; ---------------------------------------------------------------------------
 
-loc_4B4A3:              ; CODE XREF: sub_4B419+50j
-                ; sub_4B419+5Aj ...
+//loc_4B4A3:              ; CODE XREF: sub_4B419+50j
+//                ; sub_4B419+5Aj ...
     mov word ptr aLevels_dat_0+8, ax ; "AT"
     mov ax, 3D00h
     mov dx, 17AFh
@@ -11935,25 +11942,23 @@ loc_4B4A3:              ; CODE XREF: sub_4B419+50j
     cmp ax, 2
     jz  short loc_4B454
     jmp exit
-; ---------------------------------------------------------------------------
 
-loc_4B4B8:              ; CODE XREF: sub_4B419+95j
+//loc_4B4B8:              ; CODE XREF: sub_4B419+95j
     mov ax, 3E00h
     mov bx, lastFileHandle
     int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
                 ; BX = file handle
     jnb short loc_4B4C6
     jmp exit
-; ---------------------------------------------------------------------------
 
-loc_4B4C6:              ; CODE XREF: sub_4B419+A8j
+//loc_4B4C6:              ; CODE XREF: sub_4B419+A8j
     mov ax, word ptr aLevels_dat_0+8 ; "AT"
     mov word ptr aLevelSet??+0Fh, ax ; "??  "
     cmp ah, 54h ; 'T'
     jnz short loc_4B4D3
     mov al, 53h ; 'S'
 
-loc_4B4D3:              ; CODE XREF: sub_4B419+B6j
+//loc_4B4D3:              ; CODE XREF: sub_4B419+B6j
     mov word ptr aLevel_lst+7, ax ; "ST"
     mov word ptr aPlayer_lst+8, ax ; "ST"
     mov word ptr aHallfame_lst+0Ah, ax ; "ST"
@@ -11961,24 +11966,24 @@ loc_4B4D3:              ; CODE XREF: sub_4B419+B6j
     jnz short loc_4B4E4
     mov ax, 4E49h
 
-loc_4B4E4:              ; CODE XREF: sub_4B419+C6j
+//loc_4B4E4:              ; CODE XREF: sub_4B419+C6j
     mov word ptr aDemo0_bin+7, ax ; "IN"
     cmp ah, 4Eh ; 'N'
     jnz short loc_4B4EF
     mov ax, 5641h
 
-loc_4B4EF:              ; CODE XREF: sub_4B419+D1j
+//loc_4B4EF:              ; CODE XREF: sub_4B419+D1j
     cmp byte ptr dword_59B76, 0
     jnz short loc_4B4F9
     mov word ptr aSavegame_sav+0Ah, ax ; "AV"
 
-loc_4B4F9:              ; CODE XREF: sub_4B419+DBj
+//loc_4B4F9:              ; CODE XREF: sub_4B419+DBj
     mov si, 9EEDh
     cmp ah, 56h ; 'V'
     jnz short loc_4B504
     mov si, 9F05h
 
-loc_4B504:              ; CODE XREF: sub_4B419+E6j
+//loc_4B504:              ; CODE XREF: sub_4B419+E6j
     mov di, 89F7h
     mov ah, 4
     call    sub_4BA5F
@@ -11997,13 +12002,12 @@ loc_4B504:              ; CODE XREF: sub_4B419+E6j
     pop es
     assume es:nothing
     jmp short loc_4B565
-; ---------------------------------------------------------------------------
 
-loc_4B52A:              ; CODE XREF: sub_4B419+101j
+//loc_4B52A:              ; CODE XREF: sub_4B419+101j
     lea di, word_58DAC
     mov cx, 14h
 
-loc_4B531:              ; CODE XREF: sub_4B419+129j
+//loc_4B531:              ; CODE XREF: sub_4B419+129j
     push    cx
     mov ax, 2D2Dh
     mov cx, 4
@@ -12016,7 +12020,7 @@ loc_4B531:              ; CODE XREF: sub_4B419+129j
     lea di, asc_59824   ; "    "
     mov cx, 3
 
-loc_4B54B:              ; CODE XREF: sub_4B419+143j
+//loc_4B54B:              ; CODE XREF: sub_4B419+143j
     push    cx
     mov ax, 2020h
     mov cx, 4
@@ -12030,7 +12034,7 @@ loc_4B54B:              ; CODE XREF: sub_4B419+143j
     call    readHallfameLst
     call    readPlayersLst
 
-loc_4B565:              ; CODE XREF: sub_4B419+10Fj
+//loc_4B565:              ; CODE XREF: sub_4B419+10Fj
     mov byte_51ABE, 1
     call    sub_4C34A
     call    sub_4C293
@@ -12041,11 +12045,10 @@ loc_4B565:              ; CODE XREF: sub_4B419+10Fj
     call    sub_4B85C
     call    sub_4B8BE
 
-locret_4B582:               ; CODE XREF: sub_4B419+27j
+//locret_4B582:               ; CODE XREF: sub_4B419+27j
     retn
-; ---------------------------------------------------------------------------
 
-loc_4B583:              ; CODE XREF: sub_4B419+17j
+//loc_4B583:              ; CODE XREF: sub_4B419+17j
     mov si, 60D5h
     call    fade
     call    vgaloadbackseg
@@ -12065,16 +12068,15 @@ loc_4B583:              ; CODE XREF: sub_4B419+17j
     mov ah, 0Fh
     call    sub_4BDF0
     jmp short loc_4B5BE
-; ---------------------------------------------------------------------------
 
-loc_4B5B3:              ; CODE XREF: sub_4B419+187j
-                ; sub_4B419+18Bj
+//loc_4B5B3:              ; CODE XREF: sub_4B419+187j
+//                ; sub_4B419+18Bj
     mov si, 853Ah
     mov di, 81F5h
     mov ah, 0Fh
     call    sub_4BDF0
 
-loc_4B5BE:              ; CODE XREF: sub_4B419+198j
+//loc_4B5BE:              ; CODE XREF: sub_4B419+198j
     mov si, 8562h
     mov di, 0A81Ah
     mov ah, 0Fh
@@ -12097,12 +12099,12 @@ loc_4B5BE:              ; CODE XREF: sub_4B419+198j
     mov si, 5FD5h
     call    fade
 
-loc_4B5E6:              ; CODE XREF: sub_4B419+1D3j
+//loc_4B5E6:              ; CODE XREF: sub_4B419+1D3j
     call    getMouseStatus
     cmp bx, 0
     jnz short loc_4B5E6
 
-loc_4B5EE:              ; CODE XREF: sub_4B419+20Fj
+//loc_4B5EE:              ; CODE XREF: sub_4B419+20Fj
     cmp gShouldExitGame, 1
     jz  short loc_4B63D
     mov al, keyPressed
@@ -12130,10 +12132,9 @@ loc_4B5EE:              ; CODE XREF: sub_4B419+20Fj
     cmp al, 1       ; Esc
     jz  short loc_4B63D
     jmp short loc_4B5EE
-; ---------------------------------------------------------------------------
 
-loc_4B62A:              ; CODE XREF: sub_4B419+1E3j
-                ; sub_4B419+1E9j ...
+//loc_4B62A:              ; CODE XREF: sub_4B419+1E3j
+//                ; sub_4B419+1E9j ...
     mov ah, 0Eh
     int 21h     ; DOS - SELECT DISK
                 ; DL = new default drive number (0 = A, 1 = B, etc.)
@@ -12143,21 +12144,20 @@ loc_4B62A:              ; CODE XREF: sub_4B419+1E3j
     cmp byte_59B86, 0FFh
     jnz short loc_4B647
 
-loc_4B63D:              ; CODE XREF: sub_4B419+1DAj
-                ; sub_4B419+20Dj
+//loc_4B63D:              ; CODE XREF: sub_4B419+1DAj
+//                ; sub_4B419+20Dj
     mov dl, byte_59B9A
     mov ah, 0Eh
     int 21h     ; DOS - SELECT DISK
                 ; DL = new default drive number (0 = A, 1 = B, etc.)
                 ; Return: AL = number of logical drives
     jmp short loc_4B64D
-; ---------------------------------------------------------------------------
 
-loc_4B647:              ; CODE XREF: sub_4B419+222j
+//loc_4B647:              ; CODE XREF: sub_4B419+222j
     call    readEverything
     call    vgaloadbackseg
 
-loc_4B64D:              ; CODE XREF: sub_4B419+22Cj
+//loc_4B64D:              ; CODE XREF: sub_4B419+22Cj
     mov si, 60D5h
     call    fade
     mov bx, 4D5Ch
@@ -12178,7 +12178,7 @@ loc_4B64D:              ; CODE XREF: sub_4B419+22Cj
     mov si, 6015h
     call    fade
     retn
-*/
+ */
 }
 
 void handlePlayerListScrollDown() // sub_4B671  proc near
@@ -13014,7 +13014,7 @@ void scrollLeftToMainMenu() //loc_4C44F:              ; CODE XREF: handleGfxTuto
     uint8_t menuScreenPixels[kFullScreenFramebufferLength];
     memcpy(menuScreenPixels, gScreenPixels, kFullScreenFramebufferLength);
 
-    const int kNumberOfSteps = 40;
+    const int kNumberOfSteps = 80;
 
     static const uint32_t kAnimationDuration = kNumberOfSteps * 1000 / 70; // ~571 ms
     uint32_t animationTime = 0;
@@ -13105,7 +13105,7 @@ void scrollRightToNewScreen() // sub_4C5AF   proc near       ; CODE XREF: handle
     uint8_t screenPixelsBackup[kFullScreenFramebufferLength];
     memcpy(screenPixelsBackup, gScreenPixels, kFullScreenFramebufferLength);
 
-    const int kNumberOfSteps = 40;
+    const int kNumberOfSteps = 80;
 
     static const uint32_t kAnimationDuration = kNumberOfSteps * 1000 / 70; // ~571 ms
     uint32_t animationTime = 0;
