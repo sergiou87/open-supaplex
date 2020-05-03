@@ -267,7 +267,7 @@ uint16_t word_5094D = 0;
 uint16_t word_5094F = 0;
 uint16_t word_50951 = 0;
 uint16_t word_51076 = 0;
-uint16_t word_510A2 = 0;
+uint16_t word_510A2 = 0; // -> used to preserve some palette info??
 uint16_t word_510BC = 0;
 uint16_t word_510BE = 0;
 uint16_t word_510C1 = 0; // -> 0DB1
@@ -1586,6 +1586,9 @@ Uint32 gGameIterationRateReferenceTime = 0;
 // Used to limit game speed
 Uint32 gGameIterationStartTime = 0;
 Uint32 gNumberOfGameIterations = 0;
+
+// Time difference between 2 consecutive renders
+Uint32 gRenderDeltaTime = 0;
 
 static const uint16_t kFallAnimationGravityOffsets[18] = {
     0x0000, // -> 0x6C95
@@ -4457,55 +4460,84 @@ void readPalettes()  // proc near       ; CODE XREF: readEverythingp
 
 void openCreditsBlock() // proc near      ; CODE XREF: start+2E9p
 {
-    static const int kEdgeWidth = 16;
+    static const int kEdgeWidth = 13;
     static const int kEdgeHeight = 148;
-    static const int kEdgeStep = 8;
+    static const int kEdgeStep = 4;
     static const int kEdgeTopY = 26;
-    static const int kNumberOfFrames = 15;
+    static const int kNumberOfFrames = 30;
 
-    int leftEdgeX = 144 - kEdgeStep; // Left edge starts at x=144
-    int rightEdgeX = leftEdgeX + kEdgeWidth + kEdgeStep - 1;
+    static const uint32_t kAnimationDuration = kNumberOfFrames * 1000 / 70; // ~429 ms
 
-    for (int j = 0; j < kNumberOfFrames; ++j)
+    uint32_t animationTime = 0;
+
+    static const int kInitialLeftEdgeX = 147;
+    static const int kInitialRightEdgeX = kInitialLeftEdgeX + kEdgeWidth + 1;
+
+    static const int kEdgeAnimationDistance = kEdgeStep * kNumberOfFrames + 1;
+
+    int leftEdgeX = kInitialLeftEdgeX;
+    int rightEdgeX = kInitialRightEdgeX;
+
+    videoloop();
+    loopForVSync();
+
+    //for (int j = 0; j < kNumberOfFrames; ++j)
+    while (animationTime < kAnimationDuration)
     {
 //loc_47800:             // ; CODE XREF: openCreditsBlock+AFj
-        // Renders the screen twice (to remove some weird artifacts?)
-        for (int i = 0; i < 2; ++i)
-        {
-            videoloop();
-            loopForVSync();
-        }
+        animationTime += gRenderDeltaTime;
+        animationTime = MIN(animationTime, kAnimationDuration);
+
+        float animationFactor = (float)animationTime / kAnimationDuration;
+
+        int previousLeftEdgeX = leftEdgeX;
+        int previousRightEdgeX = rightEdgeX;
+
+        int distance = ceilf(kEdgeAnimationDistance * animationFactor);
+
+        leftEdgeX = kInitialLeftEdgeX - distance;
+        rightEdgeX = kInitialRightEdgeX + distance;
+
+        int leftEdgeStep = previousLeftEdgeX - leftEdgeX;
+        int rightEdgeStep = rightEdgeX - previousRightEdgeX;
 
         // This loop moves both edges of the panel, and fills the inside of the panel with the contents of TITLE2.DAT
         for (int y = kEdgeTopY; y < kEdgeTopY + kEdgeHeight; ++y)
         {
             // Left edge
-            for (int x = leftEdgeX; x < leftEdgeX + kEdgeWidth; ++x)
+            for (int x = leftEdgeX; x < previousLeftEdgeX + kEdgeWidth - leftEdgeStep; ++x)
             {
                 long addr = y * kScreenWidth + x;
-                gScreenPixels[addr] = gScreenPixels[addr + kEdgeStep]; // Move panel edge
-                gScreenPixels[addr + kEdgeStep] = gTitle2DecodedBitmapData[addr + kEdgeStep]; // Content of now visible panel
+                gScreenPixels[addr] = gScreenPixels[addr + leftEdgeStep]; // Move panel edge
+            }
+
+            // Content of visible panel unveiled by left edge
+            for (int x = leftEdgeX + kEdgeWidth; x < previousLeftEdgeX + kEdgeWidth + 1; ++x)
+            {
+                long addr = y * kScreenWidth + x;
+                gScreenPixels[addr] = gTitle2DecodedBitmapData[addr];
             }
 
             // Right edge
-            for (int x = rightEdgeX + kEdgeWidth; x > rightEdgeX; --x)
+            for (int x = rightEdgeX + kEdgeWidth; x > previousRightEdgeX; --x)
             {
                 long addr = y * kScreenWidth + x;
-                gScreenPixels[addr + kEdgeStep] = gScreenPixels[addr]; // Move panel edge
-                gScreenPixels[addr] = gTitle2DecodedBitmapData[addr]; // Content of now visible panel
+                gScreenPixels[addr] = gScreenPixels[addr - rightEdgeStep]; // Move panel edge
+            }
+
+            // Content of visible panel unveiled by right edge
+            for (int x = previousRightEdgeX; x < rightEdgeX; ++x)
+            {
+                long addr = y * kScreenWidth + x;
+                gScreenPixels[addr] = gTitle2DecodedBitmapData[addr];
             }
         }
 
-        leftEdgeX -= kEdgeStep;
-        rightEdgeX += kEdgeStep;
+        videoloop();
+        loopForVSync();
     }
 
 //loc_47884:             // ; CODE XREF: openCreditsBlock+C7j
-    videoloop();
-    loopForVSync();
-
-//    word_51967 = title2DataBuffer; // points to where the title 2 has been RENDERED
-
     // Display now the contents of TITLE2.DAT starting at the y=panel_edge_top_y (to prevent removing the top title)
     // This basically makes the edges of the panel docked at the sides of the screen look better (as intended in TITLE2.DAT
     // compared to how they look when the "crafted" animation concludes).
@@ -13013,16 +13045,11 @@ void scrollLeftToMainMenu() //loc_4C44F:              ; CODE XREF: handleGfxTuto
         }
 
 //loc_4C466:              ; CODE XREF: sub_4C407+90j
-//        gNumberOfDotsToShiftDataLeft = 7;
-        videoloop();
-        loopForVSync();
-//        gNumberOfDotsToShiftDataLeft = 3;
         videoloop();
         loopForVSync();
     }
 
 //loc_4C499:              ; CODE XREF: sub_4C407+28j
-//    gNumberOfDotsToShiftDataLeft = 0;
     videoloop();
 
     // This will prevent to leave traces of the options menu
@@ -13103,15 +13130,10 @@ void scrollRightToNewScreen() // sub_4C5AF   proc near       ; CODE XREF: handle
         }
 
 //loc_4C5BA:              ; CODE XREF: scrollRightToGfxTutor+3Cj
-//        gNumberOfDotsToShiftDataLeft = 1;
-        videoloop();
-        loopForVSync();
-//        gNumberOfDotsToShiftDataLeft = 5;
         videoloop();
         loopForVSync();
     }
 
-//    gNumberOfDotsToShiftDataLeft = 0;
     videoloop();
 }
 
@@ -13343,7 +13365,6 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
 
 //loc_4C81A:              // ; CODE XREF: runMainMenu+77j
         videoloop();
-        loopForVSync();
 
         word_5195D++;
         uint16_t mouseX, mouseY;
@@ -14413,6 +14434,8 @@ void limitFPS()
         {
             SDL_Delay(kFrameDuration - duration);
         }
+
+        gRenderDeltaTime = (SDL_GetTicks() - sLastFrameTime);
     }
 
     sLastFrameTime = SDL_GetTicks();
@@ -14655,17 +14678,27 @@ void fadeToPalette(ColorPalette palette) //        proc near       ; CODE XREF: 
 //    word_510A2 = 0;
 
     ColorPalette intermediatePalette;
-    uint8_t totalSteps = 64;
 
-    for (uint8_t step = 0; step < totalSteps; ++step)
+    // The original animation had 64 steps, and the game was written to run in 70Hz displays
+    static const uint32_t kFadeDuration = 64 * 1000 / 70; // ~914 ms
+    uint32_t fadeTime = 0;
+
+    videoloop();
+
+    // for (uint8_t step = 0; step < totalSteps; ++step)
+    while (fadeTime < kFadeDuration)
     {
-        uint8_t remainingSteps = totalSteps - step;
+        fadeTime += gRenderDeltaTime;
+        fadeTime = MIN(fadeTime, kFadeDuration);
+
+        float animationFactor = (float)fadeTime / kFadeDuration;
+        float complementaryAnimationFactor = 1.0 - animationFactor;
 
         for (uint8_t i = 0; i < kNumberOfColors; ++i)
         {
-            uint8_t r = (palette[i].r * step / totalSteps) + (gCurrentPalette[i].r * remainingSteps / totalSteps);
-            uint8_t g = (palette[i].g * step / totalSteps) + (gCurrentPalette[i].g * remainingSteps / totalSteps);
-            uint8_t b = (palette[i].b * step / totalSteps) + (gCurrentPalette[i].b * remainingSteps / totalSteps);
+            uint8_t r = (palette[i].r * animationFactor) + (gCurrentPalette[i].r * complementaryAnimationFactor);
+            uint8_t g = (palette[i].g * animationFactor) + (gCurrentPalette[i].g * complementaryAnimationFactor);
+            uint8_t b = (palette[i].b * animationFactor) + (gCurrentPalette[i].b * complementaryAnimationFactor);
 
             intermediatePalette[i] = (SDL_Color) { r, g, b, 255};
         }
