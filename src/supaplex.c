@@ -204,6 +204,7 @@ uint8_t byte_59B5C = 0;
 uint8_t byte_59B5F = 0;
 uint8_t byte_59B62 = 0;
 // uint8_t byte_59B64 = 0;
+uint16_t word_59B65 = 0;
 uint8_t byte_59B6B = 0;
 uint8_t byte_59B6D = 0;
 uint8_t byte_59B71 = 0;
@@ -222,6 +223,7 @@ uint8_t byte_59B84 = 0;
 uint8_t byte_59B85 = 0;
 uint8_t byte_59B86 = 0;
 uint16_t word_5A199 = 0;
+uint8_t byte_59B9A = 2;
 uint8_t byte_5A140 = 0;
 uint8_t byte_5A19B = 0;
 uint8_t byte_5A19C = 0;
@@ -1550,6 +1552,7 @@ uint16_t word_599D8 = 0;
 uint16_t word_599DA = 0;
 uint16_t word_59B6E = 0;
 uint16_t word_59B73 = 0;
+uint32_t dword_59B76 = 0;
 uint16_t word_59B88 = 0;
 uint16_t word_59B8A = 0;
 uint16_t word_59B8C = 0;
@@ -1565,6 +1568,13 @@ uint8_t isJoystickEnabled = 0; // byte_50940
 uint8_t isMusicEnabled = 0; // byte_59886
 uint8_t isFXEnabled = 0; // byte_59885
 SDL_Scancode keyPressed = 0;
+
+char gLevelsDatFilename[11] = "LEVELS.DAT";
+char gLevelLstFilename[10] = "LEVEL.LST";
+char gPlayerLstFilename[11] = "PLAYER.LST";
+char gHallfameLstFilename[13] = "HALLFAME.LST";
+char gDemo0BinFilename[10] = "DEMO0.BIN";
+char gSavegameSavFilename[13] = "SAVEGAME.SAV";
 
 // Game Speed in "Speed Fix values" from 0 to 10, but inverted. 10 is the
 //   fastest, 0 the slowest. 5 means the original speed which was 35 game iterations per second.
@@ -1648,7 +1658,6 @@ uint16_t gMouseButtonStatus = 0; // word_5847D
 uint16_t gMouseX = 0, gMouseY = 0;
 
 char a00s0010_sp[12] = "00S001$0.SP";
-char aLevels_dat_0[11] = "LEVELS.DAT";
 char gPlayerName[9] = "WIBBLE  "; // 0x879F // TODO: read this address when the game starts and put the same text here
 
 typedef enum
@@ -1950,7 +1959,7 @@ typedef struct
 } HallOfFameEntry;
 
 #define kNumberOfHallOfFameEntries 3
-HallOfFameEntry gHallOfFameData[kNumberOfHallOfFameEntries]; // 0x9514
+HallOfFameEntry gHallOfFameData[kNumberOfHallOfFameEntries]; // 0x9514 -> asc_59824
 
 enum PlayerLevelState {
     PlayerLevelStateNotCompleted = 0,
@@ -1984,7 +1993,7 @@ typedef struct
 
 #define kNumberOfPlayers 20
 //static const int kPlayerEntryLength = 128;
-PlayerEntry gPlayerListData[kNumberOfPlayers]; // 0x8A9C
+PlayerEntry gPlayerListData[kNumberOfPlayers]; // 0x8A9C -> word_58DAC
 
 char gRankingTextEntries[kNumberOfPlayers + 4][23] = { //0x880E
     "                      ",
@@ -2777,8 +2786,8 @@ uint8_t cf;
 uint8_t ah, al, bh, bl, ch, cl, dh, dl;
 uint16_t ax, bx, cx, dx, ds, cs, es, bp, sp, di, si;
 
-void startTrackingRenderDeltaTime();
-uint32_t updateRenderDeltaTime();
+void startTrackingRenderDeltaTime(void);
+uint32_t updateRenderDeltaTime(void);
 void updateWindowViewport(void);
 int windowResizingEventWatcher(void* data, SDL_Event* event);
 void emulateClock(void);
@@ -2834,6 +2843,7 @@ void loadMurphySprites(void);
 void prepareLevelDataForCurrentPlayer(void);
 void drawPlayerList(void);
 void drawLevelList(void);
+void drawHallOfFame(void);
 void saveLastMouseAreaBitmap(void);
 void restoreLastMouseAreaBitmap(void);
 void drawMouseCursor(void);
@@ -3381,7 +3391,7 @@ loc_46DBF:              //; CODE XREF: start+166j start+16Bj ...
         {
             goto loc_46E18;
         }
-        byte_59B85 = 0x0FF;
+        byte_59B85 = 0x0FF; // TODO: recheck switching levelsets after understanding this variable
         word_58DAC = 0x4628;
         word_58DAE = 0x524F;
         word_58DB0 = 0x4543;
@@ -4282,8 +4292,6 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
     for (int i = 0; i < kNumberOfDemos; ++i)
     {
 //loc_47629:              //; CODE XREF: readDemoFiles+175j
-        char filename[256] = "DEMO0.BIN";
-
         word_599D8 = 0;
         if (byte_599D4 == 1)
         {
@@ -4293,11 +4301,11 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
         else
         {
 //loc_4763C:             // ; CODE XREF: readDemoFiles+2Cj
-            filename[4] = '0' + i; // Replaces the number in "DEMO0.BIN" with the right value
+            gDemo0BinFilename[4] = '0' + i; // Replaces the number in "DEMO0.BIN" with the right value
         }
 
 //loc_47647:             // ; CODE XREF: readDemoFiles+31j
-        FILE *file = openReadonlyFile(filename, "r");
+        FILE *file = openReadonlyFile(gDemo0BinFilename, "r");
         if (file == NULL)
         {
             return i;
@@ -4975,11 +4983,11 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
            "---- UNBELIEVEABLE!!!! ----",
            kListLevelNameLength);
 
-    FILE *file = openWritableFile("LEVEL.LST", "r");
+    FILE *file = openWritableFile(gLevelLstFilename, "r");
     if (file == NULL)
     {
 //errorOpeningLevelLst:             // ; CODE XREF: readLevelsLst+8j
-        FILE *file = openReadonlyFile("LEVELS.DAT", "r");
+        FILE *file = openReadonlyFile(gLevelsDatFilename, "r");
         if (file == NULL)
         {
 //errorOpeningLevelsDat:             // ; CODE XREF: readLevelsLst+17j
@@ -5024,7 +5032,7 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
         }
 
 //    loc_47D35:             // ; CODE XREF: readLevelsLst+95j
-        file = openWritableFile("LEVEL.LST", "w");
+        file = openWritableFile(gLevelLstFilename, "w");
         if (file == NULL)
         {
             exitWithError("Error opening LEVEL.LST\n");
@@ -5122,7 +5130,7 @@ void readPlayersLst() //  proc near       ; CODE XREF: readEverything+1Bp
         strcpy(gPlayerListData[i].name, "--------");
     }
 
-    FILE *file = openWritableFile("PLAYER.LST", "r");
+    FILE *file = openWritableFile(gPlayerLstFilename, "r");
     if (file == NULL)
     {
         return;
@@ -5145,7 +5153,7 @@ void readHallfameLst() // proc near       ; CODE XREF: readEverything+18p
         return;
     }
     
-    FILE *file = openWritableFile("HALLFAME.LST", "r");
+    FILE *file = openWritableFile(gHallfameLstFilename, "r");
     if (file == NULL)
     {
         return;
@@ -7795,8 +7803,8 @@ void prepareSomeKindOfLevelIdentifier() // sub_49544  proc near       ; CODE XRE
 {
     // 01ED:28E1
 
-    char char8 = aLevels_dat_0[8];
-    char char9 = aLevels_dat_0[9];
+    char char8 = gLevelsDatFilename[8];
+    char char9 = gLevelsDatFilename[9];
 
     // Checks if the last two chars are "00" like LEVELS.D00?
     if (char8 == '0' && char9 == '0')
@@ -11837,12 +11845,15 @@ void handleOkButtonClick() // sub_4B375  proc near       ; CODE XREF: runMainMen
 
 void handleFloppyDiskButtonClick() // sub_4B419  proc near
 {
-    drawTextWithChars6FontWithOpaqueBackground(168, 127, 6, "WHAT'S A FLOPPY DISK?  ");
-    // TODO: implement support for switching level sets
+    // 01ED:47B6
     // According to the speed fix documentation this had two behaviors that could be switched pressing ALT:
     // - with alt pressed: old method using floppy disks?
     // - without alt: new method
-/*
+
+    // The code commented above is probably related to the original game function with floppy disks, that makes
+    // no sense to preserve.
+    //
+    /*
     al = 0;
     if (gIsLeftAltPressed != 0)
     {
@@ -11850,7 +11861,7 @@ void handleFloppyDiskButtonClick() // sub_4B419  proc near
     }
 
 //loc_4B423:              ; CODE XREF: sub_4B419+6j
-    if ((word_59B65 & 0xFF) != 0)
+    if ((word_59B65 & 0xFF) != 0) // TODO: where is word_59B65 written? this is probably the f parameter
     {
         al = ~al; // not al
     }
@@ -11859,326 +11870,353 @@ void handleFloppyDiskButtonClick() // sub_4B419  proc near
     al++;
     if (al == 0)
     {
-        // jmp loc_4B583
-    }
+//loc_4B583:              ; CODE XREF: sub_4B419+17j
+        // mov si, 60D5h
+        fadeToPalette(gBlackPalette);
+        drawBackBackground();
+    //    mov si, 84FFh
+    //    mov di, 786Dh
+    //    mov ah, 0Fh
+        drawTextWithChars6FontWithTransparentBackground(0, 0, 0xF, "");
+    //    mov ah, 19h
+    //    int 21h     ; DOS - GET DEFAULT DISK NUMBER
+        byte_59B9A = al;
+        if (al == 0
+            || al == 1)
+        {
+//loc_4B5B3:              ; CODE XREF: sub_4B419+187j
+//                ; sub_4B419+18Bj
+            // mov si, 853Ah
+            // mov di, 81F5h
+            // mov ah, 0Fh
+            drawTextWithChars6FontWithTransparentBackground(0, 0, 0xF, "");
+        }
+        else
+        {
+            // mov si, 851Bh
+            // mov di, 81F5h
+            // mov ah, 0Fh
+            drawTextWithChars6FontWithTransparentBackground(0, 0, 0xF, "");
+        }
 
+//loc_4B5BE:              ; CODE XREF: sub_4B419+198j
+        // mov si, 8562h
+        // mov di, 0A81Ah
+        // mov ah, 0Fh
+        drawTextWithChars6FontWithTransparentBackground(0, 0, 0xF, "");
+        bx = 0x4D84;
+
+        // mov dx, 3D4h
+        // mov al, 0Dh
+        // out dx, al      ; Video: CRT cntrlr addr
+        //             ; regen start address (low)
+        // inc dx
+        // mov al, bl
+        // out dx, al      ; Video: CRT controller internal registers
+        // mov dx, 3D4h
+        // mov al, 0Ch
+        // out dx, al      ; Video: CRT cntrlr addr
+        //             ; regen start address (high)
+        // inc dx
+        // mov al, bh
+        // out dx, al      ; Video: CRT controller internal registers
+        // mov si, 5FD5h
+        fadeToPalette(gPalettes[0]);
+
+        uint16_t mouseX, mouseY;
+        uint16_t mouseButtonStatus;
+        do
+        {
+//loc_4B5E6:              ; CODE XREF: sub_4B419+1D3j
+            getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
+        }
+        while (mouseButtonStatus != 0);
+
+//loc_4B5EE:              ; CODE XREF: sub_4B419+20Fj
+        if (gShouldExitGame == 1)
+        {
+            // jz  short loc_4B63D
+        }
+        al = keyPressed;
+        dl = 0;
+        if (al == 0x1E) // keycode for A
+        {
+            // jz  short loc_4B62A
+        }
+        dl++;
+        if (al == 0x30) // keycode for B
+        {
+            // jz  short loc_4B62A
+        }
+        dl++;
+        if (al == 0x2E) // keycode for C
+        {
+            // jz  short loc_4B62A
+        }
+        dl++;
+        if (al == 0x20) // keycode for D
+        {
+            // jz  short loc_4B62A
+        }
+        dl++;
+        if (al == 0x12) // keycode for E
+        {
+            // jz  short loc_4B62A
+        }
+        dl++;
+        if (al == 0x21) // keycode for F
+        {
+            // jz  short loc_4B62A
+        }
+        dl = byte_59B9A;
+        if (al == 0x1C) // keycode for Enter
+        {
+            // jz  short loc_4B62A
+        }
+        if (al == 1) // keycode for ESC
+        {
+            // jz  short loc_4B63D
+        }
+        // jmp short loc_4B5EE
+
+//loc_4B62A:              ; CODE XREF: sub_4B419+1E3j
+//                ; sub_4B419+1E9j ...
+    //    mov ah, 0Eh
+    //    int 21h     ; DOS - SELECT DISK
+    //                ; DL = new default drive number (0 = A, 1 = B, etc.)
+    //                ; Return: AL = number of logical drives
+        byte_59B86 = 0;
+
+        loadMurphySprites();
+        if (byte_59B86 == 0xFF)
+        {
+//loc_4B63D:              ; CODE XREF: sub_4B419+1DAj
+//                ; sub_4B419+20Dj
+            dl = byte_59B9A;
+            // mov ah, 0Eh
+            // int 21h     ; DOS - SELECT DISK
+            //             ; DL = new default drive number (0 = A, 1 = B, etc.)
+            //             ; Return: AL = number of logical drives
+        }
+        else
+        {
+//loc_4B647:              ; CODE XREF: sub_4B419+222j
+            readEverything();
+            drawBackBackground();
+        }
+
+//loc_4B64D:              ; CODE XREF: sub_4B419+22Cj
+        // mov si, 60D5h
+        fadeToPalette(gBlackPalette);
+        bx = 0x4D5C;
+
+    //    mov dx, 3D4h
+    //    mov al, 0Dh
+    //    out dx, al      ; Video: CRT cntrlr addr
+    //                ; regen start address (low)
+    //    inc dx
+    //    mov al, bl
+    //    out dx, al      ; Video: CRT controller internal registers
+    //    mov dx, 3D4h
+    //    mov al, 0Ch
+    //    out dx, al      ; Video: CRT cntrlr addr
+    //                ; regen start address (high)
+    //    inc dx
+    //    mov al, bh
+    //    out dx, al      ; Video: CRT controller internal registers
+        // mov si, 6015h
+        fadeToPalette(gPalettes[1]);
+        return;
+    }
+     */
 //loc_4B433:              ; CODE XREF: sub_4B419+15j
     ax = word_5195D;
     ax -= word_59B8C;
     if (ax < word_59B8E)
     {
-        // jmp locret_4B582
+        return;
     }
 
 //loc_4B443:              ; CODE XREF: sub_4B419+25j
-    ax = word_5195D;
-    word_59B8E = ax;
+    word_59B8E = word_5195D;
     if (word_59B8C > 1)
     {
         word_59B8C--;
     }
 
+    FILE *file = NULL;
+    char currentSuffix[3] = "AT";
+
+    do
+    {
 //loc_4B454:              ; CODE XREF: sub_4B419+35j
 //                ; sub_4B419+9Aj
-    // Pressing the shift key will show the level sets in descending order
-    // mov ax, word ptr aLevels_dat_0+8 ; "AT"
-    dl = gIsRightShiftPressed;
-    dl |= gIsLeftShiftPressed;
-    if (dl != 0)
-    {
-        // jnz short loc_4B482
-    }
-    if (ax == 0x5441) // "AT"
-    {
-        ax = 0x3030; // "00"
-        // jmp short loc_4B4A3
-    }
+        strcpy(currentSuffix, &gLevelsDatFilename[8]);
 
-//loc_4B46B:              ; CODE XREF: sub_4B419+4Bj
-    if (ax == 0x3939) // "99"
-    {
-        ax = 0x5441; // "AT"
-        // jmp short loc_4B4A3
-    }
+        // Pressing the shift key will show the level sets in descending order
+        uint8_t shouldSwitchInDescendingOrder = (gIsRightShiftPressed || gIsLeftShiftPressed);
 
-//loc_4B475:              ; CODE XREF: sub_4B419+55j
-    ah++;
-    cmp ah, 39h ; '9'
-    jbe short loc_4B4A3
-    mov ah, 30h ; '0'
-    inc al
-    jmp short loc_4B4A3
-
+        if (shouldSwitchInDescendingOrder)
+        {
 //loc_4B482:              ; CODE XREF: sub_4B419+46j
-    cmp ax, 5441h
-    jnz short loc_4B48C
-    mov ax, 3939h
-    jmp short loc_4B4A3
-
+            if (strcmp(currentSuffix, "AT") == 0) // "AT"
+            {
+                strcpy(currentSuffix, "99");
+            }
 //loc_4B48C:              ; CODE XREF: sub_4B419+6Cj
-    cmp ax, 3030h
-    jnz short loc_4B496
-    mov ax, 5441h
-    jmp short loc_4B4A3
-
+            else if (strcmp(currentSuffix, "00") == 0) // "00"
+            {
+                strcpy(currentSuffix, "AT");
+            }
+            else
+            {
 //loc_4B496:              ; CODE XREF: sub_4B419+76j
-    dec ah
-    cmp ah, 30h ; '0'
-    jnb short loc_4B4A3
-    mov ah, 39h ; '9'
-    dec al
-    jmp short $+2
+                currentSuffix[1]--;
+                if (currentSuffix[1] < '0') // '0'
+                {
+                    currentSuffix[1] = '9'; // '9'
+                    currentSuffix[0]--;
+                }
+            }
+        }
+        else
+        {
+            if (strcmp(currentSuffix, "AT") == 0) // "AT"
+            {
+                strcpy(currentSuffix, "00");
+            }
+//loc_4B46B:              ; CODE XREF: sub_4B419+4Bj
+            else if (strcmp(currentSuffix, "99") == 0) // "99"
+            {
+                strcpy(currentSuffix, "AT");
+            }
+            else
+            {
+//loc_4B475:              ; CODE XREF: sub_4B419+55j
+                currentSuffix[1]++;
+                if (currentSuffix[1] > '9') // '9'
+                {
+                    currentSuffix[1] = '0'; // '0'
+                    currentSuffix[0]++;
+                }
+            }
+        }
 
 //loc_4B4A3:              ; CODE XREF: sub_4B419+50j
 //                ; sub_4B419+5Aj ...
-    mov word ptr aLevels_dat_0+8, ax ; "AT"
-    mov ax, 3D00h
-    mov dx, 17AFh
-    int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-                ; DS:DX -> ASCIZ filename
-                ; AL = access mode
-                ; 0 - read
-    jnb short loc_4B4B8
-    cmp ax, 2
-    jz  short loc_4B454
-    jmp exit
+        strcpy(&gLevelsDatFilename[8], currentSuffix);
+
+        file = openReadonlyFile(gLevelsDatFilename, "r");
+        if (file == NULL)
+        {
+            if (errno != ENOENT)
+            {
+                exitWithError("Error opening %s\n", gLevelsDatFilename);
+            }
+        }
+    }
+    while (file == NULL);
 
 //loc_4B4B8:              ; CODE XREF: sub_4B419+95j
-    mov ax, 3E00h
-    mov bx, lastFileHandle
-    int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                ; BX = file handle
-    jnb short loc_4B4C6
-    jmp exit
+    if (fclose(file) != 0)
+    {
+        exitWithError("Error closing %s\n", gLevelsDatFilename);
+    }
 
 //loc_4B4C6:              ; CODE XREF: sub_4B419+A8j
-    mov ax, word ptr aLevels_dat_0+8 ; "AT"
-    mov word ptr aLevelSet??+0Fh, ax ; "??  "
-    cmp ah, 54h ; 'T'
-    jnz short loc_4B4D3
-    mov al, 53h ; 'S'
+    char message[] = "     LEVEL SET ??      ";
+    memcpy(&message[0xF], currentSuffix, 2);
+
+    if (strcmp(currentSuffix, "AT") == 0)
+    {
+        strcpy(currentSuffix, "ST");
+    }
 
 //loc_4B4D3:              ; CODE XREF: sub_4B419+B6j
-    mov word ptr aLevel_lst+7, ax ; "ST"
-    mov word ptr aPlayer_lst+8, ax ; "ST"
-    mov word ptr aHallfame_lst+0Ah, ax ; "ST"
-    cmp ah, 54h ; 'T'
-    jnz short loc_4B4E4
-    mov ax, 4E49h
+    strcpy(&gLevelsDatFilename[8], currentSuffix);
+    strcpy(&gLevelLstFilename[7], currentSuffix);
+    strcpy(&gPlayerLstFilename[8], currentSuffix);
+    strcpy(&gHallfameLstFilename[0xA], currentSuffix);
+
+    if (strcmp(currentSuffix, "ST") == 0)
+    {
+        strcpy(currentSuffix, "IN");
+    }
 
 //loc_4B4E4:              ; CODE XREF: sub_4B419+C6j
-    mov word ptr aDemo0_bin+7, ax ; "IN"
-    cmp ah, 4Eh ; 'N'
-    jnz short loc_4B4EF
-    mov ax, 5641h
+    strcpy(&gDemo0BinFilename[7], currentSuffix);
+
+    if (strcmp(currentSuffix, "IN") == 0)
+    {
+        strcpy(currentSuffix, "AV");
+    }
 
 //loc_4B4EF:              ; CODE XREF: sub_4B419+D1j
-    cmp byte ptr dword_59B76, 0
-    jnz short loc_4B4F9
-    mov word ptr aSavegame_sav+0Ah, ax ; "AV"
+    if ((dword_59B76 & 0xFF) == 0)
+    {
+        strcpy(&gSavegameSavFilename[0xA], currentSuffix);
+    }
 
 //loc_4B4F9:              ; CODE XREF: sub_4B419+DBj
-    mov si, 9EEDh
-    cmp ah, 56h ; 'V'
-    jnz short loc_4B504
-    mov si, 9F05h
+    if (strcmp(currentSuffix, "AV") == 0)
+    {
+        strcpy(message, "  SUPAPLEX LEVEL SET   ");
+    }
 
 //loc_4B504:              ; CODE XREF: sub_4B419+E6j
-    mov di, 89F7h
-    mov ah, 4
-    call    sub_4BA5F
-    call    readLevelsLst
-    call    readDemo
-    push    es
-    push    ds
-    pop es
-    assume es:data
-    cmp byte_59B85, 0
-    jz  short loc_4B52A
-    lea di, byte_58DB4+4
-    mov cx, 6Fh ; 'o'
-    mov al, 2
-    rep stosb
-    pop es
-    assume es:nothing
-    jmp short loc_4B565
-
+    drawTextWithChars6FontWithOpaqueBackground(168, 127, 4, message);
+    readLevelsLst();
+    readDemoFiles();
+//    push    es
+//    push    ds
+//    pop es
+//    assume es:data
+    // 01ED:48B2
+    if (byte_59B85 != 0)
+    {
+        // TODO: no idea what byte_59B85 is for yet, but seems to be related to some command line option
+        assert(0);
+    //    lea di, byte_58DB4+4
+        cx = 0x6F; // 11
+        al = 2;
+        memset(NULL, kNotCompletedLevelEntryColor, 111); // rep stosb, I think this resets the player level state to skipped
+    //    pop es
+    //    assume es:nothing
+    }
+    else
+    {
 //loc_4B52A:              ; CODE XREF: sub_4B419+101j
-    lea di, word_58DAC
-    mov cx, 14h
-
+        for (int i = 0; i < kNumberOfPlayers; ++i)
+        {
+            PlayerEntry *entry = &gPlayerListData[i];
 //loc_4B531:              ; CODE XREF: sub_4B419+129j
-    push    cx
-    mov ax, 2D2Dh
-    mov cx, 4
-    rep stosw
-    xor ax, ax
-    mov cx, 3Ch ; '<'
-    rep stosw
-    pop cx
-    loop    loc_4B531
-    lea di, asc_59824   ; "    "
-    mov cx, 3
+            memset(entry, 0, sizeof(PlayerEntry));
+            strcpy(entry->name, "--------");
+        }
+
+        for (int i = 0; i < kNumberOfHallOfFameEntries; ++i)
+        {
+            HallOfFameEntry *entry = &gHallOfFameData[i];
 
 //loc_4B54B:              ; CODE XREF: sub_4B419+143j
-    push    cx
-    mov ax, 2020h
-    mov cx, 4
-    rep stosw
-    xor ax, ax
-    mov cx, 2
-    rep stosw
-    pop cx
-    loop    loc_4B54B
-    pop es
-    call    readHallfameLst
-    call    readPlayersLst
+            memset(entry, 0, sizeof(HallOfFameEntry));
+            strcpy(entry->playerName, "        ");
+        }
+
+        readHallfameLst();
+        readPlayersLst();
+    }
 
 //loc_4B565:              ; CODE XREF: sub_4B419+10Fj
-    mov byte_51ABE, 1
-    call    sub_4C34A
-    call    sub_4C293
-    call    sub_4C141
-    call    sub_4C1A9
-    call    sub_4C0DD
-    call    sub_4B899
-    call    sub_4B85C
-    call    sub_4B8BE
-
-//locret_4B582:               ; CODE XREF: sub_4B419+27j
-    retn
-
-//loc_4B583:              ; CODE XREF: sub_4B419+17j
-    mov si, 60D5h
-    call    fade
-    call    vgaloadbackseg
-    mov si, 84FFh
-    mov di, 786Dh
-    mov ah, 0Fh
-    call    sub_4BDF0
-    mov ah, 19h
-    int 21h     ; DOS - GET DEFAULT DISK NUMBER
-    mov byte_59B9A, al
-    cmp al, 0
-    jz  short loc_4B5B3
-    cmp al, 1
-    jz  short loc_4B5B3
-    mov si, 851Bh
-    mov di, 81F5h
-    mov ah, 0Fh
-    call    sub_4BDF0
-    jmp short loc_4B5BE
-
-//loc_4B5B3:              ; CODE XREF: sub_4B419+187j
-//                ; sub_4B419+18Bj
-    mov si, 853Ah
-    mov di, 81F5h
-    mov ah, 0Fh
-    call    sub_4BDF0
-
-//loc_4B5BE:              ; CODE XREF: sub_4B419+198j
-    mov si, 8562h
-    mov di, 0A81Ah
-    mov ah, 0Fh
-    call    sub_4BDF0
-    mov bx, 4D84h
-    mov dx, 3D4h
-    mov al, 0Dh
-    out dx, al      ; Video: CRT cntrlr addr
-                ; regen start address (low)
-    inc dx
-    mov al, bl
-    out dx, al      ; Video: CRT controller internal registers
-    mov dx, 3D4h
-    mov al, 0Ch
-    out dx, al      ; Video: CRT cntrlr addr
-                ; regen start address (high)
-    inc dx
-    mov al, bh
-    out dx, al      ; Video: CRT controller internal registers
-    mov si, 5FD5h
-    call    fade
-
-//loc_4B5E6:              ; CODE XREF: sub_4B419+1D3j
-    call    getMouseStatus
-    cmp bx, 0
-    jnz short loc_4B5E6
-
-//loc_4B5EE:              ; CODE XREF: sub_4B419+20Fj
-    cmp gShouldExitGame, 1
-    jz  short loc_4B63D
-    mov al, keyPressed
-    xor dl, dl
-    cmp al, 1Eh     ; A
-    jz  short loc_4B62A
-    inc dl
-    cmp al, 30h ; '0'   ; B
-    jz  short loc_4B62A
-    inc dl
-    cmp al, 2Eh ; '.'   ; C
-    jz  short loc_4B62A
-    inc dl
-    cmp al, 20h ; ' '   ; D
-    jz  short loc_4B62A
-    inc dl
-    cmp al, 12h     ; E
-    jz  short loc_4B62A
-    inc dl
-    cmp al, 21h ; '!'   ; F
-    jz  short loc_4B62A
-    mov dl, byte_59B9A
-    cmp al, 1Ch     ; Enter
-    jz  short loc_4B62A
-    cmp al, 1       ; Esc
-    jz  short loc_4B63D
-    jmp short loc_4B5EE
-
-//loc_4B62A:              ; CODE XREF: sub_4B419+1E3j
-//                ; sub_4B419+1E9j ...
-    mov ah, 0Eh
-    int 21h     ; DOS - SELECT DISK
-                ; DL = new default drive number (0 = A, 1 = B, etc.)
-                ; Return: AL = number of logical drives
-    mov byte_59B86, 0
-    call    readMoving
-    cmp byte_59B86, 0FFh
-    jnz short loc_4B647
-
-//loc_4B63D:              ; CODE XREF: sub_4B419+1DAj
-//                ; sub_4B419+20Dj
-    mov dl, byte_59B9A
-    mov ah, 0Eh
-    int 21h     ; DOS - SELECT DISK
-                ; DL = new default drive number (0 = A, 1 = B, etc.)
-                ; Return: AL = number of logical drives
-    jmp short loc_4B64D
-
-//loc_4B647:              ; CODE XREF: sub_4B419+222j
-    call    readEverything
-    call    vgaloadbackseg
-
-//loc_4B64D:              ; CODE XREF: sub_4B419+22Cj
-    mov si, 60D5h
-    call    fade
-    mov bx, 4D5Ch
-    mov dx, 3D4h
-    mov al, 0Dh
-    out dx, al      ; Video: CRT cntrlr addr
-                ; regen start address (low)
-    inc dx
-    mov al, bl
-    out dx, al      ; Video: CRT controller internal registers
-    mov dx, 3D4h
-    mov al, 0Ch
-    out dx, al      ; Video: CRT cntrlr addr
-                ; regen start address (high)
-    inc dx
-    mov al, bh
-    out dx, al      ; Video: CRT controller internal registers
-    mov si, 6015h
-    call    fade
-    retn
- */
+    gShouldAutoselectNextLevelToPlay = 1;
+    prepareLevelDataForCurrentPlayer();
+    drawPlayerList();
+    drawLevelList();
+    drawHallOfFame();
+    drawRankings();
+    restoreLastMouseAreaBitmap();
+    saveLastMouseAreaBitmap();
+    drawMouseCursor();
 }
 
 void handlePlayerListScrollDown() // sub_4B671  proc near
@@ -12680,7 +12718,7 @@ void prepareRankingTextEntries() // sub_4BF8D  proc near       ; CODE XREF: draw
     }
 }
 
-void drawRankings() //   proc near       ; CODE XREF: handleNewPlayerOptionClick+1E9p
+void drawRankings() // sub_4C0DD   proc near       ; CODE XREF: handleNewPlayerOptionClick+1E9p
 //                    ; handleDeletePlayerOptionClick+E2p ...
 {
     // 01ED:547A
@@ -12719,7 +12757,7 @@ void drawLevelList() // sub_4C141  proc near       ; CODE XREF: start+41Ap hand
     drawTextWithChars6FontWithOpaqueBackground(144, 173, byte_59823, nextLevelName);
 }
 
-void drawHallOfFame() //   proc near       ; CODE XREF: handleFloppyDiskButtonClick+15Ap
+void drawHallOfFame() // sub_4C1A9   proc near       ; CODE XREF: handleFloppyDiskButtonClick+15Ap
 //                    ; drawMenuTitleAndDemoLevelResult+11p
 {
     // 01ED:5546
@@ -12853,7 +12891,7 @@ void drawMenuTitleAndDemoLevelResult() // sub_4C2F2   proc near       ; CODE XRE
     byte_5A19B = 0;
 }
 
-void prepareLevelDataForCurrentPlayer() //   proc near       ; CODE XREF: start+404p handleNewPlayerOptionClick+1E0p ...
+void prepareLevelDataForCurrentPlayer() // sub_4C34A   proc near       ; CODE XREF: start+404p handleNewPlayerOptionClick+1E0p ...
 {
     // 01ED:56E7
     PlayerEntry currentPlayerEntry = gPlayerListData[gCurrentPlayerIndex];
@@ -13958,7 +13996,8 @@ void savePlayerListData() //   proc near       ; CODE XREF: handleNewPlayerOptio
     {
         return;
     }
-    FILE *file = openWritableFile("PLAYER.LST", "w");
+
+    FILE *file = openWritableFile(gPlayerLstFilename, "w");
     if (file == NULL)
     {
         return;
@@ -13979,7 +14018,7 @@ void saveHallOfFameData() //   proc near       ; CODE XREF: handleNewPlayerOptio
         return;
     }
 
-    FILE *file = openWritableFile("HALLFAME.LST", "w");
+    FILE *file = openWritableFile(gHallfameLstFilename, "w");
     if (file == NULL)
     {
         return;
@@ -14519,14 +14558,14 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
         {
 //loc_4D59F:              ; CODE XREF: readLevels+5j
 //                ; readLevels+13j
-            filename = aLevels_dat_0; // lea dx, aLevels_dat_0 ; "LEVELS.DAT"
+            filename = gLevelsDatFilename; // lea dx, aLevels_dat_0 ; "LEVELS.DAT"
         }
 
         if (gIsPlayingDemo != 0
             && (word_599D8 & 0xFF) != 0) //cmp byte ptr word_599D8, 0
         {
 //loc_4D599:              ; CODE XREF: readLevels+Cj
-            filename = "LEVELS.DAT"; // lea dx, aLevels_dat ; "LEVELS.DAT"
+            filename = gLevelsDatFilename; // lea dx, aLevels_dat ; "LEVELS.DAT"
         }
 //loc_4D5A3:              ; CODE XREF: readLevels+55j
         else if (byte_599D4 != 0)
@@ -14536,7 +14575,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
         }
         else if (word_599DA != 0)
         {
-            filename = "LEVELS.DAT"; // lea dx, aLevels_dat ; "LEVELS.DAT"
+            filename = gLevelsDatFilename; // lea dx, aLevels_dat ; "LEVELS.DAT"
         }
 
 //loc_4D5BB:              ; CODE XREF: readLevels+63j
