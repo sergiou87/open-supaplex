@@ -1515,9 +1515,9 @@ int16_t gAdditionalScrollOffsetY = 0; // word_51965
 uint16_t word_51967 = 0; // scroll / first pixel of the scroll window
 uint16_t word_5196C = 0;
 uint16_t gIsDebugModeEnabled = 0; // word_51970
-uint16_t word_51974 = 0;
+uint16_t gShouldExitLevel = 0; // word_51974
 uint16_t gQuitLevelCountdown = 0; // word_51978 -> this is a counter to end the level after certain number of iterations (to let the game progress a bit before going back to the menu)
-uint16_t word_5197A = 0;
+uint16_t gShouldExitGame = 0; // word_5197A
 uint16_t gIsMoveScrollModeEnabled = 0; // word_51A01
 uint16_t gDebugExtraRenderDelay = 1; // this was used to add an extra delay in debug mode using keys 1-9
 uint16_t word_58463 = 0;
@@ -3587,7 +3587,7 @@ loc_46E75:              //; CODE XREF: start+251j
             byte_5A33F = 1;
             runLevel();
             byte_599D4 = 0;
-            if (word_5197A != 0)
+            if (gShouldExitGame != 0)
             {
                 break; // goto loc_47067;
             }
@@ -3607,7 +3607,7 @@ loc_46E75:              //; CODE XREF: start+251j
 
 //loc_46FA5:              //; CODE XREF: start+380j
             byte_5A33F = 0;
-            if (word_5197A != 0)
+            if (gShouldExitGame != 0)
             {
                 break; // goto loc_47067;
             }
@@ -3706,7 +3706,7 @@ loc_46E75:              //; CODE XREF: start+251j
         byte_5A2F9 = 0;
         runMainMenu();
     }
-    while (word_5197A == 0);
+    while (gShouldExitGame == 0);
 
 //loc_47067:              //; CODE XREF: start+36Bj start+391j ...
         fadeToPalette(gBlackPalette); // 0x60D5
@@ -4002,8 +4002,8 @@ void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9
     if (keyPressed == SDL_SCANCODE_X // Key X
         && gIsLeftAltPressed != 0)
     {
-        word_51974 = 1;
-        word_5197A = 1;
+        gShouldExitLevel = 1;
+        gShouldExitGame = 1;
     }
 
     if (shouldYieldCpu)
@@ -6672,7 +6672,7 @@ void initializeGameInfo() // sub_48A20   proc near       ; CODE XREF: start+32F
     ax = 0;
     word_510CB = 0;
     word_510D1 = 0;
-    word_51974 = 0;
+    gShouldExitLevel = 0;
     gQuitLevelCountdown = 0;
     gNumberOfRemainingRedDisks = 0;
     byte_5197C = 0;
@@ -6923,12 +6923,12 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         }
 
 //noFlashing5:              ; CODE XREF: runLevel+317j
-        if (word_5197A != 0)
+        if (gShouldExitGame != 0)
         {
             break;
         }
         word_5195D++;
-        if (word_51974 == 1)
+        if (gShouldExitLevel == 1)
         {
             break;
         }
@@ -7475,7 +7475,7 @@ void simulateDemoInput() // sub_492A8   proc near       ; CODE XREF: handleGameU
     if (newInput == 0xFF)
     {
         gQuitLevelCountdown = 0x64;
-        word_51974 = 1;
+        gShouldExitLevel = 1;
     }
     else
     {
@@ -12097,7 +12097,7 @@ loc_4B5E6:              ; CODE XREF: sub_4B419+1D3j
     jnz short loc_4B5E6
 
 loc_4B5EE:              ; CODE XREF: sub_4B419+20Fj
-    cmp word_5197A, 1
+    cmp gShouldExitGame, 1
     jz  short loc_4B63D
     mov al, keyPressed
     xor dl, dl
@@ -13082,7 +13082,7 @@ void drawFailedLevelResultScreen() // sub_4C4F9   proc near       ; CODE XREF: s
 
     videoloop();
     setPalette(gPalettes[0]);
-    if (word_5197A != 1)
+    if (gShouldExitGame != 1)
     {
         waitForKeyMouseOrJoystick();
     }
@@ -13506,7 +13506,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
         {
             break;
         }
-        if (word_5197A == 1)
+        if (gShouldExitGame == 1)
         {
             break;
         }
@@ -13548,7 +13548,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
 
 //loc_4CA34:              // ; CODE XREF: runMainMenu+223j
                // ; runMainMenu+22Aj ...
-    word_5197A = 1;
+    gShouldExitGame = 1;
     savePlayerListData();
     saveHallOfFameData();
 }
@@ -17627,7 +17627,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 13)
         {
 //loc_4ED42:              ; CODE XREF: update?+D53j
-            word_51974 = 1;
+            gShouldExitLevel = 1;
             return position;
         }
 //loc_4EBE6:              ; CODE XREF: update?+D51j
@@ -17972,7 +17972,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else
         {
 //loc_4EC7E:              ; CODE XREF: update?+DE9j
-            word_51974 = 1;
+            gShouldExitLevel = 1;
             return position;
         }
     }
@@ -20070,12 +20070,14 @@ void emulateClock()
 
 void handleSDLEvents()
 {
-    SDL_PumpEvents();
-
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
-        // do nothing
+        if (event.type == SDL_QUIT)
+        {
+            gShouldExitLevel = 1;
+            gShouldExitGame = 1;
+        }
     }
 
     emulateClock();
