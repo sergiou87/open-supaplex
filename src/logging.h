@@ -22,6 +22,7 @@
 #define logging_h
 
 void initializeLogging(void);
+void destroyLogging(void);
 void spLog(const char *format, ...);
 
 #endif /* logging_h */

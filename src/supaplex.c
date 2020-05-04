@@ -2955,6 +2955,13 @@ int main(int argc, const char * argv[])
 
     initializeLogging();
 
+    int ret = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_JOYSTICK);
+    if (ret)
+    {
+        spLog("SDL_Init failed with %d", ret);
+        exit(1);
+    }
+
     gWindow = SDL_CreateWindow("OpenSupaplex",
                                SDL_WINDOWPOS_UNDEFINED,
                                SDL_WINDOWPOS_UNDEFINED,
@@ -2974,8 +2981,6 @@ int main(int argc, const char * argv[])
 
     SDL_SetWindowResizable(gWindow, SDL_TRUE);
     SDL_AddEventWatch(windowResizingEventWatcher, gWindow);
-
-    SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_TIMER);
 
     gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_PRESENTVSYNC);
 
@@ -3776,6 +3781,7 @@ exit:                   //; CODE XREF: readConfig:loc_474BBj
         SDL_DestroyTexture(gTexture);
         SDL_DestroyRenderer(gRenderer);
         SDL_DestroyWindow(gWindow);
+        destroyLogging();
         SDL_Quit();
 
         return 0;
@@ -11183,7 +11189,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
         }
         while (mouseButtonStatus != 0);
 
-        sprintf(newPlayerName, "PLAYER%2d", gNewPlayerEntryIndex + 1);
+        snprintf(newPlayerName, kPlayerNameLength, "PLAYER%2d", gNewPlayerEntryIndex + 1);
         gNewPlayerNameLength = strlen(newPlayerName);
     }
 
@@ -11922,7 +11928,8 @@ void handleFloppyDiskButtonClick() // sub_4B419  proc near
             {
 //loc_4B496:              ; CODE XREF: sub_4B419+76j
                 currentSuffix[1]--;
-                if (currentSuffix[1] < '0') // '0'
+                if (currentSuffix[1] < '0'
+                    && currentSuffix[0] > '0')
                 {
                     currentSuffix[1] = '9'; // '9'
                     currentSuffix[0]--;
@@ -11944,7 +11951,8 @@ void handleFloppyDiskButtonClick() // sub_4B419  proc near
             {
 //loc_4B475:              ; CODE XREF: sub_4B419+55j
                 currentSuffix[1]++;
-                if (currentSuffix[1] > '9') // '9'
+                if (currentSuffix[1] > '9'
+                    && currentSuffix[0] < '9')
                 {
                     currentSuffix[1] = '0'; // '0'
                     currentSuffix[0]++;
@@ -11983,7 +11991,6 @@ void handleFloppyDiskButtonClick() // sub_4B419  proc near
     }
 
 //loc_4B4D3:              ; CODE XREF: sub_4B419+B6j
-    strcpy(&gLevelsDatFilename[8], currentSuffix);
     strcpy(&gLevelLstFilename[7], currentSuffix);
     strcpy(&gPlayerLstFilename[8], currentSuffix);
     strcpy(&gHallfameLstFilename[0xA], currentSuffix);
@@ -14267,7 +14274,7 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
 
         if (controllerX != 0.0 || controllerY != 0.0)
         {
-            float speed = (float) windowWidth * 2 / 1280;
+            float speed = (float) windowWidth / 1280;
 
             x += speed * controllerX;
             y += speed * controllerY;
@@ -14543,7 +14550,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 
     memcpy(&gCurrentLevel, &fileLevelData, sizeof(gCurrentLevel));
 
-    for (int i = 0; i < levelDataLength; ++i)
+    for (int i = 0; i < kLevelSize; ++i) // originally was levelDataLength but sounds like a bug
     {
 //loc_4D6B8:              ; CODE XREF: readLevels+172j
         MovingLevelTile *tile = &gCurrentLevelWord[i];
@@ -15432,7 +15439,6 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
     MovingLevelTile *rightTile = &gCurrentLevelWord[position + 1];
     MovingLevelTile *belowTile = &gCurrentLevelWord[position + kLevelWidth];
     MovingLevelTile *aboveTile = &gCurrentLevelWord[position - kLevelWidth];
-    MovingLevelTile *aboveLeftTile = &gCurrentLevelWord[position - kLevelWidth - 1];
 
     if (murphyTile->tile != LevelTileTypeMurphy)
     {
@@ -16106,7 +16112,6 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
 {
     // 01ED:7447
     MovingLevelTile *murphyTile = &gCurrentLevelWord[position];
-    MovingLevelTile *rightTile = &gCurrentLevelWord[position + 1];
     MovingLevelTile *aboveTile = &gCurrentLevelWord[position - kLevelWidth];
     MovingLevelTile *aboveAboveTile = &gCurrentLevelWord[position - kLevelWidth * 2];
 
@@ -16604,7 +16609,6 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
     MovingLevelTile *murphyTile = &gCurrentLevelWord[position];
     MovingLevelTile *belowTile = &gCurrentLevelWord[position + kLevelWidth];
     MovingLevelTile *belowBelowTile = &gCurrentLevelWord[position + kLevelWidth * 2];
-    MovingLevelTile *belowLeftTile = &gCurrentLevelWord[position + kLevelWidth - 1];
 
 //loc_4E186:              ; CODE XREF: update?+1C8j update?+355j
 //    mov ax, leveldata[si+78h]
@@ -19883,6 +19887,7 @@ void exitWithError(const char *format, ...)
     va_start(argptr, format);
     vfprintf(stderr, format, argptr);
     va_end(argptr);
+    SDL_Quit();
     exit(errno);
 }
 

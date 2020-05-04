@@ -7,5 +7,12 @@ tasm/
 TESTOUT.TXT
 /tc/
 xcuserdata/
+
+# PS Vita stuff
 vita/debugnetip.txt
 vita/resources/
+
+# Nintendo Switch stuff
+*.nro
+*.elf
+*.nacp

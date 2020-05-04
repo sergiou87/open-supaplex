@@ -39,14 +39,15 @@ include $(DEVKITPRO)/libnx/switch_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	OpenSupaplex
 BUILD		:=	build
-SOURCES		:=	../src
+SOURCES		:=	../src ../src/nx
 DATA		:=	data
 INCLUDES	:=	include
+EXCLUDE     :=  nullVirtualKeyboard.c
 #ROMFS	:=	romfs
-APP_TITLE	:= OpenSupaplex
-APP_AUTHOR	:= sergiou87
-APP_VERSION	:= 7.0
-ICON        := resources/launcher-icon.jpg
+APP_TITLE	:=  OpenSupaplex
+APP_AUTHOR	:=  sergiou87
+APP_VERSION	:=  7.0
+ICON        :=  resources/launcher-icon.jpg
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -57,6 +58,10 @@ CFLAGS	:=	-g -Wall -O2 -ffunction-sections \
 			$(ARCH) $(DEFINES)
 
 CFLAGS	+=	$(INCLUDE) -D__SWITCH__ `sdl2-config --cflags`
+
+ifeq ($(DEBUG),1)
+	CFLAGS += -DDEBUG=1
+endif
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions
 
@@ -91,6 +96,8 @@ CFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.c)))
 CPPFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
 SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
 BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
+
+CFILES := $(filter-out $(EXCLUDE),$(CFILES))
 
 #---------------------------------------------------------------------------------
 # use CXX for linking C++ projects, CC for standard C

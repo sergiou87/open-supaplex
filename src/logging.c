@@ -23,14 +23,34 @@
 #include <debugnet.h>
 #endif
 
+#if defined(__SWITCH__) && DEBUG
+#include <switch.h>
+#endif
+
 void initializeLogging(void)
 {
- #if defined(__vita__) && DEBUG
-     int ret;
-     ret = debugNetInit(DEBUGNETIP, 18194, DEBUG);
- #endif
+#if defined(__vita__) && DEBUG
+    int ret;
+    ret = debugNetInit(DEBUGNETIP, 18194, DEBUG);
+#endif
+
+#if defined(__SWITCH__) && DEBUG
+    socketInitializeDefault(); // Initialize sockets
+    nxlinkStdio(); // Redirect stdout and stderr over the network to nxlink
+#endif
 
     spLog("Logging system initialized.");
+}
+
+void destroyLogging(void)
+{
+    spLog("Destroying logging system...");
+
+#if defined(__SWITCH__) && DEBUG
+    socketExit();
+#endif
+
+    spLog("Logging system destroyed");
 }
 
 void spLog(const char *format, ...)

@@ -17,7 +17,11 @@
 
 #include "file.h"
 
+#include <string.h>
+
 #ifdef __vita__
+#include <psp2/io/stat.h>
+
 FILE *openReadonlyFile(const char *pathname, const char *mode)
 {
     // app0:/ references the folder where the app was installed
@@ -36,6 +40,24 @@ FILE *openWritableFile(const char *pathname, const char *mode)
 
     strcat(finalPathname, pathname);
 
+    return fopen(finalPathname, mode);
+}
+#elif defined(__SWITCH__) && DEBUG
+// This is needed when I debug in the Switch using the Net Loader because I can't make it
+// write the executable file to /switch/OpenSupaplex/ for some reason.
+//
+FILE *openReadonlyFile(const char *pathname, const char *mode)
+{
+    char finalPathname[256] = "/switch/OpenSupaplex/";
+    strcat(finalPathname, pathname);
+    return fopen(finalPathname, mode);
+}
+
+FILE *openWritableFile(const char *pathname, const char *mode)
+{
+    // For writable files we'll use a subfolder in ux0:/data/
+    char finalPathname[256] = "/switch/OpenSupaplex/";
+    strcat(finalPathname, pathname);
     return fopen(finalPathname, mode);
 }
 #else
