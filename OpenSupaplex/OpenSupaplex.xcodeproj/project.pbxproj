@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		4001459E245F7B5A00620211 /* touchscreen.c in Sources */ = {isa = PBXBuildFile; fileRef = 4001459D245F7B5A00620211 /* touchscreen.c */; };
 		400145A1245F7EBF00620211 /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145A0245F7EBF00620211 /* logging.c */; };
+		400145A4245FEDF200620211 /* virtualKeyboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145A3245FEDF200620211 /* virtualKeyboard.c */; };
 		4062C247244CE5D5007A07F5 /* controller.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C244244CE5D4007A07F5 /* controller.c */; };
 		4062C248244CE5D5007A07F5 /* supaplex.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C246244CE5D5007A07F5 /* supaplex.c */; };
 		4062C24C244F00CA007A07F5 /* file.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C24B244F00CA007A07F5 /* file.c */; };
@@ -31,6 +32,8 @@
 		4001459D245F7B5A00620211 /* touchscreen.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = touchscreen.c; path = ../../src/touchscreen.c; sourceTree = "<group>"; };
 		4001459F245F7EBF00620211 /* logging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = logging.h; path = ../../src/logging.h; sourceTree = "<group>"; };
 		400145A0245F7EBF00620211 /* logging.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = logging.c; path = ../../src/logging.c; sourceTree = "<group>"; };
+		400145A2245FEDF200620211 /* virtualKeyboard.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = virtualKeyboard.h; path = ../../src/virtualKeyboard.h; sourceTree = "<group>"; };
+		400145A3245FEDF200620211 /* virtualKeyboard.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = virtualKeyboard.c; path = ../../src/virtualKeyboard.c; sourceTree = "<group>"; };
 		4062C244244CE5D4007A07F5 /* controller.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = controller.c; path = ../../src/controller.c; sourceTree = "<group>"; };
 		4062C245244CE5D5007A07F5 /* controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = controller.h; path = ../../src/controller.h; sourceTree = "<group>"; };
 		4062C246244CE5D5007A07F5 /* supaplex.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = supaplex.c; path = ../../src/supaplex.c; sourceTree = "<group>"; };
@@ -79,6 +82,8 @@
 				4001459D245F7B5A00620211 /* touchscreen.c */,
 				4001459F245F7EBF00620211 /* logging.h */,
 				400145A0245F7EBF00620211 /* logging.c */,
+				400145A2245FEDF200620211 /* virtualKeyboard.h */,
+				400145A3245FEDF200620211 /* virtualKeyboard.c */,
 			);
 			path = OpenSupaplex;
 			sourceTree = "<group>";
@@ -149,6 +154,7 @@
 			files = (
 				4062C247244CE5D5007A07F5 /* controller.c in Sources */,
 				4001459E245F7B5A00620211 /* touchscreen.c in Sources */,
+				400145A4245FEDF200620211 /* virtualKeyboard.c in Sources */,
 				4062C248244CE5D5007A07F5 /* supaplex.c in Sources */,
 				400145A1245F7EBF00620211 /* logging.c in Sources */,
 				4062C24C244F00CA007A07F5 /* file.c in Sources */,

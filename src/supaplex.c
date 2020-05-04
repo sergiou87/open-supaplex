@@ -24,6 +24,7 @@
 #include "file.h"
 #include "logging.h"
 #include "touchscreen.h"
+#include "virtualKeyboard.h"
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -1655,8 +1656,10 @@ enum MouseButton
 uint16_t gMouseButtonStatus = 0; // word_5847D
 uint16_t gMouseX = 0, gMouseY = 0;
 
+#define kPlayerNameLength 8
+
 char a00s0010_sp[12] = "00S001$0.SP";
-char gPlayerName[9] = "WIBBLE  "; // 0x879F // TODO: read this address when the game starts and put the same text here
+char gPlayerName[kPlayerNameLength + 1] = "WIBBLE  "; // 0x879F // TODO: read this address when the game starts and put the same text here
 
 typedef enum
 {
@@ -1950,7 +1953,7 @@ uint8_t gLevelBitmapData[kLevelBitmapWidth * kLevelBitmapHeight];
 
 typedef struct
 {
-    char playerName[9];
+    char playerName[kPlayerNameLength + 1];
     uint8_t hours;
     uint8_t minutes;
     uint8_t seconds;
@@ -1977,7 +1980,7 @@ enum PlayerLevelState {
 //
 typedef struct
 {
-    char name[9];
+    char name[kPlayerNameLength + 1];
     uint8_t hours;
     uint8_t minutes;
     uint8_t seconds;
@@ -11050,101 +11053,136 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
 //loc_4AB56:              ; CODE XREF: handleNewPlayerOptionClick+25j
     gNewPlayerEntryIndex = newPlayerIndex;
 
-    char newPlayerName[9] = "        ";
+    char newPlayerName[kPlayerNameLength + 1] = "        ";
     gNewPlayerNameLength = 0;
     uint16_t mouseX, mouseY;
     uint16_t mouseButtonStatus;
 
     restoreLastMouseAreaBitmap();
 
-#if defined(__SWITCH__) || defined(__vita__)
-    do
+    if (isRealKeyboardSupported())
     {
+        // mov di, 89F7h
+        drawTextWithChars6FontWithOpaqueBackground(168, 127, 4, "YOUR NAME:             ");
+
+        do
+        {
 //loc_4AB7F:              ; CODE XREF: handleNewPlayerOptionClick+6Aj
-        getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
-    }
-    while (mouseButtonStatus != 0);
+            getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
+        }
+        while (mouseButtonStatus != 0);
 
-    sprintf(newPlayerName, "PLAYER%2d", gNewPlayerEntryIndex + 1);
-    gNewPlayerNameLength = strlen(newPlayerName);
-#else
-//    mov di, 89F7h
-    drawTextWithChars6FontWithOpaqueBackground(168, 127, 4, "YOUR NAME:             ");
+        SDL_Scancode lastPressedKey = SDL_SCANCODE_UNKNOWN;
 
-    do
-    {
-//loc_4AB7F:              ; CODE XREF: handleNewPlayerOptionClick+6Aj
-        getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
-    }
-    while (mouseButtonStatus != 0);
-
-    SDL_Scancode lastPressedKey = SDL_SCANCODE_UNKNOWN;
-
-    do
-    {
+        do
+        {
 //noKeyPressed:               ; CODE XREF: handleNewPlayerOptionClick+79j
 //                ; handleNewPlayerOptionClick+8Aj ...
-        videoloop();
+            videoloop();
 
-        int9handler(0);
-        getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
-        if (mouseButtonStatus != 0)
-        {
-            break;
-        }
-        if (keyPressed == SDL_SCANCODE_UNKNOWN)
-        {
-            lastPressedKey = SDL_SCANCODE_UNKNOWN;
-            continue;
-        }
+            int9handler(0);
+            getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
+            if (mouseButtonStatus != 0)
+            {
+                break;
+            }
+            if (keyPressed == SDL_SCANCODE_UNKNOWN)
+            {
+                lastPressedKey = SDL_SCANCODE_UNKNOWN;
+                continue;
+            }
 
-        if (lastPressedKey == keyPressed)
-        {
-            continue;
-        }
-
-        lastPressedKey = keyPressed;
-
-        char character = characterForSDLScancode(lastPressedKey);
-
-        if (character == 0) // For keys without a valid representation
-        {
-            continue;
-        }
-        if (character == '\n') // \n -> enter -> create player
-        {
-            break;
-        }
-        if (character == '\b') // backspace -> delete last char
-        {
-//loc_4ABCC:              ; CODE XREF: handleNewPlayerOptionClick+92j
-            if (gNewPlayerNameLength == 0)
+            if (lastPressedKey == keyPressed)
             {
                 continue;
             }
-            gNewPlayerNameLength--;
-            newPlayerName[gNewPlayerNameLength] = ' ';
-            drawTextWithChars6FontWithOpaqueBackground(232, 127, 6, newPlayerName);
-            continue;
-        }
-        if (gNewPlayerNameLength >= 8) // when more than 8 chars were entered, ignore the rest?
-        {
-            continue;
-        }
-        newPlayerName[gNewPlayerNameLength] = character; // mov [bx+si], al
-        gNewPlayerNameLength++;
-        drawTextWithChars6FontWithOpaqueBackground(232, 127, 6, newPlayerName);
-    }
-    while (1);
 
-    do
-    {
+            lastPressedKey = keyPressed;
+
+            char character = characterForSDLScancode(lastPressedKey);
+
+            if (character == 0) // For keys without a valid representation
+            {
+                continue;
+            }
+            if (character == '\n') // \n -> enter -> create player
+            {
+                break;
+            }
+            if (character == '\b') // backspace -> delete last char
+            {
+//loc_4ABCC:              ; CODE XREF: handleNewPlayerOptionClick+92j
+                if (gNewPlayerNameLength == 0)
+                {
+                    continue;
+                }
+                gNewPlayerNameLength--;
+                newPlayerName[gNewPlayerNameLength] = ' ';
+                drawTextWithChars6FontWithOpaqueBackground(232, 127, 6, newPlayerName);
+                continue;
+            }
+            if (gNewPlayerNameLength >= 8) // when more than 8 chars were entered, ignore the rest?
+            {
+                continue;
+            }
+            newPlayerName[gNewPlayerNameLength] = character; // mov [bx+si], al
+            gNewPlayerNameLength++;
+            drawTextWithChars6FontWithOpaqueBackground(232, 127, 6, newPlayerName);
+        }
+        while (1);
+
+        do
+        {
 //loc_4ABEB:              ; CODE XREF: handleNewPlayerOptionClick+72j
 //                ; handleNewPlayerOptionClick+8Ej ...
-        getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
+            getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
+        }
+        while (mouseButtonStatus != 0);
     }
-    while (mouseButtonStatus != 0);
-#endif
+    else if (isVirtualKeyboardSupported())
+    {
+        char inputBuffer[kPlayerNameLength + 1] = "";
+        uint8_t result = inputVirtualKeyboardText("Enter your name", kPlayerNameLength, inputBuffer);
+
+        if (result == 0)
+        {
+            drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, "                       ");
+            saveLastMouseAreaBitmap();
+            drawMouseCursor();
+            return;
+        }
+
+        const char *allowedCharacters = "0123456789QWERTYUIOPASDFGHJKLZXCVBNM -";
+
+        // Fill name with spaces, convert it to uppercase, and replace invalid characters with '-'
+        size_t inputIdx = strlen(inputBuffer) - 1;
+
+        for (size_t outputIdx = kPlayerNameLength - 1;
+             outputIdx >= kPlayerNameLength - strlen(inputBuffer);
+             --outputIdx, --inputIdx)
+        {
+            char inputCharacter = toupper(inputBuffer[inputIdx]);
+
+            if (strchr(allowedCharacters, inputCharacter) == NULL)
+            {
+                inputCharacter = '-';
+            }
+
+            newPlayerName[outputIdx] = inputCharacter;
+        }
+    }
+    else
+    {
+        do
+        {
+//loc_4AB7F:              ; CODE XREF: handleNewPlayerOptionClick+6Aj
+            getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
+        }
+        while (mouseButtonStatus != 0);
+
+        sprintf(newPlayerName, "PLAYER%2d", gNewPlayerEntryIndex + 1);
+        gNewPlayerNameLength = strlen(newPlayerName);
+    }
 
     // Completely empty name: ignore
     if (strcmp(newPlayerName, "        ") == 0)

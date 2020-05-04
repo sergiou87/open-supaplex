@@ -32,6 +32,7 @@ add_executable(${SHORT_NAME}
   ../src/file.c
   ../src/touchscreen.c
   ../src/logging.c
+  ../src/virtualKeyboard.c
 )
 
 target_compile_definitions(${SHORT_NAME}
@@ -66,6 +67,7 @@ target_link_libraries(${PROJECT_NAME}
   SceDisplay_stub
   SceCtrl_stub
   SceAudio_stub
+  SceAppUtil_stub
   SceSysmodule_stub
   SceGxm_stub
   SceCommonDialog_stub
