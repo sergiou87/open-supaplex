@@ -32,7 +32,7 @@ add_executable(${SHORT_NAME}
   ../src/file.c
   ../src/touchscreen.c
   ../src/logging.c
-  ../src/virtualKeyboard.c
+  ../src/psp2/psp2VirtualKeyboard.c
 )
 
 target_compile_definitions(${SHORT_NAME}

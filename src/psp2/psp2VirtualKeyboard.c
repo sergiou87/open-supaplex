@@ -15,22 +15,18 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "virtualKeyboard.h"
+#include "../virtualKeyboard.h"
 
 #include <SDL2/SDL.h>
 
-#ifdef __vita__
 #include <psp2/apputil.h>
 #include <psp2/display.h>
 #include <psp2/gxm.h>
 #include <psp2/gxt.h>
 #include <psp2/ime_dialog.h>
 #include <psp2/kernel/sysmem.h>
-#endif
 
-#include "logging.h"
-
-#if defined(__vita__)
+#include "../logging.h"
 
 static void utf16_to_utf8(const uint16_t *src, uint8_t *dst)
 {
@@ -113,12 +109,12 @@ typedef struct
     SceGxmSyncObject* sync;
     SceGxmColorSurface surf;
     SceUID uid;
-} displayBuffer;
+} DisplayBuffer;
 
 unsigned int backBufferIndex = 0;
 unsigned int frontBufferIndex = 0;
-/* could be converted as struct displayBuffer[] */
-displayBuffer dbuf[DISPLAY_BUFFER_COUNT];
+/* could be converted as struct DisplayBuffer[] */
+DisplayBuffer displayBuffers[DISPLAY_BUFFER_COUNT];
 
 void *dram_alloc(unsigned int size, SceUID *uid)
 {
@@ -129,39 +125,39 @@ void *dram_alloc(unsigned int size, SceUID *uid)
     return mem;
 }
 
-void gxm_vsync_cb(const void *callback_data)
+void initializeDisplayBuffer()
 {
-    sceDisplaySetFrameBuf(&(SceDisplayFrameBuf){sizeof(SceDisplayFrameBuf),
-        *((void **)callback_data),DISPLAY_STRIDE_IN_PIXELS, 0,
-        DISPLAY_WIDTH,DISPLAY_HEIGHT}, SCE_DISPLAY_SETBUF_NEXTFRAME);
-}
-
-void gxm_init()
-{
-    sceGxmInitialize(&(SceGxmInitializeParams){0,DISPLAY_MAX_PENDING_SWAPS,gxm_vsync_cb,sizeof(void *),SCE_GXM_DEFAULT_PARAMETER_BUFFER_SIZE});
     unsigned int i;
     for (i = 0; i < DISPLAY_BUFFER_COUNT; i++)
     {
-        dbuf[i].data = dram_alloc(4*DISPLAY_STRIDE_IN_PIXELS*DISPLAY_HEIGHT, &dbuf[i].uid);
-        sceGxmColorSurfaceInit(&dbuf[i].surf,SCE_GXM_COLOR_FORMAT_A8B8G8R8,SCE_GXM_COLOR_SURFACE_LINEAR,SCE_GXM_COLOR_SURFACE_SCALE_NONE,SCE_GXM_OUTPUT_REGISTER_SIZE_32BIT,DISPLAY_WIDTH,DISPLAY_HEIGHT,DISPLAY_STRIDE_IN_PIXELS,dbuf[i].data);
-        sceGxmSyncObjectCreate(&dbuf[i].sync);
+        displayBuffers[i].data = dram_alloc(4 * DISPLAY_STRIDE_IN_PIXELS * DISPLAY_HEIGHT, &displayBuffers[i].uid);
+        sceGxmColorSurfaceInit(&displayBuffers[i].surf,
+                               SCE_GXM_COLOR_FORMAT_A8B8G8R8,
+                               SCE_GXM_COLOR_SURFACE_LINEAR,
+                               SCE_GXM_COLOR_SURFACE_SCALE_NONE,
+                               SCE_GXM_OUTPUT_REGISTER_SIZE_32BIT,
+                               DISPLAY_WIDTH,
+                               DISPLAY_HEIGHT,
+                               DISPLAY_STRIDE_IN_PIXELS,
+                               displayBuffers[i].data);
+        sceGxmSyncObjectCreate(&displayBuffers[i].sync);
     }
 }
 
-void gxm_swap()
+void swapDisplayBuffer()
 {
-    sceGxmPadHeartbeat(&dbuf[backBufferIndex].surf, dbuf[backBufferIndex].sync);
-    sceGxmDisplayQueueAddEntry(dbuf[frontBufferIndex].sync, dbuf[backBufferIndex].sync, &dbuf[backBufferIndex].data);
+    sceGxmPadHeartbeat(&displayBuffers[backBufferIndex].surf, displayBuffers[backBufferIndex].sync);
+    sceGxmDisplayQueueAddEntry(displayBuffers[frontBufferIndex].sync,
+                               displayBuffers[backBufferIndex].sync, 
+                               &displayBuffers[backBufferIndex].data);
     frontBufferIndex = backBufferIndex;
     backBufferIndex = (backBufferIndex + 1) % DISPLAY_BUFFER_COUNT;
 }
 
-void gxm_term()
+void destroyDisplayBuffer()
 {
-    sceGxmTerminate();
-
     for (int i=0; i<DISPLAY_BUFFER_COUNT; ++i)
-        sceKernelFreeMemBlock(dbuf[i].uid);
+        sceKernelFreeMemBlock(displayBuffers[i].uid);
 }
 
 uint8_t inputVirtualKeyboardText(const char *title, uint16_t maxLength, char *outText)
@@ -200,7 +196,9 @@ uint8_t inputVirtualKeyboardText(const char *title, uint16_t maxLength, char *ou
         return 0;
     }
 
-    gxm_init();
+    initializeDisplayBuffer();
+
+    uint8_t success = 0;
 
     while (1)
     {
@@ -220,39 +218,30 @@ uint8_t inputVirtualKeyboardText(const char *title, uint16_t maxLength, char *ou
             {
                 // Convert UTF16 to UTF8
                 utf16_to_utf8(ime_input_text_utf16, ime_input_text_utf8);
+                ime_input_text_utf8[maxLength] = 0; // Make sure we don't copy more than maxLength bytes
                 strcpy(outText, ime_input_text_utf8);
-                return 1;
+                success = 1;
             }
 
             break;
         }
 
-        sceCommonDialogUpdate(&(SceCommonDialogUpdateParam){{
-            NULL,dbuf[backBufferIndex].data,0,0,
-            DISPLAY_WIDTH,DISPLAY_HEIGHT,DISPLAY_STRIDE_IN_PIXELS},
-            dbuf[backBufferIndex].sync});
+        sceCommonDialogUpdate(&(SceCommonDialogUpdateParam){
+            {
+                NULL,
+                displayBuffers[backBufferIndex].data, 
+                0, 0,
+                DISPLAY_WIDTH, DISPLAY_HEIGHT,
+                DISPLAY_STRIDE_IN_PIXELS
+            },
+            displayBuffers[backBufferIndex].sync
+        });
 
-        gxm_swap();
+        swapDisplayBuffer();
         sceDisplayWaitVblankStart();
     }
 
-    gxm_term();
+    destroyDisplayBuffer();
 
-    return 0;
+    return success;
 }
-#else
-uint8_t isRealKeyboardSupported(void)
-{
-    return 1;
-}
-
-uint8_t isVirtualKeyboardSupported(void)
-{
-    return 0;
-}
-
-uint8_t inputVirtualKeyboardText(const char *title, uint16_t maxLength, char *outText)
-{
-    return 0;
-}
-#endif

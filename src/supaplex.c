@@ -11155,20 +11155,23 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
         const char *allowedCharacters = "0123456789QWERTYUIOPASDFGHJKLZXCVBNM -";
 
         // Fill name with spaces, convert it to uppercase, and replace invalid characters with '-'
-        size_t inputIdx = strlen(inputBuffer) - 1;
+        size_t numberOfSpaces = kPlayerNameLength - strlen(inputBuffer);
 
-        for (size_t outputIdx = kPlayerNameLength - 1;
-             outputIdx >= kPlayerNameLength - strlen(inputBuffer);
-             --outputIdx, --inputIdx)
+        for (size_t idx = 0; idx < kPlayerNameLength; ++idx)
         {
-            char inputCharacter = toupper(inputBuffer[inputIdx]);
+            char inputCharacter = ' ';
 
-            if (strchr(allowedCharacters, inputCharacter) == NULL)
+            if (idx >= numberOfSpaces)
             {
-                inputCharacter = '-';
+                inputCharacter = toupper(inputBuffer[idx - numberOfSpaces]);
+
+                if (strchr(allowedCharacters, inputCharacter) == NULL)
+                {
+                    inputCharacter = '-';
+                }
             }
 
-            newPlayerName[outputIdx] = inputCharacter;
+            newPlayerName[idx] = inputCharacter;
         }
     }
     else
