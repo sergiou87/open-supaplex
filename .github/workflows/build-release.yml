@@ -1,0 +1,90 @@
+name: Build OpenSupaplex Release
+on:
+  push:
+    tags:
+      - v*
+jobs:
+  build-vita:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install VitaSDK
+      run: |
+        ./vita/ci-install-vitasdk.sh
+      shell: bash
+    - name: Build OpenSupaplex for PS Vita
+      run: |
+        ./vita/ci-build-vita.sh
+      shell: bash
+    - name: Upload PS Vita build
+      uses: actions/upload-artifact@v1
+      with:
+        name: vita-build
+        path: vita/build/OpenSupaplex.vpk
+  build-switch:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build OpenSupaplex for Nintendo Switch
+      run: |
+        ./switch/ci-install-devkitpro.sh
+        ./switch/ci-build-switch.sh
+      shell: bash
+    - name: Upload Nintendo Switch build
+      uses: actions/upload-artifact@v1
+      with:
+        name: switch-build
+        path: switch/OpenSupaplex-switch.zip
+  create-release:
+    needs: build-vita
+    runs-on: ubuntu-latest
+    steps:
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
+    - uses: actions/checkout@v1
+    - id: read_release_notes
+      run: |
+        CONTENTS=`cat changelog/${{ steps.get_version.outputs.VERSION }}.txt`
+        CONTENTS="${CONTENTS//'%'/'%25'}"
+        CONTENTS="${CONTENTS//$'\n'/'%0A'}"
+        CONTENTS="${CONTENTS//$'\r'/'%0D'}" 
+        echo "::set-output name=release_notes::${CONTENTS}"
+      shell: bash
+    - name: Download PS Vita Build Asset
+      uses: actions/download-artifact@v1
+      with:
+        name: vita-build
+    - name: Download Nintendo Switch Build Asset
+      uses: actions/download-artifact@v1
+      with:
+        name: switch-build
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: OpenSupaplex ${{ github.ref }}
+        body: ${{ steps.read_release_notes.outputs.release_notes }}
+        draft: false
+        prerelease: false
+    - name: Upload PS Vita Build Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: vita-build/OpenSupaplex.vpk
+        asset_name: OpenSupaplex-vita-${{ steps.get_version.outputs.VERSION }}.vpk
+        asset_content_type: application/binary
+    - name: Upload Nintendo Switch Build Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: switch-build/OpenSupaplex-switch.zip
+        asset_name: OpenSupaplex-switch-${{ steps.get_version.outputs.VERSION }}.zip
+        asset_content_type: application/zip
