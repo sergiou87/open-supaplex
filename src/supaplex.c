@@ -247,7 +247,7 @@ uint8_t gLevelListButtonPressed = 0; // byte_50918
 uint8_t gLevelListDownButtonPressed = 0; // byte_50916
 uint8_t gLevelListUpButtonPressed = 0; // byte_50917
 uint8_t gNewPlayerEntryIndex = 0; // byte_59820
-uint8_t gNumberOfDotsToShiftDataLeft = 0; // byte_510A6 Used for the scroll effect
+// uint8_t gNumberOfDotsToShiftDataLeft = 0; // byte_510A6 Used for the scroll effect
 uint8_t gNumberOfRemainingInfotrons = 0; // byte_5195A
 uint8_t gPlayerListButtonPressed = 0; // byte_50912
 uint8_t gPlayerListDownButtonPressed = 0; // byte_50910
@@ -4616,7 +4616,6 @@ void loadScreen2() // proc near       ; CODE XREF: start:loc_46F00p
 
 //loc_4792E:              //; CODE XREF: loadScreen2+76j
 //    word_51967 = gScreenPixels??; // points to where title1.dat was RENDERED
-//    gNumberOfDotsToShiftDataLeft = 0;
     ColorPalette title1DatPalette;
     convertPaletteDataToPalette(gTitle1PaletteData, title1DatPalette);
     setPalette(title1DatPalette);
@@ -4914,7 +4913,6 @@ void readTitleDatAndGraphics() // proc near  ; CODE XREF: start+2BBp
 {
 //  word_51967 = 0x4D84; // address where the bitmap will be rendered
     videoloop();
-//  gNumberOfDotsToShiftDataLeft = 0;
     FILE *file = openReadonlyFile("TITLE.DAT", "r");
 
     if (file == NULL)
@@ -6712,7 +6710,6 @@ void initializeGameInfo() // sub_48A20   proc near       ; CODE XREF: start+32F
 //    mov byte ptr word_510C1+1, 0
     word_510C1 = 0x0001;
     gAreEnemiesFrozen = 0;
-    gNumberOfDotsToShiftDataLeft = 0;
     gIsMurphyGoingThroughPortal &= 0xFF00; // mov byte ptr gIsMurphyGoingThroughPortal, 0
     gPlantedRedDiskCountdown = 0;
     gPlantedRedDiskPosition = 0;
@@ -6885,16 +6882,11 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         updatePlantedRedDisk();
         updateExplosionTimers();
         updateScrollOffset();
-        ax = gScrollOffsetX;
-        al &= 7;
-        gNumberOfDotsToShiftDataLeft = al;
 
 //loc_48D59:              ; CODE XREF: runLevel+19Bj
 //                ; runLevel+1D2j ...
         word_59B92 = gScrollOffsetY;
         word_59B90 = gScrollOffsetX;
-        al &= 7;
-        gNumberOfDotsToShiftDataLeft = al;
 
         if (gIsFlashingBackgroundModeEnabled != 0)
         {
@@ -6902,8 +6894,6 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         }
 
 //noFlashing4:              ; CODE XREF: runLevel+2D1j
-        gNumberOfDotsToShiftDataLeft = ah;
-
         drawCurrentLevelViewport(gCurrentPanelHeight); // Added by me
 
         if (fastMode != 1)
@@ -9623,8 +9613,6 @@ void sub_4A291() //   proc near       ; CODE XREF: handleGameUserInput+686p
     updateScrollOffset();
     word_59B92 = gScrollOffsetY;
     word_59B90 = gScrollOffsetX;
-    al = gScrollOffsetX & 7;
-    gNumberOfDotsToShiftDataLeft = al;
 
     videoloop();
 }
@@ -12865,7 +12853,6 @@ void prepareLevelDataForCurrentPlayer() // sub_4C34A   proc near       ; CODE XR
 void sub_4C407() //   proc near       ; CODE XREF: runMainMenu+5Dp
 {
     // 01ED:57A4
-    gNumberOfDotsToShiftDataLeft = 0;
     if (gShouldShowFailedLevelResultScreen != 0)
     {
         gShouldShowFailedLevelResultScreen = 0;
@@ -12877,7 +12864,6 @@ void sub_4C407() //   proc near       ; CODE XREF: runMainMenu+5Dp
     //    mov si, 6015h
         fadeToPalette(gPalettes[1]);
 
-        // gNumberOfDotsToShiftDataLeft = 0;
         videoloop();
 
         // This will prevent to leave traces of the options menu
@@ -12991,7 +12977,6 @@ void drawFailedLevelResultScreen() // sub_4C4F9   proc near       ; CODE XREF: s
 
 void scrollRightToNewScreen() // sub_4C5AF   proc near       ; CODE XREF: handleGfxTutorOptionClick+3p
 {
-//    gNumberOfDotsToShiftDataLeft = 0;
     videoloop();
 
     uint8_t screenPixelsBackup[kFullScreenFramebufferLength];
@@ -13217,13 +13202,11 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
     word_58465 = 0xEF98;
     if (word_58467 != 0)
     {
-//        goto loc_4C7EC; <- if word_58467 == 0
         drawMenuBackground(); // 01ED:5B4E
         gShouldAutoselectNextLevelToPlay = 1;
         prepareLevelDataForCurrentPlayer(); // 01ED:5B56
         drawMenuTitleAndDemoLevelResult(); // 01ED:5B59
 
-//        gNumberOfDotsToShiftDataLeft = 0;
         videoloop();
         fadeToPalette(gPalettes[1]); // 6015h
         word_58467 = 0;
