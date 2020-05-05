@@ -1863,9 +1863,9 @@ typedef struct {
 } MovingLevelTile;
 
 // Stores the same info as gCurrentLevel but with each byte separated by 0x00, it's done in readLevels for some unknown reason
-MovingLevelTile gCurrentLevelWord[levelDataLength]; // 0x1834
+MovingLevelTile gCurrentLevelWord[kLevelSize]; // 0x1834
 // And this is initialized to 0 in readLevels, and in memory it's supposed to exist right after gCurrentLevelWord
-Level gCurrentLevelAfterWord; // 0x2434
+int8_t gCurrentLevelExplosionTimers[kLevelSize]; // 0x2434
 
 uint16_t kOriginalDemoFileSizes[10] = { // word_599DC
     0x00CE, 0x016A, 0x0146, 0x00CD, 0x024D,
@@ -2921,7 +2921,7 @@ void sub_49D53(void);
 void drawNumberOfRemainingRedDisks(void);
 void clearNumberOfRemainingRedDisks(void);
 void updatePlantedRedDisk(void);
-void sub_4A5E0(void);
+void updateExplosionTimers(void);
 void sub_4A95F(void);
 void drawFailedLevelResultScreen(void);
 void handleZonkStateAfterFallingOneTile(uint16_t position);
@@ -5834,7 +5834,7 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
             // mov bx, si
             // shr bx, 1
             // mov byte ptr [bx+2434h], 6
-            gCurrentLevelAfterWord.tiles[position + kLevelWidth] = LevelTileTypeHardware;
+            gCurrentLevelExplosionTimers[position + kLevelWidth] = 6;
             return;
         }
 
@@ -6883,7 +6883,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 //noFlashing3:              ; CODE XREF: runLevel+F1j
         // 01ED:1F5B
         updatePlantedRedDisk();
-        sub_4A5E0();
+        updateExplosionTimers();
         updateScrollOffset();
         ax = gScrollOffsetX;
         al &= 7;
@@ -10050,26 +10050,25 @@ void updateExplosionTiles(uint16_t position) //loc_4A543:              ; DATA XR
     }
 }
 
-void sub_4A5E0() //   proc near       ; CODE XREF: runLevel+106p
+void updateExplosionTimers() // sub_4A5E0   proc near       ; CODE XREF: runLevel+106p
 {
     // 01ED:397D
-    // TODO: revisit to understand... this does something related to electrons?
     for (int i = 0; i < kLevelSize; ++i)
     {
-//loc_4A5E9:              ; CODE XREF: sub_4A5E0+25j
-        int8_t afterWordTile = gCurrentLevelAfterWord.tiles[i];
+//loc_4A5E9:              ; CODE XREF: updateExplosionTimers+25j
+        int8_t timer = gCurrentLevelExplosionTimers[i];
 
-        if (afterWordTile == 0)
+        if (timer == 0)
         {
             continue;
         }
 
-        if (afterWordTile < 0)
+        if (timer < 0)
         {
-//loc_4A608:              ; CODE XREF: sub_4A5E0+10j
-            gCurrentLevelAfterWord.tiles[i] = afterWordTile + 1;
+//loc_4A608:              ; CODE XREF: updateExplosionTimers+10j
+            gCurrentLevelExplosionTimers[i] = timer + 1;
 
-            if (gCurrentLevelAfterWord.tiles[i] == 0)
+            if (gCurrentLevelExplosionTimers[i] == 0)
             {
                 MovingLevelTile *tile = &gCurrentLevelWord[i];
                 tile->movingObject = 0xFF;
@@ -10079,9 +10078,9 @@ void sub_4A5E0() //   proc near       ; CODE XREF: runLevel+106p
         }
         else
         {
-            gCurrentLevelAfterWord.tiles[i] = afterWordTile - 1;
+            gCurrentLevelExplosionTimers[i] = timer - 1;
 
-            if (gCurrentLevelAfterWord.tiles[i] == 0)
+            if (gCurrentLevelExplosionTimers[i] == 0)
             {
                 detonateBigExplosion(i);
             }
@@ -10109,7 +10108,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
     //
     uint8_t mainMovingObject = 0;
     uint8_t mainTile = 0;
-    uint8_t mainAfterWordTile = 0;
+    uint8_t mainExplosionTimer = 0;
 
     if (currentTile->movingObject == 0 && currentTile->tile == LevelTileTypeHardware)
     {
@@ -10128,7 +10127,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
     {
         mainMovingObject = 0x80;
         mainTile = LevelTileTypeExplosion;
-        mainAfterWordTile = 0xF3; // 243
+        mainExplosionTimer = -13;
     }
     else
     {
@@ -10136,13 +10135,13 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
         // cx = 0x1F; // 31
         mainMovingObject = 0;
         mainTile = LevelTileTypeExplosion;
-        mainAfterWordTile = LevelTileTypeSportRight; // 13
+        mainExplosionTimer = 13;
     }
 
     // These have the tile-specific explosion info, which might differ (or not) from the main type
     uint8_t movingObject = mainMovingObject;
     uint8_t tile = mainTile;
-    uint8_t afterWordTile = mainAfterWordTile;
+    uint8_t explosionTimer = mainExplosionTimer;
 
 //loc_4A64C:              ; CODE XREF: detonateBigExplosion+26j
     uint8_t skipHardwareCheck7 = 0;
@@ -10155,7 +10154,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+3Ej ...
         if (aboveLeftTile->tile != LevelTileTypeHardware)
         {
-            gCurrentLevelAfterWord.tiles[position - kLevelWidth - 1] = afterWordTile; // mov [bx+23F7h], dh
+            gCurrentLevelExplosionTimers[position - kLevelWidth - 1] = explosionTimer; // mov [bx+23F7h], dh
         }
     }
     else if (aboveLeftTile->tile == LevelTileTypeZonk)
@@ -10173,14 +10172,14 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
     }
     else if (aboveLeftTile->tile == LevelTileTypeElectron)
     {
-        afterWordTile = 256 - afterWordTile; // dh = -dh;
+        explosionTimer = -explosionTimer; // dh = -dh;
         movingObject = 0x80;
         tile = LevelTileTypeExplosion;
 //loc_4A680:              ; CODE XREF: detonateBigExplosion+3Aj
 //                ; detonateBigExplosion+3Ej ...
         if (aboveLeftTile->tile != LevelTileTypeHardware)
         {
-            gCurrentLevelAfterWord.tiles[position - kLevelWidth - 1] = afterWordTile; // mov [bx+23F7h], dh
+            gCurrentLevelExplosionTimers[position - kLevelWidth - 1] = explosionTimer; // mov [bx+23F7h], dh
         }
     }
 //loc_4A676:              ; CODE XREF: detonateBigExplosion+4Ej
@@ -10192,7 +10191,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+3Ej ...
         if (aboveLeftTile->tile != LevelTileTypeHardware)
         {
-            gCurrentLevelAfterWord.tiles[position - kLevelWidth - 1] = afterWordTile; // mov [bx+23F7h], dh
+            gCurrentLevelExplosionTimers[position - kLevelWidth - 1] = explosionTimer; // mov [bx+23F7h], dh
         }
     }
 
@@ -10211,7 +10210,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
     // Restore to the main explosion type before evaluating the new tile
     movingObject = mainMovingObject;
     tile = mainTile;
-    afterWordTile = mainAfterWordTile;
+    explosionTimer = mainExplosionTimer;
 
 //loc_4A6A6:              ; CODE XREF: detonateBigExplosion:loc_4A690j
 //                ; detonateBigExplosion+7Bj ...
@@ -10225,7 +10224,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+95j ...
         if (aboveTile->tile != LevelTileTypeHardware)
         {
-            gCurrentLevelAfterWord.tiles[position - kLevelWidth] = afterWordTile; // mov [bx+23F8h], dh
+            gCurrentLevelExplosionTimers[position - kLevelWidth] = explosionTimer; // mov [bx+23F8h], dh
         }
     }
     else if (aboveTile->tile == LevelTileTypeZonk)
@@ -10242,14 +10241,14 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
     }
     else if (aboveTile->tile == LevelTileTypeElectron)
     {
-        afterWordTile = 256 - afterWordTile; // dh = -dh;
+        explosionTimer = -explosionTimer; // dh = -dh;
         movingObject = 0x80;
         tile = LevelTileTypeExplosion;
 //loc_4A6D7:              ; CODE XREF: detonateBigExplosion+91j
 //                ; detonateBigExplosion+95j ...
         if (aboveTile->tile != LevelTileTypeHardware)
         {
-            gCurrentLevelAfterWord.tiles[position - kLevelWidth] = afterWordTile; // mov [bx+23F8h], dh
+            gCurrentLevelExplosionTimers[position - kLevelWidth] = explosionTimer; // mov [bx+23F8h], dh
         }
     }
 //loc_4A6CD:              ; CODE XREF: detonateBigExplosion+A5j
@@ -10261,7 +10260,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+95j ...
         if (aboveTile->tile != LevelTileTypeHardware)
         {
-            gCurrentLevelAfterWord.tiles[position - kLevelWidth] = afterWordTile; // mov [bx+23F8h], dh
+            gCurrentLevelExplosionTimers[position - kLevelWidth] = explosionTimer; // mov [bx+23F8h], dh
         }
     }
 
@@ -10280,7 +10279,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
     // Restore to the main explosion type before evaluating the new tile
     movingObject = mainMovingObject;
     tile = mainTile;
-    afterWordTile = mainAfterWordTile;
+    explosionTimer = mainExplosionTimer;
 
 //loc_4A6FD:              ; CODE XREF: detonateBigExplosion:loc_4A6E7j
 //                ; detonateBigExplosion+D2j ...
@@ -10294,7 +10293,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+ECj ...
         if (aboveRightTile->tile != LevelTileTypeHardware)
         {
-            gCurrentLevelAfterWord.tiles[position - kLevelWidth + 1] = afterWordTile; // mov [bx+23F9h], dh
+            gCurrentLevelExplosionTimers[position - kLevelWidth + 1] = explosionTimer; // mov [bx+23F9h], dh
         }
     }
     else if (aboveRightTile->tile == LevelTileTypeZonk)
@@ -10311,14 +10310,14 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
     }
     else if (aboveRightTile->tile == LevelTileTypeElectron)
     {
-        afterWordTile = 256 - afterWordTile; // dh = -dh;
+        explosionTimer = -explosionTimer; // dh = -dh;
         movingObject = 0x80;
         tile = LevelTileTypeExplosion;
 //loc_4A72E:              ; CODE XREF: detonateBigExplosion+E8j
 //                ; detonateBigExplosion+ECj ...
         if (aboveRightTile->tile != LevelTileTypeHardware)
         {
-            gCurrentLevelAfterWord.tiles[position - kLevelWidth + 1] = afterWordTile; // mov [bx+23F9h], dh
+            gCurrentLevelExplosionTimers[position - kLevelWidth + 1] = explosionTimer; // mov [bx+23F9h], dh
         }
     }
 //loc_4A724:              ; CODE XREF: detonateBigExplosion+FCj
@@ -10330,7 +10329,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+ECj ...
         if (aboveRightTile->tile != LevelTileTypeHardware)
         {
-            gCurrentLevelAfterWord.tiles[position - kLevelWidth + 1] = afterWordTile; // mov [bx+23F9h], dh
+            gCurrentLevelExplosionTimers[position - kLevelWidth + 1] = explosionTimer; // mov [bx+23F9h], dh
         }
     }
 
@@ -10349,7 +10348,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
     // Restore to the main explosion type before evaluating the new tile
     movingObject = mainMovingObject;
     tile = mainTile;
-    afterWordTile = mainAfterWordTile;
+    explosionTimer = mainExplosionTimer;
 
 //loc_4A754:              ; CODE XREF: detonateBigExplosion:loc_4A73Ej
 //                ; detonateBigExplosion+129j ...
@@ -10363,7 +10362,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+143j ...
         if (leftTile->tile != LevelTileTypeHardware)
         {
-            gCurrentLevelAfterWord.tiles[position - 1] = afterWordTile; // mov [bx+2433h], dh
+            gCurrentLevelExplosionTimers[position - 1] = explosionTimer; // mov [bx+2433h], dh
         }
     }
     else if (leftTile->tile == LevelTileTypeZonk)
@@ -10380,14 +10379,14 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
     }
     else if (leftTile->tile == LevelTileTypeElectron)
     {
-        afterWordTile = 256 - afterWordTile; // dh = -dh;
+        explosionTimer = -explosionTimer; // dh = -dh;
         movingObject = 0x80;
         tile = LevelTileTypeExplosion;
 //loc_4A785:              ; CODE XREF: detonateBigExplosion+13Fj
 //                ; detonateBigExplosion+143j ...
         if (leftTile->tile != LevelTileTypeHardware)
         {
-            gCurrentLevelAfterWord.tiles[position - 1] = afterWordTile; // mov [bx+2433h], dh
+            gCurrentLevelExplosionTimers[position - 1] = explosionTimer; // mov [bx+2433h], dh
         }
     }
 //loc_4A77B:              ; CODE XREF: detonateBigExplosion+153j
@@ -10399,7 +10398,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+143j ...
         if (leftTile->tile != LevelTileTypeHardware)
         {
-            gCurrentLevelAfterWord.tiles[position - 1] = afterWordTile; // mov [bx+2433h], dh
+            gCurrentLevelExplosionTimers[position - 1] = explosionTimer; // mov [bx+2433h], dh
         }
     }
 
@@ -10418,7 +10417,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
     // Restore to the main explosion type before evaluating the new tile
     movingObject = mainMovingObject;
     tile = mainTile;
-    afterWordTile = mainAfterWordTile;
+    explosionTimer = mainExplosionTimer;
 
 //loc_4A7AB:              ; CODE XREF: detonateBigExplosion:loc_4A795j
 //                ; detonateBigExplosion+180j ...
@@ -10436,7 +10435,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+19Ej ...
         if (rightTile->tile != LevelTileTypeHardware)
         {
-            gCurrentLevelAfterWord.tiles[position + 1] = afterWordTile; // mov [bx+2435h], dh
+            gCurrentLevelExplosionTimers[position + 1] = explosionTimer; // mov [bx+2435h], dh
         }
     }
     else if (rightTile->tile == LevelTileTypeZonk)
@@ -10453,14 +10452,14 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
     }
     else if (rightTile->tile == LevelTileTypeElectron)
     {
-        afterWordTile = 256 - afterWordTile; // dh = -dh;
+        explosionTimer = -explosionTimer; // dh = -dh;
         movingObject = 0x80;
         tile = LevelTileTypeExplosion;
 //loc_4A7E0:              ; CODE XREF: detonateBigExplosion+19Aj
 //                ; detonateBigExplosion+19Ej ...
         if (rightTile->tile != LevelTileTypeHardware)
         {
-            gCurrentLevelAfterWord.tiles[position + 1] = afterWordTile; // mov [bx+2435h], dh
+            gCurrentLevelExplosionTimers[position + 1] = explosionTimer; // mov [bx+2435h], dh
         }
     }
 //loc_4A7D6:              ; CODE XREF: detonateBigExplosion+1AEj
@@ -10472,7 +10471,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+19Ej ...
         if (rightTile->tile != LevelTileTypeHardware)
         {
-            gCurrentLevelAfterWord.tiles[position + 1] = afterWordTile; // mov [bx+2435h], dh
+            gCurrentLevelExplosionTimers[position + 1] = explosionTimer; // mov [bx+2435h], dh
         }
     }
 
@@ -10491,7 +10490,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
     // Restore to the main explosion type before evaluating the new tile
     movingObject = mainMovingObject;
     tile = mainTile;
-    afterWordTile = mainAfterWordTile;
+    explosionTimer = mainExplosionTimer;
 
 //loc_4A806:              ; CODE XREF: detonateBigExplosion:loc_4A7F0j
 //                ; detonateBigExplosion+1DBj ...
@@ -10506,7 +10505,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+1F5j ...
         if (belowLeftTile->tile != LevelTileTypeHardware)
         {
-            gCurrentLevelAfterWord.tiles[position + kLevelWidth - 1] = afterWordTile; // mov [bx+246Fh], dh
+            gCurrentLevelExplosionTimers[position + kLevelWidth - 1] = explosionTimer; // mov [bx+246Fh], dh
         }
     }
     else if (belowLeftTile->tile == LevelTileTypeZonk)
@@ -10523,14 +10522,14 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
     }
     else if (belowLeftTile->tile == LevelTileTypeElectron)
     {
-        afterWordTile = 256 - afterWordTile; // dh = -dh;
+        explosionTimer = -explosionTimer; // dh = -dh;
         movingObject = 0x80;
         tile = LevelTileTypeExplosion;
 //loc_4A837:              ; CODE XREF: detonateBigExplosion+1F1j
 //                ; detonateBigExplosion+1F5j ...
         if (belowLeftTile->tile != LevelTileTypeHardware)
         {
-            gCurrentLevelAfterWord.tiles[position + kLevelWidth - 1] = afterWordTile; // mov [bx+246Fh], dh
+            gCurrentLevelExplosionTimers[position + kLevelWidth - 1] = explosionTimer; // mov [bx+246Fh], dh
         }
     }
 //loc_4A82D:              ; CODE XREF: detonateBigExplosion+205j
@@ -10541,7 +10540,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+1F5j ...
         if (belowLeftTile->tile != LevelTileTypeHardware)
         {
-            gCurrentLevelAfterWord.tiles[position + kLevelWidth - 1] = afterWordTile; // mov [bx+246Fh], dh
+            gCurrentLevelExplosionTimers[position + kLevelWidth - 1] = explosionTimer; // mov [bx+246Fh], dh
         }
     }
 
@@ -10560,7 +10559,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
     // Restore to the main explosion type before evaluating the new tile
     movingObject = mainMovingObject;
     tile = mainTile;
-    afterWordTile = mainAfterWordTile;
+    explosionTimer = mainExplosionTimer;
 
 //loc_4A85D:              ; CODE XREF: detonateBigExplosion:loc_4A847j
 //                ; detonateBigExplosion+232j ...
@@ -10575,7 +10574,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+24Cj ...
         if (belowTile->tile != LevelTileTypeHardware)
         {
-            gCurrentLevelAfterWord.tiles[position + kLevelWidth] = afterWordTile; // mov [bx+2470h], dh
+            gCurrentLevelExplosionTimers[position + kLevelWidth] = explosionTimer; // mov [bx+2470h], dh
         }
     }
     else if (belowTile->tile == LevelTileTypeZonk)
@@ -10592,14 +10591,14 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
     }
     else if (belowTile->tile == LevelTileTypeElectron)
     {
-        afterWordTile = 256 - afterWordTile; // dh = -dh;
+        explosionTimer = -explosionTimer; // dh = -dh;
         movingObject = 0x80;
         tile = LevelTileTypeExplosion;
 //loc_4A88E:              ; CODE XREF: detonateBigExplosion+248j
 //                ; detonateBigExplosion+24Cj ...
         if (belowTile->tile != LevelTileTypeHardware)
         {
-            gCurrentLevelAfterWord.tiles[position + kLevelWidth] = afterWordTile; // mov [bx+2470h], dh
+            gCurrentLevelExplosionTimers[position + kLevelWidth] = explosionTimer; // mov [bx+2470h], dh
         }
     }
 //loc_4A884:              ; CODE XREF: detonateBigExplosion+25Cj
@@ -10611,7 +10610,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+24Cj ...
         if (belowTile->tile != LevelTileTypeHardware)
         {
-            gCurrentLevelAfterWord.tiles[position + kLevelWidth] = afterWordTile; // mov [bx+2470h], dh
+            gCurrentLevelExplosionTimers[position + kLevelWidth] = explosionTimer; // mov [bx+2470h], dh
         }
     }
 
@@ -10638,7 +10637,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+2A3j ...
         if (belowRightTile->tile != LevelTileTypeHardware)
         {
-            gCurrentLevelAfterWord.tiles[position + kLevelWidth + 1] = afterWordTile; // mov [bx+2471h], dh
+            gCurrentLevelExplosionTimers[position + kLevelWidth + 1] = explosionTimer; // mov [bx+2471h], dh
         }
     }
     else if (belowRightTile->tile == LevelTileTypeZonk)
@@ -10661,14 +10660,14 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
     }
     else if (belowRightTile->tile == LevelTileTypeElectron)
     {
-        afterWordTile = 256 - afterWordTile; // dh = -dh;
+        explosionTimer = -explosionTimer; // dh = -dh;
         movingObject = 0x80;
         tile = LevelTileTypeExplosion;
 //loc_4A8E5:              ; CODE XREF: detonateBigExplosion+29Fj
 //                ; detonateBigExplosion+2A3j ...
         if (belowRightTile->tile != LevelTileTypeHardware)
         {
-            gCurrentLevelAfterWord.tiles[position + kLevelWidth + 1] = afterWordTile; // mov [bx+2471h], dh
+            gCurrentLevelExplosionTimers[position + kLevelWidth + 1] = explosionTimer; // mov [bx+2471h], dh
         }
     }
 //loc_4A8DB:              ; CODE XREF: detonateBigExplosion+2B3j
@@ -10680,7 +10679,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+2A3j ...
         if (belowRightTile->tile != LevelTileTypeHardware)
         {
-            gCurrentLevelAfterWord.tiles[position + kLevelWidth + 1] = afterWordTile; // mov [bx+2471h], dh
+            gCurrentLevelExplosionTimers[position + kLevelWidth + 1] = explosionTimer; // mov [bx+2471h], dh
         }
     }
 
@@ -14558,7 +14557,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
         tile->movingObject = 0;
     }
 
-    memset(&gCurrentLevelAfterWord, 0, sizeof(gCurrentLevelAfterWord)); // rep stosb
+    memset(&gCurrentLevelExplosionTimers, 0, sizeof(gCurrentLevelExplosionTimers)); // rep stosb
 
     if (gIsPlayingDemo == 0
         || (word_599D8 & 0xFF) != 0
