@@ -14514,6 +14514,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
     {
 //loc_4D679:              ; CODE XREF: readLevels+121j
         strcpy(gCurrentDemoLevelIdentifier, "BIN");
+        levelName += 4;
     }
     else if (byte_599D4 == 0)
     {
