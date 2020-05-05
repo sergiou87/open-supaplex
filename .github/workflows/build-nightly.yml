@@ -7,36 +7,14 @@ jobs:
   build-vita:
     runs-on: ubuntu-18.04
     steps:
+    - uses: actions/checkout@v1
     - name: Install VitaSDK
       run: |
-        apt-get update && apt-get install make git-core cmake python
-        rm -rf vdpm # debug only, remove me
-        git clone https://github.com/vitasdk/vdpm
-        cd vdpm
-        export VITASDK=/usr/local/vitasdk
-        export PATH=$VITASDK/bin:$PATH # add vitasdk tool to $PATH
-        ./bootstrap-vitasdk.sh
-        ./install-all.sh
-      shell: bash
-    - uses: actions/checkout@v1
-    - name: Bundle OpenSupaplex
-      run: |
-        cd vita
-        mkdir -p resources
-        wget https://cdn.chills.co.za/supaplex.zip
-        unzip supaplex.zip -d resources/
-        rm resources/*.exe
+        ./vita/ci-install-vitasdk.sh
       shell: bash
     - name: Build OpenSupaplex for PS Vita
       run: |
-        export VITASDK=/usr/local/vitasdk
-        export PATH=$VITASDK/bin:$PATH # add vitasdk tool to $PATH
-        cd vita
-        rm -rf build # debug only, remove me
-        mkdir build
-        cd build
-        cmake ..
-        make -j8
+        ./vita/ci-build-vita.sh
       shell: bash
     - name: Deploy Nightly
       uses: WebFreak001/deploy-nightly@v1.0.3
@@ -52,31 +30,14 @@ jobs:
   build-switch:
     runs-on: ubuntu-18.04
     steps:
-    - name: Install pacman
-      run: |
-        wget https://github.com/devkitPro/pacman/releases/latest/download/devkitpro-pacman.deb
-        sudo dpkg -i devkitpro-pacman.deb
-      shell: bash
+    - uses: actions/checkout@v1
     - name: Install devkitPro
       run: |
-        sudo dkp-pacman -S switch-dev switch-sdl2 --noconfirm
+        ./switch/ci-install-devkitpro.sh
       shell: bash
-    - uses: actions/checkout@v1
     - name: Build OpenSupaplex
       run: |
-        source /etc/profile.d/devkit-env.sh
-        cd switch
-        make -j8
-      shell: bash
-    - name: Bundle OpenSupaplex for Nintendo Switch
-      run: |
-        cd switch
-        mkdir -p switch/OpenSupaplex
-        mv OpenSupaplex.nro switch/OpenSupaplex/OpenSupaplex.nro
-        wget https://cdn.chills.co.za/supaplex.zip
-        unzip supaplex.zip -d switch/OpenSupaplex/
-        rm switch/OpenSupaplex/*.exe
-        zip -r OpenSupaplex-switch.zip switch
+        ./switch/ci-build-switch.sh
       shell: bash
     - name: Deploy Nightly
       uses: WebFreak001/deploy-nightly@v1.0.3
