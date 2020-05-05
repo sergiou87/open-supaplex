@@ -21,10 +21,9 @@
 
 #include <psp2/apputil.h>
 #include <psp2/display.h>
-#include <psp2/gxm.h>
 #include <psp2/gxt.h>
 #include <psp2/ime_dialog.h>
-#include <psp2/kernel/sysmem.h>
+#include <vita2d.h>
 
 #include "../logging.h"
 
@@ -96,70 +95,6 @@ uint8_t isVirtualKeyboardSupported(void)
     return 1;
 }
 
-#define ALIGN(x, a)    (((x) + ((a) - 1)) & ~((a) - 1))
-#define DISPLAY_WIDTH            960
-#define DISPLAY_HEIGHT            544
-#define DISPLAY_STRIDE_IN_PIXELS    1024
-#define DISPLAY_BUFFER_COUNT        2
-#define DISPLAY_MAX_PENDING_SWAPS    1
-
-typedef struct
-{
-    void* data;
-    SceGxmSyncObject* sync;
-    SceGxmColorSurface surf;
-    SceUID uid;
-} DisplayBuffer;
-
-unsigned int backBufferIndex = 0;
-unsigned int frontBufferIndex = 0;
-/* could be converted as struct DisplayBuffer[] */
-DisplayBuffer displayBuffers[DISPLAY_BUFFER_COUNT];
-
-void *dram_alloc(unsigned int size, SceUID *uid)
-{
-    void *mem;
-    *uid = sceKernelAllocMemBlock("gpu_mem", SCE_KERNEL_MEMBLOCK_TYPE_USER_CDRAM_RW, ALIGN(size,256*1024), NULL);
-    sceKernelGetMemBlockBase(*uid, &mem);
-    sceGxmMapMemory(mem, ALIGN(size,256*1024), SCE_GXM_MEMORY_ATTRIB_READ | SCE_GXM_MEMORY_ATTRIB_WRITE);
-    return mem;
-}
-
-void initializeDisplayBuffer()
-{
-    unsigned int i;
-    for (i = 0; i < DISPLAY_BUFFER_COUNT; i++)
-    {
-        displayBuffers[i].data = dram_alloc(4 * DISPLAY_STRIDE_IN_PIXELS * DISPLAY_HEIGHT, &displayBuffers[i].uid);
-        sceGxmColorSurfaceInit(&displayBuffers[i].surf,
-                               SCE_GXM_COLOR_FORMAT_A8B8G8R8,
-                               SCE_GXM_COLOR_SURFACE_LINEAR,
-                               SCE_GXM_COLOR_SURFACE_SCALE_NONE,
-                               SCE_GXM_OUTPUT_REGISTER_SIZE_32BIT,
-                               DISPLAY_WIDTH,
-                               DISPLAY_HEIGHT,
-                               DISPLAY_STRIDE_IN_PIXELS,
-                               displayBuffers[i].data);
-        sceGxmSyncObjectCreate(&displayBuffers[i].sync);
-    }
-}
-
-void swapDisplayBuffer()
-{
-    sceGxmPadHeartbeat(&displayBuffers[backBufferIndex].surf, displayBuffers[backBufferIndex].sync);
-    sceGxmDisplayQueueAddEntry(displayBuffers[frontBufferIndex].sync,
-                               displayBuffers[backBufferIndex].sync, 
-                               &displayBuffers[backBufferIndex].data);
-    frontBufferIndex = backBufferIndex;
-    backBufferIndex = (backBufferIndex + 1) % DISPLAY_BUFFER_COUNT;
-}
-
-void destroyDisplayBuffer()
-{
-    for (int i=0; i<DISPLAY_BUFFER_COUNT; ++i)
-        sceKernelFreeMemBlock(displayBuffers[i].uid);
-}
-
 uint8_t inputVirtualKeyboardText(const char *title, uint16_t maxLength, char *outText)
 {
     static uint16_t ime_title_utf16[SCE_IME_DIALOG_MAX_TITLE_LENGTH];
@@ -196,14 +131,16 @@ uint8_t inputVirtualKeyboardText(const char *title, uint16_t maxLength, char *ou
         return 0;
     }
 
-    initializeDisplayBuffer();
-
     uint8_t success = 0;
+    uint8_t dialogRunning = 1;
 
-    while (1)
+    while (dialogRunning)
     {
         SDL_Event event;
         while (SDL_PollEvent(&event)) { };
+
+        vita2d_start_drawing();
+        vita2d_clear_screen();
 
         SceCommonDialogStatus status = sceImeDialogGetStatus();
         if (status == SCE_COMMON_DIALOG_STATUS_FINISHED)
@@ -223,25 +160,14 @@ uint8_t inputVirtualKeyboardText(const char *title, uint16_t maxLength, char *ou
                 success = 1;
             }
 
-            break;
+            dialogRunning = 0;
         }
 
-        sceCommonDialogUpdate(&(SceCommonDialogUpdateParam){
-            {
-                NULL,
-                displayBuffers[backBufferIndex].data, 
-                0, 0,
-                DISPLAY_WIDTH, DISPLAY_HEIGHT,
-                DISPLAY_STRIDE_IN_PIXELS
-            },
-            displayBuffers[backBufferIndex].sync
-        });
-
-        swapDisplayBuffer();
+        vita2d_end_drawing();
+        vita2d_common_dialog_update();
+        vita2d_swap_buffers();
         sceDisplayWaitVblankStart();
     }
-
-    destroyDisplayBuffer();
 
     return success;
 }
