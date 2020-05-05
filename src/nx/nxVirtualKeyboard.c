@@ -36,14 +36,16 @@ uint8_t isVirtualKeyboardSupported(void)
 
 static const char *kAllowedCharacters = "0123456789QWERTYUIOPASDFGHJKLZXCVBNM -";
 
-// TextCheck callback, this can be removed when not using TextCheck.
-SwkbdTextCheckResult validate_text(char *tmp_string, size_t tmp_string_size)
+SwkbdTextCheckResult validateInputText(char *inputText, size_t errorTextMaxLength)
 {
+    // inputText is used for outputting an error if validation fails.
+    // errorTextMaxLength is the size of the inputText when used as a buffer to output errors. From what I've seen it's 15... ¬_¬'
+
     uint8_t containsInvalidCharacters = 0;
-    size_t textLength = strlen(tmp_string);
+    size_t textLength = strlen(inputText);
     for (size_t idx = 0; idx < textLength; ++idx)
     {
-        char uppercaseChar = toupper(tmp_string[idx]);
+        char uppercaseChar = toupper(inputText[idx]);
         if (strchr(kAllowedCharacters, uppercaseChar) == NULL)
         {
             containsInvalidCharacters = 1;
@@ -53,13 +55,13 @@ SwkbdTextCheckResult validate_text(char *tmp_string, size_t tmp_string_size)
 
     if (containsInvalidCharacters)
     {
-        snprintf(tmp_string, tmp_string_size, "Invalid symbol");
+        snprintf(inputText, errorTextMaxLength, "Invalid symbol");
         return SwkbdTextCheckResult_Bad;
     }
 
     if (textLength > gCurrentKeyboardMaxLength)
     {
-        snprintf(tmp_string, tmp_string_size, "Too long");
+        snprintf(inputText, errorTextMaxLength, "Too long");
         return SwkbdTextCheckResult_Bad;
     }
 
@@ -79,24 +81,11 @@ uint8_t inputVirtualKeyboardText(const char *title, uint16_t maxLength, char *ou
 
     if (R_SUCCEEDED(rc)) 
     {
-        // Select a Preset to use, if any.
         swkbdConfigMakePresetDefault(&kbd);
-        //swkbdConfigMakePresetPassword(&kbd);
-        //swkbdConfigMakePresetUserName(&kbd);
-        //swkbdConfigMakePresetDownloadCode(&kbd);
-
-        // Optional, set any text if you want (see swkbd.h).
-        //swkbdConfigSetOkButtonText(&kbd, "Submit");
-        //swkbdConfigSetLeftOptionalSymbolKey(&kbd, "a");
-        //swkbdConfigSetRightOptionalSymbolKey(&kbd, "b");
-        //swkbdConfigSetHeaderText(&kbd, "Header");
-        //swkbdConfigSetSubText(&kbd, "Sub");
         swkbdConfigSetGuideText(&kbd, title);
-
-        swkbdConfigSetTextCheckCallback(&kbd, validate_text);//Optional, can be removed if not using TextCheck.
-
-        // Set the initial string if you want.
         swkbdConfigSetInitialText(&kbd, outText);
+
+        swkbdConfigSetTextCheckCallback(&kbd, validateInputText); 
 
         // You can also use swkbdConfigSet*() funcs if you want.
 
@@ -106,8 +95,6 @@ uint8_t inputVirtualKeyboardText(const char *title, uint16_t maxLength, char *ou
 
         if (R_SUCCEEDED(rc))
         {
-            spLog("out str: %s\n", tmpoutstr);
-
             tmpoutstr[maxLength] = 0;
             strncpy(outText, tmpoutstr, maxLength);
 
