@@ -8255,7 +8255,7 @@ void loc_49949() //:              ; CODE XREF: handleGameUserInput+E1j
     }
 
 //loc_499C8:              ; CODE XREF: handleGameUserInput+454j
-    FILE *file = openWritableFile("SAVEGAME.SAV", "w");
+    FILE *file = openWritableFile(gSavegameSavFilename, "w");
     if (file == NULL)
     {
         loc_49C28();
@@ -11347,8 +11347,6 @@ void handleSkipLevelOptionClick() // sub_4ADFF  proc near
     {
         byte_510BB = 2;
         changePlayerCurrentLevelState(); // 01ED:4275
-        savePlayerListData();
-        saveHallOfFameData();
         gShouldAutoselectNextLevelToPlay = 0;
         prepareLevelDataForCurrentPlayer();
     }
@@ -13759,7 +13757,7 @@ void drawOptionsMenuLine(ButtonBorderDescriptor border, uint8_t color, uint8_t *
     drawMouseCursor();
 }
 
-void savePlayerListData() //   proc near       ; CODE XREF: handleNewPlayerOptionClick+1D5p
+void savePlayerListData() // sub_4CFB2   proc near       ; CODE XREF: handleNewPlayerOptionClick+1D5p
 //                    ; handleDeletePlayerOptionClick+CEp ...
 {
     if (byte_59B85 != 0)
@@ -14136,6 +14134,10 @@ void changePlayerCurrentLevelState() // sub_4D24D  proc near       ; CODE XREF: 
     currentPlayerEntry->levelState[gCurrentSelectedLevelIndex - 1] = previousValue;
     gCurrentSelectedLevelIndex++;
     updateHallOfFameEntries(); // 01ED:6618
+
+    // Added by me to prevent losing progress when switching levelsets after finishing a level
+    savePlayerListData();
+    saveHallOfFameData();
 }
 
 void initializeFadePalette() //   proc near       ; CODE XREF: start+296p
