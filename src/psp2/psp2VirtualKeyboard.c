@@ -26,6 +26,7 @@
 #include <vita2d.h>
 
 #include "../logging.h"
+#include "../video.h"
 
 static void utf16_to_utf8(const uint16_t *src, uint8_t *dst)
 {
@@ -140,7 +141,7 @@ uint8_t inputVirtualKeyboardText(const char *title, uint16_t maxLength, char *ou
         while (SDL_PollEvent(&event)) { };
 
         vita2d_start_drawing();
-        vita2d_clear_screen();
+        render();
 
         SceCommonDialogStatus status = sceImeDialogGetStatus();
         if (status == SCE_COMMON_DIALOG_STATUS_FINISHED)
