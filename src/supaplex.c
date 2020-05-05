@@ -24,6 +24,7 @@
 #include "file.h"
 #include "logging.h"
 #include "touchscreen.h"
+#include "video.h"
 #include "virtualKeyboard.h"
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
@@ -31,8 +32,6 @@
 #define CLAMP(v, a, b) MIN(MAX(a, v), b)
 #define SWAP(x, y, __type) do { __type __temp__ = x; x = y; y = __temp__; } while (0)
 
-#define kScreenWidth 320
-#define kScreenHeight 200
 
 // title1DataBuffer -> A000:4DAC - A000:CAAC
 // title2DataBuffer -> 0x4DD4 - 0xCAD4
@@ -1897,11 +1896,9 @@ SoundType sndType = SoundTypeNone;
 SoundType musType = SoundTypeInternalStandard;
 uint8_t soundEnabled = 0;
 
-#define kNumberOfColors 16
 #define kPaleteDataSize (kNumberOfColors * 4)
 #define kNumberOfPalettes 4
 
-typedef SDL_Color ColorPalette[kNumberOfColors];
 typedef uint8_t ColorPaletteData[kPaleteDataSize];
 
 #define kBitmapFontCharacterHeight 7
@@ -2762,14 +2759,6 @@ static const FrameBasedMovingFunction kSnikSnakMovingFunctions[48] = {
     updateSnikSnakMovementRight,
 };
 
-SDL_Surface *gScreenSurface = NULL;
-uint8_t *gScreenPixels = NULL;
-SDL_Window *gWindow = NULL;
-SDL_Rect gWindowViewport;
-SDL_Renderer *gRenderer = NULL;
-SDL_Texture *gTexture = NULL;
-SDL_Surface *gTextureSurface = NULL;
-
 #define kFixedBitmapWidth 640
 #define kFixedBitmapHeight 16
 uint8_t gFixedDecodedBitmapData[kFixedBitmapWidth * kFixedBitmapHeight];
@@ -2789,11 +2778,9 @@ uint16_t ax, bx, cx, dx, ds, cs, es, bp, sp, di, si;
 
 void startTrackingRenderDeltaTime(void);
 uint32_t updateRenderDeltaTime(void);
-void updateWindowViewport(void);
-int windowResizingEventWatcher(void* data, SDL_Event* event);
 void emulateClock(void);
 void handleSDLEvents(void);
-void replaceCurrentPaletteColor(uint8_t index, SDL_Color color);
+void replaceCurrentPaletteColor(uint8_t index, Color color);
 void setPalette(ColorPalette palette);
 void fadeToPalette(ColorPalette palette);
 void readTitleDatAndGraphics(void);
@@ -2938,13 +2925,6 @@ void drawLevelViewport(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
 void drawCurrentLevelViewport(uint16_t panelHeight);
 void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, uint16_t height, uint16_t dstX, uint16_t dstY);
 
-#ifdef __vita__
-static const int kWindowWidth = kScreenWidth;
-static const int kWindowHeight = kScreenHeight;
-#else
-static const int kWindowWidth = kScreenWidth * 4;
-static const int kWindowHeight = kScreenHeight * 4;
-#endif
 
 //         public start
 int main(int argc, const char * argv[])
@@ -2954,49 +2934,10 @@ int main(int argc, const char * argv[])
 #endif
 
     initializeLogging();
-
-    int ret = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_JOYSTICK);
-    if (ret)
-    {
-        spLog("SDL_Init failed with %d", ret);
-        exit(1);
-    }
-
-    gWindow = SDL_CreateWindow("OpenSupaplex",
-                               SDL_WINDOWPOS_UNDEFINED,
-                               SDL_WINDOWPOS_UNDEFINED,
-                               kWindowWidth,
-                               kWindowHeight,
-#if defined(__SWITCH__) || defined(__vita__)
-                               SDL_WINDOW_FULLSCREEN);
-#else
-                               0);
-#endif
-
-    if (gWindow == NULL)
-    {
-        spLog("Could not create a window: %s", SDL_GetError());
-        return -1;
-    }
-
-    SDL_SetWindowResizable(gWindow, SDL_TRUE);
-    SDL_AddEventWatch(windowResizingEventWatcher, gWindow);
-
-    gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_PRESENTVSYNC);
-
-    gTexture = SDL_CreateTexture(gRenderer,
-                                             SDL_PIXELFORMAT_ARGB32,
-                                             SDL_TEXTUREACCESS_STREAMING,
-                                             kScreenWidth, kScreenHeight);
-
-    gTextureSurface = SDL_CreateRGBSurfaceWithFormat(0, kScreenWidth, kScreenHeight, 8, SDL_PIXELFORMAT_ARGB32);
-
-    gScreenSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, kScreenWidth, kScreenHeight, 8, 0, 0, 0, 0);
-    gScreenPixels = (uint8_t *)gScreenSurface->pixels;
+    initializeVideo();
 
     handleSDLEvents();
 
-    updateWindowViewport();
 
 /*
 //; FUNCTION CHUNK AT 027F SIZE 00000217 BYTES
@@ -3776,13 +3717,8 @@ exit:                   //; CODE XREF: readConfig:loc_474BBj
 */
 
         // Tidy up
-        SDL_DelEventWatch(windowResizingEventWatcher, gWindow);
-        SDL_FreeSurface(gTextureSurface);
-        SDL_DestroyTexture(gTexture);
-        SDL_DestroyRenderer(gRenderer);
-        SDL_DestroyWindow(gWindow);
         destroyLogging();
-        SDL_Quit();
+        destroyVideo();
 
         return 0;
 
@@ -3983,8 +3919,7 @@ void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9
 
     if (gIsLeftAltPressed && gIsEnterPressed)
     {
-        uint8_t isFullscreen = SDL_GetWindowFlags(gWindow) & SDL_WINDOW_FULLSCREEN;
-        SDL_SetWindowFullscreen(gWindow, isFullscreen ? 0 : SDL_WINDOW_FULLSCREEN);
+        toggleFullscreen();
     }
 
 //storeKey:               ; CODE XREF: int9handler+2Bj
@@ -6859,14 +6794,14 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 //loc_48B78:              ; CODE XREF: runLevel+B8j
         if (gIsFlashingBackgroundModeEnabled != 0)
         {
-            replaceCurrentPaletteColor(0, (SDL_Color) { 0x35, 0x35, 0x35 });
+            replaceCurrentPaletteColor(0, (Color) { 0x35, 0x35, 0x35 });
         }
 
 //noFlashing:              ; CODE XREF: runLevel+C2j
         updateMovingObjects(); // 01ED:1F28
         if (gIsFlashingBackgroundModeEnabled != 0)
         {
-            replaceCurrentPaletteColor(0, (SDL_Color) { 0x21, 0x21, 0x21 });
+            replaceCurrentPaletteColor(0, (Color) { 0x21, 0x21, 0x21 });
         }
 
 //noFlashing2:              ; CODE XREF: runLevel+D8j
@@ -6874,7 +6809,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         clearNumberOfRemainingRedDisks();
         if (gIsFlashingBackgroundModeEnabled != 0)
         {
-            replaceCurrentPaletteColor(0, (SDL_Color) { 0x2d, 0x21, 0x0f });
+            replaceCurrentPaletteColor(0, (Color) { 0x2d, 0x21, 0x0f });
         }
 
 //noFlashing3:              ; CODE XREF: runLevel+F1j
@@ -6890,7 +6825,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 
         if (gIsFlashingBackgroundModeEnabled != 0)
         {
-            replaceCurrentPaletteColor(0, (SDL_Color) { 0x3f, 0x3f, 0x3f });
+            replaceCurrentPaletteColor(0, (Color) { 0x3f, 0x3f, 0x3f });
         }
 
 //noFlashing4:              ; CODE XREF: runLevel+2D1j
@@ -6926,7 +6861,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 //loc_48DCD:              ; CODE XREF: runLevel+2FCj
         if (gIsFlashingBackgroundModeEnabled != 0)
         {
-            replaceCurrentPaletteColor(0, (SDL_Color) { 0, 0, 0 });
+            replaceCurrentPaletteColor(0, (Color) { 0, 0, 0 });
         }
 
 //noFlashing5:              ; CODE XREF: runLevel+317j
@@ -6979,7 +6914,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
     gAdditionalScrollOffsetY = 0;
     gIsFlashingBackgroundModeEnabled = 0;
     gDebugExtraRenderDelay = 1;
-    replaceCurrentPaletteColor(0, (SDL_Color) { 0, 0, 0 });
+    replaceCurrentPaletteColor(0, (Color) { 0, 0, 0 });
 }
 
 // TODO: seems to be the function that reads joystick input. worth keeping it or should I just delete it?
@@ -7692,7 +7627,7 @@ void sub_4945D() //   proc near       ; CODE XREF: handleGameUserInput+294p
     gIsFlashingBackgroundModeEnabled = 0;
     gDebugExtraRenderDelay = 1;
 
-    replaceCurrentPaletteColor(0, (SDL_Color) { 0, 0, 0 });
+    replaceCurrentPaletteColor(0, (Color) { 0, 0, 0 });
 
     if (gIsRecordingDemo != 0)
     {
@@ -8710,7 +8645,7 @@ void loc_49A89() // :              ; CODE XREF: handleGameUserInput+3FAj
     gAdditionalScrollOffsetY = 0;
     gIsFlashingBackgroundModeEnabled = 0;
     gDebugExtraRenderDelay = 1;
-    replaceCurrentPaletteColor(0, (SDL_Color) { 0, 0, 0 });
+    replaceCurrentPaletteColor(0, (Color) { 0, 0, 0 });
     generateRandomSeedFromClock();
     generateRandomNumber();
 //    mov si, 60D5h
@@ -8776,7 +8711,7 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
         gAdditionalScrollOffsetY = 0;
         gIsFlashingBackgroundModeEnabled = 0;
         gDebugExtraRenderDelay = 1;
-        replaceCurrentPaletteColor(0, (SDL_Color) { 0, 0, 0 });
+        replaceCurrentPaletteColor(0, (Color) { 0, 0, 0 });
 
         drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 304, 14, 6, "--"); // Debug mode disabled
         byte_5197C = 0x46; // 70 or '&'
@@ -8984,13 +8919,13 @@ void updateMovingObjects() // gameloop   proc near       ; CODE XREF: runLevel:n
 
     if (gIsFlashingBackgroundModeEnabled != 0)
     {
-        replaceCurrentPaletteColor(0, (SDL_Color) { 0x3f, 0x3f, 0x21 });
+        replaceCurrentPaletteColor(0, (Color) { 0x3f, 0x3f, 0x21 });
     }
 
 //loc_49E14:
     if (gIsFlashingBackgroundModeEnabled != 0)
     {
-        replaceCurrentPaletteColor(0, (SDL_Color) { 0x3f, 0x21, 0x21 });
+        replaceCurrentPaletteColor(0, (Color) { 0x3f, 0x21, 0x21 });
     }
 
 //loc_49E33:
@@ -9813,7 +9748,7 @@ void sub_4A3E9() //   proc near       ; CODE XREF: handleGameUserInput+14Ep
     gAdditionalScrollOffsetY = 0;
     gIsFlashingBackgroundModeEnabled = 0;
     gDebugExtraRenderDelay = 1;
-    replaceCurrentPaletteColor(0, (SDL_Color) { 0, 0, 0 });
+    replaceCurrentPaletteColor(0, (Color) { 0, 0, 0 });
 
     if (byte_5A33E != 0)
     {
@@ -11606,12 +11541,10 @@ void handleDemoOptionClick() // sub_4B159   proc near       ; CODE XREF: runMain
         // TODO: test demos from the original game and recheck anything involving word_599D8
         word_599D8 = (word_599D8 & 0xFF00) | demoLevelNumber; // mov byte ptr word_599D8, al
         finalLevelNumber = demoLevelNumber;
-        //dl = al; // TODO: does this mean gDemoIndexOrDemoLevelNumber might store the level number of the demo or the demo number depending on the value of word_599D8 ???
     }
 
 //loc_4B1CF:              ; CODE XREF: handleDemoOptionClick+6Bj
 //                ; handleDemoOptionClick+6Fj
-    // al = dl;  // TODO: does this mean gDemoIndexOrDemoLevelNumber might store the level number of the demo or the demo number depending on the value of word_599D8 ???
     gRandomGeneratorSeed = gDemoRandomSeeds[demoIndex];
     gDemoIndexOrDemoLevelNumber = finalLevelNumber;
 
@@ -14244,7 +14177,7 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
         Uint32 state = SDL_GetMouseState(&x, &y);
 
         int windowWidth, windowHeight;
-        SDL_GetWindowSize(gWindow, &windowWidth, &windowHeight);
+        getWindowSize(&windowWidth, &windowHeight);
 
         float controllerX = 0, controllerY = 0;
         uint8_t controllerLeftButton = 0;
@@ -14262,7 +14195,7 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
             y += speed * controllerY;
 
             // Correct mouse position for future events
-            SDL_WarpMouseInWindow(gWindow, x, y);
+            moveMouse(x, y);
         }
 
         // Read touch screen where available
@@ -14274,7 +14207,7 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
             y = touchScreenY * windowHeight;
 
             // Correct mouse position for future events
-            SDL_WarpMouseInWindow(gWindow, x, y);
+            moveMouse(x, y);
         }
 
         x = x * kScreenWidth / windowWidth;
@@ -14352,12 +14285,8 @@ void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
 
     handleSDLEvents(); // Make sure the app stays responsive
 
-    SDL_BlitSurface(gScreenSurface, NULL, gTextureSurface, NULL);
-
-    SDL_UpdateTexture(gTexture, NULL, gTextureSurface->pixels, gTextureSurface->pitch);
-    SDL_RenderClear(gRenderer);
-    SDL_RenderCopy(gRenderer, gTexture, NULL, &gWindowViewport);
-    SDL_RenderPresent(gRenderer);
+    render();
+    present();
 
     limitFPS();
 
@@ -14591,10 +14520,10 @@ void fadeToPalette(ColorPalette palette) //        proc near       ; CODE XREF: 
             uint8_t g = (palette[i].g * animationFactor) + (gCurrentPalette[i].g * complementaryAnimationFactor);
             uint8_t b = (palette[i].b * animationFactor) + (gCurrentPalette[i].b * complementaryAnimationFactor);
 
-            intermediatePalette[i] = (SDL_Color) { r, g, b, 255};
+            intermediatePalette[i] = (Color) { r, g, b, 255};
         }
 
-        SDL_SetPaletteColors(gScreenSurface->format->palette, intermediatePalette, 0, kNumberOfColors);
+        setColorPalette(intermediatePalette);
 
         videoloop();
     }
@@ -14603,7 +14532,7 @@ void fadeToPalette(ColorPalette palette) //        proc near       ; CODE XREF: 
 //        word_510A2 = old_word_510A2;
 }
 
-void replaceCurrentPaletteColor(uint8_t index, SDL_Color color)
+void replaceCurrentPaletteColor(uint8_t index, Color color)
 {
     gCurrentPalette[index] = color;
     setPalette(gCurrentPalette);
@@ -14616,25 +14545,7 @@ void setPalette(ColorPalette palette) // sub_4D836   proc near       ; CODE XREF
 
 //    old_word_510A2 = word_510A2;
 //    word_510A2 = 0;
-#ifdef __vita__
-    // For some reason (SDL bug?) in PS Vita using SDL_SetPaletteColors here
-    // specifically breaks the game colors. This seems to work, will investigate later...
-    //
-    for (uint8_t i = 0; i < kNumberOfColors; ++i)
-    {
-        gScreenSurface->format->palette->colors[i].r = palette[i].r;
-        gScreenSurface->format->palette->colors[i].g = palette[i].g;
-        gScreenSurface->format->palette->colors[i].b = palette[i].b;
-    }
-    gScreenSurface->format->palette->version++;
-    if (gScreenSurface->format->palette->version == 0)
-    {
-        gScreenSurface->format->palette->version = 1;
-    }
-#else
-    SDL_SetPaletteColors(gScreenSurface->format->palette, palette, 0, kNumberOfColors);
-#endif
-
+    setColorPalette(palette);
     memcpy(gCurrentPalette, palette, sizeof(ColorPalette));
 //        word_510A2 = old_word_510A2;
 }
@@ -19915,38 +19826,6 @@ void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, 
             gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
         }
     }
-}
-
-void updateWindowViewport()
-{
-    int windowWidth, windowHeight;
-    SDL_GetRendererOutputSize(gRenderer, &windowWidth, &windowHeight);
-    float textureAspectRatio = (float)kScreenWidth / kScreenHeight;
-    float screenAspectRatio = (float)windowWidth / windowHeight;
-
-    if (textureAspectRatio > screenAspectRatio) {
-        gWindowViewport.x = 0;
-        gWindowViewport.w = windowWidth;
-        gWindowViewport.h = gWindowViewport.w / textureAspectRatio;
-        gWindowViewport.y = (windowHeight - gWindowViewport.h) >> 1;
-    }
-    else {
-        gWindowViewport.y = 0;
-        gWindowViewport.h = windowHeight;
-        gWindowViewport.w = gWindowViewport.h * textureAspectRatio;
-        gWindowViewport.x = (windowWidth - gWindowViewport.w) >> 1;
-    }
-}
-
-int windowResizingEventWatcher(void* data, SDL_Event* event)
-{
-    if (event->type == SDL_WINDOWEVENT
-        && event->window.event == SDL_WINDOWEVENT_RESIZED)
-    {
-        updateWindowViewport();
-        videoloop();
-    }
-    return 0;
 }
 
 void emulateClock()

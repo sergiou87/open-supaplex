@@ -32,6 +32,7 @@ add_executable(${SHORT_NAME}
   ../src/file.c
   ../src/touchscreen.c
   ../src/logging.c
+  ../src/video.c
   ../src/psp2/psp2VirtualKeyboard.c
 )
 
