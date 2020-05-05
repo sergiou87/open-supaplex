@@ -1557,8 +1557,10 @@ uint16_t word_59B8C = 0;
 uint16_t word_59B8E = 0;
 uint16_t word_59B90 = 0;
 uint16_t word_59B92 = 0;
+// These two are some kind of magic number to identify savegames
 uint16_t word_5A309 = 0x5053;
 uint16_t word_5A30B = 0x1A0D;
+uint8_t kSaveGameMagicNumber[4] = { 0x53, 0x50, 0x0D, 0x1A };
 uint16_t word_5A30D = 0;
 uint16_t word_5A30F = 0;
 uint8_t fileIsDemo = 0;
@@ -2803,7 +2805,7 @@ void activateRolandSound(void);
 void activateCombinedSound(void);
 void activateInternalStandardSound(void);
 void activateInternalSamplesSound(void);
-void sub_4921B(void);
+void calibrateJoystick(void);
 void prepareSomeKindOfLevelIdentifier(void);
 void runMainMenu(void);
 void convertNumberTo3DigitPaddedString(uint8_t number, char numberString[3], char useSpacesForPadding);
@@ -2880,7 +2882,7 @@ uint16_t generateRandomNumber(void);
 void handleGameUserInput(void);
 void loc_49C41(void);
 void loc_49C2C(char text[3]);
-void loc_49C28(void);
+void showSavegameOperationError(void);
 void loc_49A89(void);
 void loc_49949(void);
 void loc_4988E(void);
@@ -4122,7 +4124,7 @@ void readConfig() //  proc near       ; CODE XREF: start:loc_46F0Fp
     if (configData[1] == 'j')
     {
         isJoystickEnabled = 1;
-        sub_4921B();
+        calibrateJoystick();
     }
 
 //loc_47530:              //; CODE XREF: readConfig+85j
@@ -7310,7 +7312,7 @@ void updateUserInputInScrollMovementMode() // sub_4914A   proc near       ; CODE
     }
 }
 
-void sub_4921B() //   proc near       ; CODE XREF: readConfig+8Cp
+void calibrateJoystick() // sub_4921B   proc near       ; CODE XREF: readConfig+8Cp
                    // ; handleGameUserInput+31p ...
 {
 //    push    bp
@@ -7394,8 +7396,8 @@ void sub_4921B() //   proc near       ; CODE XREF: readConfig+8Cp
     al = 1;
     byte_50946 = al;
 
-//loc_492A6:              ; CODE XREF: sub_4921B+19j
-//                ; sub_4921B+22j ...
+//loc_492A6:              ; CODE XREF: calibrateJoystick+19j
+//                ; calibrateJoystick+22j ...
 //    pop bp
     return;
 }
@@ -7805,7 +7807,7 @@ void handleGameUserInput() // sub_4955B   proc near       ; CODE XREF: runLevel:
 //loc_49585:              ; CODE XREF: handleGameUserInput+25j
     if (gIsJKeyPressed != 0)
     {
-        sub_4921B();
+        calibrateJoystick();
     }
 
 //loc_4958F:              ; CODE XREF: handleGameUserInput+2Fj
@@ -8258,32 +8260,35 @@ void loc_49949() //:              ; CODE XREF: handleGameUserInput+E1j
     FILE *file = openWritableFile(gSavegameSavFilename, "w");
     if (file == NULL)
     {
-        loc_49C28();
+        showSavegameOperationError();
         return;
     }
 
 //loc_499D8:              ; CODE XREF: handleGameUserInput+478j
+    // 01ED:2D7B
+
 //    mov dx, 9FF9h // address of data to write
-    size_t bytes = fwrite(NULL, 1, 4, file);
-    if (bytes < 4)
+    size_t bytes = fwrite(kSaveGameMagicNumber, 1, sizeof(kSaveGameMagicNumber), file);
+    if (bytes < sizeof(kSaveGameMagicNumber))
     {
 //loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
 //                    ; handleGameUserInput+499j ...
         fclose(file);
-        loc_49C28();
+        showSavegameOperationError();
         return;
     }
 
 //loc_499E9:              ; CODE XREF: handleGameUserInput+489j
 //    mov cx, 1238h
 //    mov dx, offset leveldata // address of data to write
+    // gCurrentLevelWord + gCurrentLevelExplosionTimers
     bytes = fwrite(NULL, 1, 0x1238, file);
     if (bytes < 0x1238)
     {
 //loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
 //                    ; handleGameUserInput+499j ...
         fclose(file);
-        loc_49C28();
+        showSavegameOperationError();
         return;
     }
 
@@ -8308,7 +8313,7 @@ void loc_49949() //:              ; CODE XREF: handleGameUserInput+E1j
 //loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
 //                    ; handleGameUserInput+499j ...
         fclose(file);
-        loc_49C28();
+        showSavegameOperationError();
         return;
     }
 
@@ -8334,7 +8339,7 @@ void loc_49949() //:              ; CODE XREF: handleGameUserInput+E1j
 //loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
 //                    ; handleGameUserInput+499j ...
         fclose(file);
-        loc_49C28();
+        showSavegameOperationError();
         return;
     }
 
@@ -8348,7 +8353,7 @@ void loc_49949() //:              ; CODE XREF: handleGameUserInput+E1j
 //loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
 //                    ; handleGameUserInput+499j ...
         fclose(file);
-        loc_49C28();
+        showSavegameOperationError();
         return;
     }
 
@@ -8361,7 +8366,7 @@ void loc_49949() //:              ; CODE XREF: handleGameUserInput+E1j
 //loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
 //                    ; handleGameUserInput+499j ...
         fclose(file);
-        loc_49C28();
+        showSavegameOperationError();
         return;
     }
 
@@ -8375,14 +8380,14 @@ void loc_49949() //:              ; CODE XREF: handleGameUserInput+E1j
 //loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
 //                    ; handleGameUserInput+499j ...
         fclose(file);
-        loc_49C28();
+        showSavegameOperationError();
         return;
     }
 
 //loc_49A6A:              ; CODE XREF: handleGameUserInput+50Aj
     if (fclose(file) != 0)
     {
-        loc_49C28();
+        showSavegameOperationError();
         return;
     }
 
@@ -8396,10 +8401,10 @@ void loc_49949() //:              ; CODE XREF: handleGameUserInput+E1j
 void loc_49A89() // :              ; CODE XREF: handleGameUserInput+3FAj
 {
 //                    ; handleGameUserInput+529j
-    FILE *file = openWritableFile("SAVEGAME.SAV", "r");
+    FILE *file = openWritableFile(gSavegameSavFilename, "r");
     if (file == NULL)
     {
-        loc_49C28();
+        showSavegameOperationError();
         return;
     }
 
@@ -8424,7 +8429,7 @@ void loc_49A89() // :              ; CODE XREF: handleGameUserInput+3FAj
 //loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
 //                    ; handleGameUserInput+499j ...
         fclose(file);
-        loc_49C28();
+        showSavegameOperationError();
         return;
     }
 
@@ -8449,7 +8454,7 @@ void loc_49A89() // :              ; CODE XREF: handleGameUserInput+3FAj
 //loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
 //                    ; handleGameUserInput+499j ...
                 fclose(file);
-                loc_49C28();
+                showSavegameOperationError();
                 return;
             }
         }
@@ -8457,7 +8462,7 @@ void loc_49A89() // :              ; CODE XREF: handleGameUserInput+3FAj
         {
 //loc_49AC5:              ; CODE XREF: handleGameUserInput+55Ej
             fclose(file);
-            loc_49C28();
+            showSavegameOperationError();
             return;
         }
     }
@@ -8465,7 +8470,7 @@ void loc_49A89() // :              ; CODE XREF: handleGameUserInput+3FAj
     {
 //loc_49AC5:              ; CODE XREF: handleGameUserInput+55Ej
         fclose(file);
-        loc_49C28();
+        showSavegameOperationError();
         return;
     }
 
@@ -8483,7 +8488,7 @@ void loc_49A89() // :              ; CODE XREF: handleGameUserInput+3FAj
 //loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
 //                    ; handleGameUserInput+499j ...
         fclose(file);
-        loc_49C28();
+        showSavegameOperationError();
         return;
     }
 
@@ -8501,7 +8506,7 @@ void loc_49A89() // :              ; CODE XREF: handleGameUserInput+3FAj
 //loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
 //                    ; handleGameUserInput+499j ...
         fclose(file);
-        loc_49C28();
+        showSavegameOperationError();
         return;
     }
 
@@ -8519,7 +8524,7 @@ void loc_49A89() // :              ; CODE XREF: handleGameUserInput+3FAj
 //loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
 //                    ; handleGameUserInput+499j ...
         fclose(file);
-        loc_49C28();
+        showSavegameOperationError();
         return;
     }
 
@@ -8537,7 +8542,7 @@ void loc_49A89() // :              ; CODE XREF: handleGameUserInput+3FAj
 //loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
 //                    ; handleGameUserInput+499j ...
         fclose(file);
-        loc_49C28();
+        showSavegameOperationError();
         return;
     }
 
@@ -8555,7 +8560,7 @@ void loc_49A89() // :              ; CODE XREF: handleGameUserInput+3FAj
 //loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
 //                    ; handleGameUserInput+499j ...
         fclose(file);
-        loc_49C28();
+        showSavegameOperationError();
         return;
     }
 
@@ -8573,7 +8578,7 @@ void loc_49A89() // :              ; CODE XREF: handleGameUserInput+3FAj
 //loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
 //                    ; handleGameUserInput+499j ...
         fclose(file);
-        loc_49C28();
+        showSavegameOperationError();
         return;
     }
 
@@ -8593,7 +8598,7 @@ void loc_49A89() // :              ; CODE XREF: handleGameUserInput+3FAj
 //loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
 //                    ; handleGameUserInput+499j ...
         fclose(file);
-        loc_49C28();
+        showSavegameOperationError();
         return;
     }
 
@@ -8617,7 +8622,7 @@ void loc_49A89() // :              ; CODE XREF: handleGameUserInput+3FAj
 //loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
 //                    ; handleGameUserInput+499j ...
         fclose(file);
-        loc_49C28();
+        showSavegameOperationError();
         return;
     }
 
@@ -8678,7 +8683,7 @@ void loc_49A89() // :              ; CODE XREF: handleGameUserInput+3FAj
     loc_49C41();
 }
 
-void loc_49C28() //:              ; CODE XREF: handleGameUserInput+47Aj
+void showSavegameOperationError() //loc_49C28:              ; CODE XREF: handleGameUserInput+47Aj
 {
 //                    ; handleGameUserInput+51Aj ...
 //    push    si
@@ -13115,7 +13120,7 @@ void handleOptionsKeyboardClick() // loc_4C778
 void handleOptionsJoystickClick() // loc_4C781
 {
     isJoystickEnabled = 1;
-    sub_4921B();
+    calibrateJoystick();
     drawInputOptionsSelection(gScreenPixels);
 }
 
