@@ -20,6 +20,15 @@
 #include <SDL2/SDL.h>
 
 #include "logging.h"
+#include "utils.h"
+
+#ifdef __vita__
+static const int kWindowWidth = kScreenWidth;
+static const int kWindowHeight = kScreenHeight;
+#else
+static const int kWindowWidth = kScreenWidth * 4;
+static const int kWindowHeight = kScreenHeight * 4;
+#endif
 
 SDL_Surface *gScreenSurface = NULL;
 uint8_t *gScreenPixels = NULL;
@@ -157,17 +166,38 @@ void updateWindowViewport()
     int windowWidth, windowHeight;
     SDL_GetRendererOutputSize(gRenderer, &windowWidth, &windowHeight);
     float textureAspectRatio = (float)kScreenWidth / kScreenHeight;
+
+    int maxViewportWidth = windowWidth;
+    int maxViewportHeight = windowHeight;
+
+    // TODO: allow switching to fullscreen scaling without respecting aspect ratio
+    // TODO: allow switching to full integer scaling
+    // maxViewportWidth = floorf(windowWidth / kScreenWidth) * kScreenWidth;
+    // maxViewportHeight = floorf(windowHeight / kScreenHeight) * kScreenHeight;
+
+    // If the resulting viewport is too small, do proportional scaling according to the window size
+    if (maxViewportWidth == 0)
+    {
+        maxViewportWidth = windowWidth;
+    }
+    if (maxViewportHeight == 0)
+    {
+        maxViewportHeight = windowHeight;
+    }
+
     float screenAspectRatio = (float)windowWidth / windowHeight;
 
-    if (textureAspectRatio > screenAspectRatio) {
-        gWindowViewport.x = 0;
-        gWindowViewport.w = windowWidth;
+    if (textureAspectRatio > screenAspectRatio)
+    {
+        gWindowViewport.x = (windowWidth - maxViewportWidth) >> 1;
+        gWindowViewport.w = maxViewportWidth;
         gWindowViewport.h = gWindowViewport.w / textureAspectRatio;
         gWindowViewport.y = (windowHeight - gWindowViewport.h) >> 1;
     }
-    else {
-        gWindowViewport.y = 0;
-        gWindowViewport.h = windowHeight;
+    else
+    {
+        gWindowViewport.y = (windowHeight - maxViewportHeight) >> 1;
+        gWindowViewport.h = maxViewportHeight;
         gWindowViewport.w = gWindowViewport.h * textureAspectRatio;
         gWindowViewport.x = (windowWidth - gWindowViewport.w) >> 1;
     }

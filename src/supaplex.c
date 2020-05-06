@@ -24,14 +24,9 @@
 #include "file.h"
 #include "logging.h"
 #include "touchscreen.h"
+#include "utils.h"
 #include "video.h"
 #include "virtualKeyboard.h"
-
-#define MIN(a,b) (((a)<(b))?(a):(b))
-#define MAX(a,b) (((a)>(b))?(a):(b))
-#define CLAMP(v, a, b) MIN(MAX(a, v), b)
-#define SWAP(x, y, __type) do { __type __temp__ = x; x = y; y = __temp__; } while (0)
-
 
 // title1DataBuffer -> A000:4DAC - A000:CAAC
 // title2DataBuffer -> 0x4DD4 - 0xCAD4
