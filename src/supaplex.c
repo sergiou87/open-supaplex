@@ -60,10 +60,11 @@ uint16_t word_50947 = 0;
 uint16_t word_50949 = 0;
 uint8_t byte_50953 = 0;
 uint8_t byte_50954 = 0;
-uint8_t gIsGravityEnabled = 0; // byte_5101C -> 1 = turn on, anything else (0) = turn off
-uint8_t gAreZonksFrozen = 0; // byte_51035 -> 2 = turn on, anything else (0) = turn off  (1=off!)
-// uint8_t gNumberOfInfoTronsInCurrentLevel = 0; // 0xd26 -> byte_51036 -> this seems to be _inside_ of fileLevelData when a level is read
-// uint8_t byte_51037 = 0; // 0xd27 -> this seems to be _inside_ of fileLevelData when a level is read, and it's numberOfSpecialPorts
+uint8_t gIsGravityEnabledInCurrentLevel = 0; // byte_5101C -> 1 = turn on, anything else (0) = turn off
+uint8_t gAreZonksFrozenInCurrentLevel = 0; // byte_51035 -> 2 = turn on, anything else (0) = turn off  (1=off!)
+uint8_t gNumberOfInfoTronsInCurrentLevel = 0; // 0xd26 -> byte_51036 -> this seems to be _inside_ of fileLevelData when a level is read
+uint8_t gNumberOfSpecialPortsInCurrentLevel = 0; // 0xd27 -> byte_51037 this seems to be _inside_ of fileLevelData when a level is read, and it's numberOfSpecialPorts
+uint16_t gRandomSeedInCurrentLevel = 0; // word_51076
 uint8_t byte_510AB = 0;
 uint16_t word_510AC = 0; // stored in 0B5D:0D9C
 uint8_t gIsGamePaused = 0; // byte_510AE
@@ -191,7 +192,9 @@ uint8_t byte_5988A = 0; //
 uint8_t byte_5988B = 0; //
 uint8_t byte_5988C = 0; //
 uint8_t byte_5988D = 0x53; // 83 or '+'
-uint8_t byte_59890 = 0x58; // 88 or 'X'
+uint16_t word_5988E = 0x4650; // "PF"
+//uint8_t byte_59890 = 0x58; // 88 or 'X'
+//uint16_t word_59891 = 0x3336; // "63"
 uint8_t byte_599D4 = 0;
 uint8_t byte_59B5C = 0;
 uint8_t byte_59B5F = 0;
@@ -262,7 +265,6 @@ uint16_t word_5094B = 0;
 uint16_t word_5094D = 0;
 uint16_t word_5094F = 0;
 uint16_t word_50951 = 0;
-uint16_t word_51076 = 0;
 uint16_t word_510A2 = 0; // -> used to preserve some palette info??
 uint16_t word_510BC = 0;
 uint16_t word_510BE = 0;
@@ -1538,8 +1540,6 @@ uint16_t word_58AB8 = 0x3231;
 uint16_t word_58ABA = 0x3433;
 uint16_t word_58AEA = 0x3030;
 uint16_t word_58AEC = 0x0030;
-uint16_t word_5988E = 0x4650;
-uint16_t word_59891 = 0x3336;
 uint16_t word_599D6 = 0;
 uint16_t word_599D8 = 0;
 uint16_t word_599DA = 0;
@@ -1720,7 +1720,7 @@ uint16_t gMurphyLocation = 0;
 #define kFirstLevelIndex 2
 #define kLastLevelIndex (kFirstLevelIndex + kNumberOfLevels)
 #define kListLevelNameLength 28 // In the list of levels, every level is 28 bytes long and looks like "001                        \n"
-uint8_t gPaddedLevelListData[kNumberOfLevelsWithPadding * kListLevelNameLength];
+uint8_t gPaddedLevelListData[kNumberOfLevelsWithPadding * kListLevelNameLength]; // 0x2A34
 
 #define kLevelListDataLength (kNumberOfLevels * kListLevelNameLength)
 uint8_t *gLevelListData = &gPaddedLevelListData[kFirstLevelIndex * kListLevelNameLength];
@@ -1847,8 +1847,7 @@ typedef struct
 uint16_t gDemoRandomSeeds[kNumberOfDemos];
 
 Demos gDemos; // this is located in the demo segment, starting at 0x0000
-char gCurrentDemoLevelIdentifier[4] = ".SP"; // 0x87DA
-char gCurrentDemoLevelName[kListLevelNameLength] = "??? ----- DEMO LEVEL! -----"; // 0x87DE
+char gCurrentDemoLevelName[kListLevelNameLength] = ".SP\0----- DEMO LEVEL! -----"; // 0x87DA
 
 // fileLevelData starts at 0x768, when it contains a level goes to 0xD67
 Level gCurrentLevel; // 0x988B
@@ -5255,7 +5254,7 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
     else
     {
 //loc_47FA4:              ; CODE XREF: movefun+Fj
-        if (gAreZonksFrozen == 2)
+        if (gAreZonksFrozenInCurrentLevel == 2)
         {
             return;
         }
@@ -5453,7 +5452,7 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
                 }
             }
 //loc_48053:              ; CODE XREF: movefun+BEj
-            else if (gAreZonksFrozen == 2)
+            else if (gAreZonksFrozenInCurrentLevel == 2)
             {
                 return;
             }
@@ -5681,7 +5680,7 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
         // This part handles what to do when the zonk finished falling 1 tile
         // 01ED:1462
         currentTile->movingObject = 0;
-        if (gAreZonksFrozen == 2)
+        if (gAreZonksFrozenInCurrentLevel == 2)
         {
             return;
         }
@@ -8064,8 +8063,8 @@ void handleGameUserInput() // sub_4955B   proc near       ; CODE XREF: runLevel:
             else if (byte_59B7C == 0)
             {
                 byte_59B7C--;
-                gIsGravityEnabled &= 1;
-                gIsGravityEnabled = gIsGravityEnabled ^ 1;
+                gIsGravityEnabledInCurrentLevel &= 1;
+                gIsGravityEnabledInCurrentLevel = gIsGravityEnabledInCurrentLevel ^ 1;
             }
 
             if (gIsF1KeyPressed == 0
@@ -8081,8 +8080,8 @@ void handleGameUserInput() // sub_4955B   proc near       ; CODE XREF: runLevel:
                 else if (byte_59B7D == 0)
                 {
                     byte_59B7D--;
-                    gAreZonksFrozen &= 2;
-                    gAreZonksFrozen = gAreZonksFrozen ^ 2;
+                    gAreZonksFrozenInCurrentLevel &= 2;
+                    gAreZonksFrozenInCurrentLevel = gAreZonksFrozenInCurrentLevel ^ 2;
                 }
 
                 if (gIsF2KeyPressed == 0
@@ -8277,6 +8276,104 @@ void loc_49949() //:              ; CODE XREF: handleGameUserInput+E1j
 //    mov cx, 1238h
 //    mov dx, offset leveldata // address of data to write
     // gCurrentLevelWord + gCurrentLevelExplosionTimers
+
+    // Seems like it stores here two chunks of valid data and then a lot of garbage.
+    // This code basically stores 0x1238 (4664) bytes starting at 0x1834, so from 0x1834 to 0x2A6C.
+    // At 0x1834 there is the "live" level data (where objects actually are, and in which state): gCurrentLevelWord
+    // When the level is read, 1536 * 2 bytes are written (it uses a word to describe every tile) to this address,
+    // although only 1440 * 2 bytes are needed, which are the tiles.
+    // Then, at 0x2434, there is info about timers of things that are going to explode. Again, since that info is per
+    // tile, only 1440 bytes are needed. However, when the level is read, 1536 bytes are written (but never used).
+    // Up to this we have 4608 bytes of the 4664 we're writing in the save game. There are another 56 bytes we write.
+    // Those bytes start at 0x2A34, and that's where gPaddedLevelListData lives. This is a list of levels that has
+    // the list of level names (of length 27 characters + \n = 28 bytes), but has some "padding" at the beginning
+    // and the end to allow the list of levels to scroll a bit more and when the first level is focused, show two
+    // empty spaces above. Those two empty spaces are at the beginning of this "padded" list, and those take... exactly,
+    // 56 bytes. So more garbage.
+    typedef struct {
+        uint8_t magicNumber[4]; // is expected to be kSaveGameMagicNumber
+        MovingLevelTile tiles[kLevelSize];
+        uint16_t padding0[levelDataLength - kLevelSize];
+        int8_t explosionTimers[kLevelSize];
+        uint8_t padding1[levelDataLength - kLevelSize];
+        uint8_t padding2[kListLevelNameLength * 2];
+        char levelName[kListLevelNameLength]; // "005 ------ EASY DEAL ------\n" if it's a demo, then there is a \0 after the number
+        uint8_t byte_5988D; // WTF always a 'c' ??
+        char levelsetSuffix[2]; // word_5988E
+        char levelIdentifier[3]; // "001" or ".SP" or "BIN"
+        // 4 bytes
+        gIsGravityEnabledInCurrentLevel byte_5101C  db 0
+        // Level.speedFixMagicNumber 1
+        // Level.name 23
+        gAreZonksFrozenInCurrentLevel byte_51035  db 0
+        gNumberOfInfoTronsInCurrentLevel byte_51036  db 0
+        gNumberOfSpecialPortsInCurrentLevel  db
+        // Level.specialPortsInfo 60 bytes
+        // Level.scrambledSpeed 1
+        // Level.scrambledChecksum 1
+        gRandomSeedInCurrentLevel  dw
+        // 36 bytes
+        // int8loc     dd 0            ; DATA XREF: int8handler+AEr
+        //         dw 0
+        word_510A2  dw 0
+        dw 0FFFFh
+        // gNumberOfDotsToShiftDataLeft  db 0
+        // word_510A7  dw 0
+        // word_510A9  dw 0
+        byte_510AB  db 0
+        word_510AC  dw 0
+        gIsGamePaused  db 0
+        gAuxGameSeconds20msAccumulator  db 0
+        gGameSeconds  db 0
+        gGameMinutes  db 0
+        gGameHours  db 0
+        byte_510B3  db 0
+        byte_510B4  db 0
+        byte_510B5  db 0
+        byte_510B6  db 0
+        gLastDrawnMinutesAndSeconds  dw 0
+        gLastDrawnHours  db 0
+        gShouldShowFailedLevelResultScreen  db 0
+        byte_510BB  db 0
+        word_510BC  dw 0
+        word_510BE  dw 0
+        gIsExplosionStarted  db 0
+        word_510C1  dw 0
+        gMurphyTileX  dw 0
+        gMurphyTileY  dw 0
+        word_510C7  dw 0
+        gMurphyLocation  dw 0
+        word_510CB  dw 0
+        word_510CD  dw 0
+        word_510CF  dw 0
+        word_510D1  dw 0
+        byte_510D3  db 0
+                dw 0
+                db 0
+        gAreEnemiesFrozen byte_510D7 db 0
+        byte_510D8  db 0
+        // DCB-DCC: gIsMurphyGoingThroughPortal
+        // DCD:     gPlantedRedDiskCountdown
+        // DCE-DCF: gPlantedRedDiskPosition
+        // DD0:     gIsPlayingDemo
+        // DD1-DD2: word_510DF
+        // DD3:     byte_510E1
+        // DD4:     byte_510E2
+        // DD5:     gIsRecordingDemo
+        // DD6-DD7: word_510E4 -> last FILE * used? wtf??
+        // DD8-DD9: gDemoIndexOrDemoLevelNumber
+        // DDA-DDB: gMurphyPositionX
+        // DDC-DDD: gMurphyPositionY
+        // DDE-DDF: word_510EE
+        // DE0-DED: gCurrentMurphyAnimation
+    } Savegame;
+
+    Savegame savegame;
+    memset(&savegame, 0, sizeof(Savegame));
+    memcpy(savegame.magicNumber, kSaveGameMagicNumber, sizeof(savegame.magicNumber));
+    memcpy(savegame.tiles, gCurrentLevelWord, sizeof(savegame.tiles));
+    memcpy(savegame.explosionTimers, gCurrentLevelExplosionTimers, sizeof(savegame.explosionTimers));
+/*
     bytes = fwrite(NULL, 1, 0x1238, file);
     if (bytes < 0x1238)
     {
@@ -8286,19 +8383,26 @@ void loc_49949() //:              ; CODE XREF: handleGameUserInput+E1j
         showSavegameOperationError();
         return;
     }
-
+*/
 //loc_499F7:              ; CODE XREF: handleGameUserInput+497j
+    // 01ED:2D9B
+    char *levelName = "";
     if (gIsPlayingDemo == 0)
     {
+        levelName = gCurrentLevelName;
 //        mov dx, 87A8h -> this has the level name, like "005 ------ EASY DEAL ------"
     }
     else
     {
 //loc_49A03:              ; CODE XREF: handleGameUserInput+4A1j
 //        mov dx, 87DAh -> this address is the ".SP" text
+        levelName = gCurrentDemoLevelName;
     }
 
 //loc_49A06:              ; CODE XREF: handleGameUserInput+4A6j
+
+    memcpy(savegame.levelName, levelName, sizeof(savegame.levelName));
+    /*
 //    mov cx, 1Ch
 //    push    dx
     bytes = fwrite(NULL, 1, 0x1C, file); // 28, level name?
@@ -8311,23 +8415,26 @@ void loc_49949() //:              ; CODE XREF: handleGameUserInput+E1j
         showSavegameOperationError();
         return;
     }
-
+*/
 //loc_49A13:              ; CODE XREF: handleGameUserInput+4B3j
     cx = 6;
-    byte_5988D = 0x63; // 99 or 'c'
+    savegame.byte_5988D = 0x63; // 99 or 'c'
+    memcpy(savegame.levelsetSuffix, &gLevelsDatFilename[8], sizeof(savegame.levelsetSuffix));
+    memcpy(savegame.levelIdentifier, levelName, sizeof(savegame.levelIdentifier));
 //    ax = "AT"; // mov ax, word ptr aLevels_dat_0+8 ; "AT"
-    word_5988E = ax;
+    // word_5988E = ax;
 //    al = [bx] // bx here is the value dx took from loc_499F7 or loc_49A03
     if (gIsPlayingDemo != 0)
     {
-        al |= 0x80;
+        savegame.levelIdentifier[0] |= 0x80;
     }
 
 //loc_49A2C:              ; CODE XREF: handleGameUserInput+4CDj
-    byte_59890 = al;
+//    byte_59890 = al;
 //    ax = [bx+1];
-    word_59891 = ax;
+//    word_59891 = ax;
 //    mov dx, 957Dh
+    /*
     bytes = fwrite(NULL, 1, 6, file);
     if (bytes < 6)
     {
@@ -8337,11 +8444,18 @@ void loc_49949() //:              ; CODE XREF: handleGameUserInput+E1j
         showSavegameOperationError();
         return;
     }
+     */
 
 //loc_49A40:              ; CODE XREF: handleGameUserInput+4E0j
+    // D08:     _51018
+    // D92: word_510A2
+    // ... 230 bytes
+    // DED:     _510FD
 //    mov cx, 0E6h ; '?'
 //    mov dx, 0D08h
 //    call    writeToFh1
+
+
     bytes = fwrite(NULL, 1, 0xE6, file); // 230
     if (bytes < 0xE6)
     {
@@ -9707,9 +9821,9 @@ void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
 void resetNumberOfInfotrons() // sub_4A3BB   proc near       ; CODE XREF: start+33Ep sub_4A463+17p
 {
     uint8_t numberOfInfotrons = 0;
-    if (gCurrentLevel.numberOfInfotrons != 0)
+    if (gNumberOfInfoTronsInCurrentLevel != 0)
     {
-        numberOfInfotrons = gCurrentLevel.numberOfInfotrons;
+        numberOfInfotrons = gNumberOfInfoTronsInCurrentLevel;
     }
 
 //loc_4A3C6:              ; CODE XREF: resetNumberOfInfotrons+5j
@@ -14330,9 +14444,9 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 
         memcpy(&fileLevelData, level, levelDataLength);
 
-        strcpy(gCurrentDemoLevelIdentifier, ".SP");
+        strcpy(gCurrentDemoLevelName, ".SP");
 
-        memcpy(gCurrentDemoLevelName, level->name, sizeof(level->name));
+        memcpy(&gCurrentDemoLevelName[4], level->name, sizeof(level->name));
     }
     else
     {
@@ -14429,7 +14543,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 //                ; readLevels+D5j
     if (gIsPlayingDemo != 0)
     {
-        gRandomGeneratorSeed = word_51076;
+        gRandomGeneratorSeed = gRandomSeedInCurrentLevel;
         levelName = gCurrentDemoLevelName;
     }
     else
@@ -14444,7 +14558,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
             && word_599DA != 0))
     {
 //loc_4D679:              ; CODE XREF: readLevels+121j
-        strcpy(gCurrentDemoLevelIdentifier, "BIN");
+        strcpy(gCurrentDemoLevelName, "BIN");
         levelName += 4;
     }
     else if (byte_599D4 == 0)
@@ -14456,13 +14570,20 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
     {
 //loc_4D682:              ; CODE XREF: readLevels+12Fj
         // TODO: not sure if this code is executed only for demos
-        strcpy(gCurrentDemoLevelIdentifier, ".SP"); // TODO: not sure if this code is executed only for demos
+        strcpy(gCurrentDemoLevelName, ".SP"); // TODO: not sure if this code is executed only for demos
+        levelName += 4;
     }
 
 //loc_4D68F:              ; CODE XREF: readLevels+142j
     memcpy(levelName, fileLevelData.name, sizeof(fileLevelData.name));
 
     memcpy(&gCurrentLevel, &fileLevelData, sizeof(gCurrentLevel));
+
+    gIsGravityEnabledInCurrentLevel = gCurrentLevel.initialGravitation;
+    gAreZonksFrozenInCurrentLevel = gCurrentLevel.freezeZonks;
+    gNumberOfInfoTronsInCurrentLevel = gCurrentLevel.numberOfInfotrons;
+    gNumberOfSpecialPortsInCurrentLevel = gCurrentLevel.numberOfSpecialPorts;
+    gRandomSeedInCurrentLevel = gCurrentLevel.randomSeed;
 
     for (int i = 0; i < kLevelSize; ++i) // originally was levelDataLength but sounds like a bug
     {
@@ -15353,7 +15474,7 @@ void sound11() //    proc near       ; CODE XREF: int8handler+51p
 //loc_4DEB4:              ; CODE XREF: update?+1Fj
     byte_510D8 = 0;
 
-    if (gIsGravityEnabled != 0
+    if (gIsGravityEnabledInCurrentLevel != 0
         && aboveTile->tile != LevelTileTypePortUp
         && aboveTile->tile != LevelTileTypePortVertical
         && aboveTile->tile != LevelTileTypePort4Way
@@ -18205,7 +18326,7 @@ void updateSpecialPort(uint16_t position) // sub_4F2AF   proc near       ; CODE 
                    // ; update?+1197p ...
 {
     // 01ED:864C
-    if (gCurrentLevel.numberOfSpecialPorts == 0)
+    if (gNumberOfSpecialPortsInCurrentLevel == 0)
     {
         return;
     }
@@ -18213,7 +18334,7 @@ void updateSpecialPort(uint16_t position) // sub_4F2AF   proc near       ; CODE 
     uint8_t isPortInPosition = 0;
     uint8_t portIndex = 0;
 
-    for (uint8_t i = 0; i < gCurrentLevel.numberOfSpecialPorts; ++i)
+    for (uint8_t i = 0; i < gNumberOfSpecialPortsInCurrentLevel; ++i)
     {
 //loc_4F2BD:              ; CODE XREF: updateSpecialPort+19j
         SpecialPortInfo portInfo = gCurrentLevel.specialPortsInfo[i];
@@ -18236,8 +18357,8 @@ void updateSpecialPort(uint16_t position) // sub_4F2AF   proc near       ; CODE 
 
 //loc_4F2CB:              ; CODE XREF: updateSpecialPort+14j
     SpecialPortInfo portInfo = gCurrentLevel.specialPortsInfo[portIndex];
-    gIsGravityEnabled = portInfo.gravity;
-    gAreZonksFrozen = portInfo.freezeZonks;
+    gIsGravityEnabledInCurrentLevel = portInfo.gravity;
+    gAreZonksFrozenInCurrentLevel = portInfo.freezeZonks;
     gAreEnemiesFrozen = portInfo.freezeEnemies;
     // TODO: I still don't know where word_510AC is read :fearful:
     // I tried with a breakpoint on memory read and it was never accessed :shrug:
@@ -19527,7 +19648,7 @@ void drawGamePanelText() // sub_4FC20  proc near       ; CODE XREF: somethingsps
 //    mov si, 87D1h // "  DEMO  "
         drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 72, 3, 8, "  DEMO  ");
 //    mov si, 87DAh // "000" -> this address is the ".SP" text
-        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 16, 14, 8, gCurrentDemoLevelIdentifier);
+        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 16, 14, 8, gCurrentDemoLevelName);
 //        mov si, 87F6h // "--- RECORDING DEMO0 ---"
         drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 64, 14, 8, "--- RECORDING DEMO0 ---");
     }
@@ -19536,7 +19657,7 @@ void drawGamePanelText() // sub_4FC20  proc near       ; CODE XREF: somethingsps
     {
         drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 72, 3, 8, "  DEMO  ");
 //      mov si, 87DAh // "000" -> this address is the ".SP" text
-        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 16, 14, 8, gCurrentDemoLevelIdentifier);
+        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 16, 14, 8, gCurrentDemoLevelName);
 //      mov si, 87DEh // "----- DEMO LEVEL! -----"
         drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 64, 14, 8, &gCurrentDemoLevelName[4]);
     }
