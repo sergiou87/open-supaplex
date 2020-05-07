@@ -26,5 +26,6 @@
 //
 FILE *openReadonlyFile(const char *pathname, const char *mode);
 FILE *openWritableFile(const char *pathname, const char *mode);
+FILE *openWritableFileWithReadonlyFallback(const char *pathname, const char *mode);
 
 #endif /* file_h */

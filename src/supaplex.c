@@ -2911,7 +2911,7 @@ void simulateDemoInput(void);
 void sub_4A463(void);
 void removeTiles(LevelTileType tileType);
 void sub_4A3E9(void);
-void sub_4945D(void);
+void recordDemo(uint16_t demoIndex);
 void somethingspsig(void);
 void sub_4A3D2(void);
 void sub_49D53(void);
@@ -4246,6 +4246,7 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
         {
             // TODO: Implement loading a demo from command line
             // dx = &demoFileName;
+            assert(0);
         }
         else
         {
@@ -4254,7 +4255,7 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
         }
 
 //loc_47647:             // ; CODE XREF: readDemoFiles+31j
-        FILE *file = openReadonlyFile(gDemo0BinFilename, "r");
+        FILE *file = openWritableFileWithReadonlyFallback(gDemo0BinFilename, "r");
         if (file == NULL)
         {
             return i;
@@ -7485,7 +7486,7 @@ void sub_492F1() //   proc near       ; CODE XREF: handleGameUserInput+1Dp
 }
 
 void somethingspsig() //  proc near       ; CODE XREF: runLevel+355p
-                     // ; sub_4945D+30p ...
+                     // ; recordDemo+30p ...
 {
     // TODO: Implement
     /*
@@ -7631,7 +7632,7 @@ loc_4944F:              ; CODE XREF: somethingspsig+EEj
 }
 
 // TODO: Implement recording demo support
-void sub_4945D() //   proc near       ; CODE XREF: handleGameUserInput+294p
+void recordDemo(uint16_t demoIndex) // sub_4945D   proc near       ; CODE XREF: handleGameUserInput+294p
                    // ; handleGameUserInput+2A4p ...
 {
     gIsMoveScrollModeEnabled = 0;
@@ -7647,18 +7648,22 @@ void sub_4945D() //   proc near       ; CODE XREF: handleGameUserInput+294p
         somethingspsig();
     }
 
-//loc_49490:              ; CODE XREF: sub_4945D+2Ej
-//    pop ax
-    bx = 0x380A;
-    al += 0x30;
-//    bx[4] = al; // mov [bx+4], al
+//loc_49490:              ; CODE XREF: recordDemo+2Ej
+    char demoIndexCharacter = '0' + demoIndex;
+    gDemo0BinFilename[4] = demoIndexCharacter;
+
     if ((word_59B6E & 0xFF) == 0) // cmp byte ptr word_59B6E, 0
     {
+        // TODO: what's this? a different file name? maybe from command line?
+        assert(0);
         bx = 0xA014;
-//        *(bx + 7) = al; // [bx+7], al
+        //someString[7] = demoIndexCharacter; // *(bx + 7) = al; // [bx+7], al
+
     }
 
-//loc_494A6:              ; CODE XREF: sub_4945D+41j
+//loc_494A6:              ; CODE XREF: recordDemo+41j
+    char message[kLevelNameLength] = "--- RECORDING DEMO0 ---";
+    message[18] = demoIndexCharacter;
     // aRecordingDemo0 has "--- RECORDING DEMO0 ---"
     // This code changes the "0" from "DEMO0" with another value
 //    mov byte ptr aRecordingDemo0+12h, al ; "0 ---"
@@ -7669,13 +7674,13 @@ void sub_4945D() //   proc near       ; CODE XREF: handleGameUserInput+294p
 //                ; CX = attributes for file
 //                ; DS:DX -> ASCIZ filename (may include drive and path)
     // TODO: Implement
-    FILE *file = openWritableFile("some-name-probably-DEMO0", "w");
+    FILE *file = openWritableFileWithReadonlyFallback(gDemo0BinFilename, "w");
     if (file == NULL)
     {
         return;
     }
 
-//loc_494B8:              ; CODE XREF: sub_4945D+56j
+//loc_494B8:              ; CODE XREF: recordDemo+56j
     gCurrentGameState.word_510E4 = ax; // file handle
     byte_5A140 = 0x83; // 131
     // TODO: don't know for sure but this probably is related to adjusting the demo time with the speed or something?
@@ -7725,14 +7730,14 @@ void sub_4945D() //   proc near       ; CODE XREF: handleGameUserInput+294p
         word_58AEC = ax;
     }
 
-//loc_4952A:              ; CODE XREF: sub_4945D+BCj
+//loc_4952A:              ; CODE XREF: recordDemo+BCj
     gIsRecordingDemo = 1;
     if (byte_5A33E != 0)
     {
         gIsPlayingDemo = 1;
     }
 
-//loc_4953B:              ; CODE XREF: sub_4945D+D7j
+//loc_4953B:              ; CODE XREF: recordDemo+D7j
     sub_4A463();
     gIsPlayingDemo = 0;
 }
@@ -7999,62 +8004,52 @@ void handleGameUserInput() // sub_4955B   proc near       ; CODE XREF: runLevel:
 //loc_497E5:              ; CODE XREF: handleGameUserInput+285j
         else if (gIsF1KeyPressed == 1)
         {
-            ax = 0;
-            sub_4945D();
+            recordDemo(0);
         }
 //loc_497F5:              ; CODE XREF: handleGameUserInput+28Fj
         else if (gIsF2KeyPressed == 1)
         {
-            ax = 1;
-            sub_4945D();
+            recordDemo(1);
         }
 //loc_49805:              ; CODE XREF: handleGameUserInput+29Fj
         else if (gIsF3KeyPressed == 1)
         {
-            ax = 2;
-            sub_4945D();
+            recordDemo(2);
         }
 //loc_49814:              ; CODE XREF: handleGameUserInput+2AFj
         else if (gIsF4KeyPressed == 1)
         {
-            ax = 3;
-            sub_4945D();
+            recordDemo(3);
         }
 //loc_49823:              ; CODE XREF: handleGameUserInput+2BEj
         else if (gIsF5KeyPressed == 1)
         {
-            ax = 4;
-            sub_4945D();
+            recordDemo(4);
         }
 //loc_49832:              ; CODE XREF: handleGameUserInput+2CDj
         else if (gIsF6KeyPressed == 1)
         {
-            ax = 5;
-            sub_4945D();
+            recordDemo(5);
         }
 //loc_49841:              ; CODE XREF: handleGameUserInput+2DCj
         else if (gIsF7KeyPressed == 1)
         {
-            ax = 6;
-            sub_4945D();
+            recordDemo(6);
         }
 //loc_49850:              ; CODE XREF: handleGameUserInput+2EBj
         else if (gIsF8KeyPressed == 1)
         {
-            ax = 7;
-            sub_4945D();
+            recordDemo(7);
         }
 //loc_4985F:              ; CODE XREF: handleGameUserInput+2FAj
         else if (gIsF9KeyPressed == 1)
         {
-            ax = 8;
-            sub_4945D();
+            recordDemo(8);
         }
 //loc_4986E:              ; CODE XREF: handleGameUserInput+309j
         else if (gIsF10KeyPressed == 1)
         {
-            ax = 9;
-            sub_4945D();
+            recordDemo(9);
         }
 //loc_4987D:              ; CODE XREF: handleGameUserInput+318j
         else if (byte_519D5 == 1
@@ -9537,7 +9532,7 @@ void sub_4A3E9() //   proc near       ; CODE XREF: handleGameUserInput+14Ep
     simulateDemoInput();
 }
 
-void sub_4A463() //   proc near       ; CODE XREF: sub_4945D:loc_4953Bp
+void sub_4A463() //   proc near       ; CODE XREF: recordDemo:loc_4953Bp
                    // ; sub_4A3E9+43p
 {
     readLevels();

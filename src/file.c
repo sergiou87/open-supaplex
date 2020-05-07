@@ -71,3 +71,15 @@ FILE *openWritableFile(const char *pathname, const char *mode)
     return fopen(pathname, mode);
 }
 #endif
+
+FILE *openWritableFileWithReadonlyFallback(const char *pathname, const char *mode)
+{
+    FILE *file = openWritableFile(pathname, mode);
+
+    if (file == NULL)
+    {
+        return openReadonlyFile(pathname, mode);
+    }
+
+    return file;
+}
