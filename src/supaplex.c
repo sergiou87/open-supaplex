@@ -1555,7 +1555,7 @@ uint16_t word_59B92 = 0;
 // These two are some kind of magic number to identify savegames
 uint16_t word_5A309 = 0x5053;
 uint16_t word_5A30B = 0x1A0D;
-uint8_t kSaveGameMagicNumber[4] = { 0x53, 0x50, 0x0D, 0x1A };
+char kSaveGameMagicNumber[4] = "OSPX";
 uint16_t word_5A30D = 0;
 uint16_t word_5A30F = 0;
 uint8_t fileIsDemo = 0;
@@ -8293,79 +8293,103 @@ void loc_49949() //:              ; CODE XREF: handleGameUserInput+E1j
     typedef struct {
         uint8_t magicNumber[4]; // is expected to be kSaveGameMagicNumber
         MovingLevelTile tiles[kLevelSize];
-        uint16_t padding0[levelDataLength - kLevelSize];
+        // uint16_t padding0[levelDataLength - kLevelSize];
         int8_t explosionTimers[kLevelSize];
-        uint8_t padding1[levelDataLength - kLevelSize];
-        uint8_t padding2[kListLevelNameLength * 2];
+        // uint8_t padding1[levelDataLength - kLevelSize];
+        // uint8_t padding2[kListLevelNameLength * 2];
         char levelName[kListLevelNameLength]; // "005 ------ EASY DEAL ------\n" if it's a demo, then there is a \0 after the number
         uint8_t byte_5988D; // WTF always a 'c' ??
         char levelsetSuffix[2]; // word_5988E
         char levelIdentifier[3]; // "001" or ".SP" or "BIN"
         // 4 bytes
-        gIsGravityEnabledInCurrentLevel byte_5101C  db 0
+        uint8_t gIsGravityEnabledInCurrentLevel;
         // Level.speedFixMagicNumber 1
         // Level.name 23
-        gAreZonksFrozenInCurrentLevel byte_51035  db 0
-        gNumberOfInfoTronsInCurrentLevel byte_51036  db 0
-        gNumberOfSpecialPortsInCurrentLevel  db
+        uint8_t gAreZonksFrozenInCurrentLevel;
+        uint8_t gNumberOfInfoTronsInCurrentLevel;
+        uint8_t gNumberOfSpecialPortsInCurrentLevel;
         // Level.specialPortsInfo 60 bytes
         // Level.scrambledSpeed 1
         // Level.scrambledChecksum 1
-        gRandomSeedInCurrentLevel  dw
+        uint16_t gRandomSeedInCurrentLevel;
         // 36 bytes
         // int8loc     dd 0            ; DATA XREF: int8handler+AEr
         //         dw 0
-        word_510A2  dw 0
-        dw 0FFFFh
+        uint16_t word_510A2;
+        // dw 0FFFFh
         // gNumberOfDotsToShiftDataLeft  db 0
         // word_510A7  dw 0
         // word_510A9  dw 0
-        byte_510AB  db 0
-        word_510AC  dw 0
-        gIsGamePaused  db 0
-        gAuxGameSeconds20msAccumulator  db 0
-        gGameSeconds  db 0
-        gGameMinutes  db 0
-        gGameHours  db 0
-        byte_510B3  db 0
-        byte_510B4  db 0
-        byte_510B5  db 0
-        byte_510B6  db 0
-        gLastDrawnMinutesAndSeconds  dw 0
-        gLastDrawnHours  db 0
-        gShouldShowFailedLevelResultScreen  db 0
-        byte_510BB  db 0
-        word_510BC  dw 0
-        word_510BE  dw 0
-        gIsExplosionStarted  db 0
-        word_510C1  dw 0
-        gMurphyTileX  dw 0
-        gMurphyTileY  dw 0
-        word_510C7  dw 0
-        gMurphyLocation  dw 0
-        word_510CB  dw 0
-        word_510CD  dw 0
-        word_510CF  dw 0
-        word_510D1  dw 0
-        byte_510D3  db 0
-                dw 0
-                db 0
-        gAreEnemiesFrozen byte_510D7 db 0
-        byte_510D8  db 0
-        // DCB-DCC: gIsMurphyGoingThroughPortal
-        // DCD:     gPlantedRedDiskCountdown
-        // DCE-DCF: gPlantedRedDiskPosition
-        // DD0:     gIsPlayingDemo
-        // DD1-DD2: word_510DF
-        // DD3:     byte_510E1
-        // DD4:     byte_510E2
-        // DD5:     gIsRecordingDemo
-        // DD6-DD7: word_510E4 -> last FILE * used? wtf??
-        // DD8-DD9: gDemoIndexOrDemoLevelNumber
-        // DDA-DDB: gMurphyPositionX
-        // DDC-DDD: gMurphyPositionY
-        // DDE-DDF: word_510EE
-        // DE0-DED: gCurrentMurphyAnimation
+        uint8_t byte_510AB;
+        uint16_t word_510AC;
+        uint8_t gIsGamePaused;
+        uint8_t gAuxGameSeconds20msAccumulator;
+        uint8_t gGameSeconds;
+        uint8_t gGameMinutes;
+        uint8_t gGameHours;
+        uint8_t byte_510B3;
+        uint8_t byte_510B4;
+        uint8_t byte_510B5;
+        uint8_t byte_510B6;
+        uint16_t gLastDrawnMinutesAndSeconds;
+        uint8_t gLastDrawnHours;
+        uint8_t gShouldShowFailedLevelResultScreen;
+        uint8_t byte_510BB;
+        uint16_t word_510BC;
+        uint16_t word_510BE;
+        uint8_t gIsExplosionStarted;
+        uint16_t word_510C1;
+        uint16_t gMurphyTileX;
+        uint16_t gMurphyTileY;
+        uint16_t word_510C7;
+        uint16_t gMurphyLocation;
+        uint16_t word_510CB;
+        uint16_t word_510CD;
+        uint16_t word_510CF;
+        uint16_t word_510D1;
+        uint8_t byte_510D3;
+                // dw 0
+                // db 0
+        uint8_t gAreEnemiesFrozen;
+        uint8_t byte_510D8;
+        uint16_t gIsMurphyGoingThroughPortal;
+        uint8_t gPlantedRedDiskCountdown;
+        uint16_t gPlantedRedDiskPosition;
+        uint8_t gIsPlayingDemo;
+        uint16_t word_510DF;
+        uint8_t byte_510E1;
+        uint8_t byte_510E2;
+        uint8_t gIsRecordingDemo;
+        uint16_t word_510E4; // -> last FILE * used? wtf??
+        uint16_t gDemoIndexOrDemoLevelNumber;
+        uint16_t gMurphyPositionX;
+        uint16_t gMurphyPositionY;
+        uint16_t word_510EE;
+        MurphyAnimationDescriptor gCurrentMurphyAnimation;
+
+        uint8_t gNumberOfRemainingInfotrons;
+        uint8_t gTotalNumberOfInfotrons; //byte_5195B  db 0
+        uint8_t gNumberOfRemainingRedDisks; //byte_5195C  db 0
+        uint16_t word_5195D; //  dw 0F000h
+        uint16_t gScrollOffsetX; // word_5195F  dw 0
+        uint16_t gScrollOffsetY; // word_51961  dw 0
+        int16_t gAdditionalScrollOffsetX; // word_51963  dw 0
+        int16_t gAdditionalScrollOffsetY; // word_51965  dw 0
+        uint16_t word_51967; //  dw 0
+        uint8_t byte_51969; //  db 0
+        uint8_t byte_5196A;  //  db 0
+        uint8_t byte_5196B; //  db 0
+        uint16_t word_5196C; //  dw 0
+        //dw 1
+        uint16_t gIsDebugModeEnabled; // word_51970  dw 0
+        //dw 1
+        uint16_t gShouldExitLevel; // word_51974  dw 0
+        //dw 1
+        uint16_t gQuitLevelCountdown; // word_51978  dw 0
+        uint16_t gShouldExitGame; // word_5197A  dw 0
+        uint8_t byte_5197C; //  db 0
+
+        Level level;
     } Savegame;
 
     Savegame savegame;
@@ -8455,7 +8479,7 @@ void loc_49949() //:              ; CODE XREF: handleGameUserInput+E1j
 //    mov dx, 0D08h
 //    call    writeToFh1
 
-
+/*
     bytes = fwrite(NULL, 1, 0xE6, file); // 230
     if (bytes < 0xE6)
     {
@@ -8465,10 +8489,11 @@ void loc_49949() //:              ; CODE XREF: handleGameUserInput+E1j
         showSavegameOperationError();
         return;
     }
-
+*/
 //loc_49A4E:              ; CODE XREF: handleGameUserInput+4EEj
 //    mov cx, 23h ; '#'
 //    mov dx, 164Ah
+    /*
     bytes = fwrite(NULL, 1, 0x23, file); // 35
     if (bytes < 0x23)
     {
@@ -8478,7 +8503,7 @@ void loc_49949() //:              ; CODE XREF: handleGameUserInput+E1j
         showSavegameOperationError();
         return;
     }
-
+*/
 //loc_49A5C:              ; CODE XREF: handleGameUserInput+4FCj
 //    mov cx, levelDataLength
 //    mov dx, offset levelBuffer
@@ -14338,17 +14363,9 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
         rightButtonPressed = (rightButtonPressed
                               || controllerRightButton);
 
-//        uint8_t shouldCorrectMousePosition = 0;
-
-
         // Limit coordinates as in the original game
         x = CLAMP(x, 16, 304);
         y = CLAMP(y, 8, 192);
-
-//        if (shouldCorrectMousePosition)
-        {
-//            SDL_WarpMouseInWindow(gWindow, x, y);
-        }
 
         if (mouseX != NULL)
         {
