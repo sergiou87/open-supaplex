@@ -115,6 +115,13 @@ void getWindowSize(int *width, int *height)
     SDL_GetWindowSize(gWindow, width, height);
 }
 
+void centerMouse()
+{
+    int windowWidth, windowHeight;
+    getWindowSize(&windowWidth, &windowHeight);
+    moveMouse(windowWidth / 2, windowHeight / 2);
+}
+
 void moveMouse(int x, int y)
 {
     SDL_WarpMouseInWindow(gWindow, x, y);

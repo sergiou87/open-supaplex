@@ -42,6 +42,7 @@ void present(void);
 void destroyVideo(void);
 
 void getWindowSize(int *width, int *height);
+void centerMouse(void);
 void moveMouse(int x, int y);
 
 void toggleFullscreen(void);
