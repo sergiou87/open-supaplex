@@ -1472,7 +1472,7 @@ uint16_t word_58AEC = 0x0030;
 uint16_t word_599D6 = 0;
 uint16_t word_599D8 = 0;
 uint16_t word_599DA = 0;
-uint16_t word_59B6E = 0;
+uint16_t word_59B6E = 0; // -> 0x985E
 uint16_t word_59B73 = 0;
 uint32_t dword_59B76 = 0;
 uint16_t word_59B88 = 0;
@@ -1493,6 +1493,8 @@ uint16_t gLastDrawnMinutesAndSeconds; // word_510B7
 uint8_t gLastDrawnHours; // byte_510B9
 uint8_t gIsPlayingDemo; // byte_510DE -> 0DCE
 uint8_t gIsRecordingDemo; // byte_510E3 -> 0DD3
+FILE *gCurrentRecordingDemoFile; // word_510E4
+uint8_t gDemoRecordingLowestSpeed; // speed?2
 int16_t gAdditionalScrollOffsetX; // word_51963
 int16_t gAdditionalScrollOffsetY; // word_51965
 uint8_t fileIsDemo = 0;
@@ -1591,7 +1593,7 @@ uint16_t gMouseX = 0, gMouseY = 0;
 
 #define kPlayerNameLength 8
 
-char a00s0010_sp[12] = "00S001$0.SP";
+char a00s0010_sp[12] = "00S001$0.SP"; // 0xA014
 char gPlayerName[kPlayerNameLength + 1] = "WIBBLE  "; // 0x879F // TODO: read this address when the game starts and put the same text here
 
 typedef enum
@@ -1785,6 +1787,7 @@ uint16_t gDemoRandomSeeds[kNumberOfDemos];
 Demos gDemos; // this is located in the demo segment, starting at 0x0000
 char gCurrentDemoLevelName[kListLevelNameLength] = ".SP\0----- DEMO LEVEL! -----"; // 0x87DA
 
+char gRecordingDemoMessage[kLevelNameLength] = "--- RECORDING DEMO0 ---";
 
 typedef struct {
     uint8_t tile; // of LevelTileType
@@ -1860,9 +1863,8 @@ typedef struct {
     uint8_t plantedRedDiskCountdown; // byte_510DB
     uint16_t plantedRedDiskPosition; // word_510DC
     uint16_t word_510DF;
-    uint8_t byte_510E1;
-    uint8_t byte_510E2;
-    uint16_t word_510E4; // -> last FILE * used? wtf??
+    uint8_t byte_510E1; // -> 0xDD1
+    uint8_t byte_510E2; // -> 0xDD2
     uint16_t demoIndexOrDemoLevelNumber; // word_510E6
     uint16_t murphyPositionX; // word_510E8
     uint16_t murphyPositionY; // word_510EA
@@ -2912,7 +2914,7 @@ void sub_4A463(void);
 void removeTiles(LevelTileType tileType);
 void sub_4A3E9(void);
 void recordDemo(uint16_t demoIndex);
-void somethingspsig(void);
+void stopRecordingDemo(void);
 void sub_4A3D2(void);
 void sub_49D53(void);
 void drawNumberOfRemainingRedDisks(void);
@@ -3654,7 +3656,7 @@ loc_46E75:              //; CODE XREF: start+251j
             word_58467 = 0;
             sound2();
 //          pop(ax);
-//          gCurrentSelectedLevelIndex = ax;
+//          gCurrentSelectedLevelIndex = ax; // TODO: implement
             restoreLastMouseAreaBitmap();
             drawLevelList();
             word_5196C = 0;
@@ -3962,6 +3964,11 @@ void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9
         {
             gGameSpeed--;
         }
+    }
+
+    if (gGameSpeed < gDemoRecordingLowestSpeed)
+    {
+        gDemoRecordingLowestSpeed = gGameSpeed;
     }
 
 //checkX:                 ; CODE XREF: int9handler+39j
@@ -6908,7 +6915,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
     word_510A2 = 0;
     if (gIsRecordingDemo != 0)
     {
-        somethingspsig();
+        stopRecordingDemo();
     }
 
 //loc_48E13:              ; CODE XREF: runLevel+353j
@@ -7417,6 +7424,7 @@ void calibrateJoystick() // sub_4921B   proc near       ; CODE XREF: readConfig+
 void simulateDemoInput() // sub_492A8   proc near       ; CODE XREF: handleGameUserInput+27p
                    // ; sub_4A3E9+76p
 {
+    // 01ED:2645
     if (gCurrentGameState.byte_510E2 > 1)
     {
         gCurrentGameState.byte_510E2--;
@@ -7446,195 +7454,198 @@ void simulateDemoInput() // sub_492A8   proc near       ; CODE XREF: handleGameU
 void sub_492F1() //   proc near       ; CODE XREF: handleGameUserInput+1Dp
 {
     gCurrentGameState.byte_510E2++;
-    bl = gCurrentUserInput;
+
     if (gCurrentGameState.byte_510E2 == 0xFF)
     {
-        gCurrentGameState.byte_510E1 = bl;
-        ax = gRandomGeneratorSeed;
-        word_5A199 = ax;
-        byte_59B5F = (ax >> 8); // ah;
-        byte_59B5C = (ax & 0xFF); // al;
+        gCurrentGameState.byte_510E1 = gCurrentUserInput;
+        // TODO: where is word_58ABA changed??
+        word_5A199 = word_58ABA;
+        byte_59B5F = (word_5A199 >> 8); // ah;
+        byte_59B5C = (word_5A199 & 0xFF); // al;
     }
 
 //loc_49311:              ; CODE XREF: sub_492F1+Dj
-    if (gCurrentGameState.byte_510E1 == bl
+    if (gCurrentGameState.byte_510E1 == gCurrentUserInput
         && gCurrentGameState.byte_510E2 != 0xF)
     {
         return;
     }
 
 //loc_4931E:              ; CODE XREF: sub_492F1+24j
-    al = gCurrentGameState.byte_510E1;
-    ah = gCurrentGameState.byte_510E2;
-    ah = ah << 4;
-    al |= ah;
-    gCurrentGameState.byte_510E1 = al;
-    al = gCurrentGameState.byte_510E2;
-    byte_59B5C += al;
+    gCurrentGameState.byte_510E1 = (gCurrentGameState.byte_510E1
+                                    | (gCurrentGameState.byte_510E2 << 4));
+
+    byte_59B5C += gCurrentGameState.byte_510E2;
     byte_59B5C++;
+
+    uint8_t value = gCurrentGameState.byte_510E1;
+    fwrite(&value, sizeof(uint8_t), 1, gCurrentRecordingDemoFile);
+    gCurrentGameState.byte_510E2 = 0xFF;
+    gCurrentGameState.byte_510E1 = gCurrentUserInput;
+}
+
+void stopRecordingDemo() // somethingspsig  proc near       ; CODE XREF: runLevel+355p
+                     // ; recordDemo+30p ...
+{
+    uint8_t scrambleSpeedLow = (gDemoRecordingLowestSpeed ^ byte_59B5F);
+    uint8_t scrambleSpeedHigh = (gDemoRecordingLowestSpeed ^ byte_59B5C);
+    uint16_t scrambleSpeed = ((scrambleSpeedHigh << 8)
+                              | scrambleSpeedLow);
+//    al = 0; //speed2;
+//    al = al ^ byte_59B5F; // ->
+//    byte_59B5D = al;
+//    al = al ^ byte_59B5C;
+//    byte_59B5E = al;
+
+    fseek(gCurrentRecordingDemoFile, 1532, SEEK_SET);
+
 //    mov ax, 4000h
-//    mov bx, word_510E4
+//    mov bx, gCurrentRecordingDemoFile
+//    mov cx, 2
+//    mov dx, 984Dh -> byte_59B5D and byte_59B5E
+//    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
+//                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
+    fwrite(&scrambleSpeed, 1, sizeof(uint16_t), gCurrentRecordingDemoFile);
+
+//    mov ax, 4000h
+//    mov bx, gCurrentRecordingDemoFile
+//    mov cx, 2
+//    mov dx, 9E89h
+//    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
+//                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
+    fwrite(&word_5A199, 1, sizeof(word_5A199), gCurrentRecordingDemoFile);
+
+    fseek(gCurrentRecordingDemoFile, 0, SEEK_END);
+
+    gCurrentGameState.byte_510E1 = 0xFF;
+
+//    mov ax, 4000h
+//    mov bx, gCurrentRecordingDemoFile
 //    mov cx, 1
 //    mov dx, 0DD1h
 //    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
 //                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
-    // TODO: Implement
-//    fwrite(NULL, sizeof(uint8_t), 1, word_510E4);
-    gCurrentGameState.byte_510E2 = 0xFF;
-    bl = gCurrentUserInput;
-    gCurrentGameState.byte_510E1 = bl;
+    uint8_t value = gCurrentGameState.byte_510E1;
+    fwrite(&value, 1, sizeof(uint8_t), gCurrentRecordingDemoFile);
+    if (byte_5A19B != 0)
+    {
+//    mov ax, 3D00h
+//    mov dx, offset aMyspsig_txt ; "MYSPSIG.TXT"
+//    int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
+//                ; DS:DX -> ASCIZ filename
+//                ; AL = access mode
+//                ; 0 - read
+        FILE *sigFile = openWritableFileWithReadonlyFallback("MYSPSIG.TXT", "r");
+        if (sigFile != NULL)
+        {
+//    mov bx, ax
+//    push    bx
+//    mov ax, 4202h
+//    xor cx, cx
+//    mov dx, cx
+//    int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
+//                ; AL = method: offset from end of file
+            if (fseek(sigFile, 0, SEEK_END) == 0)
+            {
+                long sigFileSize = ftell(sigFile);
+                sigFileSize = MIN(sigFileSize, kMaxDemoSignatureLength);
+
+                if (sigFileSize > 0)
+                {
+//loc_493EB:              ; CODE XREF: stopRecordingDemo+85j
+//                ; stopRecordingDemo+8Dj
+//    push    bx
+//    push(cx);
+//    mov ax, 4200h
+//    xor cx, cx
+//    mov dx, cx
+//    int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
+//                ; AL = method: offset from beginning of file
+                    if (fseek(sigFile, 0, SEEK_SET) == 0)
+                    {
+//    push    bx
+//    push(cx);
+//    mov ax, 3F00h
+//    mov dx, offset fileLevelData
+//    int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
+//                ; BX = file handle, CX = number of bytes to read
+//                ; DS:DX -> buffer
+                        uint8_t signature[kMaxDemoSignatureLength + 1];
+                        size_t bytes = fread(signature, 1, sigFileSize, sigFile);
+//    pop(cx);
+//    pop bx
+                        if (bytes == sigFileSize)
+                        {
+//    push    bx
+//    push    es
+//    push    ds
+//    pop es
+//    assume es:data
+//    push(di);
+//    push(cx);
+//    mov di, offset fileLevelData
+//    al = 0FFh
+//    cld
+//    repne scasb
+//    jz  short loc_4941C
+//    dec cx
+//    mov byte ptr [di], 0FFh
+                            int idx = 0;
+                            for (idx = 0; idx < sigFileSize; ++idx)
+                            {
+                                if (signature[idx] == 0xFF)
+                                {
+                                    break;
+                                }
+                            }
+
+                            // Make sure the signature is terminated with 0xFF
+                            signature[idx] = 0xFF;
+                            sigFileSize = idx;
+
+//loc_4941C:              ; CODE XREF: stopRecordingDemo+BCj
+//    pop ax
+//    pop(di);
+//    pop es
+//    assume es:nothing
+//    cx -= ax;
+//    cx = 0x10000-cx; // neg cx
+//    mov ax, 4000h
+//    mov bx, gCurrentRecordingDemoFile
+//    mov dx, offset fileLevelData
+//    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
+//                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
+                            fwrite(signature, 1, sigFileSize, sigFile);
+//    pop bx
+                        }
+                    }
+                }
+            }
+
+//loc_49430:              ; CODE XREF: stopRecordingDemo+7Ej
+//                ; stopRecordingDemo+89j ...
+            fclose(sigFile);
+        }
+    }
+//loc_49435:              ; CODE XREF: stopRecordingDemo+65j
+//                ; stopRecordingDemo+6Fj
+    fclose(gCurrentRecordingDemoFile);
+    gIsRecordingDemo = 0;
+    if (byte_5A33E != 0)
+    {
+        gIsPlayingDemo = 1;
+    }
+
+//loc_4944F:              ; CODE XREF: stopRecordingDemo+EEj
+    drawGamePanelText();
+    byte_5A33F = 1;
+    gIsPlayingDemo = 0;
 }
 
-void somethingspsig() //  proc near       ; CODE XREF: runLevel+355p
-                     // ; recordDemo+30p ...
-{
-    // TODO: Implement
-    /*
-    al = speed2
-    xor al, byte_59B5F
-    mov byte_59B5D, al
-    xor al, byte_59B5C
-    mov byte_59B5E, al
-    mov ah, 42h ; 'B'
-    mov bx, word_510E4
-    xor cx, cx
-    xor al, al
-    mov dx, 5FCh
-    int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
-                ; AL = method: offset from beginning of file
-    mov ax, 4000h
-    mov bx, word_510E4
-    mov cx, 2
-    mov dx, 984Dh
-    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
-                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
-    mov ax, 4000h
-    mov bx, word_510E4
-    mov cx, 2
-    mov dx, 9E89h
-    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
-                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
-    mov ah, 42h ; 'B'
-    mov bx, word_510E4
-    xor cx, cx
-    xor dx, dx
-    al = 2
-    int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
-                ; AL = method: offset from end of file
-    mov byte_510E1, 0FFh
-    mov ax, 4000h
-    mov bx, word_510E4
-    mov cx, 1
-    mov dx, 0DD1h
-    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
-                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
-    cmp byte_5A19B, 0
-    jz  short loc_49435
-    mov ax, 3D00h
-    mov dx, offset aMyspsig_txt ; "MYSPSIG.TXT"
-    int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-                ; DS:DX -> ASCIZ filename
-                ; AL = access mode
-                ; 0 - read
-    jb  short loc_49435
-    mov bx, ax
-    push    bx
-    mov ax, 4202h
-    xor cx, cx
-    mov dx, cx
-    int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
-                ; AL = method: offset from end of file
-    pop bx
-    jb  short loc_49430
-    mov cx, 1FFh
-    or  dx, dx
-    jnz short loc_493EB
-    or  ax, ax
-    jz  short loc_49430
-    cmp ax, cx
-    ja  short loc_493EB
-    mov cx, ax
-
-loc_493EB:              ; CODE XREF: somethingspsig+85j
-                ; somethingspsig+8Dj
-    push    bx
-    push(cx);
-    mov ax, 4200h
-    xor cx, cx
-    mov dx, cx
-    int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
-                ; AL = method: offset from beginning of file
-    pop(cx);
-    pop bx
-    jb  short loc_49430
-    push    bx
-    push(cx);
-    mov ax, 3F00h
-    mov dx, offset fileLevelData
-    int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-                ; BX = file handle, CX = number of bytes to read
-                ; DS:DX -> buffer
-    pop(cx);
-    pop bx
-    jb  short loc_49430
-    push    bx
-    push    es
-    push    ds
-    pop es
-    assume es:data
-    push(di);
-    push(cx);
-    mov di, offset fileLevelData
-    al = 0FFh
-    cld
-    repne scasb
-    jz  short loc_4941C
-    dec cx
-    mov byte ptr [di], 0FFh
-
-loc_4941C:              ; CODE XREF: somethingspsig+BCj
-    pop ax
-    pop(di);
-    pop es
-    assume es:nothing
-    sub cx, ax
-    neg cx
-    mov ax, 4000h
-    mov bx, word_510E4
-    mov dx, offset fileLevelData
-    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
-                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
-    pop bx
-
-loc_49430:              ; CODE XREF: somethingspsig+7Ej
-                ; somethingspsig+89j ...
-    mov ax, 3E00h
-    int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                ; BX = file handle
-
-loc_49435:              ; CODE XREF: somethingspsig+65j
-                ; somethingspsig+6Fj
-    mov ax, 3E00h
-    mov bx, word_510E4
-    int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-                ; BX = file handle
-    mov gIsRecordingDemo, 0
-    cmp byte_5A33E, 0
-    jz  short loc_4944F
-    mov gIsPlayingDemo, 1
-
-loc_4944F:              ; CODE XREF: somethingspsig+EEj
-    call    drawGamePanelText
-    mov byte_5A33F, 1
-    mov gIsPlayingDemo, 0
-    return;
-     */
-}
-
-// TODO: Implement recording demo support
 void recordDemo(uint16_t demoIndex) // sub_4945D   proc near       ; CODE XREF: handleGameUserInput+294p
                    // ; handleGameUserInput+2A4p ...
 {
+    // 01ED:27FA
     gIsMoveScrollModeEnabled = 0;
     gAdditionalScrollOffsetX = 0;
     gAdditionalScrollOffsetY = 0;
@@ -7645,25 +7656,23 @@ void recordDemo(uint16_t demoIndex) // sub_4945D   proc near       ; CODE XREF: 
 
     if (gIsRecordingDemo != 0)
     {
-        somethingspsig();
+        stopRecordingDemo();
     }
 
 //loc_49490:              ; CODE XREF: recordDemo+2Ej
     char demoIndexCharacter = '0' + demoIndex;
     gDemo0BinFilename[4] = demoIndexCharacter;
 
+    char *filename = gDemo0BinFilename;
+
     if ((word_59B6E & 0xFF) == 0) // cmp byte ptr word_59B6E, 0
     {
-        // TODO: what's this? a different file name? maybe from command line?
-        assert(0);
-        bx = 0xA014;
-        //someString[7] = demoIndexCharacter; // *(bx + 7) = al; // [bx+7], al
-
+        a00s0010_sp[7] = demoIndexCharacter;
+        filename = a00s0010_sp;
     }
 
 //loc_494A6:              ; CODE XREF: recordDemo+41j
-    char message[kLevelNameLength] = "--- RECORDING DEMO0 ---";
-    message[18] = demoIndexCharacter;
+    gRecordingDemoMessage[18] = demoIndexCharacter;
     // aRecordingDemo0 has "--- RECORDING DEMO0 ---"
     // This code changes the "0" from "DEMO0" with another value
 //    mov byte ptr aRecordingDemo0+12h, al ; "0 ---"
@@ -7674,14 +7683,14 @@ void recordDemo(uint16_t demoIndex) // sub_4945D   proc near       ; CODE XREF: 
 //                ; CX = attributes for file
 //                ; DS:DX -> ASCIZ filename (may include drive and path)
     // TODO: Implement
-    FILE *file = openWritableFileWithReadonlyFallback(gDemo0BinFilename, "w");
+    FILE *file = openWritableFile(filename, "w");
     if (file == NULL)
     {
         return;
     }
 
 //loc_494B8:              ; CODE XREF: recordDemo+56j
-    gCurrentGameState.word_510E4 = ax; // file handle
+    gCurrentRecordingDemoFile = file; // file handle
     byte_5A140 = 0x83; // 131
     // TODO: don't know for sure but this probably is related to adjusting the demo time with the speed or something?
     // bl = speed3;
@@ -7689,29 +7698,24 @@ void recordDemo(uint16_t demoIndex) // sub_4945D   proc near       ; CODE XREF: 
     // bl = bl << cl;
     // bl |= gGameSpeed;
     // speed2 = bl;
-//    mov bx, word_510E4
+    gDemoRecordingLowestSpeed = gGameSpeed;
+//    mov bx, gCurrentRecordingDemoFile
 //    mov ax, 4000h
 //    mov cx, levelDataLength
 //    mov dx, offset levelBuffer
 //    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
 //                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
-    uint8_t buffer[levelDataLength];
-    size_t bytes = fwrite(buffer, levelDataLength, 1, file);
-    if (bytes < levelDataLength)
+    size_t bytes = fwrite(&gCurrentGameState.level, 1, sizeof(Level), file);
+    if (bytes < sizeof(Level))
     {
         return;
     }
-    ax = gCurrentSelectedLevelIndex;
-    al |= 0x80; // 128
-    gCurrentGameState.byte_510E2 = al;
-//    mov ax, 4000h
-//    mov bx, word_510E4
-//    mov cx, 1
-//    mov dx, 0DD2h // TODO: what is in 0xDD2??
-//    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
-//                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
-    uint8_t otherBuffer[1];
-    bytes = fwrite(otherBuffer, 1, 1, file);
+
+    // The original code sets index | 0x80 in byte_510E2 and then writes it to the file
+    // but seems to be useless because that value is overriden later.
+    //
+    uint8_t levelNumber = gCurrentSelectedLevelIndex | 0x80;
+    bytes = fwrite(&levelNumber, 1, 1, file);
     if (bytes < 1)
     {
         return;
@@ -7723,11 +7727,8 @@ void recordDemo(uint16_t demoIndex) // sub_4945D   proc near       ; CODE XREF: 
     gDebugExtraRenderDelay = 1;
     if (byte_599D4 == 0)
     {
-        ax = word_58AB8;
-        word_58AEA = ax;
-        ax = word_58ABA;
-        ax &= 0xFF;
-        word_58AEC = ax;
+        word_58AEA = word_58AB8;
+        word_58AEC = (word_58ABA & 0xFF);
     }
 
 //loc_4952A:              ; CODE XREF: recordDemo+BCj
@@ -7986,6 +7987,7 @@ void handleGameUserInput() // sub_4955B   proc near       ; CODE XREF: runLevel:
 
 //loc_49742:              ; CODE XREF: handleGameUserInput+EBj
 //                ; handleGameUserInput+158j ...
+    // 01ED:2ADF
     if (gIsLeftControlPressed == 1)
     {
 //loc_497D1:              ; CODE XREF: handleGameUserInput+1EEj
@@ -8004,11 +8006,13 @@ void handleGameUserInput() // sub_4955B   proc near       ; CODE XREF: runLevel:
 //loc_497E5:              ; CODE XREF: handleGameUserInput+285j
         else if (gIsF1KeyPressed == 1)
         {
+            // 01ED:2B89
             recordDemo(0);
         }
 //loc_497F5:              ; CODE XREF: handleGameUserInput+28Fj
         else if (gIsF2KeyPressed == 1)
         {
+            // 01ED:2B99
             recordDemo(1);
         }
 //loc_49805:              ; CODE XREF: handleGameUserInput+29Fj
@@ -8055,7 +8059,7 @@ void handleGameUserInput() // sub_4955B   proc near       ; CODE XREF: runLevel:
         else if (byte_519D5 == 1
             && gIsRecordingDemo != 0)
         {
-            somethingspsig();
+            stopRecordingDemo();
         }
     }
     else
@@ -8199,7 +8203,6 @@ void loc_4988E() // :              ; CODE XREF: handleGameUserInput+1F9j
 
 //loc_49939:              ; CODE XREF: handleGameUserInput+3D6j
         gCurrentSelectedLevelIndex++;
-    //    ax = gCurrentSelectedLevelIndex;
         sub_4BF4A(gCurrentSelectedLevelIndex); // 01ED:2CDD
         drawLevelList();
         sub_4A3D2();
@@ -8337,7 +8340,7 @@ void loadGameSnapshot() // loc_49A89:              ; CODE XREF: handleGameUserIn
 //loc_49A96:              ; CODE XREF: handleGameUserInput+536j
     if (gIsRecordingDemo != 0)
     {
-        somethingspsig();
+        stopRecordingDemo();
     }
 
     Savegame savegame;
@@ -11491,7 +11494,6 @@ void handleOkButtonClick() // sub_4B375  proc near       ; CODE XREF: runMainMen
 
 //loc_4B3A4:              ; CODE XREF: handleOkButtonClick+12j
 //                ; handleOkButtonClick+17j ...
-//    ax = gCurrentSelectedLevelIndex;
     if (gCurrentSelectedLevelIndex == kLastLevelIndex)
     {
 //loc_4B3B4:              ; CODE XREF: handleOkButtonClick+3Cj
@@ -19269,7 +19271,7 @@ void updateElectronMovementLeft(uint16_t position, uint8_t frame) // sub_4FB79  
     currentTile->movingObject = 7;
 }
 
-void drawGamePanelText() // sub_4FC20  proc near       ; CODE XREF: somethingspsig:loc_4944Fp
+void drawGamePanelText() // sub_4FC20  proc near       ; CODE XREF: stopRecordingDemo:loc_4944Fp
                    // ; drawGamePanel+22p ...
 {
     // 01ED:8FBD
@@ -19280,7 +19282,7 @@ void drawGamePanelText() // sub_4FC20  proc near       ; CODE XREF: somethingsps
 //    mov si, 87DAh // "000" -> this address is the ".SP" text
         drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 16, 14, 8, gCurrentDemoLevelName);
 //        mov si, 87F6h // "--- RECORDING DEMO0 ---"
-        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 64, 14, 8, "--- RECORDING DEMO0 ---");
+        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 64, 14, 8, gRecordingDemoMessage);
     }
 //loc_4FC6F:              ; CODE XREF: drawGamePanelText+5j
     else if (gIsPlayingDemo != 0) // Playing demo?
