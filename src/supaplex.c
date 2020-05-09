@@ -143,7 +143,7 @@ uint8_t gIsNumpadPeriodPressed = 0; // byte_519D0 -> numpad .
 // Key 45
 // numpad Enter
 uint8_t gIsNumpadDividePressed = 0; // byte_519D4 -> numpad /
-uint8_t byte_519D5 = 0; //
+uint8_t gIsF12KeyPressed = 0; // byte_519D5 -> F12
 uint8_t byte_519F4 = 0; //
 uint8_t byte_519F5 = 0; //
 uint8_t byte_519F6 = 0; //
@@ -165,8 +165,8 @@ uint16_t word_5988E = 0x4650; // "PF"
 //uint8_t byte_59890 = 0x58; // 88 or 'X'
 //uint16_t word_59891 = 0x3336; // "63"
 uint8_t byte_599D4 = 0;
-uint8_t byte_59B5C = 0;
-uint8_t byte_59B5F = 0;
+uint8_t gDemoRecordingRandomGeneratorSeedHigh = 0; // byte_59B5C
+uint8_t gDemoRecordingRandomGeneratorSeedLow = 0; // byte_59B5F
 uint8_t byte_59B62 = 0;
 // uint8_t byte_59B64 = 0;
 uint16_t word_59B65 = 0;
@@ -187,7 +187,7 @@ uint8_t byte_59B83 = 0;
 uint8_t byte_59B84 = 0;
 uint8_t byte_59B85 = 0;
 uint8_t byte_59B86 = 0;
-uint16_t word_5A199 = 0;
+uint16_t gDemoRecordingRandomGeneratorSeed = 0; // word_5A199
 uint8_t byte_59B9A = 2;
 uint8_t byte_5A140 = 0;
 uint8_t byte_5A19B = 0;
@@ -1465,10 +1465,6 @@ uint16_t word_5870D = 0;
 uint16_t word_58710 = 0;
 uint16_t word_58712 = 0;
 uint16_t word_58714 = 0;
-uint16_t word_58AB8 = 0x3231;
-uint16_t word_58ABA = 0x3433;
-uint16_t word_58AEA = 0x3030;
-uint16_t word_58AEC = 0x0030;
 uint16_t word_599D6 = 0;
 uint16_t word_599D8 = 0;
 uint16_t word_599DA = 0;
@@ -1681,6 +1677,8 @@ uint8_t gCurrentPlayerPaddedLevelData[kNumberOfLevelsWithPadding]; // 0x949C
 static const int kCurrentPlayerLevelDataLength = kNumberOfLevels;
 uint8_t *gCurrentPlayerLevelData = &gCurrentPlayerPaddedLevelData[kFirstLevelIndex]; // 0x949E
 
+// uint16_t word_58AB8 = 0x3231; // -> 0x87A8
+// uint16_t word_58ABA = 0x3433; // -> 0x87AA
 char gCurrentLevelName[kListLevelNameLength]; // 0x87A8
 
 #define kLevelNameLength 24
@@ -1785,6 +1783,9 @@ typedef struct
 uint16_t gDemoRandomSeeds[kNumberOfDemos];
 
 Demos gDemos; // this is located in the demo segment, starting at 0x0000
+
+// uint16_t word_58AEA = 0x3030; // -> 0x87DA
+// uint16_t word_58AEC = 0x0030; // -> 0x87DC
 char gCurrentDemoLevelName[kListLevelNameLength] = ".SP\0----- DEMO LEVEL! -----"; // 0x87DA
 
 char gRecordingDemoMessage[kLevelNameLength] = "--- RECORDING DEMO0 ---";
@@ -3921,6 +3922,7 @@ void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9
     gIsF8KeyPressed = keys[SDL_SCANCODE_F8];
     gIsF9KeyPressed = keys[SDL_SCANCODE_F9];
     gIsF10KeyPressed = keys[SDL_SCANCODE_F10];
+    gIsF12KeyPressed = keys[SDL_SCANCODE_F12];
 
     // 01ED:0659
     if (keyPressed == SDL_SCANCODE_UNKNOWN) //test    cl, 80h     ; think key up
@@ -7458,10 +7460,9 @@ void sub_492F1() //   proc near       ; CODE XREF: handleGameUserInput+1Dp
     if (gCurrentGameState.byte_510E2 == 0xFF)
     {
         gCurrentGameState.byte_510E1 = gCurrentUserInput;
-        // TODO: where is word_58ABA changed??
-        word_5A199 = word_58ABA;
-        byte_59B5F = (word_5A199 >> 8); // ah;
-        byte_59B5C = (word_5A199 & 0xFF); // al;
+        gDemoRecordingRandomGeneratorSeed = gRandomGeneratorSeed;
+        gDemoRecordingRandomGeneratorSeedLow = (gDemoRecordingRandomGeneratorSeed >> 8); // ah;
+        gDemoRecordingRandomGeneratorSeedHigh = (gDemoRecordingRandomGeneratorSeed & 0xFF); // al;
     }
 
 //loc_49311:              ; CODE XREF: sub_492F1+Dj
@@ -7475,8 +7476,8 @@ void sub_492F1() //   proc near       ; CODE XREF: handleGameUserInput+1Dp
     gCurrentGameState.byte_510E1 = (gCurrentGameState.byte_510E1
                                     | (gCurrentGameState.byte_510E2 << 4));
 
-    byte_59B5C += gCurrentGameState.byte_510E2;
-    byte_59B5C++;
+    gDemoRecordingRandomGeneratorSeedHigh += gCurrentGameState.byte_510E2;
+    gDemoRecordingRandomGeneratorSeedHigh++;
 
     uint8_t value = gCurrentGameState.byte_510E1;
     fwrite(&value, sizeof(uint8_t), 1, gCurrentRecordingDemoFile);
@@ -7487,14 +7488,14 @@ void sub_492F1() //   proc near       ; CODE XREF: handleGameUserInput+1Dp
 void stopRecordingDemo() // somethingspsig  proc near       ; CODE XREF: runLevel+355p
                      // ; recordDemo+30p ...
 {
-    uint8_t scrambleSpeedLow = (gDemoRecordingLowestSpeed ^ byte_59B5F);
-    uint8_t scrambleSpeedHigh = (gDemoRecordingLowestSpeed ^ byte_59B5C);
+    uint8_t scrambleSpeedLow = (gDemoRecordingLowestSpeed ^ gDemoRecordingRandomGeneratorSeedLow);
+    uint8_t scrambleSpeedHigh = (gDemoRecordingLowestSpeed ^ gDemoRecordingRandomGeneratorSeedHigh);
     uint16_t scrambleSpeed = ((scrambleSpeedHigh << 8)
                               | scrambleSpeedLow);
 //    al = 0; //speed2;
-//    al = al ^ byte_59B5F; // ->
+//    al = al ^ gDemoRecordingRandomGeneratorSeedLow; // ->
 //    byte_59B5D = al;
-//    al = al ^ byte_59B5C;
+//    al = al ^ gDemoRecordingRandomGeneratorSeedHigh;
 //    byte_59B5E = al;
 
     fseek(gCurrentRecordingDemoFile, 1532, SEEK_SET);
@@ -7513,7 +7514,7 @@ void stopRecordingDemo() // somethingspsig  proc near       ; CODE XREF: runLeve
 //    mov dx, 9E89h
 //    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
 //                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
-    fwrite(&word_5A199, 1, sizeof(word_5A199), gCurrentRecordingDemoFile);
+    fwrite(&gDemoRecordingRandomGeneratorSeed, 1, sizeof(gDemoRecordingRandomGeneratorSeed), gCurrentRecordingDemoFile);
 
     fseek(gCurrentRecordingDemoFile, 0, SEEK_END);
 
@@ -7727,8 +7728,7 @@ void recordDemo(uint16_t demoIndex) // sub_4945D   proc near       ; CODE XREF: 
     gDebugExtraRenderDelay = 1;
     if (byte_599D4 == 0)
     {
-        word_58AEA = word_58AB8;
-        word_58AEC = (word_58ABA & 0xFF);
+        memcpy(gCurrentDemoLevelName, gCurrentLevelName, 3);
     }
 
 //loc_4952A:              ; CODE XREF: recordDemo+BCj
@@ -8056,7 +8056,7 @@ void handleGameUserInput() // sub_4955B   proc near       ; CODE XREF: runLevel:
             recordDemo(9);
         }
 //loc_4987D:              ; CODE XREF: handleGameUserInput+318j
-        else if (byte_519D5 == 1
+        else if (gIsF12KeyPressed == 1
             && gIsRecordingDemo != 0)
         {
             stopRecordingDemo();
@@ -8232,7 +8232,7 @@ void loc_49949() //:              ; CODE XREF: handleGameUserInput+E1j
     }
 
 //loc_49962:              ; CODE XREF: handleGameUserInput+402j
-    if (byte_519D5 == 1
+    if (gIsF12KeyPressed == 1
         && gIsPlayingDemo != 0)
     {
         gIsPlayingDemo = 0;
@@ -13046,7 +13046,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
         }
 //loc_4C977:              // ; CODE XREF: runMainMenu+1C6j
                     // ; runMainMenu+1CDj ...
-        else if (byte_519D5 == 1
+        else if (gIsF12KeyPressed == 1
                  && demoFileName != 0)
         {
             byte_599D4 = 1;
