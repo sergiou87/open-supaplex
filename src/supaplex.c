@@ -8937,6 +8937,8 @@ void updateUserInput() // sub_4A1BF   proc near       ; CODE XREF: handleGameUse
     int8_t gameControllerX = getGameControllerX();
     int8_t gameControllerY = getGameControllerY();
 
+    gCurrentUserInput = UserInputNone;
+
     if (gIsUpKeyPressed != 0
         || gameControllerY < 0)
     {
