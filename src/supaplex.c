@@ -144,12 +144,13 @@ uint8_t gIsNumpadPeriodPressed = 0; // byte_519D0 -> numpad .
 // numpad Enter
 uint8_t gIsNumpadDividePressed = 0; // byte_519D4 -> numpad /
 uint8_t gIsF12KeyPressed = 0; // byte_519D5 -> F12
-uint8_t byte_519F4 = 0; //
-uint8_t byte_519F5 = 0; //
-uint8_t byte_519F6 = 0; //
-uint8_t byte_519F7 = 0; //
-uint8_t byte_519F8 = 0; //
-uint8_t byte_519F9 = 0; //
+// These are joystick keys
+// uint8_t byte_519F4 = 0; // button A
+// uint8_t byte_519F5 = 0; // button B
+// uint8_t byte_519F6 = 0; // right
+// uint8_t byte_519F7 = 0; // left
+// uint8_t byte_519F8 = 0; // down
+// uint8_t byte_519F9 = 0; // up
 uint8_t gShouldAutoselectNextLevelToPlay = 0; // byte_51ABE
 uint8_t byte_5870F = 0; //
 uint8_t byte_58D46 = 0; //
@@ -2815,7 +2816,6 @@ void activateRolandSound(void);
 void activateCombinedSound(void);
 void activateInternalStandardSound(void);
 void activateInternalSamplesSound(void);
-void calibrateJoystick(void);
 void prepareSomeKindOfLevelIdentifier(void);
 void runMainMenu(void);
 void convertNumberTo3DigitPaddedString(uint8_t number, char numberString[3], char useSpacesForPadding);
@@ -2835,7 +2835,6 @@ void saveHallOfFameData(void);
 void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonStatus);
 void drawMainMenuButtonBorders(void);
 void drawMainMenuButtonBorder(ButtonBorderDescriptor border, uint8_t color);
-uint8_t waitForJoystickKeyReleased(uint8_t keyOrAxis, uint16_t *outTime); // sub_49FED
 void generateRandomSeedFromClock(void);
 void initializeFadePalette(void);
 void initializeMouse(void);
@@ -2852,7 +2851,6 @@ void drawTextWithChars6FontWithOpaqueBackground(size_t destX, size_t destY, uint
 void drawTextWithChars6FontWithTransparentBackground(size_t destX, size_t destY, uint8_t color, const char *text);
 void drawTextWithChars8Font(size_t destX, size_t destY, uint8_t color, const char *text);
 void drawTextWithChars8FontToBuffer(uint8_t *buffer, size_t destX, size_t destY, uint8_t color, const char *text);
-void sub_48E59(void);
 void waitForKeyMouseOrJoystick(void);
 void drawMenuTitleAndDemoLevelResult(void);
 void scrollRightToNewScreen(void);
@@ -4144,7 +4142,7 @@ void readConfig() //  proc near       ; CODE XREF: start:loc_46F0Fp
     if (configData[1] == 'j')
     {
         isJoystickEnabled = 1;
-        calibrateJoystick();
+        // calibrateJoystick(); not needed anymore
     }
 
 //loc_47530:              //; CODE XREF: readConfig+85j
@@ -5168,13 +5166,6 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
     }
     while (mouseButtonsStatus != 0);
 
-    do
-    {
-//loc_47EB8:              ; CODE XREF: waitForKeyMouseOrJoystick+28j
-        sub_48E59();
-    }
-    while (gCurrentUserInput > kUserInputSpaceAndDirectionOffset);
-
     for (int i = 0; i < 4200; ++i)
     {
 //loc_47EC6:              ; CODE XREF: waitForKeyMouseOrJoystick+57j
@@ -5191,7 +5182,7 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
         {
             break;
         }
-        sub_48E59();
+
         if (gCurrentUserInput > kUserInputSpaceAndDirectionOffset)
         {
             break;
@@ -5220,8 +5211,6 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
             }
 
             int9handler(1);
-
-//loc_47F18:              ; CODE XREF: waitForKeyMouseOrJoystick+79j
         }
         while (keyPressed != SDL_SCANCODE_UNKNOWN);
     }
@@ -5236,8 +5225,8 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
                 byte_59B86 = 0xFF;
             }
 
-//loc_47F2D:              ; CODE XREF: waitForKeyMouseOrJoystick+8Ej
-            sub_48E59();
+            int9handler(1);
+            updateUserInput();
         }
         while (gCurrentUserInput > kUserInputSpaceAndDirectionOffset);
     }
@@ -6768,13 +6757,6 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 
         int9handler(0);
 
-//updateMovingObjectsrep:                ; CODE XREF: runLevel+33Cj
-//                ; runLevel+345j
-        if (gIsPlayingDemo == 0)
-        {
-            sub_48E59(); // 01ED:1EBD
-        }
-
         uint16_t mouseButtonsStatus;
 
 //loc_48B23:              ; CODE XREF: runLevel+63j
@@ -6938,132 +6920,6 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
     gIsFlashingBackgroundModeEnabled = 0;
     gDebugExtraRenderDelay = 1;
     replaceCurrentPaletteColor(0, (Color) { 0, 0, 0 });
-}
-
-// TODO: seems to be the function that reads joystick input. worth keeping it or should I just delete it?
-void sub_48E59() //   proc near       ; CODE XREF: waitForKeyMouseOrJoystick:loc_47EB8p
-//                    ; waitForKeyMouseOrJoystick+4Dp ...
-{
-    ax = 0;
-    UserInput userInput = UserInputNone;
-    if (isJoystickEnabled != 0)
-    {
-//loc_48E67:              ; CODE XREF: sub_48E59+9j
-        word_50942 = ax;
-        word_50944 = ax;
-        word_5094F = ax;
-        word_50951 = ax;
-        byte_50953 = al;
-        byte_50954 = al;
-        al = byte_50946;
-        if (al != 0)
-        {
-//loc_48E83:              ; CODE XREF: sub_48E59+25j
-            // Joystick axis X
-//            ah = 1;
-            if (waitForJoystickKeyReleased(1, &ax)) // jnb short loc_48E8D
-            {
-//loc_48E8D:              ; CODE XREF: sub_48E59+2Fj
-                word_50942 = ax;
-                dx = word_5094B;
-                ax = ax * dx;
-                ax = ax << 1;
-                dx = dx + cf; // adc dx, 0
-                ax = dx;
-                if (ax > 16)
-                {
-                    ax = 16;
-                }
-
-//loc_48EA5:              ; CODE XREF: sub_48E59+47j
-                if (byte_519F7 == 0)
-                {
-                    if (byte_519F6 != 0)
-                    {
-                        ax = 16;
-                    }
-                }
-                else
-                {
-                    ax = 1;
-                }
-//loc_48EBB:              ; CODE XREF: sub_48E59+56j
-//                ; sub_48E59+5Dj
-                word_5094F = ax;
-                // Joystick axis Y
-//                ah = 2;
-                if (waitForJoystickKeyReleased(2, &ax)) // jnb short loc_48EC8
-                {
-//loc_48EC8:              ; CODE XREF: sub_48E59+6Aj
-                    word_50944 = ax;
-                    dx = word_5094D;
-                    ax = ax * dx;
-                    ax = ax << 1;
-                    dx = dx + cf; // adc dx, 0
-                    ax = dx;
-                    if (ax > 16)
-                    {
-                        ax = 16;
-                    }
-
-//loc_48EE0:              ; CODE XREF: sub_48E59+82j
-                    if (byte_519F9 == 0)
-                    {
-                        if (byte_519F8 != 0)
-                        {
-                            ax = 16;
-                        }
-                    }
-                    else
-                    {
-                        ax = 1;
-                    }
-//loc_48EF6:              ; CODE XREF: sub_48E59+91j
-//                ; sub_48E59+98j
-                    word_50951 = ax;
-                    ax = word_50951;
-                    cx = 0x11;
-                    ax = ax * cx;
-                    si = word_5094F;
-                    si += ax;
-                    si += 0x645;
-//                    userInput = *(uint8_t *)si;
-                    if (userInput != UserInputNone)
-                    {
-//                    mov dx, 201h
-//                    in  al, dx      ; Game I/O port
-//                                ; bits 0-3: Coordinates (resistive, time-dependent inputs)
-//                                ; bits 4-7: Buttons/Triggers (digital inputs)
-                        if ((al & 0x10) == 0
-                            || (al & 0x20) == 0
-                            || byte_519F5 != 0
-                            || byte_519F4 != 0)
-                        {
-                            userInput += kUserInputSpaceAndDirectionOffset;
-                        }
-                    }
-                    else
-                    {
-//loc_48F40:              ; CODE XREF: sub_48E59+B7j
-//                    mov dx, 201h
-//                    in  al, dx      ; Game I/O port
-//                                ; bits 0-3: Coordinates (resistive, time-dependent inputs)
-//                                ; bits 4-7: Buttons/Triggers (digital inputs)
-                        if ((al & 0x10) == 0
-                            || (al & 0x20) == 0
-                            || byte_519F5 != 0
-                            || byte_519F4 != 0)
-                        {
-                            userInput = UserInputSpaceOnly;
-                        }
-                    }
-                }
-            }
-        }
-    }
-//loc_48F68:              ; CODE XREF: sub_48E59+Bj
-//                ; sub_48E59+27j ...
-    gCurrentUserInput = userInput;
 }
 
 // Draws the fixed stuff from the level (edges of the screen + tiles from FIXED.DAT)
@@ -7331,96 +7187,6 @@ void updateUserInputInScrollMovementMode() // sub_4914A   proc near       ; CODE
         gAdditionalScrollOffsetX = bx;
         gAdditionalScrollOffsetY = ax;
     }
-}
-
-void calibrateJoystick() // sub_4921B   proc near       ; CODE XREF: readConfig+8Cp
-                   // ; handleGameUserInput+31p ...
-{
-//    push    bp
-    ax = 0;
-    byte_50946 = 0;
-    word_50947 = 0;
-    word_50949 = 0;
-    word_5094B = 0;
-    word_5094D = 0;
-    bp = 0;
-
-    if (waitForJoystickKeyReleased(1, &ax) == 0)
-    {
-        return;
-    }
-    bp += ax;
-
-    if (waitForJoystickKeyReleased(1, &ax) == 0)
-    {
-        return;
-    }
-    bp += ax;
-
-    if (waitForJoystickKeyReleased(1, &ax) == 0)
-    {
-        return;
-    }
-    bp += ax;
-
-    if (waitForJoystickKeyReleased(1, &ax) == 0)
-    {
-        return;
-    }
-    bp += ax;
-    bp = bp >> 1;
-
-    word_50947 = bp;
-    dx = 0x10;
-    ax = 0;
-    if (bp <= dx)
-    {
-        return;
-    }
-//    div bp -> 0x01000000 comes from the dx=0x10 ax=0 above
-    ax = 0x01000000 / bp;
-    dx = 0x01000000 % bp;
-    word_5094B = ax;
-    bp = 0;
-    if (waitForJoystickKeyReleased(2, &ax) == 0)
-    {
-        return;
-    }
-    bp += ax;
-    if (waitForJoystickKeyReleased(2, &ax) == 0)
-    {
-        return;
-    }
-    bp += ax;
-    if (waitForJoystickKeyReleased(2, &ax) == 0)
-    {
-        return;
-    }
-    bp += ax;
-    if (waitForJoystickKeyReleased(2, &ax) == 0)
-    {
-        return;
-    }
-    bp += ax;
-    bp = bp >> 1;
-    word_50949 = bp;
-    dx = 0x10;
-    ax = 0;
-    if (bp <= dx)
-    {
-        return;
-    }
-    //    div bp -> 0x01000000 comes from the dx=0x10 ax=0 above
-    ax = 0x01000000 / bp;
-    dx = 0x01000000 % bp;
-    word_5094D = ax;
-    al = 1;
-    byte_50946 = al;
-
-//loc_492A6:              ; CODE XREF: calibrateJoystick+19j
-//                ; calibrateJoystick+22j ...
-//    pop bp
-    return;
 }
 
 void simulateDemoInput() // sub_492A8   proc near       ; CODE XREF: handleGameUserInput+27p
@@ -7819,12 +7585,6 @@ void handleGameUserInput() // sub_4955B   proc near       ; CODE XREF: runLevel:
     if (gIsPlayingDemo != 0)
     {
         simulateDemoInput(); // 01ED:2929
-    }
-
-//loc_49585:              ; CODE XREF: handleGameUserInput+25j
-    if (gIsJKeyPressed != 0)
-    {
-        calibrateJoystick();
     }
 
 //loc_4958F:              ; CODE XREF: handleGameUserInput+2Fj
@@ -9182,7 +8942,6 @@ void updateUserInput() // sub_4A1BF   proc near       ; CODE XREF: handleGameUse
     int8_t gameControllerY = getGameControllerY();
 
     if (gIsUpKeyPressed != 0
-        || byte_519F9 != 0
         || gameControllerY < 0)
     {
 //loc_4A1CF:              ; CODE XREF: updateUserInput+7j
@@ -9192,7 +8951,6 @@ void updateUserInput() // sub_4A1BF   proc near       ; CODE XREF: handleGameUse
 
 //loc_4A1D6:              ; CODE XREF: updateUserInput+Ej
     if (gIsLeftKeyPressed != 0
-        || byte_519F7 != 0
         || gameControllerX < 0)
     {
 //loc_4A1E4:              ; CODE XREF: updateUserInput+1Cj
@@ -9202,7 +8960,6 @@ void updateUserInput() // sub_4A1BF   proc near       ; CODE XREF: handleGameUse
 
 //loc_4A1EB:              ; CODE XREF: updateUserInput+23j
     if (gIsDownKeyPressed != 0
-        || byte_519F8 != 0
         || gameControllerY > 0)
     {
 //loc_4A1F9:              ; CODE XREF: updateUserInput+31j
@@ -9212,7 +8969,6 @@ void updateUserInput() // sub_4A1BF   proc near       ; CODE XREF: handleGameUse
 
 //loc_4A200:              ; CODE XREF: updateUserInput+38j
     if (gIsRightKeyPressed != 0
-        || byte_519F6 != 0
         || gameControllerX > 0)
     {
 //loc_4A20E:              ; CODE XREF: updateUserInput+46j
@@ -9222,8 +8978,6 @@ void updateUserInput() // sub_4A1BF   proc near       ; CODE XREF: handleGameUse
 
 //loc_4A215:              ; CODE XREF: updateUserInput+4Dj
     if (gIsSpaceKeyPressed != 0
-        || byte_519F5 != 0
-        || byte_519F4 != 0
         || getGameControllerButton(SDL_CONTROLLER_BUTTON_X))
     {
 //loc_4A22A:              ; CODE XREF: updateUserInput+5Bj
@@ -12868,7 +12622,7 @@ void handleOptionsKeyboardClick() // loc_4C778
 void handleOptionsJoystickClick() // loc_4C781
 {
     isJoystickEnabled = 1;
-    calibrateJoystick();
+    // calibrateJoystick(); not needed anymore
     drawInputOptionsSelection(gScreenPixels);
 }
 
@@ -12950,7 +12704,6 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
         saveLastMouseAreaBitmap(); // 01ED:5BE2
         drawMouseCursor(); // 01ED:5BE5 Draws mouse cursor too?
         drawMainMenuButtonBorders(); // 01ED:5BE8
-        sub_48E59();
         updateUserInput();
         if (gPlayerListDownButtonPressed != 0
             || gPlayerListUpButtonPressed != 0)
@@ -13334,7 +13087,6 @@ void drawInputOptionsSelection(uint8_t *destBuffer) // sub_4CCDF   proc near    
 void updateOptionsMenuState(uint8_t *destBuffer) // sub_4CD3C   proc near       ; CODE XREF: drawInputOptionsSelection:loc_4CD38p
 {
     // 01ED:60D9
-    sub_48E59();
     updateUserInput();
     if (gCurrentUserInput == byte_50919)
     {
