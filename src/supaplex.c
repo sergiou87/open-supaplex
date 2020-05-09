@@ -173,6 +173,7 @@ uint8_t byte_59B62 = 0;
 uint16_t word_59B65 = 0;
 uint8_t byte_59B6B = 0;
 uint8_t byte_59B6D = 0;
+uint16_t word_59B6E = 0; // -> 0x985E
 uint8_t byte_59B71 = 0;
 uint8_t byte_59B72 = 0;
 uint8_t byte_59B7A = 0;
@@ -192,7 +193,7 @@ uint16_t gDemoRecordingRandomGeneratorSeed = 0; // word_5A199
 uint8_t byte_59B9A = 2;
 uint8_t byte_5A140 = 0;
 uint8_t byte_5A19B = 0;
-uint8_t byte_5A19C = 0;
+uint8_t gIsLevelStartedAsDemo = 0; // byte_5A19C
 uint8_t byte_5A2F8 = 0;
 uint8_t gHasUserLoadedGameSnapshot = 0; // byte_5A2F9
 uint8_t byte_5A320 = 0;
@@ -1469,7 +1470,6 @@ uint16_t word_58714 = 0;
 uint16_t word_599D6 = 0;
 uint16_t word_599D8 = 0;
 uint16_t word_599DA = 0;
-uint16_t word_59B6E = 0; // -> 0x985E
 uint16_t word_59B73 = 0;
 uint32_t dword_59B76 = 0;
 // These two store the scroll offset to get back to Murphy when we're in "free mode"
@@ -3685,7 +3685,7 @@ doneWithDemoPlayback:           //; CODE XREF: start+375j
             goto isNotFastMode3;
         }
 
-        if (byte_5A19C == 0)
+        if (gIsLevelStartedAsDemo == 0)
         {
             goto loc_47094;
         }
@@ -6709,12 +6709,12 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
     if (gIsPlayingDemo == 0)
     {
 //loc_48ACE:              ; CODE XREF: runLevel+5j
-        byte_5A19C = 0;
+        gIsLevelStartedAsDemo = 0;
         gCurrentGameState.levelFailed = 1;
     }
     else
     {
-        byte_5A19C = 1;
+        gIsLevelStartedAsDemo = 1;
         gCurrentGameState.levelFailed = 0;
     }
 
@@ -6741,7 +6741,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         }
 
 //loc_48AFF:              ; CODE XREF: runLevel+3Fj
-        byte_5A19C = 0;
+        gIsLevelStartedAsDemo = 0;
         gCurrentGameState.levelFailed = 1;
     }
 
@@ -12132,7 +12132,7 @@ void drawMenuTitleAndDemoLevelResult() // sub_4C2F2   proc near       ; CODE XRE
     char *message = "";
     if (byte_5A19B == 0)
     {
-        if (byte_5A19C == 0)
+        if (gIsLevelStartedAsDemo == 0)
         {
             message = "     LEVEL FAILED      ";
         }
@@ -12143,7 +12143,7 @@ void drawMenuTitleAndDemoLevelResult() // sub_4C2F2   proc near       ; CODE XRE
     }
     else
     {
-        if (byte_5A19C == 0)
+        if (gIsLevelStartedAsDemo == 0)
         {
             message = "   LEVEL SUCCESSFUL    ";
         }
