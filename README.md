@@ -1,4 +1,4 @@
-# Supaplex
+# OpenSupaplex
 [Supaplex](https://en.wikipedia.org/wiki/Supaplex) is a game made in the early nineties.
 
 ![image](https://user-images.githubusercontent.com/3305301/42215866-25134eb4-7ec0-11e8-913d-b64604632fa8.png)
@@ -9,8 +9,7 @@ be downloaded free from [here](http://www.elmerproductions.com/sp/dlinst.html).
 
 The source code for the speed fix is likewise, unavailable.
 
-# What this is
-This project is an effort to disassemble and reimplement the game in C.
+This project is a 1:1 reimplementation of the original game in C.
 
 This project is based on [cilliemalan's work](https://github.com/cilliemalan/supaplex), and therefore here you'll find assembly files,
 and an IDA database that contains the dissasembled and analyzed source of the SPFIX63.EXE file.
@@ -39,6 +38,9 @@ be able to build the game easily in any platform.
 # License
 As expressed in [cilliemalan's repo](https://github.com/cilliemalan/supaplex), the
 disassembled assembly source code of the game is released under the MIT license.
+
+This repository also includes the resources from the original game, now distributed as
+freeware, that belong to their original authors.
 
 On the other hand, I release the reimplementation in C under the GPLv3 license.
 
