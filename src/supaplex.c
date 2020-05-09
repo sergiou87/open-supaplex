@@ -126,19 +126,19 @@ uint8_t gIsF9KeyPressed = 0; // byte_519C0 -> F9
 uint8_t gIsF10KeyPressed = 0; // byte_519C1 -> F10
 uint8_t gIsNumLockPressed = 0; // byte_519C2 -> 16B2 -> Num lock
 uint8_t gIsScrollLockPressed = 0; // byte_519C3 -> Scroll lock
-uint8_t gIsNumpad7Pressed = 0; // byte_519C4 -> numpad 7
+uint8_t gIsHomeKeyPressed = 0; // byte_519C4 -> numpad 7
 uint8_t gIsUpKeyPressed = 0; // byte_519C5 -> 16B5 -> numpad 8 or up arrow
-uint8_t gIsNumpad9Pressed = 0; // byte_519C6 -> numpad 9
+uint8_t gIsRePagKeyPressed = 0; // byte_519C6 -> numpad 9
 // numpad -
 uint8_t gIsLeftKeyPressed = 0; // byte_519C8 -> numpad 4
 uint8_t gIsNumpad5Pressed = 0; // byte_519C9 -> numpad 5
 uint8_t gIsRightKeyPressed = 0; // byte_519CA -> numpad 6
 // numpad +
-uint8_t gIsNumpad1Pressed = 0; // byte_519CC -> numpad 1
+uint8_t gIsEndKeyPressed = 0; // byte_519CC -> numpad 1
 uint8_t gIsDownKeyPressed = 0; // byte_519CD -> numpad 2
-uint8_t gIsNumpad3Pressed = 0; // byte_519CE -> numpad 3
-uint8_t gIsNumpad0Pressed = 0; // byte_519CF -> numpad 0
-uint8_t gIsNumpadPeriodPressed = 0; // byte_519D0 -> numpad .
+uint8_t gIsAvPagKeyPressed = 0; // byte_519CE -> numpad 3
+uint8_t gIsInsertKeyPressed = 0; // byte_519CF -> numpad 0
+uint8_t gIsDelKeyPressed = 0; // byte_519D0 -> numpad .
 // numpad SysReq
 // Key 45
 // numpad Enter
@@ -1472,8 +1472,9 @@ uint16_t word_599DA = 0;
 uint16_t word_59B6E = 0; // -> 0x985E
 uint16_t word_59B73 = 0;
 uint32_t dword_59B76 = 0;
-uint16_t word_59B88 = 0;
-uint16_t word_59B8A = 0;
+// These two store the scroll offset to get back to Murphy when we're in "free mode"
+uint16_t gMurphyScrollOffsetX = 0; // word_59B88
+uint16_t gMurphyScrollOffsetY = 0; // word_59B8A
 uint16_t word_59B8C = 0;
 uint16_t word_59B8E = 0;
 uint16_t word_59B90 = 0;
@@ -3866,17 +3867,17 @@ void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9
 
     gIsEscapeKeyPressed = keys[SDL_SCANCODE_ESCAPE];
     gIsSpaceKeyPressed = keys[SDL_SCANCODE_SPACE];
-    gIsUpKeyPressed = keys[SDL_SCANCODE_UP];
-    gIsDownKeyPressed = keys[SDL_SCANCODE_DOWN];
-    gIsLeftKeyPressed = keys[SDL_SCANCODE_LEFT];
-    gIsRightKeyPressed = keys[SDL_SCANCODE_RIGHT];
-    gIsNumpad0Pressed = keys[SDL_SCANCODE_KP_0];
-    gIsNumpad1Pressed = keys[SDL_SCANCODE_KP_1];
-    gIsNumpad3Pressed = keys[SDL_SCANCODE_KP_3];
+    gIsUpKeyPressed = keys[SDL_SCANCODE_UP] || keys[SDL_SCANCODE_KP_8];
+    gIsDownKeyPressed = keys[SDL_SCANCODE_DOWN] || keys[SDL_SCANCODE_KP_2];
+    gIsLeftKeyPressed = keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_KP_4];
+    gIsRightKeyPressed = keys[SDL_SCANCODE_RIGHT] || keys[SDL_SCANCODE_KP_6];
+    gIsInsertKeyPressed = keys[SDL_SCANCODE_INSERT] || keys[SDL_SCANCODE_KP_0];
+    gIsEndKeyPressed = keys[SDL_SCANCODE_END] || keys[SDL_SCANCODE_KP_1];
+    gIsAvPagKeyPressed = keys[SDL_SCANCODE_PAGEDOWN] || keys[SDL_SCANCODE_KP_3];
     gIsNumpad5Pressed = keys[SDL_SCANCODE_KP_5];
-    gIsNumpad7Pressed = keys[SDL_SCANCODE_KP_7];
-    gIsNumpad9Pressed = keys[SDL_SCANCODE_KP_9];
-    gIsNumpadPeriodPressed = keys[SDL_SCANCODE_KP_PERIOD];
+    gIsHomeKeyPressed = keys[SDL_SCANCODE_HOME] || keys[SDL_SCANCODE_KP_7];
+    gIsRePagKeyPressed = keys[SDL_SCANCODE_PAGEUP] || keys[SDL_SCANCODE_KP_9];
+    gIsDelKeyPressed = keys[SDL_SCANCODE_DELETE] || keys[SDL_SCANCODE_KP_PERIOD];
     gIsNumpadDividePressed = keys[SDL_SCANCODE_KP_DIVIDE];
     gIsNumLockPressed = keys[SDL_SCANCODE_NUMLOCKCLEAR];
     gIsScrollLockPressed = keys[SDL_SCANCODE_SCROLLLOCK];
@@ -7129,30 +7130,24 @@ void updateUserInputInScrollMovementMode() // sub_4914A   proc near       ; CODE
     }
 
 //loc_49199:              ; CODE XREF: updateUserInputInScrollMovementMode+41j
-    bx = 8;
-    bx -= word_59B88;
-    ax = word_59B8A;
-    ax = ~ax;
-    if (gIsNumpad0Pressed != 0)
+    if (gIsInsertKeyPressed != 0)
     {
-        gAdditionalScrollOffsetX = bx;
-        gAdditionalScrollOffsetY = ax;
+        gAdditionalScrollOffsetX = -gMurphyScrollOffsetX;
+        gAdditionalScrollOffsetY = -gMurphyScrollOffsetY;
     }
 
 //loc_491B3:              ; CODE XREF: updateUserInputInScrollMovementMode+60j
-    bx += 0x138; // 312
-    if (gIsNumpad7Pressed != 0)
+    if (gIsHomeKeyPressed != 0)
     {
-        gAdditionalScrollOffsetX = bx;
-        gAdditionalScrollOffsetY = ax;
+        gAdditionalScrollOffsetX = (kLevelBitmapWidth / 2) - gMurphyScrollOffsetX;
+        gAdditionalScrollOffsetY = -gMurphyScrollOffsetY;
     }
 
 //loc_491C5:              ; CODE XREF: updateUserInputInScrollMovementMode+72j
-    bx += 0x138; // 312
-    if (gIsNumpad9Pressed != 0)
+    if (gIsRePagKeyPressed != 0)
     {
-        gAdditionalScrollOffsetX = bx;
-        gAdditionalScrollOffsetY = ax;
+        gAdditionalScrollOffsetX = kLevelBitmapWidth - gMurphyScrollOffsetX;
+        gAdditionalScrollOffsetY = -gMurphyScrollOffsetY;
     }
 
 //loc_491D7:              ; CODE XREF: updateUserInputInScrollMovementMode+84j
@@ -7164,26 +7159,24 @@ void updateUserInputInScrollMovementMode() // sub_4914A   proc near       ; CODE
     }
 
 //loc_491E8:              ; CODE XREF: updateUserInputInScrollMovementMode+99j
-    if (gIsNumpadPeriodPressed != 0)
+    if (gIsDelKeyPressed != 0)
     {
-        gAdditionalScrollOffsetX = bx;
-        gAdditionalScrollOffsetY = ax;
+        gAdditionalScrollOffsetX = -gMurphyScrollOffsetX;
+        gAdditionalScrollOffsetY = kLevelBitmapHeight - gMurphyScrollOffsetY;
     }
 
 //loc_491F6:              ; CODE XREF: updateUserInputInScrollMovementMode+A3j
-    bx += 0x138; // 312
-    if (gIsNumpad1Pressed != 0)
+    if (gIsEndKeyPressed != 0)
     {
-        gAdditionalScrollOffsetX = bx;
-        gAdditionalScrollOffsetY = ax;
+        gAdditionalScrollOffsetX = (kLevelBitmapWidth / 2) - gMurphyScrollOffsetX;
+        gAdditionalScrollOffsetY = kLevelBitmapHeight - gMurphyScrollOffsetY;
     }
 
 //loc_49208:              ; CODE XREF: updateUserInputInScrollMovementMode+B5j
-    bx += 0x138; // 312
-    if (gIsNumpad3Pressed != 0)
+    if (gIsAvPagKeyPressed != 0)
     {
-        gAdditionalScrollOffsetX = bx;
-        gAdditionalScrollOffsetY = ax;
+        gAdditionalScrollOffsetX = kLevelBitmapWidth - gMurphyScrollOffsetX;
+        gAdditionalScrollOffsetY = kLevelBitmapHeight - gMurphyScrollOffsetY;
     }
 }
 
@@ -8595,14 +8588,14 @@ void updateScrollOffset() // sub_49EBE   proc near       ; CODE XREF: runLevel+1
         || gIsNumpad5Pressed != 0)
     {
 //loc_49F25:              ; CODE XREF: updateScrollOffset+5Ej
-        word_59B88 = scrollX;
-        word_59B8A = scrollY;
+        gMurphyScrollOffsetX = scrollX;
+        gMurphyScrollOffsetY = scrollY;
     }
     else
     {
 //loc_49F2E:              ; CODE XREF: updateScrollOffset+65j
-        scrollX = word_59B88;
-        scrollY = word_59B8A;
+        scrollX = gMurphyScrollOffsetX;
+        scrollY = gMurphyScrollOffsetY;
 
         int16_t additionalScrollX = scrollX;
         scrollX += gAdditionalScrollOffsetX;
