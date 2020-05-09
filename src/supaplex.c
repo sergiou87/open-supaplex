@@ -1777,7 +1777,7 @@ typedef struct
 typedef struct
 {
     uint16_t demoFirstIndices[kNumberOfDemos + 1]; // index of the last byte of all demos (starting at demo-segment:0000). there are 11 words because the end of this "list" is marked with 0xFFFF
-    BaseDemo baseDemo;
+    uint8_t demoData[1 + kMaxDemoInputSteps + 1]; // to fit at least one huge demo with 1 byte for level number, then all the possible steps, then 0xFF
     Level level[kNumberOfDemos];
 } Demos;
 
@@ -4238,12 +4238,10 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
 {
     // 01ED:09A6
 
-    gCurrentGameState.word_510DF = 22;
-    word_5A33C = 22;
+    gCurrentGameState.word_510DF = 0;
+    word_5A33C = 0;
 
-    uint8_t *demosAsByteArray = (uint8_t *)&gDemos;
-
-    memset(&gDemos.demoFirstIndices, 0xFF, 22); // rep stosw // fills 11 words (22 bytes) with 0xFFFF
+    memset(&gDemos.demoFirstIndices, 0xFF, sizeof(gDemos.demoFirstIndices)); // fills 11 words (22 bytes) with 0xFFFF
 
     for (int i = 0; i < kNumberOfDemos; ++i)
     {
@@ -4327,7 +4325,7 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
         {
 //loc_476F3:              // ; CODE XREF: readDemoFiles+E4j
             // TODO: that word_510DF feels wrong
-            numberOfDemoBytesRead = fread(&demosAsByteArray[gCurrentGameState.word_510DF], 1, maxNumberOfBytesToRead, file);
+            numberOfDemoBytesRead = fread(&gDemos.demoData[gCurrentGameState.word_510DF], 1, maxNumberOfBytesToRead, file);
 
             if (numberOfDemoBytesRead == 0)
             {
@@ -4351,12 +4349,12 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
 //loc_47729:              ; CODE XREF: readDemoFiles+11Bj
         // pop(ax)
         bx = gCurrentGameState.word_510DF;
-        demosAsByteArray[gCurrentGameState.word_510DF] = demosAsByteArray[gCurrentGameState.word_510DF] & 0x7F; // this removes the MSB from the levelNumber that was added in the speed fix mods
+        gDemos.demoData[gCurrentGameState.word_510DF] = gDemos.demoData[gCurrentGameState.word_510DF] & 0x7F; // this removes the MSB from the levelNumber that was added in the speed fix mods
         int isZero = (word_599D8 == 0);
         word_599D8 = 0;
         if (isZero)
         {
-            demosAsByteArray[gCurrentGameState.word_510DF] = demosAsByteArray[gCurrentGameState.word_510DF] | 0x80; // This sets the MSB?? maybe the "interpreter" later needs it
+            gDemos.demoData[gCurrentGameState.word_510DF] = gDemos.demoData[gCurrentGameState.word_510DF] | 0x80; // This sets the MSB?? maybe the "interpreter" later needs it
         }
 
 //loc_47743:             // ; CODE XREF: readDemoFiles+134j
@@ -4370,14 +4368,14 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
         // bx--;
         if (demoLastByteIndex == 0xFFFF // this would mean bx was 0. is this possible?
             || numberOfDemoBytesRead <= 1 // this means the demo is empty (only has levelNumber or nothing)
-            || demosAsByteArray[demoLastByteIndex] != 0xFF)
+            || gDemos.demoData[demoLastByteIndex] != 0xFF)
         {
 //loc_4775A:             // ; CODE XREF: readDemoFiles+145j
            // ; readDemoFiles+14Aj
             if (demoLastByteIndex < sizeof(BaseDemo))
             {
                 numberOfDemoBytesRead++;
-                demosAsByteArray[demoLastByteIndex + 1] = 0xFF;
+                gDemos.demoData[demoLastByteIndex + 1] = 0xFF;
             }
         }
 
@@ -7200,9 +7198,7 @@ void simulateDemoInput() // sub_492A8   proc near       ; CODE XREF: handleGameU
     }
 
 //loc_492B3:              ; CODE XREF: simulateDemoInput+5j
-    uint8_t *demosAsByteArray = (uint8_t *)&gDemos;
-
-    uint8_t newInput = demosAsByteArray[gCurrentGameState.word_510DF];
+    uint8_t newInput = gDemos.demoData[gCurrentGameState.word_510DF];
 
     if (newInput == 0xFF)
     {
@@ -11018,7 +11014,6 @@ void handleDemoOptionClick() // sub_4B159   proc near       ; CODE XREF: runMain
     }
     while (1);
     // 01ED:4525
-    uint8_t *demosAsByteArray = (uint8_t *)&gDemos;
 
 //loc_4B188:              ; CODE XREF: handleDemoOptionClick+2Aj
     // This picks a random demo
@@ -11034,7 +11029,7 @@ void handleDemoOptionClick() // sub_4B159   proc near       ; CODE XREF: runMain
     }
 
 //loc_4B1AE:              ; CODE XREF: handleDemoOptionClick+48j
-    uint8_t demoLevelNumber = demosAsByteArray[demoFirstIndex];
+    uint8_t demoLevelNumber = gDemos.demoData[demoFirstIndex];
     uint8_t finalLevelNumber = demoIndex;
 
     word_599D6 = demoIndex;
@@ -11064,8 +11059,6 @@ void handleDemoOptionClick() // sub_4B159   proc near       ; CODE XREF: runMain
 void playDemo(uint16_t demoIndex) // demoSomething  proc near       ; CODE XREF: start+3BAp
                     // ; runMainMenu+12Ep ...
 {
-    uint8_t *demosAsByteArray = (uint8_t *)&gDemos;
-
     readDemoFiles();
 
     gRandomGeneratorSeed = gDemoRandomSeeds[demoIndex];
@@ -11082,7 +11075,7 @@ void playDemo(uint16_t demoIndex) // demoSomething  proc near       ; CODE XREF:
 //loc_4B22F:              ; CODE XREF: playDemo+30j
     word_599D8 = 0;
 
-    uint8_t demoLevelNumber = demosAsByteArray[demoFirstIndex];
+    uint8_t demoLevelNumber = gDemos.demoData[demoFirstIndex];
     uint8_t finalLevelNumber = demoIndex;
 
     if (demoLevelNumber <= 0x6F // 111
