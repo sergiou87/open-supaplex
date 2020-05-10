@@ -16,6 +16,7 @@
 		4062C248244CE5D5007A07F5 /* supaplex.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C246244CE5D5007A07F5 /* supaplex.c */; };
 		4062C24C244F00CA007A07F5 /* file.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C24B244F00CA007A07F5 /* file.c */; };
 		40C8290E24673197003A103E /* audio.c in Sources */ = {isa = PBXBuildFile; fileRef = 40C8290D24673197003A103E /* audio.c */; };
+		40DA3CF82468717400D4A308 /* menu.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3CF72468717400D4A308 /* menu.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -49,6 +50,8 @@
 		40C0D72C24196126004742A9 /* OpenSupaplex */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OpenSupaplex; sourceTree = BUILT_PRODUCTS_DIR; };
 		40C8290C24673197003A103E /* audio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = audio.h; path = ../../../src/audio.h; sourceTree = "<group>"; };
 		40C8290D24673197003A103E /* audio.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = audio.c; path = ../../../src/audio.c; sourceTree = "<group>"; };
+		40DA3CF62468717400D4A308 /* menu.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = menu.h; path = ../../../src/menu.h; sourceTree = "<group>"; };
+		40DA3CF72468717400D4A308 /* menu.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = menu.c; path = ../../../src/menu.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +102,8 @@
 				400145AB2462CE9F00620211 /* utils.c */,
 				40C8290C24673197003A103E /* audio.h */,
 				40C8290D24673197003A103E /* audio.c */,
+				40DA3CF62468717400D4A308 /* menu.h */,
+				40DA3CF72468717400D4A308 /* menu.c */,
 			);
 			path = OpenSupaplex;
 			sourceTree = "<group>";
@@ -167,6 +172,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				40DA3CF82468717400D4A308 /* menu.c in Sources */,
 				4062C247244CE5D5007A07F5 /* controller.c in Sources */,
 				400145AC2462CE9F00620211 /* utils.c in Sources */,
 				4001459E245F7B5A00620211 /* touchscreen.c in Sources */,

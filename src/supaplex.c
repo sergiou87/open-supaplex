@@ -24,6 +24,7 @@
 #include "controller.h"
 #include "file.h"
 #include "logging.h"
+#include "menu.h"
 #include "touchscreen.h"
 #include "utils.h"
 #include "video.h"
@@ -2912,7 +2913,369 @@ void handleInfotronStateAfterFallingOneTile(uint16_t position);
 void drawLevelViewport(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
 void drawCurrentLevelViewport(uint16_t panelHeight);
 void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, uint16_t height, uint16_t dstX, uint16_t dstY);
+void int9handler(uint8_t shouldYieldCpu);
+void updateDemoRecordingLowestSpeed(void);
 
+
+void buildGameSpeedOptionTitle(char output[kMaxAdvancedOptionsMenuEntryTitleLength])
+{
+    snprintf(output, kMaxAdvancedOptionsMenuEntryTitleLength, "GAME SPEED: %d", gGameSpeed);
+}
+
+void buildMusicVolumeOptionTitle(char output[kMaxAdvancedOptionsMenuEntryTitleLength])
+{
+    snprintf(output, kMaxAdvancedOptionsMenuEntryTitleLength, "MUSIC VOLUME: %d", getMusicVolume());
+}
+
+void buildFXVolumeOptionTitle(char output[kMaxAdvancedOptionsMenuEntryTitleLength])
+{
+    snprintf(output, kMaxAdvancedOptionsMenuEntryTitleLength, "FX VOLUME: %d", getSoundEffectVolume());
+}
+
+void buildScalingModeOptionTitle(char output[kMaxAdvancedOptionsMenuEntryTitleLength])
+{
+    snprintf(output, kMaxAdvancedOptionsMenuEntryTitleLength, "SCALING MODE: %s", "NORMAL");
+}
+
+void buildBooleanOptionTitle(char output[kMaxAdvancedOptionsMenuEntryTitleLength], char title[kMaxAdvancedOptionsMenuEntryTitleLength], uint8_t value)
+{
+    snprintf(output, kMaxAdvancedOptionsMenuEntryTitleLength, "%s: %s", title, (value == 0 ? "OFF" : "ON"));
+}
+
+void buildDisplayFPSOptionTitle(char output[kMaxAdvancedOptionsMenuEntryTitleLength])
+{
+    buildBooleanOptionTitle(output, "DISPLAY FPS", gShouldShowFPS);
+}
+
+void buildPlayDemoOptionTitle(char output[kMaxAdvancedOptionsMenuEntryTitleLength])
+{
+    snprintf(output, kMaxAdvancedOptionsMenuEntryTitleLength, "PLAY DEMO: %d", 5);
+}
+
+void buildRecordDemoOptionTitle(char output[kMaxAdvancedOptionsMenuEntryTitleLength])
+{
+    snprintf(output, kMaxAdvancedOptionsMenuEntryTitleLength, "RECORD DEMO: %d", 5);
+}
+
+void incrementGameSpeed()
+{
+    if (gGameSpeed < kNumberOfGameSpeeds - 1)
+    {
+        gGameSpeed++;
+    }
+
+    updateDemoRecordingLowestSpeed();
+}
+
+void decrementGameSpeed()
+{
+    if (gGameSpeed > 0)
+    {
+        gGameSpeed--;
+    }
+
+    updateDemoRecordingLowestSpeed();
+}
+
+void updateDemoRecordingLowestSpeed()
+{
+    if (gGameSpeed < gDemoRecordingLowestSpeed)
+    {
+        gDemoRecordingLowestSpeed = gGameSpeed;
+    }
+}
+
+void incrementMusicVolume()
+{
+    uint8_t volume = getMusicVolume();
+
+    if (volume < kMaxVolume)
+    {
+        setMusicVolume(volume + 1);
+    }
+}
+
+void decrementMusicVolume()
+{
+    uint8_t volume = getMusicVolume();
+
+    if (volume > 0)
+    {
+        setMusicVolume(volume - 1);
+    }
+}
+
+void incrementFXVolume()
+{
+    uint8_t volume = getSoundEffectVolume();
+
+    if (volume < kMaxVolume)
+    {
+        setSoundEffectVolume(volume + 1);
+    }
+}
+
+void decrementFXVolume()
+{
+    uint8_t volume = getSoundEffectVolume();
+
+    if (volume > 0)
+    {
+        setSoundEffectVolume(volume - 1);
+    }
+}
+
+void toggleDisplayFPSOption()
+{
+    TOGGLE_BOOL(gShouldShowFPS);
+}
+
+uint8_t gShouldResumeGame = 0;
+
+void handleResumeOptionSelection()
+{
+    gShouldResumeGame = 1;
+}
+
+void handleExitGameOptionSelection()
+{
+    gShouldExitGame = 1;
+}
+
+void runAdvancedOptionsMenu()
+{
+    uint8_t screenPixelsBackup[kFullScreenFramebufferLength];
+
+    uint16_t selectedOptionIndex = 0;
+    uint8_t numberOfOptions = 16;
+    AdvancedOptionsMenuEntry options[30] = {
+        {
+            "RESUME",
+            NULL,
+            handleResumeOptionSelection,
+            NULL,
+            NULL,
+        },
+        {
+            "",
+            buildGameSpeedOptionTitle,
+            NULL,
+            decrementGameSpeed,
+            incrementGameSpeed,
+        },
+        {
+            "",
+            buildMusicVolumeOptionTitle,
+            NULL,
+            decrementMusicVolume,
+            incrementMusicVolume,
+        },
+        {
+            "",
+            buildFXVolumeOptionTitle,
+            NULL,
+            decrementFXVolume,
+            incrementFXVolume,
+        },
+        {
+            "",
+            buildScalingModeOptionTitle,
+            NULL,
+            NULL,
+            NULL,
+        },
+        {
+            "",
+            buildDisplayFPSOptionTitle,
+            NULL,
+            toggleDisplayFPSOption,
+            toggleDisplayFPSOption,
+        },
+        {
+            "LOAD GAME STATE",
+            NULL,
+            NULL,
+            NULL,
+            loadGameSnapshot,
+        },
+        {
+            "SAVE GAME STATE",
+            NULL,
+            NULL,
+            NULL,
+            saveGameSnapshot,
+        },
+        {
+            "STOP DEMO AND PLAY",
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+        },
+        {
+            "",
+            buildPlayDemoOptionTitle,
+            NULL,
+            NULL,
+            NULL,
+        },
+        {
+            "",
+            buildRecordDemoOptionTitle,
+            NULL,
+            NULL,
+            NULL,
+        },
+        {
+            "REMOVE ZONKS",
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+        },
+        {
+            "REMOVE HARDWARE",
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+        },
+        {
+            "REMOVE SNIK SNAKS",
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+        },
+        {
+            "REMOVE CHIPS",
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+        },
+        {
+            "EXIT GAME",
+            NULL,
+            handleExitGameOptionSelection,
+            NULL,
+            NULL,
+        }
+    };
+
+    gShouldResumeGame = 0;
+
+    memcpy(screenPixelsBackup, gScreenPixels, sizeof(screenPixelsBackup));
+    byte_5A33F = 0; // TODO: save previous value
+    do
+    {
+        if (gCurrentUserInput == UserInputUp)
+        {
+            if (selectedOptionIndex == 0)
+            {
+                selectedOptionIndex = numberOfOptions - 1;
+            }
+            else
+            {
+                selectedOptionIndex--;
+            }
+        }
+
+        if (gCurrentUserInput == UserInputDown)
+        {
+            selectedOptionIndex = (selectedOptionIndex + 1) % numberOfOptions;
+        }
+
+        if (gCurrentUserInput == UserInputLeft)
+        {
+            AdvancedOptionsMenuEntry selectedOption = options[selectedOptionIndex];
+            if (selectedOption.decrementHandler)
+            {
+                selectedOption.decrementHandler();
+            }
+        }
+
+        if (gCurrentUserInput == UserInputRight)
+        {
+            AdvancedOptionsMenuEntry selectedOption = options[selectedOptionIndex];
+            if (selectedOption.incrementHandler)
+            {
+                selectedOption.incrementHandler();
+            }
+        }
+
+        if (gIsEnterPressed || getGameControllerButton(SDL_CONTROLLER_BUTTON_A))
+        {
+            AdvancedOptionsMenuEntry selectedOption = options[selectedOptionIndex];
+            if (selectedOption.selectionHandler)
+            {
+                selectedOption.selectionHandler();
+            }
+        }
+
+        if (gIsEscapeKeyPressed || getGameControllerButton(SDL_CONTROLLER_BUTTON_B))
+        {
+            break;
+        }
+
+        memcpy(gScreenPixels, screenPixelsBackup, sizeof(screenPixelsBackup));
+
+        char titleBuffer[kMaxAdvancedOptionsMenuEntryTitleLength];
+
+        for (int i = 0; i < numberOfOptions; ++i)
+        {
+            AdvancedOptionsMenuEntry option = options[i];
+
+            uint8_t color = (i == selectedOptionIndex
+                             ? 6
+                             : 0xF);
+
+            char *title = option.title;
+
+            if (option.titleBuilder)
+            {
+                option.titleBuilder(titleBuffer);
+                title = titleBuffer;
+            }
+
+            drawTextWithChars6FontWithTransparentBackground(0, 10 + i * 8, color, title);
+        }
+
+        videoloop();
+
+        do
+        {
+            int9handler(1);
+            updateUserInput();
+        }
+        while (gCurrentUserInput != UserInputNone
+               || gIsEnterPressed
+               || gIsEscapeKeyPressed
+               || getGameControllerButton(SDL_CONTROLLER_BUTTON_A)
+               || getGameControllerButton(SDL_CONTROLLER_BUTTON_B));
+
+        if (gShouldResumeGame
+            || gShouldExitGame)
+        {
+            break;
+        }
+
+        do
+        {
+            int9handler(1);
+            updateUserInput();
+        }
+        while (gCurrentUserInput == UserInputNone
+               && gIsEnterPressed == 0
+               && gIsEscapeKeyPressed == 0
+               && getGameControllerButton(SDL_CONTROLLER_BUTTON_A) == 0
+               && getGameControllerButton(SDL_CONTROLLER_BUTTON_B) == 0);
+    }
+    while (1);
+
+    memcpy(gScreenPixels, screenPixelsBackup, sizeof(screenPixelsBackup));
+    videoloop();
+}
 
 //         public start
 int main(int argc, const char * argv[])
@@ -3477,6 +3840,7 @@ loc_46E75:              //; CODE XREF: start+251j
 //openingSequence:
         loadScreen2();    // 01ED:02B9
         readEverything(); // 01ED:02BC
+        runAdvancedOptionsMenu();
         drawSpeedFixTitleAndVersion(); // 01ED:02BF
         openCreditsBlock(); // credits inside the block // 01ED:02C2
         drawSpeedFixCredits();   // credits below the block (herman perk and elmer productions) // 01ED:02C5
@@ -3923,34 +4287,25 @@ void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9
     if (keyPressed == SDL_SCANCODE_KP_MULTIPLY) // Key * in the numpad, restore speed
     {
         gGameSpeed = kDefaultGameSpeed;
+        updateDemoRecordingLowestSpeed();
     }
 //checkSlash:             ; CODE XREF: int9handler+3Ej
 //                ; int9handler+45j
     else if (keyPressed == SDL_SCANCODE_KP_DIVIDE) // Keypad / -> fastest playback seed
     {
         gGameSpeed = kNumberOfGameSpeeds - 1;
+        updateDemoRecordingLowestSpeed();
     }
 //checkPlus:              ; CODE XREF: int9handler+54j
     else if (keyPressed == SDL_SCANCODE_KP_PLUS) // Key + in the numpad, speed up
     {
-        if (gGameSpeed < kNumberOfGameSpeeds - 1)
-        {
-            gGameSpeed++;
-        }
+        incrementGameSpeed();
     }
 //checkMinus:             ; CODE XREF: int9handler+65j
 //                ; int9handler+71j
     else if (keyPressed == SDL_SCANCODE_KP_MINUS) // Key - in the numpad, speed down
     {
-        if (gGameSpeed != 0)
-        {
-            gGameSpeed--;
-        }
-    }
-
-    if (gGameSpeed < gDemoRecordingLowestSpeed)
-    {
-        gDemoRecordingLowestSpeed = gGameSpeed;
+        decrementGameSpeed();
     }
 
 //checkX:                 ; CODE XREF: int9handler+39j
