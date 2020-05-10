@@ -187,6 +187,26 @@ void setSoundType(SoundType musicType, SoundType effectsType)
     loadSounds();
 }
 
+uint8_t getMusicVolume(void)
+{
+    return roundf((float)Mix_VolumeMusic(-1) * 10 / SDL_MIX_MAXVOLUME);
+}
+
+void setMusicVolume(uint8_t volume)
+{
+    Mix_VolumeMusic(volume * SDL_MIX_MAXVOLUME / 10);
+}
+
+uint8_t getSoundEffectVolume(void)
+{
+    return roundf((float)Mix_Volume(-1, -1) * 10 / SDL_MIX_MAXVOLUME);
+}
+
+void setSoundEffectVolume(uint8_t volume)
+{
+    Mix_Volume(-1, volume * SDL_MIX_MAXVOLUME / 10);
+}
+
 void playMusic()
 {
     if (gMusic == NULL)

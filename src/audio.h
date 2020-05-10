@@ -51,6 +51,14 @@ void destroyAudio(void);
 
 void setSoundType(SoundType musicType, SoundType effectsType);
 
+#define kMaxVolume 10
+
+uint8_t getMusicVolume(void);
+void setMusicVolume(uint8_t volume);
+
+uint8_t getSoundEffectVolume(void);
+void setSoundEffectVolume(uint8_t volume);
+
 void playMusic(void);
 void stopMusic(void);
 
