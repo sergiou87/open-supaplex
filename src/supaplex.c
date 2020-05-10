@@ -6690,11 +6690,6 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 
 //loc_48B23:              ; CODE XREF: runLevel+63j
         getMouseStatus(NULL, NULL, &mouseButtonsStatus);
-        if (mouseButtonsStatus == 2
-            && gCurrentGameState.quitLevelCountdown <= 0)
-        {
-            gCurrentGameState.word_510D1 = 1;
-        }
 
 //loc_48B38:              ; CODE XREF: runLevel+6Ej runLevel+75j
         if (gIsDebugModeEnabled != 0)
@@ -6706,7 +6701,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 
 //loc_48B4A:              ; CODE XREF: runLevel+89j
             if (gIsEnterPressed == 0
-                && mouseButtonsStatus == 1 //cmp bx, 1
+                && mouseButtonsStatus == MouseButtonLeft //cmp bx, 1
                 && byte_59B7A == 0)
             {
                 byte_59B7A = 0xA;
@@ -8152,7 +8147,8 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
 
 //loc_49C96:              ; CODE XREF: handleGameUserInput+6EBj
 //                    ; handleGameUserInput+6F2j ...
-    if (gIsPKeyPressed != 0)
+    if (gIsPKeyPressed != 0
+        || getGameControllerButton(SDL_CONTROLLER_BUTTON_START))
     {
         // 01ED:303A
         gIsGamePaused = 0;
@@ -8164,21 +8160,24 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
 //loc_49CA8:              ; CODE XREF: handleGameUserInput+752j
             int9handler(1);
         }
-        while (gIsPKeyPressed == 1);
+        while (gIsPKeyPressed == 1
+               || getGameControllerButton(SDL_CONTROLLER_BUTTON_START));
 
         do
         {
 //loc_49CAF:              ; CODE XREF: handleGameUserInput+759j
             int9handler(1);
         }
-        while (gIsPKeyPressed == 0);
+        while (gIsPKeyPressed == 0
+               && getGameControllerButton(SDL_CONTROLLER_BUTTON_START) == 0);
 
         do
         {
 //loc_49CB6:              ; CODE XREF: handleGameUserInput+760j
             int9handler(1);
         }
-        while (gIsPKeyPressed == 1);
+        while (gIsPKeyPressed == 1
+               || getGameControllerButton(SDL_CONTROLLER_BUTTON_START));
 //            mov si, 6015h
         fadeToPalette(gPalettes[1]);
         gIsGamePaused = 1;
@@ -8243,7 +8242,8 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
     }
 
 //loc_49D15:              ; CODE XREF: handleGameUserInput+772j
-    if (gIsEscapeKeyPressed != 0
+    if ((gIsEscapeKeyPressed != 0
+         || getGameControllerButton(SDL_CONTROLLER_BUTTON_BACK)) // Select/Back/- controller button -> exit game
         && gCurrentGameState.quitLevelCountdown <= 0)
     {
         // This is called when I press ESC to exit the game, but not when I die
@@ -12644,7 +12644,8 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
 //loc_4C8A1:              // ; CODE XREF: runMainMenu+106j
         gLevelListDownButtonPressed = 0;
         gLevelListUpButtonPressed = 0;
-        if (gCurrentUserInput > kUserInputSpaceAndDirectionOffset)
+        if (gCurrentUserInput > kUserInputSpaceAndDirectionOffset
+            || getGameControllerButton(SDL_CONTROLLER_BUTTON_START))
         {
             handleOkButtonClick();
         }
@@ -12726,6 +12727,10 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
 //loc_4C9B0:              // ; CODE XREF: runMainMenu+131j
                    // ; runMainMenu+141j ...
         if (gMouseButtonStatus == MouseButtonRight) // Right button -> exit game
+        {
+            break;
+        }
+        if (getGameControllerButton(SDL_CONTROLLER_BUTTON_BACK)) // Select/Back/- controller button -> exit game
         {
             break;
         }
@@ -12816,7 +12821,11 @@ void handleControlsOptionClick() //showControls:                              ; 
         restoreLastMouseAreaBitmap();
         saveLastMouseAreaBitmap();
         drawMouseCursor();
-        if (gMouseButtonStatus == 2)
+        if (gMouseButtonStatus == MouseButtonRight)
+        {
+            break;
+        }
+        if (getGameControllerButton(SDL_CONTROLLER_BUTTON_BACK)) // Select/Back/- controller button -> go back
         {
             break;
         }
@@ -12828,7 +12837,7 @@ void handleControlsOptionClick() //showControls:                              ; 
         {
             break;
         }
-        if (gMouseButtonStatus == 1)
+        if (gMouseButtonStatus == MouseButtonLeft)
         {
 //loc_4CAAB:                              ; CODE XREF: code:5E87j
         //    mov     si, offset controlsbuttons ; 0ACh // 01ED:5E54
