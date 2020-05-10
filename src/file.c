@@ -42,24 +42,6 @@ FILE *openWritableFile(const char *pathname, const char *mode)
 
     return fopen(finalPathname, mode);
 }
-#elif defined(__SWITCH__) && DEBUG
-// This is needed when I debug in the Switch using the Net Loader because I can't make it
-// write the executable file to /switch/OpenSupaplex/ for some reason.
-//
-FILE *openReadonlyFile(const char *pathname, const char *mode)
-{
-    char finalPathname[256] = "/switch/OpenSupaplex/";
-    strcat(finalPathname, pathname);
-    return fopen(finalPathname, mode);
-}
-
-FILE *openWritableFile(const char *pathname, const char *mode)
-{
-    // For writable files we'll use a subfolder in ux0:/data/
-    char finalPathname[256] = "/switch/OpenSupaplex/";
-    strcat(finalPathname, pathname);
-    return fopen(finalPathname, mode);
-}
 #else
 FILE *openReadonlyFile(const char *pathname, const char *mode)
 {

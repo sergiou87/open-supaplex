@@ -58,7 +58,11 @@ int8_t initializeAudio()
 {
     SDL_InitSubSystem(SDL_INIT_AUDIO);
 
-    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 512) == -1)
+    // Keep buffer size as low as possible to prevent latency with sound effects.
+    // In macOS I was able to set it to 512, but that caused a lot of issues playing music on Nintendo Switch.
+    // 768 bytes seems to work on both platforms.
+    //
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 768) == -1)
     {
         spLog("Mix_Init: Failed to open audio!\n");
         spLog("Mix_Init: %s\n", Mix_GetError());
@@ -73,6 +77,8 @@ int8_t initializeAudio()
         spLog("Mix_Init: %s\n", Mix_GetError());
         return 1;
     }
+
+    spLog("Audio initialized correctly");
 
     return 0;
 }

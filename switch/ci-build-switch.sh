@@ -7,7 +7,5 @@ make -j8
 # Bundle and prepare for release
 mkdir -p switch/OpenSupaplex
 mv OpenSupaplex.nro switch/OpenSupaplex/OpenSupaplex.nro
-wget https://cdn.chills.co.za/supaplex.zip
-unzip supaplex.zip -d switch/OpenSupaplex/
-rm switch/OpenSupaplex/*.exe
+cp -R ../resources/* switch/OpenSupaplex/
 zip -r OpenSupaplex-switch.zip switch
