@@ -37,6 +37,7 @@ SDL_Rect gWindowViewport;
 SDL_Renderer *gRenderer = NULL;
 SDL_Texture *gTexture = NULL;
 SDL_Surface *gTextureSurface = NULL;
+ScalingMode gScalingMode = ScalingModeAspectFit;
 
 int windowResizingEventWatcher(void* data, SDL_Event* event);
 void updateWindowViewport(void);
@@ -110,6 +111,22 @@ void destroyVideo()
     SDL_Quit();
 }
 
+ScalingMode getScalingMode(void)
+{
+    return gScalingMode;
+}
+
+void setScalingMode(ScalingMode mode)
+{
+    if (mode == gScalingMode)
+    {
+        return;
+    }
+
+    gScalingMode = mode;
+    updateWindowViewport();
+}
+
 void getWindowSize(int *width, int *height)
 {
     SDL_GetWindowSize(gWindow, width, height);
@@ -172,15 +189,28 @@ void updateWindowViewport()
 {
     int windowWidth, windowHeight;
     SDL_GetRendererOutputSize(gRenderer, &windowWidth, &windowHeight);
+
+    // If the scaling mode is fullscreen, use the window size
+    if (gScalingMode == ScalingModeFullscreen)
+    {
+        gWindowViewport.x = 0;
+        gWindowViewport.y = 0;
+        gWindowViewport.w = windowWidth;
+        gWindowViewport.h = windowHeight;
+        return;
+    }
+
     float textureAspectRatio = (float)kScreenWidth / kScreenHeight;
 
     int maxViewportWidth = windowWidth;
     int maxViewportHeight = windowHeight;
 
-    // TODO: allow switching to fullscreen scaling without respecting aspect ratio
-    // TODO: allow switching to full integer scaling
-    // maxViewportWidth = floorf(windowWidth / kScreenWidth) * kScreenWidth;
-    // maxViewportHeight = floorf(windowHeight / kScreenHeight) * kScreenHeight;
+    // For "integer factor" scaling, pick the highest integer factor that fits into the window
+    if (gScalingMode == ScalingModeIntegerFactor)
+    {
+        maxViewportWidth = floorf(windowWidth / kScreenWidth) * kScreenWidth;
+        maxViewportHeight = floorf(windowHeight / kScreenHeight) * kScreenHeight;
+    }
 
     // If the resulting viewport is too small, do proportional scaling according to the window size
     if (maxViewportWidth == 0)
@@ -194,7 +224,17 @@ void updateWindowViewport()
 
     float screenAspectRatio = (float)windowWidth / windowHeight;
 
-    if (textureAspectRatio > screenAspectRatio)
+    uint8_t shouldPreserveWidth = (textureAspectRatio > screenAspectRatio);
+
+    // The only difference between aspect fill and fit is that fit will leave black bars
+    // and fill will crop the image.
+    //
+    if (gScalingMode == ScalingModeAspectFill)
+    {
+        shouldPreserveWidth = !shouldPreserveWidth;
+    }
+
+    if (shouldPreserveWidth)
     {
         gWindowViewport.x = (windowWidth - maxViewportWidth) >> 1;
         gWindowViewport.w = maxViewportWidth;

@@ -3066,7 +3066,30 @@ void buildFXVolumeOptionTitle(char output[kMaxAdvancedOptionsMenuEntryTitleLengt
 
 void buildScalingModeOptionTitle(char output[kMaxAdvancedOptionsMenuEntryTitleLength])
 {
-    snprintf(output, kMaxAdvancedOptionsMenuEntryTitleLength, "SCALING MODE: %s", "NORMAL");
+    static const char *kAspectFitScalingModeString = "NORMAL";
+    static const char *kAspectFillScalingModeString = "ZOOM";
+    static const char *kIntegerFactorScalingModeString = "INTEGER FACTOR";
+    static const char *kFullscreenScalingModeString = "FULLSCREEN";
+
+    const char *mode = kAspectFitScalingModeString;
+
+    switch(getScalingMode())
+    {
+        case ScalingModeAspectFill:
+            mode = kAspectFillScalingModeString;
+            break;
+        case ScalingModeIntegerFactor:
+            mode = kIntegerFactorScalingModeString;
+            break;
+        case ScalingModeFullscreen:
+            mode = kFullscreenScalingModeString;
+            break;
+        default:
+            mode = kAspectFitScalingModeString;
+            break;
+    }
+
+    snprintf(output, kMaxAdvancedOptionsMenuEntryTitleLength, "SCALING MODE: %s", mode);
 }
 
 void buildBooleanOptionTitle(char output[kMaxAdvancedOptionsMenuEntryTitleLength], char title[kMaxAdvancedOptionsMenuEntryTitleLength], uint8_t value)
@@ -3176,6 +3199,32 @@ void increaseAdvancedMenuPlayDemoIndex()
     if (gAdvancedMenuPlayDemoIndex < kNumberOfDemos - 1)
     {
         gAdvancedMenuPlayDemoIndex++;
+    }
+}
+
+void decreaseAdvancedMenuScalingMode()
+{
+    ScalingMode mode = getScalingMode();
+    if (mode > 0)
+    {
+        setScalingMode(mode - 1);
+    }
+    else
+    {
+        setScalingMode(ScalingModeCount - 1);
+    }
+}
+
+void increaseAdvancedMenuScalingMode()
+{
+    ScalingMode mode = getScalingMode();
+    if (mode < ScalingModeCount - 1)
+    {
+        setScalingMode(mode + 1);
+    }
+    else
+    {
+        setScalingMode(0);
     }
 }
 
@@ -3377,8 +3426,8 @@ void runAdvancedOptionsRootMenu()
         "",
         buildScalingModeOptionTitle,
         NULL,
-        NULL,
-        NULL,
+        decreaseAdvancedMenuScalingMode,
+        increaseAdvancedMenuScalingMode,
     });
     addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
         "DEBUG (DANGER)",

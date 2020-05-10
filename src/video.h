@@ -31,6 +31,14 @@ typedef struct
     uint8_t a;
 } Color;
 
+typedef enum {
+    ScalingModeAspectFit,
+    ScalingModeAspectFill,
+    ScalingModeIntegerFactor,
+    ScalingModeFullscreen,
+    ScalingModeCount,
+} ScalingMode;
+
 #define kNumberOfColors 16
 typedef Color ColorPalette[kNumberOfColors];
 
@@ -40,6 +48,9 @@ void initializeVideo(void);
 void render(void);
 void present(void);
 void destroyVideo(void);
+
+ScalingMode getScalingMode(void);
+void setScalingMode(ScalingMode mode);
 
 void getWindowSize(int *width, int *height);
 void centerMouse(void);
