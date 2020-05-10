@@ -54,6 +54,12 @@ void destroyMusic(void);
 void loadSounds(void);
 void destroySounds(void);
 
+#ifdef __vita__
+static const char *kBaseAudioFolder = "app0:/audio";
+#else
+static const char *kBaseAudioFolder = "audio";
+#endif
+
 int8_t initializeAudio()
 {
     SDL_InitSubSystem(SDL_INIT_AUDIO);
@@ -113,7 +119,7 @@ void loadMusic()
     }
 
     char filename[kMaxSoundFilenameLength] = "";
-    snprintf(filename, kMaxSoundFilenameLength, "audio/music-%s.ogg", musicSuffix);
+    snprintf(filename, kMaxSoundFilenameLength, "%s/music-%s.ogg", kBaseAudioFolder, musicSuffix);
 
     gMusic = Mix_LoadMUS(filename);
 
@@ -151,7 +157,7 @@ void loadSounds()
 
     for (int i = 0; i < SoundEffectCount; ++i)
     {
-        snprintf(filename, kMaxSoundFilenameLength, "audio/%s-%s.ogg", gSoundEffectNames[i], effectsSuffix);
+        snprintf(filename, kMaxSoundFilenameLength, "%s/%s-%s.ogg", kBaseAudioFolder, gSoundEffectNames[i], effectsSuffix);
         gSoundEffectChunks[i] = Mix_LoadWAV(filename);
     }
 }
@@ -192,6 +198,8 @@ void playMusic()
         spLog("Unable to play Ogg file: %s\n", Mix_GetError());
         return;
     }
+
+    Mix_ResumeMusic();
 }
 
 void stopMusic()

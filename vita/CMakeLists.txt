@@ -28,6 +28,7 @@ include_directories(
 set(VITA_ELF_NAME ${SHORT_NAME}.elf)
 add_executable(${SHORT_NAME}
   ../src/supaplex.c
+  ../src/audio.c
   ../src/controller.c
   ../src/file.c
   ../src/touchscreen.c
@@ -63,6 +64,13 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
 endif (CMAKE_BUILD_TYPE MATCHES Debug)
 
 target_link_libraries(${PROJECT_NAME}
+  SDL2_Mixer
+  mpg123
+  vorbisfile
+  vorbis
+  ogg
+  flac
+  mikmod
   SDL2
   vita2d
   SceDisplay_stub
@@ -86,38 +94,64 @@ vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
   FILE sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
   FILE sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
 
-  FILE resources/ADLIB.SND ADLIB.SND
-  FILE resources/BACK.DAT BACK.DAT
-  FILE resources/BEEP.SND BEEP.SND
-  FILE resources/BLASTER.SND BLASTER.SND
-  FILE resources/CHARS6.DAT CHARS6.DAT
-  FILE resources/CHARS8.DAT CHARS8.DAT
-  FILE resources/CONTROLS.DAT CONTROLS.DAT
-  FILE resources/DEMO0.BIN DEMO0.BIN
-  FILE resources/DEMO1.BIN DEMO1.BIN
-  FILE resources/DEMO2.BIN DEMO2.BIN
-  FILE resources/DEMO3.BIN DEMO3.BIN
-  FILE resources/DEMO4.BIN DEMO4.BIN
-  FILE resources/DEMO5.BIN DEMO5.BIN
-  FILE resources/DEMO6.BIN DEMO6.BIN
-  FILE resources/DEMO7.BIN DEMO7.BIN
-  FILE resources/DEMO8.BIN DEMO8.BIN
-  FILE resources/DEMO9.BIN DEMO9.BIN
-  FILE resources/FIXED.DAT FIXED.DAT
-  FILE resources/GFX.DAT GFX.DAT
-  FILE resources/LEVEL.LST LEVEL.LST
-  FILE resources/LEVELS.DAT LEVELS.DAT
-  FILE resources/MENU.DAT MENU.DAT
-  FILE resources/MOVING.DAT MOVING.DAT
-  FILE resources/PALETTES.DAT PALETTES.DAT
-  FILE resources/PANEL.DAT PANEL.DAT
-  FILE resources/README.TXT README.TXT
-  FILE resources/ROLAND.SND ROLAND.SND
-  FILE resources/SAMPLE.SND SAMPLE.SND
-  FILE resources/SPFIX63.DOC SPFIX63.DOC
-  FILE resources/SUPAPLEX.CFG SUPAPLEX.CFG
-  FILE resources/TITLE.DAT TITLE.DAT
-  FILE resources/TITLE1.DAT TITLE1.DAT
-  FILE resources/TITLE2.DAT TITLE2.DAT
-  FILE resources/myspsig.txt myspsig.txt
+  FILE ../resources/audio/base-adlib.ogg audio/base-adlib.ogg
+  FILE ../resources/audio/base-beep.ogg audio/base-beep.ogg
+  FILE ../resources/audio/base-blaster.ogg audio/base-blaster.ogg
+  FILE ../resources/audio/base-sample.ogg audio/base-sample.ogg
+  FILE ../resources/audio/bug-adlib.ogg audio/bug-adlib.ogg
+  FILE ../resources/audio/bug-beep.ogg audio/bug-beep.ogg
+  FILE ../resources/audio/bug-blaster.ogg audio/bug-blaster.ogg
+  FILE ../resources/audio/bug-sample.ogg audio/bug-sample.ogg
+  FILE ../resources/audio/exit-adlib.ogg audio/exit-adlib.ogg
+  FILE ../resources/audio/exit-beep.ogg audio/exit-beep.ogg
+  FILE ../resources/audio/exit-blaster.ogg audio/exit-blaster.ogg
+  FILE ../resources/audio/exit-sample.ogg audio/exit-sample.ogg
+  FILE ../resources/audio/explosion-adlib.ogg audio/explosion-adlib.ogg
+  FILE ../resources/audio/explosion-beep.ogg audio/explosion-beep.ogg
+  FILE ../resources/audio/explosion-blaster.ogg audio/explosion-blaster.ogg
+  FILE ../resources/audio/explosion-sample.ogg audio/explosion-sample.ogg
+  FILE ../resources/audio/fall-adlib.ogg audio/fall-adlib.ogg
+  FILE ../resources/audio/fall-beep.ogg audio/fall-beep.ogg
+  FILE ../resources/audio/fall-blaster.ogg audio/fall-blaster.ogg
+  FILE ../resources/audio/fall-sample.ogg audio/fall-sample.ogg
+  FILE ../resources/audio/infotron-adlib.ogg audio/infotron-adlib.ogg
+  FILE ../resources/audio/infotron-beep.ogg audio/infotron-beep.ogg
+  FILE ../resources/audio/infotron-blaster.ogg audio/infotron-blaster.ogg
+  FILE ../resources/audio/infotron-sample.ogg audio/infotron-sample.ogg
+  FILE ../resources/audio/music-beep.ogg audio/music-beep.ogg
+  FILE ../resources/audio/music-blaster.ogg audio/music-blaster.ogg
+  FILE ../resources/audio/music-roland.ogg audio/music-roland.ogg
+  FILE ../resources/audio/push-adlib.ogg audio/push-adlib.ogg
+  FILE ../resources/audio/push-beep.ogg audio/push-beep.ogg
+  FILE ../resources/audio/push-blaster.ogg audio/push-blaster.ogg
+  FILE ../resources/audio/push-sample.ogg audio/push-sample.ogg
+  FILE ../resources/BACK.DAT BACK.DAT
+  FILE ../resources/CHARS6.DAT CHARS6.DAT
+  FILE ../resources/CHARS8.DAT CHARS8.DAT
+  FILE ../resources/CONTROLS.DAT CONTROLS.DAT
+  FILE ../resources/DEMO0.BIN DEMO0.BIN
+  FILE ../resources/DEMO1.BIN DEMO1.BIN
+  FILE ../resources/DEMO2.BIN DEMO2.BIN
+  FILE ../resources/DEMO3.BIN DEMO3.BIN
+  FILE ../resources/DEMO4.BIN DEMO4.BIN
+  FILE ../resources/DEMO5.BIN DEMO5.BIN
+  FILE ../resources/DEMO6.BIN DEMO6.BIN
+  FILE ../resources/DEMO7.BIN DEMO7.BIN
+  FILE ../resources/DEMO8.BIN DEMO8.BIN
+  FILE ../resources/DEMO9.BIN DEMO9.BIN
+  FILE ../resources/FIXED.DAT FIXED.DAT
+  FILE ../resources/GFX.DAT GFX.DAT
+  FILE ../resources/LEVEL.LST LEVEL.LST
+  FILE ../resources/LEVELS.DAT LEVELS.DAT
+  FILE ../resources/MENU.DAT MENU.DAT
+  FILE ../resources/MOVING.DAT MOVING.DAT
+  FILE ../resources/PALETTES.DAT PALETTES.DAT
+  FILE ../resources/PANEL.DAT PANEL.DAT
+  FILE ../resources/README.TXT README.TXT
+  FILE ../resources/SPFIX63.DOC SPFIX63.DOC
+  FILE ../resources/SUPAPLEX.CFG SUPAPLEX.CFG
+  FILE ../resources/TITLE.DAT TITLE.DAT
+  FILE ../resources/TITLE1.DAT TITLE1.DAT
+  FILE ../resources/TITLE2.DAT TITLE2.DAT
+  FILE ../resources/myspsig.txt myspsig.txt
 )
