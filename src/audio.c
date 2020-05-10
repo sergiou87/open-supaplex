@@ -197,12 +197,12 @@ void setMusicVolume(uint8_t volume)
     Mix_VolumeMusic(volume * SDL_MIX_MAXVOLUME / 10);
 }
 
-uint8_t getSoundEffectVolume(void)
+uint8_t getSoundEffectsVolume(void)
 {
     return roundf((float)Mix_Volume(-1, -1) * 10 / SDL_MIX_MAXVOLUME);
 }
 
-void setSoundEffectVolume(uint8_t volume)
+void setSoundEffectsVolume(uint8_t volume)
 {
     Mix_Volume(-1, volume * SDL_MIX_MAXVOLUME / 10);
 }

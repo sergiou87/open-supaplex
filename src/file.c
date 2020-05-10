@@ -22,27 +22,48 @@
 #ifdef __vita__
 #include <psp2/io/stat.h>
 
+#define VITA_WRITABLE_PATH "ux0:/data/OpenSupaplex/"
+
+void getReadonlyFilePath(const char *pathname, char outPath[kMaxFilePathLength])
+{
+    snprintf(outPath, kMaxFilePathLength, "app0:/%s", pathname);
+}
+
+void getWritableFilePath(const char *pathname, char outPath[kMaxFilePathLength])
+{
+    snprintf(outPath, kMaxFilePathLength, VITA_WRITABLE_PATH "%s", pathname);
+}
+
 FILE *openReadonlyFile(const char *pathname, const char *mode)
 {
     // app0:/ references the folder where the app was installed
-    char finalPathname[256] = "app0:/";
-    strcat(finalPathname, pathname);
+    char finalPathname[kMaxFilePathLength];
+    getReadonlyFilePath(pathname, finalPathname);
     return fopen(finalPathname, mode);
 }
 
 FILE *openWritableFile(const char *pathname, const char *mode)
 {
-    // For writable files we'll use a subfolder in ux0:/data/
-    char finalPathname[256] = "ux0:/data/OpenSupaplex/";
-
     // Create base folder in a writable area
-    sceIoMkdir(finalPathname, 0777);
+    sceIoMkdir(VITA_WRITABLE_PATH, 0777);
 
-    strcat(finalPathname, pathname);
+    // For writable files we'll use a subfolder in ux0:/data/
+    char finalPathname[kMaxFilePathLength];
+    getWritableFilePath(pathname, finalPathname);
 
     return fopen(finalPathname, mode);
 }
 #else
+void getReadonlyFilePath(const char *pathname, char outPath[kMaxFilePathLength])
+{
+    getWritableFilePath(pathname, outPath);
+}
+
+void getWritableFilePath(const char *pathname, char outPath[kMaxFilePathLength])
+{
+    strncpy(outPath, pathname, kMaxFilePathLength);
+}
+
 FILE *openReadonlyFile(const char *pathname, const char *mode)
 {
     return fopen(pathname, mode);

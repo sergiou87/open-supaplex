@@ -17,6 +17,7 @@
 		4062C24C244F00CA007A07F5 /* file.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C24B244F00CA007A07F5 /* file.c */; };
 		40C8290E24673197003A103E /* audio.c in Sources */ = {isa = PBXBuildFile; fileRef = 40C8290D24673197003A103E /* audio.c */; };
 		40DA3CF82468717400D4A308 /* menu.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3CF72468717400D4A308 /* menu.c */; };
+		40DA3CFF2468BEFA00D4A308 /* ini.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3CFB2468BEF900D4A308 /* ini.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -52,6 +53,8 @@
 		40C8290D24673197003A103E /* audio.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = audio.c; path = ../../../src/audio.c; sourceTree = "<group>"; };
 		40DA3CF62468717400D4A308 /* menu.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = menu.h; path = ../../../src/menu.h; sourceTree = "<group>"; };
 		40DA3CF72468717400D4A308 /* menu.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = menu.c; path = ../../../src/menu.c; sourceTree = "<group>"; };
+		40DA3CFB2468BEF900D4A308 /* ini.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ini.c; sourceTree = "<group>"; };
+		40DA3CFE2468BEF900D4A308 /* ini.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ini.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,6 +88,7 @@
 		40C0D72E24196126004742A9 /* OpenSupaplex */ = {
 			isa = PBXGroup;
 			children = (
+				40DA3CF92468BEF900D4A308 /* lib */,
 				4062C244244CE5D4007A07F5 /* controller.c */,
 				4062C245244CE5D5007A07F5 /* controller.h */,
 				4062C246244CE5D5007A07F5 /* supaplex.c */,
@@ -113,6 +117,24 @@
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		40DA3CF92468BEF900D4A308 /* lib */ = {
+			isa = PBXGroup;
+			children = (
+				40DA3CFA2468BEF900D4A308 /* ini */,
+			);
+			name = lib;
+			path = ../../../src/lib;
+			sourceTree = "<group>";
+		};
+		40DA3CFA2468BEF900D4A308 /* ini */ = {
+			isa = PBXGroup;
+			children = (
+				40DA3CFB2468BEF900D4A308 /* ini.c */,
+				40DA3CFE2468BEF900D4A308 /* ini.h */,
+			);
+			path = ini;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -172,6 +194,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				40DA3CFF2468BEFA00D4A308 /* ini.c in Sources */,
 				40DA3CF82468717400D4A308 /* menu.c in Sources */,
 				4062C247244CE5D5007A07F5 /* controller.c in Sources */,
 				400145AC2462CE9F00620211 /* utils.c in Sources */,

@@ -56,8 +56,8 @@ void setSoundType(SoundType musicType, SoundType effectsType);
 uint8_t getMusicVolume(void);
 void setMusicVolume(uint8_t volume);
 
-uint8_t getSoundEffectVolume(void);
-void setSoundEffectVolume(uint8_t volume);
+uint8_t getSoundEffectsVolume(void);
+void setSoundEffectsVolume(uint8_t volume);
 
 void playMusic(void);
 void stopMusic(void);

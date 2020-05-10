@@ -24,6 +24,11 @@
 // installed. For those original resources bundled with the game, the openReadonlyFile function will be used.
 // Other files will be opened with openWritableFile.
 //
+#define kMaxFilePathLength 256
+
+void getReadonlyFilePath(const char *pathname, char outPath[kMaxFilePathLength]);
+void getWritableFilePath(const char *pathname, char outPath[kMaxFilePathLength]);
+
 FILE *openReadonlyFile(const char *pathname, const char *mode);
 FILE *openWritableFile(const char *pathname, const char *mode);
 FILE *openWritableFileWithReadonlyFallback(const char *pathname, const char *mode);

@@ -22,6 +22,7 @@
 
 #include "audio.h"
 #include "controller.h"
+#include "lib/ini/ini.h"
 #include "file.h"
 #include "logging.h"
 #include "menu.h"
@@ -2925,6 +2926,68 @@ void playDemo(uint16_t demoIndex);
 
 uint8_t gAdvancedOptionsMenuBaseBitmap[kFullScreenFramebufferLength];
 
+static const char *kAdvancedConfigGeneralSection = "general";
+static const char *kAdvancedConfigDebugSection = "debug";
+
+static const char *kAdvancedConfigGameSpeedKey = "gameSpeed";
+static const char *kAdvancedConfigMusicVolumeKey = "musicVolume";
+static const char *kAdvancedConfigFXVolumeKey = "fxVolume";
+static const char *kAdvancedConfigScalingModeKey = "scalingMode";
+static const char *kAdvancedConfigDisplayFPSKey = "displayFPS";
+
+void readAdvancedConfig()
+{
+    char advancedConfigPath[kMaxFilePathLength];
+    getWritableFilePath("ADVANCED.CFG", advancedConfigPath);
+    ini_t *config = ini_load(advancedConfigPath);
+
+    if (config == NULL)
+    {
+        spLog("Couldn't open %s for reading", advancedConfigPath);
+        return;
+    }
+
+    ini_sget(config, kAdvancedConfigGeneralSection, kAdvancedConfigGameSpeedKey, "%d", &gGameSpeed);
+    int volume = getMusicVolume();
+    ini_sget(config, kAdvancedConfigGeneralSection, kAdvancedConfigMusicVolumeKey, "%d", &volume);
+    setMusicVolume(volume);
+
+    volume = getSoundEffectsVolume();
+    ini_sget(config, kAdvancedConfigGeneralSection, kAdvancedConfigFXVolumeKey, "%d", &volume);
+    setSoundEffectsVolume(volume);
+
+    int scalingMode = getScalingMode();
+    ini_sget(config, kAdvancedConfigGeneralSection, kAdvancedConfigScalingModeKey, "%d", &scalingMode);
+
+    ini_sget(config, kAdvancedConfigDebugSection, kAdvancedConfigDisplayFPSKey, "%d", &gShouldShowFPS);
+
+    ini_free(config);
+}
+
+void writeAdvancedConfig()
+{
+    FILE *file = openWritableFile("ADVANCED.CFG", "w");
+
+    if (file == NULL)
+    {
+        spLog("Couldn't open ADVANCED.CFG for writing");
+        return;
+    }
+
+    fprintf(file, "[%s]\n", kAdvancedConfigGeneralSection);
+    fprintf(file, "%s = %d\n", kAdvancedConfigGameSpeedKey, gGameSpeed);
+    fprintf(file, "%s = %d\n", kAdvancedConfigMusicVolumeKey, getMusicVolume());
+    fprintf(file, "%s = %d\n", kAdvancedConfigFXVolumeKey, getSoundEffectsVolume());
+    fprintf(file, "%s = %d\n", kAdvancedConfigScalingModeKey, getScalingMode());
+    fprintf(file, "\n");
+
+    fprintf(file, "[%s]\n", kAdvancedConfigDebugSection);
+    fprintf(file, "%s = %d\n", kAdvancedConfigDisplayFPSKey, gShouldShowFPS);
+    fprintf(file, "\n");
+
+    fclose(file);
+}
+
 void renderAdvancedOptionsMenu(AdvancedOptionsMenu *menu)
 {
     memcpy(gScreenPixels, gAdvancedOptionsMenuBaseBitmap, sizeof(gAdvancedOptionsMenuBaseBitmap));
@@ -3061,7 +3124,7 @@ void buildMusicVolumeOptionTitle(char output[kMaxAdvancedOptionsMenuEntryTitleLe
 
 void buildFXVolumeOptionTitle(char output[kMaxAdvancedOptionsMenuEntryTitleLength])
 {
-    snprintf(output, kMaxAdvancedOptionsMenuEntryTitleLength, "FX VOLUME: %d", getSoundEffectVolume());
+    snprintf(output, kMaxAdvancedOptionsMenuEntryTitleLength, "FX VOLUME: %d", getSoundEffectsVolume());
 }
 
 void buildScalingModeOptionTitle(char output[kMaxAdvancedOptionsMenuEntryTitleLength])
@@ -3162,11 +3225,11 @@ void decreaseMusicVolume()
 
 void increaseFXVolume()
 {
-    uint8_t volume = getSoundEffectVolume();
+    uint8_t volume = getSoundEffectsVolume();
 
     if (volume < kMaxVolume)
     {
-        setSoundEffectVolume(volume + 1);
+        setSoundEffectsVolume(volume + 1);
     }
 }
 
@@ -3230,11 +3293,11 @@ void increaseAdvancedMenuScalingMode()
 
 void decreaseFXVolume()
 {
-    uint8_t volume = getSoundEffectVolume();
+    uint8_t volume = getSoundEffectsVolume();
 
     if (volume > 0)
     {
-        setSoundEffectVolume(volume - 1);
+        setSoundEffectsVolume(volume - 1);
     }
 }
 
@@ -3472,6 +3535,8 @@ void runAdvancedOptionsRootMenu()
 
     runAdvancedOptionsMenu(&menu);
 
+    writeAdvancedConfig();
+
     memcpy(gScreenPixels, gAdvancedOptionsMenuBaseBitmap, sizeof(gAdvancedOptionsMenuBaseBitmap));
     videoloop();
 }
@@ -3490,6 +3555,8 @@ int main(int argc, const char * argv[])
     {
         exitWithError("Couldn't initialize audio");
     }
+
+    readAdvancedConfig();
 
     handleSDLEvents();
 
