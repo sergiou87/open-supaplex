@@ -42,6 +42,8 @@ Mix_Chunk *gBugSound = NULL;
 Mix_Chunk *gBaseSound = NULL;
 Mix_Chunk *gExitSound = NULL;
 
+int gCurrentSoundChannel = -1;
+
 void loadMusic(void);
 void destroyMusic(void);
 
@@ -52,7 +54,7 @@ int8_t initializeAudio()
 {
     SDL_InitSubSystem(SDL_INIT_AUDIO);
 
-    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) == -1)
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 512) == -1)
     {
         spLog("Mix_Init: Failed to open audio!\n");
         spLog("Mix_Init: %s\n", Mix_GetError());
@@ -225,7 +227,8 @@ void destroyMusic()
 #define DEFINE_PLAY_SOUND_FUNCTION(__chunk) \
 void play##__chunk##Sound(void) \
 { \
-    Mix_PlayChannel(-1, g##__chunk##Sound, 0); \
+    Mix_HaltChannel(gCurrentSoundChannel); \
+    gCurrentSoundChannel = Mix_PlayChannel(-1, g##__chunk##Sound, 0); \
 }
 
 DEFINE_PLAY_SOUND_FUNCTION(Explosion);

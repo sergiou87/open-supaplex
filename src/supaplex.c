@@ -159,10 +159,10 @@ uint8_t byte_58D47 = 0; //
 uint8_t byte_59821 = 0; //
 uint8_t byte_59822 = 0; //
 uint8_t byte_59823 = 0; //
-uint8_t byte_59889 = 0; //
-uint8_t byte_5988A = 0; //
-uint8_t byte_5988B = 0; //
-uint8_t byte_5988C = 0; //
+uint8_t gCurrentSoundPriority = 0; // byte_59889 -> 0x9579 -> the lower this value, the higher its priority. 0 means no sound playing
+uint8_t byte_5988A = 0; // -> 0x957A
+uint8_t gCurrentSoundDuration = 0; // byte_5988B -> 0x957B -> remaining time of the current sound, each unit is 20ms
+uint8_t byte_5988C = 0; // -> 0x957C
 uint16_t word_5988E = 0x4650; // "PF"
 //uint8_t byte_59890 = 0x58; // 88 or 'X'
 //uint16_t word_59891 = 0x3336; // "63"
@@ -3996,17 +3996,19 @@ void int8handler() // proc far        ; DATA XREF: setint8+10o
     }
 
 //loc_473B4:              ; CODE XREF: int8handler+4Fj
-    if (byte_5988B != 0)
+    // 01ED:0751
+    if (gCurrentSoundDuration != 0)
     {
-        byte_5988B--;
-        if (byte_5988B == 0)
+        gCurrentSoundDuration--;
+        if (gCurrentSoundDuration == 0)
         {
-            byte_59889 = 0;
+            gCurrentSoundPriority = 0;
         }
     }
 
 //loc_473C6:              ; CODE XREF: int8handler+59j
 //                ; int8handler+5Fj
+    // 01ED:0763
     if (byte_5988C != 0)
     {
         byte_5988C--;
@@ -14067,9 +14069,9 @@ void activateInternalStandardSound() // loadBeep   proc near       ; CODE XREF: 
     stopSounds();
     setSoundType(SoundTypeInternalStandard, SoundTypeInternalStandard);
     sound2();
-    byte_59889 = 0;
+    gCurrentSoundPriority = 0;
     byte_5988A = 0x64;
-    byte_5988B = 0;
+    gCurrentSoundDuration = 0;
     byte_5988C = 0;
 }
 
@@ -14078,9 +14080,9 @@ void activateInternalSamplesSound() // loadBeep2  proc near       ; CODE XREF: r
     stopSounds();
     setSoundType(SoundTypeInternalStandard, SoundTypeInternalSamples);
     sound2();
-    byte_59889 = 0;
+    gCurrentSoundPriority = 0;
     byte_5988A = 0x64;
-    byte_5988B = 0;
+    gCurrentSoundDuration = 0;
     byte_5988C = 0;
 }
 
@@ -14089,9 +14091,9 @@ void activateAdlibSound() // loadAdlib  proc near       ; CODE XREF: readConfig+
     stopSounds(); // 01ED:6D06
     setSoundType(SoundTypeAdlib, SoundTypeAdlib);
     sound2();
-    byte_59889 = 0;
+    gCurrentSoundPriority = 0;
     byte_5988A = 0x64;
-    byte_5988B = 0;
+    gCurrentSoundDuration = 0;
     byte_5988C = 0;
 }
 
@@ -14101,9 +14103,9 @@ void activateSoundBlasterSound() // loadBlaster  proc near       ; CODE XREF: re
     stopSounds();
     setSoundType(SoundTypeAdlib, SoundTypeSoundBlaster);
     sound2();
-    byte_59889 = 0;
+    gCurrentSoundPriority = 0;
     byte_5988A = 0x64;
-    byte_5988B = 0;
+    gCurrentSoundDuration = 0;
     byte_5988C = 0;
 }
 
@@ -14112,9 +14114,9 @@ void activateRolandSound() // loadRoland  proc near       ; CODE XREF: readConfi
     stopSounds();
     setSoundType(SoundTypeRoland, SoundTypeRoland);
     sound2();
-    byte_59889 = 0;
+    gCurrentSoundPriority = 0;
     byte_5988A = 0x64;
-    byte_5988B = 0;
+    gCurrentSoundDuration = 0;
     byte_5988C = 0;
 }
 
@@ -14123,9 +14125,9 @@ void activateCombinedSound() // loadCombined proc near       ; CODE XREF: readCo
     stopSounds();
     setSoundType(SoundTypeRoland, SoundTypeSoundBlaster);
     sound2();
-    byte_59889 = 0;
+    gCurrentSoundPriority = 0;
     byte_5988A = 0x64;
-    byte_5988B = 0;
+    gCurrentSoundDuration = 0;
     byte_5988C = 0;
 }
 
@@ -14213,14 +14215,14 @@ void sound4() //     proc near       ; CODE XREF: detonateBigExplosion+2EDp cod
     }
 
 //loc_4DB7F:              ; CODE XREF: sound4+5j
-    if (byte_59889 >= 5)
+    if (gCurrentSoundPriority >= 5)
     {
         return;
     }
 
 //loc_4DB87:              ; CODE XREF: sound4+Dj
-    byte_5988B = 0xF;
-    byte_59889 = 5;
+    gCurrentSoundDuration = 0xF;
+    gCurrentSoundPriority = 5;
 
     playExplosionSound();
 }
@@ -14234,14 +14236,14 @@ void sound5() //     proc near       ; CODE XREF: update?:loc_4E55Cp
     }
 
 //loc_4DBE8:              ; CODE XREF: sound5+5j
-    if (byte_59889 >= 5)
+    if (gCurrentSoundPriority >= 5)
     {
         return;
     }
 
 //loc_4DBF0:              ; CODE XREF: sound5+Dj
-    byte_5988B = 0xF;
-    byte_59889 = 4;
+    gCurrentSoundDuration = 0xF;
+    gCurrentSoundPriority = 4;
 
     playInfotronSound();
 }
@@ -14255,15 +14257,14 @@ void sound6() //     proc near       ; CODE XREF: update?+B8Bp
     }
 
 //loc_4DC51:              ; CODE XREF: sound6+5j
-    if (byte_59889 >= 2)
+    if (gCurrentSoundPriority >= 2)
     {
         return;
     }
 
 //loc_4DC59:              ; CODE XREF: sound6+Dj
-    byte_5988B = 7;
-    byte_59889 = 2;
-
+    gCurrentSoundDuration = 7;
+    gCurrentSoundPriority = 2;
     playPushSound();
 }
 
@@ -14276,14 +14277,14 @@ void sound7() //     proc near       ; CODE XREF: movefun:loc_48125p
     }
 
 //loc_4DCBA:              ; CODE XREF: sound7+5j
-    if (byte_59889 >= 2)
+    if (gCurrentSoundPriority >= 2)
     {
         return;
     }
 
 //loc_4DCC2:              ; CODE XREF: sound7+Dj
-    byte_5988B = 7;
-    byte_59889 = 2;
+    gCurrentSoundDuration = 7;
+    gCurrentSoundPriority = 2;
     playFallSound();
 }
 
@@ -14295,14 +14296,14 @@ void sound8() //     proc near       ; CODE XREF: movefun7:loc_4A0ABp
     }
 
 // loc_4DD23:              ; CODE XREF: sound8+5j
-    if (byte_59889 >= 3)
+    if (gCurrentSoundPriority >= 3)
     {
         return;
     }
 
 //loc_4DD2B:              ; CODE XREF: sound8+Dj
-    byte_5988B = 3;
-    byte_59889 = 3;
+    gCurrentSoundDuration = 3;
+    gCurrentSoundPriority = 3;
 
     playBugSound();
 }
@@ -14316,14 +14317,15 @@ void sound9() //     proc near       ; CODE XREF: runLevel+2F4p
     }
 
 //xxxxxxxxdcdc:               ; CODE XREF: sound9+5j
-    if (byte_59889 >= 1)
+    if (gCurrentSoundPriority >= 1)
     {
         return;
     }
 
 //loc_4DD94:              ; CODE XREF: sound9+Dj
-    byte_5988B = 3;
-    byte_59889 = 1;
+    gCurrentSoundDuration = 3;
+    gCurrentSoundPriority = 1;
+
     playBaseSound();
 }
 
@@ -14335,8 +14337,8 @@ void sound10() //    proc near       ; CODE XREF: update?+7EBp
     }
 
 //loc_4DDF5:              ; CODE XREF: sound10+5j
-    byte_5988B = 0xFA;
-    byte_59889 = 0xA;
+    gCurrentSoundDuration = 0xFA;
+    gCurrentSoundPriority = 0xA;
     sound3();
 
     playExitSound();
