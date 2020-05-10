@@ -111,8 +111,8 @@ void gameControllerEmulateMouse(float *x, float *y, uint8_t *leftButton, uint8_t
     Sint16 yAxis = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
     Sint16 xAxis = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
 
-    Uint8 aButton = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
-    Uint8 bButton = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_B);
+    Uint8 confirmButton = getGameControllerConfirmButton();
+    Uint8 cancelButton = getGameControllerCancelButton();
 
     static const Sint16 JOYSTICK_MOUSE_THRESHOLD = 8192;
 
@@ -134,8 +134,8 @@ void gameControllerEmulateMouse(float *x, float *y, uint8_t *leftButton, uint8_t
     *leftButton = bButton;
     *rightButton = aButton;
 #else
-    *leftButton = aButton;
-    *rightButton = bButton;
+    *leftButton = confirmButton;
+    *rightButton = cancelButton;
 #endif
 }
 
@@ -149,6 +149,16 @@ uint8_t getGameControllerButton(SDL_GameControllerButton button)
     }
 
     return SDL_GameControllerGetButton(controller, button);
+}
+
+uint8_t getGameControllerConfirmButton(void)
+{
+    return getGameControllerButton(SDL_CONTROLLER_BUTTON_A);
+}
+
+uint8_t getGameControllerCancelButton(void)
+{
+    return getGameControllerButton(SDL_CONTROLLER_BUTTON_B);
 }
 
 uint8_t isAnyGameControllerButtonPressed(void)

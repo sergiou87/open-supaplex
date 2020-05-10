@@ -26,6 +26,9 @@ int8_t getGameControllerY(void);
 uint8_t getGameControllerButton(SDL_GameControllerButton button);
 uint8_t isAnyGameControllerButtonPressed(void);
 
+uint8_t getGameControllerConfirmButton(void);
+uint8_t getGameControllerCancelButton(void);
+
 void gameControllerEmulateMouse(float *x, float *y, uint8_t *leftButton, uint8_t *rightButton);
 
 #endif /* controller_h */

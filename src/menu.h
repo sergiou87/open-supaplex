@@ -37,6 +37,7 @@ typedef struct {
 
 typedef struct {
     uint16_t numberOfEntries;
+    char title[kMaxAdvancedOptionsMenuEntryTitleLength];
     AdvancedOptionsMenuEntry entries[kMaxAdvancedOptionsMenuEntries];
     uint16_t selectedEntryIndex;
 } AdvancedOptionsMenu;

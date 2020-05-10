@@ -50,6 +50,8 @@ typedef enum {
     UserInputSpaceOnly = 9,
 } UserInput;
 
+#define VERSION_STRING "7.1"
+
 static const uint8_t kUserInputSpaceAndDirectionOffset = (UserInputSpaceUp - 1);
 
 // exact length of a level file, even of each level inside the LEVELS.DAT file
@@ -2921,6 +2923,132 @@ void int9handler(uint8_t shouldYieldCpu);
 void updateDemoRecordingLowestSpeed(void);
 void playDemo(uint16_t demoIndex);
 
+uint8_t gAdvancedOptionsMenuBaseBitmap[kFullScreenFramebufferLength];
+
+void renderAdvancedOptionsMenu(AdvancedOptionsMenu *menu)
+{
+    memcpy(gScreenPixels, gAdvancedOptionsMenuBaseBitmap, sizeof(gAdvancedOptionsMenuBaseBitmap));
+
+    char entryTitleBuffer[kMaxAdvancedOptionsMenuEntryTitleLength];
+
+    static const uint16_t kInitialMenuX = 104;
+    static const uint16_t kInitialMenuY = 16;
+    static const uint16_t kLinesBelowTitle = 2;
+
+    const uint16_t kMenuTitleX = (kScreenWidth - strlen(menu->title) * kBitmapFontCharacter6Width) / 2;
+
+    drawTextWithChars6FontWithTransparentBackground(kMenuTitleX, kInitialMenuY, 0xF, menu->title);
+
+    for (int i = 0; i < menu->numberOfEntries; ++i)
+    {
+        AdvancedOptionsMenuEntry entries = menu->entries[i];
+
+        uint8_t color = (i == menu->selectedEntryIndex
+                         ? 6
+                         : 0xF);
+
+        char *title = entries.title;
+
+        if (entries.titleBuilder)
+        {
+            entries.titleBuilder(entryTitleBuffer);
+            title = entryTitleBuffer;
+        }
+
+        drawTextWithChars6FontWithTransparentBackground(kInitialMenuX, kInitialMenuY + (i + kLinesBelowTitle) * (kBitmapFontCharacterHeight + 1), color, title);
+    }
+
+    videoloop();
+}
+
+/// @return 1 if the action was to go back / close the menu
+uint8_t handleAdvancedOptionsMenuInput(AdvancedOptionsMenu *menu)
+{
+    if (gCurrentUserInput == UserInputUp)
+    {
+        moveUpAdvancedOptionsSelectedEntry(menu);
+    }
+
+    if (gCurrentUserInput == UserInputDown)
+    {
+        moveDownAdvancedOptionsSelectedEntry(menu);
+    }
+
+    if (gCurrentUserInput == UserInputLeft)
+    {
+        decreaseAdvancedOptionsSelectedEntry(menu);
+    }
+
+    if (gCurrentUserInput == UserInputRight)
+    {
+        increaseAdvancedOptionsSelectedEntry(menu);
+    }
+
+    if (gIsEnterPressed || getGameControllerConfirmButton())
+    {
+        selectAdvancedOptionsSelectedEntry(menu);
+    }
+
+    if (gIsEscapeKeyPressed || getGameControllerCancelButton())
+    {
+        return 1;
+    }
+
+    if (gShouldResumeGame
+        || gShouldExitGame)
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
+void advancedOptionsMenuWaitForKeyPress()
+{
+    do
+    {
+        int9handler(1);
+        updateUserInput();
+    }
+    while (gCurrentUserInput == UserInputNone
+           && gIsEnterPressed == 0
+           && gIsEscapeKeyPressed == 0
+           && getGameControllerConfirmButton() == 0
+           && getGameControllerCancelButton() == 0);
+}
+
+void advancedOptionsMenuWaitForKeyRelease()
+{
+    do
+    {
+        int9handler(1);
+        updateUserInput();
+    }
+    while (gCurrentUserInput != UserInputNone
+           || gIsEnterPressed
+           || gIsEscapeKeyPressed
+           || getGameControllerConfirmButton()
+           || getGameControllerCancelButton());
+}
+
+void runAdvancedOptionsMenu(AdvancedOptionsMenu *menu)
+{
+    do
+    {
+        if (handleAdvancedOptionsMenuInput(menu))
+        {
+            break;
+        }
+
+        renderAdvancedOptionsMenu(menu);
+        advancedOptionsMenuWaitForKeyRelease();
+        advancedOptionsMenuWaitForKeyPress();
+    }
+    while (1);
+
+    advancedOptionsMenuWaitForKeyRelease();
+}
+
 void buildGameSpeedOptionTitle(char output[kMaxAdvancedOptionsMenuEntryTitleLength])
 {
     snprintf(output, kMaxAdvancedOptionsMenuEntryTitleLength, "GAME SPEED: %d", gGameSpeed);
@@ -3124,52 +3252,22 @@ void handleExitGameOptionSelection()
     gShouldExitGame = 1;
 }
 
-void runAdvancedOptionsMenu()
+void runAdvancedOptionsSubMenu(AdvancedOptionsMenu menu)
 {
-    uint8_t screenPixelsBackup[kFullScreenFramebufferLength];
+    runAdvancedOptionsMenu(&menu);
+}
 
+void handleDebugOptionSelection()
+{
     AdvancedOptionsMenu menu;
     initializeAdvancedOptionsMenu(&menu);
 
-    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-        "RESUME",
-        NULL,
-        handleResumeOptionSelection,
-        NULL,
-        NULL,
-    });
-    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-        "",
-        buildGameSpeedOptionTitle,
-        NULL,
-        decreaseGameSpeed,
-        increaseGameSpeed,
-    });
-    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-        "",
-        buildMusicVolumeOptionTitle,
-        NULL,
-        decreaseMusicVolume,
-        increaseMusicVolume,
-    });
-    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-        "",
-        buildFXVolumeOptionTitle,
-        NULL,
-        decreaseFXVolume,
-        increaseFXVolume,
-    });
-    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-        "",
-        buildScalingModeOptionTitle,
-        NULL,
-        NULL,
-        NULL,
-    });
+    strncpy(menu.title, "DEBUG (DANGER)", kMaxAdvancedOptionsMenuEntryTitleLength);
+
     addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
         "",
         buildDisplayFPSOptionTitle,
-        NULL,
+        toggleDisplayFPSOption,
         toggleDisplayFPSOption,
         toggleDisplayFPSOption,
     });
@@ -3188,25 +3286,11 @@ void runAdvancedOptionsMenu()
         saveGameSnapshot,
     });
     addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-        "STOP DEMO AND PLAY",
+        "MOVE FREELY",
+        NULL,
+        handleMoveScrollOptionSelection,
         NULL,
         NULL,
-        NULL,
-        NULL,
-    });
-    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-        "",
-        buildPlayDemoOptionTitle,
-        handlePlayDemoOptionSelection,
-        decreaseAdvancedMenuPlayDemoIndex,
-        increaseAdvancedMenuPlayDemoIndex,
-    });
-    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-        "",
-        buildRecordDemoOptionTitle,
-        handleRecordDemoOptionSelection,
-        decreaseAdvancedMenuRecordDemoIndex,
-        increaseAdvancedMenuRecordDemoIndex,
     });
     addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
         "REMOVE ZONKS",
@@ -3250,12 +3334,79 @@ void runAdvancedOptionsMenu()
         NULL,
         NULL,
     });
+
+    runAdvancedOptionsSubMenu(menu);
+}
+
+void runAdvancedOptionsRootMenu()
+{
+    AdvancedOptionsMenu menu;
+    initializeAdvancedOptionsMenu(&menu);
+
+    strncpy(menu.title, "OPENSUPAPLEX " VERSION_STRING, kMaxAdvancedOptionsMenuEntryTitleLength);
+
     addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-        "MOVE FREELY",
+        "RESUME",
         NULL,
-        handleMoveScrollOptionSelection,
+        handleResumeOptionSelection,
         NULL,
         NULL,
+    });
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "",
+        buildGameSpeedOptionTitle,
+        NULL,
+        decreaseGameSpeed,
+        increaseGameSpeed,
+    });
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "",
+        buildMusicVolumeOptionTitle,
+        NULL,
+        decreaseMusicVolume,
+        increaseMusicVolume,
+    });
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "",
+        buildFXVolumeOptionTitle,
+        NULL,
+        decreaseFXVolume,
+        increaseFXVolume,
+    });
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "",
+        buildScalingModeOptionTitle,
+        NULL,
+        NULL,
+        NULL,
+    });
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "DEBUG (DANGER)",
+        NULL,
+        handleDebugOptionSelection,
+        NULL,
+        NULL,
+    });
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "STOP DEMO AND PLAY",
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+    });
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "",
+        buildPlayDemoOptionTitle,
+        handlePlayDemoOptionSelection,
+        decreaseAdvancedMenuPlayDemoIndex,
+        increaseAdvancedMenuPlayDemoIndex,
+    });
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "",
+        buildRecordDemoOptionTitle,
+        handleRecordDemoOptionSelection,
+        decreaseAdvancedMenuRecordDemoIndex,
+        increaseAdvancedMenuRecordDemoIndex,
     });
     addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
         "EXIT GAME",
@@ -3267,96 +3418,12 @@ void runAdvancedOptionsMenu()
 
     gShouldResumeGame = 0;
 
-    memcpy(screenPixelsBackup, gScreenPixels, sizeof(screenPixelsBackup));
+    memcpy(gAdvancedOptionsMenuBaseBitmap, gScreenPixels, sizeof(gAdvancedOptionsMenuBaseBitmap));
     byte_5A33F = 0; // TODO: save previous value
-    do
-    {
-        if (gCurrentUserInput == UserInputUp)
-        {
-            moveUpAdvancedOptionsSelectedEntry(&menu);
-        }
 
-        if (gCurrentUserInput == UserInputDown)
-        {
-            moveDownAdvancedOptionsSelectedEntry(&menu);
-        }
+    runAdvancedOptionsMenu(&menu);
 
-        if (gCurrentUserInput == UserInputLeft)
-        {
-            decreaseAdvancedOptionsSelectedEntry(&menu);
-        }
-
-        if (gCurrentUserInput == UserInputRight)
-        {
-            increaseAdvancedOptionsSelectedEntry(&menu);
-        }
-
-        if (gIsEnterPressed || getGameControllerButton(SDL_CONTROLLER_BUTTON_A))
-        {
-            selectAdvancedOptionsSelectedEntry(&menu);
-        }
-
-        if (gIsEscapeKeyPressed || getGameControllerButton(SDL_CONTROLLER_BUTTON_B))
-        {
-            break;
-        }
-
-        memcpy(gScreenPixels, screenPixelsBackup, sizeof(screenPixelsBackup));
-
-        char titleBuffer[kMaxAdvancedOptionsMenuEntryTitleLength];
-
-        for (int i = 0; i < menu.numberOfEntries; ++i)
-        {
-            AdvancedOptionsMenuEntry entries = menu.entries[i];
-
-            uint8_t color = (i == menu.selectedEntryIndex
-                             ? 6
-                             : 0xF);
-
-            char *title = entries.title;
-
-            if (entries.titleBuilder)
-            {
-                entries.titleBuilder(titleBuffer);
-                title = titleBuffer;
-            }
-
-            drawTextWithChars6FontWithTransparentBackground(0, 10 + i * 8, color, title);
-        }
-
-        videoloop();
-
-        do
-        {
-            int9handler(1);
-            updateUserInput();
-        }
-        while (gCurrentUserInput != UserInputNone
-               || gIsEnterPressed
-               || gIsEscapeKeyPressed
-               || getGameControllerButton(SDL_CONTROLLER_BUTTON_A)
-               || getGameControllerButton(SDL_CONTROLLER_BUTTON_B));
-
-        if (gShouldResumeGame
-            || gShouldExitGame)
-        {
-            break;
-        }
-
-        do
-        {
-            int9handler(1);
-            updateUserInput();
-        }
-        while (gCurrentUserInput == UserInputNone
-               && gIsEnterPressed == 0
-               && gIsEscapeKeyPressed == 0
-               && getGameControllerButton(SDL_CONTROLLER_BUTTON_A) == 0
-               && getGameControllerButton(SDL_CONTROLLER_BUTTON_B) == 0);
-    }
-    while (1);
-
-    memcpy(gScreenPixels, screenPixelsBackup, sizeof(screenPixelsBackup));
+    memcpy(gScreenPixels, gAdvancedOptionsMenuBaseBitmap, sizeof(gAdvancedOptionsMenuBaseBitmap));
     videoloop();
 }
 
@@ -3923,7 +3990,7 @@ loc_46E75:              //; CODE XREF: start+251j
 //openingSequence:
         loadScreen2();    // 01ED:02B9
         readEverything(); // 01ED:02BC
-        runAdvancedOptionsMenu();
+        runAdvancedOptionsRootMenu();
         drawSpeedFixTitleAndVersion(); // 01ED:02BF
         openCreditsBlock(); // credits inside the block // 01ED:02C2
         drawSpeedFixCredits();   // credits below the block (herman perk and elmer productions) // 01ED:02C5
@@ -19084,14 +19151,14 @@ void drawGamePanel() // sub_501C0   proc near       ; CODE XREF: start+338p han
 
 void drawSpeedFixTitleAndVersion() //   proc near       ; CODE XREF: start+2E6p
 {
-    drawTextWithChars6FontWithOpaqueBackground(102, 11, 1, "SUPAPLEX VERSION 7.0");
+    drawTextWithChars6FontWithOpaqueBackground(102, 11, 1, "SUPAPLEX VERSION " VERSION_STRING);
 }
 
 void drawSpeedFixCredits() // showNewCredits  proc near       ; CODE XREF: start+2ECp
 {
     drawTextWithChars6FontWithOpaqueBackground(60, 168, 0xE, "VERSIONS 1-4 + 6.X BY HERMAN PERK");
     drawTextWithChars6FontWithOpaqueBackground(60, 176, 0xE, "VERSIONS 5.X BY ELMER PRODUCTIONS");
-    drawTextWithChars6FontWithOpaqueBackground(60, 184, 0xE, "  VERSION 7.0 BY SERGIO PADRINO  ");
+    drawTextWithChars6FontWithOpaqueBackground(60, 184, 0xE, "  VERSION 7.X BY SERGIO PADRINO  ");
 
     videoloop();
 
