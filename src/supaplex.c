@@ -1486,7 +1486,7 @@ char kSaveGameMagicNumber[4] = "OSPX";
 static const uint8_t kSaveGameSupportedVersion = 0x70;
 uint16_t word_5A30D = 0;
 uint16_t word_5A30F = 0;
-uint8_t gIsGamePaused; // byte_510AE
+uint8_t gIsGameRunning; // byte_510AE
 uint16_t gLastDrawnMinutesAndSeconds; // word_510B7
 uint8_t gLastDrawnHours; // byte_510B9
 uint8_t gIsPlayingDemo; // byte_510DE -> 0DCE
@@ -3096,6 +3096,8 @@ void advancedOptionsMenuWaitForKeyRelease()
 
 void runAdvancedOptionsMenu(AdvancedOptionsMenu *menu)
 {
+    advancedOptionsMenuWaitForKeyRelease();
+
     do
     {
         if (handleAdvancedOptionsMenuInput(menu))
@@ -4106,7 +4108,6 @@ loc_46E75:              //; CODE XREF: start+251j
 //openingSequence:
         loadScreen2();    // 01ED:02B9
         readEverything(); // 01ED:02BC
-        runAdvancedOptionsRootMenu();
         drawSpeedFixTitleAndVersion(); // 01ED:02BF
         openCreditsBlock(); // credits inside the block // 01ED:02C2
         drawSpeedFixCredits();   // credits below the block (herman perk and elmer productions) // 01ED:02C5
@@ -4591,7 +4592,7 @@ void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9
 
 void int8handler() // proc far        ; DATA XREF: setint8+10o
 {
-    if (gIsGamePaused != 0)
+    if (gIsGameRunning != 0)
     {
         gCurrentGameState.auxGameSeconds20msAccumulator++;
         if (gCurrentGameState.auxGameSeconds20msAccumulator >= 50)
@@ -7191,7 +7192,7 @@ void initializeGameInfo() // sub_48A20   proc near       ; CODE XREF: start+32F
     gCurrentGameState.word_510CD = 0;
     gLastDrawnMinutesAndSeconds = 0xFFFF;
     gLastDrawnHours = 0xFF; // 255
-    gIsGamePaused = 1;
+    gIsGameRunning = 1;
     gCurrentGameState.auxGameSeconds20msAccumulator = 0;
     gCurrentGameState.gameSeconds = 0;
     gCurrentGameState.gameMinutes = 0;
@@ -8772,43 +8773,45 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
         || getGameControllerButton(SDL_CONTROLLER_BUTTON_START))
     {
         // 01ED:303A
-        gIsGamePaused = 0;
+        gIsGameRunning = 0;
 //        mov si, 6095h
         fadeToPalette(gPalettes[3]);
 
-        do
-        {
-//loc_49CA8:              ; CODE XREF: handleGameUserInput+752j
-            int9handler(1);
-        }
-        while (gIsPKeyPressed == 1
-               || getGameControllerButton(SDL_CONTROLLER_BUTTON_START));
+//        do
+//        {
+////loc_49CA8:              ; CODE XREF: handleGameUserInput+752j
+//            int9handler(1);
+//        }
+//        while (gIsPKeyPressed == 1
+//               || getGameControllerButton(SDL_CONTROLLER_BUTTON_START));
 
-        do
-        {
-//loc_49CAF:              ; CODE XREF: handleGameUserInput+759j
-            int9handler(1);
-        }
-        while (gIsPKeyPressed == 0
-               && getGameControllerButton(SDL_CONTROLLER_BUTTON_START) == 0);
+        runAdvancedOptionsRootMenu();
 
-        do
-        {
-//loc_49CB6:              ; CODE XREF: handleGameUserInput+760j
-            int9handler(1);
-        }
-        while (gIsPKeyPressed == 1
-               || getGameControllerButton(SDL_CONTROLLER_BUTTON_START));
+//        do
+//        {
+////loc_49CAF:              ; CODE XREF: handleGameUserInput+759j
+//            int9handler(1);
+//        }
+//        while (gIsPKeyPressed == 0
+//               && getGameControllerButton(SDL_CONTROLLER_BUTTON_START) == 0);
+//
+//        do
+//        {
+////loc_49CB6:              ; CODE XREF: handleGameUserInput+760j
+//            int9handler(1);
+//        }
+//        while (gIsPKeyPressed == 1
+//               || getGameControllerButton(SDL_CONTROLLER_BUTTON_START));
 //            mov si, 6015h
         fadeToPalette(gPalettes[1]);
-        gIsGamePaused = 1;
+        gIsGameRunning = 1;
     }
 
 //loc_49CC8:              ; CODE XREF: handleGameUserInput+740j
     if (gIsNumLockPressed != 0)
     {
         // 01ED:306C
-        gIsGamePaused = 0;
+        gIsGameRunning = 0;
 //        mov si, 6095h
         fadeToPalette(gPalettes[3]);
 
@@ -8859,7 +8862,7 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
         while (gIsNumLockPressed == 1);
 //        mov si, 6015h
         fadeToPalette(gPalettes[1]);
-        gIsGamePaused = 1;
+        gIsGameRunning = 1;
     }
 
 //loc_49D15:              ; CODE XREF: handleGameUserInput+772j
@@ -13351,13 +13354,10 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
         {
             break;
         }
-        if (getGameControllerButton(SDL_CONTROLLER_BUTTON_BACK)) // Select/Back/- controller button -> exit game
+        if (getGameControllerButton(SDL_CONTROLLER_BUTTON_BACK) // Select/Back/- controller button -> exit game
+            || gIsEscapeKeyPressed == 1)
         {
-            break;
-        }
-        if (gIsEscapeKeyPressed == 1)
-        {
-            break;
+            runAdvancedOptionsRootMenu();
         }
         if (gShouldExitGame == 1)
         {
