@@ -33,4 +33,23 @@ typedef struct {
     AdvancedOptionsMenuEntryActionHandler incrementHandler;
 } AdvancedOptionsMenuEntry;
 
+#define kMaxAdvancedOptionsMenuEntries 50
+
+typedef struct {
+    uint16_t numberOfEntries;
+    AdvancedOptionsMenuEntry entries[kMaxAdvancedOptionsMenuEntries];
+    uint16_t selectedEntryIndex;
+} AdvancedOptionsMenu;
+
+void initializeAdvancedOptionsMenu(AdvancedOptionsMenu *menu);
+void addAdvancedOptionsEntry(AdvancedOptionsMenu *menu,
+                             AdvancedOptionsMenuEntry entry);
+
+void moveUpAdvancedOptionsSelectedEntry(AdvancedOptionsMenu *menu);
+void moveDownAdvancedOptionsSelectedEntry(AdvancedOptionsMenu *menu);
+
+void increaseAdvancedOptionsSelectedEntry(AdvancedOptionsMenu *menu);
+void decreaseAdvancedOptionsSelectedEntry(AdvancedOptionsMenu *menu);
+void selectAdvancedOptionsSelectedEntry(AdvancedOptionsMenu *menu);
+
 #endif /* menu_h */

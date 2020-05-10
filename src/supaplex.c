@@ -3046,122 +3046,121 @@ void runAdvancedOptionsMenu()
 {
     uint8_t screenPixelsBackup[kFullScreenFramebufferLength];
 
-    uint16_t selectedOptionIndex = 0;
-    uint8_t numberOfOptions = 16;
-    AdvancedOptionsMenuEntry options[30] = {
-        {
-            "RESUME",
-            NULL,
-            handleResumeOptionSelection,
-            NULL,
-            NULL,
-        },
-        {
-            "",
-            buildGameSpeedOptionTitle,
-            NULL,
-            decrementGameSpeed,
-            incrementGameSpeed,
-        },
-        {
-            "",
-            buildMusicVolumeOptionTitle,
-            NULL,
-            decrementMusicVolume,
-            incrementMusicVolume,
-        },
-        {
-            "",
-            buildFXVolumeOptionTitle,
-            NULL,
-            decrementFXVolume,
-            incrementFXVolume,
-        },
-        {
-            "",
-            buildScalingModeOptionTitle,
-            NULL,
-            NULL,
-            NULL,
-        },
-        {
-            "",
-            buildDisplayFPSOptionTitle,
-            NULL,
-            toggleDisplayFPSOption,
-            toggleDisplayFPSOption,
-        },
-        {
-            "LOAD GAME STATE",
-            NULL,
-            NULL,
-            NULL,
-            loadGameSnapshot,
-        },
-        {
-            "SAVE GAME STATE",
-            NULL,
-            NULL,
-            NULL,
-            saveGameSnapshot,
-        },
-        {
-            "STOP DEMO AND PLAY",
-            NULL,
-            NULL,
-            NULL,
-            NULL,
-        },
-        {
-            "",
-            buildPlayDemoOptionTitle,
-            NULL,
-            NULL,
-            NULL,
-        },
-        {
-            "",
-            buildRecordDemoOptionTitle,
-            NULL,
-            NULL,
-            NULL,
-        },
-        {
-            "REMOVE ZONKS",
-            NULL,
-            NULL,
-            NULL,
-            NULL,
-        },
-        {
-            "REMOVE HARDWARE",
-            NULL,
-            NULL,
-            NULL,
-            NULL,
-        },
-        {
-            "REMOVE SNIK SNAKS",
-            NULL,
-            NULL,
-            NULL,
-            NULL,
-        },
-        {
-            "REMOVE CHIPS",
-            NULL,
-            NULL,
-            NULL,
-            NULL,
-        },
-        {
-            "EXIT GAME",
-            NULL,
-            handleExitGameOptionSelection,
-            NULL,
-            NULL,
-        }
-    };
+    AdvancedOptionsMenu menu;
+    initializeAdvancedOptionsMenu(&menu);
+
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "RESUME",
+        NULL,
+        handleResumeOptionSelection,
+        NULL,
+        NULL,
+    });
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "",
+        buildGameSpeedOptionTitle,
+        NULL,
+        decrementGameSpeed,
+        incrementGameSpeed,
+    });
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "",
+        buildMusicVolumeOptionTitle,
+        NULL,
+        decrementMusicVolume,
+        incrementMusicVolume,
+    });
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "",
+        buildFXVolumeOptionTitle,
+        NULL,
+        decrementFXVolume,
+        incrementFXVolume,
+    });
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "",
+        buildScalingModeOptionTitle,
+        NULL,
+        NULL,
+        NULL,
+    });
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "",
+        buildDisplayFPSOptionTitle,
+        NULL,
+        toggleDisplayFPSOption,
+        toggleDisplayFPSOption,
+    });
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "LOAD GAME STATE",
+        NULL,
+        NULL,
+        NULL,
+        loadGameSnapshot,
+    });
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "SAVE GAME STATE",
+        NULL,
+        NULL,
+        NULL,
+        saveGameSnapshot,
+    });
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "STOP DEMO AND PLAY",
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+    });
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "",
+        buildPlayDemoOptionTitle,
+        NULL,
+        NULL,
+        NULL,
+    });
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "",
+        buildRecordDemoOptionTitle,
+        NULL,
+        NULL,
+        NULL,
+    });
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "REMOVE ZONKS",
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+    });
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "REMOVE HARDWARE",
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+    });
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "REMOVE SNIK SNAKS",
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+    });
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "REMOVE CHIPS",
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+    });
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "EXIT GAME",
+        NULL,
+        handleExitGameOptionSelection,
+        NULL,
+        NULL,
+    });
 
     gShouldResumeGame = 0;
 
@@ -3171,46 +3170,27 @@ void runAdvancedOptionsMenu()
     {
         if (gCurrentUserInput == UserInputUp)
         {
-            if (selectedOptionIndex == 0)
-            {
-                selectedOptionIndex = numberOfOptions - 1;
-            }
-            else
-            {
-                selectedOptionIndex--;
-            }
+            moveUpAdvancedOptionsSelectedEntry(&menu);
         }
 
         if (gCurrentUserInput == UserInputDown)
         {
-            selectedOptionIndex = (selectedOptionIndex + 1) % numberOfOptions;
+            moveDownAdvancedOptionsSelectedEntry(&menu);
         }
 
         if (gCurrentUserInput == UserInputLeft)
         {
-            AdvancedOptionsMenuEntry selectedOption = options[selectedOptionIndex];
-            if (selectedOption.decrementHandler)
-            {
-                selectedOption.decrementHandler();
-            }
+            decreaseAdvancedOptionsSelectedEntry(&menu);
         }
 
         if (gCurrentUserInput == UserInputRight)
         {
-            AdvancedOptionsMenuEntry selectedOption = options[selectedOptionIndex];
-            if (selectedOption.incrementHandler)
-            {
-                selectedOption.incrementHandler();
-            }
+            increaseAdvancedOptionsSelectedEntry(&menu);
         }
 
         if (gIsEnterPressed || getGameControllerButton(SDL_CONTROLLER_BUTTON_A))
         {
-            AdvancedOptionsMenuEntry selectedOption = options[selectedOptionIndex];
-            if (selectedOption.selectionHandler)
-            {
-                selectedOption.selectionHandler();
-            }
+            selectAdvancedOptionsSelectedEntry(&menu);
         }
 
         if (gIsEscapeKeyPressed || getGameControllerButton(SDL_CONTROLLER_BUTTON_B))
@@ -3222,19 +3202,19 @@ void runAdvancedOptionsMenu()
 
         char titleBuffer[kMaxAdvancedOptionsMenuEntryTitleLength];
 
-        for (int i = 0; i < numberOfOptions; ++i)
+        for (int i = 0; i < menu.numberOfEntries; ++i)
         {
-            AdvancedOptionsMenuEntry option = options[i];
+            AdvancedOptionsMenuEntry entries = menu.entries[i];
 
-            uint8_t color = (i == selectedOptionIndex
+            uint8_t color = (i == menu.selectedEntryIndex
                              ? 6
                              : 0xF);
 
-            char *title = option.title;
+            char *title = entries.title;
 
-            if (option.titleBuilder)
+            if (entries.titleBuilder)
             {
-                option.titleBuilder(titleBuffer);
+                entries.titleBuilder(titleBuffer);
                 title = titleBuffer;
             }
 

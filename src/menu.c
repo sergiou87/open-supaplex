@@ -16,3 +16,65 @@
 */
 
 #include "menu.h"
+
+#include <assert.h>
+
+void initializeAdvancedOptionsMenu(AdvancedOptionsMenu *menu)
+{
+    menu->numberOfEntries = 0;
+    menu->selectedEntryIndex = 0;
+}
+
+void addAdvancedOptionsEntry(AdvancedOptionsMenu *menu,
+                             AdvancedOptionsMenuEntry entry)
+{
+    assert(menu->numberOfEntries < kMaxAdvancedOptionsMenuEntries);
+
+    menu->entries[menu->numberOfEntries] = entry;
+    menu->numberOfEntries++;
+}
+
+void moveUpAdvancedOptionsSelectedEntry(AdvancedOptionsMenu *menu)
+{
+    if (menu->selectedEntryIndex == 0)
+    {
+        menu->selectedEntryIndex = menu->numberOfEntries - 1;
+    }
+    else
+    {
+        menu->selectedEntryIndex--;
+    }
+}
+
+void moveDownAdvancedOptionsSelectedEntry(AdvancedOptionsMenu *menu)
+{
+    menu->selectedEntryIndex = (menu->selectedEntryIndex + 1) % menu->numberOfEntries;
+}
+
+void increaseAdvancedOptionsSelectedEntry(AdvancedOptionsMenu *menu)
+{
+    AdvancedOptionsMenuEntry selectedOption = menu->entries[menu->selectedEntryIndex];
+    if (selectedOption.incrementHandler)
+    {
+        selectedOption.incrementHandler();
+    }
+}
+
+void decreaseAdvancedOptionsSelectedEntry(AdvancedOptionsMenu *menu)
+{
+    AdvancedOptionsMenuEntry selectedOption = menu->entries[menu->selectedEntryIndex];
+    if (selectedOption.decrementHandler)
+    {
+        selectedOption.decrementHandler();
+    }
+}
+
+void selectAdvancedOptionsSelectedEntry(AdvancedOptionsMenu *menu)
+{
+    AdvancedOptionsMenuEntry selectedOption = menu->entries[menu->selectedEntryIndex];
+    if (selectedOption.selectionHandler)
+    {
+        selectedOption.selectionHandler();
+    }
+}
+
