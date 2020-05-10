@@ -15,6 +15,7 @@
 		4062C247244CE5D5007A07F5 /* controller.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C244244CE5D4007A07F5 /* controller.c */; };
 		4062C248244CE5D5007A07F5 /* supaplex.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C246244CE5D5007A07F5 /* supaplex.c */; };
 		4062C24C244F00CA007A07F5 /* file.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C24B244F00CA007A07F5 /* file.c */; };
+		40C8290E24673197003A103E /* audio.c in Sources */ = {isa = PBXBuildFile; fileRef = 40C8290D24673197003A103E /* audio.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -46,6 +47,8 @@
 		4062C24A244F00CA007A07F5 /* file.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = file.h; path = ../../../src/file.h; sourceTree = "<group>"; };
 		4062C24B244F00CA007A07F5 /* file.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = file.c; path = ../../../src/file.c; sourceTree = "<group>"; };
 		40C0D72C24196126004742A9 /* OpenSupaplex */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OpenSupaplex; sourceTree = BUILT_PRODUCTS_DIR; };
+		40C8290C24673197003A103E /* audio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = audio.h; path = ../../../src/audio.h; sourceTree = "<group>"; };
+		40C8290D24673197003A103E /* audio.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = audio.c; path = ../../../src/audio.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +97,8 @@
 				400145A72461A59D00620211 /* video.c */,
 				400145AA2462CE9F00620211 /* utils.h */,
 				400145AB2462CE9F00620211 /* utils.c */,
+				40C8290C24673197003A103E /* audio.h */,
+				40C8290D24673197003A103E /* audio.c */,
 			);
 			path = OpenSupaplex;
 			sourceTree = "<group>";
@@ -165,6 +170,7 @@
 				4062C247244CE5D5007A07F5 /* controller.c in Sources */,
 				400145AC2462CE9F00620211 /* utils.c in Sources */,
 				4001459E245F7B5A00620211 /* touchscreen.c in Sources */,
+				40C8290E24673197003A103E /* audio.c in Sources */,
 				400145A82461A59D00620211 /* video.c in Sources */,
 				400145A4245FEDF200620211 /* nullVirtualKeyboard.c in Sources */,
 				4062C248244CE5D5007A07F5 /* supaplex.c in Sources */,
@@ -302,7 +308,11 @@
 				);
 				OTHER_LDFLAGS = (
 					"-L/usr/local/lib",
+					"-lSDL2_mixer",
 					"-lSDL2",
+					"-lvorbisfile",
+					"-lvorbis",
+					"-logg",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -326,7 +336,11 @@
 				);
 				OTHER_LDFLAGS = (
 					"-L/usr/local/lib",
+					"-lSDL2_mixer",
 					"-lSDL2",
+					"-lvorbisfile",
+					"-lvorbis",
+					"-logg",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
