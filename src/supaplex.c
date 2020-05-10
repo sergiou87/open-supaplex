@@ -160,9 +160,7 @@ uint8_t byte_59821 = 0; //
 uint8_t byte_59822 = 0; //
 uint8_t byte_59823 = 0; //
 uint8_t gCurrentSoundPriority = 0; // byte_59889 -> 0x9579 -> the lower this value, the higher its priority. 0 means no sound playing
-uint8_t byte_5988A = 0; // -> 0x957A
 uint8_t gCurrentSoundDuration = 0; // byte_5988B -> 0x957B -> remaining time of the current sound, each unit is 20ms
-uint8_t byte_5988C = 0; // -> 0x957C
 uint16_t word_5988E = 0x4650; // "PF"
 //uint8_t byte_59890 = 0x58; // 88 or 'X'
 //uint16_t word_59891 = 0x3336; // "63"
@@ -197,9 +195,6 @@ uint8_t byte_5A19B = 0;
 uint8_t gIsLevelStartedAsDemo = 0; // byte_5A19C
 uint8_t byte_5A2F8 = 0;
 uint8_t gHasUserLoadedGameSnapshot = 0; // byte_5A2F9
-uint8_t byte_5A320 = 0;
-uint8_t byte_5A321 = 0;
-uint8_t byte_5A322 = 0;
 uint8_t byte_5A323 = 0;
 uint16_t word_5A33C = 0;
 uint8_t byte_5A33E = 0;
@@ -4004,52 +3999,6 @@ void int8handler() // proc far        ; DATA XREF: setint8+10o
         {
             gCurrentSoundPriority = 0;
         }
-    }
-
-//loc_473C6:              ; CODE XREF: int8handler+59j
-//                ; int8handler+5Fj
-    // 01ED:0763
-    if (byte_5988C != 0)
-    {
-        byte_5988C--;
-        if (byte_5988C == 0)
-        {
-            byte_5988A = 0;
-        }
-    }
-
-//loc_473D8:              ; CODE XREF: int8handler+6Bj
-//                ; int8handler+71j
-    byte_5A320++;
-    byte_5A321++;
-    if (byte_5A320 == 3)
-    {
-        byte_5A322++;
-        byte_5A320 = 0;
-    }
-//loc_473F0:              ; CODE XREF: int8handler+85j
-    else if (byte_5A321 == 0x21) // '!' or 33
-    {
-        byte_5A322++;
-        byte_5A321 = 0;
-    }
-//loc_47400:              ; CODE XREF: int8handler+95j
-    else if (byte_5A322 != 0)
-    {
-        byte_5A322--;
-    //    pop ax
-    //    pop dx
-    //    pushf
-    //    originalInt8Handler();
-    //    pop ds
-        return; // iret
-    }
-    else
-    {
-//loc_47414:              ; CODE XREF: int8handler+A5j
-        al = 0x20; // ' ' or 32
-    //    out 20h, al     ; Interrupt controller, 8259A.
-        return; //iret
     }
 }
 
@@ -14070,9 +14019,7 @@ void activateInternalStandardSound() // loadBeep   proc near       ; CODE XREF: 
     setSoundType(SoundTypeInternalStandard, SoundTypeInternalStandard);
     playMusicIfNeeded();
     gCurrentSoundPriority = 0;
-    byte_5988A = 0x64;
     gCurrentSoundDuration = 0;
-    byte_5988C = 0;
 }
 
 void activateInternalSamplesSound() // loadBeep2  proc near       ; CODE XREF: readConfig+4Cp handleOptionsSamplesClickp
@@ -14081,9 +14028,7 @@ void activateInternalSamplesSound() // loadBeep2  proc near       ; CODE XREF: r
     setSoundType(SoundTypeInternalStandard, SoundTypeInternalSamples);
     playMusicIfNeeded();
     gCurrentSoundPriority = 0;
-    byte_5988A = 0x64;
     gCurrentSoundDuration = 0;
-    byte_5988C = 0;
 }
 
 void activateAdlibSound() // loadAdlib  proc near       ; CODE XREF: readConfig+56p handleOptionsAdlibClickp
@@ -14092,9 +14037,7 @@ void activateAdlibSound() // loadAdlib  proc near       ; CODE XREF: readConfig+
     setSoundType(SoundTypeAdlib, SoundTypeAdlib);
     playMusicIfNeeded();
     gCurrentSoundPriority = 0;
-    byte_5988A = 0x64;
     gCurrentSoundDuration = 0;
-    byte_5988C = 0;
 }
 
 void activateSoundBlasterSound() // loadBlaster  proc near       ; CODE XREF: readConfig+60p handleOptionsSoundBlasterClickp
@@ -14104,9 +14047,7 @@ void activateSoundBlasterSound() // loadBlaster  proc near       ; CODE XREF: re
     setSoundType(SoundTypeAdlib, SoundTypeSoundBlaster);
     playMusicIfNeeded();
     gCurrentSoundPriority = 0;
-    byte_5988A = 0x64;
     gCurrentSoundDuration = 0;
-    byte_5988C = 0;
 }
 
 void activateRolandSound() // loadRoland  proc near       ; CODE XREF: readConfig+6Ap handleOptionsRolandClickp
@@ -14115,9 +14056,7 @@ void activateRolandSound() // loadRoland  proc near       ; CODE XREF: readConfi
     setSoundType(SoundTypeRoland, SoundTypeRoland);
     playMusicIfNeeded();
     gCurrentSoundPriority = 0;
-    byte_5988A = 0x64;
     gCurrentSoundDuration = 0;
-    byte_5988C = 0;
 }
 
 void activateCombinedSound() // loadCombined proc near       ; CODE XREF: readConfig+74p handleOptionsCombinedClickp
@@ -14126,9 +14065,7 @@ void activateCombinedSound() // loadCombined proc near       ; CODE XREF: readCo
     setSoundType(SoundTypeRoland, SoundTypeSoundBlaster);
     playMusicIfNeeded();
     gCurrentSoundPriority = 0;
-    byte_5988A = 0x64;
     gCurrentSoundDuration = 0;
-    byte_5988C = 0;
 }
 
 void stopMusicAndSounds() // sound1     proc near       ; CODE XREF: soundShutdown?+5p
