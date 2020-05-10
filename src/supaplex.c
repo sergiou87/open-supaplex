@@ -1779,6 +1779,10 @@ char gCurrentDemoLevelName[kListLevelNameLength] = ".SP\0----- DEMO LEVEL! -----
 
 char gRecordingDemoMessage[kLevelNameLength] = "--- RECORDING DEMO0 ---";
 
+uint8_t gShouldResumeGame = 0;
+uint8_t gAdvancedMenuRecordDemoIndex = 0;
+uint8_t gAdvancedMenuPlayDemoIndex = 0;
+
 typedef struct {
     uint8_t tile; // of LevelTileType
     uint8_t movingObject;
@@ -2915,7 +2919,7 @@ void drawCurrentLevelViewport(uint16_t panelHeight);
 void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, uint16_t height, uint16_t dstX, uint16_t dstY);
 void int9handler(uint8_t shouldYieldCpu);
 void updateDemoRecordingLowestSpeed(void);
-
+void playDemo(uint16_t demoIndex);
 
 void buildGameSpeedOptionTitle(char output[kMaxAdvancedOptionsMenuEntryTitleLength])
 {
@@ -2949,15 +2953,15 @@ void buildDisplayFPSOptionTitle(char output[kMaxAdvancedOptionsMenuEntryTitleLen
 
 void buildPlayDemoOptionTitle(char output[kMaxAdvancedOptionsMenuEntryTitleLength])
 {
-    snprintf(output, kMaxAdvancedOptionsMenuEntryTitleLength, "PLAY DEMO: %d", 5);
+    snprintf(output, kMaxAdvancedOptionsMenuEntryTitleLength, "PLAY DEMO: %d", gAdvancedMenuPlayDemoIndex);
 }
 
 void buildRecordDemoOptionTitle(char output[kMaxAdvancedOptionsMenuEntryTitleLength])
 {
-    snprintf(output, kMaxAdvancedOptionsMenuEntryTitleLength, "RECORD DEMO: %d", 5);
+    snprintf(output, kMaxAdvancedOptionsMenuEntryTitleLength, "RECORD DEMO: %d", gAdvancedMenuRecordDemoIndex);
 }
 
-void incrementGameSpeed()
+void increaseGameSpeed()
 {
     if (gGameSpeed < kNumberOfGameSpeeds - 1)
     {
@@ -2967,7 +2971,7 @@ void incrementGameSpeed()
     updateDemoRecordingLowestSpeed();
 }
 
-void decrementGameSpeed()
+void decreaseGameSpeed()
 {
     if (gGameSpeed > 0)
     {
@@ -2985,7 +2989,7 @@ void updateDemoRecordingLowestSpeed()
     }
 }
 
-void incrementMusicVolume()
+void increaseMusicVolume()
 {
     uint8_t volume = getMusicVolume();
 
@@ -2995,7 +2999,7 @@ void incrementMusicVolume()
     }
 }
 
-void decrementMusicVolume()
+void decreaseMusicVolume()
 {
     uint8_t volume = getMusicVolume();
 
@@ -3005,7 +3009,7 @@ void decrementMusicVolume()
     }
 }
 
-void incrementFXVolume()
+void increaseFXVolume()
 {
     uint8_t volume = getSoundEffectVolume();
 
@@ -3015,7 +3019,39 @@ void incrementFXVolume()
     }
 }
 
-void decrementFXVolume()
+void decreaseAdvancedMenuRecordDemoIndex()
+{
+    if (gAdvancedMenuRecordDemoIndex > 0)
+    {
+        gAdvancedMenuRecordDemoIndex--;
+    }
+}
+
+void increaseAdvancedMenuRecordDemoIndex()
+{
+    if (gAdvancedMenuRecordDemoIndex < kNumberOfDemos - 1)
+    {
+        gAdvancedMenuRecordDemoIndex++;
+    }
+}
+
+void decreaseAdvancedMenuPlayDemoIndex()
+{
+    if (gAdvancedMenuPlayDemoIndex > 0)
+    {
+        gAdvancedMenuPlayDemoIndex--;
+    }
+}
+
+void increaseAdvancedMenuPlayDemoIndex()
+{
+    if (gAdvancedMenuPlayDemoIndex < kNumberOfDemos - 1)
+    {
+        gAdvancedMenuPlayDemoIndex++;
+    }
+}
+
+void decreaseFXVolume()
 {
     uint8_t volume = getSoundEffectVolume();
 
@@ -3030,10 +3066,56 @@ void toggleDisplayFPSOption()
     TOGGLE_BOOL(gShouldShowFPS);
 }
 
-uint8_t gShouldResumeGame = 0;
-
 void handleResumeOptionSelection()
 {
+    gShouldResumeGame = 1;
+}
+
+void handleRemoveZonksOptionSelection()
+{
+    removeTiles(LevelTileTypeZonk);
+    gShouldResumeGame = 1;
+}
+
+void handleRemoveHardwareOptionSelection()
+{
+    removeTiles(LevelTileTypeHardware);
+    gShouldResumeGame = 1;
+}
+
+void handleRemoveBaseOptionSelection()
+{
+    removeTiles(LevelTileTypeBase);
+    gShouldResumeGame = 1;
+}
+
+void handleRemoveChipsOptionSelection()
+{
+    removeTiles(LevelTileTypeChip);
+    gShouldResumeGame = 1;
+}
+
+void handleRemoveSnikSnakOptionSelection()
+{
+    removeTiles(LevelTileTypeSnikSnak);
+    gShouldResumeGame = 1;
+}
+
+void handleMoveScrollOptionSelection()
+{
+    gIsMoveScrollModeEnabled = 1;
+    gShouldResumeGame = 1;
+}
+
+void handleRecordDemoOptionSelection()
+{
+    recordDemo(gAdvancedMenuRecordDemoIndex);
+    gShouldResumeGame = 1;
+}
+
+void handlePlayDemoOptionSelection()
+{
+    playDemo(gAdvancedMenuPlayDemoIndex);
     gShouldResumeGame = 1;
 }
 
@@ -3060,22 +3142,22 @@ void runAdvancedOptionsMenu()
         "",
         buildGameSpeedOptionTitle,
         NULL,
-        decrementGameSpeed,
-        incrementGameSpeed,
+        decreaseGameSpeed,
+        increaseGameSpeed,
     });
     addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
         "",
         buildMusicVolumeOptionTitle,
         NULL,
-        decrementMusicVolume,
-        incrementMusicVolume,
+        decreaseMusicVolume,
+        increaseMusicVolume,
     });
     addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
         "",
         buildFXVolumeOptionTitle,
         NULL,
-        decrementFXVolume,
-        incrementFXVolume,
+        decreaseFXVolume,
+        increaseFXVolume,
     });
     addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
         "",
@@ -3115,21 +3197,21 @@ void runAdvancedOptionsMenu()
     addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
         "",
         buildPlayDemoOptionTitle,
-        NULL,
-        NULL,
-        NULL,
+        handlePlayDemoOptionSelection,
+        decreaseAdvancedMenuPlayDemoIndex,
+        increaseAdvancedMenuPlayDemoIndex,
     });
     addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
         "",
         buildRecordDemoOptionTitle,
-        NULL,
-        NULL,
-        NULL,
+        handleRecordDemoOptionSelection,
+        decreaseAdvancedMenuRecordDemoIndex,
+        increaseAdvancedMenuRecordDemoIndex,
     });
     addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
         "REMOVE ZONKS",
         NULL,
-        NULL,
+        handleRemoveZonksOptionSelection,
         NULL,
         NULL,
     });
@@ -3143,14 +3225,35 @@ void runAdvancedOptionsMenu()
     addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
         "REMOVE SNIK SNAKS",
         NULL,
-        NULL,
+        handleRemoveSnikSnakOptionSelection,
         NULL,
         NULL,
     });
     addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
         "REMOVE CHIPS",
         NULL,
+        handleRemoveChipsOptionSelection,
         NULL,
+        NULL,
+    });
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "REMOVE HARDWARE",
+        NULL,
+        handleRemoveHardwareOptionSelection,
+        NULL,
+        NULL,
+    });
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "REMOVE BASE",
+        NULL,
+        handleRemoveBaseOptionSelection,
+        NULL,
+        NULL,
+    });
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "MOVE FREELY",
+        NULL,
+        handleMoveScrollOptionSelection,
         NULL,
         NULL,
     });
@@ -4279,13 +4382,13 @@ void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9
 //checkPlus:              ; CODE XREF: int9handler+54j
     else if (keyPressed == SDL_SCANCODE_KP_PLUS) // Key + in the numpad, speed up
     {
-        incrementGameSpeed();
+        increaseGameSpeed();
     }
 //checkMinus:             ; CODE XREF: int9handler+65j
 //                ; int9handler+71j
     else if (keyPressed == SDL_SCANCODE_KP_MINUS) // Key - in the numpad, speed down
     {
-        decrementGameSpeed();
+        decreaseGameSpeed();
     }
 
 //checkX:                 ; CODE XREF: int9handler+39j
