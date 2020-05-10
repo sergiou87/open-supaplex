@@ -67,6 +67,7 @@ int8_t initializeAudio()
     // Keep buffer size as low as possible to prevent latency with sound effects.
     // In macOS I was able to set it to 512, but that caused a lot of issues playing music on Nintendo Switch.
     // 768 bytes seems to work on both platforms.
+    // However, if it ever supports WASM, that needs a power of 2 as buffer size.
     //
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 768) == -1)
     {
