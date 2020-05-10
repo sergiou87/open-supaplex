@@ -11830,13 +11830,13 @@ void prepareRankingTextEntries() // sub_4BF8D  proc near       ; CODE XREF: draw
     {
 //loc_4BFA2:              ; CODE XREF: prepareRankingTextEntries+38j
         RankingEntry *rankingEntry = &rankingEntries[i];
-        PlayerEntry player = gPlayerListData[i];
+        PlayerEntry *player = &gPlayerListData[i];
 
         rankingEntry->playerIndex = i;
-        rankingEntry->nextLevelToPlay = player.nextLevelToPlay;
-        rankingEntry->hours = player.hours;
-        rankingEntry->minutes = player.minutes;
-        rankingEntry->seconds = player.seconds;
+        rankingEntry->nextLevelToPlay = player->nextLevelToPlay;
+        rankingEntry->hours = player->hours;
+        rankingEntry->minutes = player->minutes;
+        rankingEntry->seconds = player->seconds;
     }
 
 //loc_4BFC7:              ; CODE XREF: prepareRankingTextEntries+B4j
@@ -12092,9 +12092,9 @@ void drawMenuTitleAndDemoLevelResult() // sub_4C2F2   proc near       ; CODE XRE
 void prepareLevelDataForCurrentPlayer() // sub_4C34A   proc near       ; CODE XREF: start+404p handleNewPlayerOptionClick+1E0p ...
 {
     // 01ED:56E7
-    PlayerEntry currentPlayerEntry = gPlayerListData[gCurrentPlayerIndex];
+    PlayerEntry *currentPlayerEntry = &gPlayerListData[gCurrentPlayerIndex];
 
-    uint8_t *currentPlayerLevelState = currentPlayerEntry.levelState;
+    uint8_t *currentPlayerLevelState = currentPlayerEntry->levelState;
 
     // Sets everything to 6 which seems to mean all levels are blocked
     memset(gCurrentPlayerPaddedLevelData, kSkippedLevelEntryColor, kNumberOfLevelsWithPadding);
@@ -12172,7 +12172,7 @@ void prepareLevelDataForCurrentPlayer() // sub_4C34A   proc near       ; CODE XR
         }
 
 //loc_4C3D1:              // ; CODE XREF: prepareLevelDataForCurrentPlayer+7Fj
-        currentPlayerEntry.nextLevelToPlay = kLastLevelIndex;
+        currentPlayerEntry->nextLevelToPlay = kLastLevelIndex;
         return;
     }
 
@@ -12186,24 +12186,15 @@ void prepareLevelDataForCurrentPlayer() // sub_4C34A   proc near       ; CODE XR
 //loc_4C3E1:              // ; CODE XREF: prepareLevelDataForCurrentPlayer+91j
     if (nextLevelToPlay == 1)
     {
-        if (currentPlayerEntry.name[0] == 0x2D && currentPlayerEntry.name[1] == 0x2D)
+        if (strcmp(currentPlayerEntry->name, "--------") == 0)
         {
-            if (currentPlayerEntry.name[2] == 0x2D && currentPlayerEntry.name[3] == 0x2D)
-            {
-                if (currentPlayerEntry.name[4] == 0x2D && currentPlayerEntry.name[5] == 0x2D)
-                {
-                    if (currentPlayerEntry.name[6] == 0x2D && currentPlayerEntry.name[7] == 0x2D)
-                    {
-                        nextLevelToPlay = 0;
-                    }
-                }
-            }
+            nextLevelToPlay = 0;
         }
     }
 
 //loc_4C403:              // ; CODE XREF: prepareLevelDataForCurrentPlayer+9Aj
                 // ; prepareLevelDataForCurrentPlayer+A0j ...
-    currentPlayerEntry.nextLevelToPlay = nextLevelToPlay; // 0x7e = 126
+    currentPlayerEntry->nextLevelToPlay = nextLevelToPlay; // 0x7e = 126
 }
 
 void sub_4C407() //   proc near       ; CODE XREF: runMainMenu+5Dp
