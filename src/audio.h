@@ -30,6 +30,18 @@ typedef enum
     SoundTypeRoland = 5,
 } SoundType;
 
+typedef enum
+{
+    SoundEffectExplosion,
+    SoundEffectInfotron,
+    SoundEffectPush,
+    SoundEffectFall,
+    SoundEffectBug,
+    SoundEffectBase,
+    SoundEffectExit,
+    SoundEffectCount,
+} SoundEffect;
+
 extern SoundType sndType;
 extern SoundType musType;
 
@@ -42,17 +54,6 @@ void setSoundType(SoundType musicType, SoundType effectsType);
 void playMusic(void);
 void stopMusic(void);
 
-#define DECLARE_PLAY_SOUND_FUNCTION(__sound) \
-void play##__sound##Sound(void);
-
-DECLARE_PLAY_SOUND_FUNCTION(Explosion);
-DECLARE_PLAY_SOUND_FUNCTION(Infotron);
-DECLARE_PLAY_SOUND_FUNCTION(Push);
-DECLARE_PLAY_SOUND_FUNCTION(Fall);
-DECLARE_PLAY_SOUND_FUNCTION(Bug);
-DECLARE_PLAY_SOUND_FUNCTION(Base);
-DECLARE_PLAY_SOUND_FUNCTION(Exit);
-
-#undef DECLARE_PLAY_SOUND_FUNCTION
+void playSoundEffect(SoundEffect soundEffect);
 
 #endif /* audio_h */

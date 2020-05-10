@@ -34,13 +34,17 @@ static const char *kSamplesSoundFileNameSuffix = "sample";
 static const char *kStandardSoundFileNameSuffix = "beep";
 
 Mix_Music *gMusic = NULL;
-Mix_Chunk *gExplosionSound = NULL;
-Mix_Chunk *gInfotronSound = NULL;
-Mix_Chunk *gPushSound = NULL;
-Mix_Chunk *gFallSound = NULL;
-Mix_Chunk *gBugSound = NULL;
-Mix_Chunk *gBaseSound = NULL;
-Mix_Chunk *gExitSound = NULL;
+
+Mix_Chunk *gSoundEffectChunks[SoundEffectCount];
+char *gSoundEffectNames[SoundEffectCount] = {
+    "explosion",
+    "infotron",
+    "push",
+    "fall",
+    "bug",
+    "base",
+    "exit",
+};
 
 int gCurrentSoundChannel = -1;
 
@@ -139,43 +143,23 @@ void loadSounds()
 
     char filename[kMaxSoundFilenameLength] = "";
 
-#define LOAD_CHUNK(__chunk, __name) \
-    do { \
-        snprintf(filename, kMaxSoundFilenameLength, "audio/" #__name "-%s.ogg", effectsSuffix); \
-        __chunk = Mix_LoadWAV(filename); \
-    } while(0)
-
-    LOAD_CHUNK(gExplosionSound, explosion);
-    LOAD_CHUNK(gInfotronSound, infotron);
-    LOAD_CHUNK(gPushSound, push);
-    LOAD_CHUNK(gFallSound, fall);
-    LOAD_CHUNK(gBugSound, bug);
-    LOAD_CHUNK(gBaseSound, base);
-    LOAD_CHUNK(gExitSound, exit);
-
-#undef LOAD_CHUNK
+    for (int i = 0; i < SoundEffectCount; ++i)
+    {
+        snprintf(filename, kMaxSoundFilenameLength, "audio/%s-%s.ogg", gSoundEffectNames[i], effectsSuffix);
+        gSoundEffectChunks[i] = Mix_LoadWAV(filename);
+    }
 }
 
 void destroySounds()
 {
-#define SAFE_FREE_CHUNK(__chunk) \
-    do { \
-        if (__chunk != NULL) \
-        { \
-            Mix_FreeChunk(__chunk); \
-            __chunk = NULL; \
-        } \
-    } while(0)
-
-    SAFE_FREE_CHUNK(gExplosionSound);
-    SAFE_FREE_CHUNK(gInfotronSound);
-    SAFE_FREE_CHUNK(gPushSound);
-    SAFE_FREE_CHUNK(gFallSound);
-    SAFE_FREE_CHUNK(gBugSound);
-    SAFE_FREE_CHUNK(gBaseSound);
-    SAFE_FREE_CHUNK(gExitSound);
-
-#undef SAFE_FREE_CHUNK
+    for (int i = 0; i < SoundEffectCount; ++i)
+    {
+        if (gSoundEffectChunks[i] != NULL)
+        {
+            Mix_FreeChunk(gSoundEffectChunks[i]);
+        }
+        gSoundEffectChunks[i] = NULL;
+    }
 }
 
 void setSoundType(SoundType musicType, SoundType effectsType)
@@ -224,19 +208,13 @@ void destroyMusic()
     gMusic = NULL;
 }
 
-#define DEFINE_PLAY_SOUND_FUNCTION(__chunk) \
-void play##__chunk##Sound(void) \
-{ \
-    Mix_HaltChannel(gCurrentSoundChannel); \
-    gCurrentSoundChannel = Mix_PlayChannel(-1, g##__chunk##Sound, 0); \
+void playSoundEffect(SoundEffect soundEffect)
+{
+    if (soundEffect >= SoundEffectCount)
+    {
+        return;
+    }
+    
+    Mix_HaltChannel(gCurrentSoundChannel);
+    gCurrentSoundChannel = Mix_PlayChannel(-1, gSoundEffectChunks[soundEffect], 0);
 }
-
-DEFINE_PLAY_SOUND_FUNCTION(Explosion);
-DEFINE_PLAY_SOUND_FUNCTION(Infotron);
-DEFINE_PLAY_SOUND_FUNCTION(Push);
-DEFINE_PLAY_SOUND_FUNCTION(Fall);
-DEFINE_PLAY_SOUND_FUNCTION(Bug);
-DEFINE_PLAY_SOUND_FUNCTION(Base);
-DEFINE_PLAY_SOUND_FUNCTION(Exit);
-
-#undef DEFINE_PLAY_SOUND_FUNCTION

@@ -2801,16 +2801,16 @@ void activateInternalSamplesSound(void);
 void prepareSomeKindOfLevelIdentifier(void);
 void runMainMenu(void);
 void convertNumberTo3DigitPaddedString(uint8_t number, char numberString[3], char useSpacesForPadding);
-void stopSounds(void);
-void sound2(void);
-void sound3(void);
-void sound4(void);
-void sound5(void);
-void sound6(void);
-void sound7(void);
-void sound8(void);
-void sound9(void);
-void sound10(void);
+void stopMusicAndSounds(void);
+void playMusicIfNeeded(void);
+void stopMusic(void);
+void playExplosionSound(void);
+void playInfotronSound(void);
+void playPushSound(void);
+void playFallSound(void);
+void playBugSound(void);
+void playBaseSound(void);
+void playExitSound(void);
 void sound11(void);
 void savePlayerListData(void);
 void saveHallOfFameData(void);
@@ -3533,7 +3533,7 @@ loc_46E75:              //; CODE XREF: start+251j
 
             if (isMusicEnabled == 0)
             {
-                sound3();
+                stopMusic();
             }
 
 //loc_46F77:              //; CODE XREF: start+352j
@@ -3568,7 +3568,7 @@ loc_46E75:              //; CODE XREF: start+251j
 //loc_46FB4:              //; CODE XREF: start+38Fj
             if (isMusicEnabled == 0)
             {
-                sound2();
+                playMusicIfNeeded();
             }
         }
 
@@ -3640,7 +3640,7 @@ loc_46E75:              //; CODE XREF: start+251j
             prepareLevelDataForCurrentPlayer();
             drawPlayerList();
             word_58467 = 0;
-            sound2();
+            playMusicIfNeeded();
 //          pop(ax);
 //          gCurrentSelectedLevelIndex = ax; // TODO: implement
             restoreLastMouseAreaBitmap();
@@ -5764,7 +5764,7 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
         }
 
 //loc_48125:              ; CODE XREF: movefun+190j
-        sound7();
+        playFallSound();
         if ((belowTile->tile != LevelTileTypeZonk || belowTile->movingObject != 0) // cmp word ptr [si+18ACh], 1
             && (belowTile->tile != LevelTileTypeInfotron || belowTile->movingObject != 0) // cmp word ptr [si+18ACh], 4
             && (belowTile->tile != LevelTileTypeChip || belowTile->movingObject != 0)) // cmp word ptr [si+18ACh], 5
@@ -6305,7 +6305,7 @@ void updateInfotronTiles(uint16_t position) // movefun2  proc near       ; DATA 
         }
 
 //loc_48573:              ; CODE XREF: movefun2+166j
-        sound7();
+        playFallSound();
         if ((belowTile->tile != LevelTileTypeZonk || belowTile->movingObject != 0) // cmp word ptr [si+18ACh], 1
             && (belowTile->tile != LevelTileTypeInfotron || belowTile->movingObject != 0) // cmp word ptr [si+18ACh], 4
             && (belowTile->tile != LevelTileTypeChip || belowTile->movingObject != 0)) // cmp word ptr [si+18ACh], 5
@@ -6718,7 +6718,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         initializeGameInfo();
         if (isMusicEnabled == 0)
         {
-            sound3();
+            stopMusic();
         }
 
 //loc_48AFF:              ; CODE XREF: runLevel+3Fj
@@ -6826,7 +6826,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 //isFastMode2:              ; CODE XREF: runLevel+2E8j
         if (gDebugExtraRenderDelay > 1)
         {
-            sound9();
+            playBaseSound();
         }
 
 //loc_48DB2:              ; CODE XREF: runLevel+2F2j
@@ -8805,7 +8805,7 @@ void updateBugTiles(uint16_t position) // movefun7  proc near       ; DATA XREF:
     {
 //loc_4A0AB:              ; CODE XREF: movefun7+39j
 //                ; movefun7+40j ...
-        sound8();
+        playBugSound();
     }
 
 //loc_4A0AE:              ; CODE XREF: movefun7+6Cj
@@ -10049,7 +10049,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
         detonateZonk(position + kLevelWidth + 1, movingObject, tile);
 //loc_4A90B:              ; CODE XREF: detonateBigExplosion:loc_4A8F5j
 //                ; detonateBigExplosion+2E0j ...
-        sound4();
+        playExplosionSound();
         return;
     }
     else if (belowRightTile->tile == LevelTileTypeInfotron)
@@ -10058,7 +10058,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
         sub_4AA34(position + kLevelWidth + 1, movingObject, tile);
 //loc_4A90B:              ; CODE XREF: detonateBigExplosion:loc_4A8F5j
 //                ; detonateBigExplosion+2E0j ...
-        sound4();
+        playExplosionSound();
         return;
     }
     else if (belowRightTile->tile == LevelTileTypeElectron)
@@ -10097,7 +10097,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 
 //loc_4A90B:              ; CODE XREF: detonateBigExplosion:loc_4A8F5j
 //                ; detonateBigExplosion+2E0j ...
-    sound4();
+    playExplosionSound();
     // 01ED:3CAC
 }
 
@@ -12500,49 +12500,49 @@ void drawFullScreenBitmap(uint8_t *bitmapData, uint8_t *dest)
 void handleOptionsStandardClick() // sub_4C705  proc near       ; CODE XREF: code:5ADBp
 {
     activateInternalStandardSound();
-    sound4();
+    playExplosionSound();
     drawSoundTypeOptionsSelection(gScreenPixels);
 }
 
 void handleOptionsInternalClick() // loc_4C6FB
 {
     handleOptionsStandardClick();
-    sound4();
+    playExplosionSound();
     drawSoundTypeOptionsSelection(gScreenPixels);
 }
 
 void handleOptionsSamplesClick() // sub_4C70F  proc near
 {
     activateInternalSamplesSound();
-    sound4();
+    playExplosionSound();
     drawSoundTypeOptionsSelection(gScreenPixels);
 }
 
 void handleOptionsSoundBlasterClick() // sub_4C719  proc near
 {
     activateSoundBlasterSound();
-    sound4();
+    playExplosionSound();
     drawSoundTypeOptionsSelection(gScreenPixels);
 }
 
 void handleOptionsAdlibClick() // sub_4C723  proc near
 {
     activateAdlibSound();
-    sound4();
+    playExplosionSound();
     drawSoundTypeOptionsSelection(gScreenPixels);
 }
 
 void handleOptionsRolandClick() // sub_4C72D  proc near
 {
     activateRolandSound();
-    sound4();
+    playExplosionSound();
     drawSoundTypeOptionsSelection(gScreenPixels);
 }
 
 void handleOptionsCombinedClick() // sub_4C737  proc near
 {
     activateCombinedSound();
-    sound4();
+    playExplosionSound();
     drawSoundTypeOptionsSelection(gScreenPixels);
 }
 
@@ -12550,14 +12550,14 @@ void handleOptionsMusicClick() // sub_4C741   proc near
 {
     if (isMusicEnabled == 1)
     {
-        sound3();
+        stopMusic();
         isMusicEnabled = 0;
     }
     else
     {
 //loc_4C752:              ; CODE XREF: handleOptionsAdlibClick+5j
         isMusicEnabled = 1;
-        sound2();
+        playMusicIfNeeded();
     }
 
 //loc_4C75A:              ; CODE XREF: handleOptionsAdlibClick+Fj
@@ -12575,7 +12575,7 @@ void handleOptionsFXClick() // loc_4C75E
     {
 //loc_4C76C:              ; CODE XREF: code:5B43j
         isFXEnabled = 1;
-        sound4();
+        playExplosionSound();
     }
 
 //loc_4C774:              ; CODE XREF: code:5B4Aj
@@ -12626,7 +12626,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
     }
 
 //loc_4C7F4:              // ; CODE XREF: runMainMenu+56j
-    sound2(); // 01ED:5B91
+    playMusicIfNeeded(); // 01ED:5B91
     saveLastMouseAreaBitmap();
     drawMouseCursor();
 
@@ -14050,7 +14050,7 @@ void initializeSound() //   proc near       ; CODE XREF: start+2A5p
 //    ax = 0;
 //    bx = 0x204; // 516
 //    [bx] = ax;
-//    ax = seg sound2seg; // 0x4D92
+//    ax = seg playMusicIfNeededseg; // 0x4D92
 //    [bx + 2] = ax;
 //    pop(ds);
     // assume ds:data
@@ -14060,15 +14060,15 @@ void initializeSound() //   proc near       ; CODE XREF: start+2A5p
 void soundShutdown() //  proc near       ; CODE XREF: start+48Ep
 //                    ; loadScreen2-7DAp
 {
-    stopSounds();
+    stopMusicAndSounds();
 }
 
 void activateInternalStandardSound() // loadBeep   proc near       ; CODE XREF: readConfig:loc_4751Ap
 //                    ; readConfig:loc_47551p ...
 {
-    stopSounds();
+    stopMusicAndSounds();
     setSoundType(SoundTypeInternalStandard, SoundTypeInternalStandard);
-    sound2();
+    playMusicIfNeeded();
     gCurrentSoundPriority = 0;
     byte_5988A = 0x64;
     gCurrentSoundDuration = 0;
@@ -14077,9 +14077,9 @@ void activateInternalStandardSound() // loadBeep   proc near       ; CODE XREF: 
 
 void activateInternalSamplesSound() // loadBeep2  proc near       ; CODE XREF: readConfig+4Cp handleOptionsSamplesClickp
 {
-    stopSounds();
+    stopMusicAndSounds();
     setSoundType(SoundTypeInternalStandard, SoundTypeInternalSamples);
-    sound2();
+    playMusicIfNeeded();
     gCurrentSoundPriority = 0;
     byte_5988A = 0x64;
     gCurrentSoundDuration = 0;
@@ -14088,9 +14088,9 @@ void activateInternalSamplesSound() // loadBeep2  proc near       ; CODE XREF: r
 
 void activateAdlibSound() // loadAdlib  proc near       ; CODE XREF: readConfig+56p handleOptionsAdlibClickp
 {
-    stopSounds(); // 01ED:6D06
+    stopMusicAndSounds(); // 01ED:6D06
     setSoundType(SoundTypeAdlib, SoundTypeAdlib);
-    sound2();
+    playMusicIfNeeded();
     gCurrentSoundPriority = 0;
     byte_5988A = 0x64;
     gCurrentSoundDuration = 0;
@@ -14100,9 +14100,9 @@ void activateAdlibSound() // loadAdlib  proc near       ; CODE XREF: readConfig+
 void activateSoundBlasterSound() // loadBlaster  proc near       ; CODE XREF: readConfig+60p handleOptionsSoundBlasterClickp
 {
     // 01ED:6D39
-    stopSounds();
+    stopMusicAndSounds();
     setSoundType(SoundTypeAdlib, SoundTypeSoundBlaster);
-    sound2();
+    playMusicIfNeeded();
     gCurrentSoundPriority = 0;
     byte_5988A = 0x64;
     gCurrentSoundDuration = 0;
@@ -14111,9 +14111,9 @@ void activateSoundBlasterSound() // loadBlaster  proc near       ; CODE XREF: re
 
 void activateRolandSound() // loadRoland  proc near       ; CODE XREF: readConfig+6Ap handleOptionsRolandClickp
 {
-    stopSounds();
+    stopMusicAndSounds();
     setSoundType(SoundTypeRoland, SoundTypeRoland);
-    sound2();
+    playMusicIfNeeded();
     gCurrentSoundPriority = 0;
     byte_5988A = 0x64;
     gCurrentSoundDuration = 0;
@@ -14122,76 +14122,23 @@ void activateRolandSound() // loadRoland  proc near       ; CODE XREF: readConfi
 
 void activateCombinedSound() // loadCombined proc near       ; CODE XREF: readConfig+74p handleOptionsCombinedClickp
 {
-    stopSounds();
+    stopMusicAndSounds();
     setSoundType(SoundTypeRoland, SoundTypeSoundBlaster);
-    sound2();
+    playMusicIfNeeded();
     gCurrentSoundPriority = 0;
     byte_5988A = 0x64;
     gCurrentSoundDuration = 0;
     byte_5988C = 0;
 }
 
-void stopSounds() // sound1     proc near       ; CODE XREF: soundShutdown?+5p
+void stopMusicAndSounds() // sound1     proc near       ; CODE XREF: soundShutdown?+5p
                  //   ; code:6CC7p ...
 {
     // 01ED:6E4E
-    if (musType == SoundTypeInternalStandard)
-    {
-//        mov ah, 2
-//        int 80h     ; LINUX -
-//        in  al, 61h     ; PC/XT PPI port B bits:
-//                    ; 0: Tmr 2 gate ??? OR 03H=spkr ON
-//                    ; 1: Tmr 2 data ?  AND  0fcH=spkr OFF
-//                    ; 3: 1=read high switches
-//                    ; 4: 0=enable RAM parity checking
-//                    ; 5: 0=enable I/O channel check
-//                    ; 6: 0=hold keyboard clock low
-//                    ; 7: 0=enable kbrd
-//        and al, 0FCh
-//        out 61h, al     ; PC/XT PPI port B bits:
-//                    ; 0: Tmr 2 gate ??? OR 03H=spkr ON
-//                    ; 1: Tmr 2 data ?  AND  0fcH=spkr OFF
-//                    ; 3: 1=read high switches
-//                    ; 4: 0=enable RAM parity checking
-//                    ; 5: 0=enable I/O channel check
-//                    ; 6: 0=hold keyboard clock low
-//                    ; 7: 0=enable kbrd
-    }
-//loc_4DAC9:              ; CODE XREF: sound1+Aj
-    else if (musType == SoundTypeAdlib)
-    {
-//        mov dx, 388h
-//        mov ah, 2
-//        int 80h     ; LINUX -
-    }
-//loc_4DAD9:              ; CODE XREF: sound1+1Dj
-    else if (musType == SoundTypeRoland)
-    {
-//    mov ah, 2
-//    int 80h     ; LINUX -
-//    mov ah, 10h
-//    int 80h     ; LINUX -
-    }
-
-//loc_4DAE8:              ; CODE XREF: sound1+16j sound1+26j ...
-    musType = SoundTypeNone;
-    if (sndType == SoundTypeInternalSamples)
-    {
-//        mov ah, 1
-//        int 81h
-    }
-//loc_4DAFA:              ; CODE XREF: sound1+41j
-    else if (sndType == SoundTypeSoundBlaster)
-    {
-//        mov ah, 2
-//        int 81h
-    }
-
-//loc_4DB05:              ; CODE XREF: sound1+47j sound1+4Ej
-    sndType = SoundTypeNone;
+    setSoundType(SoundTypeNone, SoundTypeNone);
 }
 
-void sound2() //     proc near       ; CODE XREF: start+39Bp start+410p ...
+void playMusicIfNeeded() // sound2    proc near       ; CODE XREF: start+39Bp start+410p ...
 {
     // 01ED:6EA8
     if (isMusicEnabled != 1)
@@ -14202,32 +14149,27 @@ void sound2() //     proc near       ; CODE XREF: start+39Bp start+410p ...
     playMusic();
 }
 
-void sound3() //     proc near       ; CODE XREF: start+354p runLevel+41p ...
-{
-    stopMusic();
-}
-
-void sound4() //     proc near       ; CODE XREF: detonateBigExplosion+2EDp code:5ADEp ...
+void playExplosionSound() // sound4    proc near       ; CODE XREF: detonateBigExplosion+2EDp code:5ADEp ...
 {
     if (isFXEnabled != 1)
     {
         return;
     }
 
-//loc_4DB7F:              ; CODE XREF: sound4+5j
+//loc_4DB7F:              ; CODE XREF: playExplosionSound+5j
     if (gCurrentSoundPriority >= 5)
     {
         return;
     }
 
-//loc_4DB87:              ; CODE XREF: sound4+Dj
+//loc_4DB87:              ; CODE XREF: playExplosionSound+Dj
     gCurrentSoundDuration = 0xF;
     gCurrentSoundPriority = 5;
 
-    playExplosionSound();
+    playSoundEffect(SoundEffectExplosion);
 }
 
-void sound5() //     proc near       ; CODE XREF: update?:loc_4E55Cp
+void playInfotronSound() // sound5    proc near       ; CODE XREF: update?:loc_4E55Cp
                 //    ; update?:loc_4E588p ...
 {
     if (isFXEnabled == 0)
@@ -14235,20 +14177,20 @@ void sound5() //     proc near       ; CODE XREF: update?:loc_4E55Cp
         return;
     }
 
-//loc_4DBE8:              ; CODE XREF: sound5+5j
+//loc_4DBE8:              ; CODE XREF: playInfotronSound+5j
     if (gCurrentSoundPriority >= 5)
     {
         return;
     }
 
-//loc_4DBF0:              ; CODE XREF: sound5+Dj
+//loc_4DBF0:              ; CODE XREF: playInfotronSound+Dj
     gCurrentSoundDuration = 0xF;
     gCurrentSoundPriority = 4;
 
-    playInfotronSound();
+    playSoundEffect(SoundEffectInfotron);
 }
 
-void sound6() //     proc near       ; CODE XREF: update?+B8Bp
+void playPushSound() // sound6    proc near       ; CODE XREF: update?+B8Bp
                 //    ; update?+136Cp
 {
     if (isFXEnabled == 0)
@@ -14256,19 +14198,19 @@ void sound6() //     proc near       ; CODE XREF: update?+B8Bp
         return;
     }
 
-//loc_4DC51:              ; CODE XREF: sound6+5j
+//loc_4DC51:              ; CODE XREF: playPushSound+5j
     if (gCurrentSoundPriority >= 2)
     {
         return;
     }
 
-//loc_4DC59:              ; CODE XREF: sound6+Dj
+//loc_4DC59:              ; CODE XREF: playPushSound+Dj
     gCurrentSoundDuration = 7;
     gCurrentSoundPriority = 2;
-    playPushSound();
+    playSoundEffect(SoundEffectPush);
 }
 
-void sound7() //     proc near       ; CODE XREF: movefun:loc_48125p
+void playFallSound() // sound7     proc near       ; CODE XREF: movefun:loc_48125p
 //                    ; movefun2:loc_48573p
 {
     if (isFXEnabled == 0)
@@ -14276,39 +14218,39 @@ void sound7() //     proc near       ; CODE XREF: movefun:loc_48125p
         return;
     }
 
-//loc_4DCBA:              ; CODE XREF: sound7+5j
+//loc_4DCBA:              ; CODE XREF: playFallSound+5j
     if (gCurrentSoundPriority >= 2)
     {
         return;
     }
 
-//loc_4DCC2:              ; CODE XREF: sound7+Dj
+//loc_4DCC2:              ; CODE XREF: playFallSound+Dj
     gCurrentSoundDuration = 7;
     gCurrentSoundPriority = 2;
-    playFallSound();
+    playSoundEffect(SoundEffectFall);
 }
 
-void sound8() //     proc near       ; CODE XREF: movefun7:loc_4A0ABp
+void playBugSound() // sound8     proc near       ; CODE XREF: movefun7:loc_4A0ABp
 {
     if (isFXEnabled == 0)
     {
         return;
     }
 
-// loc_4DD23:              ; CODE XREF: sound8+5j
+// loc_4DD23:              ; CODE XREF: playBugSound+5j
     if (gCurrentSoundPriority >= 3)
     {
         return;
     }
 
-//loc_4DD2B:              ; CODE XREF: sound8+Dj
+//loc_4DD2B:              ; CODE XREF: playBugSound+Dj
     gCurrentSoundDuration = 3;
     gCurrentSoundPriority = 3;
 
-    playBugSound();
+    playSoundEffect(SoundEffectBug);
 }
 
-void sound9() //     proc near       ; CODE XREF: runLevel+2F4p
+void playBaseSound() // sound9    proc near       ; CODE XREF: runLevel+2F4p
                 //    ; update?:loc_4E3E1p ...
 {
     if (isFXEnabled == 0)
@@ -14316,32 +14258,32 @@ void sound9() //     proc near       ; CODE XREF: runLevel+2F4p
         return;
     }
 
-//xxxxxxxxdcdc:               ; CODE XREF: sound9+5j
+//xxxxxxxxdcdc:               ; CODE XREF: playBaseSound+5j
     if (gCurrentSoundPriority >= 1)
     {
         return;
     }
 
-//loc_4DD94:              ; CODE XREF: sound9+Dj
+//loc_4DD94:              ; CODE XREF: playBaseSound+Dj
     gCurrentSoundDuration = 3;
     gCurrentSoundPriority = 1;
 
-    playBaseSound();
+    playSoundEffect(SoundEffectBase);
 }
 
-void sound10() //    proc near       ; CODE XREF: update?+7EBp
+void playExitSound() // sound10   proc near       ; CODE XREF: update?+7EBp
 {
     if (isFXEnabled == 0)
     {
         return;
     }
 
-//loc_4DDF5:              ; CODE XREF: sound10+5j
+//loc_4DDF5:              ; CODE XREF: playExitSound+5j
     gCurrentSoundDuration = 0xFA;
     gCurrentSoundPriority = 0xA;
-    sound3();
+    stopMusic();
 
-    playExitSound();
+    playSoundEffect(SoundEffectExit);
 }
 
  uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE XREF: updateMovingObjects+Ep
@@ -14586,7 +14528,7 @@ void sound10() //    proc near       ; CODE XREF: update?+7EBp
 //            si = word_51840;
             drawMovingFrame(160, 64, position);
         //    pop si
-            sound9();
+            playBaseSound();
 //            dx = 0x0ECE;
             murphyTile->movingObject = 0x10;
             gCurrentGameState.word_510EE = 0;
@@ -14613,7 +14555,7 @@ void sound10() //    proc near       ; CODE XREF: update?+7EBp
 //            si = word_51840;
             drawMovingFrame(160, 64, position);
         //    pop si
-            sound9();
+            playBaseSound();
 //            dx = 0x0ECE;
             murphyTile->movingObject = 0x10;
             gCurrentGameState.word_510EE = 0;
@@ -14629,7 +14571,7 @@ void sound10() //    proc near       ; CODE XREF: update?+7EBp
 //            si = word_51840;
             drawMovingFrame(160, 64, position);
         //    pop si
-            sound5();
+            playInfotronSound();
 //            dx = 0x0F6E;
             murphyTile->movingObject = 0x14;
             aboveTile->movingObject = 0xFF;
@@ -14692,7 +14634,7 @@ void sound10() //    proc near       ; CODE XREF: update?+7EBp
 //            si = word_51842;
             drawMovingFrame(208, 16, position);
         //    pop si
-            sound9();
+            playBaseSound();
 //            dx = 0x0EDE;
             murphyTile->movingObject = 0x11;
             gCurrentGameState.word_510EE = 0;
@@ -14719,7 +14661,7 @@ void sound10() //    proc near       ; CODE XREF: update?+7EBp
 //            si = word_51842;
             drawMovingFrame(208, 16, position);
         //    pop si
-            sound9();
+            playBaseSound();
 //            dx = 0x0EDE;
             murphyTile->movingObject = 0x11;
             gCurrentGameState.word_510EE = 0;
@@ -14735,7 +14677,7 @@ void sound10() //    proc near       ; CODE XREF: update?+7EBp
 //            si = word_51842;
             drawMovingFrame(208, 16, position);
         //    pop si
-            sound5();
+            playInfotronSound();
 //            dx = 0x0F7E;
             murphyTile->movingObject = 0x15;
             leftTile->movingObject = 0xFF;
@@ -14797,7 +14739,7 @@ void sound10() //    proc near       ; CODE XREF: update?+7EBp
 //            si = word_51844;
             drawMovingFrame(176, 64, position);
         //    pop si
-            sound9();
+            playBaseSound();
 //            dx = 0x0EEE;
             murphyTile->movingObject = 0x12;
             gCurrentGameState.word_510EE = 0;
@@ -14824,7 +14766,7 @@ void sound10() //    proc near       ; CODE XREF: update?+7EBp
 //            si = word_51844;
             drawMovingFrame(176, 64, position);
         //    pop si
-            sound9();
+            playBaseSound();
 //            dx = 0x0EEE;
             murphyTile->movingObject = 0x12;
             gCurrentGameState.word_510EE = 0;
@@ -14840,7 +14782,7 @@ void sound10() //    proc near       ; CODE XREF: update?+7EBp
 //            si = word_51844;
             drawMovingFrame(176, 64, position);
         //    pop si
-            sound5();
+            playInfotronSound();
 //            dx = 0x0F8E;
             murphyTile->movingObject = 0x16;
             belowTile->movingObject = 0xFF;
@@ -14903,7 +14845,7 @@ void sound10() //    proc near       ; CODE XREF: update?+7EBp
 //            si = word_51846;
             drawMovingFrame(192, 16, position);
         //    pop si
-            sound9();
+            playBaseSound();
 //            dx = 0x0EFE;
             murphyTile->movingObject = 0x13;
             gCurrentGameState.word_510EE = 0;
@@ -14930,7 +14872,7 @@ void sound10() //    proc near       ; CODE XREF: update?+7EBp
 //            si = word_51846;
             drawMovingFrame(192, 16, position);
         //    pop si
-            sound9();
+            playBaseSound();
 //            dx = 0x0EFE;
             murphyTile->movingObject = 0x13;
             gCurrentGameState.word_510EE = 0;
@@ -14946,7 +14888,7 @@ void sound10() //    proc near       ; CODE XREF: update?+7EBp
 //            si = word_51846;
             drawMovingFrame(192, 16, position);
         //    pop si
-            sound5();
+            playInfotronSound();
 //            dx = 0x0F9E;
             murphyTile->movingObject = 0x17;
             rightTile->movingObject = 0xFF;
@@ -15061,7 +15003,7 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
         MurphyAnimationDescriptor unknownMurphyData;
 
 //loc_4E3E1:              ; CODE XREF: update?+22Bj
-        sound9();
+        playBaseSound();
         if (gCurrentGameState.word_510CB != 0)
         {
             unknownMurphyData = someBinaryData_5110E[7]; // dx = 0x0E6E;
@@ -15100,7 +15042,7 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
 
 //loc_4E3E1:              ; CODE XREF: update?+22Bj
         MurphyAnimationDescriptor animationDescriptor;
-        sound9();
+        playBaseSound();
         if (gCurrentGameState.word_510CB != 0)
         {
             animationDescriptor = someBinaryData_5110E[7]; // dx = 0x0E6E;
@@ -15127,7 +15069,7 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
         MurphyAnimationDescriptor unknownMurphyData;
 
 //loc_4E55C:              ; CODE XREF: update?+23Aj
-        sound5();
+        playInfotronSound();
         if (gCurrentGameState.word_510CB != 0)
         {
             unknownMurphyData = someBinaryData_5110E[17]; // dx = 0x0F0E;
@@ -15155,7 +15097,7 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
         {
             return position;
         }
-        sound10();
+        playExitSound();
     //    push    si
         byte_5A19B = 1;
         gCurrentGameState.byte_510BB = 1;
@@ -15304,7 +15246,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
     {
 //loc_4E41E:              ; CODE XREF: update?+293j
         // 01ED:77BB
-        sound9();
+        playBaseSound();
 //        dx = 0x0E8E;
         leftTile->movingObject = 2;
         leftTile->tile = LevelTileTypeMurphy;
@@ -15330,7 +15272,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
         leftTile->tile = LevelTileTypeBase;
 
 //loc_4E41E:              ; CODE XREF: update?+293j
-        sound9();
+        playBaseSound();
 //        dx = 0x0E8E;
         leftTile->movingObject = 2;
         leftTile->tile = LevelTileTypeMurphy;
@@ -15344,7 +15286,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
     else if (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeInfotron)
     {
 //loc_4E588:              ; CODE XREF: update?+2A2j
-        sound5();
+        playInfotronSound();
 //        dx = 0x0F2E;
         leftTile->movingObject = 10;
         leftTile->tile = LevelTileTypeMurphy;
@@ -15362,7 +15304,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
         {
             return position;
         }
-        sound10();
+        playExitSound();
     //    push    si
         byte_5A19B = 1;
         gCurrentGameState.byte_510BB = 1;
@@ -15556,7 +15498,7 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
         MurphyAnimationDescriptor unknownMurphyData;
 
 //loc_4E44F:              ; CODE XREF: update?+307j
-        sound9();
+        playBaseSound();
         if (gCurrentGameState.word_510CB != 0)
         {
             unknownMurphyData = someBinaryData_5110E[10]; // dx = 0x0E9E;
@@ -15593,7 +15535,7 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
         MurphyAnimationDescriptor unknownMurphyData;
 
 //loc_4E44F:              ; CODE XREF: update?+307j
-        sound9();
+        playBaseSound();
         if (gCurrentGameState.word_510CB != 0)
         {
             unknownMurphyData = someBinaryData_5110E[10]; // dx = 0x0E9E;
@@ -15619,7 +15561,7 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
         MurphyAnimationDescriptor unknownMurphyData;
 
 //loc_4E5A8:              ; CODE XREF: update?+316j
-        sound5();
+        playInfotronSound();
         if (gCurrentGameState.word_510CB != 0)
         {
             unknownMurphyData = someBinaryData_5110E[20]; // dx = 0x0F3E;
@@ -15647,7 +15589,7 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
         {
             return position;
         }
-        sound10();
+        playExitSound();
     //    push    si
         byte_5A19B = 1;
         gCurrentGameState.byte_510BB = 1;
@@ -15794,7 +15736,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
     else if (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeBase)
     {
 //loc_4E48C:              ; CODE XREF: update?+36Fj
-        sound9();
+        playBaseSound();
 //        dx = 0x0EBE;
         rightTile->movingObject = 8;
         rightTile->tile = LevelTileTypeMurphy;
@@ -15819,7 +15761,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
         rightTile->tile = LevelTileTypeBase;
 
 //loc_4E48C:              ; CODE XREF: update?+36Fj
-        sound9();
+        playBaseSound();
 //        dx = 0x0EBE;
         rightTile->movingObject = 8;
         rightTile->tile = LevelTileTypeMurphy;
@@ -15833,7 +15775,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
     else if (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeInfotron)
     {
 //loc_4E5D4:              ; CODE XREF: update?+37Ej
-        sound5();
+        playInfotronSound();
 //        dx = 0x0F5E;
         rightTile->movingObject = 12;
         rightTile->tile = LevelTileTypeMurphy;
@@ -15851,7 +15793,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
         {
             return position;
         }
-        sound10();
+        playExitSound();
     //    push    si
         byte_5A19B = 1;
         gCurrentGameState.byte_510BB = 1;
@@ -16800,7 +16742,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
             gCurrentGameState.plantedRedDiskCountdown = 2;
             gCurrentGameState.numberOfRemainingRedDisks--;
             drawNumberOfRemainingRedDisks();
-            sound6();
+            playPushSound();
             return position;
         }
         else
@@ -16814,7 +16756,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
     gCurrentGameState.word_510EE--;
     if (gCurrentGameState.word_510EE == 0)
     {
-        sound6();
+        playPushSound();
     }
 
 //loc_4EA1E:              ; CODE XREF: update?+B89j
