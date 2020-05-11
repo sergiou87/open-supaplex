@@ -1450,7 +1450,7 @@ uint16_t gShouldExitGame = 0; // word_5197A
 uint16_t gIsMoveScrollModeEnabled = 0; // word_51A01
 uint16_t gDebugExtraRenderDelay = 1; // this was used to add an extra delay in debug mode using keys 1-9
 uint16_t word_58463 = 0;
-uint16_t word_58465 = 0;
+uint16_t gAutomaticDemoPlaybackCountdown = 0; // word_58465
 uint16_t word_58467 = 0;
 uint16_t word_58469 = 0;
 uint16_t word_5846B = 0;
@@ -13170,7 +13170,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
     byte_5A33E = 0;
     word_599D8 = 0;
     byte_599D4 = 0;
-    word_58465 = 0xEF98;
+    gAutomaticDemoPlaybackCountdown = 4200;
     if (word_58467 != 0)
     {
         drawMenuBackground(); // 01ED:5B4E
@@ -13200,8 +13200,8 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
 
 //loc_4C7FD:              // ; CODE XREF: runMainMenu+121j
                    // ; runMainMenu+219j ...
-        word_58465++;
-        if (word_58465 == 0)
+        gAutomaticDemoPlaybackCountdown--;
+        if (gAutomaticDemoPlaybackCountdown == 0)
         {
             handleDemoOptionClick();
         }
@@ -13227,7 +13227,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
             || gMouseY != mouseY)
         {
 //loc_4C834:              // ; CODE XREF: runMainMenu+98j
-            word_58465 = 0xEF98;
+            gAutomaticDemoPlaybackCountdown = 4200;
         }
 
 //loc_4C83A:              // ; CODE XREF: runMainMenu+9Ej
@@ -13366,7 +13366,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
         if (gMouseButtonStatus == MouseButtonLeft)
         {
 //loc_4C9FF:              // ; CODE XREF: runMainMenu+236j
-            word_58465 = 0xEF98;
+            gAutomaticDemoPlaybackCountdown = 4200;
 
             for (int i = 0; i < kNumberOfMainMenuButtons; ++i)
             {
