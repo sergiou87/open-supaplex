@@ -1516,7 +1516,7 @@ const uint8_t kDefaultGameSpeed = 5;
 uint8_t gGameSpeed = kDefaultGameSpeed; // gameSpeed
 uint8_t demoFileName = 0; // Probably should be another type but whatever for now
 uint8_t gIsFlashingBackgroundModeEnabled = 0; // flashingbackgroundon
-const float kSpeedTimeFactors[kNumberOfGameSpeeds] = { 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.5, 1.0 / 3.0, 1.0 / 4.0, 1.0 / 5.0, 0.0 };
+const float kSpeedTimeFactors[kNumberOfGameSpeeds] = { 3.5, 3.0, 2.5, 2.0, 1.5, 1.0, 0.75, 2.0 / 3.0, 5.0 / 8.0, 3.0 / 5.0, 1.0 / 70.0 };
 
 // Used to measure display frame rate
 float gFrameRate = 0.f;
