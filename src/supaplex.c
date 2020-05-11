@@ -201,7 +201,7 @@ uint8_t byte_5A2F8 = 0;
 uint8_t gHasUserCheated = 0; // byte_5A2F9
 uint8_t byte_5A323 = 0;
 uint16_t word_5A33C = 0;
-uint8_t byte_5A33E = 0;
+uint8_t gHasUserInterruptedDemo = 0; // byte_5A33E
 uint8_t byte_5A33F = 0;
 uint8_t gCurrentPlayerIndex = 0; // byte_5981F
 uint8_t gIsMouseAvailable = 0; // byte_58487
@@ -1450,6 +1450,7 @@ uint16_t gShouldExitGame = 0; // word_5197A
 uint16_t gIsMoveScrollModeEnabled = 0; // word_51A01
 uint16_t gDebugExtraRenderDelay = 1; // this was used to add an extra delay in debug mode using keys 1-9
 uint16_t word_58463 = 0;
+uint8_t gIsInMainMenu = 0;
 uint16_t gAutomaticDemoPlaybackCountdown = 0; // word_58465
 uint16_t word_58467 = 0;
 uint16_t word_58469 = 0;
@@ -3401,69 +3402,72 @@ void handleDebugOptionSelection()
         toggleDisplayFPSOption,
         toggleDisplayFPSOption,
     });
-    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-        "LOAD GAME STATE",
-        NULL,
-        loadGameSnapshot,
-        NULL,
-        NULL,
-    });
-    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-        "SAVE GAME STATE",
-        NULL,
-        saveGameSnapshot,
-        NULL,
-        NULL,
-    });
-    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-        "MOVE FREELY",
-        NULL,
-        handleMoveScrollOptionSelection,
-        NULL,
-        NULL,
-    });
-    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-        "REMOVE ZONKS",
-        NULL,
-        handleRemoveZonksOptionSelection,
-        NULL,
-        NULL,
-    });
-    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-        "REMOVE HARDWARE",
-        NULL,
-        handleRemoveHardwareOptionSelection,
-        NULL,
-        NULL,
-    });
-    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-        "REMOVE SNIK SNAKS",
-        NULL,
-        handleRemoveSnikSnakOptionSelection,
-        NULL,
-        NULL,
-    });
-    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-        "REMOVE CHIPS",
-        NULL,
-        handleRemoveChipsOptionSelection,
-        NULL,
-        NULL,
-    });
-    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-        "REMOVE HARDWARE",
-        NULL,
-        handleRemoveHardwareOptionSelection,
-        NULL,
-        NULL,
-    });
-    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-        "REMOVE BASE",
-        NULL,
-        handleRemoveBaseOptionSelection,
-        NULL,
-        NULL,
-    });
+    if (gIsInMainMenu == 0)
+    {
+        addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+            "LOAD GAME STATE",
+            NULL,
+            loadGameSnapshot,
+            NULL,
+            NULL,
+        });
+        addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+            "SAVE GAME STATE",
+            NULL,
+            saveGameSnapshot,
+            NULL,
+            NULL,
+        });
+        addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+            "MOVE FREELY",
+            NULL,
+            handleMoveScrollOptionSelection,
+            NULL,
+            NULL,
+        });
+        addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+            "REMOVE ZONKS",
+            NULL,
+            handleRemoveZonksOptionSelection,
+            NULL,
+            NULL,
+        });
+        addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+            "REMOVE HARDWARE",
+            NULL,
+            handleRemoveHardwareOptionSelection,
+            NULL,
+            NULL,
+        });
+        addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+            "REMOVE SNIK SNAKS",
+            NULL,
+            handleRemoveSnikSnakOptionSelection,
+            NULL,
+            NULL,
+        });
+        addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+            "REMOVE CHIPS",
+            NULL,
+            handleRemoveChipsOptionSelection,
+            NULL,
+            NULL,
+        });
+        addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+            "REMOVE HARDWARE",
+            NULL,
+            handleRemoveHardwareOptionSelection,
+            NULL,
+            NULL,
+        });
+        addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+            "REMOVE BASE",
+            NULL,
+            handleRemoveBaseOptionSelection,
+            NULL,
+            NULL,
+        });
+    }
 
     runAdvancedOptionsSubMenu(menu);
 }
@@ -3482,20 +3486,24 @@ void runAdvancedOptionsRootMenu()
         NULL,
         NULL,
     });
-    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-        "RESTART LEVEL",
-        NULL,
-        handleRestartLevelOptionSelection,
-        NULL,
-        NULL,
-    });
-    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-        "",
-        buildGameSpeedOptionTitle,
-        NULL,
-        decreaseGameSpeed,
-        increaseGameSpeed,
-    });
+
+    if (gIsInMainMenu == 0)
+    {
+        addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+            "RESTART LEVEL",
+            NULL,
+            handleRestartLevelOptionSelection,
+            NULL,
+            NULL,
+        });
+        addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+            "",
+            buildGameSpeedOptionTitle,
+            NULL,
+            decreaseGameSpeed,
+            increaseGameSpeed,
+        });
+    }
     addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
         "",
         buildMusicVolumeOptionTitle,
@@ -3517,20 +3525,16 @@ void runAdvancedOptionsRootMenu()
         decreaseAdvancedMenuScalingMode,
         increaseAdvancedMenuScalingMode,
     });
-    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-        "DEBUG (DANGER)",
-        NULL,
-        handleDebugOptionSelection,
-        NULL,
-        NULL,
-    });
-    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-        "STOP DEMO AND PLAY",
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-    });
+    if (gIsPlayingDemo && gIsInMainMenu == 0)
+    {
+        addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+            "STOP DEMO AND PLAY",
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+        });
+    }
     addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
         "",
         buildPlayDemoOptionTitle,
@@ -3538,20 +3542,33 @@ void runAdvancedOptionsRootMenu()
         decreaseAdvancedMenuPlayDemoIndex,
         increaseAdvancedMenuPlayDemoIndex,
     });
+    if (gIsInMainMenu == 0)
+    {
+        addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+            "",
+            buildRecordDemoOptionTitle,
+            handleRecordDemoOptionSelection,
+            decreaseAdvancedMenuRecordDemoIndex,
+            increaseAdvancedMenuRecordDemoIndex,
+        });
+    }
     addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-        "",
-        buildRecordDemoOptionTitle,
-        handleRecordDemoOptionSelection,
-        decreaseAdvancedMenuRecordDemoIndex,
-        increaseAdvancedMenuRecordDemoIndex,
-    });
-    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-        "EXIT LEVEL",
+        "DEBUG (DANGER)",
         NULL,
-        handleExitLevelOptionSelection,
+        handleDebugOptionSelection,
         NULL,
         NULL,
     });
+    if (gIsInMainMenu == 0)
+    {
+        addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+            "EXIT LEVEL",
+            NULL,
+            handleExitLevelOptionSelection,
+            NULL,
+            NULL,
+        });
+    }
     addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
         "EXIT GAME",
         NULL,
@@ -7482,9 +7499,9 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
     }
 
 //loc_48E13:              ; CODE XREF: runLevel+353j
-    uint8_t was_gHasUserCheated_Zero = (gHasUserCheated == 0);
+    uint8_t userDidNotCheat = (gHasUserCheated == 0);
     gHasUserCheated = 0;
-    if (was_gHasUserCheated_Zero
+    if (userDidNotCheat
         && gCurrentGameState.byte_510B3 != 0
         && byte_5A323 == 0)
     {
@@ -7967,7 +7984,7 @@ void stopRecordingDemo() // somethingspsig  proc near       ; CODE XREF: runLeve
 //                ; stopRecordingDemo+6Fj
     fclose(gCurrentRecordingDemoFile);
     gIsRecordingDemo = 0;
-    if (byte_5A33E != 0)
+    if (gHasUserInterruptedDemo != 0)
     {
         gIsPlayingDemo = 1;
     }
@@ -8068,7 +8085,7 @@ void recordDemo(uint16_t demoIndex) // sub_4945D   proc near       ; CODE XREF: 
 
 //loc_4952A:              ; CODE XREF: recordDemo+BCj
     gIsRecordingDemo = 1;
-    if (byte_5A33E != 0)
+    if (gHasUserInterruptedDemo != 0)
     {
         gIsPlayingDemo = 1;
     }
@@ -8561,13 +8578,14 @@ void loc_49949() //:              ; CODE XREF: handleGameUserInput+E1j
     }
 
 //loc_49962:              ; CODE XREF: handleGameUserInput+402j
+    // Control + F12: Interrupt demo and continue playing
     if (gIsF12KeyPressed == 1
         && gIsPlayingDemo != 0)
     {
         gIsPlayingDemo = 0;
         gCurrentGameState.byte_510B3 = 0;
         gHasUserCheated = 1;
-        byte_5A33E = 1;
+        gHasUserInterruptedDemo = 1;
     }
 
 //loc_49984:              ; CODE XREF: handleGameUserInput+40Cj
@@ -9774,8 +9792,8 @@ void sub_4A3D2() //   proc near       ; CODE XREF: handleGameUserInput+39Ep
 {
     byte_599D4 = 0;
     word_599D8 = 0;
-    uint8_t wasNotZero = (byte_5A33E != 0);
-    byte_5A33E = 0;
+    uint8_t wasNotZero = (gHasUserInterruptedDemo != 0);
+    gHasUserInterruptedDemo = 0;
     if (wasNotZero)
     {
         // jnz short $+12
@@ -9787,7 +9805,7 @@ void sub_4A3D2() //   proc near       ; CODE XREF: handleGameUserInput+39Ep
 
 void restartLevel() // sub_4A3E9   proc near       ; CODE XREF: handleGameUserInput+14Ep
 {
-    if (byte_5A33E == 0)
+    if (gHasUserInterruptedDemo == 0)
     {
         addCurrentGameTimeToPlayer();
     }
@@ -9801,7 +9819,7 @@ void restartLevel() // sub_4A3E9   proc near       ; CODE XREF: handleGameUserIn
     gDebugExtraRenderDelay = 1;
     replaceCurrentPaletteColor(0, (Color) { 0, 0, 0 });
 
-    if (byte_5A33E != 0)
+    if (gHasUserInterruptedDemo != 0)
     {
         gIsPlayingDemo = 1;
     }
@@ -9810,12 +9828,12 @@ void restartLevel() // sub_4A3E9   proc near       ; CODE XREF: handleGameUserIn
     byte_5A33F = 0;
     sub_4A463();
     byte_5A33F = 1;
-    if (byte_5A33E >= 1)
+    if (gHasUserInterruptedDemo >= 1)
     {
         gIsPlayingDemo = 0;
-        if (byte_5A33E == 0) // WTF? this makes no sense...
+        if (gHasUserInterruptedDemo == 0) // WTF? this makes no sense...
         {
-            byte_5A33E++;
+            gHasUserInterruptedDemo++;
         }
     }
 
@@ -13169,7 +13187,8 @@ void handleOptionsExitAreaClick() // loc_4C78D
 void runMainMenu() // proc near       ; CODE XREF: start+43Ap
 {
     // 01ED:5B31
-    byte_5A33E = 0;
+    gIsInMainMenu = 1;
+    gHasUserInterruptedDemo = 0;
     word_599D8 = 0;
     byte_599D4 = 0;
     gAutomaticDemoPlaybackCountdown = 4200;
@@ -13212,9 +13231,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
         if (word_5196C != 0)
         {
             word_5196C = 0;
-            savePlayerListData();
-            saveHallOfFameData();
-            return;
+            break;
         }
 
 //loc_4C81A:              // ; CODE XREF: runMainMenu+77j
@@ -13354,6 +13371,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
                    // ; runMainMenu+141j ...
         if (gMouseButtonStatus == MouseButtonRight) // Right button -> exit game
         {
+            gShouldExitGame = 1;
             break;
         }
         if (getGameControllerButton(SDL_CONTROLLER_BUTTON_BACK) // Select/Back/- controller button -> exit game
@@ -13403,7 +13421,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
 
 //loc_4CA34:              // ; CODE XREF: runMainMenu+223j
                // ; runMainMenu+22Aj ...
-    gShouldExitGame = 1;
+    gIsInMainMenu = 0;
     savePlayerListData();
     saveHallOfFameData();
 }
@@ -15658,7 +15676,6 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
             return position;
         }
         playExitSound();
-    //    push    si
         byte_5A19B = 1;
         gCurrentGameState.byte_510BB = 1;
         gCurrentGameState.levelFailed = 0;
@@ -15865,7 +15882,6 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
             return position;
         }
         playExitSound();
-    //    push    si
         byte_5A19B = 1;
         gCurrentGameState.byte_510BB = 1;
         gCurrentGameState.levelFailed = 0;
@@ -16150,7 +16166,6 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
             return position;
         }
         playExitSound();
-    //    push    si
         byte_5A19B = 1;
         gCurrentGameState.byte_510BB = 1;
         gCurrentGameState.levelFailed = 0;
@@ -16354,7 +16369,6 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
             return position;
         }
         playExitSound();
-    //    push    si
         byte_5A19B = 1;
         gCurrentGameState.byte_510BB = 1;
         gCurrentGameState.levelFailed = 0;
