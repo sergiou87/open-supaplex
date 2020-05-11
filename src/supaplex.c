@@ -21,8 +21,8 @@
 #include <time.h>
 
 #include "audio.h"
+#include "config.h"
 #include "controller.h"
-#include "lib/ini/ini.h"
 #include "file.h"
 #include "logging.h"
 #include "menu.h"
@@ -2942,55 +2942,44 @@ static const char *kAdvancedConfigDisplayFPSKey = "displayFPS";
 
 void readAdvancedConfig()
 {
-    char advancedConfigPath[kMaxFilePathLength];
-    getWritableFilePath("ADVANCED.CFG", advancedConfigPath);
-    ini_t *config = ini_load(advancedConfigPath);
+    Config *config = initializeConfigForReading("ADVANCED.CFG");
 
-    if (config == NULL)
-    {
-        spLog("Couldn't open %s for reading", advancedConfigPath);
-        return;
-    }
+    gGameSpeed = readConfigInt(config, kAdvancedConfigGeneralSection, kAdvancedConfigGameSpeedKey, kDefaultGameSpeed);
 
-    ini_sget(config, kAdvancedConfigGeneralSection, kAdvancedConfigGameSpeedKey, "%d", &gGameSpeed);
-    int volume = getMusicVolume();
-    ini_sget(config, kAdvancedConfigGeneralSection, kAdvancedConfigMusicVolumeKey, "%d", &volume);
+    int volume = readConfigInt(config, kAdvancedConfigGeneralSection, kAdvancedConfigMusicVolumeKey, getMusicVolume());
     setMusicVolume(volume);
 
-    volume = getSoundEffectsVolume();
-    ini_sget(config, kAdvancedConfigGeneralSection, kAdvancedConfigFXVolumeKey, "%d", &volume);
+    volume = readConfigInt(config, kAdvancedConfigGeneralSection, kAdvancedConfigFXVolumeKey, getSoundEffectsVolume());
     setSoundEffectsVolume(volume);
 
-    int scalingMode = getScalingMode();
-    ini_sget(config, kAdvancedConfigGeneralSection, kAdvancedConfigScalingModeKey, "%d", &scalingMode);
+    int scalingMode = readConfigInt(config, kAdvancedConfigGeneralSection, kAdvancedConfigScalingModeKey, getScalingMode());
+    setScalingMode(scalingMode);
 
-    ini_sget(config, kAdvancedConfigDebugSection, kAdvancedConfigDisplayFPSKey, "%d", &gShouldShowFPS);
+    gShouldShowFPS = readConfigInt(config, kAdvancedConfigDebugSection, kAdvancedConfigDisplayFPSKey, gShouldShowFPS);
 
-    ini_free(config);
+    destroyConfig(config);
 }
 
 void writeAdvancedConfig()
 {
-    FILE *file = openWritableFile("ADVANCED.CFG", "w");
+    Config *config = initializeConfigForWriting("ADVANCED.CFG");
 
-    if (file == NULL)
+    if (config == NULL)
     {
         spLog("Couldn't open ADVANCED.CFG for writing");
         return;
     }
 
-    fprintf(file, "[%s]\n", kAdvancedConfigGeneralSection);
-    fprintf(file, "%s = %d\n", kAdvancedConfigGameSpeedKey, gGameSpeed);
-    fprintf(file, "%s = %d\n", kAdvancedConfigMusicVolumeKey, getMusicVolume());
-    fprintf(file, "%s = %d\n", kAdvancedConfigFXVolumeKey, getSoundEffectsVolume());
-    fprintf(file, "%s = %d\n", kAdvancedConfigScalingModeKey, getScalingMode());
-    fprintf(file, "\n");
+    writeConfigSection(config, kAdvancedConfigGeneralSection);
+    writeConfigInt(config, kAdvancedConfigGameSpeedKey, gGameSpeed);
+    writeConfigInt(config, kAdvancedConfigMusicVolumeKey, getMusicVolume());
+    writeConfigInt(config, kAdvancedConfigFXVolumeKey, getSoundEffectsVolume());
+    writeConfigInt(config, kAdvancedConfigScalingModeKey, getScalingMode());
 
-    fprintf(file, "[%s]\n", kAdvancedConfigDebugSection);
-    fprintf(file, "%s = %d\n", kAdvancedConfigDisplayFPSKey, gShouldShowFPS);
-    fprintf(file, "\n");
+    writeConfigSection(config, kAdvancedConfigDebugSection);
+    writeConfigInt(config, kAdvancedConfigDisplayFPSKey, gShouldShowFPS);
 
-    fclose(file);
+    destroyConfig(config);
 }
 
 void renderAdvancedOptionsMenu(AdvancedOptionsMenu *menu)
