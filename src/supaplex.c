@@ -2898,7 +2898,7 @@ void sub_492F1(void);
 void simulateDemoInput(void);
 void sub_4A463(void);
 void removeTiles(LevelTileType tileType);
-void restartDemo(void);
+void restartLevel(void);
 void recordDemo(uint16_t demoIndex);
 void stopRecordingDemo(void);
 void sub_4A3D2(void);
@@ -3316,8 +3316,9 @@ void handleResumeOptionSelection()
     gShouldCloseAdvancedMenu = 1;
 }
 
-void handleRestartOptionSelection()
+void handleRestartLevelOptionSelection()
 {
+    restartLevel();
     gShouldCloseAdvancedMenu = 1;
 }
 
@@ -3482,9 +3483,9 @@ void runAdvancedOptionsRootMenu()
         NULL,
     });
     addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-        "RESTART",
+        "RESTART LEVEL",
         NULL,
-        handleRestartOptionSelection,
+        handleRestartLevelOptionSelection,
         NULL,
         NULL,
     });
@@ -7760,7 +7761,7 @@ void updateUserInputInScrollMovementMode() // sub_4914A   proc near       ; CODE
 }
 
 void simulateDemoInput() // sub_492A8   proc near       ; CODE XREF: handleGameUserInput+27p
-                   // ; restartDemo+76p
+                   // ; restartLevel+76p
 {
     // 01ED:2645
     if (gCurrentGameState.byte_510E2 > 1)
@@ -8245,7 +8246,7 @@ void handleGameUserInput() // sub_4955B   proc near       ; CODE XREF: runLevel:
         if (gIsRKeyPressed != 0)
         {
             videoloop();
-            restartDemo();
+            restartLevel();
         }
 
 //loc_496AC:              ; CODE XREF: handleGameUserInput+149j
@@ -9780,11 +9781,11 @@ void sub_4A3D2() //   proc near       ; CODE XREF: handleGameUserInput+39Ep
         // jnz short $+12
     }
 
-    // continues with restartDemo ? or where does that jump lead? check with debugger
+    // continues with restartLevel ? or where does that jump lead? check with debugger
 //sub_4A3D2   endp ; sp-analysis failed
 }
 
-void restartDemo() // sub_4A3E9   proc near       ; CODE XREF: handleGameUserInput+14Ep
+void restartLevel() // sub_4A3E9   proc near       ; CODE XREF: handleGameUserInput+14Ep
 {
     if (byte_5A33E == 0)
     {
@@ -9792,7 +9793,7 @@ void restartDemo() // sub_4A3E9   proc near       ; CODE XREF: handleGameUserInp
     }
 
 //loc_4A3F3:              ; CODE XREF: sub_4A3D2+15j
-//                ; restartDemo+5j
+//                ; restartLevel+5j
     gIsMoveScrollModeEnabled = 0;
     gAdditionalScrollOffsetX = 0;
     gAdditionalScrollOffsetY = 0;
@@ -9805,7 +9806,7 @@ void restartDemo() // sub_4A3E9   proc near       ; CODE XREF: handleGameUserInp
         gIsPlayingDemo = 1;
     }
 
-//loc_4A427:              ; CODE XREF: restartDemo+37j
+//loc_4A427:              ; CODE XREF: restartLevel+37j
     byte_5A33F = 0;
     sub_4A463();
     byte_5A33F = 1;
@@ -9818,8 +9819,8 @@ void restartDemo() // sub_4A3E9   proc near       ; CODE XREF: handleGameUserInp
         }
     }
 
-//loc_4A446:              ; CODE XREF: restartDemo+50j
-//                ; restartDemo+57j
+//loc_4A446:              ; CODE XREF: restartLevel+50j
+//                ; restartLevel+57j
     gCurrentUserInput = UserInputNone;
     if (gIsPlayingDemo == 0)
     {
@@ -9832,7 +9833,7 @@ void restartDemo() // sub_4A3E9   proc near       ; CODE XREF: handleGameUserInp
 }
 
 void sub_4A463() //   proc near       ; CODE XREF: recordDemo:loc_4953Bp
-                   // ; restartDemo+43p
+                   // ; restartLevel+43p
 {
     readLevels();
     drawFixedLevel();
@@ -10699,7 +10700,7 @@ void updatePlantedRedDisk() // sub_4A910   proc near       ; CODE XREF: runLevel
 }
 
 void addCurrentGameTimeToPlayer() // sub_4A95F   proc near       ; CODE XREF: runLevel+372p
-                   // ; restartDemo+7p ...
+                   // ; restartLevel+7p ...
 {
     uint8_t seconds = gCurrentGameState.gameSeconds;
     uint8_t minutes = gCurrentGameState.gameMinutes;
