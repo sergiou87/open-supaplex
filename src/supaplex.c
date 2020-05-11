@@ -2938,6 +2938,7 @@ static const char *kAdvancedConfigGameSpeedKey = "gameSpeed";
 static const char *kAdvancedConfigMusicVolumeKey = "musicVolume";
 static const char *kAdvancedConfigFXVolumeKey = "fxVolume";
 static const char *kAdvancedConfigScalingModeKey = "scalingMode";
+static const char *kAdvancedConfigFullscreenKey = "fullscreen";
 static const char *kAdvancedConfigDisplayFPSKey = "displayFPS";
 
 void readAdvancedConfig()
@@ -2957,6 +2958,9 @@ void readAdvancedConfig()
 
     gShouldShowFPS = readConfigInt(config, kAdvancedConfigDebugSection, kAdvancedConfigDisplayFPSKey, gShouldShowFPS);
 
+    int fullscreen = readConfigInt(config, kAdvancedConfigGeneralSection, kAdvancedConfigFullscreenKey, getFullscreenMode());
+    setFullscreenMode(fullscreen);
+
     destroyConfig(config);
 }
 
@@ -2975,6 +2979,7 @@ void writeAdvancedConfig()
     writeConfigInt(config, kAdvancedConfigMusicVolumeKey, getMusicVolume());
     writeConfigInt(config, kAdvancedConfigFXVolumeKey, getSoundEffectsVolume());
     writeConfigInt(config, kAdvancedConfigScalingModeKey, getScalingMode());
+    writeConfigInt(config, kAdvancedConfigFullscreenKey, getFullscreenMode());
 
     writeConfigSection(config, kAdvancedConfigDebugSection);
     writeConfigInt(config, kAdvancedConfigDisplayFPSKey, gShouldShowFPS);
@@ -4349,6 +4354,8 @@ immediateexit:              //; CODE XREF: start+D1j start+114j ...
 exit:                   //; CODE XREF: readConfig:loc_474BBj
 */
 
+        writeAdvancedConfig();
+    
         // Tidy up
         destroyLogging();
         destroyVideo();
