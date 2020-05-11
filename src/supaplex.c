@@ -198,7 +198,7 @@ uint8_t byte_5A140 = 0;
 uint8_t byte_5A19B = 0;
 uint8_t gIsLevelStartedAsDemo = 0; // byte_5A19C
 uint8_t byte_5A2F8 = 0;
-uint8_t gHasUserLoadedGameSnapshot = 0; // byte_5A2F9
+uint8_t gHasUserCheated = 0; // byte_5A2F9
 uint8_t byte_5A323 = 0;
 uint16_t word_5A33C = 0;
 uint8_t byte_5A33E = 0;
@@ -1782,7 +1782,7 @@ char gCurrentDemoLevelName[kListLevelNameLength] = ".SP\0----- DEMO LEVEL! -----
 
 char gRecordingDemoMessage[kLevelNameLength] = "--- RECORDING DEMO0 ---";
 
-uint8_t gShouldResumeGame = 0;
+uint8_t gShouldCloseAdvancedMenu = 0;
 uint8_t gAdvancedMenuRecordDemoIndex = 0;
 uint8_t gAdvancedMenuPlayDemoIndex = 0;
 
@@ -2572,7 +2572,7 @@ ColorPalette gCurrentPalette;
 // - 3: ???
 //
 ColorPalette gPalettes[kNumberOfPalettes];
-ColorPalette gBlackPalette = {
+ColorPalette gBlackPalette = { // 60D5h
     {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
     {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
     {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
@@ -2580,9 +2580,9 @@ ColorPalette gBlackPalette = {
 };
 
 #define gInformationScreenPalette gPalettes[0]
-#define gGamePalette gPalettes[1]
-#define gControlsScreenPalette gPalettes[2]
-#define gGameDimmedPalette gPalettes[3]
+#define gGamePalette gPalettes[1] // 0x6015
+#define gControlsScreenPalette gPalettes[2] // 0x6055
+#define gGameDimmedPalette gPalettes[3] // 6095h
 
 ColorPaletteData gTitlePaletteData = {
     0x02, 0x03, 0x05, 0x00, 0x0D, 0x0A, 0x04, 0x0C, 0x02, 0x06, 0x06, 0x02, 0x03, 0x09, 0x09, 0x03,
@@ -3064,7 +3064,7 @@ uint8_t handleAdvancedOptionsMenuInput(AdvancedOptionsMenu *menu)
         return 1;
     }
 
-    if (gShouldResumeGame
+    if (gShouldCloseAdvancedMenu
         || gShouldExitGame)
     {
         return 1;
@@ -3317,55 +3317,55 @@ void toggleDisplayFPSOption()
 
 void handleResumeOptionSelection()
 {
-    gShouldResumeGame = 1;
+    gShouldCloseAdvancedMenu = 1;
 }
 
 void handleRemoveZonksOptionSelection()
 {
     removeTiles(LevelTileTypeZonk);
-    gShouldResumeGame = 1;
+    gShouldCloseAdvancedMenu = 1;
 }
 
 void handleRemoveHardwareOptionSelection()
 {
     removeTiles(LevelTileTypeHardware);
-    gShouldResumeGame = 1;
+    gShouldCloseAdvancedMenu = 1;
 }
 
 void handleRemoveBaseOptionSelection()
 {
     removeTiles(LevelTileTypeBase);
-    gShouldResumeGame = 1;
+    gShouldCloseAdvancedMenu = 1;
 }
 
 void handleRemoveChipsOptionSelection()
 {
     removeTiles(LevelTileTypeChip);
-    gShouldResumeGame = 1;
+    gShouldCloseAdvancedMenu = 1;
 }
 
 void handleRemoveSnikSnakOptionSelection()
 {
     removeTiles(LevelTileTypeSnikSnak);
-    gShouldResumeGame = 1;
+    gShouldCloseAdvancedMenu = 1;
 }
 
 void handleMoveScrollOptionSelection()
 {
     gIsMoveScrollModeEnabled = 1;
-    gShouldResumeGame = 1;
+    gShouldCloseAdvancedMenu = 1;
 }
 
 void handleRecordDemoOptionSelection()
 {
     recordDemo(gAdvancedMenuRecordDemoIndex);
-    gShouldResumeGame = 1;
+    gShouldCloseAdvancedMenu = 1;
 }
 
 void handlePlayDemoOptionSelection()
 {
     playDemo(gAdvancedMenuPlayDemoIndex);
-    gShouldResumeGame = 1;
+    gShouldCloseAdvancedMenu = 1;
 }
 
 void handleExitGameOptionSelection()
@@ -3395,16 +3395,16 @@ void handleDebugOptionSelection()
     addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
         "LOAD GAME STATE",
         NULL,
-        NULL,
-        NULL,
         loadGameSnapshot,
+        NULL,
+        NULL,
     });
     addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
         "SAVE GAME STATE",
         NULL,
-        NULL,
-        NULL,
         saveGameSnapshot,
+        NULL,
+        NULL,
     });
     addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
         "MOVE FREELY",
@@ -3423,7 +3423,7 @@ void handleDebugOptionSelection()
     addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
         "REMOVE HARDWARE",
         NULL,
-        NULL,
+        handleRemoveHardwareOptionSelection,
         NULL,
         NULL,
     });
@@ -3537,7 +3537,7 @@ void runAdvancedOptionsRootMenu()
         NULL,
     });
 
-    gShouldResumeGame = 0;
+    gShouldCloseAdvancedMenu = 0;
 
     memcpy(gAdvancedOptionsMenuBaseBitmap, gScreenPixels, sizeof(gAdvancedOptionsMenuBaseBitmap));
     byte_5A33F = 0; // TODO: save previous value
@@ -4235,7 +4235,7 @@ loc_46E75:              //; CODE XREF: start+251j
 //loc_46FE4:              //; CODE XREF: start+3BDj
             ax = 1;
             gCurrentGameState.byte_510B3 = 0;
-            gHasUserLoadedGameSnapshot = 1;
+            gHasUserCheated = 1;
             a00s0010_sp[3] = 0x2D; // '-' ; "001$0.SP"
             a00s0010_sp[4] = 0x2D; // "01$0.SP"
             a00s0010_sp[5] = 0x2D; // "1$0.SP"
@@ -4293,7 +4293,7 @@ loc_46E75:              //; CODE XREF: start+251j
         {
 //            goto loc_4701A;
         }
-        gHasUserLoadedGameSnapshot = 0;
+        gHasUserCheated = 0;
         runMainMenu();
     }
     while (gShouldExitGame == 0);
@@ -4355,7 +4355,7 @@ exit:                   //; CODE XREF: readConfig:loc_474BBj
 */
 
         writeAdvancedConfig();
-    
+
         // Tidy up
         destroyLogging();
         destroyVideo();
@@ -7462,9 +7462,9 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
     }
 
 //loc_48E13:              ; CODE XREF: runLevel+353j
-    uint8_t was_gHasUserLoadedGameSnapshot_Zero = (gHasUserLoadedGameSnapshot == 0);
-    gHasUserLoadedGameSnapshot = 0;
-    if (was_gHasUserLoadedGameSnapshot_Zero
+    uint8_t was_gHasUserCheated_Zero = (gHasUserCheated == 0);
+    gHasUserCheated = 0;
+    if (was_gHasUserCheated_Zero
         && gCurrentGameState.byte_510B3 != 0
         && byte_5A323 == 0)
     {
@@ -8546,7 +8546,7 @@ void loc_49949() //:              ; CODE XREF: handleGameUserInput+E1j
     {
         gIsPlayingDemo = 0;
         gCurrentGameState.byte_510B3 = 0;
-        gHasUserLoadedGameSnapshot = 1;
+        gHasUserCheated = 1;
         byte_5A33E = 1;
     }
 
@@ -8579,6 +8579,8 @@ void loc_49949() //:              ; CODE XREF: handleGameUserInput+E1j
 
 void saveGameSnapshot() //loc_499C8:              ; CODE XREF: handleGameUserInput+454j
 {
+    gShouldCloseAdvancedMenu = 1;
+
     FILE *file = openWritableFile(gSavegameSavFilename, "w");
     if (file == NULL)
     {
@@ -8639,6 +8641,8 @@ void saveGameSnapshot() //loc_499C8:              ; CODE XREF: handleGameUserInp
 
 void loadGameSnapshot() // loc_49A89:              ; CODE XREF: handleGameUserInput+3FAj
 {
+    gShouldCloseAdvancedMenu = 1;
+
     FILE *file = openWritableFile(gSavegameSavFilename, "r");
     if (file == NULL)
     {
@@ -8711,9 +8715,11 @@ void loadGameSnapshot() // loc_49A89:              ; CODE XREF: handleGameUserIn
     replaceCurrentPaletteColor(0, (Color) { 0, 0, 0 });
     generateRandomSeedFromClock();
     generateRandomNumber();
-//    mov si, 60D5h
-    setPalette(gBlackPalette);
-    videoloop();
+    // I commented out all these video transitions because they're not needed in the reimplementation. They were here
+    // just to prevent graphical glitches. Also they made loading much slower.
+    //
+    // setPalette(gBlackPalette);
+    // videoloop();
     drawFixedLevel();
     drawGamePanel();
     sub_4A2E6();
@@ -8721,23 +8727,20 @@ void loadGameSnapshot() // loc_49A89:              ; CODE XREF: handleGameUserIn
     gLastDrawnMinutesAndSeconds = 0xFFFF;
     gLastDrawnHours = 0xFF;
     drawGameTime();
-    gHasUserLoadedGameSnapshot = 1;
+    gHasUserCheated = 1;
     gIsRecordingDemo = 0;
 
     drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 304, 14, 6, "LD"); // Means snapshot was loaded successfully
     gCurrentGameState.byte_5197C = 0x46; // 70 or '&'
 
     drawCurrentLevelViewport(gCurrentPanelHeight);
-    videoloop();
+    // videoloop();
 
 //loc_49C12:              ; CODE XREF: handleGameUserInput+6A8j
-//    mov si, 6015h
-    fadeToPalette(gGamePalette);
+    // fadeToPalette(gGamePalette);
 
 //loc_49C40:              ; CODE XREF: handleGameUserInput+6BDj
 //                    ; handleGameUserInput+6D6j
-//    pop si
-
     loc_49C41();
 }
 
@@ -9549,7 +9552,7 @@ void removeTiles(LevelTileType tileType) // sub_4A23C   proc near       ; CODE X
     drawFixedLevel();
     sub_4A2E6();
     gCurrentGameState.byte_510B3 = 0;
-    gHasUserLoadedGameSnapshot = 1;
+    gHasUserCheated = 1;
 }
 
 void findMurphy() //   proc near       ; CODE XREF: start+344p sub_4A463+22p
@@ -13324,7 +13327,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
             word_5196C = 1;
             gIsPlayingDemo = 0;
             gCurrentGameState.byte_510B3 = 0;
-            gHasUserLoadedGameSnapshot = 1;
+            gHasUserCheated = 1;
             prepareSomeKindOfLevelIdentifier();
             // This adds dashes to the level name or something?
             a00s0010_sp[3] = 0x2D; // '-' ; "001$0.SP"
@@ -14151,7 +14154,7 @@ void changePlayerCurrentLevelState() // sub_4D24D  proc near       ; CODE XREF: 
     {
         return;
     }
-    if (gHasUserLoadedGameSnapshot != 0)
+    if (gHasUserCheated != 0)
     {
         return;
     }
@@ -15644,7 +15647,7 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
         byte_5A19B = 1;
         gCurrentGameState.byte_510BB = 1;
         gCurrentGameState.levelFailed = 0;
-        if (gHasUserLoadedGameSnapshot == 0
+        if (gHasUserCheated == 0
             && gCurrentGameState.byte_510B3 != 0)
         {
             byte_5A323 = 1;
@@ -15851,7 +15854,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
         byte_5A19B = 1;
         gCurrentGameState.byte_510BB = 1;
         gCurrentGameState.levelFailed = 0;
-        if (gHasUserLoadedGameSnapshot == 0
+        if (gHasUserCheated == 0
             && gCurrentGameState.byte_510B3 != 0)
         {
             byte_5A323 = 1;
@@ -16136,7 +16139,7 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
         byte_5A19B = 1;
         gCurrentGameState.byte_510BB = 1;
         gCurrentGameState.levelFailed = 0;
-        if (gHasUserLoadedGameSnapshot == 0
+        if (gHasUserCheated == 0
             && gCurrentGameState.byte_510B3 != 0)
         {
             byte_5A323 = 1;
@@ -16340,7 +16343,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
         byte_5A19B = 1;
         gCurrentGameState.byte_510BB = 1;
         gCurrentGameState.levelFailed = 0;
-        if (gHasUserLoadedGameSnapshot == 0
+        if (gHasUserCheated == 0
             && gCurrentGameState.byte_510B3 != 0)
         {
             byte_5A323 = 1;
