@@ -2992,17 +2992,25 @@ void renderAdvancedOptionsMenu(AdvancedOptionsMenu *menu)
     static const uint16_t kInitialMenuY = 16;
     static const uint16_t kLinesBelowTitle = 2;
 
+    static const uint8_t kTitleTextColorIndex = 253;
+    static const uint8_t kEntryTextColorIndex = 254;
+    static const uint8_t kSelectedEntryTextColorIndex = 255;
+
+    setGlobalPaletteColor(kTitleTextColorIndex, (Color) { 255, 255, 255 });
+    setGlobalPaletteColor(kEntryTextColorIndex, (Color) { 180, 180, 180 });
+    setGlobalPaletteColor(kSelectedEntryTextColorIndex, (Color) { 224, 16, 16 });
+
     const uint16_t kMenuTitleX = (kScreenWidth - strlen(menu->title) * kBitmapFontCharacter6Width) / 2;
 
-    drawTextWithChars6FontWithTransparentBackground(kMenuTitleX, kInitialMenuY, 0xF, menu->title);
+    drawTextWithChars6FontWithTransparentBackground(kMenuTitleX, kInitialMenuY, kTitleTextColorIndex, menu->title);
 
     for (int i = 0; i < menu->numberOfEntries; ++i)
     {
         AdvancedOptionsMenuEntry entries = menu->entries[i];
 
         uint8_t color = (i == menu->selectedEntryIndex
-                         ? 6
-                         : 0xF);
+                         ? kSelectedEntryTextColorIndex
+                         : kEntryTextColorIndex);
 
         char *title = entries.title;
 

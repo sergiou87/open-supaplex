@@ -146,8 +146,23 @@ void moveMouse(int x, int y)
 
 void toggleFullscreen()
 {
+    setFullscreenMode(getFullscreenMode() == 0);
+}
+
+void setFullscreenMode(uint8_t fullscreen)
+{
+    SDL_SetWindowFullscreen(gWindow, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
+}
+
+uint8_t getFullscreenMode(void)
+{
     uint8_t isFullscreen = SDL_GetWindowFlags(gWindow) & SDL_WINDOW_FULLSCREEN;
-    SDL_SetWindowFullscreen(gWindow, isFullscreen ? 0 : SDL_WINDOW_FULLSCREEN);
+    return (isFullscreen != 0);
+}
+
+void setGlobalPaletteColor(const uint8_t index, const Color color)
+{
+    SDL_SetPaletteColors(gScreenSurface->format->palette, (SDL_Color *)&color, index, 1);
 }
 
 void setColorPalette(const ColorPalette palette)

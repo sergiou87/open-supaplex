@@ -57,7 +57,10 @@ void centerMouse(void);
 void moveMouse(int x, int y);
 
 void toggleFullscreen(void);
+void setFullscreenMode(uint8_t fullscreen);
+uint8_t getFullscreenMode(void);
 
+void setGlobalPaletteColor(const uint8_t index, const Color color);
 void setColorPalette(const ColorPalette palette);
 
 #endif /* video_h */
