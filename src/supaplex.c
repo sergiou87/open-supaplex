@@ -2579,6 +2579,11 @@ ColorPalette gBlackPalette = {
     {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
 };
 
+#define gInformationScreenPalette gPalettes[0]
+#define gGamePalette gPalettes[1]
+#define gControlsScreenPalette gPalettes[2]
+#define gGameDimmedPalette gPalettes[3]
+
 ColorPaletteData gTitlePaletteData = {
     0x02, 0x03, 0x05, 0x00, 0x0D, 0x0A, 0x04, 0x0C, 0x02, 0x06, 0x06, 0x02, 0x03, 0x09, 0x09, 0x03,
     0x0B, 0x08, 0x03, 0x06, 0x02, 0x07, 0x07, 0x0A, 0x08, 0x06, 0x0D, 0x09, 0x06, 0x04, 0x0B, 0x01,
@@ -3535,12 +3540,16 @@ void runAdvancedOptionsRootMenu()
     memcpy(gAdvancedOptionsMenuBaseBitmap, gScreenPixels, sizeof(gAdvancedOptionsMenuBaseBitmap));
     byte_5A33F = 0; // TODO: save previous value
 
+    setPalette(gGameDimmedPalette);
+
     runAdvancedOptionsMenu(&menu);
 
     writeAdvancedConfig();
 
     memcpy(gScreenPixels, gAdvancedOptionsMenuBaseBitmap, sizeof(gAdvancedOptionsMenuBaseBitmap));
     videoloop();
+
+    setPalette(gGamePalette);
 }
 
 //         public start
@@ -4155,7 +4164,7 @@ loc_46E75:              //; CODE XREF: start+251j
             gCurrentPanelHeight = kPanelBitmapHeight;
             drawCurrentLevelViewport(gCurrentPanelHeight); // Added by me
 //            si = 0x6015;
-            fadeToPalette(gPalettes[1]); // At this point the screen fades in and shows the game
+            fadeToPalette(gGamePalette); // At this point the screen fades in and shows the game
 
             if (isMusicEnabled == 0)
             {
@@ -8719,7 +8728,7 @@ void loadGameSnapshot() // loc_49A89:              ; CODE XREF: handleGameUserIn
 
 //loc_49C12:              ; CODE XREF: handleGameUserInput+6A8j
 //    mov si, 6015h
-    fadeToPalette(gPalettes[1]);
+    fadeToPalette(gGamePalette);
 
 //loc_49C40:              ; CODE XREF: handleGameUserInput+6BDj
 //                    ; handleGameUserInput+6D6j
@@ -8774,36 +8783,7 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
     {
         // 01ED:303A
         gIsGameRunning = 0;
-//        mov si, 6095h
-        fadeToPalette(gPalettes[3]);
-
-//        do
-//        {
-////loc_49CA8:              ; CODE XREF: handleGameUserInput+752j
-//            int9handler(1);
-//        }
-//        while (gIsPKeyPressed == 1
-//               || getGameControllerButton(SDL_CONTROLLER_BUTTON_START));
-
         runAdvancedOptionsRootMenu();
-
-//        do
-//        {
-////loc_49CAF:              ; CODE XREF: handleGameUserInput+759j
-//            int9handler(1);
-//        }
-//        while (gIsPKeyPressed == 0
-//               && getGameControllerButton(SDL_CONTROLLER_BUTTON_START) == 0);
-//
-//        do
-//        {
-////loc_49CB6:              ; CODE XREF: handleGameUserInput+760j
-//            int9handler(1);
-//        }
-//        while (gIsPKeyPressed == 1
-//               || getGameControllerButton(SDL_CONTROLLER_BUTTON_START));
-//            mov si, 6015h
-        fadeToPalette(gPalettes[1]);
         gIsGameRunning = 1;
     }
 
@@ -8813,7 +8793,7 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
         // 01ED:306C
         gIsGameRunning = 0;
 //        mov si, 6095h
-        fadeToPalette(gPalettes[3]);
+        fadeToPalette(gGameDimmedPalette);
 
         do
         {
@@ -8861,7 +8841,7 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
         }
         while (gIsNumLockPressed == 1);
 //        mov si, 6015h
-        fadeToPalette(gPalettes[1]);
+        fadeToPalette(gGamePalette);
         gIsGameRunning = 1;
     }
 
@@ -11520,11 +11500,11 @@ void handleStatisticsOptionClick() // sub_4AF0C   proc near
     }
 //loc_4B105:              ; CODE XREF: handleStatisticsOptionClick+1D4j
 //                ; handleStatisticsOptionClick+1E8j
-    fadeToPalette(gPalettes[0]);
+    fadeToPalette(gInformationScreenPalette);
     waitForKeyMouseOrJoystick();
     fadeToPalette(gBlackPalette);
     memcpy(gScreenPixels, screenPixelsBackup, kFullScreenFramebufferLength);
-    fadeToPalette(gPalettes[1]);
+    fadeToPalette(gGamePalette);
 }
 
 void handleGfxTutorOptionClick() // sub_4B149   proc near
@@ -11752,7 +11732,7 @@ void showCongratulationsScreen() // sub_4B2FC   proc near       ; CODE XREF: han
 //    al = bh
 //    out dx, al      ; Video: CRT controller internal registers
 //    mov si, palettesDataBuffer
-    fadeToPalette(gPalettes[0]);
+    fadeToPalette(gInformationScreenPalette);
     waitForKeyMouseOrJoystick();
 //    mov si, 60D5h
     fadeToPalette(gBlackPalette);
@@ -11773,7 +11753,7 @@ void showCongratulationsScreen() // sub_4B2FC   proc near       ; CODE XREF: han
 //    al = bh
 //    out dx, al      ; Video: CRT controller internal registers
 
-    fadeToPalette(gPalettes[1]); // 6015h
+    fadeToPalette(gGamePalette); // 6015h
     return;
 }
 
@@ -12201,11 +12181,11 @@ void handleLevelCreditsClick() // sub_4B7B7  proc near
     drawTextWithChars6FontWithTransparentBackground(56, 110, 15, "HARDLY ANY LEVELS BY BARBARA STOPP");
     drawTextWithChars6FontWithTransparentBackground(64, 170, 15, "NOTE: PRESS ENTER TO REMOVE PANEL");
     drawTextWithChars6FontWithTransparentBackground(64, 190, 15, "(C) DIGITAL INTEGRATION LTD 1991");
-    fadeToPalette(gPalettes[0]);
+    fadeToPalette(gInformationScreenPalette);
     waitForKeyMouseOrJoystick();
     fadeToPalette(gBlackPalette);
     memcpy(gScreenPixels, screenPixelsBackup, kFullScreenFramebufferLength);
-    fadeToPalette(gPalettes[1]);
+    fadeToPalette(gGamePalette);
 }
 
 // This function calculates where in the main menu bitmap the cursor will be drawn, and takes in advance
@@ -12833,7 +12813,7 @@ void sub_4C407() //   proc near       ; CODE XREF: runMainMenu+5Dp
         prepareLevelDataForCurrentPlayer();
         drawMenuTitleAndDemoLevelResult();
     //    mov si, 6015h
-        fadeToPalette(gPalettes[1]);
+        fadeToPalette(gGamePalette);
 
         videoloop();
 
@@ -12936,7 +12916,7 @@ void drawFailedLevelResultScreen() // sub_4C4F9   proc near       ; CODE XREF: s
     drawTextWithChars6FontWithTransparentBackground(72, 120, 0xF, "WHY NOT GIVE IT ANOTHER TRY?");
 
     videoloop();
-    setPalette(gPalettes[0]);
+    setPalette(gInformationScreenPalette);
     if (gShouldExitGame != 1)
     {
         waitForKeyMouseOrJoystick();
@@ -13179,7 +13159,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
         drawMenuTitleAndDemoLevelResult(); // 01ED:5B59
 
         videoloop();
-        fadeToPalette(gPalettes[1]); // 6015h
+        fadeToPalette(gGamePalette); // 6015h
         word_58467 = 0;
     }
     else
@@ -13415,7 +13395,7 @@ void handleControlsOptionClick() //showControls:                              ; 
     drawAudioOptionsSelection(gScrollDestinationScreenBitmapData);
     drawInputOptionsSelection(gScrollDestinationScreenBitmapData);
 //    mov     si, 6055h
-    setPalette(gPalettes[2]);
+    setPalette(gControlsScreenPalette);
     scrollRightToNewScreen();
     word_58463 = 0;
     saveLastMouseAreaBitmap();
@@ -13493,7 +13473,7 @@ void handleControlsOptionClick() //showControls:                              ; 
     saveConfiguration();
     scrollLeftToMainMenu();
     drawMenuTitleAndDemoLevelResult();
-    setPalette(gPalettes[1]);
+    setPalette(gGamePalette);
 }
 
 void drawSoundTypeOptionsSelection(uint8_t *destBuffer) // sub_4CAFC   proc near       ; CODE XREF: code:5AE1p handleOptionsStandardClick+6p ...
