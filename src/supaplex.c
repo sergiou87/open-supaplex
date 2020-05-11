@@ -1836,9 +1836,6 @@ typedef struct {
     uint8_t gameMinutes; // byte_510B1
     uint8_t gameHours; // byte_510B2
     uint8_t byte_510B3;
-    uint8_t byte_510B4;
-    uint8_t byte_510B5;
-    uint8_t byte_510B6;
     uint8_t levelFailed; // byte_510BA
     uint8_t byte_510BB;
     uint16_t word_510BC;
@@ -1852,7 +1849,7 @@ typedef struct {
     uint16_t word_510CB;
     uint16_t word_510CD;
     uint16_t word_510CF;
-    uint16_t word_510D1;
+    uint16_t shouldKillMurphy; // word_510D1
     uint8_t byte_510D3;
     uint8_t areEnemiesFrozen; // byte_510D7 -> 1 = turn on, anything else (0) = turn off
     uint8_t byte_510D8;
@@ -2901,7 +2898,7 @@ void sub_492F1(void);
 void simulateDemoInput(void);
 void sub_4A463(void);
 void removeTiles(LevelTileType tileType);
-void sub_4A3E9(void);
+void restartDemo(void);
 void recordDemo(uint16_t demoIndex);
 void stopRecordingDemo(void);
 void sub_4A3D2(void);
@@ -2910,7 +2907,7 @@ void drawNumberOfRemainingRedDisks(void);
 void clearNumberOfRemainingRedDisks(void);
 void updatePlantedRedDisk(void);
 void updateExplosionTimers(void);
-void sub_4A95F(void);
+void addCurrentGameTimeToPlayer(void);
 void drawFailedLevelResultScreen(void);
 void handleZonkStateAfterFallingOneTile(uint16_t position);
 void detonateBigExplosion(uint16_t position);
@@ -3064,8 +3061,7 @@ uint8_t handleAdvancedOptionsMenuInput(AdvancedOptionsMenu *menu)
         return 1;
     }
 
-    if (gShouldCloseAdvancedMenu
-        || gShouldExitGame)
+    if (gShouldCloseAdvancedMenu)
     {
         return 1;
     }
@@ -3320,6 +3316,11 @@ void handleResumeOptionSelection()
     gShouldCloseAdvancedMenu = 1;
 }
 
+void handleRestartOptionSelection()
+{
+    gShouldCloseAdvancedMenu = 1;
+}
+
 void handleRemoveZonksOptionSelection()
 {
     removeTiles(LevelTileTypeZonk);
@@ -3368,9 +3369,16 @@ void handlePlayDemoOptionSelection()
     gShouldCloseAdvancedMenu = 1;
 }
 
+void handleExitLevelOptionSelection()
+{
+    gCurrentGameState.shouldKillMurphy = 1;
+    gShouldCloseAdvancedMenu = 1;
+}
+
 void handleExitGameOptionSelection()
 {
     gShouldExitGame = 1;
+    gShouldCloseAdvancedMenu = 1;
 }
 
 void runAdvancedOptionsSubMenu(AdvancedOptionsMenu menu)
@@ -3474,6 +3482,13 @@ void runAdvancedOptionsRootMenu()
         NULL,
     });
     addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "RESTART",
+        NULL,
+        handleRestartOptionSelection,
+        NULL,
+        NULL,
+    });
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
         "",
         buildGameSpeedOptionTitle,
         NULL,
@@ -3528,6 +3543,13 @@ void runAdvancedOptionsRootMenu()
         handleRecordDemoOptionSelection,
         decreaseAdvancedMenuRecordDemoIndex,
         increaseAdvancedMenuRecordDemoIndex,
+    });
+    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+        "EXIT LEVEL",
+        NULL,
+        handleExitLevelOptionSelection,
+        NULL,
+        NULL,
     });
     addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
         "EXIT GAME",
@@ -7197,7 +7219,7 @@ void initializeGameInfo() // sub_48A20   proc near       ; CODE XREF: start+32F
     gCurrentGameState.word_510BE = gCurrentGameState.murphyTileY;
     ax = 0;
     gCurrentGameState.word_510CB = 0;
-    gCurrentGameState.word_510D1 = 0;
+    gCurrentGameState.shouldKillMurphy = 0;
     gCurrentGameState.shouldExitLevel = 0;
     gCurrentGameState.quitLevelCountdown = 0;
     gCurrentGameState.numberOfRemainingRedDisks = 0;
@@ -7210,9 +7232,6 @@ void initializeGameInfo() // sub_48A20   proc near       ; CODE XREF: start+32F
     gCurrentGameState.gameSeconds = 0;
     gCurrentGameState.gameMinutes = 0;
     gCurrentGameState.gameHours = 0;
-    gCurrentGameState.byte_510B4 = 0;
-    gCurrentGameState.byte_510B5 = 0;
-    gCurrentGameState.byte_510B6 = 0;
     gCurrentGameState.isExplosionStarted = 0;
     gCurrentGameState.byte_5196A = 0x7F; // 127
     gCurrentGameState.byte_5196B = 0;
@@ -7468,7 +7487,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         && gCurrentGameState.byte_510B3 != 0
         && byte_5A323 == 0)
     {
-        sub_4A95F();
+        addCurrentGameTimeToPlayer();
     }
 
 //loc_48E30:              ; CODE XREF: runLevel+362j
@@ -7741,7 +7760,7 @@ void updateUserInputInScrollMovementMode() // sub_4914A   proc near       ; CODE
 }
 
 void simulateDemoInput() // sub_492A8   proc near       ; CODE XREF: handleGameUserInput+27p
-                   // ; sub_4A3E9+76p
+                   // ; restartDemo+76p
 {
     // 01ED:2645
     if (gCurrentGameState.byte_510E2 > 1)
@@ -8226,7 +8245,7 @@ void handleGameUserInput() // sub_4955B   proc near       ; CODE XREF: runLevel:
         if (gIsRKeyPressed != 0)
         {
             videoloop();
-            sub_4A3E9();
+            restartDemo();
         }
 
 //loc_496AC:              ; CODE XREF: handleGameUserInput+149j
@@ -8858,7 +8877,7 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
         && gCurrentGameState.quitLevelCountdown <= 0)
     {
         // This is called when I press ESC to exit the game, but not when I die
-        gCurrentGameState.word_510D1 = 1; // 01ED:30C0
+        gCurrentGameState.shouldKillMurphy = 1; // 01ED:30C0
     }
 
 //loc_49D29:              ; CODE XREF: handleGameUserInput+7BFj
@@ -9035,7 +9054,7 @@ void updateMovingObjects() // gameloop   proc near       ; CODE XREF: runLevel:n
 //    out dx,
 
     // 01ED:3227
-    if (gCurrentGameState.word_510D1 != 1
+    if (gCurrentGameState.shouldKillMurphy != 1
         && gCurrentGameState.word_510CF != 0)
     {
         return;
@@ -9046,20 +9065,11 @@ void updateMovingObjects() // gameloop   proc near       ; CODE XREF: runLevel:n
     if (gCurrentGameState.quitLevelCountdown == 0) // 01ED:3236
     {
         // 01ED:323D
-        gCurrentGameState.word_510D1 = 0;
+        gCurrentGameState.shouldKillMurphy = 0;
 //        si = word_510C7;
         detonateBigExplosion(gCurrentGameState.word_510C7); // could use gMurphyLocation too?
         gCurrentGameState.quitLevelCountdown = 0x40; // 64
     }
-
-//loc_49EB3:
-//    ; set graphics write mode = 0
-//    mov dx, 3CEh
-//    al = 5
-//    out dx, al
-//    inc dx
-//    al = 1
-//    out dx, al
 
     return;
 }
@@ -9770,19 +9780,19 @@ void sub_4A3D2() //   proc near       ; CODE XREF: handleGameUserInput+39Ep
         // jnz short $+12
     }
 
-    // continues with sub_4A3E9 ? or where does that jump lead? check with debugger
+    // continues with restartDemo ? or where does that jump lead? check with debugger
 //sub_4A3D2   endp ; sp-analysis failed
 }
 
-void sub_4A3E9() //   proc near       ; CODE XREF: handleGameUserInput+14Ep
+void restartDemo() // sub_4A3E9   proc near       ; CODE XREF: handleGameUserInput+14Ep
 {
     if (byte_5A33E == 0)
     {
-        sub_4A95F();
+        addCurrentGameTimeToPlayer();
     }
 
 //loc_4A3F3:              ; CODE XREF: sub_4A3D2+15j
-//                ; sub_4A3E9+5j
+//                ; restartDemo+5j
     gIsMoveScrollModeEnabled = 0;
     gAdditionalScrollOffsetX = 0;
     gAdditionalScrollOffsetY = 0;
@@ -9795,7 +9805,7 @@ void sub_4A3E9() //   proc near       ; CODE XREF: handleGameUserInput+14Ep
         gIsPlayingDemo = 1;
     }
 
-//loc_4A427:              ; CODE XREF: sub_4A3E9+37j
+//loc_4A427:              ; CODE XREF: restartDemo+37j
     byte_5A33F = 0;
     sub_4A463();
     byte_5A33F = 1;
@@ -9808,8 +9818,8 @@ void sub_4A3E9() //   proc near       ; CODE XREF: handleGameUserInput+14Ep
         }
     }
 
-//loc_4A446:              ; CODE XREF: sub_4A3E9+50j
-//                ; sub_4A3E9+57j
+//loc_4A446:              ; CODE XREF: restartDemo+50j
+//                ; restartDemo+57j
     gCurrentUserInput = UserInputNone;
     if (gIsPlayingDemo == 0)
     {
@@ -9822,7 +9832,7 @@ void sub_4A3E9() //   proc near       ; CODE XREF: handleGameUserInput+14Ep
 }
 
 void sub_4A463() //   proc near       ; CODE XREF: recordDemo:loc_4953Bp
-                   // ; sub_4A3E9+43p
+                   // ; restartDemo+43p
 {
     readLevels();
     drawFixedLevel();
@@ -10082,7 +10092,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
     gCurrentGameState.isExplosionStarted = 1;
     if (currentTile->tile == LevelTileTypeMurphy)
     {
-        gCurrentGameState.word_510D1 = 1;
+        gCurrentGameState.shouldKillMurphy = 1;
     }
 
 //loc_4A639:              ; CODE XREF: detonateBigExplosion+12j
@@ -10148,7 +10158,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //loc_4A676:              ; CODE XREF: detonateBigExplosion+4Ej
     else if (aboveLeftTile->tile == LevelTileTypeMurphy)
     {
-        gCurrentGameState.word_510D1 = 1;
+        gCurrentGameState.shouldKillMurphy = 1;
 
 //loc_4A680:              ; CODE XREF: detonateBigExplosion+3Aj
 //                ; detonateBigExplosion+3Ej ...
@@ -10217,7 +10227,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //loc_4A6CD:              ; CODE XREF: detonateBigExplosion+A5j
     else if (aboveTile->tile == LevelTileTypeMurphy)
     {
-        gCurrentGameState.word_510D1 = 1;
+        gCurrentGameState.shouldKillMurphy = 1;
 
 //loc_4A6D7:              ; CODE XREF: detonateBigExplosion+91j
 //                ; detonateBigExplosion+95j ...
@@ -10286,7 +10296,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //loc_4A724:              ; CODE XREF: detonateBigExplosion+FCj
     else if (aboveRightTile->tile == LevelTileTypeMurphy)
     {
-        gCurrentGameState.word_510D1 = 1;
+        gCurrentGameState.shouldKillMurphy = 1;
 
 //loc_4A72E:              ; CODE XREF: detonateBigExplosion+E8j
 //                ; detonateBigExplosion+ECj ...
@@ -10355,7 +10365,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //loc_4A77B:              ; CODE XREF: detonateBigExplosion+153j
     else if (leftTile->tile == LevelTileTypeMurphy)
     {
-        gCurrentGameState.word_510D1 = 1;
+        gCurrentGameState.shouldKillMurphy = 1;
 
 //loc_4A785:              ; CODE XREF: detonateBigExplosion+13Fj
 //                ; detonateBigExplosion+143j ...
@@ -10428,7 +10438,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //loc_4A7D6:              ; CODE XREF: detonateBigExplosion+1AEj
     else if (rightTile->tile == LevelTileTypeMurphy)
     {
-        gCurrentGameState.word_510D1 = 1;
+        gCurrentGameState.shouldKillMurphy = 1;
 
 //loc_4A7E0:              ; CODE XREF: detonateBigExplosion+19Aj
 //                ; detonateBigExplosion+19Ej ...
@@ -10498,7 +10508,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //loc_4A82D:              ; CODE XREF: detonateBigExplosion+205j
     else if (belowLeftTile->tile == LevelTileTypeMurphy)
     {
-        gCurrentGameState.word_510D1 = 1;
+        gCurrentGameState.shouldKillMurphy = 1;
 //loc_4A837:              ; CODE XREF: detonateBigExplosion+1F1j
 //                ; detonateBigExplosion+1F5j ...
         if (belowLeftTile->tile != LevelTileTypeHardware)
@@ -10567,7 +10577,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //loc_4A884:              ; CODE XREF: detonateBigExplosion+25Cj
     else if (belowTile->tile == LevelTileTypeMurphy)
     {
-        gCurrentGameState.word_510D1 = 1;
+        gCurrentGameState.shouldKillMurphy = 1;
 
 //loc_4A88E:              ; CODE XREF: detonateBigExplosion+248j
 //                ; detonateBigExplosion+24Cj ...
@@ -10636,7 +10646,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //loc_4A8DB:              ; CODE XREF: detonateBigExplosion+2B3j
     else if (belowRightTile->tile == LevelTileTypeMurphy)
     {
-        gCurrentGameState.word_510D1 = 1;
+        gCurrentGameState.shouldKillMurphy = 1;
 
 //loc_4A8E5:              ; CODE XREF: detonateBigExplosion+29Fj
 //                ; detonateBigExplosion+2A3j ...
@@ -10688,63 +10698,67 @@ void updatePlantedRedDisk() // sub_4A910   proc near       ; CODE XREF: runLevel
     }
 }
 
-void sub_4A95F() //   proc near       ; CODE XREF: runLevel+372p
-                   // ; sub_4A3E9+7p ...
+void addCurrentGameTimeToPlayer() // sub_4A95F   proc near       ; CODE XREF: runLevel+372p
+                   // ; restartDemo+7p ...
 {
-    /*
-    al = gGameSeconds
-    mov byte_510B4, al
-    al = gGameMinutes
-    mov byte_510B5, al
-    al = gGameHours
-    mov byte_510B6, al
-    cmp gIsPlayingDemo, 0
-    jnz short locret_4A97F
-    cmp byte_599D4, 0
-    jz  short loc_4A980
+    uint8_t seconds = gCurrentGameState.gameSeconds;
+    uint8_t minutes = gCurrentGameState.gameMinutes;
+    uint16_t hours = gCurrentGameState.gameHours;
+    if (gIsPlayingDemo != 0)
+    {
+        return;
+    }
 
-locret_4A97F:               ; CODE XREF: sub_4A95F+17j
-    return;
+    if (byte_599D4 != 0)
+    {
+        return;
+    }
 
-loc_4A980:              ; CODE XREF: sub_4A95F+1Ej
-    mov bh, gCurrentPlayerIndex
-    xor bl, bl
-    shr bx, 1
-    mov si, bx
-    add si, gPlayerListData
-    al = byte_510B4
-    add al, [si+0Bh]
+//loc_4A980:              ; CODE XREF: addCurrentGameTimeToPlayer+1Ej
+    PlayerEntry *playerEntry = &gPlayerListData[gCurrentPlayerIndex];
+    seconds += playerEntry->seconds;
 
-loc_4A994:              ; CODE XREF: sub_4A95F+3Ej
-    cmp al, 3Ch ; '<'
-    jl  short loc_4A99F
-    sub al, 3Ch ; '<'
-    inc byte ptr [si+0Ah]
-    jmp short loc_4A994
+    do
+    {
+//loc_4A994:              ; CODE XREF: addCurrentGameTimeToPlayer+3Ej
+        if (seconds < 60)
+        {
+            break;
+        }
+        seconds -= 60;
+        playerEntry->minutes++;
+    }
+    while (1);
 
-loc_4A99F:              ; CODE XREF: sub_4A95F+37j
-    mov [si+0Bh], al
-    al = byte_510B5
-    add al, [si+0Ah]
+//loc_4A99F:              ; CODE XREF: addCurrentGameTimeToPlayer+37j
+    playerEntry->seconds = seconds;
 
-loc_4A9A8:              ; CODE XREF: sub_4A95F+52j
-    cmp al, 3Ch ; '<'
-    jl  short loc_4A9B3
-    sub al, 3Ch ; '<'
-    inc byte ptr [si+9]
-    jmp short loc_4A9A8
+    minutes += playerEntry->minutes;
 
-loc_4A9B3:              ; CODE XREF: sub_4A95F+4Bj
-    mov [si+0Ah], al
-    al = byte_510B6
-    add al, [si+9]
-    jnb short loc_4A9C0
-    al = 0FFh
+    do
+    {
+//loc_4A9A8:              ; CODE XREF: addCurrentGameTimeToPlayer+52j
+        if (minutes < 60)
+        {
+            break;
+        }
+        minutes -= 60;
+        playerEntry->hours++;
+    }
+    while (1);
 
-loc_4A9C0:              ; CODE XREF: sub_4A95F+5Dj
-    mov [si+9], al
-    return;
-     */
+//loc_4A9B3:              ; CODE XREF: addCurrentGameTimeToPlayer+4Bj
+    playerEntry->minutes = minutes;
+
+    hours += playerEntry->hours;
+
+    if (hours > 0xFF)
+    {
+        hours = 0xFF;
+    }
+
+//loc_4A9C0:              ; CODE XREF: addCurrentGameTimeToPlayer+5Dj
+    playerEntry->hours = hours;
 }
 
 void detonateZonk(uint16_t position, uint8_t movingObject, uint8_t tile) // sub_4A9C4   proc near       ; CODE XREF: detonateBigExplosion+81p
@@ -15651,7 +15665,7 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
             && gCurrentGameState.byte_510B3 != 0)
         {
             byte_5A323 = 1;
-            sub_4A95F();
+            addCurrentGameTimeToPlayer();
         }
 
 //loc_4E6A4:              ; CODE XREF: update?+803j update?+80Aj
@@ -15858,7 +15872,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
             && gCurrentGameState.byte_510B3 != 0)
         {
             byte_5A323 = 1;
-            sub_4A95F();
+            addCurrentGameTimeToPlayer();
         }
 
 //loc_4E6A4:              ; CODE XREF: update?+803j update?+80Aj
@@ -16143,7 +16157,7 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
             && gCurrentGameState.byte_510B3 != 0)
         {
             byte_5A323 = 1;
-            sub_4A95F();
+            addCurrentGameTimeToPlayer();
         }
 
 //loc_4E6A4:              ; CODE XREF: update?+803j update?+80Aj
@@ -16347,7 +16361,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
             && gCurrentGameState.byte_510B3 != 0)
         {
             byte_5A323 = 1;
-            sub_4A95F();
+            addCurrentGameTimeToPlayer();
         }
 
 //loc_4E6A4:              ; CODE XREF: update?+803j update?+80Aj
