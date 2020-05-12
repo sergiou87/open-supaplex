@@ -8913,7 +8913,8 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
 
 //loc_49D29:              ; CODE XREF: handleGameUserInput+7BFj
 //                    ; handleGameUserInput+7C6j
-    if (gIsQKeyPressed != 0)
+    if (gIsQKeyPressed != 0
+        || getGameControllerCancelButton())
     {
         // 01ED:30CD
         gIsMoveScrollModeEnabled = 0;
