@@ -40,7 +40,8 @@ static int strcmpci(const char *a, const char *b) {
     if (d != 0 || !*a) {
       return d;
     }
-    a++, b++;
+    a++;
+    b++;
   }
 }
 
@@ -90,7 +91,8 @@ static char *unescape_quoted_value(ini_t *ini, char *p) {
       /* Handle normal char */
       *q = *p;
     }
-    q++, p++;
+    q++;
+    p++;
   }
 end:
   return q;
@@ -176,7 +178,8 @@ static void split_data(ini_t *ini) {
 ini_t* ini_load(const char *filename) {
   ini_t *ini = NULL;
   FILE *fp = NULL;
-  int n, sz;
+  size_t n;
+  long sz;
 
   /* Init ini struct */
   ini = malloc(sizeof(*ini));
