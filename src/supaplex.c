@@ -28,6 +28,7 @@
 #include "config.h"
 #include "controller.h"
 #include "file.h"
+#include "input.h"
 #include "logging.h"
 #include "menu.h"
 #include "touchscreen.h"
@@ -76,97 +77,6 @@ uint16_t word_50947 = 0;
 uint16_t word_50949 = 0;
 uint8_t byte_50953 = 0;
 uint8_t byte_50954 = 0;
-uint8_t gIsEscapeKeyPressed = 0; // byte_5197E -> ESC
-uint8_t gIs1KeyPressed = 0; // byte_5197F -> 1
-uint8_t gIs2KeyPressed = 0; // byte_51980 -> 2
-uint8_t gIs3KeyPressed = 0; // byte_51981 -> 3
-uint8_t gIs4KeyPressed = 0; // byte_51982 -> 4
-uint8_t gIs5KeyPressed = 0; // byte_51983 -> 5
-uint8_t gIs6KeyPressed = 0; // byte_51984 -> 6
-uint8_t gIs7KeyPressed = 0; // byte_51985 -> 7
-uint8_t gIs8KeyPressed = 0; // byte_51986 -> 8
-uint8_t gIs9KeyPressed = 0; // byte_51987 -> 9
-uint8_t gIs0KeyPressed = 0; // byte_51988 -> 0
-uint8_t gIsMinusKeyPressed = 0; // byte_51989 -> -
-uint8_t gIsEqualsKeyPressed = 0; // byte_5198A -> =
-// backspace
-// tab
-uint8_t gIsQKeyPressed = 0; // byte_5198D -> q
-uint8_t gIsWKeyPressed = 0; // byte_5198E -> w
-// e
-uint8_t gIsRKeyPressed = 0; // byte_51990 -> r
-// t
-// y
-// u
-// i
-// o
-uint8_t gIsPKeyPressed = 0; // byte_51996 -> p
-// [
-// ]
-uint8_t gIsEnterPressed = 0; // byte_51999 -> enter
-uint8_t gIsLeftControlPressed = 0; // byte_5199A -> left control
-//a
-uint8_t gIsSKeyPressed = 0; // byte_5199C -> s
-uint8_t gIsDKeyPressed = 0; // byte_5199D -> d
-//f
-//g
-uint8_t gIsHKeyPressed = 0; // byte_519A0 -> h
-uint8_t gIsJKeyPressed = 0; // byte_519A1 -> j
-//k
-uint32_t gIsLKeyPressed = 0; // dword_519A3 -> l
-// ; ' `
-uint8_t gIsLeftShiftPressed = 0; // word_519A7 -> "left shift"
-// slash
-uint8_t gIsZKeyPressed = 0; // word_519A9 -> z
-// x
-uint8_t gIsCKeyPressed = 0; // word_519AB -> c
-// v
-uint8_t gIsBKeyPressed = 0; // word_519AD -> b
-// n
-uint8_t gIsMKeyPressed = 0; // dword_519AF -> m
-// , . /
-uint8_t gIsRightShiftPressed = 0; // word_519B3 -> "right shift"
-// "numpad *"
-uint8_t gIsLeftAltPressed = 0; // byte_519B5 -> "left alt"
-uint8_t gIsSpaceKeyPressed = 0; // byte_519B6 -> space
-// caps lock
-uint8_t gIsF1KeyPressed = 0; // byte_519B8 -> F1
-uint8_t gIsF2KeyPressed = 0; // byte_519B9 -> F2
-uint8_t gIsF3KeyPressed = 0; // byte_519BA -> F3
-uint8_t gIsF4KeyPressed = 0; // byte_519BB -> F4
-uint8_t gIsF5KeyPressed = 0; // byte_519BC -> F5
-uint8_t gIsF6KeyPressed = 0; // byte_519BD -> F6
-uint8_t gIsF7KeyPressed = 0; // byte_519BE -> F7
-uint8_t gIsF8KeyPressed = 0; // byte_519BF -> F8
-uint8_t gIsF9KeyPressed = 0; // byte_519C0 -> F9
-uint8_t gIsF10KeyPressed = 0; // byte_519C1 -> F10
-uint8_t gIsNumLockPressed = 0; // byte_519C2 -> 16B2 -> Num lock
-uint8_t gIsScrollLockPressed = 0; // byte_519C3 -> Scroll lock
-uint8_t gIsHomeKeyPressed = 0; // byte_519C4 -> numpad 7
-uint8_t gIsUpKeyPressed = 0; // byte_519C5 -> 16B5 -> numpad 8 or up arrow
-uint8_t gIsRePagKeyPressed = 0; // byte_519C6 -> numpad 9
-// numpad -
-uint8_t gIsLeftKeyPressed = 0; // byte_519C8 -> numpad 4
-uint8_t gIsNumpad5Pressed = 0; // byte_519C9 -> numpad 5
-uint8_t gIsRightKeyPressed = 0; // byte_519CA -> numpad 6
-// numpad +
-uint8_t gIsEndKeyPressed = 0; // byte_519CC -> numpad 1
-uint8_t gIsDownKeyPressed = 0; // byte_519CD -> numpad 2
-uint8_t gIsAvPagKeyPressed = 0; // byte_519CE -> numpad 3
-uint8_t gIsInsertKeyPressed = 0; // byte_519CF -> numpad 0
-uint8_t gIsDelKeyPressed = 0; // byte_519D0 -> numpad .
-// numpad SysReq
-// Key 45
-// numpad Enter
-uint8_t gIsNumpadDividePressed = 0; // byte_519D4 -> numpad /
-uint8_t gIsF12KeyPressed = 0; // byte_519D5 -> F12
-// These are joystick keys
-// uint8_t byte_519F4 = 0; // button A
-// uint8_t byte_519F5 = 0; // button B
-// uint8_t byte_519F6 = 0; // right
-// uint8_t byte_519F7 = 0; // left
-// uint8_t byte_519F8 = 0; // down
-// uint8_t byte_519F9 = 0; // up
 uint8_t gShouldAutoselectNextLevelToPlay = 0; // byte_51ABE
 uint8_t byte_5870F = 0; //
 uint8_t byte_58D46 = 0; //
@@ -1511,7 +1421,6 @@ uint8_t fileIsDemo = 0;
 uint8_t isJoystickEnabled = 0; // byte_50940
 uint8_t isMusicEnabled = 0; // byte_59886
 uint8_t isFXEnabled = 0; // byte_59885
-SDL_Scancode keyPressed = 0;
 
 char gLevelsDatFilename[11] = "LEVELS.DAT";
 char gLevelLstFilename[10] = "LEVEL.LST";
@@ -3050,39 +2959,46 @@ void renderAdvancedOptionsMenu(AdvancedOptionsMenu *menu)
 /// @return 1 if the action was to go back / close the menu
 uint8_t handleAdvancedOptionsMenuInput(AdvancedOptionsMenu *menu)
 {
-    if (gCurrentUserInput == UserInputUp)
+    if (isUpButtonPressed())
     {
         playBaseSound();
         moveUpAdvancedOptionsSelectedEntry(menu);
     }
 
-    if (gCurrentUserInput == UserInputDown)
+    if (isDownButtonPressed())
     {
         playBaseSound();
         moveDownAdvancedOptionsSelectedEntry(menu);
     }
 
-    if (gCurrentUserInput == UserInputLeft)
+    if (isLeftButtonPressed())
     {
         playBaseSound();
         decreaseAdvancedOptionsSelectedEntry(menu);
     }
 
-    if (gCurrentUserInput == UserInputRight)
+    if (isRightButtonPressed())
     {
         playBaseSound();
         increaseAdvancedOptionsSelectedEntry(menu);
     }
 
-    if (gIsEnterPressed || getGameControllerConfirmButton())
+    if (isMenuConfirmButtonPressed())
     {
         playInfotronSound();
         selectAdvancedOptionsSelectedEntry(menu);
     }
 
-    if (gIsEscapeKeyPressed || getGameControllerCancelButton())
+    if (isMenuCancelButtonPressed())
     {
         playPushSound();
+        return 1;
+    }
+
+    if (isPauseButtonPressed())
+    {
+        playPushSound();
+        gShouldCloseAdvancedMenu = 1;
         return 1;
     }
 
@@ -3099,13 +3015,15 @@ void advancedOptionsMenuWaitForKeyPress()
     do
     {
         int9handler(1);
-        updateUserInput();
     }
-    while (gCurrentUserInput == UserInputNone
-           && gIsEnterPressed == 0
-           && gIsEscapeKeyPressed == 0
-           && getGameControllerConfirmButton() == 0
-           && getGameControllerCancelButton() == 0);
+    while (isUpButtonPressed() == 0
+           && isDownButtonPressed() == 0
+           && isLeftButtonPressed() == 0
+           && isRightButtonPressed() == 0
+           && isMenuBackButtonPressed() == 0
+           && isMenuConfirmButtonPressed() == 0
+           && isMenuCancelButtonPressed() == 0
+           && isPauseButtonPressed() == 0);
 }
 
 void advancedOptionsMenuWaitForKeyRelease()
@@ -3113,13 +3031,15 @@ void advancedOptionsMenuWaitForKeyRelease()
     do
     {
         int9handler(1);
-        updateUserInput();
     }
-    while (gCurrentUserInput != UserInputNone
-           || gIsEnterPressed
-           || gIsEscapeKeyPressed
-           || getGameControllerConfirmButton()
-           || getGameControllerCancelButton());
+    while (isUpButtonPressed()
+           || isDownButtonPressed()
+           || isLeftButtonPressed()
+           || isRightButtonPressed()
+           || isMenuBackButtonPressed()
+           || isMenuConfirmButtonPressed()
+           || isMenuCancelButtonPressed()
+           || isPauseButtonPressed());
 }
 
 void runAdvancedOptionsMenu(AdvancedOptionsMenu *menu)
@@ -3648,19 +3568,13 @@ void runAdvancedOptionsRootMenu()
 
     setPalette(gGameDimmedPalette);
 
-    // We need to preserve these values:
-    // - gCurrentUserInput because otherwise we would override inputs in a demo
-    // - byte_5A33F no idea what it's for :rofl:
-    //
-    UserInput previousUserInput = gCurrentUserInput;
-    gCurrentUserInput = UserInputNone;
+    // TODO: We need to preserve this value but no idea what it's for :rofl:
     uint8_t previous_byte_5A33F = byte_5A33F;
     byte_5A33F = 0;
 
     runAdvancedOptionsMenu(&menu);
 
     byte_5A33F = previous_byte_5A33F;
-    gCurrentUserInput = previousUserInput;
 
     writeAdvancedConfig();
 
@@ -7768,28 +7682,28 @@ void drawFixedLevel() // sub_48F6D   proc near       ; CODE XREF: start+335p ru
 
 void updateUserInputInScrollMovementMode() // sub_4914A   proc near       ; CODE XREF: handleGameUserInput+7p
 {
-    if (gIsLeftKeyPressed != 0)
+    if (isLeftButtonPressed())
     {
         gAdditionalScrollOffsetX--;
         gAdditionalScrollOffsetX--;
     }
 
 //loc_49159:              ; CODE XREF: updateUserInputInScrollMovementMode+5j
-    if (gIsRightKeyPressed != 0)
+    if (isRightButtonPressed())
     {
         gAdditionalScrollOffsetX++;
         gAdditionalScrollOffsetX++;
     }
 
 //loc_49168:              ; CODE XREF: updateUserInputInScrollMovementMode+14j
-    if (gIsUpKeyPressed != 0)
+    if (isUpButtonPressed())
     {
         gAdditionalScrollOffsetY--;
         gAdditionalScrollOffsetY--;
     }
 
 //loc_49177:              ; CODE XREF: updateUserInputInScrollMovementMode+23j
-    if (gIsDownKeyPressed != 0)
+    if (isDownButtonPressed())
     {
         gAdditionalScrollOffsetY++;
         gAdditionalScrollOffsetY++;
@@ -8904,9 +8818,7 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
 
 //loc_49C96:              ; CODE XREF: handleGameUserInput+6EBj
 //                    ; handleGameUserInput+6F2j ...
-    if (gIsPKeyPressed != 0
-        || gIsEscapeKeyPressed
-        || getGameControllerButton(SDL_CONTROLLER_BUTTON_START))
+    if (isPauseButtonPressed())
     {
         // 01ED:303A
         gIsGameRunning = 0;
@@ -8973,7 +8885,7 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
     }
 
 //loc_49D15:              ; CODE XREF: handleGameUserInput+772j
-    if (getGameControllerButton(SDL_CONTROLLER_BUTTON_BACK) // Select/Back/- controller button -> exit game
+    if (isExitLevelButtonPressed() // Select/Back/- controller button -> exit game
         && gCurrentGameState.quitLevelCountdown <= 0)
     {
         // This is called when I press ESC to exit the game, but not when I die
@@ -9578,13 +9490,9 @@ void updateUserInput() // sub_4A1BF   proc near       ; CODE XREF: handleGameUse
     // 01ED:355C
     uint8_t directionKeyWasPressed = 0;
 
-    int8_t gameControllerX = getGameControllerX();
-    int8_t gameControllerY = getGameControllerY();
-
     gCurrentUserInput = UserInputNone;
 
-    if (gIsUpKeyPressed != 0
-        || gameControllerY < 0)
+    if (isUpButtonPressed())
     {
 //loc_4A1CF:              ; CODE XREF: updateUserInput+7j
         gCurrentUserInput = UserInputUp;
@@ -9592,8 +9500,7 @@ void updateUserInput() // sub_4A1BF   proc near       ; CODE XREF: handleGameUse
     }
 
 //loc_4A1D6:              ; CODE XREF: updateUserInput+Ej
-    if (gIsLeftKeyPressed != 0
-        || gameControllerX < 0)
+    if (isLeftButtonPressed())
     {
 //loc_4A1E4:              ; CODE XREF: updateUserInput+1Cj
         gCurrentUserInput = UserInputLeft;
@@ -9601,8 +9508,7 @@ void updateUserInput() // sub_4A1BF   proc near       ; CODE XREF: handleGameUse
     }
 
 //loc_4A1EB:              ; CODE XREF: updateUserInput+23j
-    if (gIsDownKeyPressed != 0
-        || gameControllerY > 0)
+    if (isDownButtonPressed())
     {
 //loc_4A1F9:              ; CODE XREF: updateUserInput+31j
         gCurrentUserInput = UserInputDown;
@@ -9610,8 +9516,7 @@ void updateUserInput() // sub_4A1BF   proc near       ; CODE XREF: handleGameUse
     }
 
 //loc_4A200:              ; CODE XREF: updateUserInput+38j
-    if (gIsRightKeyPressed != 0
-        || gameControllerX > 0)
+    if (isRightButtonPressed())
     {
 //loc_4A20E:              ; CODE XREF: updateUserInput+46j
         gCurrentUserInput = UserInputRight;
@@ -9619,8 +9524,7 @@ void updateUserInput() // sub_4A1BF   proc near       ; CODE XREF: handleGameUse
     }
 
 //loc_4A215:              ; CODE XREF: updateUserInput+4Dj
-    if (gIsSpaceKeyPressed != 0
-        || getGameControllerButton(SDL_CONTROLLER_BUTTON_X))
+    if (isActionButtonPressed())
     {
 //loc_4A22A:              ; CODE XREF: updateUserInput+5Bj
 //                ; updateUserInput+62j
@@ -13369,7 +13273,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
         gLevelListDownButtonPressed = 0;
         gLevelListUpButtonPressed = 0;
         if (gCurrentUserInput > kUserInputSpaceAndDirectionOffset
-            || getGameControllerButton(SDL_CONTROLLER_BUTTON_START))
+            || isStartButtonPressed())
         {
             handleOkButtonClick();
         }
@@ -13450,11 +13354,11 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
         }
 //loc_4C9B0:              // ; CODE XREF: runMainMenu+131j
                    // ; runMainMenu+141j ...
-        if (gMouseButtonStatus == MouseButtonRight) // Right button -> exit game
-        {
-            gShouldExitGame = 1;
-            break;
-        }
+        // if (gMouseButtonStatus == MouseButtonRight) // Right button -> exit game
+        // {
+        //     gShouldExitGame = 1;
+        //     break;
+        // }
         if (getGameControllerButton(SDL_CONTROLLER_BUTTON_BACK) // Select/Back/- controller button -> exit game
             || gIsEscapeKeyPressed == 1)
         {
@@ -13547,11 +13451,7 @@ void handleControlsOptionClick() //showControls:                              ; 
         {
             break;
         }
-        if (getGameControllerButton(SDL_CONTROLLER_BUTTON_BACK)) // Select/Back/- controller button -> go back
-        {
-            break;
-        }
-        if (gIsEscapeKeyPressed == 1)
+        if (isMenuBackButtonPressed()) // Select/Back/- controller button -> go back
         {
             break;
         }
