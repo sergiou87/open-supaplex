@@ -12,6 +12,7 @@
 		400145A4245FEDF200620211 /* nullVirtualKeyboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145A3245FEDF200620211 /* nullVirtualKeyboard.c */; };
 		400145A82461A59D00620211 /* video.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145A72461A59D00620211 /* video.c */; };
 		400145AC2462CE9F00620211 /* utils.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145AB2462CE9F00620211 /* utils.c */; };
+		404879C1246B51E600B776FA /* input.c in Sources */ = {isa = PBXBuildFile; fileRef = 404879C0246B51E600B776FA /* input.c */; };
 		4062C247244CE5D5007A07F5 /* controller.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C244244CE5D4007A07F5 /* controller.c */; };
 		4062C248244CE5D5007A07F5 /* supaplex.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C246244CE5D5007A07F5 /* supaplex.c */; };
 		4062C24C244F00CA007A07F5 /* file.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C24B244F00CA007A07F5 /* file.c */; };
@@ -44,6 +45,8 @@
 		400145A72461A59D00620211 /* video.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = video.c; path = ../../../src/video.c; sourceTree = "<group>"; };
 		400145AA2462CE9F00620211 /* utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = utils.h; path = ../../../src/utils.h; sourceTree = "<group>"; };
 		400145AB2462CE9F00620211 /* utils.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = utils.c; path = ../../../src/utils.c; sourceTree = "<group>"; };
+		404879BF246B51E600B776FA /* input.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = input.h; path = ../../../src/input.h; sourceTree = "<group>"; };
+		404879C0246B51E600B776FA /* input.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = input.c; path = ../../../src/input.c; sourceTree = "<group>"; };
 		4062C244244CE5D4007A07F5 /* controller.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = controller.c; path = ../../../src/controller.c; sourceTree = "<group>"; };
 		4062C245244CE5D5007A07F5 /* controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = controller.h; path = ../../../src/controller.h; sourceTree = "<group>"; };
 		4062C246244CE5D5007A07F5 /* supaplex.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = supaplex.c; path = ../../../src/supaplex.c; sourceTree = "<group>"; };
@@ -113,6 +116,8 @@
 				40DA3CF72468717400D4A308 /* menu.c */,
 				40DA3D012469C03000D4A308 /* config.h */,
 				40DA3D022469C03000D4A308 /* config.c */,
+				404879BF246B51E600B776FA /* input.h */,
+				404879C0246B51E600B776FA /* input.c */,
 			);
 			path = OpenSupaplex;
 			sourceTree = "<group>";
@@ -208,6 +213,7 @@
 				400145A82461A59D00620211 /* video.c in Sources */,
 				40DA3D032469C03000D4A308 /* config.c in Sources */,
 				400145A4245FEDF200620211 /* nullVirtualKeyboard.c in Sources */,
+				404879C1246B51E600B776FA /* input.c in Sources */,
 				4062C248244CE5D5007A07F5 /* supaplex.c in Sources */,
 				400145A1245F7EBF00620211 /* logging.c in Sources */,
 				4062C24C244F00CA007A07F5 /* file.c in Sources */,

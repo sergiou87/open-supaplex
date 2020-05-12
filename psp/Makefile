@@ -4,6 +4,7 @@ OBJS =  ../src/supaplex.o \
 		../src/config.o \
 		../src/controller.o \
 		../src/file.o \
+		../src/input.o \
 		../src/logging.o \
 		../src/menu.o \
 		../src/nullVirtualKeyboard.o \
@@ -16,8 +17,6 @@ INCDIR =
 CFLAGS = -D__PSP__ -O2 -G0 -Wall
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS = $(CFLAGS)
-
-#PSPPREFIX=$(shell psp-config --psp-prefix)
 
 LIBDIR = 
 LDFLAGS = 
