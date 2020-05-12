@@ -2954,6 +2954,12 @@ void readAdvancedConfig()
 {
     Config *config = initializeConfigForReading("ADVANCED.CFG");
 
+    if (config == NULL)
+    {
+        spLog("Couldn't read advanced config");
+        return;
+    }
+
     gGameSpeed = readConfigInt(config, kAdvancedConfigGeneralSection, kAdvancedConfigGameSpeedKey, kDefaultGameSpeed);
 
     int volume = readConfigInt(config, kAdvancedConfigGeneralSection, kAdvancedConfigMusicVolumeKey, getMusicVolume());
@@ -2979,7 +2985,7 @@ void writeAdvancedConfig()
 
     if (config == NULL)
     {
-        spLog("Couldn't open ADVANCED.CFG for writing");
+        spLog("Couldn't write advanced config");
         return;
     }
 
