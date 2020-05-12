@@ -17,7 +17,9 @@
 
 #include "video.h"
 
+#include <math.h>
 #include <SDL2/SDL.h>
+#include <stdlib.h>
 
 #include "logging.h"
 #include "utils.h"

@@ -16,8 +16,12 @@
  */
 
 #include <assert.h>
+#include <ctype.h>
 #include <errno.h>
+#include <math.h>
 #include <SDL2/SDL.h>
+#include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #include "audio.h"
@@ -30,6 +34,13 @@
 #include "utils.h"
 #include "video.h"
 #include "virtualKeyboard.h"
+
+#ifdef __PSP__
+#include <pspkernel.h>
+
+PSP_MODULE_INFO("OpenSupaplex", 0, 7, 1);
+PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER | THREAD_ATTR_VFPU);
+#endif
 
 // title1DataBuffer -> A000:4DAC - A000:CAAC
 // title2DataBuffer -> 0x4DD4 - 0xCAD4

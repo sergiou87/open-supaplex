@@ -18,7 +18,7 @@
 #ifndef video_h
 #define video_h
 
-#include <stdio.h>
+#include <stdint.h>
 
 #define kScreenWidth 320
 #define kScreenHeight 200
