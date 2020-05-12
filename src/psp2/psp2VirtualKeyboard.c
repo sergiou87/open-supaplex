@@ -86,16 +86,6 @@ static void utf8_to_utf16(const uint8_t *src, uint16_t *dst)
     *dst = '\0';
 }
 
-uint8_t isRealKeyboardSupported(void)
-{
-    return 0;
-}
-
-uint8_t isVirtualKeyboardSupported(void)
-{
-    return 1;
-}
-
 uint8_t inputVirtualKeyboardText(const char *title, uint16_t maxLength, char *outText)
 {
     static uint16_t ime_title_utf16[SCE_IME_DIALOG_MAX_TITLE_LENGTH];

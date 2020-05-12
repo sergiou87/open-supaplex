@@ -15,9 +15,19 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "virtualKeyboard.h"
+#ifndef conditionals_h
+#define conditionals_h
 
-uint8_t inputVirtualKeyboardText(const char *title, uint16_t maxLength, char *outText)
-{
-    return 0;
-}
+#include <stdint.h>
+
+uint8_t supportsRealKeyboard(void);
+uint8_t supportsVirtualKeyboard(void);
+
+// This is for platforms that allow in some way to select a 00S000$0.SP demo file for playback. For example, on
+// PC the user can use a command line option to play a specific demo. But right now not on consoles using the
+// advanced menu.
+// TODO: add some kind of demo file selector to advanced menu.
+//
+uint8_t supportsSPFileDemoPlayback(void);
+
+#endif /* conditionals_h */

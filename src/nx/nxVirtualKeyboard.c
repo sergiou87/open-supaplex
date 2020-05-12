@@ -24,16 +24,6 @@
 
 static uint16_t gCurrentKeyboardMaxLength = 0;
 
-uint8_t isRealKeyboardSupported(void)
-{
-    return 0;
-}
-
-uint8_t isVirtualKeyboardSupported(void)
-{
-    return 1;
-}
-
 static const char *kAllowedCharacters = "0123456789QWERTYUIOPASDFGHJKLZXCVBNM -";
 
 SwkbdTextCheckResult validateInputText(char *inputText, size_t errorTextMaxLength)

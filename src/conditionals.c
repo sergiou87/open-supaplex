@@ -15,9 +15,31 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "virtualKeyboard.h"
+#include "conditionals.h"
 
-uint8_t inputVirtualKeyboardText(const char *title, uint16_t maxLength, char *outText)
+uint8_t supportsRealKeyboard(void)
 {
+#if defined(__vita__) || defined(__SWITCH__) || defined(__PSP__)
     return 0;
+#else
+    return 1;
+#endif
+}
+
+uint8_t supportsVirtualKeyboard(void)
+{
+#if defined(__vita__) || defined(__SWITCH__) // TODO: implement virtual keyboard support for PSP || defined(__PSP__)
+    return 1;
+#else
+    return 0;
+#endif
+}
+
+uint8_t supportsSPFileDemoPlayback(void)
+{
+#if defined(__vita__) || defined(__SWITCH__) || defined(__PSP__)
+    return 0;
+#else
+    return 1;
+#endif
 }

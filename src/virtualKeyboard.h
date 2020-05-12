@@ -20,8 +20,6 @@
 
 #include <stdint.h>
 
-uint8_t isRealKeyboardSupported(void);
-uint8_t isVirtualKeyboardSupported(void);
 uint8_t inputVirtualKeyboardText(const char *title, uint16_t maxLength, char *outText);
 
 #endif /* virtualKeyboard_h */

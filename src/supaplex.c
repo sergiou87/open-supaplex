@@ -25,6 +25,7 @@
 #include <time.h>
 
 #include "audio.h"
+#include "conditionals.h"
 #include "config.h"
 #include "controller.h"
 #include "file.h"
@@ -8027,7 +8028,8 @@ void recordDemo(uint16_t demoIndex) // sub_4945D   proc near       ; CODE XREF: 
 
     char *filename = gDemo0BinFilename;
 
-    if ((word_59B6E & 0xFF) == 0) // cmp byte ptr word_59B6E, 0
+    if (supportsSPFileDemoPlayback()
+        && (word_59B6E & 0xFF) == 0) // cmp byte ptr word_59B6E, 0
     {
         a00s0010_sp[7] = demoIndexCharacter;
         filename = a00s0010_sp;
@@ -11066,7 +11068,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
 
     restoreLastMouseAreaBitmap();
 
-    if (isRealKeyboardSupported())
+    if (supportsRealKeyboard())
     {
         // mov di, 89F7h
         drawTextWithChars6FontWithOpaqueBackground(168, 127, 4, "YOUR NAME:             ");
@@ -11145,7 +11147,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
         }
         while (mouseButtonStatus != 0);
     }
-    else if (isVirtualKeyboardSupported())
+    else if (supportsVirtualKeyboard())
     {
         char inputBuffer[kPlayerNameLength + 1] = "";
         uint8_t result = inputVirtualKeyboardText("Enter your name", kPlayerNameLength, inputBuffer);
@@ -11652,7 +11654,7 @@ void playDemo(uint16_t demoIndex) // demoSomething  proc near       ; CODE XREF:
     uint8_t demoLevelNumber = gDemos.demoData[demoFirstIndex];
     uint8_t finalLevelNumber = demoIndex;
 
-    if (demoLevelNumber <= 0x6F // 111
+    if (demoLevelNumber <= kNumberOfLevels // 111
         && demoLevelNumber != 0)
     {
         // TODO: test demos from the original game and recheck anything involving word_599D8
