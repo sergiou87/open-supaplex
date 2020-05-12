@@ -2790,6 +2790,7 @@ uint8_t cf;
 uint8_t ah, al, bh, bl, ch, cl, dh, dl;
 uint16_t ax, bx, cx, dx, ds, cs, es, bp, sp, di, si;
 
+void stopDemoAndPlay(void);
 void startTrackingRenderDeltaTime(void);
 uint32_t updateRenderDeltaTime(void);
 void emulateClock(void);
@@ -3051,31 +3052,37 @@ uint8_t handleAdvancedOptionsMenuInput(AdvancedOptionsMenu *menu)
 {
     if (gCurrentUserInput == UserInputUp)
     {
+        playBaseSound();
         moveUpAdvancedOptionsSelectedEntry(menu);
     }
 
     if (gCurrentUserInput == UserInputDown)
     {
+        playBaseSound();
         moveDownAdvancedOptionsSelectedEntry(menu);
     }
 
     if (gCurrentUserInput == UserInputLeft)
     {
+        playBaseSound();
         decreaseAdvancedOptionsSelectedEntry(menu);
     }
 
     if (gCurrentUserInput == UserInputRight)
     {
+        playBaseSound();
         increaseAdvancedOptionsSelectedEntry(menu);
     }
 
     if (gIsEnterPressed || getGameControllerConfirmButton())
     {
+        playInfotronSound();
         selectAdvancedOptionsSelectedEntry(menu);
     }
 
     if (gIsEscapeKeyPressed || getGameControllerCancelButton())
     {
+        playPushSound();
         return 1;
     }
 
@@ -3117,6 +3124,8 @@ void advancedOptionsMenuWaitForKeyRelease()
 
 void runAdvancedOptionsMenu(AdvancedOptionsMenu *menu)
 {
+    playFallSound();
+
     advancedOptionsMenuWaitForKeyRelease();
 
     do
@@ -3388,6 +3397,12 @@ void handlePlayDemoOptionSelection()
     gShouldCloseAdvancedMenu = 1;
 }
 
+void handleStopDemoAndPlayOptionSelection()
+{
+    stopDemoAndPlay();
+    gShouldCloseAdvancedMenu = 1;
+}
+
 void handleExitLevelOptionSelection()
 {
     gCurrentGameState.shouldKillMurphy = 1;
@@ -3496,23 +3511,60 @@ void runAdvancedOptionsRootMenu()
 
     strncpy(menu.title, "OPENSUPAPLEX " VERSION_STRING, kMaxAdvancedOptionsMenuEntryTitleLength);
 
-    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-        "RESUME",
-        NULL,
-        handleResumeOptionSelection,
-        NULL,
-        NULL,
-    });
-
-    if (gIsInMainMenu == 0)
+    if (gIsPlayingDemo)
     {
         addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-            "RESTART LEVEL",
+            "RESUME DEMO",
             NULL,
-            handleRestartLevelOptionSelection,
+            handleResumeOptionSelection,
             NULL,
             NULL,
         });
+    }
+    else
+    {
+        addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+            "RESUME GAME",
+            NULL,
+            handleResumeOptionSelection,
+            NULL,
+            NULL,
+        });
+    }
+
+    if (gIsPlayingDemo && gIsInMainMenu == 0)
+    {
+        addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+            "STOP DEMO AND PLAY",
+            NULL,
+            handleStopDemoAndPlayOptionSelection,
+            NULL,
+            NULL,
+        });
+    }
+
+    if (gIsInMainMenu == 0)
+    {
+        if (gIsPlayingDemo)
+        {
+            addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+                "RESTART DEMO",
+                NULL,
+                handleRestartLevelOptionSelection,
+                NULL,
+                NULL,
+            });
+        }
+        else
+        {
+            addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+                "RESTART LEVEL",
+                NULL,
+                handleRestartLevelOptionSelection,
+                NULL,
+                NULL,
+            });
+        }
         addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
             "",
             buildGameSpeedOptionTitle,
@@ -3542,23 +3594,16 @@ void runAdvancedOptionsRootMenu()
         decreaseAdvancedMenuScalingMode,
         increaseAdvancedMenuScalingMode,
     });
-    if (gIsPlayingDemo && gIsInMainMenu == 0)
+    if (gIsInMainMenu)
     {
         addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-            "STOP DEMO AND PLAY",
-            NULL,
-            NULL,
-            NULL,
-            NULL,
+            "",
+            buildPlayDemoOptionTitle,
+            handlePlayDemoOptionSelection,
+            decreaseAdvancedMenuPlayDemoIndex,
+            increaseAdvancedMenuPlayDemoIndex,
         });
     }
-    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-        "",
-        buildPlayDemoOptionTitle,
-        handlePlayDemoOptionSelection,
-        decreaseAdvancedMenuPlayDemoIndex,
-        increaseAdvancedMenuPlayDemoIndex,
-    });
     if (gIsInMainMenu == 0)
     {
         addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
@@ -8588,6 +8633,14 @@ void loc_4988E() // :              ; CODE XREF: handleGameUserInput+1F9j
     loc_49949();
 }
 
+void stopDemoAndPlay()
+{
+    gIsPlayingDemo = 0;
+    gCurrentGameState.byte_510B3 = 0;
+    gHasUserCheated = 1;
+    gHasUserInterruptedDemo = 1;
+}
+
 void loc_49949() //:              ; CODE XREF: handleGameUserInput+E1j
 //                ; handleGameUserInput+33Aj ...
 {
@@ -8613,10 +8666,7 @@ void loc_49949() //:              ; CODE XREF: handleGameUserInput+E1j
     if (gIsF12KeyPressed == 1
         && gIsPlayingDemo != 0)
     {
-        gIsPlayingDemo = 0;
-        gCurrentGameState.byte_510B3 = 0;
-        gHasUserCheated = 1;
-        gHasUserInterruptedDemo = 1;
+        stopDemoAndPlay();
     }
 
 //loc_49984:              ; CODE XREF: handleGameUserInput+40Cj
