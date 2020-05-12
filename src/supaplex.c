@@ -3323,6 +3323,12 @@ void handleStopDemoAndPlayOptionSelection()
     gShouldCloseAdvancedMenu = 1;
 }
 
+void handleStopRecordingDemoOptionSelection()
+{
+    stopRecordingDemo();
+    gShouldCloseAdvancedMenu = 1;
+}
+
 void handleExitLevelOptionSelection()
 {
     gCurrentGameState.shouldKillMurphy = 1;
@@ -3524,15 +3530,28 @@ void runAdvancedOptionsRootMenu()
             increaseAdvancedMenuPlayDemoIndex,
         });
     }
-    if (gIsInMainMenu == 0)
+    if (gIsInMainMenu == 0 && gIsPlayingDemo == 0)
     {
-        addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-            "",
-            buildRecordDemoOptionTitle,
-            handleRecordDemoOptionSelection,
-            decreaseAdvancedMenuRecordDemoIndex,
-            increaseAdvancedMenuRecordDemoIndex,
-        });
+        if (gIsRecordingDemo)
+        {
+            addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+                "STOP RECORDING DEMO",
+                NULL,
+                handleStopRecordingDemoOptionSelection,
+                NULL,
+                NULL,
+            });
+        }
+        else
+        {
+            addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+                "",
+                buildRecordDemoOptionTitle,
+                handleRecordDemoOptionSelection,
+                decreaseAdvancedMenuRecordDemoIndex,
+                increaseAdvancedMenuRecordDemoIndex,
+            });
+        }
     }
     addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
         "DEBUG (DANGER)",
