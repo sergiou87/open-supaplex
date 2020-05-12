@@ -3586,22 +3586,36 @@ void runAdvancedOptionsRootMenu()
             NULL,
         });
     }
-    addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
-        "EXIT GAME",
-        NULL,
-        handleExitGameOptionSelection,
-        NULL,
-        NULL,
-    });
+    else
+    {
+        addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+            "EXIT GAME",
+            NULL,
+            handleExitGameOptionSelection,
+            NULL,
+            NULL,
+        });
+    }
 
     gShouldCloseAdvancedMenu = 0;
 
     memcpy(gAdvancedOptionsMenuBaseBitmap, gScreenPixels, sizeof(gAdvancedOptionsMenuBaseBitmap));
-    byte_5A33F = 0; // TODO: save previous value
 
     setPalette(gGameDimmedPalette);
 
+    // We need to preserve these values:
+    // - gCurrentUserInput because otherwise we would override inputs in a demo
+    // - byte_5A33F no idea what it's for :rofl:
+    //
+    UserInput previousUserInput = gCurrentUserInput;
+    gCurrentUserInput = UserInputNone;
+    uint8_t previous_byte_5A33F = byte_5A33F;
+    byte_5A33F = 0;
+
     runAdvancedOptionsMenu(&menu);
+
+    byte_5A33F = previous_byte_5A33F;
+    gCurrentUserInput = previousUserInput;
 
     writeAdvancedConfig();
 
@@ -8841,6 +8855,7 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
 //loc_49C96:              ; CODE XREF: handleGameUserInput+6EBj
 //                    ; handleGameUserInput+6F2j ...
     if (gIsPKeyPressed != 0
+        || gIsEscapeKeyPressed
         || getGameControllerButton(SDL_CONTROLLER_BUTTON_START))
     {
         // 01ED:303A
@@ -8908,8 +8923,7 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
     }
 
 //loc_49D15:              ; CODE XREF: handleGameUserInput+772j
-    if ((gIsEscapeKeyPressed != 0
-         || getGameControllerButton(SDL_CONTROLLER_BUTTON_BACK)) // Select/Back/- controller button -> exit game
+    if (getGameControllerButton(SDL_CONTROLLER_BUTTON_BACK) // Select/Back/- controller button -> exit game
         && gCurrentGameState.quitLevelCountdown <= 0)
     {
         // This is called when I press ESC to exit the game, but not when I die
