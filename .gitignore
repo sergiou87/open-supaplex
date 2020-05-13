@@ -3,6 +3,7 @@ tasm/
 *.id*
 *.nam
 *.til
+*.o
 /solve/
 TESTOUT.TXT
 /tc/

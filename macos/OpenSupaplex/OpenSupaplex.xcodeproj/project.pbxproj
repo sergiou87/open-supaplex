@@ -7,33 +7,51 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4001459E245F7B5A00620211 /* touchscreen.c in Sources */ = {isa = PBXBuildFile; fileRef = 4001459D245F7B5A00620211 /* touchscreen.c */; };
-		400145A1245F7EBF00620211 /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145A0245F7EBF00620211 /* logging.c */; };
-		400145A4245FEDF200620211 /* nullVirtualKeyboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145A3245FEDF200620211 /* nullVirtualKeyboard.c */; };
-		400145A82461A59D00620211 /* video.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145A72461A59D00620211 /* video.c */; };
-		400145AC2462CE9F00620211 /* utils.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145AB2462CE9F00620211 /* utils.c */; };
-		404879C1246B51E600B776FA /* input.c in Sources */ = {isa = PBXBuildFile; fileRef = 404879C0246B51E600B776FA /* input.c */; };
-		404879C4246B609900B776FA /* conditionals.c in Sources */ = {isa = PBXBuildFile; fileRef = 404879C3246B609900B776FA /* conditionals.c */; };
-		4062C247244CE5D5007A07F5 /* controller.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C244244CE5D4007A07F5 /* controller.c */; };
-		4062C248244CE5D5007A07F5 /* supaplex.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C246244CE5D5007A07F5 /* supaplex.c */; };
-		4062C24C244F00CA007A07F5 /* file.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C24B244F00CA007A07F5 /* file.c */; };
-		40C8290E24673197003A103E /* audio.c in Sources */ = {isa = PBXBuildFile; fileRef = 40C8290D24673197003A103E /* audio.c */; };
-		40DA3CF82468717400D4A308 /* menu.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3CF72468717400D4A308 /* menu.c */; };
-		40DA3CFF2468BEFA00D4A308 /* ini.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3CFB2468BEF900D4A308 /* ini.c */; };
-		40DA3D032469C03000D4A308 /* config.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3D022469C03000D4A308 /* config.c */; };
+		404879F0246C402B00B776FA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 404879EF246C402B00B776FA /* Assets.xcassets */; };
+		404879FB246C403A00B776FA /* ini.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3CFB2468BEF900D4A308 /* ini.c */; };
+		404879FC246C403A00B776FA /* controller.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C244244CE5D4007A07F5 /* controller.c */; };
+		404879FD246C403A00B776FA /* supaplex.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C246244CE5D5007A07F5 /* supaplex.c */; };
+		404879FF246C403A00B776FA /* touchscreen.c in Sources */ = {isa = PBXBuildFile; fileRef = 4001459D245F7B5A00620211 /* touchscreen.c */; };
+		40487A00246C403A00B776FA /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145A0245F7EBF00620211 /* logging.c */; };
+		40487A01246C403A00B776FA /* nullVirtualKeyboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145A3245FEDF200620211 /* nullVirtualKeyboard.c */; };
+		40487A02246C403A00B776FA /* video.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145A72461A59D00620211 /* video.c */; };
+		40487A03246C403A00B776FA /* utils.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145AB2462CE9F00620211 /* utils.c */; };
+		40487A04246C403A00B776FA /* audio.c in Sources */ = {isa = PBXBuildFile; fileRef = 40C8290D24673197003A103E /* audio.c */; };
+		40487A05246C403A00B776FA /* menu.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3CF72468717400D4A308 /* menu.c */; };
+		40487A06246C403A00B776FA /* config.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3D022469C03000D4A308 /* config.c */; };
+		40487A07246C403A00B776FA /* input.c in Sources */ = {isa = PBXBuildFile; fileRef = 404879C0246B51E600B776FA /* input.c */; };
+		40487A08246C403A00B776FA /* conditionals.c in Sources */ = {isa = PBXBuildFile; fileRef = 404879C3246B609900B776FA /* conditionals.c */; };
+		40487A83246CB32400B776FA /* file.m in Sources */ = {isa = PBXBuildFile; fileRef = 40487A82246CB32400B776FA /* file.m */; };
+		40487A85246CB5D200B776FA /* audio in Resources */ = {isa = PBXBuildFile; fileRef = 40487A84246CB5D200B776FA /* audio */; };
+		40487AA2246CB5F700B776FA /* GFX.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A86246CB5F500B776FA /* GFX.DAT */; };
+		40487AA3246CB5F700B776FA /* TITLE.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A87246CB5F500B776FA /* TITLE.DAT */; };
+		40487AA4246CB5F700B776FA /* CONTROLS.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A88246CB5F500B776FA /* CONTROLS.DAT */; };
+		40487AA5246CB5F700B776FA /* BACK.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A89246CB5F500B776FA /* BACK.DAT */; };
+		40487AA6246CB5F700B776FA /* DEMO1.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A8A246CB5F500B776FA /* DEMO1.BIN */; };
+		40487AA7246CB5F700B776FA /* PALETTES.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A8B246CB5F500B776FA /* PALETTES.DAT */; };
+		40487AA8246CB5F700B776FA /* DEMO5.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A8C246CB5F500B776FA /* DEMO5.BIN */; };
+		40487AA9246CB5F700B776FA /* PANEL.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A8D246CB5F500B776FA /* PANEL.DAT */; };
+		40487AAA246CB5F700B776FA /* CHARS6.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A8E246CB5F500B776FA /* CHARS6.DAT */; };
+		40487AAB246CB5F700B776FA /* DEMO0.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A8F246CB5F500B776FA /* DEMO0.BIN */; };
+		40487AAC246CB5F700B776FA /* README.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A90246CB5F500B776FA /* README.TXT */; };
+		40487AAD246CB5F700B776FA /* DEMO7.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A91246CB5F600B776FA /* DEMO7.BIN */; };
+		40487AAE246CB5F700B776FA /* SPFIX63.DOC in Resources */ = {isa = PBXBuildFile; fileRef = 40487A92246CB5F600B776FA /* SPFIX63.DOC */; };
+		40487AAF246CB5F700B776FA /* MENU.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A93246CB5F600B776FA /* MENU.DAT */; };
+		40487AB0246CB5F700B776FA /* CHARS8.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A94246CB5F600B776FA /* CHARS8.DAT */; };
+		40487AB1246CB5F700B776FA /* DEMO2.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A95246CB5F600B776FA /* DEMO2.BIN */; };
+		40487AB2246CB5F700B776FA /* DEMO3.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A96246CB5F600B776FA /* DEMO3.BIN */; };
+		40487AB3246CB5F700B776FA /* DEMO6.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A97246CB5F600B776FA /* DEMO6.BIN */; };
+		40487AB4246CB5F700B776FA /* DEMO8.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A98246CB5F600B776FA /* DEMO8.BIN */; };
+		40487AB5246CB5F700B776FA /* MOVING.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A99246CB5F600B776FA /* MOVING.DAT */; };
+		40487AB6246CB5F700B776FA /* DEMO4.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A9A246CB5F600B776FA /* DEMO4.BIN */; };
+		40487AB7246CB5F700B776FA /* TITLE1.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A9B246CB5F600B776FA /* TITLE1.DAT */; };
+		40487AB8246CB5F700B776FA /* LEVEL.LST in Resources */ = {isa = PBXBuildFile; fileRef = 40487A9C246CB5F600B776FA /* LEVEL.LST */; };
+		40487AB9246CB5F700B776FA /* TITLE2.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A9D246CB5F600B776FA /* TITLE2.DAT */; };
+		40487ABA246CB5F700B776FA /* myspsig.txt in Resources */ = {isa = PBXBuildFile; fileRef = 40487A9E246CB5F600B776FA /* myspsig.txt */; };
+		40487ABB246CB5F700B776FA /* FIXED.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A9F246CB5F600B776FA /* FIXED.DAT */; };
+		40487ABC246CB5F700B776FA /* DEMO9.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487AA0246CB5F700B776FA /* DEMO9.BIN */; };
+		40487ABD246CB5F700B776FA /* LEVELS.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487AA1246CB5F700B776FA /* LEVELS.DAT */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		40C0D72A24196126004742A9 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 12;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		4001459C245F7B5A00620211 /* touchscreen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = touchscreen.h; path = ../../../src/touchscreen.h; sourceTree = "<group>"; };
@@ -50,12 +68,45 @@
 		404879C0246B51E600B776FA /* input.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = input.c; path = ../../../src/input.c; sourceTree = "<group>"; };
 		404879C2246B5FF500B776FA /* conditionals.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = conditionals.h; path = ../../../src/conditionals.h; sourceTree = "<group>"; };
 		404879C3246B609900B776FA /* conditionals.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = conditionals.c; path = ../../../src/conditionals.c; sourceTree = "<group>"; };
+		404879E5246C3FDC00B776FA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		404879EA246C402900B776FA /* OpenSupaplex.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OpenSupaplex.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		404879EF246C402B00B776FA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		404879F4246C402B00B776FA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = "OpenSupaplex-macOS/Info.plist"; sourceTree = "<group>"; };
+		40487A82246CB32400B776FA /* file.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = file.m; path = ../../../src/apple/file.m; sourceTree = "<group>"; };
+		40487A84246CB5D200B776FA /* audio */ = {isa = PBXFileReference; lastKnownFileType = folder; name = audio; path = ../../resources/audio; sourceTree = "<group>"; };
+		40487A86246CB5F500B776FA /* GFX.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = GFX.DAT; path = ../../resources/GFX.DAT; sourceTree = "<group>"; };
+		40487A87246CB5F500B776FA /* TITLE.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = TITLE.DAT; path = ../../resources/TITLE.DAT; sourceTree = "<group>"; };
+		40487A88246CB5F500B776FA /* CONTROLS.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = CONTROLS.DAT; path = ../../resources/CONTROLS.DAT; sourceTree = "<group>"; };
+		40487A89246CB5F500B776FA /* BACK.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = BACK.DAT; path = ../../resources/BACK.DAT; sourceTree = "<group>"; };
+		40487A8A246CB5F500B776FA /* DEMO1.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO1.BIN; path = ../../resources/DEMO1.BIN; sourceTree = "<group>"; };
+		40487A8B246CB5F500B776FA /* PALETTES.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = PALETTES.DAT; path = ../../resources/PALETTES.DAT; sourceTree = "<group>"; };
+		40487A8C246CB5F500B776FA /* DEMO5.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO5.BIN; path = ../../resources/DEMO5.BIN; sourceTree = "<group>"; };
+		40487A8D246CB5F500B776FA /* PANEL.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = PANEL.DAT; path = ../../resources/PANEL.DAT; sourceTree = "<group>"; };
+		40487A8E246CB5F500B776FA /* CHARS6.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = CHARS6.DAT; path = ../../resources/CHARS6.DAT; sourceTree = "<group>"; };
+		40487A8F246CB5F500B776FA /* DEMO0.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO0.BIN; path = ../../resources/DEMO0.BIN; sourceTree = "<group>"; };
+		40487A90246CB5F500B776FA /* README.TXT */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = README.TXT; path = ../../resources/README.TXT; sourceTree = "<group>"; };
+		40487A91246CB5F600B776FA /* DEMO7.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO7.BIN; path = ../../resources/DEMO7.BIN; sourceTree = "<group>"; };
+		40487A92246CB5F600B776FA /* SPFIX63.DOC */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SPFIX63.DOC; path = ../../resources/SPFIX63.DOC; sourceTree = "<group>"; };
+		40487A93246CB5F600B776FA /* MENU.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = MENU.DAT; path = ../../resources/MENU.DAT; sourceTree = "<group>"; };
+		40487A94246CB5F600B776FA /* CHARS8.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = CHARS8.DAT; path = ../../resources/CHARS8.DAT; sourceTree = "<group>"; };
+		40487A95246CB5F600B776FA /* DEMO2.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO2.BIN; path = ../../resources/DEMO2.BIN; sourceTree = "<group>"; };
+		40487A96246CB5F600B776FA /* DEMO3.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO3.BIN; path = ../../resources/DEMO3.BIN; sourceTree = "<group>"; };
+		40487A97246CB5F600B776FA /* DEMO6.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO6.BIN; path = ../../resources/DEMO6.BIN; sourceTree = "<group>"; };
+		40487A98246CB5F600B776FA /* DEMO8.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO8.BIN; path = ../../resources/DEMO8.BIN; sourceTree = "<group>"; };
+		40487A99246CB5F600B776FA /* MOVING.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = MOVING.DAT; path = ../../resources/MOVING.DAT; sourceTree = "<group>"; };
+		40487A9A246CB5F600B776FA /* DEMO4.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO4.BIN; path = ../../resources/DEMO4.BIN; sourceTree = "<group>"; };
+		40487A9B246CB5F600B776FA /* TITLE1.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = TITLE1.DAT; path = ../../resources/TITLE1.DAT; sourceTree = "<group>"; };
+		40487A9C246CB5F600B776FA /* LEVEL.LST */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LEVEL.LST; path = ../../resources/LEVEL.LST; sourceTree = "<group>"; };
+		40487A9D246CB5F600B776FA /* TITLE2.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = TITLE2.DAT; path = ../../resources/TITLE2.DAT; sourceTree = "<group>"; };
+		40487A9E246CB5F600B776FA /* myspsig.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = myspsig.txt; path = ../../resources/myspsig.txt; sourceTree = "<group>"; };
+		40487A9F246CB5F600B776FA /* FIXED.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = FIXED.DAT; path = ../../resources/FIXED.DAT; sourceTree = "<group>"; };
+		40487AA0246CB5F700B776FA /* DEMO9.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO9.BIN; path = ../../resources/DEMO9.BIN; sourceTree = "<group>"; };
+		40487AA1246CB5F700B776FA /* LEVELS.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.DAT; path = ../../resources/LEVELS.DAT; sourceTree = "<group>"; };
+		40487ABE246CB6DC00B776FA /* OpenSupaplex.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = OpenSupaplex.entitlements; path = "OpenSupaplex-macOS/OpenSupaplex.entitlements"; sourceTree = "<group>"; };
 		4062C244244CE5D4007A07F5 /* controller.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = controller.c; path = ../../../src/controller.c; sourceTree = "<group>"; };
 		4062C245244CE5D5007A07F5 /* controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = controller.h; path = ../../../src/controller.h; sourceTree = "<group>"; };
 		4062C246244CE5D5007A07F5 /* supaplex.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = supaplex.c; path = ../../../src/supaplex.c; sourceTree = "<group>"; };
 		4062C24A244F00CA007A07F5 /* file.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = file.h; path = ../../../src/file.h; sourceTree = "<group>"; };
-		4062C24B244F00CA007A07F5 /* file.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = file.c; path = ../../../src/file.c; sourceTree = "<group>"; };
-		40C0D72C24196126004742A9 /* OpenSupaplex */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OpenSupaplex; sourceTree = BUILT_PRODUCTS_DIR; };
 		40C8290C24673197003A103E /* audio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = audio.h; path = ../../../src/audio.h; sourceTree = "<group>"; };
 		40C8290D24673197003A103E /* audio.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = audio.c; path = ../../../src/audio.c; sourceTree = "<group>"; };
 		40DA3CF62468717400D4A308 /* menu.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = menu.h; path = ../../../src/menu.h; sourceTree = "<group>"; };
@@ -67,7 +118,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		40C0D72924196126004742A9 /* Frameworks */ = {
+		404879E7246C402900B776FA /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -77,9 +128,49 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		40487A0A246C432E00B776FA /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				404879EF246C402B00B776FA /* Assets.xcassets */,
+				404879F4246C402B00B776FA /* Info.plist */,
+				40487ABE246CB6DC00B776FA /* OpenSupaplex.entitlements */,
+				40487A84246CB5D200B776FA /* audio */,
+				40487A89246CB5F500B776FA /* BACK.DAT */,
+				40487A8E246CB5F500B776FA /* CHARS6.DAT */,
+				40487A94246CB5F600B776FA /* CHARS8.DAT */,
+				40487A88246CB5F500B776FA /* CONTROLS.DAT */,
+				40487A8F246CB5F500B776FA /* DEMO0.BIN */,
+				40487A8A246CB5F500B776FA /* DEMO1.BIN */,
+				40487A95246CB5F600B776FA /* DEMO2.BIN */,
+				40487A96246CB5F600B776FA /* DEMO3.BIN */,
+				40487A9A246CB5F600B776FA /* DEMO4.BIN */,
+				40487A8C246CB5F500B776FA /* DEMO5.BIN */,
+				40487A97246CB5F600B776FA /* DEMO6.BIN */,
+				40487A91246CB5F600B776FA /* DEMO7.BIN */,
+				40487A98246CB5F600B776FA /* DEMO8.BIN */,
+				40487AA0246CB5F700B776FA /* DEMO9.BIN */,
+				40487A9F246CB5F600B776FA /* FIXED.DAT */,
+				40487A86246CB5F500B776FA /* GFX.DAT */,
+				40487A9C246CB5F600B776FA /* LEVEL.LST */,
+				40487AA1246CB5F700B776FA /* LEVELS.DAT */,
+				40487A93246CB5F600B776FA /* MENU.DAT */,
+				40487A99246CB5F600B776FA /* MOVING.DAT */,
+				40487A9E246CB5F600B776FA /* myspsig.txt */,
+				40487A8B246CB5F500B776FA /* PALETTES.DAT */,
+				40487A8D246CB5F500B776FA /* PANEL.DAT */,
+				40487A90246CB5F500B776FA /* README.TXT */,
+				40487A92246CB5F600B776FA /* SPFIX63.DOC */,
+				40487A87246CB5F500B776FA /* TITLE.DAT */,
+				40487A9B246CB5F600B776FA /* TITLE1.DAT */,
+				40487A9D246CB5F600B776FA /* TITLE2.DAT */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
 		40C0D72324196126004742A9 = {
 			isa = PBXGroup;
 			children = (
+				40487A0A246C432E00B776FA /* Resources */,
 				40C0D72E24196126004742A9 /* OpenSupaplex */,
 				40C0D72D24196126004742A9 /* Products */,
 				40C0D73824196423004742A9 /* Frameworks */,
@@ -89,7 +180,7 @@
 		40C0D72D24196126004742A9 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				40C0D72C24196126004742A9 /* OpenSupaplex */,
+				404879EA246C402900B776FA /* OpenSupaplex.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -102,7 +193,7 @@
 				4062C245244CE5D5007A07F5 /* controller.h */,
 				4062C246244CE5D5007A07F5 /* supaplex.c */,
 				4062C24A244F00CA007A07F5 /* file.h */,
-				4062C24B244F00CA007A07F5 /* file.c */,
+				40487A82246CB32400B776FA /* file.m */,
 				4001459C245F7B5A00620211 /* touchscreen.h */,
 				4001459D245F7B5A00620211 /* touchscreen.c */,
 				4001459F245F7EBF00620211 /* logging.h */,
@@ -123,6 +214,7 @@
 				404879C0246B51E600B776FA /* input.c */,
 				404879C2246B5FF500B776FA /* conditionals.h */,
 				404879C3246B609900B776FA /* conditionals.c */,
+				404879E5246C3FDC00B776FA /* Info.plist */,
 			);
 			path = OpenSupaplex;
 			sourceTree = "<group>";
@@ -155,22 +247,22 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		40C0D72B24196126004742A9 /* OpenSupaplex */ = {
+		404879E9246C402900B776FA /* OpenSupaplex */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 40C0D73324196126004742A9 /* Build configuration list for PBXNativeTarget "OpenSupaplex" */;
+			buildConfigurationList = 404879F8246C402B00B776FA /* Build configuration list for PBXNativeTarget "OpenSupaplex" */;
 			buildPhases = (
-				40C0D72824196126004742A9 /* Sources */,
-				40C0D72924196126004742A9 /* Frameworks */,
-				40C0D72A24196126004742A9 /* CopyFiles */,
+				404879E6246C402900B776FA /* Sources */,
+				404879E7246C402900B776FA /* Frameworks */,
+				404879E8246C402900B776FA /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = OpenSupaplex;
-			productName = OpenSupaplex;
-			productReference = 40C0D72C24196126004742A9 /* OpenSupaplex */;
-			productType = "com.apple.product-type.tool";
+			productName = "OpenSupaplex-macOS";
+			productReference = 404879EA246C402900B776FA /* OpenSupaplex.app */;
+			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
@@ -181,8 +273,8 @@
 				LastUpgradeCheck = 1130;
 				ORGANIZATIONNAME = Sergio;
 				TargetAttributes = {
-					40C0D72B24196126004742A9 = {
-						CreatedOnToolsVersion = 11.3.1;
+					404879E9246C402900B776FA = {
+						CreatedOnToolsVersion = 11.4.1;
 					};
 				};
 			};
@@ -199,36 +291,134 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				40C0D72B24196126004742A9 /* OpenSupaplex */,
+				404879E9246C402900B776FA /* OpenSupaplex */,
 			);
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		404879E8246C402900B776FA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				40487AA8246CB5F700B776FA /* DEMO5.BIN in Resources */,
+				40487AA9246CB5F700B776FA /* PANEL.DAT in Resources */,
+				40487AAE246CB5F700B776FA /* SPFIX63.DOC in Resources */,
+				40487AA7246CB5F700B776FA /* PALETTES.DAT in Resources */,
+				40487AB2246CB5F700B776FA /* DEMO3.BIN in Resources */,
+				40487ABA246CB5F700B776FA /* myspsig.txt in Resources */,
+				40487AB9246CB5F700B776FA /* TITLE2.DAT in Resources */,
+				40487A85246CB5D200B776FA /* audio in Resources */,
+				40487AAC246CB5F700B776FA /* README.TXT in Resources */,
+				40487AB7246CB5F700B776FA /* TITLE1.DAT in Resources */,
+				40487AA3246CB5F700B776FA /* TITLE.DAT in Resources */,
+				40487AAD246CB5F700B776FA /* DEMO7.BIN in Resources */,
+				40487ABC246CB5F700B776FA /* DEMO9.BIN in Resources */,
+				40487AB6246CB5F700B776FA /* DEMO4.BIN in Resources */,
+				40487AA5246CB5F700B776FA /* BACK.DAT in Resources */,
+				40487AAB246CB5F700B776FA /* DEMO0.BIN in Resources */,
+				40487AAF246CB5F700B776FA /* MENU.DAT in Resources */,
+				40487AB3246CB5F700B776FA /* DEMO6.BIN in Resources */,
+				404879F0246C402B00B776FA /* Assets.xcassets in Resources */,
+				40487AB0246CB5F700B776FA /* CHARS8.DAT in Resources */,
+				40487AB4246CB5F700B776FA /* DEMO8.BIN in Resources */,
+				40487AB5246CB5F700B776FA /* MOVING.DAT in Resources */,
+				40487AB1246CB5F700B776FA /* DEMO2.BIN in Resources */,
+				40487ABB246CB5F700B776FA /* FIXED.DAT in Resources */,
+				40487AA4246CB5F700B776FA /* CONTROLS.DAT in Resources */,
+				40487ABD246CB5F700B776FA /* LEVELS.DAT in Resources */,
+				40487AAA246CB5F700B776FA /* CHARS6.DAT in Resources */,
+				40487AA6246CB5F700B776FA /* DEMO1.BIN in Resources */,
+				40487AB8246CB5F700B776FA /* LEVEL.LST in Resources */,
+				40487AA2246CB5F700B776FA /* GFX.DAT in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
-		40C0D72824196126004742A9 /* Sources */ = {
+		404879E6246C402900B776FA /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				40DA3CFF2468BEFA00D4A308 /* ini.c in Sources */,
-				40DA3CF82468717400D4A308 /* menu.c in Sources */,
-				4062C247244CE5D5007A07F5 /* controller.c in Sources */,
-				400145AC2462CE9F00620211 /* utils.c in Sources */,
-				4001459E245F7B5A00620211 /* touchscreen.c in Sources */,
-				40C8290E24673197003A103E /* audio.c in Sources */,
-				400145A82461A59D00620211 /* video.c in Sources */,
-				40DA3D032469C03000D4A308 /* config.c in Sources */,
-				400145A4245FEDF200620211 /* nullVirtualKeyboard.c in Sources */,
-				404879C1246B51E600B776FA /* input.c in Sources */,
-				404879C4246B609900B776FA /* conditionals.c in Sources */,
-				4062C248244CE5D5007A07F5 /* supaplex.c in Sources */,
-				400145A1245F7EBF00620211 /* logging.c in Sources */,
-				4062C24C244F00CA007A07F5 /* file.c in Sources */,
+				40487A05246C403A00B776FA /* menu.c in Sources */,
+				404879FB246C403A00B776FA /* ini.c in Sources */,
+				40487A00246C403A00B776FA /* logging.c in Sources */,
+				404879FC246C403A00B776FA /* controller.c in Sources */,
+				404879FD246C403A00B776FA /* supaplex.c in Sources */,
+				40487A08246C403A00B776FA /* conditionals.c in Sources */,
+				40487A02246C403A00B776FA /* video.c in Sources */,
+				40487A04246C403A00B776FA /* audio.c in Sources */,
+				404879FF246C403A00B776FA /* touchscreen.c in Sources */,
+				40487A06246C403A00B776FA /* config.c in Sources */,
+				40487A83246CB32400B776FA /* file.m in Sources */,
+				40487A01246C403A00B776FA /* nullVirtualKeyboard.c in Sources */,
+				40487A07246C403A00B776FA /* input.c in Sources */,
+				40487A03246C403A00B776FA /* utils.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		404879F9246C402B00B776FA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = OpenSupaplex/OpenSupaplex.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = OpenSupaplex/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				OTHER_CFLAGS = (
+					"-I/usr/local/include",
+					"-D_THREAD_SAFE",
+				);
+				OTHER_LDFLAGS = (
+					"-L/usr/local/lib",
+					"-lSDL2_mixer",
+					"-lSDL2",
+					"-lvorbisfile",
+					"-lvorbis",
+					"-logg",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.OpenSupaplex;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		404879FA246C402B00B776FA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = OpenSupaplex/OpenSupaplex.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = OpenSupaplex/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				OTHER_CFLAGS = (
+					"-I/usr/local/include",
+					"-D_THREAD_SAFE",
+				);
+				OTHER_LDFLAGS = (
+					"-L/usr/local/lib",
+					"-lSDL2_mixer",
+					"-lSDL2",
+					"-lvorbisfile",
+					"-lvorbis",
+					"-logg",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.OpenSupaplex;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		40C0D73124196126004742A9 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -338,79 +528,23 @@
 			};
 			name = Release;
 		};
-		40C0D73424196126004742A9 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_IDENTITY = "";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
-				ENABLE_HARDENED_RUNTIME = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)",
-				);
-				OTHER_CFLAGS = (
-					"-I/usr/local/include",
-					"-D_THREAD_SAFE",
-				);
-				OTHER_LDFLAGS = (
-					"-L/usr/local/lib",
-					"-lSDL2_mixer",
-					"-lSDL2",
-					"-lvorbisfile",
-					"-lvorbis",
-					"-logg",
-				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-			};
-			name = Debug;
-		};
-		40C0D73524196126004742A9 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_IDENTITY = "";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
-				ENABLE_HARDENED_RUNTIME = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)",
-				);
-				OTHER_CFLAGS = (
-					"-I/usr/local/include",
-					"-D_THREAD_SAFE",
-				);
-				OTHER_LDFLAGS = (
-					"-L/usr/local/lib",
-					"-lSDL2_mixer",
-					"-lSDL2",
-					"-lvorbisfile",
-					"-lvorbis",
-					"-logg",
-				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		404879F8246C402B00B776FA /* Build configuration list for PBXNativeTarget "OpenSupaplex" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				404879F9246C402B00B776FA /* Debug */,
+				404879FA246C402B00B776FA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		40C0D72724196126004742A9 /* Build configuration list for PBXProject "OpenSupaplex" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				40C0D73124196126004742A9 /* Debug */,
 				40C0D73224196126004742A9 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		40C0D73324196126004742A9 /* Build configuration list for PBXNativeTarget "OpenSupaplex" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				40C0D73424196126004742A9 /* Debug */,
-				40C0D73524196126004742A9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
