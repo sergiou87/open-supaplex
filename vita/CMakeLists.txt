@@ -30,12 +30,17 @@ add_executable(${SHORT_NAME}
   ../src/supaplex.c
   ../src/audio.c
   ../src/controller.c
+  ../src/conditionals.c
+  ../src/config.c
   ../src/file.c
   ../src/touchscreen.c
   ../src/input.c
   ../src/logging.c
+  ../src/menu.c
+  ../src/utils.c
   ../src/video.c
   ../src/psp2/psp2VirtualKeyboard.c
+  ../src/lib/ini/ini.c
 )
 
 target_compile_definitions(${SHORT_NAME}
@@ -65,12 +70,12 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
 endif (CMAKE_BUILD_TYPE MATCHES Debug)
 
 target_link_libraries(${PROJECT_NAME}
-  SDL2_Mixer
+  SDL2_mixer
   mpg123
   vorbisfile
   vorbis
   ogg
-  flac
+  FLAC
   mikmod
   SDL2
   vita2d
