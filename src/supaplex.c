@@ -98,20 +98,20 @@ uint8_t gDemoRecordingRandomGeneratorSeedLow = 0; // byte_59B5F
 uint8_t byte_59B62 = 0;
 // uint8_t byte_59B64 = 0;
 uint16_t word_59B65 = 0;
-uint8_t byte_59B6B = 0;
+uint8_t gShouldStartFromSavedSnapshot = 0; // byte_59B6B
 uint8_t byte_59B6D = 0;
 uint16_t gShouldRecordWithOriginalDemoFilenames = 0; // word_59B6E -> 0x985E -> from command line
 uint8_t byte_59B71 = 0;
 uint8_t byte_59B72 = 0;
 uint8_t byte_59B7A = 0;
 uint8_t byte_59B7B = 1;
-uint8_t byte_59B7C = 0;
-uint8_t byte_59B7D = 0;
-uint8_t byte_59B7E = 0;
-uint8_t byte_59B7F = 0;
-uint8_t byte_59B80 = 0;
-uint8_t byte_59B81 = 0;
-uint8_t byte_59B82 = 0;
+uint8_t gToggleGravityAutorepeatFlag = 0; // byte_59B7C
+uint8_t gToggleZonksFrozenAutorepeatFlag = 0; // byte_59B7D
+uint8_t gToggleEnemiesFrozenAutorepeatFlag = 0; // byte_59B7E
+uint8_t gDebugSkipPreviousLevelAutorepeatFlag_1 = 0; // byte_59B7F
+uint8_t gDebugSkipPreviousLevelAutorepeatFlag_2 = 0; // byte_59B80
+uint8_t gDebugSkipNextLevelAutorepeatFlag_1 = 0; // byte_59B81
+uint8_t gDebugSkipNextLevelAutorepeatFlag_2 = 0; // byte_59B82
 uint8_t byte_59B83 = 0;
 uint8_t byte_59B84 = 0;
 uint8_t byte_59B85 = 0;
@@ -2783,7 +2783,7 @@ void highlightOptionsButtonText(size_t startX, size_t startY, size_t width, size
 void drawAudioOptionsSelection(uint8_t *destBuffer);
 void drawInputOptionsSelection(uint8_t *destBuffer);
 void updateOptionsMenuState(uint8_t *destBuffer);
-void sub_4BF4A(uint8_t number);
+void convertLevelNumberTo3DigitStringWithPadding0(uint8_t number);
 void readLevels(void);
 void initializeGameInfo(void);
 void drawFixedLevel(void);
@@ -2806,7 +2806,7 @@ void loc_49C2C(char text[3]);
 void showSavegameOperationError(void);
 void saveGameSnapshot(void);
 void loadGameSnapshot(void);
-void loc_49949(void);
+void checkDebugKeys(void);
 void loc_4988E(void);
 void levelScanThing(void);
 void updateMovingObjects(void);
@@ -2825,9 +2825,10 @@ void simulateDemoInput(void);
 void fetchAndInitializeLevel(void);
 void removeTiles(LevelTileType tileType);
 void restartLevel(void);
+void restartLevelWithoutAddingCurrentGameTimeToPlayer(void);
 void recordDemo(uint16_t demoIndex);
 void stopRecordingDemo(void);
-void sub_4A3D2(void);
+void debugSkipLevel(void);
 void sub_49D53(void);
 void drawNumberOfRemainingRedDisks(void);
 void clearNumberOfRemainingRedDisks(void);
@@ -4159,7 +4160,7 @@ loc_46E75:              //; CODE XREF: start+251j
 //isFastMode:              //; CODE XREF: start+2ADj
     loadMurphySprites(); // 01ED:029D
     // Conditions to whether show
-    al = byte_59B6B;
+    al = gShouldStartFromSavedSnapshot;
     al |= byte_59B84;
     al |= gIsSPDemoAvailableToRun;
     al |= fastMode;
@@ -4309,7 +4310,7 @@ loc_46E75:              //; CODE XREF: start+251j
                 {
 //                  ah = 0;
 //                  push(ax);
-                    sub_4BF4A(al);
+                    convertLevelNumberTo3DigitStringWithPadding0(al);
                 }
                 else
                 {
@@ -4342,7 +4343,7 @@ loc_46E75:              //; CODE XREF: start+251j
 
 //loc_4704B:              //; CODE XREF: start+3EEj start+3F2j
         ax = 1;
-        if (byte_59B6B != 0)
+        if (gShouldStartFromSavedSnapshot != 0)
         {
 //            goto loc_4701A;
         }
@@ -8102,7 +8103,7 @@ void handleGameUserInput() // sub_4955B   proc near       ; CODE XREF: runLevel:
 //                ; handleGameUserInput+55j ...
     if (gIsDebugModeEnabled != 1)
     {
-        loc_49949();
+        checkDebugKeys();
         return;
     }
 
@@ -8312,46 +8313,46 @@ void handleGameUserInput() // sub_4955B   proc near       ; CODE XREF: runLevel:
 //loc_49761:              ; CODE XREF: handleGameUserInput+201j
             if (gIsF1KeyPressed == 0)
             {
-                byte_59B7C = 0;
+                gToggleGravityAutorepeatFlag = 0;
             }
 //loc_4976F:              ; CODE XREF: handleGameUserInput+20Bj
-            else if (byte_59B7C == 0)
+            else if (gToggleGravityAutorepeatFlag == 0)
             {
-                byte_59B7C--;
+                gToggleGravityAutorepeatFlag--;
                 gCurrentGameState.isGravityEnabled &= 1;
                 gCurrentGameState.isGravityEnabled = gCurrentGameState.isGravityEnabled ^ 1;
             }
 
             if (gIsF1KeyPressed == 0
-                || byte_59B7C != 0)
+                || gToggleGravityAutorepeatFlag != 0)
             {
 //loc_49786:              ; CODE XREF: handleGameUserInput+212j
 //                ; handleGameUserInput+219j
                 if (gIsF2KeyPressed == 0)
                 {
-                    byte_59B7D = 0;
+                    gToggleZonksFrozenAutorepeatFlag = 0;
                 }
 //loc_49794:              ; CODE XREF: handleGameUserInput+230j
-                else if (byte_59B7D == 0)
+                else if (gToggleZonksFrozenAutorepeatFlag == 0)
                 {
-                    byte_59B7D--;
+                    gToggleZonksFrozenAutorepeatFlag--;
                     gCurrentGameState.areZonksFrozen &= 2;
                     gCurrentGameState.areZonksFrozen = gCurrentGameState.areZonksFrozen ^ 2;
                 }
 
                 if (gIsF2KeyPressed == 0
-                    || byte_59B7D != 0)
+                    || gToggleZonksFrozenAutorepeatFlag != 0)
                 {
 //loc_497AB:              ; CODE XREF: handleGameUserInput+237j
 //                ; handleGameUserInput+23Ej
                     if (gIsF3KeyPressed == 0)
                     {
-                        byte_59B7E = 0;
+                        gToggleEnemiesFrozenAutorepeatFlag = 0;
                     }
 //loc_497B9:              ; CODE XREF: handleGameUserInput+255j
-                    else if (byte_59B7E == 0)
+                    else if (gToggleEnemiesFrozenAutorepeatFlag == 0)
                     {
-                        byte_59B7E--;
+                        gToggleEnemiesFrozenAutorepeatFlag--;
                         gCurrentGameState.areEnemiesFrozen &= 1;
                         gCurrentGameState.areEnemiesFrozen = gCurrentGameState.areEnemiesFrozen ^ 1;
                     }
@@ -8369,28 +8370,28 @@ void loc_4988E() // :              ; CODE XREF: handleGameUserInput+1F9j
     if (gIsRecordingDemo != 0
         || gIsPlayingDemo != 0)
     {
-        loc_49949();
+        checkDebugKeys();
         return;
     }
 
 //loc_498A2:              ; CODE XREF: handleGameUserInput+342j
     if (gIsMinusKeyPressed == 0)
     {
-        byte_59B7F = 0;
-        byte_59B80 = 5;
+        gDebugSkipPreviousLevelAutorepeatFlag_1 = 0;
+        gDebugSkipPreviousLevelAutorepeatFlag_2 = 5;
     }
 //loc_498B5:              ; CODE XREF: handleGameUserInput+34Cj
-    else if (byte_59B7F != 0)
+    else if (gDebugSkipPreviousLevelAutorepeatFlag_1 != 0)
     {
-        byte_59B7F--;
+        gDebugSkipPreviousLevelAutorepeatFlag_1--;
     }
     else
     {
 //loc_498C2:              ; CODE XREF: handleGameUserInput+35Fj
-        if (byte_59B80 != 0)
+        if (gDebugSkipPreviousLevelAutorepeatFlag_2 != 0)
         {
-            byte_59B80--;
-            byte_59B7F = 0x10;
+            gDebugSkipPreviousLevelAutorepeatFlag_2--;
+            gDebugSkipPreviousLevelAutorepeatFlag_1 = 0x10;
         }
 
 //loc_498D2:              ; CODE XREF: handleGameUserInput+36Cj
@@ -8408,46 +8409,46 @@ void loc_4988E() // :              ; CODE XREF: handleGameUserInput+1F9j
 
 //loc_498F0:              ; CODE XREF: handleGameUserInput+38Dj
         // ax = gCurrentSelectedLevelIndex;
-        sub_4BF4A(gCurrentSelectedLevelIndex);
+        convertLevelNumberTo3DigitStringWithPadding0(gCurrentSelectedLevelIndex);
         drawLevelList();
-        sub_4A3D2();
+        debugSkipLevel();
     }
 
 //loc_498FC:              ; CODE XREF: handleGameUserInput+358j
 //                ; handleGameUserInput+365j
     if (gIsEqualsKeyPressed == 0)
     {
-        byte_59B81 = 0;
-        byte_59B82 = 5;
+        gDebugSkipNextLevelAutorepeatFlag_1 = 0;
+        gDebugSkipNextLevelAutorepeatFlag_2 = 5;
     }
 //loc_4990F:              ; CODE XREF: handleGameUserInput+3A6j
-    else if (byte_59B81 != 0)
+    else if (gDebugSkipNextLevelAutorepeatFlag_1 != 0)
     {
-        byte_59B81--;
+        gDebugSkipNextLevelAutorepeatFlag_1--;
     }
     else
     {
 //loc_4991C:              ; CODE XREF: handleGameUserInput+3B9j
-        if (byte_59B82 != 0)
+        if (gDebugSkipNextLevelAutorepeatFlag_2 != 0)
         {
-            byte_59B82--;
-            byte_59B81 = 0x10; // 16
+            gDebugSkipNextLevelAutorepeatFlag_2--;
+            gDebugSkipNextLevelAutorepeatFlag_1 = 0x10; // 16
         }
 
 //loc_4992C:              ; CODE XREF: handleGameUserInput+3C6j
         if (gCurrentSelectedLevelIndex >= kNumberOfLevels)
         {
-            gCurrentSelectedLevelIndex = kNumberOfLevels;
+            gCurrentSelectedLevelIndex = kNumberOfLevels - 1;
         }
 
 //loc_49939:              ; CODE XREF: handleGameUserInput+3D6j
         gCurrentSelectedLevelIndex++;
-        sub_4BF4A(gCurrentSelectedLevelIndex); // 01ED:2CDD
+        convertLevelNumberTo3DigitStringWithPadding0(gCurrentSelectedLevelIndex); // 01ED:2CDD
         drawLevelList();
-        sub_4A3D2();
+        debugSkipLevel();
     }
 
-    loc_49949();
+    checkDebugKeys();
 }
 
 void stopDemoAndPlay()
@@ -8458,14 +8459,14 @@ void stopDemoAndPlay()
     gHasUserInterruptedDemo = 1;
 }
 
-void loc_49949() //:              ; CODE XREF: handleGameUserInput+E1j
+void checkDebugKeys() //loc_49949:              ; CODE XREF: handleGameUserInput+E1j
 //                ; handleGameUserInput+33Aj ...
 {
     // 01ED:2CE6
 
-    uint8_t was_byte_59B6B_NonZero = (byte_59B6B != 0);
-    byte_59B6B = 0;
-    if (was_byte_59B6B_NonZero)
+    uint8_t shouldStartFromSavedSnapshot = (gShouldStartFromSavedSnapshot != 0);
+    gShouldStartFromSavedSnapshot = 0;
+    if (shouldStartFromSavedSnapshot)
     {
         loadGameSnapshot();
         return;
@@ -9573,14 +9574,11 @@ void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
 //loc_4A3A7:              ; CODE XREF: sub_4A2E6+52j
                     currentTile->tile -= 4; // Converts Sport[Direction] to Port[Direction]
                     currentTile->movingObject = 1;
-//                    si[0] -= 4; // sub byte ptr [si], 4
-//                    si[1] = 1; // mov byte ptr [si+1], 1
-        //        jmp short $+2 // wtf this was right above loc_4A3B0
                     continue;
                 }
 
 //loc_4A33A:              ; CODE XREF: sub_4A2E6+4Dj
-                continue; // jmp short loc_4A3B0
+                continue;
             }
         }
 
@@ -9674,20 +9672,20 @@ void resetNumberOfInfotrons() // sub_4A3BB   proc near       ; CODE XREF: start+
     drawNumberOfRemainingInfotrons();
 }
 
-void sub_4A3D2() //   proc near       ; CODE XREF: handleGameUserInput+39Ep
+void debugSkipLevel() // sub_4A3D2  proc near       ; CODE XREF: handleGameUserInput+39Ep
                    // ; handleGameUserInput+3EBp
 {
     gIsSPDemoAvailableToRun = 0;
     gSelectedOriginalDemoLevelNumber = 0;
     uint8_t wasNotZero = (gHasUserInterruptedDemo != 0);
     gHasUserInterruptedDemo = 0;
+    gHasUserCheated = 1;
     if (wasNotZero)
     {
-        // jnz short $+12
+        restartLevelWithoutAddingCurrentGameTimeToPlayer();
     }
 
-    // continues with restartLevel ? or where does that jump lead? check with debugger
-//sub_4A3D2   endp ; sp-analysis failed
+    restartLevel();
 }
 
 void restartLevel() // sub_4A3E9   proc near       ; CODE XREF: handleGameUserInput+14Ep
@@ -9697,8 +9695,12 @@ void restartLevel() // sub_4A3E9   proc near       ; CODE XREF: handleGameUserIn
         addCurrentGameTimeToPlayer();
     }
 
-//loc_4A3F3:              ; CODE XREF: sub_4A3D2+15j
+    restartLevelWithoutAddingCurrentGameTimeToPlayer();
+}
+
+void restartLevelWithoutAddingCurrentGameTimeToPlayer() //loc_4A3F3:              ; CODE XREF: debugSkipLevel+15j
 //                ; restartLevel+5j
+{
     gIsMoveScrollModeEnabled = 0;
     gAdditionalScrollOffsetX = 0;
     gAdditionalScrollOffsetY = 0;
@@ -11751,7 +11753,7 @@ void handleOkButtonClick() // sub_4B375  proc near       ; CODE XREF: runMainMen
 //loc_4B40F:              ; CODE XREF: handleOkButtonClick+86j
 //                ; handleOkButtonClick+8Dj
     prepareDemoRecordingFilename(); // 01ED:47AC
-    sub_4BF4A(gCurrentSelectedLevelIndex); // 01ED:47B2
+    convertLevelNumberTo3DigitStringWithPadding0(gCurrentSelectedLevelIndex); // 01ED:47B2
 }
 
 void handleFloppyDiskButtonClick() // sub_4B419  proc near
@@ -12296,7 +12298,7 @@ void drawTextWithChars6FontWithTransparentBackground(size_t destX, size_t destY,
     }
 }
 
-void sub_4BF4A(uint8_t number) //   proc near       ; CODE XREF: start+3F7p handleGameUserInput+398p ...
+void convertLevelNumberTo3DigitStringWithPadding0(uint8_t number) // sub_4BF4A   proc near       ; CODE XREF: start+3F7p handleGameUserInput+398p ...
 {
     convertNumberTo3DigitStringWithPadding0(number, &a00s0010_sp[3]);
 }
