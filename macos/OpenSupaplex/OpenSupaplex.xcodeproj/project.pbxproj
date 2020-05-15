@@ -51,6 +51,8 @@
 		40487ABB246CB5F700B776FA /* FIXED.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A9F246CB5F600B776FA /* FIXED.DAT */; };
 		40487ABC246CB5F700B776FA /* DEMO9.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487AA0246CB5F700B776FA /* DEMO9.BIN */; };
 		40487ABD246CB5F700B776FA /* LEVELS.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487AA1246CB5F700B776FA /* LEVELS.DAT */; };
+		4056430D246F49CE0042F34B /* commandLineParser.c in Sources */ = {isa = PBXBuildFile; fileRef = 4056430C246F49CE0042F34B /* commandLineParser.c */; };
+		40564310246F4A9A0042F34B /* globals.c in Sources */ = {isa = PBXBuildFile; fileRef = 4056430F246F4A9A0042F34B /* globals.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -71,7 +73,7 @@
 		404879E5246C3FDC00B776FA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		404879EA246C402900B776FA /* OpenSupaplex.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OpenSupaplex.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		404879EF246C402B00B776FA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		404879F4246C402B00B776FA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = "OpenSupaplex/Info.plist"; sourceTree = "<group>"; };
+		404879F4246C402B00B776FA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = OpenSupaplex/Info.plist; sourceTree = "<group>"; };
 		40487A82246CB32400B776FA /* file.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = file.m; path = ../../../src/apple/file.m; sourceTree = "<group>"; };
 		40487A84246CB5D200B776FA /* audio */ = {isa = PBXFileReference; lastKnownFileType = folder; name = audio; path = ../../resources/audio; sourceTree = "<group>"; };
 		40487A86246CB5F500B776FA /* GFX.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = GFX.DAT; path = ../../resources/GFX.DAT; sourceTree = "<group>"; };
@@ -102,7 +104,11 @@
 		40487A9F246CB5F600B776FA /* FIXED.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = FIXED.DAT; path = ../../resources/FIXED.DAT; sourceTree = "<group>"; };
 		40487AA0246CB5F700B776FA /* DEMO9.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO9.BIN; path = ../../resources/DEMO9.BIN; sourceTree = "<group>"; };
 		40487AA1246CB5F700B776FA /* LEVELS.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.DAT; path = ../../resources/LEVELS.DAT; sourceTree = "<group>"; };
-		40487ABE246CB6DC00B776FA /* OpenSupaplex.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = OpenSupaplex.entitlements; path = "OpenSupaplex/OpenSupaplex.entitlements"; sourceTree = "<group>"; };
+		40487ABE246CB6DC00B776FA /* OpenSupaplex.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = OpenSupaplex.entitlements; path = OpenSupaplex/OpenSupaplex.entitlements; sourceTree = "<group>"; };
+		4056430B246F49CE0042F34B /* commandLineParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = commandLineParser.h; path = ../../../src/commandLineParser.h; sourceTree = "<group>"; };
+		4056430C246F49CE0042F34B /* commandLineParser.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = commandLineParser.c; path = ../../../src/commandLineParser.c; sourceTree = "<group>"; };
+		4056430E246F4A9A0042F34B /* globals.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = globals.h; path = ../../../src/globals.h; sourceTree = "<group>"; };
+		4056430F246F4A9A0042F34B /* globals.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = globals.c; path = ../../../src/globals.c; sourceTree = "<group>"; };
 		4062C244244CE5D4007A07F5 /* controller.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = controller.c; path = ../../../src/controller.c; sourceTree = "<group>"; };
 		4062C245244CE5D5007A07F5 /* controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = controller.h; path = ../../../src/controller.h; sourceTree = "<group>"; };
 		4062C246244CE5D5007A07F5 /* supaplex.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = supaplex.c; path = ../../../src/supaplex.c; sourceTree = "<group>"; };
@@ -215,6 +221,10 @@
 				404879C2246B5FF500B776FA /* conditionals.h */,
 				404879C3246B609900B776FA /* conditionals.c */,
 				404879E5246C3FDC00B776FA /* Info.plist */,
+				4056430B246F49CE0042F34B /* commandLineParser.h */,
+				4056430C246F49CE0042F34B /* commandLineParser.c */,
+				4056430E246F4A9A0042F34B /* globals.h */,
+				4056430F246F4A9A0042F34B /* globals.c */,
 			);
 			path = OpenSupaplex;
 			sourceTree = "<group>";
@@ -260,7 +270,7 @@
 			dependencies = (
 			);
 			name = OpenSupaplex;
-			productName = "OpenSupaplex";
+			productName = OpenSupaplex;
 			productReference = 404879EA246C402900B776FA /* OpenSupaplex.app */;
 			productType = "com.apple.product-type.application";
 		};
@@ -341,6 +351,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4056430D246F49CE0042F34B /* commandLineParser.c in Sources */,
 				40487A05246C403A00B776FA /* menu.c in Sources */,
 				404879FB246C403A00B776FA /* ini.c in Sources */,
 				40487A00246C403A00B776FA /* logging.c in Sources */,
@@ -354,6 +365,7 @@
 				40487A83246CB32400B776FA /* file.m in Sources */,
 				40487A01246C403A00B776FA /* nullVirtualKeyboard.c in Sources */,
 				40487A07246C403A00B776FA /* input.c in Sources */,
+				40564310246F4A9A0042F34B /* globals.c in Sources */,
 				40487A03246C403A00B776FA /* utils.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

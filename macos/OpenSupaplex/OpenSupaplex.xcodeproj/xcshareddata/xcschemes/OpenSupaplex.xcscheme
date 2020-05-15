@@ -38,7 +38,7 @@
       useCustomWorkingDirectory = "YES"
       customWorkingDirectory = "/Users/spadrino/Development/open-supaplex/resources"
       ignoresPersistentStateOnLaunch = "NO"
-      debugDocumentVersioning = "YES"
+      debugDocumentVersioning = "NO"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
       <BuildableProductRunnable

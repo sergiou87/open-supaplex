@@ -25,10 +25,12 @@
 #include <time.h>
 
 #include "audio.h"
+#include "commandLineParser.h"
 #include "conditionals.h"
 #include "config.h"
 #include "controller.h"
 #include "file.h"
+#include "globals.h"
 #include "input.h"
 #include "logging.h"
 #include "menu.h"
@@ -82,7 +84,6 @@ uint8_t byte_50953 = 0;
 uint8_t byte_50954 = 0;
 uint8_t gShouldAutoselectNextLevelToPlay = 0; // byte_51ABE
 uint8_t byte_5870F = 0; //
-uint8_t byte_58D46 = 0; //
 uint8_t byte_58D47 = 0; //
 uint8_t byte_59821 = 0; //
 uint8_t byte_59822 = 0; //
@@ -95,32 +96,6 @@ uint16_t word_5988E = 0x4650; // "PF"
 uint8_t gIsSPDemoAvailableToRun = 0; // byte_599D4 -> 0=don't run .SP, 1=run .SP, 2=run .SP at startup
 uint8_t gDemoRecordingRandomGeneratorSeedHigh = 0; // byte_59B5C
 uint8_t gDemoRecordingRandomGeneratorSeedLow = 0; // byte_59B5F
-uint8_t word_59B60 = 0; // 'A' command line option
-uint8_t word_59B61 = 0; // 'B' command line option
-uint8_t byte_59B62 = 0; // 'C' command line option
-uint8_t byte_59B63 = 0; // 'D' command line option
-uint8_t byte_59B64 = 0; // 'E' command line option
-uint8_t word_59B65 = 0; // 'F' command line option
-uint8_t word_59B66 = 0; // 'G' command line option
-uint8_t byte_59B67 = 0; // 'H' command line option
-uint8_t byte_59B68 = 0; // 'I' command line option
-uint8_t byte_59B69 = 0; // 'J' command line option
-uint8_t byte_59B6A = 0; // 'K' command line option
-uint8_t gShouldStartFromSavedSnapshot = 0; // byte_59B6B -> 'L' command line option
-uint8_t byte_59B6C = 0; // 'M' command line option
-uint8_t byte_59B6D = 0; // 'N' command line option
-uint16_t gShouldRecordWithOriginalDemoFilenames = 0; // word_59B6E -> 0x985E -> 'O' command line option
-uint8_t byte_59B6F = 0; // 'P' command line option
-uint8_t byte_59B70 = 0; // 'Q' command line option
-uint8_t byte_59B71 = 0; // 'R' command line option -> Refresh video memory after each game: reload MOVING.DAT
-uint8_t byte_59B72 = 0; // 'S' command line option -> Shake the screen during every explosion (See also "N")
-uint8_t word_59B73 = 0; // 'T' command line option -> Allow the use of the original infinite Red Disk (ch)eat Trick
-uint8_t byte_59B74 = 0; // 'U' command line option
-uint8_t byte_59B75 = 0; // 'V' command line option
-uint8_t dword_59B76 = 0; // 'W' command line option -> Force Writing only one SAVEGAME.SAV (else use SAVEGAME.S??)
-uint8_t byte_59B77 = 0; // 'X' command line option
-uint8_t byte_59B78 = 0; // 'Y' command line option
-uint8_t byte_59B79 = 0; // 'Z' command line option
 uint8_t byte_59B7A = 0; // data_subrest ?
 uint8_t byte_59B7B = 1; // data_subrstflg ?
 uint8_t gToggleGravityAutorepeatFlag = 0; // byte_59B7C
@@ -131,8 +106,6 @@ uint8_t gDebugSkipPreviousLevelAutorepeatFlag_2 = 0; // byte_59B80
 uint8_t gDebugSkipNextLevelAutorepeatFlag_1 = 0; // byte_59B81
 uint8_t gDebugSkipNextLevelAutorepeatFlag_2 = 0; // byte_59B82
 uint8_t byte_59B83 = 0;
-uint8_t gIsForcedLevel = 0; // byte_59B84
-uint8_t gIsForcedCheatMode = 0; // byte_59B85
 uint8_t byte_59B86 = 0;
 uint16_t gDemoRecordingRandomGeneratorSeed = 0; // word_5A199
 uint8_t byte_59B9A = 2;
@@ -145,7 +118,6 @@ uint8_t byte_5A323 = 0;
 uint16_t word_5A33C = 0;
 uint8_t gHasUserInterruptedDemo = 0; // byte_5A33E
 uint8_t byte_5A33F = 0;
-uint8_t gCurrentPlayerIndex = 0; // byte_5981F
 uint8_t gIsMouseAvailable = 0; // byte_58487
 uint8_t gLevelListButtonPressed = 0; // byte_50918
 uint8_t gLevelListDownButtonPressed = 0; // byte_50916
@@ -1387,7 +1359,6 @@ uint16_t word_51858 = 0x2E39; //  -> 0x1268 -> (
 uint16_t gScrollOffsetX = 0; // word_5195F
 uint16_t gScrollOffsetY = 0; // word_51961
 uint16_t word_5196C = 0;
-uint16_t gIsDebugModeEnabled = 0; // word_51970
 uint16_t gShouldExitGame = 0; // word_5197A
 uint16_t gIsMoveScrollModeEnabled = 0; // word_51A01
 uint16_t gDebugExtraRenderDelay = 1; // this was used to add an extra delay in debug mode using keys 1-9
@@ -1440,20 +1411,6 @@ uint8_t isJoystickEnabled = 0; // byte_50940
 uint8_t isMusicEnabled = 0; // byte_59886
 uint8_t isFXEnabled = 0; // byte_59885
 
-char gLevelsDatFilename[11] = "LEVELS.DAT";
-char gLevelLstFilename[10] = "LEVEL.LST";
-char gPlayerLstFilename[11] = "PLAYER.LST";
-char gHallfameLstFilename[13] = "HALLFAME.LST";
-char gDemo0BinFilename[10] = "DEMO0.BIN";
-char gSavegameSavFilename[13] = "SAVEGAME.SAV";
-
-// Game Speed in "Speed Fix values" from 0 to 10, but inverted. 10 is the
-//   fastest, 0 the slowest. 5 means the original speed which was 35 game iterations per second.
-//
-#define kNumberOfGameSpeeds 11
-const uint8_t kDefaultGameSpeed = 5;
-uint8_t gGameSpeed = kDefaultGameSpeed; // gameSpeed
-char demoFileName[kMaxFilePathLength] = "";
 uint8_t gIsFlashingBackgroundModeEnabled = 0; // flashingbackgroundon
 const float kSpeedTimeFactors[kNumberOfGameSpeeds] = { 3.5, 3.0, 2.5, 2.0, 1.5, 1.0, 0.75, 2.0 / 3.0, 5.0 / 8.0, 3.0 / 5.0, 1.0 / 70.0 };
 
@@ -1517,165 +1474,6 @@ enum MouseButton
 
 uint16_t gMouseButtonStatus = 0; // word_5847D
 uint16_t gMouseX = 0, gMouseY = 0;
-
-#define kPlayerNameLength 8
-
-char a00s0010_sp[12] = "00S001$0.SP"; // 0xA014
-char gPlayerName[kPlayerNameLength + 1] = "WIBBLE??"; // 0x879F
-
-typedef enum
-{
-    LevelTileTypeSpace = 0,
-    LevelTileTypeZonk = 1,
-    LevelTileTypeBase = 2,
-    LevelTileTypeMurphy = 3,
-    LevelTileTypeInfotron = 4,
-    LevelTileTypeChip = 5,
-    LevelTileTypeHardware = 6,
-    LevelTileTypeExit = 7,
-    LevelTileTypeOrangeDisk = 8,
-    LevelTileTypePortRight = 9,
-    LevelTileTypePortDown = 10,
-    LevelTileTypePortLeft = 11,
-    LevelTileTypePortUp = 12,
-    LevelTileTypeSportRight = 13,
-    LevelTileTypeSportDown = 14,
-    LevelTileTypeSportLeft = 15,
-    LevelTileTypeSportUp = 16,
-    LevelTileTypeSnikSnak = 17,
-    LevelTileTypeYellowDisk = 18,
-    LevelTileTypeTerminal = 19,
-    LevelTileTypeRedDisk = 20,
-    LevelTileTypePortVertical = 21,
-    LevelTileTypePortHorizontal = 22,
-    LevelTileTypePort4Way = 23,
-    LevelTileTypeElectron = 24,
-    LevelTileTypeBug = 25,
-    LevelTileTypeHorizontalChipLeft = 26,
-    LevelTileTypeHorizontalChipRight = 27,
-    LevelTileTypeHardware2 = 28,
-    LevelTileTypeHardware3 = 29,
-    LevelTileTypeHardware4 = 30,
-    LevelTileTypeExplosion = 31,
-    LevelTileTypeHardware6 = 32,
-    LevelTileTypeHardware7 = 33,
-    LevelTileTypeHardware8 = 34,
-    LevelTileTypeHardware9 = 35,
-    LevelTileTypeHardware10 = 36,
-    LevelTileTypeHardware11 = 37,
-    LevelTileTypeHorizontalChipTop = 38,
-    LevelTileTypeHorizontalChipBottom = 39,
-} LevelTileType;
-
-#define kLevelWidth 60 // 3Ch
-#define kLevelHeight 24 // 18h
-#define kLevelSize (kLevelWidth * kLevelHeight) // 1440  or 5A0h
-//static const size_t kLevelcells = levelSize
-uint16_t gLevelData[kLevelSize];
-
-// Seems like the way the game handle the level list is having empty level entries at the beginning and at the
-// end. They do that instead of checking boundaries when drawing the list. So these two empty spaces will be rendered
-// (but not selectable) in the level list. For now I will mimick that behavior, in case it's something on which the
-// rest of the game depends. Once everything is reverse-engineered, it can be changed to a normal and sane implementation.
-// Also, aside from the levels themselves, they seem to have some kind of informative entries at the end of the level
-// list encouraging the player to replay skipped levels.
-//
-#define kNumberOfLevels 111
-#define kNumberOfLevelsWithPadding (kNumberOfLevels + 5)
-#define kFirstLevelIndex 2
-#define kLastLevelIndex (kFirstLevelIndex + kNumberOfLevels)
-#define kListLevelNameLength 28 // In the list of levels, every level is 28 bytes long and looks like "001                        \n"
-uint8_t gPaddedLevelListData[kNumberOfLevelsWithPadding * kListLevelNameLength]; // 0x2A34
-
-#define kLevelListDataLength (kNumberOfLevels * kListLevelNameLength)
-uint8_t *gLevelListData = &gPaddedLevelListData[kFirstLevelIndex * kListLevelNameLength];
-
-static const int kNotCompletedLevelEntryColor = 2;
-static const int kCompletedLevelEntryColor = 4;
-static const int kBlockedLevelEntryColor = 6;
-static const int kSkippedLevelEntryColor = 8;
-
-// This array contains info about the levels. It's updated when player is changed.
-// There are different values per level, so far I've seen:
-// - 02 level not completed, but can be played
-// - 04 level completed
-// - 06 level not completed, and it CANNOT be played
-// - 08 level skipped
-// These also seem to be used as colors. Not sure if they're colors used as some other info, or some other info used as colors.
-//
-uint8_t gCurrentPlayerPaddedLevelData[kNumberOfLevelsWithPadding]; // 0x949C
-
-static const int kCurrentPlayerLevelDataLength = kNumberOfLevels;
-uint8_t *gCurrentPlayerLevelData = &gCurrentPlayerPaddedLevelData[kFirstLevelIndex]; // 0x949E
-
-// uint16_t word_58AB8 = 0x3231; // -> 0x87A8
-// uint16_t word_58ABA = 0x3433; // -> 0x87AA
-char gCurrentLevelName[kListLevelNameLength]; // 0x87A8
-
-#define kLevelNameLength 24
-
-typedef struct {
-    uint16_t position; // If (x,y) are the coordinates of a port in the field
-                       // and (0,0) is the top-left corner, the 16 bit value
-                       // here calculates as 2*(x+(y*60)).  This is twice of
-                       // what you may have expected: Supaplex works with a
-                       // game field in memory, which is 2 bytes per sprite.
-
-    uint8_t gravity; // 1 = turn on, anything else (0) = turn off
-    uint8_t freezeZonks; // 2 = turn on, anything else (0) = turn off  (1=off!)
-    uint8_t freezeEnemies; // 1 = turn on, anything else (0) = turn off
-    uint8_t unused; // Doesn't matter: is ignored.
-} SpecialPortInfo;
-
-#define kLevelMaxNumberOfSpecialPorts 10
-
-typedef struct
-{
-    uint8_t tiles[kLevelSize]; // [0-0x59F] of LevelTileType
-    uint8_t unknown0[4];
-    uint8_t initialGravitation;
-    uint8_t speedFixMagicNumber; // Used from versions 5.3 and up as: 20h + SpeedFix version number in hex format: v5.3 -> 73h, v6.2 -> 82h
-    char name[kLevelNameLength - 1];
-    uint8_t freezeZonks; // 2 = on, anything else (including 1) = off
-    uint8_t numberOfInfotrons; // 0 means that Supaplex will count the total amount of Infotrons in the level, and use the low byte of that number. (A multiple of 256 Infotrons will then result in 0-to-eat, etc.!)
-    uint8_t numberOfSpecialPorts; // maximum 10
-    SpecialPortInfo specialPortsInfo[kLevelMaxNumberOfSpecialPorts];
-
-    // This byte carries the information of the slowest speed used during the demo recording. 0x00=fastest, 0x0A=slowest
-    // This information is exclusive-ored with the high random number byte (byte scrambledSpeed). (Each bit is toggled, where in byte highByteRandomSeed a 1 appears.)
-    // The result is the value of byte scrambledSpeed (and is used to scramble byte scrambledChecksum).
-    //
-    uint8_t scrambledSpeed;
-
-    // All upper nibbles of each demo byte (without first level number byte and without ending 0xFF), each nibble
-    // incremented by 1, are added up. This total equals the total number of demo frames and reflects the normalized
-    // demo time with 35 frames per second.
-    // To this total, of which only the lower 8 bits are used, the lower random number byte (byte lowByteRandomSeed) is added.
-    // The resulting lower 8 bits are exclusive-ored with the final contents of byte scrambledSpeed. (Each bit is toggled,
-    // where in byte scrambledSpeed a 1 appears.)
-    // The resulting lower 8 bits is the value of byte scrambledChecksum.
-    // Note: Megaplex does not put any information into bytes scrambledSpeed and scrambledChecksum.
-    //
-    uint8_t scrambledChecksum;
-
-    // All Bugs are fired randomly, so in order to be able to make a recording of a level with Bugs, it is necessary to let
-    // them fire exactly at the same time in each playback of that recording. In order to guarantee that, we need a
-    // predictable random number generator and start it each playback with the same starting value (seed) as when the
-    // recording was started. When the sequence of all following random numbers is repeatable, all Bugs will always fire
-    // the same way during each playback as during the creation of the recording.
-    // Luckily the original Supaplex uses a very simple random number generator for this purpose, which is not depending
-    // on external influences like date and time or a keypress. Start the random number generator with a random number
-    // seed and the next random number is calculated, which is also used as seed for the next calculation. A certain
-    // seed will always result in only one specific random number. The sequence of all following random numbers is
-    // thus fixed for each seed.
-    // So at the start of each recording, we need to remember the starting random number as seed for the random number
-    // generator during each playback.
-    // Each random number is a 16 bit number. After each random number calculation, only the lower 16 bits are kept as
-    // seed for the next calculation: new_random_number_seed = ((old_random_number_seed * 1509) + 49) modulo 65536
-    // This "modulo 65536" just signifies keeping only the lower 16 bits and reject all higher bits.
-    //
-    uint16_t randomSeed;
-} Level; // size 1536 = 0x600
 
 #define kMaxDemoInputSteps 48648
 #define kMaxBaseDemoSize 1 + kMaxDemoInputSteps + 1
@@ -1891,81 +1689,6 @@ uint8_t gScrollDestinationScreenBitmapData[kFullScreenFramebufferLength];
 #define kLevelBitmapWidth (kTileSize * (kLevelWidth - 2) + kLevelEdgeSize + kLevelEdgeSize)
 #define kLevelBitmapHeight (kTileSize * (kLevelHeight - 2) + kLevelEdgeSize + kLevelEdgeSize)
 uint8_t gLevelBitmapData[kLevelBitmapWidth * kLevelBitmapHeight];
-
-typedef struct
-{
-    char playerName[kPlayerNameLength + 1];
-    uint8_t hours;
-    uint8_t minutes;
-    uint8_t seconds;
-} HallOfFameEntry;
-
-#define kNumberOfHallOfFameEntries 3
-HallOfFameEntry gHallOfFameData[kNumberOfHallOfFameEntries]; // 0x9514 -> asc_59824
-
-enum PlayerLevelState {
-    PlayerLevelStateNotCompleted = 0,
-    PlayerLevelStateCompleted = 1,
-    PlayerLevelStateSkipped = 2,
-};
-
-// This is a structure I still need to reverse-engineer. It's 128 bytes long:
-// - 9 bytes (0x00-0x08): player name
-// - 1 byte (0x09): hours
-// - 1 byte (0x0A): minutes
-// - 1 byte (0x0B): seconds
-// - 111 bytes (0x0C-0x7A): level state (1 byte per level)
-// - 0x7B, 0x7C, 0x7D ??
-// - 1 byte (0x7E): next level to play
-// - 1 byte (0x7F): 1 if the user finished all levels ??
-//
-typedef struct
-{
-    char name[kPlayerNameLength + 1];
-    uint8_t hours;
-    uint8_t minutes;
-    uint8_t seconds;
-    uint8_t levelState[kNumberOfLevels]; // values are PlayerLevelState
-    uint8_t unknown1;
-    uint8_t unknown2;
-    uint8_t unknown3;
-    uint8_t nextLevelToPlay;
-    uint8_t completedAllLevels; // Still not 100% sure
-} PlayerEntry;
-
-#define kNumberOfPlayers 20
-//static const int kPlayerEntryLength = 128;
-PlayerEntry gPlayerListData[kNumberOfPlayers]; // 0x8A9C -> word_58DAC
-
-#define kRankingFirstPlayerIndex 2
-#define kRankingEntryTextLength 23
-
-char gRankingTextEntries[kNumberOfPlayers + 4][kRankingEntryTextLength] = { //0x880E
-    "                      ",
-    "                      ",
-    "001 SUPAPLEX 000:00:00",
-    "002 SUPAPLEX 000:00:00",
-    "003 SUPAPLEX 000:00:00",
-    "004 SUPAPLEX 000:00:00",
-    "005 SUPAPLEX 000:00:00",
-    "006 SUPAPLEX 000:00:00",
-    "007 SUPAPLEX 000:00:00",
-    "008 SUPAPLEX 000:00:00",
-    "009 SUPAPLEX 000:00:00",
-    "010 SUPAPLEX 000:00:00",
-    "011 SUPAPLEX 000:00:00",
-    "012 SUPAPLEX 000:00:00",
-    "013 SUPAPLEX 000:00:00",
-    "014 SUPAPLEX 000:00:00",
-    "015 SUPAPLEX 000:00:00",
-    "016 SUPAPLEX 000:00:00",
-    "017 SUPAPLEX 000:00:00",
-    "018 SUPAPLEX 000:00:00",
-    "019 SUPAPLEX 000:00:00",
-    "020 SUPAPLEX 000:00:00",
-    "                      ",
-    "                      ",
-};
 
 typedef struct
 {
@@ -3630,33 +3353,16 @@ void runAdvancedOptionsRootMenu()
     setPalette(gGamePalette);
 }
 
-// "/nnn"                                    Force LEVEL number at start (nnn=1...111)"
-// "&nn"                                    Force PLAYER number at start (nn=1...20)"
-// "*nn"                                    Force SpeedFix SPEED at start (nn=0...10, or empty(=0=fast))"
-// "#"                                        Force all levels skipped and no score updates: test mode"
-// "c"                                        If deleted, Create LEVEL.L?? file out of info from LEVELS.D??"
-// "d"                                        Force Debug mode at start: needed to record demo's etc."
-// "f"                                        Force original Floppy 1<->2 symbol function (Invert Alt key)"
-// "h"                                        Force original Supaplex Horizontal smooth-scroll timing"
-// "l"                                        Load and play the available saved game at start"
-// "m"                                        View beyond the game field edges with the debug M key options"
-// "n"                                        Never shake the screen during explosions (See also "S")"
-// "o"                                        Record using Original demo names DEMO?.B?? (not ??S???$?.SP)"
-// "r"                                        Refresh video memory after each game: reload MOVING.DAT"
-// "s"                                        Shake the screen during every explosion (See also "N")"
-// "t"                                        Allow the use of the original infinite Red Disk (ch)eat Trick"
-// "w"                                        Force Writing only one SAVEGAME.SAV (else use SAVEGAME.S??)"
-// ":filename.ext"                            Use SP-file to play at start and from menu with F11 and F12"
-// "@:filename.ext"                        Lightning speed SP-demo test, exits to DOS with message"
-//
 int main(int argc, char *argv[])
 {
-
 #if DEBUG
     gShouldShowFPS = 1;
 #endif
 
     initializeLogging();
+
+    parseCommandLineOptions(argc, argv);
+
     initializeVideo();
 
     if (initializeAudio() != 0)
@@ -3809,79 +3515,6 @@ int main(int argc, char *argv[])
 
             // TODO: check all letters, upper and lowercase, and store the results
             // in variables starting from word_59B60
-
-            if (byte_59B63 != 0)
-            {
-                gIsDebugModeEnabled = 1;
-            }
-
-            // Force level SET number at start (nn=0...99), else original set
-            // TODO: check for ! and extract number. If number is incorrect, skip parameter
-            // TODO: make sure number has 2 digits
-            char newSuffix[3] = "00";
-
-            strcpy(&gLevelsDatFilename[8], newSuffix);
-            strcpy(&gLevelLstFilename[7], newSuffix);
-            strcpy(&gDemo0BinFilename[7], newSuffix);
-            strcpy(&gPlayerLstFilename[8], newSuffix);
-            strcpy(&gHallfameLstFilename[10], newSuffix);
-
-            if (dword_59B76 == 0) // cmp byte ptr dword_59B76, 0
-            {
-                strcpy(&gSavegameSavFilename[10], newSuffix);
-            }
-
-//loc_46DBF:              //; CODE XREF: start+166j start+16Bj ...
-            // Force all levels skipped and no score updates: test mode
-            // TODO: check for #
-
-            if (strchr(arg, '#') != NULL)
-            {
-                gIsForcedCheatMode = 0x0FF;
-                PlayerEntry *firstPlayer = &gPlayerListData[0];
-                strcpy(firstPlayer->name, "(FORCED)");
-                memset(firstPlayer->levelState, PlayerLevelStateSkipped, kNumberOfLevels);
-
-                for (int i = 1; i < 3; ++i)
-                {
-                    PlayerEntry *player = &gPlayerListData[i];
-                    strcpy(player->name, "        ");
-
-                    strcpy(gRankingTextEntries[kRankingFirstPlayerIndex + i], "                      ");
-                }
-            }
-
-//loc_46E18:              //; CODE XREF: start+1A7j
-            // Force PLAYER number at start (nn=1...20)
-            // TODO: check for & and extract number.
-            // TODO: number must be clamped between 1 and 20
-
-            int playerNumber = 1; // extracted from parameter
-
-            playerNumber = CLAMP(playerNumber, 1, 20);
-
-            gCurrentPlayerIndex =
-            byte_58D46 = playerNumber - 1;
-
-//loc_46E39:              //; CODE XREF: start+1F6j start+200j
-            // Force SpeedFix SPEED at start (nn=0...10, or empty(=0=fast))
-            // TODO: check for * and extract number
-            // TODO: number must be clamped between 0 and 10
-            int newSpeed = 5;
-
-            newSpeed = CLAMP(newSpeed, 0, 10);
-            // TODO: the original implementation used 0 = fast, 10 = slow, but I should probably do it the other way around
-            gGameSpeed = newSpeed;
-
-//loc_46E59:              //; CODE XREF: start+221j start+230j
-            // Force LEVEL number at start (nnn=1...111)
-            // TODO: check for / and extract number. If number is incorrect, skip parameter
-            // TODO: number must be clamped between 1 and 111
-
-            int levelNumber = 1;
-            levelNumber = CLAMP(levelNumber, 1, kNumberOfLevels);
-            gIsForcedLevel = 0xFF;
-            gIsForcedLevel = levelNumber;
         }
     }
 
