@@ -4697,7 +4697,9 @@ void readConfig() //  proc near       ; CODE XREF: start:loc_46F0Fp
         {
 //loc_47551:              //; CODE XREF: readConfig+Fj
                        // ; readConfig+17j
-            activateInternalStandardSound();
+            activateCombinedSound();
+            isMusicEnabled = 1;
+            isFXEnabled = 1;
             isJoystickEnabled = 0;
             return;
         }
