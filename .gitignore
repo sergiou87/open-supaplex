@@ -4,10 +4,15 @@ tasm/
 *.nam
 *.til
 *.o
+*.SP
 /solve/
 TESTOUT.TXT
 /tc/
 xcuserdata/
+resources/*.CFG
+resources/PLAYER.*
+resources/SAVEGAME.*
+resources/HALLFAME.*
 
 # PS Vita stuff
 vita/debugnetip.txt
@@ -17,3 +22,13 @@ vita/resources/
 *.nro
 *.elf
 *.nacp
+
+# PSP stuff
+psp/*.PBP
+psp/*.prx
+
+# WASM stuff
+wasm/opensupaplex.data
+wasm/opensupaplex.html
+wasm/opensupaplex.js
+wasm/opensupaplex.wasm
