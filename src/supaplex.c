@@ -3371,6 +3371,12 @@ int main(int argc, char *argv[])
 
     readAdvancedConfig();
 
+    // Override the initial game speed with the one from the command line if needed
+    if (gForcedInitialGameSpeed != kInvalidForcedInitialGameSpeed)
+    {
+        gGameSpeed = gForcedInitialGameSpeed;
+    }
+
     handleSDLEvents();
 
     // Initialize game state with the same values as in the original game
@@ -8479,8 +8485,8 @@ void updateScrollOffset() // sub_49EBE   proc near       ; CODE XREF: runLevel+1
 //loc_49FA9:              ; CODE XREF: updateScrollOffset+6Ej
 //                ; updateScrollOffset+BDj ...
     // This makes the screen shake when Murphy dies
-    if (byte_59B72 != 0
-        || (byte_59B6D == 0
+    if (gShouldShakeWithAllExplosions != 0
+        || (gShakeWithExplosionsDisabled == 0
             && (gCurrentGameState.quitLevelCountdown & 0xFF) != 0))
     {
 //loc_49FBE:              ; CODE XREF: updateScrollOffset+F0j

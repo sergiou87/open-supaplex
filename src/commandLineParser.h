@@ -33,12 +33,12 @@ extern uint8_t byte_59B69; // 'J' command line option
 extern uint8_t byte_59B6A; // 'K' command line option
 extern uint8_t gShouldStartFromSavedSnapshot; // byte_59B6B -> 'L' command line option -> Load and play the available saved game at start
 extern uint8_t byte_59B6C; // 'M' command line option
-extern uint8_t byte_59B6D; // 'N' command line option -> Never shake the screen during explosions (See also "S")
+extern uint8_t gShakeWithExplosionsDisabled; // byte_59B6D -> 'N' command line option -> Never shake the screen during explosions (See also "S")
 extern uint16_t gShouldRecordWithOriginalDemoFilenames; // word_59B6E -> 0x985E -> 'O' command line option -> Record using Original demo names DEMO?.B?? (not ??S???$?.SP)
 extern uint8_t byte_59B6F; // 'P' command line option
 extern uint8_t byte_59B70; // 'Q' command line option
 extern uint8_t byte_59B71; // 'R' command line option -> Refresh video memory after each game: reload MOVING.DAT
-extern uint8_t byte_59B72; // 'S' command line option -> Shake the screen during every explosion (See also "N")
+extern uint8_t gShouldShakeWithAllExplosions; // 'S' command line option -> Shake the screen during every explosion (See also "N")
 extern uint8_t word_59B73; // 'T' command line option -> Allow the use of the original infinite Red Disk (ch)eat Trick
 extern uint8_t byte_59B74; // 'U' command line option
 extern uint8_t byte_59B75; // 'V' command line option
@@ -46,6 +46,9 @@ extern uint8_t dword_59B76; // 'W' command line option -> Force Writing only one
 extern uint8_t byte_59B77; // 'X' command line option
 extern uint8_t byte_59B78; // 'Y' command line option
 extern uint8_t byte_59B79; // 'Z' command line option
+
+extern const uint8_t kInvalidForcedInitialGameSpeed;
+extern uint8_t gForcedInitialGameSpeed;
 
 void parseCommandLineOptions(int argc, char *argv[]);
 

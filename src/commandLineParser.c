@@ -38,12 +38,12 @@ uint8_t byte_59B69 = 0; // 'J' command line option
 uint8_t byte_59B6A = 0; // 'K' command line option
 uint8_t gShouldStartFromSavedSnapshot = 0; // byte_59B6B -> 'L' command line option -> Load and play the available saved game at start
 uint8_t byte_59B6C = 0; // 'M' command line option
-uint8_t byte_59B6D = 0; // 'N' command line option -> Never shake the screen during explosions (See also "S")
+uint8_t gShakeWithExplosionsDisabled = 0; // 'N' command line option -> Never shake the screen during explosions (See also "S")
 uint16_t gShouldRecordWithOriginalDemoFilenames = 0; // word_59B6E -> 0x985E -> 'O' command line option -> Record using Original demo names DEMO?.B?? (not ??S???$?.SP)
 uint8_t byte_59B6F = 0; // 'P' command line option
 uint8_t byte_59B70 = 0; // 'Q' command line option
 uint8_t byte_59B71 = 0; // 'R' command line option -> Refresh video memory after each game: reload MOVING.DAT
-uint8_t byte_59B72 = 0; // 'S' command line option -> Shake the screen during every explosion (See also "N")
+uint8_t gShouldShakeWithAllExplosions = 0; // byte_59B72 -> 'S' command line option -> Shake the screen during every explosion (See also "N")
 uint8_t word_59B73 = 0; // 'T' command line option -> Allow the use of the original infinite Red Disk (ch)eat Trick
 uint8_t byte_59B74 = 0; // 'U' command line option
 uint8_t byte_59B75 = 0; // 'V' command line option
@@ -51,6 +51,9 @@ uint8_t dword_59B76 = 0; // 'W' command line option -> Force Writing only one SA
 uint8_t byte_59B77 = 0; // 'X' command line option
 uint8_t byte_59B78 = 0; // 'Y' command line option
 uint8_t byte_59B79 = 0; // 'Z' command line option
+
+const uint8_t kInvalidForcedInitialGameSpeed = 0xFF;
+uint8_t gForcedInitialGameSpeed = kInvalidForcedInitialGameSpeed;
 
 // "/nnn"                                    Force LEVEL number at start (nnn=1...111)"
 // "&nn"                                    Force PLAYER number at start (nn=1...20)"
@@ -86,7 +89,7 @@ static const OpenSupaplexCommandLineOption kFullCommandLineOptions[kNumberOfComm
     { "level-set", 'z', 1, "Force level SET number at start, else original set. Usage: -z nn (nn=0...99)" },
     { "level", 'l', 1, "Force LEVEL number at start. Usage: -l nnn (nnn=1...111)" },
     { "player", 'n', 1, "Force PLAYER number at start. Usage: -n nn (nn=1...20)" },
-    { "game-speed", 'g', 1, "Force SpeedFix SPEED at start. Usage: -g nn (nn=0...10, or empty(=0=fast))" },
+    { "game-speed", 'g', 1, "Force SpeedFix SPEED at start. Usage: -g nn (nn=0...10, or empty(=0=slow))" },
     { "test-mode", 't', 0, "Force all levels skipped and no score updates: test mode" },
     { "recreate-levels", 'r', 0, "If deleted, Create LEVEL.L?? file out of info from LEVELS.D??" },
     { "debug", 'd', 0, "Force Debug mode at start: needed to record demo's etc." },
@@ -174,13 +177,13 @@ void parseCommandLineOptions(int argc, char *argv[])
                 gShouldStartFromSavedSnapshot = 1;
                 break;
             case 'e':
-                byte_59B6D = 1;
+                gShakeWithExplosionsDisabled = 1;
                 break;
             case 'o':
                 gShouldRecordWithOriginalDemoFilenames = 1;
                 break;
             case 's':
-                byte_59B72 = 1;
+                gShouldShakeWithAllExplosions = 1;
                 break;
             case 'k':
                 word_59B73 = 1;
@@ -199,6 +202,7 @@ void parseCommandLineOptions(int argc, char *argv[])
     if (byte_59B63 != 0)
     {
         gIsDebugModeEnabled = 1;
+        spLog("Debug mode enabled");
     }
 }
 
@@ -275,7 +279,8 @@ void handleForceGameSpeedOption(void)
     // Force SpeedFix SPEED at start (nn=0...10, or empty(=0=slow))
     int newSpeed = atoi(optarg);
     newSpeed = CLAMP(newSpeed, 0, 10);
-    gGameSpeed = newSpeed;
+    // We can't store this directly in gGameSpeed because it will be overriden by the stored configuration
+    gForcedInitialGameSpeed = newSpeed;
     spLog("Starting with speed %d", newSpeed);
 }
 
