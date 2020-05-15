@@ -82,11 +82,11 @@ typedef struct {
 #define kNumberOfCommandLineOptions 16
 
 static const OpenSupaplexCommandLineOption kFullCommandLineOptions[kNumberOfCommandLineOptions] = {
-    { "help", 'h', 1, "Shows this help" },
-    { "level-set", 'z', 1, "Force LEVEL number at start (nnn=1...111)" },
-    { "level", 'l', 1, "Force LEVEL number at start (nnn=1...111)" },
-    { "player", 'n', 1, "Force PLAYER number at start (nn=1...20)" },
-    { "game-speed", 'g', 1, "Force SpeedFix SPEED at start (nn=0...10, or empty(=0=fast))" },
+    { "help", 'h', 0, "Shows this help" },
+    { "level-set", 'z', 1, "Force level SET number at start, else original set. Usage: -z nn (nn=0...99)" },
+    { "level", 'l', 1, "Force LEVEL number at start. Usage: -l nnn (nnn=1...111)" },
+    { "player", 'n', 1, "Force PLAYER number at start. Usage: -n nn (nn=1...20)" },
+    { "game-speed", 'g', 1, "Force SpeedFix SPEED at start. Usage: -g nn (nn=0...10, or empty(=0=fast))" },
     { "test-mode", 't', 0, "Force all levels skipped and no score updates: test mode" },
     { "recreate-levels", 'r', 0, "If deleted, Create LEVEL.L?? file out of info from LEVELS.D??" },
     { "debug", 'd', 0, "Force Debug mode at start: needed to record demo's etc." },
@@ -106,6 +106,7 @@ static const OpenSupaplexCommandLineOption kFullCommandLineOptions[kNumberOfComm
 
 static struct option options[kNumberOfCommandLineOptions + 1];
 
+void handlePrintHelpOption(void);
 void handleForceLevelSetOption(void);
 void handleForceLevelNumberOption(void);
 void handleForcePlayerNumberOption(void);
@@ -145,6 +146,9 @@ void parseCommandLineOptions(int argc, char *argv[])
     {
         switch (opt)
         {
+            case 'h':
+                handlePrintHelpOption();
+                break;
             case 'z':
                 handleForceLevelSetOption();
                 break;
@@ -196,6 +200,24 @@ void parseCommandLineOptions(int argc, char *argv[])
     {
         gIsDebugModeEnabled = 1;
     }
+}
+
+void handlePrintHelpOption(void)
+{
+    printf("Welcome to OpenSupaplex v" VERSION_STRING "!\n\n");
+    printf("You can use the following parameters:\n");
+    for (int idx = 0; idx < kNumberOfCommandLineOptions; ++idx)
+    {
+        OpenSupaplexCommandLineOption fullCommandLineOption = kFullCommandLineOptions[idx];
+
+        printf("-%c, --%-20s\t\t%s\n",
+               fullCommandLineOption.shortName,
+               fullCommandLineOption.name,
+               fullCommandLineOption.description);
+    }
+    printf("\nWritten by Sergio Padrino (sergiou87)");
+
+    exit(0);
 }
 
 void handleForceLevelSetOption(void)

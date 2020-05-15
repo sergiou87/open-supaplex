@@ -68,8 +68,6 @@ typedef enum {
     UserInputSpaceOnly = 9,
 } UserInput;
 
-#define VERSION_STRING "7.1"
-
 static const uint8_t kUserInputSpaceAndDirectionOffset = (UserInputSpaceUp - 1);
 
 // exact length of a level file, even of each level inside the LEVELS.DAT file
@@ -2447,6 +2445,7 @@ uint8_t cf;
 uint8_t ah, al, bh, bl, ch, cl, dh, dl;
 uint16_t ax, bx, cx, dx, ds, cs, es, bp, sp, di, si;
 
+void startDirectlyFromLevel(uint8_t levelNumber);
 uint8_t getLevelNumberFromOriginalDemoFile(FILE *file, uint16_t fileLength);
 void stopDemoAndPlay(void);
 void startTrackingRenderDeltaTime(void);
@@ -3645,7 +3644,7 @@ int main(int argc, char *argv[])
 //loc_46FBE:              //; CODE XREF: start+30Cj start+31Bj ...
         prepareDemoRecordingFilename(); // 01ED:037A
 
-        uint8_t shouldDoSomething = 1; // still no idea what this is
+        uint8_t levelNumberForcedToLoad = 0;
 
         if (gIsSPDemoAvailableToRun == 2)
         {
@@ -3667,62 +3666,36 @@ int main(int argc, char *argv[])
             ax = 1;
             gCurrentGameState.byte_510B3 = 0;
             gHasUserCheated = 1;
-            a00s0010_sp[3] = 0x2D; // '-' ; "001$0.SP"
-            a00s0010_sp[4] = 0x2D; // "01$0.SP"
-            a00s0010_sp[5] = 0x2D; // "1$0.SP"
+            strcpy(&a00s0010_sp[3], "---");
 //          push(ax);
 //          goto loc_4701A;
         }
         else
         {
 //loc_46FFF:              //; CODE XREF: start+3A9j
-            al = gIsForcedLevel;
+            levelNumberForcedToLoad = gIsForcedLevel;
             gIsForcedLevel = 0;
             gIsPlayingDemo = 0;
-            al++;
-            if (al != 0)
+
+            if (levelNumberForcedToLoad > 0)
             {
-                al--;
-                if (al != 0)
-                {
-//                  ah = 0;
-//                  push(ax);
-                    convertLevelNumberTo3DigitStringWithPadding0(al);
-                }
-                else
-                {
-                    shouldDoSomething = 0;
-                }
-            }
-            else
-            {
-                shouldDoSomething = 0;
+                convertLevelNumberTo3DigitStringWithPadding0(levelNumberForcedToLoad);
             }
         }
 
-        if (shouldDoSomething)
+        if (levelNumberForcedToLoad > 0)
         {
 //loc_4701A:              //; CODE XREF: start+3DDj start+433j
-            byte_5A33F = 1;
-            gShouldAutoselectNextLevelToPlay = 1;
-            prepareLevelDataForCurrentPlayer();
-            drawPlayerList();
-            word_58467 = 0;
-            playMusicIfNeeded();
-//          pop(ax);
-//          gCurrentSelectedLevelIndex = ax; // TODO: implement
-            restoreLastMouseAreaBitmap();
-            drawLevelList();
-            word_5196C = 0;
-            byte_5A19B = 0;
+            startDirectlyFromLevel(levelNumberForcedToLoad);
             continue;
         }
 
 //loc_4704B:              //; CODE XREF: start+3EEj start+3F2j
-        ax = 1;
         if (gShouldStartFromSavedSnapshot != 0)
         {
-//            goto loc_4701A;
+//loc_4701A:              //; CODE XREF: start+3DDj start+433j
+            startDirectlyFromLevel(1);
+            continue;
         }
         gHasUserCheated = 0;
         runMainMenu();
@@ -3810,6 +3783,21 @@ exit:                   //; CODE XREF: readConfig:loc_474BBj
 //        exit(al);  //mov ah, 4Ch
 ////         int 21h     ; DOS - 2+ - QUIT WITH EXIT CODE (EXIT)
 //// ; END OF FUNCTION CHUNK FOR loadScreen2 ; AL = exit code
+}
+
+void startDirectlyFromLevel(uint8_t levelNumber)
+{
+    byte_5A33F = 1;
+    gShouldAutoselectNextLevelToPlay = 1;
+    prepareLevelDataForCurrentPlayer();
+    drawPlayerList();
+    word_58467 = 0;
+    playMusicIfNeeded();
+    gCurrentSelectedLevelIndex = levelNumber;
+    restoreLastMouseAreaBitmap();
+    drawLevelList();
+    word_5196C = 0;
+    byte_5A19B = 0;
 }
 
 uint8_t getLevelNumberFromOriginalDemoFile(FILE *file, uint16_t fileLength) // fileReadUnk1    proc near       ; CODE XREF: start+B6p readDemoFiles+81p

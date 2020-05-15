@@ -22,6 +22,8 @@
 
 #include "file.h"
 
+#define VERSION_STRING "7.1"
+
 typedef enum
 {
     LevelTileTypeSpace = 0,
