@@ -40,8 +40,9 @@
 #ifdef __PSP__
 #include <pspkernel.h>
 
-PSP_MODULE_INFO("OpenSupaplex", 0, 7, 1);
+PSP_MODULE_INFO("OpenSupaplex", 0, 7, 1); // This might need to be removed to prevent conflicts when using SDL_main
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER | THREAD_ATTR_VFPU);
+PSP_HEAP_SIZE_KB(-1024);
 #endif
 
 // title1DataBuffer -> A000:4DAC - A000:CAAC
@@ -3605,7 +3606,7 @@ void runAdvancedOptionsRootMenu()
 }
 
 //         public start
-int main(int argc, const char * argv[])
+int main(int argc, char *argv[])
 {
 #if DEBUG
     gShouldShowFPS = 1;

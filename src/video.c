@@ -24,9 +24,12 @@
 #include "logging.h"
 #include "utils.h"
 
-#ifdef __vita__
-static const int kWindowWidth = kScreenWidth;
-static const int kWindowHeight = kScreenHeight;
+#if defined(__PSP__)
+static const int kWindowWidth = 480;
+static const int kWindowHeight = 272;
+#elif defined(__vita__)
+static const int kWindowWidth = 960;
+static const int kWindowHeight = 544;
 #else
 static const int kWindowWidth = kScreenWidth * 4;
 static const int kWindowHeight = kScreenHeight * 4;
@@ -67,23 +70,61 @@ void initializeVideo()
     if (gWindow == NULL)
     {
         spLog("Could not create a window: %s", SDL_GetError());
-        SDL_Quit();
+        destroyVideo();
         exit(1);
     }
 
     SDL_SetWindowResizable(gWindow, SDL_TRUE);
     SDL_AddEventWatch(windowResizingEventWatcher, gWindow);
 
-    gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_PRESENTVSYNC);
+    gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+
+    if (gRenderer == NULL)
+    {
+        spLog("Could not create a renderer: %s", SDL_GetError());
+        destroyVideo();
+        exit(1);
+    }
+
+    Uint32 format = SDL_PIXELFORMAT_ARGB32;
+
+    // HACK: this is needed for my crappy SDL2 implementation (https://github.com/sergiou87/SDL2/commit/962e4e565562c2cd70b877f3d697ad2084d9405b)
+    // but this should be fixed on SDL's side (or pspgl's), I think.
+    //
+#ifdef __PSP__
+    format = SDL_PIXELFORMAT_ABGR32;
+#endif
 
     gTexture = SDL_CreateTexture(gRenderer,
-                                             SDL_PIXELFORMAT_ARGB32,
+                                             format,
                                              SDL_TEXTUREACCESS_STREAMING,
                                              kScreenWidth, kScreenHeight);
 
+    if (gTexture == NULL)
+    {
+        spLog("Could not create a texture: %s", SDL_GetError());
+        destroyVideo();
+        exit(1);
+    }
+
     gTextureSurface = SDL_CreateRGBSurfaceWithFormat(0, kScreenWidth, kScreenHeight, 8, SDL_PIXELFORMAT_ARGB32);
 
+    if (gTextureSurface == NULL)
+    {
+        spLog("Could not create a texture surface: %s", SDL_GetError());
+        destroyVideo();
+        exit(1);
+    } 
+
     gScreenSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, kScreenWidth, kScreenHeight, 8, 0, 0, 0, 0);
+
+    if (gScreenSurface == NULL)
+    {
+        spLog("Could not create a screen surface: %s", SDL_GetError());
+        destroyVideo();
+        exit(1);
+    }
+
     gScreenPixels = (uint8_t *)gScreenSurface->pixels;
 
     updateWindowViewport();
@@ -106,10 +147,22 @@ void present()
 void destroyVideo()
 {
     SDL_DelEventWatch(windowResizingEventWatcher, gWindow);
-    SDL_FreeSurface(gTextureSurface);
-    SDL_DestroyTexture(gTexture);
-    SDL_DestroyRenderer(gRenderer);
-    SDL_DestroyWindow(gWindow);
+    if (gTextureSurface != NULL)
+    {
+        SDL_FreeSurface(gTextureSurface);
+    }
+    if (gTexture != NULL)
+    {
+        SDL_DestroyTexture(gTexture);
+    }
+    if (gRenderer != NULL)
+    {
+        SDL_DestroyRenderer(gRenderer);
+    }
+    if (gWindow != NULL)
+    {
+        SDL_DestroyWindow(gWindow);
+    }
     SDL_Quit();
 }
 
