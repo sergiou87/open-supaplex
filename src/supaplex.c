@@ -95,16 +95,34 @@ uint16_t word_5988E = 0x4650; // "PF"
 uint8_t gIsSPDemoAvailableToRun = 0; // byte_599D4 -> 0=don't run .SP, 1=run .SP, 2=run .SP at startup
 uint8_t gDemoRecordingRandomGeneratorSeedHigh = 0; // byte_59B5C
 uint8_t gDemoRecordingRandomGeneratorSeedLow = 0; // byte_59B5F
-uint8_t byte_59B62 = 0;
-// uint8_t byte_59B64 = 0;
-uint16_t word_59B65 = 0;
-uint8_t gShouldStartFromSavedSnapshot = 0; // byte_59B6B
-uint8_t byte_59B6D = 0;
-uint16_t gShouldRecordWithOriginalDemoFilenames = 0; // word_59B6E -> 0x985E -> from command line
-uint8_t byte_59B71 = 0;
-uint8_t byte_59B72 = 0;
-uint8_t byte_59B7A = 0;
-uint8_t byte_59B7B = 1;
+uint8_t word_59B60 = 0; // 'A' command line option
+uint8_t word_59B61 = 0; // 'B' command line option
+uint8_t byte_59B62 = 0; // 'C' command line option
+uint8_t byte_59B63 = 0; // 'D' command line option
+uint8_t byte_59B64 = 0; // 'E' command line option
+uint8_t word_59B65 = 0; // 'F' command line option
+uint8_t word_59B66 = 0; // 'G' command line option
+uint8_t byte_59B67 = 0; // 'H' command line option
+uint8_t byte_59B68 = 0; // 'I' command line option
+uint8_t byte_59B69 = 0; // 'J' command line option
+uint8_t byte_59B6A = 0; // 'K' command line option
+uint8_t gShouldStartFromSavedSnapshot = 0; // byte_59B6B -> 'L' command line option
+uint8_t byte_59B6C = 0; // 'M' command line option
+uint8_t byte_59B6D = 0; // 'N' command line option
+uint16_t gShouldRecordWithOriginalDemoFilenames = 0; // word_59B6E -> 0x985E -> 'O' command line option
+uint8_t byte_59B6F = 0; // 'P' command line option
+uint8_t byte_59B70 = 0; // 'Q' command line option
+uint8_t byte_59B71 = 0; // 'R' command line option -> Refresh video memory after each game: reload MOVING.DAT
+uint8_t byte_59B72 = 0; // 'S' command line option -> Shake the screen during every explosion (See also "N")
+uint8_t word_59B73 = 0; // 'T' command line option -> Allow the use of the original infinite Red Disk (ch)eat Trick
+uint8_t byte_59B74 = 0; // 'U' command line option
+uint8_t byte_59B75 = 0; // 'V' command line option
+uint8_t dword_59B76 = 0; // 'W' command line option -> Force Writing only one SAVEGAME.SAV (else use SAVEGAME.S??)
+uint8_t byte_59B77 = 0; // 'X' command line option
+uint8_t byte_59B78 = 0; // 'Y' command line option
+uint8_t byte_59B79 = 0; // 'Z' command line option
+uint8_t byte_59B7A = 0; // data_subrest ?
+uint8_t byte_59B7B = 1; // data_subrstflg ?
 uint8_t gToggleGravityAutorepeatFlag = 0; // byte_59B7C
 uint8_t gToggleZonksFrozenAutorepeatFlag = 0; // byte_59B7D
 uint8_t gToggleEnemiesFrozenAutorepeatFlag = 0; // byte_59B7E
@@ -113,8 +131,8 @@ uint8_t gDebugSkipPreviousLevelAutorepeatFlag_2 = 0; // byte_59B80
 uint8_t gDebugSkipNextLevelAutorepeatFlag_1 = 0; // byte_59B81
 uint8_t gDebugSkipNextLevelAutorepeatFlag_2 = 0; // byte_59B82
 uint8_t byte_59B83 = 0;
-uint8_t byte_59B84 = 0;
-uint8_t byte_59B85 = 0;
+uint8_t gIsForcedLevel = 0; // byte_59B84
+uint8_t gIsForcedCheatMode = 0; // byte_59B85
 uint8_t byte_59B86 = 0;
 uint16_t gDemoRecordingRandomGeneratorSeed = 0; // word_5A199
 uint8_t byte_59B9A = 2;
@@ -1395,8 +1413,6 @@ uint16_t word_58714 = 0;
 uint16_t gSelectedOriginalDemoIndex = 0; // word_599D6 -> used loading old demo files demo
 uint16_t gSelectedOriginalDemoLevelNumber = 0; // word_599D8 -> used loading old demo files demo -> the high byte is set to -1 in readLevels for some unknown reason
 uint16_t gSelectedOriginalDemoFromCommandLineLevelNumber = 0; // word_599DA -> first demo byte if SP is an old demo
-uint16_t word_59B73 = 0;
-uint32_t dword_59B76 = 0;
 // These two store the scroll offset to get back to Murphy when we're in "free mode"
 uint16_t gMurphyScrollOffsetX = 0; // word_59B88
 uint16_t gMurphyScrollOffsetY = 0; // word_59B8A
@@ -1437,7 +1453,7 @@ char gSavegameSavFilename[13] = "SAVEGAME.SAV";
 #define kNumberOfGameSpeeds 11
 const uint8_t kDefaultGameSpeed = 5;
 uint8_t gGameSpeed = kDefaultGameSpeed; // gameSpeed
-uint8_t demoFileName = 0; // Probably should be another type but whatever for now
+char demoFileName[kMaxFilePathLength] = "";
 uint8_t gIsFlashingBackgroundModeEnabled = 0; // flashingbackgroundon
 const float kSpeedTimeFactors[kNumberOfGameSpeeds] = { 3.5, 3.0, 2.5, 2.0, 1.5, 1.0, 0.75, 2.0 / 3.0, 5.0 / 8.0, 3.0 / 5.0, 1.0 / 70.0 };
 
@@ -1662,6 +1678,7 @@ typedef struct
 } Level; // size 1536 = 0x600
 
 #define kMaxDemoInputSteps 48648
+#define kMaxBaseDemoSize 1 + kMaxDemoInputSteps + 1
 
 // This struct defines the demo format of the original game (previous to the speed fix mods)
 typedef struct
@@ -1675,6 +1692,7 @@ typedef struct
 } BaseDemo;
 
 #define kMaxDemoSignatureLength 511
+#define kMaxDemoSignatureSize kMaxDemoSignatureLength + 1
 
 // This struct defines the demo format of the game after the speed fix mods (which includes a demo of the original
 // format inside).
@@ -1683,7 +1701,7 @@ typedef struct
 {
     Level level;
     BaseDemo baseDemo;
-    uint8_t signature[kMaxDemoSignatureLength + 1]; // text that ends with 0xFF
+    uint8_t signature[kMaxDemoSignatureSize]; // text that ends with 0xFF
 } DemoFile;
 
 #define kNumberOfDemos 10
@@ -1919,7 +1937,10 @@ typedef struct
 //static const int kPlayerEntryLength = 128;
 PlayerEntry gPlayerListData[kNumberOfPlayers]; // 0x8A9C -> word_58DAC
 
-char gRankingTextEntries[kNumberOfPlayers + 4][23] = { //0x880E
+#define kRankingFirstPlayerIndex 2
+#define kRankingEntryTextLength 23
+
+char gRankingTextEntries[kNumberOfPlayers + 4][kRankingEntryTextLength] = { //0x880E
     "                      ",
     "                      ",
     "001 SUPAPLEX 000:00:00",
@@ -2703,6 +2724,7 @@ uint8_t cf;
 uint8_t ah, al, bh, bl, ch, cl, dh, dl;
 uint16_t ax, bx, cx, dx, ds, cs, es, bp, sp, di, si;
 
+uint8_t getLevelNumberFromOriginalDemoFile(FILE *file, uint16_t fileLength);
 void stopDemoAndPlay(void);
 void startTrackingRenderDeltaTime(void);
 uint32_t updateRenderDeltaTime(void);
@@ -3608,9 +3630,28 @@ void runAdvancedOptionsRootMenu()
     setPalette(gGamePalette);
 }
 
-//         public start
+// "/nnn"                                    Force LEVEL number at start (nnn=1...111)"
+// "&nn"                                    Force PLAYER number at start (nn=1...20)"
+// "*nn"                                    Force SpeedFix SPEED at start (nn=0...10, or empty(=0=fast))"
+// "#"                                        Force all levels skipped and no score updates: test mode"
+// "c"                                        If deleted, Create LEVEL.L?? file out of info from LEVELS.D??"
+// "d"                                        Force Debug mode at start: needed to record demo's etc."
+// "f"                                        Force original Floppy 1<->2 symbol function (Invert Alt key)"
+// "h"                                        Force original Supaplex Horizontal smooth-scroll timing"
+// "l"                                        Load and play the available saved game at start"
+// "m"                                        View beyond the game field edges with the debug M key options"
+// "n"                                        Never shake the screen during explosions (See also "S")"
+// "o"                                        Record using Original demo names DEMO?.B?? (not ??S???$?.SP)"
+// "r"                                        Refresh video memory after each game: reload MOVING.DAT"
+// "s"                                        Shake the screen during every explosion (See also "N")"
+// "t"                                        Allow the use of the original infinite Red Disk (ch)eat Trick"
+// "w"                                        Force Writing only one SAVEGAME.SAV (else use SAVEGAME.S??)"
+// ":filename.ext"                            Use SP-file to play at start and from menu with F11 and F12"
+// "@:filename.ext"                        Lightning speed SP-demo test, exits to DOS with message"
+//
 int main(int argc, char *argv[])
 {
+
 #if DEBUG
     gShouldShowFPS = 1;
 #endif
@@ -3631,514 +3672,218 @@ int main(int argc, char *argv[])
     memset(&gCurrentGameState, 0, sizeof(GameState));
     gCurrentGameState.word_5195D = 0xF000;
 
-/*
-//; FUNCTION CHUNK AT 027F SIZE 00000217 BYTES
+    for (int i = 0; i < argc; ++i)
+    {
+        char *arg = argv[i];
 
-        // mov dx, seg data
-        // mov ds, dx
-        // assume ds:data
-
-programStart:               //; CODE XREF: runMainMenu+28Fp
-                    //; DATA XREF: data:000Ao
-        //;db 26h, 8Ah, 0Eh, 80h, 00h
-        cl = *(es:80h); // 0x80 -> Number of bytes on command-line (https://en.wikipedia.org/wiki/Program_Segment_Prefix)
-        cbCommandLine = cl
-        if (cl >= 2)
+        if (strchr(arg, ':') != NULL)
         {
-            goto hasCommandLine
-        }
-        goto doesNotHaveCommandLine
-//
-hasCommandLine:             //; CODE XREF: start+11j
-        //cld
-        ch = 0; // cx = number of command line bytes, this cleans cx MSBs
-        di = 0x81; // '?' start of command line args in PSP (https://en.wikipedia.org/wiki/Program_Segment_Prefix)
-        push(di);
-        push(cx);
+            strcpy(demoFileName, arg); // TODO: copy without ':'
 
-readAndProcessCommandLine:
-        si = &commandLine
+            FILE *file = openWritableFileWithReadonlyFallback(demoFileName, "r");
+            if (file == NULL)
+            {
+                strcpy(demoFileName, "");
+                gIsSPDemoAvailableToRun = 0;
+                continue;
+            }
 
-// Copy char by char the command line into commandLine
-copyNextCmdLineByte:            //; CODE XREF: start+28j
-        al = es:[di];
-        *si = al;
-        si++;
-        di++;
-        cx--;
-        if (cx > 0)
-        {
-            goto copyNextCmdLineByte
-        }
-        pop(cx) // recovers original value (number of command line bytes)
-        pop(di)
-        di = ds
-        es = di
-        // assume es:data
-        di = &commandLine
-        push(di)
-        push(cx) // saves number of cmd line bytes again
+            long fileLength = 0;
 
-processCommandLine:         //; CODE XREF: start+F7j
-        if ((di = strchr(di, ':')) == NULL)
-        {
-            goto nohascolon;
+            if (fseek(file, 0, SEEK_END) != 0)
+            {
+                fclose(file);
+            }
+            else
+            {
+                fileLength = ftell(file);
+
+                if (fileLength >= levelDataLength)
+                {
+                    fclose(file);
+                }
+            }
+
+            char *message = "!! File >> Demo: ";
+            gSelectedOriginalDemoFromCommandLineLevelNumber = 0;
+
+            if (file == NULL)
+            {
+                strcpy(demoFileName, "");
+                gIsSPDemoAvailableToRun = 0;
+                continue;
+            }
+
+            if (fileLength > kMaxBaseDemoSize + kMaxDemoSignatureSize + levelDataLength)
+            {
+                //lookForAtSignInCommandLine:              //; CODE XREF: start+A6j start+ABj
+                // pop(cx); // recover number of cmd line bytes
+                // pop(di); // recover command line string
+                // push(di); // save command line string
+                // push(cx); // save number of cmd line bytes
+                if (strchr(arg, '@') != NULL) // looks for @ in the rest of the command line for some reason
+                {
+                    spLog("%s%s", message, demoFileName);
+                    exit(1);
+                }
+                else
+                {
+                    strcpy(demoFileName, "");
+                    gIsSPDemoAvailableToRun = 0;
+                    continue;
+                }
+            }
+
+            message = "!! File >> Level: ";
+
+// loc_46CB7:              //; CODE XREF: start:loc_46CADj
+            if (fileLength < levelDataLength) // all demo files are greater than a level (1536 bytes)
+            {
+                gSelectedOriginalDemoFromCommandLineLevelNumber = getLevelNumberFromOriginalDemoFile(file, fileLength);
+
+                fclose(file);
+
+                if (gSelectedOriginalDemoFromCommandLineLevelNumber != 0)
+                {
+//loc_46CF6:              //; CODE XREF: start+C2j
+                    fileIsDemo = 1;
+                }
+                else
+                {
+                    if (strchr(arg, '@') != NULL) // looks for @ in the rest of the command line for some reason
+                    {
+                        spLog("%s%s", message, demoFileName);
+                        exit(1);
+                    }
+                    else
+                    {
+                        strcpy(demoFileName, "");
+                        gIsSPDemoAvailableToRun = 0;
+                        continue;
+                    }
+                }
+            }
+//loc_46CF4:              //; CODE XREF: start+B4j
+            else if (fileLength == levelDataLength) // all demo files are greater than a level (1536 bytes)
+            {
+//loc_46CFB:              //; CODE XREF: start:loc_46CF4j
+                if (strlen(demoFileName) == 0)
+                {
+                    strcpy(demoFileName, "");
+                    gIsSPDemoAvailableToRun = 0;
+                    continue;
+                }
+
+                gIsSPDemoAvailableToRun = 2;
+            }
         }
         else
         {
-            goto hascolon;
-        }
-//
-hascolon:                //; CODE XREF: start+39j
-        al = 0x20; // ' ' (space)
-        si = &demoFileName;
+//nohascolon:               ; CODE XREF: start+3Bj
+            //pop(cx); // recover number of cmd line bytes
+            //pop(di); // recover command line string
+            //push(di); // save command line string
+            //push(cx); // save number of cmd line bytes
+            char *hasAt = strchr(arg, '@'); // repne scasb
+            // pop(cx); // recover number of cmd line bytes
+            // pop(di); // recover command line string
+            if (hasAt != NULL)
+            {
+                //; When @ is specd we need a valid file
+                if (strlen(demoFileName) == 0)
+                {
+                    spLog("\"@\"-ERROR: Bad or missing \":filename.ext\"!");
+                    exit(1);
+                }
 
-// This copies the argument to demoFileName, stops when it finds a space or the end of the command line
-copyArgument:              //; CODE XREF: start+52j
-        if (cx == 0) // check if the : was found in the last byte of the command line (cx was used to iterate through it)
-        {
-            goto finishArgumentCopy;
-        }
-        ah = es:[di];
-        if (ah == al)
-        {
-            goto finishArgumentCopy;
-        }
-        *si = ah;
-        si++;
-        di++;
-        cx--;
-        if (cx > 0)
-        {
-            goto copyArgument;
-        }
+//demoFileNotMissing:              //; CODE XREF: start+10Bj
+                if (fileIsDemo != 1)
+                {
+                    spLog("SP without demo: %s", demoFileName);
+                    exit(1);
+                }
 
-finishArgumentCopy:              //; CODE XREF: start+45j start+4Cj
-        al = 0;
-        *si = al; // Adds \0 at the end?
-        pop(cx); // recover number of cmd line bytes
-        pop(di); // recover command line string
-        push(di); // save command line string
-        push(cx); // save number of cmd line bytes
-        al = 0x3A; // ':'
-        di = strchr(di, ':'); //repne scasb
-        di--;
-        cx++;
-        al = 0x20; // ' ' (espacio)
+//spHasAtAndDemo:              //; CODE XREF: start+11Cj
+                fastMode = 1;
+            }
 
-// No idea why (yet) but this replaces the argument that was just copied with spaces :shrug:
-// Ok I just learned why :joy: It's removing the entire argument because after processing it, the app will iterate
-// repeat the process in the whole command line text again, looking for `:` and so on, so this chunk of code
-// replaces the whole `:someArgument` text with spaces in the original command line text to make sure it doesn't
-// interfere parsing the rest of the arguments.
-removeArgumentByteFromCommandLine:              //; CODE XREF: start+6Aj
-        if (es:[di] == al)
-        {
-            goto openDemoFile;
-        }
-        es:[di] = al; // stosb
-        cx--;
-        if (cx > 0)
-        {
-            goto removeArgumentByteFromCommandLine;
-        }
+            // TODO: check all letters, upper and lowercase, and store the results
+            // in variables starting from word_59B60
 
-openDemoFile:              //; CODE XREF: start+67j
-        ax = 0x3D00;
-        dx = &demoFileName;
-        FILE *file = openReadonlyFile(demoFileName, 'r');
-        // int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-        //             ; DS:DX -> ASCIZ filename
-        //             ; AX = action -> 0x3D - open file
-        //             ; AL = access mode -> 0 - read
-        if (file == NULL)
-        {
-            goto errorReadingDemoFile;
-        }
-        bx = file;
-        push(bx);
+            if (byte_59B63 != 0)
+            {
+                gIsDebugModeEnabled = 1;
+            }
 
-loc_46C99:
-        ax = 0x4202;
-        cx = 0;
-        dx = cx;
-        int result = fseek(file, 0, SEEK_END);
-        // int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
-        //             ; AL = method: 0x02 -> offset from end of file
-        //             ; dx:ax is the new seek position
-        int fileLength = ftell(file);
-        pop(bx);
-        pushf();
-        if (result < 0) // jb  short errorSeekingArgumentFile
-        {
-            goto errorSeekingArgumentFile
-        }
-        
-        if (fileLength > 0xFFFF) // checks if dx != 0 (so fileLength is > 0xFFFF);
-        {
-            goto errorSeekingArgumentFile
-        }
+            // Force level SET number at start (nn=0...99), else original set
+            // TODO: check for ! and extract number. If number is incorrect, skip parameter
+            // TODO: make sure number has 2 digits
+            char newSuffix[3] = "00";
 
-        if (fileLength < levelDataLength)
-        {
-            goto loc_46CB7;
-        }
+            strcpy(&gLevelsDatFilename[8], newSuffix);
+            strcpy(&gLevelLstFilename[7], newSuffix);
+            strcpy(&gDemo0BinFilename[7], newSuffix);
+            strcpy(&gPlayerLstFilename[8], newSuffix);
+            strcpy(&gHallfameLstFilename[10], newSuffix);
 
-errorSeekingArgumentFile:              //; CODE XREF: start+84j start+88j
-        push(ax);
-        push(dx);
-        ah = 0x3E;
-        fclose(file);
-        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-        //             ; BX = file handle
-        pop(dx);
-        pop(ax);
+            if (dword_59B76 == 0) // cmp byte ptr dword_59B76, 0
+            {
+                strcpy(&gSavegameSavFilename[10], newSuffix);
+            }
 
-loc_46CB7:              //; CODE XREF: start:loc_46CADj
-        //db 8Dh, 36h, 65h, 9Fh
-        // si = **aFileDemo; //;lea si, [aFileDemo] ; "!! File >> Demo: "
-        
-        gSelectedOriginalDemoFromCommandLineLevelNumber = 0
-        popf();
-        
-        if (result < 0) // jb  short errorReadingDemoFile
-        {
-            goto errorReadingDemoFile
-        }
-        if (fileLength > 0xFFFF) // checks if dx != 0 (so fileLength is > 0xFFFF);
-        {
-            goto lookForAtSignInCommandLine;
-        }
-        if (fileLength > 0xC60A) // 50968 no idea what this number is
-        {
-            goto lookForAtSignInCommandLine;
-        }
-        si = *aFileLevel; // lea si, aFileLevel    ; "!! File < Level: "
+//loc_46DBF:              //; CODE XREF: start+166j start+16Bj ...
+            // Force all levels skipped and no score updates: test mode
+            // TODO: check for #
 
-        if (fileLength >= levelDataLength) // all demo files are greater than a level (1536 bytes)
-        {
-            goto loc_46CF4;
-        }
-        int success = getLevelNumberFromOriginalDemoFile(file, fileLength);
-        gSelectedOriginalDemoFromCommandLineLevelNumber = fileLength;
-        pushf();
-        ah = 0x3E;
-        fclose(file);
-        // int 21h     ; DOS - 2+ - CLOSE A FILE WITH HANDLE
-        //             ; BX = file handle
-        popf();
-        if (success)
-        {
-            goto loc_46CF6; // jnb short loc_46CF6  // the flag CF to check the jnb comes from the getLevelNumberFromOriginalDemoFile result (CF=0 success, CF=1 error);
-        }
+            if (strchr(arg, '#') != NULL)
+            {
+                gIsForcedCheatMode = 0x0FF;
+                PlayerEntry *firstPlayer = &gPlayerListData[0];
+                strcpy(firstPlayer->name, "(FORCED)");
+                memset(firstPlayer->levelState, PlayerLevelStateSkipped, kNumberOfLevels);
 
-lookForAtSignInCommandLine:              //; CODE XREF: start+A6j start+ABj
-        pop(cx); // recover number of cmd line bytes
-        pop(di); // recover command line string
-        push(di); // save command line string
-        push(cx); // save number of cmd line bytes
-        al = 0x40; // '@'
-        if ((di = strchr(di, '@')) == NULL) // looks for @ in the rest of the command line for some reason
-        {
-            goto errorReadingDemoFile;
-        }
-        
-        conprintln(); // print some error message?
-        goto immediateexit;
+                for (int i = 1; i < 3; ++i)
+                {
+                    PlayerEntry *player = &gPlayerListData[i];
+                    strcpy(player->name, "        ");
 
-loc_46CF4:              //; CODE XREF: start+B4j
-        if (ax == levelDataLength) // all demo files are greater than a level (1536 bytes)
-        {
-            goto loc_46CFB;
-        }
+                    strcpy(gRankingTextEntries[kRankingFirstPlayerIndex + i], "                      ");
+                }
+            }
 
-loc_46CF6:              //; CODE XREF: start+C2j
-        fileIsDemo = 1;
+//loc_46E18:              //; CODE XREF: start+1A7j
+            // Force PLAYER number at start (nn=1...20)
+            // TODO: check for & and extract number.
+            // TODO: number must be clamped between 1 and 20
 
-loc_46CFB:              //; CODE XREF: start:loc_46CF4j
-        if (*demoFileName == 0)
-        {
-            goto errorReadingDemoFile;
-        }
-        
-        gIsSPDemoAvailableToRun = 2;
-        goto loc_46D13;
+            int playerNumber = 1; // extracted from parameter
 
-errorReadingDemoFile:              //; CODE XREF: start+74j start+A2j ...
-        *demoFileName = 0;
-        gIsSPDemoAvailableToRun = 0;
+            playerNumber = CLAMP(playerNumber, 1, 20);
 
-loc_46D13:              //; CODE XREF: start+E7j
-        pop(cx); // recover number of cmd line bytes
-        pop(di); // recover command line string
-        push(di); // save command line string
-        push(cx); // save number of cmd line bytes
-        goto processCommandLine;
+            gCurrentPlayerIndex =
+            byte_58D46 = playerNumber - 1;
 
-nohascolon:               ; CODE XREF: start+3Bj
-        pop(cx); // recover number of cmd line bytes
-        pop(di); // recover command line string
-        push(di); // save command line string
-        push(cx); // save number of cmd line bytes
-        al = '@';
-        int hasAt = strch(some_string, '@'); // repne scasb
-        pop(cx); // recover number of cmd line bytes
-        pop(di); // recover command line string
-        if (hasAt == NULL)
-        {
-            goto runSpFile;
-        }
-        //; When @ is specd we need a valid file
-        if (demoFileName != 0)
-        {
-            goto demoFileNotMissing;
-        }
-        si = *a@ErrorBadOrMis; // "\"@\"-ERROR: Bad or missing \":filename"...
-        conprint();
-        goto immediateexit;
+//loc_46E39:              //; CODE XREF: start+1F6j start+200j
+            // Force SpeedFix SPEED at start (nn=0...10, or empty(=0=fast))
+            // TODO: check for * and extract number
+            // TODO: number must be clamped between 0 and 10
+            int newSpeed = 5;
 
-demoFileNotMissing:              //; CODE XREF: start+10Bj
-        if (fileIsDemo == 1)
-        {
-            goto spHasAtAndDemo;
-        }
-        si = *aSpWithoutDemo; //"SP without demo: "
-        conprintln();
-        goto immediateexit;
+            newSpeed = CLAMP(newSpeed, 0, 10);
+            // TODO: the original implementation used 0 = fast, 10 = slow, but I should probably do it the other way around
+            gGameSpeed = newSpeed;
 
-spHasAtAndDemo:              //; CODE XREF: start+11Cj
-        fastMode = 1;
-        gRemainingSpeedTestAttempts = 0
+//loc_46E59:              //; CODE XREF: start+221j start+230j
+            // Force LEVEL number at start (nnn=1...111)
+            // TODO: check for / and extract number. If number is incorrect, skip parameter
+            // TODO: number must be clamped between 1 and 111
 
-runSpFile:              //; CODE XREF: start+104j
-        push(di);
-        push(cx);
-        al = 0x41h; // 'A'
-        goto loc_46D5A;
-
-loc_46D58:              ; CODE XREF: start+14Fj
-        al = 0x61; // 'a'
-
-loc_46D5A:              ; CODE XREF: start+136j
-        bx = *word_59B60;
-
-// This weird loop seems to go from A to Z (finishing at "[") and then from
-// a to z (finishing at "{") looking for those characters in the command line.
-// if they're present, they're copied to the correspondent position of bx, which starts
-// at 0x59B60 per the line above. That + 26 uppercase letters + 26 lowercase letters means
-// at 0x59B60 starts an array of 52 bytes that ends at 0x59B94??? WTF
-loc_46D5E:              //; CODE XREF: start+14Dj start+153j
-        int result = strchr(di, al);
-        if (result == NULL)
-        {
-            goto loc_46D64;
+            int levelNumber = 1;
+            levelNumber = CLAMP(levelNumber, 1, kNumberOfLevels);
+            gIsForcedLevel = 0xFF;
+            gIsForcedLevel = levelNumber;
         }
-        [bx] = al; // or [bx], al writes al in [bx] (if [bx] is 0...)
-
-loc_46D64:              //; CODE XREF: start+140j
-        pop(cx); // recover number of cmd line bytes
-        pop(di); // recover command line string
-        push(di); // save command line string
-        push(cx); // save number of cmd line bytes
-        bx++;
-        al++;
-        if (al < 0x5B) // '['
-        {
-            goto loc_46D5E;
-        }
-        else if (al == 0x5B) // '['
-        {
-            goto loc_46D58;
-        }
-        
-        if (al < 0x7B) // '{'
-        {
-            goto loc_46D5E;
-        }
-        
-        if (byte_59B63 == 0) // this location is where the D (uppercase) would go (it's &word_59B60 + 3). WTF
-        {
-            goto loc_46D82;
-        }
-        gIsDebugModeEnabled = 1;
-
-loc_46D82:              //; CODE XREF: start+15Aj
-        al = 0x21; // '!'
-        int result = strchr(di, '!');
-        if (result == NULL)
-        {
-            goto loc_46DBF;
-        }
-        
-        if (cx < 1) // if '!' was found in the last character?
-        {
-            goto loc_46DBF;
-        }
-        ax = es:[di];
-        if (al < 0x30) // '0'
-        {
-            goto loc_46DBF;
-        }
-        
-        if (al > 0x39) // '9'
-        {
-            goto loc_46DBF;
-        }
-
-        if (ah < 0x30) // '0'
-        {
-            goto loc_46DA2;
-        }
-
-        if (ah <0 0x39) // '9'
-        {
-            goto modifysetfns;
-        }
-
-loc_46DA2:              //; CODE XREF: start+17Bj
-        ah = al;
-        al = 0x30; // '0'
-
-modifysetfns:              //; CODE XREF: start+180j
-        // This changes the suffix of the files with whatever is in AX? like LEVELS.DAT with LEVELS.D00 or LEVEL.LST with LEVEL.L10 ??
-        aLevels_dat_0[8] = ax; // "AT"
-        aLevel_lst[7] = ax; // "ST"
-        aDemo0_bin[7] = ax; // "IN"
-        aPlayer_lst[8] = ax; // "ST"
-        aHallfame_lst[0Ah] = ax; // "ST"
-        if (*dword_59B76 != 0) // cmp byte ptr dword_59B76, 0
-        {
-            goto loc_46DBF;
-        }
-        
-        aSavegame_sav[0Ah] = ax; //"AV"
-
-loc_46DBF:              //; CODE XREF: start+166j start+16Bj ...
-        pop(cx);
-        pop(di);
-        push(di);
-        push(cx);
-        al = 0x23; //'#'
-        
-        if (strchr(something, '#') == NULL)
-        {
-            goto loc_46E18;
-        }
-        byte_59B85 = 0x0FF; // TODO: recheck switching levelsets after understanding this variable
-        word_58DAC = 0x4628;
-        word_58DAE = 0x524F;
-        word_58DB0 = 0x4543;
-        word_58DB2 = 0x2944;
-        di = 0x8AA8;
-        cx = 0x6F; // 'o'
-        al = 2;
-        push(es);
-        push(ds);
-        pop(es);
-        rep stosb
-        al = 0x20; // ' '
-        cx = 8;
-        di = 0x8B1C; //
-        rep stosb
-        cx = 8;
-        di = 0x8B9C;
-        rep stosb
-        cx = 0x16;
-        di = 0x8853;
-        rep stosb
-        cx = 0x16;
-        di = 0x886A;
-        rep stosb
-        pop(es);
-        // assume es:nothing
-        goto loc_46E39;
-//
-loc_46E18:              //; CODE XREF: start+1A7j
-        pop(cx);
-        pop(di);
-        push(di);
-        push(cx);
-        al = 0x26; // '&'
-        
-        if (strchr(something, '&') == NULL)
-        {
-            goto loc_46E39;
-        }
-        atoi(something) // reset ax
-        if (al >= 1)
-        {
-            goto loc_46E2B;
-        }
-        al++;
-
-loc_46E2B:              //; CODE XREF: start+207j
-        if (al <= 0x14) // In ascii this is DC4 - Device Control 4??
-        {
-            goto loc_46E31;
-        }
-        al = 0x14;
-
-loc_46E31:              //; CODE XREF: start+20Dj
-        al--;
-        gCurrentPlayerIndex = al;
-        byte_58D46 = al;
-
-loc_46E39:              //; CODE XREF: start+1F6j start+200j
-        pop(cx);
-        pop(di);
-        push(di);
-        push(cx);
-        al = 0x2A; // '*'
-        if (strchr(something, '*') == NULL)
-        {
-            goto loc_46E59;
-        }
-        atoi(whatever)        // ; reset ax
-        if (al <= 0x0A) // '\n'
-        {
-            goto loc_46E4C;
-        }
-        al = 0x0A; // '\n'
-
-loc_46E4C:              //; CODE XREF: start+228j
-        ah =  0x0A;
-        ah -= al;
-        if (ah < 0)
-        {
-            goto loc_46E59;
-        }
-        
-        ah |= 0x0C0;
-        speed3 = ah;
-
-loc_46E59:              //; CODE XREF: start+221j start+230j
-        pop(cx);
-        pop(di);
-        al = 0x2F; // '/'
-        if (strchr(something, '/') == NULL)
-        {
-            goto doesNotHaveCommandLine;
-        }
-        byte_59B84 = 0x0FF;
-        atoi()        //; reset ax
-        
-        if (al >= 1)
-        {
-            goto loc_46E6F;
-        }
-        al++;
-
-loc_46E6F:              //; CODE XREF: start+24Bj
-        if (al <= 0x6F) // 'o'
-        {
-            goto loc_46E75;
-        }
-        al = 0x6F; // 'o'
-
-loc_46E75:              //; CODE XREF: start+251j
-        byte_59B84 = al;
-
- */
+    }
 
 //doesNotHaveCommandLine:         //; CODE XREF: start+13j start+23Fj ...
     generateRandomSeedFromClock();
@@ -4160,11 +3905,10 @@ loc_46E75:              //; CODE XREF: start+251j
 //isFastMode:              //; CODE XREF: start+2ADj
     loadMurphySprites(); // 01ED:029D
     // Conditions to whether show
-    al = gShouldStartFromSavedSnapshot;
-    al |= byte_59B84;
-    al |= gIsSPDemoAvailableToRun;
-    al |= fastMode;
-    if (al != 0)
+    if (gShouldStartFromSavedSnapshot
+        || gIsForcedLevel
+        || gIsSPDemoAvailableToRun
+        || fastMode)
     {
         readEverything();
     }
@@ -4299,8 +4043,8 @@ loc_46E75:              //; CODE XREF: start+251j
         else
         {
 //loc_46FFF:              //; CODE XREF: start+3A9j
-            al = byte_59B84;
-            byte_59B84 = 0;
+            al = gIsForcedLevel;
+            gIsForcedLevel = 0;
             gIsPlayingDemo = 0;
             al++;
             if (al != 0)
@@ -5695,7 +5439,7 @@ void readControlsDat() // proc near       ; CODE XREF: readControlsDat+14j
 void readPlayersLst() //  proc near       ; CODE XREF: readEverything+1Bp
                     // ; handleFloppyDiskButtonClick+149p
 {
-    if (byte_59B85 != 0)
+    if (gIsForcedCheatMode != 0)
     {
         return;
     }
@@ -5723,7 +5467,7 @@ void readPlayersLst() //  proc near       ; CODE XREF: readEverything+1Bp
 void readHallfameLst() // proc near       ; CODE XREF: readEverything+18p
                     // ; handleFloppyDiskButtonClick+146p
 {
-    if (byte_59B85 != 0)
+    if (gIsForcedCheatMode != 0)
     {
         return;
     }
@@ -10909,7 +10653,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
 //                    ; DATA XREF: data:off_50318o
 {
     // 01ED:3EB8
-    if (byte_59B85 != 0)
+    if (gIsForcedCheatMode != 0)
     {
         //jnz short loc_4AB4A
         drawTextWithChars6FontWithOpaqueBackground(168, 127, 6, "PLAYER LIST FULL       ");
@@ -11146,7 +10890,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
 
 void handleDeletePlayerOptionClick() // sub_4AD0E  proc near
 {
-    if (byte_59B85 != 0)
+    if (gIsForcedCheatMode != 0)
     {
 //loc_4AD3C:              ; CODE XREF: handleDeletePlayerOptionClick+5j
         drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, "NO PLAYER SELECTED     ");
@@ -11574,7 +11318,7 @@ void handleRankingListScrollUp() // loc_4B262
     }
 
 //loc_4B293:              ; CODE XREF: code:466Dj
-    if (byte_59B85 == 0
+    if (gIsForcedCheatMode == 0
         && byte_58D46 > 0)
     {
         byte_58D46--;
@@ -11607,7 +11351,7 @@ void handleRankingListScrollDown() // loc_4B2AF
     }
 
 //loc_4B2E0:              ; CODE XREF: code:46BAj
-    if (byte_59B85 == 0
+    if (gIsForcedCheatMode == 0
         && byte_58D46 < kNumberOfPlayers - 1)
     {
         byte_58D46++;
@@ -11883,7 +11627,7 @@ void handleFloppyDiskButtonClick() // sub_4B419  proc near
     }
 
 //loc_4B4EF:              ; CODE XREF: sub_4B419+D1j
-    if ((dword_59B76 & 0xFF) == 0)
+    if (dword_59B76 == 0)
     {
         strcpy(&gSavegameSavFilename[0xA], currentSuffix);
     }
@@ -11903,9 +11647,9 @@ void handleFloppyDiskButtonClick() // sub_4B419  proc near
 //    pop es
 //    assume es:data
     // 01ED:48B2
-    if (byte_59B85 != 0)
+    if (gIsForcedCheatMode != 0)
     {
-        // TODO: no idea what byte_59B85 is for yet, but seems to be related to some command line option
+        // TODO: no idea what gIsForcedCheatMode is for yet, but seems to be related to some command line option
         assert(0);
     //    lea di, byte_58DB4+4
         cx = 0x6F; // 11
@@ -11968,7 +11712,7 @@ void handlePlayerListScrollDown() // sub_4B671  proc near
     }
 
 //loc_4B69F:              ; CODE XREF: handlePlayerListScrollDown+28j
-    if (byte_59B85 == 0
+    if (gIsForcedCheatMode == 0
         && gCurrentPlayerIndex < kNumberOfPlayers - 1)
     {
         gCurrentPlayerIndex++;
@@ -12005,7 +11749,7 @@ void handlePlayerListScrollUp() // sub_4B6C9  proc near
     }
 
 //loc_4B6F7:              ; CODE XREF: handlePlayerListScrollUp+28j
-    if (byte_59B85 == 0
+    if (gIsForcedCheatMode == 0
         && gCurrentPlayerIndex > 0)
     {
         gCurrentPlayerIndex--;
@@ -12341,7 +12085,7 @@ void convertNumberTo3DigitPaddedString(uint8_t number, char numberString[3], cha
 void prepareRankingTextEntries() // sub_4BF8D  proc near       ; CODE XREF: drawRankingsp
 {
     // 01ED:532A
-    if (byte_59B85 != 0)
+    if (gIsForcedCheatMode != 0)
     {
         return;
     }
@@ -13231,7 +12975,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
         }
 //loc_4C955:              // ; CODE XREF: runMainMenu+1B7j
         else if (gIsNumpadDividePressed == 1
-                 && demoFileName != 0
+                 && strlen(demoFileName) != 0
                  && fileIsDemo == 1)
         {
             gIsSPDemoAvailableToRun = 1;
@@ -13240,7 +12984,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
 //loc_4C977:              // ; CODE XREF: runMainMenu+1C6j
                     // ; runMainMenu+1CDj ...
         else if (gIsF12KeyPressed == 1
-                 && demoFileName != 0)
+                 && strlen(demoFileName) != 0)
         {
             gIsSPDemoAvailableToRun = 1;
             word_5196C = 1;
@@ -13707,7 +13451,7 @@ void drawOptionsMenuLine(ButtonBorderDescriptor border, uint8_t color, uint8_t *
 void savePlayerListData() // sub_4CFB2   proc near       ; CODE XREF: handleNewPlayerOptionClick+1D5p
 //                    ; handleDeletePlayerOptionClick+CEp ...
 {
-    if (byte_59B85 != 0)
+    if (gIsForcedCheatMode != 0)
     {
         return;
     }
@@ -13728,7 +13472,7 @@ void savePlayerListData() // sub_4CFB2   proc near       ; CODE XREF: handleNewP
 void saveHallOfFameData() //   proc near       ; CODE XREF: handleNewPlayerOptionClick+1D8p
 //                    ; handleDeletePlayerOptionClick+D1p ...
 {
-    if (byte_59B85 != 0)
+    if (gIsForcedCheatMode != 0)
     {
         return;
     }
@@ -19038,7 +18782,7 @@ void clearNumberOfRemainingRedDisks() // sub_4FD65   proc near       ; CODE XREF
 void decreaseRemainingRedDisksIfNeeded(uint16_t position) // sub_4FDB5   proc near       ; CODE XREF: update?+124Fp
                     // ; update?+1266p ...
 {
-    if ((word_59B73 & 0xFF) == 0
+    if (word_59B73 == 0
         && gCurrentGameState.plantedRedDiskCountdown != 0
         && gCurrentGameState.plantedRedDiskPosition == position)
     {
