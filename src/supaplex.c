@@ -51,6 +51,7 @@ PSP_HEAP_SIZE_KB(-1024);
 // maps are 58 x 22 tiles
 
 uint8_t fastMode = 0;
+static const uint8_t kGameVersion = 0x71;
 
 typedef enum {
     UserInputNone = 0,
@@ -91,7 +92,7 @@ uint8_t gCurrentSoundDuration = 0; // byte_5988B -> 0x957B -> remaining time of 
 uint16_t word_5988E = 0x4650; // "PF"
 //uint8_t byte_59890 = 0x58; // 88 or 'X'
 //uint16_t word_59891 = 0x3336; // "63"
-uint8_t byte_599D4 = 0;
+uint8_t gIsSPDemoAvailableToRun = 0; // byte_599D4 -> 0=don't run .SP, 1=run .SP, 2=run .SP at startup
 uint8_t gDemoRecordingRandomGeneratorSeedHigh = 0; // byte_59B5C
 uint8_t gDemoRecordingRandomGeneratorSeedLow = 0; // byte_59B5F
 uint8_t byte_59B62 = 0;
@@ -99,7 +100,7 @@ uint8_t byte_59B62 = 0;
 uint16_t word_59B65 = 0;
 uint8_t byte_59B6B = 0;
 uint8_t byte_59B6D = 0;
-uint16_t word_59B6E = 0; // -> 0x985E
+uint16_t gShouldRecordWithOriginalDemoFilenames = 0; // word_59B6E -> 0x985E -> from command line
 uint8_t byte_59B71 = 0;
 uint8_t byte_59B72 = 0;
 uint8_t byte_59B7A = 0;
@@ -117,10 +118,10 @@ uint8_t byte_59B85 = 0;
 uint8_t byte_59B86 = 0;
 uint16_t gDemoRecordingRandomGeneratorSeed = 0; // word_5A199
 uint8_t byte_59B9A = 2;
-uint8_t byte_5A140 = 0;
+// uint8_t byte_5A140 = 0; // speedFixMagicNumber inside of level
 uint8_t byte_5A19B = 0;
 uint8_t gIsLevelStartedAsDemo = 0; // byte_5A19C
-uint8_t byte_5A2F8 = 0;
+uint8_t gDemoRecordingJustStarted = 0; // byte_5A2F8
 uint8_t gHasUserCheated = 0; // byte_5A2F9
 uint8_t byte_5A323 = 0;
 uint16_t word_5A33C = 0;
@@ -1391,9 +1392,9 @@ uint16_t word_5870D = 0;
 uint16_t word_58710 = 0;
 uint16_t word_58712 = 0;
 uint16_t word_58714 = 0;
-uint16_t word_599D6 = 0;
-uint16_t word_599D8 = 0;
-uint16_t word_599DA = 0;
+uint16_t gSelectedOriginalDemoIndex = 0; // word_599D6 -> used loading old demo files demo
+uint16_t gSelectedOriginalDemoLevelNumber = 0; // word_599D8 -> used loading old demo files demo -> the high byte is set to -1 in readLevels for some unknown reason
+uint16_t gSelectedOriginalDemoFromCommandLineLevelNumber = 0; // word_599DA -> first demo byte if SP is an old demo
 uint16_t word_59B73 = 0;
 uint32_t dword_59B76 = 0;
 // These two store the scroll offset to get back to Murphy when we're in "free mode"
@@ -1407,7 +1408,6 @@ uint16_t word_59B92 = 0;
 uint16_t word_5A309 = 0x5053;
 uint16_t word_5A30B = 0x1A0D;
 char kSaveGameMagicNumber[4] = "OSPX";
-static const uint8_t kSaveGameSupportedVersion = 0x70;
 uint16_t word_5A30D = 0;
 uint16_t word_5A30F = 0;
 uint8_t gIsGameRunning; // byte_510AE
@@ -1505,7 +1505,7 @@ uint16_t gMouseX = 0, gMouseY = 0;
 #define kPlayerNameLength 8
 
 char a00s0010_sp[12] = "00S001$0.SP"; // 0xA014
-char gPlayerName[kPlayerNameLength + 1] = "WIBBLE  "; // 0x879F // TODO: read this address when the game starts and put the same text here
+char gPlayerName[kPlayerNameLength + 1] = "WIBBLE??"; // 0x879F
 
 typedef enum
 {
@@ -1764,7 +1764,9 @@ typedef struct {
     uint16_t word_510BC;
     uint16_t word_510BE;
     uint8_t isExplosionStarted; // byte_510C0 -> Set to 1 when an explosion is just created. Set back to 0 when _any_ of the explosions on the screen disappears.
-    uint16_t word_510C1; // -> 0DB1
+    // These two were actually grouped in word_510C1 for some (compiler) reason
+    uint8_t shouldShowGamePanel; // byte_510C1 -> 0DB1
+    uint8_t toggleGamePanelKeyAutoRepeatCounter; // byte_510C2 -> 0DB2
     uint16_t murphyTileX; // word_510C3
     uint16_t murphyTileY; // word_510C5
     uint16_t word_510C7; // stores gMurphyLocation too??
@@ -1780,8 +1782,8 @@ typedef struct {
     uint8_t plantedRedDiskCountdown; // byte_510DB
     uint16_t plantedRedDiskPosition; // word_510DC
     uint16_t word_510DF;
-    uint8_t byte_510E1; // -> 0xDD1
-    uint8_t byte_510E2; // -> 0xDD2
+    uint8_t demoCurrentInput; // byte_510E1 -> 0xDD1
+    uint8_t demoCurrentInputRepeatCounter; // -> 0xDD2 -> byte_510E2
     uint16_t demoIndexOrDemoLevelNumber; // word_510E6
     uint16_t murphyPositionX; // word_510E8
     uint16_t murphyPositionY; // word_510EA
@@ -2727,7 +2729,7 @@ void activateRolandSound(void);
 void activateCombinedSound(void);
 void activateInternalStandardSound(void);
 void activateInternalSamplesSound(void);
-void prepareSomeKindOfLevelIdentifier(void);
+void prepareDemoRecordingFilename(void);
 void runMainMenu(void);
 void convertNumberTo3DigitPaddedString(uint8_t number, char numberString[3], char useSpacesForPadding);
 void stopMusicAndSounds(void);
@@ -2818,9 +2820,9 @@ uint16_t handleMurphyDirectionUp(uint16_t position);
 void detonateYellowDisks(void);
 void updateUserInputInScrollMovementMode(void);
 void updateUserInput(void);
-void sub_492F1(void);
+void saveInputForDemo(void);
 void simulateDemoInput(void);
-void sub_4A463(void);
+void fetchAndInitializeLevel(void);
 void removeTiles(LevelTileType tileType);
 void restartLevel(void);
 void recordDemo(uint16_t demoIndex);
@@ -3795,7 +3797,7 @@ loc_46CB7:              //; CODE XREF: start:loc_46CADj
         //db 8Dh, 36h, 65h, 9Fh
         // si = **aFileDemo; //;lea si, [aFileDemo] ; "!! File >> Demo: "
         
-        word_599DA = 0
+        gSelectedOriginalDemoFromCommandLineLevelNumber = 0
         popf();
         
         if (result < 0) // jb  short errorReadingDemoFile
@@ -3817,7 +3819,7 @@ loc_46CB7:              //; CODE XREF: start:loc_46CADj
             goto loc_46CF4;
         }
         int success = getLevelNumberFromOriginalDemoFile(file, fileLength);
-        word_599DA = fileLength;
+        gSelectedOriginalDemoFromCommandLineLevelNumber = fileLength;
         pushf();
         ah = 0x3E;
         fclose(file);
@@ -3858,12 +3860,12 @@ loc_46CFB:              //; CODE XREF: start:loc_46CF4j
             goto errorReadingDemoFile;
         }
         
-        byte_599D4 = 2;
+        gIsSPDemoAvailableToRun = 2;
         goto loc_46D13;
 
 errorReadingDemoFile:              //; CODE XREF: start+74j start+A2j ...
         *demoFileName = 0;
-        byte_599D4 = 0;
+        gIsSPDemoAvailableToRun = 0;
 
 loc_46D13:              //; CODE XREF: start+E7j
         pop(cx); // recover number of cmd line bytes
@@ -4159,7 +4161,7 @@ loc_46E75:              //; CODE XREF: start+251j
     // Conditions to whether show
     al = byte_59B6B;
     al |= byte_59B84;
-    al |= byte_599D4;
+    al |= gIsSPDemoAvailableToRun;
     al |= fastMode;
     if (al != 0)
     {
@@ -4227,7 +4229,7 @@ loc_46E75:              //; CODE XREF: start+251j
 //loc_46F77:              //; CODE XREF: start+352j
             byte_5A33F = 1;
             runLevel();
-            byte_599D4 = 0;
+            gIsSPDemoAvailableToRun = 0;
             if (gShouldExitGame != 0)
             {
                 break; // goto loc_47067;
@@ -4263,15 +4265,15 @@ loc_46E75:              //; CODE XREF: start+251j
         shouldSkipFirstPart = 0;
 
 //loc_46FBE:              //; CODE XREF: start+30Cj start+31Bj ...
-        prepareSomeKindOfLevelIdentifier(); // 01ED:037A
+        prepareDemoRecordingFilename(); // 01ED:037A
 
         uint8_t shouldDoSomething = 1; // still no idea what this is
 
-        if (byte_599D4 == 2)
+        if (gIsSPDemoAvailableToRun == 2)
         {
-//            goto loc_46FFF; <- if byte_599D4 != 2
+//            goto loc_46FFF; <- if gIsSPDemoAvailableToRun != 2
 
-            byte_599D4 = 1;
+            gIsSPDemoAvailableToRun = 1;
             if (fileIsDemo == 1)
             {
 //              ax = 0;
@@ -4491,7 +4493,7 @@ uint8_t getLevelNumberFromOriginalDemoFile(FILE *file, uint16_t fileLength) // f
 void slideDownGameDash() // proc near     ; CODE XREF: start:isNotFastMode2p
 {
     // 01ED:04ED
-    if ((gCurrentGameState.word_510C1 & 0xFF) == 0)
+    if (gCurrentGameState.shouldShowGamePanel == 0)
     {
 //loc_4715C:              ; CODE XREF: crt?2+5j
 //        cx = 0x90; // 144
@@ -4865,8 +4867,8 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
     for (int i = 0; i < kNumberOfDemos; ++i)
     {
 //loc_47629:              //; CODE XREF: readDemoFiles+175j
-        word_599D8 = 0;
-        if (byte_599D4 == 1)
+        gSelectedOriginalDemoLevelNumber = 0;
+        if (gIsSPDemoAvailableToRun == 1)
         {
             // TODO: Implement loading a demo from command line
             // dx = &demoFileName;
@@ -4886,9 +4888,9 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
         }
 
 //loc_47651:              //; CODE XREF: readDemoFiles+43j
-        if (byte_599D4 == 1)
+        if (gIsSPDemoAvailableToRun == 1)
         {
-            if (word_599DA == 0)
+            if (gSelectedOriginalDemoFromCommandLineLevelNumber == 0)
             {
                 fseek(file, levelDataLength, SEEK_SET);
             }
@@ -4903,13 +4905,13 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
             if (result == 0
                 && fileSize < levelDataLength)
             {
-                word_599D8 = getLevelNumberFromOriginalDemoFile(file, fileSize);
+                gSelectedOriginalDemoLevelNumber = getLevelNumberFromOriginalDemoFile(file, fileSize);
             }
 
 //loc_47690:             // ; CODE XREF: readDemoFiles+76j readDemoFiles+7Aj ...
             fseek(file, 0, SEEK_SET);
 
-            if (word_599D8 == 0)
+            if (gSelectedOriginalDemoLevelNumber == 0)
             {
                 Level *level = &gDemos.level[i];
                 size_t bytes = fread(level, 1, levelDataLength, file);
@@ -4969,8 +4971,8 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
         // pop(ax)
         bx = gCurrentGameState.word_510DF;
         gDemos.demoData[gCurrentGameState.word_510DF] = gDemos.demoData[gCurrentGameState.word_510DF] & 0x7F; // this removes the MSB from the levelNumber that was added in the speed fix mods
-        int isZero = (word_599D8 == 0);
-        word_599D8 = 0;
+        int isZero = (gSelectedOriginalDemoLevelNumber == 0);
+        gSelectedOriginalDemoLevelNumber = 0;
         if (isZero)
         {
             gDemos.demoData[gCurrentGameState.word_510DF] = gDemos.demoData[gCurrentGameState.word_510DF] | 0x80; // This sets the MSB?? maybe the "interpreter" later needs it
@@ -6391,11 +6393,6 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
         if (belowTile->tile == LevelTileTypeOrangeDisk && belowTile->movingObject == 0) // cmp word ptr [si+18ACh], 8
         {
 //loc_48205:              ; CODE XREF: movefun+192j
-            // TODO: no idea what this does yet. do orange disks turn into hardware tiles or something like that?
-            // add si, 78h ; 'x'
-            // mov bx, si
-            // shr bx, 1
-            // mov byte ptr [bx+2434h], 6
             gCurrentGameState.explosionTimers[position + kLevelWidth] = 6;
             return;
         }
@@ -6835,7 +6832,6 @@ void updateInfotronTiles(uint16_t position) // movefun2  proc near       ; DATA 
                 currentTile->movingObject = 0xFF;
                 currentTile->tile = 0xFF;
 
-                // TODO: Move down and update tiles??
                 // add si, 78h ; 'x'
                 position += kLevelWidth;
 
@@ -7269,7 +7265,8 @@ void initializeGameInfo() // sub_48A20   proc near       ; CODE XREF: start+32F
     gCurrentGameState.word_5195D = 0;
 //    mov byte ptr word_510C1, 1
 //    mov byte ptr word_510C1+1, 0
-    gCurrentGameState.word_510C1 = 0x0001;
+    gCurrentGameState.shouldShowGamePanel = 1;
+    gCurrentGameState.toggleGamePanelKeyAutoRepeatCounter = 0;
     gCurrentGameState.areEnemiesFrozen = 0;
     gCurrentGameState.isMurphyGoingThroughPortal &= 0xFF00; // mov byte ptr gIsMurphyGoingThroughPortal, 0
     gCurrentGameState.plantedRedDiskCountdown = 0;
@@ -7334,10 +7331,10 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
     }
 
 //loc_48AD8:              ; CODE XREF: runLevel+11j
-    if (byte_5A2F8 == 1)
+    if (gDemoRecordingJustStarted == 1)
     {
 //loc_48ADF:              ; CODE XREF: runLevel+BAj
-        byte_5A2F8 = 0;
+        gDemoRecordingJustStarted = 0;
         drawGameTime();
 
         do
@@ -7398,7 +7395,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 
 //loc_48B6B:              ; CODE XREF: runLevel+82j runLevel+94j ...
         handleGameUserInput(); // 01ED:1F08
-        if (byte_5A2F8 == 1)
+        if (gDemoRecordingJustStarted == 1)
         {
             // TODO: This goes back to the beginning of this function WTF
             // Maybe it just restarts the demo? Seems to be related to playing demos
@@ -7763,7 +7760,7 @@ void updateUserInputInScrollMovementMode() // sub_4914A   proc near       ; CODE
 //loc_491D7:              ; CODE XREF: updateUserInputInScrollMovementMode+84j
     bx -= 0x270; // 312
     ax += 0xA8;
-    if ((gCurrentGameState.word_510C1 & 0xFF) != 0)
+    if (gCurrentGameState.shouldShowGamePanel != 0)
     {
         ax += 0x18;
     }
@@ -7794,9 +7791,9 @@ void simulateDemoInput() // sub_492A8   proc near       ; CODE XREF: handleGameU
                    // ; restartLevel+76p
 {
     // 01ED:2645
-    if (gCurrentGameState.byte_510E2 > 1)
+    if (gCurrentGameState.demoCurrentInputRepeatCounter > 1)
     {
-        gCurrentGameState.byte_510E2--;
+        gCurrentGameState.demoCurrentInputRepeatCounter--;
         return;
     }
 
@@ -7815,39 +7812,39 @@ void simulateDemoInput() // sub_492A8   proc near       ; CODE XREF: handleGameU
 
 //loc_492CA:              ; CODE XREF: simulateDemoInput+47j
     gCurrentUserInput = newInput & 0xF;
-    gCurrentGameState.byte_510E2 = (newInput >> 4) + 1;
+    gCurrentGameState.demoCurrentInputRepeatCounter = (newInput >> 4) + 1;
 }
 
-void sub_492F1() //   proc near       ; CODE XREF: handleGameUserInput+1Dp
+void saveInputForDemo() // sub_492F1   proc near       ; CODE XREF: handleGameUserInput+1Dp
 {
-    gCurrentGameState.byte_510E2++;
+    gCurrentGameState.demoCurrentInputRepeatCounter++;
 
-    if (gCurrentGameState.byte_510E2 == 0xFF)
+    if (gCurrentGameState.demoCurrentInputRepeatCounter == 0xFF)
     {
-        gCurrentGameState.byte_510E1 = gCurrentUserInput;
+        gCurrentGameState.demoCurrentInput = gCurrentUserInput;
         gDemoRecordingRandomGeneratorSeed = gRandomGeneratorSeed;
         gDemoRecordingRandomGeneratorSeedLow = (gDemoRecordingRandomGeneratorSeed >> 8); // ah;
         gDemoRecordingRandomGeneratorSeedHigh = (gDemoRecordingRandomGeneratorSeed & 0xFF); // al;
     }
 
-//loc_49311:              ; CODE XREF: sub_492F1+Dj
-    if (gCurrentGameState.byte_510E1 == gCurrentUserInput
-        && gCurrentGameState.byte_510E2 != 0xF)
+//loc_49311:              ; CODE XREF: saveInputForDemo+Dj
+    if (gCurrentGameState.demoCurrentInput == gCurrentUserInput
+        && gCurrentGameState.demoCurrentInputRepeatCounter != 0xF)
     {
         return;
     }
 
-//loc_4931E:              ; CODE XREF: sub_492F1+24j
-    gCurrentGameState.byte_510E1 = (gCurrentGameState.byte_510E1
-                                    | (gCurrentGameState.byte_510E2 << 4));
+//loc_4931E:              ; CODE XREF: saveInputForDemo+24j
+    gCurrentGameState.demoCurrentInput = (gCurrentGameState.demoCurrentInput
+                                    | (gCurrentGameState.demoCurrentInputRepeatCounter << 4));
 
-    gDemoRecordingRandomGeneratorSeedHigh += gCurrentGameState.byte_510E2;
+    gDemoRecordingRandomGeneratorSeedHigh += gCurrentGameState.demoCurrentInputRepeatCounter;
     gDemoRecordingRandomGeneratorSeedHigh++;
 
-    uint8_t value = gCurrentGameState.byte_510E1;
+    uint8_t value = gCurrentGameState.demoCurrentInput;
     fwrite(&value, sizeof(uint8_t), 1, gCurrentRecordingDemoFile);
-    gCurrentGameState.byte_510E2 = 0xFF;
-    gCurrentGameState.byte_510E1 = gCurrentUserInput;
+    gCurrentGameState.demoCurrentInputRepeatCounter = 0xFF;
+    gCurrentGameState.demoCurrentInput = gCurrentUserInput;
 }
 
 void stopRecordingDemo() // somethingspsig  proc near       ; CODE XREF: runLevel+355p
@@ -7857,60 +7854,24 @@ void stopRecordingDemo() // somethingspsig  proc near       ; CODE XREF: runLeve
     uint8_t scrambleSpeedHigh = (gDemoRecordingLowestSpeed ^ gDemoRecordingRandomGeneratorSeedHigh);
     uint16_t scrambleSpeed = ((scrambleSpeedHigh << 8)
                               | scrambleSpeedLow);
-//    al = 0; //speed2;
-//    al = al ^ gDemoRecordingRandomGeneratorSeedLow; // ->
-//    byte_59B5D = al;
-//    al = al ^ gDemoRecordingRandomGeneratorSeedHigh;
-//    byte_59B5E = al;
 
     fseek(gCurrentRecordingDemoFile, 1532, SEEK_SET);
 
-//    mov ax, 4000h
-//    mov bx, gCurrentRecordingDemoFile
-//    mov cx, 2
-//    mov dx, 984Dh -> byte_59B5D and byte_59B5E
-//    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
-//                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
     fwrite(&scrambleSpeed, 1, sizeof(uint16_t), gCurrentRecordingDemoFile);
 
-//    mov ax, 4000h
-//    mov bx, gCurrentRecordingDemoFile
-//    mov cx, 2
-//    mov dx, 9E89h
-//    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
-//                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
     fwrite(&gDemoRecordingRandomGeneratorSeed, 1, sizeof(gDemoRecordingRandomGeneratorSeed), gCurrentRecordingDemoFile);
 
     fseek(gCurrentRecordingDemoFile, 0, SEEK_END);
 
-    gCurrentGameState.byte_510E1 = 0xFF;
+    gCurrentGameState.demoCurrentInput = 0xFF;
 
-//    mov ax, 4000h
-//    mov bx, gCurrentRecordingDemoFile
-//    mov cx, 1
-//    mov dx, 0DD1h
-//    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
-//                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
-    uint8_t value = gCurrentGameState.byte_510E1;
+    uint8_t value = gCurrentGameState.demoCurrentInput;
     fwrite(&value, 1, sizeof(uint8_t), gCurrentRecordingDemoFile);
     if (byte_5A19B != 0)
     {
-//    mov ax, 3D00h
-//    mov dx, offset aMyspsig_txt ; "MYSPSIG.TXT"
-//    int 21h     ; DOS - 2+ - OPEN DISK FILE WITH HANDLE
-//                ; DS:DX -> ASCIZ filename
-//                ; AL = access mode
-//                ; 0 - read
         FILE *sigFile = openWritableFileWithReadonlyFallback("MYSPSIG.TXT", "r");
         if (sigFile != NULL)
         {
-//    mov bx, ax
-//    push    bx
-//    mov ax, 4202h
-//    xor cx, cx
-//    mov dx, cx
-//    int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
-//                ; AL = method: offset from end of file
             if (fseek(sigFile, 0, SEEK_END) == 0)
             {
                 long sigFileSize = ftell(sigFile);
@@ -7920,42 +7881,13 @@ void stopRecordingDemo() // somethingspsig  proc near       ; CODE XREF: runLeve
                 {
 //loc_493EB:              ; CODE XREF: stopRecordingDemo+85j
 //                ; stopRecordingDemo+8Dj
-//    push    bx
-//    push(cx);
-//    mov ax, 4200h
-//    xor cx, cx
-//    mov dx, cx
-//    int 21h     ; DOS - 2+ - MOVE FILE READ/WRITE POINTER (LSEEK)
-//                ; AL = method: offset from beginning of file
                     if (fseek(sigFile, 0, SEEK_SET) == 0)
                     {
-//    push    bx
-//    push(cx);
-//    mov ax, 3F00h
-//    mov dx, offset fileLevelData
-//    int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-//                ; BX = file handle, CX = number of bytes to read
-//                ; DS:DX -> buffer
                         uint8_t signature[kMaxDemoSignatureLength + 1];
                         size_t bytes = fread(signature, 1, sigFileSize, sigFile);
-//    pop(cx);
-//    pop bx
+
                         if (bytes == sigFileSize)
                         {
-//    push    bx
-//    push    es
-//    push    ds
-//    pop es
-//    assume es:data
-//    push(di);
-//    push(cx);
-//    mov di, offset fileLevelData
-//    al = 0FFh
-//    cld
-//    repne scasb
-//    jz  short loc_4941C
-//    dec cx
-//    mov byte ptr [di], 0FFh
                             int idx = 0;
                             for (idx = 0; idx < sigFileSize; ++idx)
                             {
@@ -7970,19 +7902,7 @@ void stopRecordingDemo() // somethingspsig  proc near       ; CODE XREF: runLeve
                             sigFileSize = idx;
 
 //loc_4941C:              ; CODE XREF: stopRecordingDemo+BCj
-//    pop ax
-//    pop(di);
-//    pop es
-//    assume es:nothing
-//    cx -= ax;
-//    cx = 0x10000-cx; // neg cx
-//    mov ax, 4000h
-//    mov bx, gCurrentRecordingDemoFile
-//    mov dx, offset fileLevelData
-//    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
-//                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
                             fwrite(signature, 1, sigFileSize, sigFile);
-//    pop bx
                         }
                     }
                 }
@@ -8032,7 +7952,7 @@ void recordDemo(uint16_t demoIndex) // sub_4945D   proc near       ; CODE XREF: 
     char *filename = gDemo0BinFilename;
 
     if (supportsSPFileDemoPlayback()
-        && (word_59B6E & 0xFF) == 0) // cmp byte ptr word_59B6E, 0
+        && (gShouldRecordWithOriginalDemoFilenames & 0xFF) == 0) // cmp byte ptr gShouldRecordWithOriginalDemoFilenames, 0
     {
         a00s0010_sp[7] = demoIndexCharacter;
         filename = a00s0010_sp;
@@ -8040,16 +7960,7 @@ void recordDemo(uint16_t demoIndex) // sub_4945D   proc near       ; CODE XREF: 
 
 //loc_494A6:              ; CODE XREF: recordDemo+41j
     gRecordingDemoMessage[18] = demoIndexCharacter;
-    // aRecordingDemo0 has "--- RECORDING DEMO0 ---"
-    // This code changes the "0" from "DEMO0" with another value
-//    mov byte ptr aRecordingDemo0+12h, al ; "0 ---"
-//    mov cx, 0
-//    mov dx, bx
-//    mov ax, 3C00h
-//    int 21h     ; DOS - 2+ - CREATE A FILE WITH HANDLE (CREAT)
-//                ; CX = attributes for file
-//                ; DS:DX -> ASCIZ filename (may include drive and path)
-    // TODO: Implement
+
     FILE *file = openWritableFile(filename, "w");
     if (file == NULL)
     {
@@ -8058,7 +7969,7 @@ void recordDemo(uint16_t demoIndex) // sub_4945D   proc near       ; CODE XREF: 
 
 //loc_494B8:              ; CODE XREF: recordDemo+56j
     gCurrentRecordingDemoFile = file; // file handle
-    byte_5A140 = 0x83; // 131
+    gCurrentGameState.level.speedFixMagicNumber = 0x20 + kGameVersion;
     // TODO: don't know for sure but this probably is related to adjusting the demo time with the speed or something?
     // bl = speed3;
     // cl = 4;
@@ -8066,19 +7977,14 @@ void recordDemo(uint16_t demoIndex) // sub_4945D   proc near       ; CODE XREF: 
     // bl |= gGameSpeed;
     // speed2 = bl;
     gDemoRecordingLowestSpeed = gGameSpeed;
-//    mov bx, gCurrentRecordingDemoFile
-//    mov ax, 4000h
-//    mov cx, levelDataLength
-//    mov dx, offset levelBuffer
-//    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
-//                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
+
     size_t bytes = fwrite(&gCurrentGameState.level, 1, sizeof(Level), file);
     if (bytes < sizeof(Level))
     {
         return;
     }
 
-    // The original code sets index | 0x80 in byte_510E2 and then writes it to the file
+    // The original code sets index | 0x80 in demoCurrentInputRepeatCounter and then writes it to the file
     // but seems to be useless because that value is overriden later.
     //
     uint8_t levelNumber = gCurrentSelectedLevelIndex | 0x80;
@@ -8087,12 +7993,12 @@ void recordDemo(uint16_t demoIndex) // sub_4945D   proc near       ; CODE XREF: 
     {
         return;
     }
-    gCurrentGameState.byte_510E1 = 0;
-    byte_5A2F8 = 1;
+    gCurrentGameState.demoCurrentInput = UserInputNone;
+    gDemoRecordingJustStarted = 1;
     gIsPlayingDemo = 0;
-    gCurrentGameState.byte_510E2 = 0xFE; // 254
+    gCurrentGameState.demoCurrentInputRepeatCounter = 0xFE; // 254
     gDebugExtraRenderDelay = 1;
-    if (byte_599D4 == 0)
+    if (gIsSPDemoAvailableToRun == 0)
     {
         memcpy(gCurrentDemoLevelName, gCurrentLevelName, 3);
     }
@@ -8105,66 +8011,41 @@ void recordDemo(uint16_t demoIndex) // sub_4945D   proc near       ; CODE XREF: 
     }
 
 //loc_4953B:              ; CODE XREF: recordDemo+D7j
-    sub_4A463();
+    fetchAndInitializeLevel();
     gIsPlayingDemo = 0;
 }
 
-void prepareSomeKindOfLevelIdentifier() // sub_49544  proc near       ; CODE XREF: start+3A1p
+void prepareDemoRecordingFilename() // sub_49544  proc near       ; CODE XREF: start+3A1p
                    // ; handleOkButtonClick:loc_4B40Fp ...
 {
     // 01ED:28E1
 
-    char char8 = gLevelsDatFilename[8];
-    char char9 = gLevelsDatFilename[9];
+    char currentSuffix[3] = "AT";
+    strcpy(currentSuffix, &gLevelsDatFilename[8]);
 
     // Checks if the last two chars are "00" like LEVELS.D00?
-    if (char8 == '0' && char9 == '0')
+    if (strcmp(currentSuffix, "00") == 0)
     {
         // replaces the content with "--"
-        char8 = '-';
-        char9 = '-';
+        strcpy(currentSuffix, "--");
     }
 
-//loc_4954F:             // ; CODE XREF: prepareSomeKindOfLevelIdentifier+6j
+//loc_4954F:             // ; CODE XREF: prepareDemoRecordingFilename+6j
     // Now checks if the last two chars are "AT" like LEVELS.DAT?
-    if (char8 == 'A' && char9 == 'T')
+    if (strcmp(currentSuffix, "AT") == 0)
     {
         // replaces the content with "00"
-        char8 = '0';
-        char9 = '0';
+        strcpy(currentSuffix, "00");
     }
 
-//loc_49557:             // ; CODE XREF: prepareSomeKindOfLevelIdentifier+Ej
-    // WTF replaces the first two chars of the string "00S001$0.SP" with what is at ax??
-    a00s0010_sp[0] = char8;
-    a00s0010_sp[1] = char9;
-}
-
-void readFromFh1() // proc near       ; CODE XREF: handleGameUserInput+54Ep
-                    //; handleGameUserInput+57Cp ...
-{
-//    mov ax, 3F00h
-//    mov bx, fh1
-//    int 21h     ; DOS - 2+ - READ FROM FILE WITH HANDLE
-//                ; BX = file handle, CX = number of bytes to read
-//                ; DS:DX -> buffer
-}
-
-void writeToFh1() //  proc near       ; CODE XREF: handleGameUserInput+486p
-                    // ; handleGameUserInput+494p ...
-{
-//    mov ax, 4000h
-//    mov bx, fh1
-//    int 21h     ; DOS - 2+ - WRITE TO FILE WITH HANDLE
-//                ; BX = file handle, CX = number of bytes to write, DS:DX -> buffer
+//loc_49557:             // ; CODE XREF: prepareDemoRecordingFilename+Ej
+    strcpy(a00s0010_sp, currentSuffix);
 }
 
 void handleGameUserInput() // sub_4955B   proc near       ; CODE XREF: runLevel:loc_48B6Bp
                    // ; runLevel+30Cp
 {
     // 01ED:28F8
-
-// ; FUNCTION CHUNK AT 2DA8 SIZE 0000038B BYTES
 
     if (gIsMoveScrollModeEnabled != 0)
     {
@@ -8176,7 +8057,7 @@ void handleGameUserInput() // sub_4955B   proc near       ; CODE XREF: runLevel:
         updateUserInput(); // 01ED:290B
         if (gIsRecordingDemo != 0)
         {
-            sub_492F1(); // 01ED:2915
+            saveInputForDemo(); // 01ED:2915
         }
     }
 
@@ -8188,33 +8069,31 @@ void handleGameUserInput() // sub_4955B   proc near       ; CODE XREF: runLevel:
     }
 
 //loc_4958F:              ; CODE XREF: handleGameUserInput+2Fj
-    if ((gCurrentGameState.word_510C1 >> 8) != 0) // cmp byte ptr word_510C1+1, 0
+    if (gCurrentGameState.toggleGamePanelKeyAutoRepeatCounter != 0) // cmp byte ptr word_510C1+1, 0
     {
         // 01ED:293E
-        uint8_t highValue = (gCurrentGameState.word_510C1 >> 8);
-        highValue--;
-        gCurrentGameState.word_510C1 = (highValue << 8) + (gCurrentGameState.word_510C1 & 0xFF);
+        gCurrentGameState.toggleGamePanelKeyAutoRepeatCounter--;
     }
 
 //loc_4959A:              ; CODE XREF: handleGameUserInput+39j
     if (gIsEnterPressed == 0)
     {
-        gCurrentGameState.word_510C1 = gCurrentGameState.word_510C1 & 0xFF; // mov byte ptr word_510C1+1, 0
+        gCurrentGameState.toggleGamePanelKeyAutoRepeatCounter = 0; // mov byte ptr word_510C1+1, 0
     }
 //loc_495A9:              ; CODE XREF: handleGameUserInput+44j
-    else if ((gCurrentGameState.word_510C1 >> 8) == 0) // 01ED:2946
+    else if (gCurrentGameState.toggleGamePanelKeyAutoRepeatCounter == 0) // 01ED:2946
     {
 //loc_495B3:              ; CODE XREF: handleGameUserInput+53j
-        gCurrentGameState.word_510C1 = 0x2000 + (gCurrentGameState.word_510C1 & 0xFF); // mov byte ptr word_510C1+1, 20h ; ' '
-        if ((gCurrentGameState.word_510C1 & 0xFF) != 0)
+        gCurrentGameState.toggleGamePanelKeyAutoRepeatCounter = 0x20; // mov byte ptr word_510C1+1, 20h ; ' '
+        if (gCurrentGameState.shouldShowGamePanel != 0)
         {
-            gCurrentGameState.word_510C1 = (gCurrentGameState.word_510C1 & 0xFF00); // mov byte ptr word_510C1, 0
+            gCurrentGameState.shouldShowGamePanel = 0; // mov byte ptr word_510C1, 0
             gCurrentPanelHeight = 0;
         }
         else
         {
 //loc_495FB:              ; CODE XREF: handleGameUserInput+62j
-            gCurrentGameState.word_510C1 = (gCurrentGameState.word_510C1 & 0xFF00) + 1; // mov byte ptr word_510C1, 1
+            gCurrentGameState.shouldShowGamePanel = 1; // mov byte ptr word_510C1, 1
             gCurrentPanelHeight = kPanelBitmapHeight;
         }
     }
@@ -8667,7 +8546,7 @@ void saveGameSnapshot() //loc_499C8:              ; CODE XREF: handleGameUserInp
 
 //loc_49A06:              ; CODE XREF: handleGameUserInput+4A6j
 
-    savegame.savegameVersion = kSaveGameSupportedVersion;
+    savegame.savegameVersion = kGameVersion;
 
     memcpy(savegame.levelName, levelName, sizeof(savegame.levelName));
     memcpy(savegame.levelsetSuffix, &gLevelsDatFilename[8], sizeof(savegame.levelsetSuffix));
@@ -8738,7 +8617,7 @@ void loadGameSnapshot() // loc_49A89:              ; CODE XREF: handleGameUserIn
     }
 
 //loc_49B6F:              ; CODE XREF: handleGameUserInput+60Fj
-    if (savegame.savegameVersion != kSaveGameSupportedVersion)
+    if (savegame.savegameVersion != kGameVersion)
     {
 //loc_49C1A:              ; CODE XREF: handleGameUserInput+553j
 //                    ; handleGameUserInput+581j ...
@@ -9133,7 +9012,7 @@ void updateScrollOffset() // sub_49EBE   proc near       ; CODE XREF: runLevel+1
     }
 
 //loc_49EE8:              ; CODE XREF: updateScrollOffset+25j
-    if ((gCurrentGameState.word_510C1 & 0xFF) == 0)
+    if (gCurrentGameState.shouldShowGamePanel == 0)
     {
 //loc_49EF4:              ; CODE XREF: updateScrollOffset+2Fj
         scrollY -= kScreenHeight / 2;
@@ -9152,7 +9031,7 @@ void updateScrollOffset() // sub_49EBE   proc near       ; CODE XREF: runLevel+1
 //loc_49EFE:              ; CODE XREF: updateScrollOffset+3Cj
     uint16_t maxScrollY = 0;
 
-    if ((gCurrentGameState.word_510C1 & 0xFF) == 0)
+    if (gCurrentGameState.shouldShowGamePanel == 0)
     {
 //loc_49F0F:              ; CODE XREF: updateScrollOffset+45j
         maxScrollY = kLevelBitmapHeight - kScreenHeight;
@@ -9594,7 +9473,7 @@ void removeTiles(LevelTileType tileType) // sub_4A23C   proc near       ; CODE X
     gHasUserCheated = 1;
 }
 
-void findMurphy() //   proc near       ; CODE XREF: start+344p sub_4A463+22p
+void findMurphy() //   proc near       ; CODE XREF: start+344p fetchAndInitializeLevel+22p
 {
     // 01ED:360E
     for (int i = 0; i < kLevelSize; ++i)
@@ -9634,10 +9513,7 @@ void scrollToMurphy() // sub_4A291   proc near       ; CODE XREF: handleGameUser
 void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
 {
     // 01ED:3683
-    bx = 0;
     uint16_t numberOfInfotrons = 0;
-    cx = 0x5A0; // 1440 = 120 * 12 -> width = 120, height = 12
-//    mov si, offset leveldata
     uint16_t numberOfSomething = 0; // this is bx, just counts the number of tiles so technically is same as cx at this point… probably a return value but I don't see it used anywhere???
 
     for (int i = 0; i < kLevelSize; ++i)
@@ -9662,6 +9538,7 @@ void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
                 continue; // jmp short loc_4A3B0
             }
         }
+        // TODO: what are these byte_5A33F for??
         if (byte_5A33F == 1 || currentTile->movingObject != 0 || currentTile->tile != LevelTileTypeSnikSnak) //jz  short loc_4A34B
         {
             if (byte_5A33F == 1 || currentTile->movingObject != 0 || currentTile->tile != LevelTileTypeElectron) //jz  short loc_4A379
@@ -9783,7 +9660,7 @@ void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
     }
 }
 
-void resetNumberOfInfotrons() // sub_4A3BB   proc near       ; CODE XREF: start+33Ep sub_4A463+17p
+void resetNumberOfInfotrons() // sub_4A3BB   proc near       ; CODE XREF: start+33Ep fetchAndInitializeLevel+17p
 {
     uint8_t numberOfInfotrons = 0;
     if (gCurrentGameState.numberOfInfoTrons != 0)
@@ -9800,8 +9677,8 @@ void resetNumberOfInfotrons() // sub_4A3BB   proc near       ; CODE XREF: start+
 void sub_4A3D2() //   proc near       ; CODE XREF: handleGameUserInput+39Ep
                    // ; handleGameUserInput+3EBp
 {
-    byte_599D4 = 0;
-    word_599D8 = 0;
+    gIsSPDemoAvailableToRun = 0;
+    gSelectedOriginalDemoLevelNumber = 0;
     uint8_t wasNotZero = (gHasUserInterruptedDemo != 0);
     gHasUserInterruptedDemo = 0;
     if (wasNotZero)
@@ -9836,7 +9713,7 @@ void restartLevel() // sub_4A3E9   proc near       ; CODE XREF: handleGameUserIn
 
 //loc_4A427:              ; CODE XREF: restartLevel+37j
     byte_5A33F = 0;
-    sub_4A463();
+    fetchAndInitializeLevel();
     byte_5A33F = 1;
     if (gHasUserInterruptedDemo >= 1)
     {
@@ -9856,11 +9733,11 @@ void restartLevel() // sub_4A3E9   proc near       ; CODE XREF: handleGameUserIn
     }
 
     gCurrentGameState.word_510DF = word_5A33C;
-    gCurrentGameState.byte_510E2 = 1;
+    gCurrentGameState.demoCurrentInputRepeatCounter = 1;
     simulateDemoInput();
 }
 
-void sub_4A463() //   proc near       ; CODE XREF: recordDemo:loc_4953Bp
+void fetchAndInitializeLevel() // sub_4A463   proc near       ; CODE XREF: recordDemo:loc_4953Bp
                    // ; restartLevel+43p
 {
     readLevels();
@@ -10738,7 +10615,7 @@ void addCurrentGameTimeToPlayer() // sub_4A95F   proc near       ; CODE XREF: ru
         return;
     }
 
-    if (byte_599D4 != 0)
+    if (gIsSPDemoAvailableToRun != 0)
     {
         return;
     }
@@ -11611,15 +11488,14 @@ void handleDemoOptionClick() // sub_4B159   proc near       ; CODE XREF: runMain
     uint8_t demoLevelNumber = gDemos.demoData[demoFirstIndex];
     uint8_t finalLevelNumber = demoIndex;
 
-    word_599D6 = demoIndex;
-    word_599D8 = 0;
+    gSelectedOriginalDemoIndex = demoIndex;
+    gSelectedOriginalDemoLevelNumber = 0;
 
     // This checks if the level number has its MSB to 0 and is a valid level number (1-111) for the original DEMO format
     if (demoLevelNumber <= 0x6F // 111
         && demoLevelNumber != 0)
     {
-        // TODO: test demos from the original game and recheck anything involving word_599D8
-        word_599D8 = (word_599D8 & 0xFF00) | demoLevelNumber; // mov byte ptr word_599D8, al
+        gSelectedOriginalDemoLevelNumber = (gSelectedOriginalDemoLevelNumber & 0xFF00) | demoLevelNumber; // mov byte ptr gSelectedOriginalDemoLevelNumber, al
         finalLevelNumber = demoLevelNumber;
     }
 
@@ -11631,8 +11507,8 @@ void handleDemoOptionClick() // sub_4B159   proc near       ; CODE XREF: runMain
     demoFirstIndex++; // To skip the level number
     gCurrentGameState.word_510DF = demoFirstIndex;
     word_5A33C = demoFirstIndex;
-    gCurrentGameState.byte_510E1 = 0;
-    gCurrentGameState.byte_510E2 = 1;
+    gCurrentGameState.demoCurrentInput = UserInputNone;
+    gCurrentGameState.demoCurrentInputRepeatCounter = 1;
 }
 
 void playDemo(uint16_t demoIndex) // demoSomething  proc near       ; CODE XREF: start+3BAp
@@ -11652,7 +11528,7 @@ void playDemo(uint16_t demoIndex) // demoSomething  proc near       ; CODE XREF:
     }
 
 //loc_4B22F:              ; CODE XREF: playDemo+30j
-    word_599D8 = 0;
+    gSelectedOriginalDemoLevelNumber = 0;
 
     uint8_t demoLevelNumber = gDemos.demoData[demoFirstIndex];
     uint8_t finalLevelNumber = demoIndex;
@@ -11660,9 +11536,8 @@ void playDemo(uint16_t demoIndex) // demoSomething  proc near       ; CODE XREF:
     if (demoLevelNumber <= kNumberOfLevels // 111
         && demoLevelNumber != 0)
     {
-        // TODO: test demos from the original game and recheck anything involving word_599D8
         finalLevelNumber = demoLevelNumber;
-        word_599D8 = (word_599D8 & 0xFF00) | finalLevelNumber; // mov byte ptr word_599D8, al
+        gSelectedOriginalDemoLevelNumber = (gSelectedOriginalDemoLevelNumber & 0xFF00) | finalLevelNumber; // mov byte ptr gSelectedOriginalDemoLevelNumber, al
     }
 
 //loc_4B248:              ; CODE XREF: playDemo+4Bj
@@ -11672,8 +11547,8 @@ void playDemo(uint16_t demoIndex) // demoSomething  proc near       ; CODE XREF:
     demoFirstIndex++; // To skip the level number
     gCurrentGameState.word_510DF = demoFirstIndex;
     word_5A33C = demoFirstIndex;
-    gCurrentGameState.byte_510E1 = 0;
-    gCurrentGameState.byte_510E2 = 1;
+    gCurrentGameState.demoCurrentInput = UserInputNone;
+    gCurrentGameState.demoCurrentInputRepeatCounter = 1;
 }
 
 void handleRankingListScrollUp() // loc_4B262
@@ -11875,7 +11750,7 @@ void handleOkButtonClick() // sub_4B375  proc near       ; CODE XREF: runMainMen
 
 //loc_4B40F:              ; CODE XREF: handleOkButtonClick+86j
 //                ; handleOkButtonClick+8Dj
-    prepareSomeKindOfLevelIdentifier(); // 01ED:47AC
+    prepareDemoRecordingFilename(); // 01ED:47AC
     sub_4BF4A(gCurrentSelectedLevelIndex); // 01ED:47B2
 }
 
@@ -13199,8 +13074,8 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
     // 01ED:5B31
     gIsInMainMenu = 1;
     gHasUserInterruptedDemo = 0;
-    word_599D8 = 0;
-    byte_599D4 = 0;
+    gSelectedOriginalDemoLevelNumber = 0;
+    gIsSPDemoAvailableToRun = 0;
     gAutomaticDemoPlaybackCountdown = 4200;
     if (word_58467 != 0)
     {
@@ -13357,7 +13232,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
                  && demoFileName != 0
                  && fileIsDemo == 1)
         {
-            byte_599D4 = 1;
+            gIsSPDemoAvailableToRun = 1;
             playDemo(0);
         }
 //loc_4C977:              // ; CODE XREF: runMainMenu+1C6j
@@ -13365,12 +13240,12 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
         else if (gIsF12KeyPressed == 1
                  && demoFileName != 0)
         {
-            byte_599D4 = 1;
+            gIsSPDemoAvailableToRun = 1;
             word_5196C = 1;
             gIsPlayingDemo = 0;
             gCurrentGameState.byte_510B3 = 0;
             gHasUserCheated = 1;
-            prepareSomeKindOfLevelIdentifier();
+            prepareDemoRecordingFilename();
             // This adds dashes to the level name or something?
             a00s0010_sp[3] = 0x2D; // '-' ; "001$0.SP"
             a00s0010_sp[4] = 0x2D; // '-' ; "01$0.SP"
@@ -14377,7 +14252,7 @@ void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
 }
 
 void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
-                    // ; sub_4A463p
+                    // ; fetchAndInitializeLevelp
 {
     // 01ED:68E5
     char *filename = "";
@@ -14385,8 +14260,8 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
     Level fileLevelData;
 
     if (gIsPlayingDemo != 0
-        && (word_599D8 & 0xFF) == 0
-        && byte_599D4 == 0)
+        && (gSelectedOriginalDemoLevelNumber & 0xFF) == 0
+        && gIsSPDemoAvailableToRun == 0)
     {
         // Demos with the new format
         Level *level = &gDemos.level[gCurrentGameState.demoIndexOrDemoLevelNumber];
@@ -14400,7 +14275,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
     else
     {
         if (gIsPlayingDemo == 0
-            || byte_599D4 != 0)
+            || gIsSPDemoAvailableToRun != 0)
         {
 //loc_4D59F:              ; CODE XREF: readLevels+5j
 //                ; readLevels+13j
@@ -14408,18 +14283,18 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
         }
 
         if (gIsPlayingDemo != 0
-            && (word_599D8 & 0xFF) != 0) //cmp byte ptr word_599D8, 0
+            && (gSelectedOriginalDemoLevelNumber & 0xFF) != 0) //cmp byte ptr gSelectedOriginalDemoLevelNumber, 0
         {
 //loc_4D599:              ; CODE XREF: readLevels+Cj
             filename = gLevelsDatFilename; // lea dx, aLevels_dat ; "LEVELS.DAT"
         }
 //loc_4D5A3:              ; CODE XREF: readLevels+55j
-        else if (byte_599D4 != 0)
+        else if (gIsSPDemoAvailableToRun != 0)
         {
             // TODO: add support for demos run from command line
             // filename = demoFileName; //    mov dx, offset demoFileName
         }
-        else if (word_599DA != 0)
+        else if (gSelectedOriginalDemoFromCommandLineLevelNumber != 0)
         {
             filename = gLevelsDatFilename; // lea dx, aLevels_dat ; "LEVELS.DAT"
         }
@@ -14445,9 +14320,9 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
         }
 
 //loc_4D5D4:              ; CODE XREF: readLevels+87j
-        if (byte_599D4 != 0)
+        if (gIsSPDemoAvailableToRun != 0)
         {
-            levelIndex = word_599DA;
+            levelIndex = gSelectedOriginalDemoFromCommandLineLevelNumber;
             if (levelIndex == 0)
             {
                 levelIndex++;
@@ -14474,11 +14349,11 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
         }
 
 //loc_4D618:              ; CODE XREF: readLevels+CBj
-        if ((word_599D8 & 0xFF) != 0) // cmp byte ptr word_599D8, 0
+        if ((gSelectedOriginalDemoLevelNumber & 0xFF) != 0) // cmp byte ptr gSelectedOriginalDemoLevelNumber, 0
         {
-            word_599D8 |= 0xFF00; // mov byte ptr word_599D8+1, 0FFh
+            gSelectedOriginalDemoLevelNumber |= 0xFF00; // mov byte ptr gSelectedOriginalDemoLevelNumber+1, 0FFh
 
-            gCurrentGameState.demoIndexOrDemoLevelNumber = word_599D6;
+            gCurrentGameState.demoIndexOrDemoLevelNumber = gSelectedOriginalDemoIndex;
 
             Level *level = &gDemos.level[gCurrentGameState.demoIndexOrDemoLevelNumber];
 
@@ -14502,20 +14377,20 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
     }
 
 //loc_4D660:              ; CODE XREF: readLevels+113j
-    if (word_599D8 != 0
-        || (byte_599D4 != 0
-            && word_599DA != 0))
+    if (gSelectedOriginalDemoLevelNumber != 0
+        || (gIsSPDemoAvailableToRun != 0
+            && gSelectedOriginalDemoFromCommandLineLevelNumber != 0))
     {
 //loc_4D679:              ; CODE XREF: readLevels+121j
         strcpy(gCurrentDemoLevelName, "BIN");
         levelName += 4;
     }
-    else if (byte_599D4 == 0)
+    else if (gIsSPDemoAvailableToRun == 0)
     {
 //loc_4D68C:              ; CODE XREF: readLevels+128j
         levelName += 4; // Skips the number directly to the title (from pointing "005 ------- EASY DEAL -------" to pointing "------- EASY DEAL -------")
     }
-    else if (word_599DA == 0)
+    else if (gSelectedOriginalDemoFromCommandLineLevelNumber == 0)
     {
 //loc_4D682:              ; CODE XREF: readLevels+12Fj
         // TODO: not sure if this code is executed only for demos
@@ -14545,8 +14420,8 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
     memset(&gCurrentGameState.explosionTimers, 0, sizeof(gCurrentGameState.explosionTimers)); // rep stosb
 
     if (gIsPlayingDemo == 0
-        || (word_599D8 & 0xFF) != 0
-        || byte_599D4 != 0)
+        || (gSelectedOriginalDemoLevelNumber & 0xFF) != 0
+        || gIsSPDemoAvailableToRun != 0)
     {
 //loc_4D6DC:              ; CODE XREF: readLevels+184j
 //                ; readLevels+18Bj
@@ -14558,7 +14433,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 
 //loc_4D6EA:              ; CODE XREF: readLevels+192j
 //                ; readLevels+19Dj
-    word_599D8 &= 0xFF00; // mov byte ptr word_599D8, 0
+    gSelectedOriginalDemoLevelNumber &= 0xFF00; // mov byte ptr gSelectedOriginalDemoLevelNumber, 0
 }
 
 void fadeToPalette(ColorPalette palette) //        proc near       ; CODE XREF: start+2C1p start+312p ...
