@@ -71,7 +71,7 @@
 		404879E5246C3FDC00B776FA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		404879EA246C402900B776FA /* OpenSupaplex.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OpenSupaplex.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		404879EF246C402B00B776FA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		404879F4246C402B00B776FA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = "OpenSupaplex-macOS/Info.plist"; sourceTree = "<group>"; };
+		404879F4246C402B00B776FA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = "OpenSupaplex/Info.plist"; sourceTree = "<group>"; };
 		40487A82246CB32400B776FA /* file.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = file.m; path = ../../../src/apple/file.m; sourceTree = "<group>"; };
 		40487A84246CB5D200B776FA /* audio */ = {isa = PBXFileReference; lastKnownFileType = folder; name = audio; path = ../../resources/audio; sourceTree = "<group>"; };
 		40487A86246CB5F500B776FA /* GFX.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = GFX.DAT; path = ../../resources/GFX.DAT; sourceTree = "<group>"; };
@@ -102,7 +102,7 @@
 		40487A9F246CB5F600B776FA /* FIXED.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = FIXED.DAT; path = ../../resources/FIXED.DAT; sourceTree = "<group>"; };
 		40487AA0246CB5F700B776FA /* DEMO9.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO9.BIN; path = ../../resources/DEMO9.BIN; sourceTree = "<group>"; };
 		40487AA1246CB5F700B776FA /* LEVELS.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.DAT; path = ../../resources/LEVELS.DAT; sourceTree = "<group>"; };
-		40487ABE246CB6DC00B776FA /* OpenSupaplex.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = OpenSupaplex.entitlements; path = "OpenSupaplex-macOS/OpenSupaplex.entitlements"; sourceTree = "<group>"; };
+		40487ABE246CB6DC00B776FA /* OpenSupaplex.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = OpenSupaplex.entitlements; path = "OpenSupaplex/OpenSupaplex.entitlements"; sourceTree = "<group>"; };
 		4062C244244CE5D4007A07F5 /* controller.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = controller.c; path = ../../../src/controller.c; sourceTree = "<group>"; };
 		4062C245244CE5D5007A07F5 /* controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = controller.h; path = ../../../src/controller.h; sourceTree = "<group>"; };
 		4062C246244CE5D5007A07F5 /* supaplex.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = supaplex.c; path = ../../../src/supaplex.c; sourceTree = "<group>"; };
@@ -260,7 +260,7 @@
 			dependencies = (
 			);
 			name = OpenSupaplex;
-			productName = "OpenSupaplex-macOS";
+			productName = "OpenSupaplex";
 			productReference = 404879EA246C402900B776FA /* OpenSupaplex.app */;
 			productType = "com.apple.product-type.application";
 		};
