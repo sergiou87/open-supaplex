@@ -9102,7 +9102,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
     }
     else if (aboveLeftTile->tile == LevelTileTypeInfotron)
     {
-//loc_4A692:              ; CODE XREF: detonateBigExplosion+4Aj
+//loc_4A692:              ; CODE XREF: detonateBigExplosion+4Aj 01ED:3A2F
         sub_4AA34(position - kLevelWidth - 1, movingObject, tile);
         skipHardwareCheck7 = 1; // to emulate jmp loc_4A6A6
     }
@@ -9785,13 +9785,13 @@ void sub_4AA34(uint16_t position, uint8_t movingObject, uint8_t tile) //   proc 
     MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
     MovingLevelTile *belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
 
+    uint8_t movingObjectType = currentTile->movingObject & 0xF0;
+
     currentTile->movingObject = movingObject;
     currentTile->tile = tile;
 
-    ah = currentTile->movingObject & 0xF0;
-
-    if (ah == 0x10
-        || ah == 0x70)
+    if (movingObjectType == 0x10
+        || movingObjectType == 0x70)
     {
 //loc_4AA5F:              ; CODE XREF: sub_4AA34+Aj sub_4AA34+Fj
         sub_4AAB4(position - kLevelWidth);
@@ -9800,7 +9800,7 @@ void sub_4AA34(uint16_t position, uint8_t movingObject, uint8_t tile) //   proc 
             sub_4AAB4(position + kLevelWidth);
         }
     }
-    else if (ah == 0x20)
+    else if (movingObjectType == 0x20)
     {
 //loc_4AA75:              ; CODE XREF: sub_4AA34+14j
         sub_4AAB4(position + 1);
@@ -9809,7 +9809,7 @@ void sub_4AA34(uint16_t position, uint8_t movingObject, uint8_t tile) //   proc 
             sub_4AAB4(position + kLevelWidth);
         }
     }
-    else if (ah == 0x30)
+    else if (movingObjectType == 0x30)
     {
 //loc_4AA8A:              ; CODE XREF: sub_4AA34+19j
         sub_4AAB4(position - 1);
@@ -9818,17 +9818,17 @@ void sub_4AA34(uint16_t position, uint8_t movingObject, uint8_t tile) //   proc 
             sub_4AAB4(position + kLevelWidth);
         }
     }
-    else if (ah == 0x50)
+    else if (movingObjectType == 0x50)
     {
 //loc_4AA9F:              ; CODE XREF: sub_4AA34+1Ej
         sub_4AAB4(position - 1);
     }
-    else if (ah == 0x60)
+    else if (movingObjectType == 0x60)
     {
 //loc_4AAA6:              ; CODE XREF: sub_4AA34+23j
         sub_4AAB4(position + 1);
     }
-    else if (ah == 0x70)
+    else if (movingObjectType == 0x70)
     {
 //loc_4AAAD:              ; CODE XREF: sub_4AA34+28j
         sub_4AAB4(position + kLevelWidth);
@@ -9838,6 +9838,7 @@ void sub_4AA34(uint16_t position, uint8_t movingObject, uint8_t tile) //   proc 
 void sub_4AAB4(uint16_t position) //   proc near       ; CODE XREF: detonateZonk+2Ep
                    // ; detonateZonk+3Dp ...
 {
+    // 01ED:3DD1
     MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
 
     if (currentTile->tile == LevelTileTypeExplosion)
@@ -9849,26 +9850,11 @@ void sub_4AAB4(uint16_t position) //   proc near       ; CODE XREF: detonateZonk
     currentTile->movingObject = 0;
     currentTile->tile = LevelTileTypeSpace;
 
-//    push    si
-//    push    ds
-//    mov di, [si+6155h]
-    si = word_51580; // probably point to the coordinates of the frame in MOVING.DAT
-    drawMovingSpriteFrameInLevel(0, 0, 0, 0, 0, 0);
-    /*
-    mov ax, es
-    mov ds, ax
-    mov cx, 10h
+    // si = word_51580;
+    uint16_t dstX = (position % kLevelWidth) * kTileSize;
+    uint16_t dstY = (position / kLevelWidth) * kTileSize;
 
-//loc_4AAD3:              ; CODE XREF: sub_4AAB4+27j
-    movsb
-    movsb
-    add si, 78h ; 'x'
-    add di, 78h ; 'x'
-    loop    loc_4AAD3
-    pop ds
-    pop si
-     */
-    return;
+    drawMovingSpriteFrameInLevel(0, 32, kTileSize, kTileSize, dstX, dstY);
 }
 
 void readMenuDat() // proc near       ; CODE XREF: readEverything+9p
