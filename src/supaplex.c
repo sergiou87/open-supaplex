@@ -15292,8 +15292,6 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
 //loc_4E6A4:              ; CODE XREF: update?+803j update?+80Aj
         changePlayerCurrentLevelState();
         gCurrentGameState.quitLevelCountdown = 0x40;
-    //    pop si
-//        dx = 0x0E5E;
         murphyTile->movingObject = 0xD;
         gCurrentGameState.word_510EE = 0;
         gCurrentGameState.isMurphyGoingThroughPortal = 0;
@@ -15409,7 +15407,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[46]);
     }
 //loc_4E24B:              ; CODE XREF: update?+3B6j
-    else if (rightTile->tile == LevelTileTypeOrangeDisk)
+    else if (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeOrangeDisk)
     {
 //loc_4E9B9:              ; CODE XREF: update?+3C0j
         if (rightRightTile->movingObject != 0 || rightRightTile->tile != LevelTileTypeSpace)
