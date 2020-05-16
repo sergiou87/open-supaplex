@@ -3401,7 +3401,7 @@ int main(int argc, char *argv[])
 //loc_46F8E:              //; CODE XREF: start+369j
             if (gIsFastModeEnabled == 1)
             {
-//                goto doneWithDemoPlayback;
+                break;
             }
 
 //isNotFastMode2:              //; CODE XREF: start+373j
@@ -3488,87 +3488,52 @@ int main(int argc, char *argv[])
     }
     while (gShouldExitGame == 0);
 
-//loc_47067:              //; CODE XREF: start+36Bj start+391j ...
-        fadeToPalette(gBlackPalette); // 0x60D5
-/*
-doneWithDemoPlayback:           //; CODE XREF: start+375j
-        resetVideoMode();
-        if (gIsFastModeEnabled != 1)
-        {
-            goto isNotFastMode3;
-        }
+    int runResult = 0;
 
+    if (gIsFastModeEnabled == 1)
+    {
+        char *message = "";
         if (gIsLevelStartedAsDemo == 0)
         {
-            goto loc_47094;
+            //loc_47094:              //; CODE XREF: start+45Fj
+            if (byte_5A19B == 0)
+            {
+//loc_470A1:              //; CODE XREF: start+479j
+                message = "\"@\"-ERROR: Level(?) failed:     ";
+                runResult = 1;
+            }
+            else
+            {
+                message = "\"@\"-ERROR: Level(?) successful: ";
+            }
         }
-
-        if (byte_5A19B == 0)
+        else if (byte_5A19B == 0)
         {
-            goto loc_4708E;
+//loc_4708E:              //; CODE XREF: start+466j
+            message = "Demo failed:     ";
+            runResult = 1;
         }
-
-        si = *aDemoSuccessful; // "Demo successful: "
-        goto printMessageAfterward;
-//
-loc_4708E:              //; CODE XREF: start+466j
-        si = *aDemoFailed; //"Demo failed:     "
-        goto printMessageAfterward;
-//
-loc_47094:              //; CODE XREF: start+45Fj
-        if (byte_5A19B == 0)
+        else
         {
-            goto loc_470A1;
+            message = "Demo successful: ";
         }
-        si = *a@ErrorLevel?Su; // "\"@\"-ERROR: Level(?) successful: "
-        goto printMessageAfterward;
-//
-loc_470A1:              //; CODE XREF: start+479j
-        si = *a@ErrorLevel?Fa; // "\"@\"-ERROR: Level(?) failed:     "
 
-printMessageAfterward:          //; CODE XREF: start+46Cj start+472j ...
-        conprintln();
+//printMessageAfterward:          //; CODE XREF: start+46Cj start+472j ...
+        spLog("%s%s", message, demoFileName);
+    }
+    else
+    {
+//loc_47067:              //; CODE XREF: start+36Bj start+391j ...
+        fadeToPalette(gBlackPalette); // 0x60D5
+    }
 
-isNotFastMode3:              //; CODE XREF: start+458j
-        soundShutdown?();
+    writeAdvancedConfig();
 
-immediateexit:              //; CODE XREF: start+D1j start+114j ...
-        exit(0);
-//         mov ax, 4C00h
-//         int 21h     ; DOS - 2+ - QUIT WITH EXIT CODE (EXIT)
-// ; END OF FUNCTION CHUNK FOR start   ; AL = exit code
+    // Tidy up
+    destroyLogging();
+    destroyVideo();
 
-
-// ; START OF FUNCTION CHUNK FOR loadScreen2
-
-exit:                   //; CODE XREF: readConfig:loc_474BBj
-*/
-
-        writeAdvancedConfig();
-
-        // Tidy up
-        destroyLogging();
-        destroyVideo();
-
-        return 0;
-
-//    //; readConfig+3Bj ...
-//        push(ax);
-//        soundShutdown?();
-//        resetVideoMode();
-//        pop(ax);
-//        push(ax);
-//        pop(ax);
-//        if (al != 0)
-//        {
-//            goto exitnow;
-//        }
-//        al--;
-//
-//exitnow:                //; CODE XREF: loadScreen2-7C9j
-//        exit(al);  //mov ah, 4Ch
-////         int 21h     ; DOS - 2+ - QUIT WITH EXIT CODE (EXIT)
-//// ; END OF FUNCTION CHUNK FOR loadScreen2 ; AL = exit code
+    return runResult;
 }
 
 void startDirectlyFromLevel(uint8_t levelNumber)
