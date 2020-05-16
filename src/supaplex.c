@@ -13342,8 +13342,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 //loc_4D5A3:              ; CODE XREF: readLevels+55j
         else if (gIsSPDemoAvailableToRun != 0)
         {
-            // TODO: add support for demos run from command line
-            // filename = demoFileName; //    mov dx, offset demoFileName
+            filename = demoFileName;
         }
         else if (gSelectedOriginalDemoFromCommandLineLevelNumber != 0)
         {

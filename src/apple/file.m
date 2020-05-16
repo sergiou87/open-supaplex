@@ -23,10 +23,24 @@
 
 void getReadonlyFilePath(const char *pathname, char outPath[kMaxFilePathLength])
 {
+    strncpy(outPath, pathname, kMaxFilePathLength);
+
     NSString *pathNameString = [NSString stringWithUTF8String:pathname];
+
+    if ([pathNameString isAbsolutePath])
+    {
+        return;
+    }
+
     NSURL *fileURL = [NSBundle.mainBundle
                       URLForResource:pathNameString.stringByDeletingPathExtension
                       withExtension:pathNameString.pathExtension];
+
+    if (fileURL == nil)
+    {
+        return;
+    }
+
     strncpy(outPath, [fileURL.path cStringUsingEncoding:NSUTF8StringEncoding], kMaxFilePathLength);
 }
 
@@ -39,8 +53,22 @@ NSString *writableFolderPath()
 
 void getWritableFilePath(const char *pathname, char outPath[kMaxFilePathLength])
 {
+    strncpy(outPath, pathname, kMaxFilePathLength);
+
     NSString *pathNameString = [NSString stringWithUTF8String:pathname];
+
+    if ([pathNameString isAbsolutePath])
+    {
+        return;
+    }
+
     NSString *finalPath = [writableFolderPath() stringByAppendingPathComponent:pathNameString];
+
+    if (finalPath == nil)
+    {
+        return;
+    }
+
     strncpy(outPath, [finalPath cStringUsingEncoding:NSUTF8StringEncoding], kMaxFilePathLength);
 }
 

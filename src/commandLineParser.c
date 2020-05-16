@@ -17,6 +17,7 @@
 
 #include "commandLineParser.h"
 
+#include <errno.h>
 #include <getopt.h>
 #include <stdlib.h>
 #include <string.h>
@@ -305,7 +306,7 @@ void handlePlayDemoFile(FastModeType fastModeType)
     {
         if (fastModeType != FastModeTypeNone)
         {
-            spLog("\"@\"-ERROR: Bad or missing file %s", demoFileName);
+            spLog("\"@\"-ERROR: Bad or missing file %s. %s", demoFileName, strerror(errno));
             exit(1);
         }
 
@@ -380,6 +381,12 @@ void handlePlayDemoFile(FastModeType fastModeType)
     else if (fileLength == levelDataLength) // all demo files are greater than a level (1536 bytes)
     {
 //loc_46CFB:              //; CODE XREF: start:loc_46CF4j
+        gIsSPDemoAvailableToRun = 2;
+    }
+    else
+    {
+//loc_46CF6:              //; CODE XREF: start+C2j
+        fileIsDemo = 1;
         gIsSPDemoAvailableToRun = 2;
     }
 
