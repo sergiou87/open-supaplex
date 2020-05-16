@@ -2535,7 +2535,7 @@ void readAdvancedConfig()
 
     if (config == NULL)
     {
-        spLog("Couldn't read advanced config");
+        spLogInfo("Couldn't read advanced config");
         return;
     }
 
@@ -2564,7 +2564,7 @@ void writeAdvancedConfig()
 
     if (config == NULL)
     {
-        spLog("Couldn't write advanced config");
+        spLogInfo("Couldn't write advanced config");
         return;
     }
 
@@ -3278,10 +3278,14 @@ int main(int argc, char *argv[])
     gShouldShowFPS = 1;
 #endif
 
-    initializeLogging();
-
     parseCommandLineOptions(argc, argv);
 
+    if (gFastMode == FastModeTypeUltra)
+    {
+        setLogLevel(LogLevelDemo);
+    }
+
+    initializeLogging();
     initializeVideo(gFastMode);
 
     if (initializeAudio() != 0)
@@ -3381,8 +3385,10 @@ int main(int argc, char *argv[])
             findMurphy();
             gCurrentPanelHeight = kPanelBitmapHeight;
             drawCurrentLevelViewport(gCurrentPanelHeight); // Added by me
-//            si = 0x6015;
-            fadeToPalette(gGamePalette); // At this point the screen fades in and shows the game
+            if (gFastMode != FastModeTypeUltra)
+            {
+                fadeToPalette(gGamePalette); // At this point the screen fades in and shows the game
+            }
 
             if (isMusicEnabled == 0)
             {
@@ -3434,8 +3440,6 @@ int main(int argc, char *argv[])
 
         if (gIsSPDemoAvailableToRun == 2)
         {
-//            goto loc_46FFF; <- if gIsSPDemoAvailableToRun != 2
-
             gIsSPDemoAvailableToRun = 1;
             if (fileIsDemo == 1)
             {
@@ -3519,7 +3523,7 @@ int main(int argc, char *argv[])
         }
 
 //printMessageAfterward:          //; CODE XREF: start+46Cj start+472j ...
-        spLog("%s%s", message, demoFileName);
+        spLogDemo("%s%s", message, demoFileName);
     }
     else
     {
@@ -3753,6 +3757,11 @@ void int8handler() // proc far        ; DATA XREF: setint8+10o
 
 void readConfig() //  proc near       ; CODE XREF: start:loc_46F0Fp
 {
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
+    
     FILE *file = openWritableFile("SUPAPLEX.CFG", "r");
     if (file == NULL)
     {
@@ -13545,37 +13554,6 @@ void setPalette(ColorPalette palette) // sub_4D836   proc near       ; CODE XREF
     setColorPalette(palette);
     memcpy(gCurrentPalette, palette, sizeof(ColorPalette));
 //        word_510A2 = old_word_510A2;
-}
-/*
-//        db  2Eh ; .
-//        db  8Bh ; ?
-//        db 0C0h ; +
-//        db  2Eh ; .
-//        db  8Bh ; ?
-//        db 0C0h ; +
-//        db  8Bh ; ?
-//        db 0C0h ; +
-//
-//; =============== S U B R O U T I N E =======================================
-*/
-void initializeSound() //   proc near       ; CODE XREF: start+2A5p
-{
-//    push(ds)
-//    ax = 0;
-//    ds = ax;
-//    // assume ds:nothing
-//    bx = 0x200; // 512
-//    [bx] = ax;
-//    ax = seg soundseg; // 0x4C33
-//    [bx + 2] = ax;
-//    ax = 0;
-//    bx = 0x204; // 516
-//    [bx] = ax;
-//    ax = seg playMusicIfNeededseg; // 0x4D92
-//    [bx + 2] = ax;
-//    pop(ds);
-    // assume ds:data
-    isFXEnabled = 0;
 }
 
 void soundShutdown() //  proc near       ; CODE XREF: start+48Ep

@@ -27,6 +27,13 @@
 #include <switch.h>
 #endif
 
+LogLevel gLogLevel = LogLevelInfo;
+
+void setLogLevel(LogLevel logLevel)
+{
+    gLogLevel = logLevel;
+}
+
 void initializeLogging(void)
 {
 #if defined(__vita__) && DEBUG
@@ -39,23 +46,28 @@ void initializeLogging(void)
     nxlinkStdio(); // Redirect stdout and stderr over the network to nxlink
 #endif
 
-    spLog("Logging system initialized.");
+    spLogInfo("Logging system initialized.");
 }
 
 void destroyLogging(void)
 {
-    spLog("Destroying logging system...");
+    spLogInfo("Destroying logging system...");
 
 #if defined(__SWITCH__) && DEBUG
     socketExit();
 #endif
 
-    spLog("Logging system destroyed");
+    spLogInfo("Logging system destroyed");
 }
 
-void spLog(const char *format, ...)
+void spLog(LogLevel level, const char *format, ...)
 {
     char buffer[0x800];
+
+    if (gLogLevel > level)
+    {
+        return;
+    }
 
     va_list argptr;
     va_start(argptr, format);

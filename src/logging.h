@@ -21,8 +21,18 @@
 #ifndef logging_h
 #define logging_h
 
+typedef enum {
+    LogLevelInfo,
+    LogLevelDemo,
+} LogLevel;
+
 void initializeLogging(void);
 void destroyLogging(void);
-void spLog(const char *format, ...);
+void setLogLevel(LogLevel logLevel);
+
+void spLog(LogLevel level, const char *format, ...);
+
+#define spLogInfo(...) spLog(LogLevelInfo, __VA_ARGS__)
+#define spLogDemo(...) spLog(LogLevelDemo, __VA_ARGS__)
 
 #endif /* logging_h */

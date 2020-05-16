@@ -52,7 +52,7 @@ void initializeVideo(uint8_t fastMode)
     int ret = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_JOYSTICK);
     if (ret)
     {
-        spLog("SDL_Init failed with %d", ret);
+        spLogInfo("SDL_Init failed with %d", ret);
         exit(1);
     }
 
@@ -69,7 +69,7 @@ void initializeVideo(uint8_t fastMode)
 
     if (gWindow == NULL)
     {
-        spLog("Could not create a window: %s", SDL_GetError());
+        spLogInfo("Could not create a window: %s", SDL_GetError());
         destroyVideo();
         exit(1);
     }
@@ -89,7 +89,7 @@ void initializeVideo(uint8_t fastMode)
 
     if (gRenderer == NULL)
     {
-        spLog("Could not create a renderer: %s", SDL_GetError());
+        spLogInfo("Could not create a renderer: %s", SDL_GetError());
         destroyVideo();
         exit(1);
     }
@@ -110,7 +110,7 @@ void initializeVideo(uint8_t fastMode)
 
     if (gTexture == NULL)
     {
-        spLog("Could not create a texture: %s", SDL_GetError());
+        spLogInfo("Could not create a texture: %s", SDL_GetError());
         destroyVideo();
         exit(1);
     }
@@ -119,7 +119,7 @@ void initializeVideo(uint8_t fastMode)
 
     if (gTextureSurface == NULL)
     {
-        spLog("Could not create a texture surface: %s", SDL_GetError());
+        spLogInfo("Could not create a texture surface: %s", SDL_GetError());
         destroyVideo();
         exit(1);
     } 
@@ -128,7 +128,7 @@ void initializeVideo(uint8_t fastMode)
 
     if (gScreenSurface == NULL)
     {
-        spLog("Could not create a screen surface: %s", SDL_GetError());
+        spLogInfo("Could not create a screen surface: %s", SDL_GetError());
         destroyVideo();
         exit(1);
     }

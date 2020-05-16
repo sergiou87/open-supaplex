@@ -72,8 +72,8 @@ int8_t initializeAudio()
     //
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 768) == -1)
     {
-        spLog("Mix_Init: Failed to open audio!\n");
-        spLog("Mix_Init: %s\n", Mix_GetError());
+        spLogInfo("Mix_Init: Failed to open audio!\n");
+        spLogInfo("Mix_Init: %s\n", Mix_GetError());
         return 1;
     }
 
@@ -81,12 +81,12 @@ int8_t initializeAudio()
     int initted = Mix_Init(flags);
     if((initted & flags) != flags)
     {
-        spLog("Mix_Init: Failed to init required ogg support!\n");
-        spLog("Mix_Init: %s\n", Mix_GetError());
+        spLogInfo("Mix_Init: Failed to init required ogg support!\n");
+        spLogInfo("Mix_Init: %s\n", Mix_GetError());
         return 1;
     }
 
-    spLog("Audio initialized correctly");
+    spLogInfo("Audio initialized correctly");
 
     return 0;
 }
@@ -127,7 +127,7 @@ void loadMusic()
 
     if(gMusic == NULL)
     {
-        spLog("Unable to load Ogg file: %s\n", Mix_GetError());
+        spLogInfo("Unable to load Ogg file: %s\n", Mix_GetError());
         return;
     }
 }
@@ -217,7 +217,7 @@ void playMusic()
 
     if(Mix_PlayMusic(gMusic, -1) == -1)
     {
-        spLog("Unable to play Ogg file: %s\n", Mix_GetError());
+        spLogInfo("Unable to play Ogg file: %s\n", Mix_GetError());
         return;
     }
 

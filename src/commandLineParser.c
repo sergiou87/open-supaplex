@@ -195,7 +195,7 @@ void parseCommandLineOptions(int argc, char *argv[])
     if (byte_59B63 != 0)
     {
         gIsDebugModeEnabled = 1;
-        spLog("Debug mode enabled");
+        spLogInfo("Debug mode enabled");
     }
 }
 
@@ -229,7 +229,7 @@ void handleForceLevelSetOption(void)
     char newSuffix[3] = "00";
     snprintf(newSuffix, 2, "%2d", numberValue);
 
-    spLog("Replacing level set with %s", newSuffix);
+    spLogInfo("Replacing level set with %s", newSuffix);
 
     strcpy(&gLevelsDatFilename[8], newSuffix);
     strcpy(&gLevelLstFilename[7], newSuffix);
@@ -251,7 +251,7 @@ void handleForceLevelNumberOption(void)
     levelNumber = CLAMP(levelNumber, 1, kNumberOfLevels);
     gIsForcedLevel = 0xFF; // TODO: wtf?
     gIsForcedLevel = levelNumber;
-    spLog("Playing level %d", levelNumber);
+    spLogInfo("Playing level %d", levelNumber);
 }
 
 void handleForcePlayerNumberOption(void)
@@ -263,7 +263,7 @@ void handleForcePlayerNumberOption(void)
 
     gCurrentPlayerIndex =
     byte_58D46 = playerNumber - 1;
-    spLog("Forcing player %d", playerNumber);
+    spLogInfo("Forcing player %d", playerNumber);
 }
 
 void handleForceGameSpeedOption(void)
@@ -274,7 +274,7 @@ void handleForceGameSpeedOption(void)
     newSpeed = CLAMP(newSpeed, 0, 10);
     // We can't store this directly in gGameSpeed because it will be overriden by the stored configuration
     gForcedInitialGameSpeed = newSpeed;
-    spLog("Starting with speed %d", newSpeed);
+    spLogInfo("Starting with speed %d", newSpeed);
 }
 
 void handleEnableTestModeOption(void)
@@ -294,7 +294,7 @@ void handleEnableTestModeOption(void)
         strcpy(gRankingTextEntries[kRankingFirstPlayerIndex + i], "                      ");
     }
 
-    spLog("Enabling test mode");
+    spLogInfo("Enabling test mode");
 }
 
 void handlePlayDemoFile(FastModeType fastModeType)
@@ -306,7 +306,7 @@ void handlePlayDemoFile(FastModeType fastModeType)
     {
         if (fastModeType != FastModeTypeNone)
         {
-            spLog("\"@\"-ERROR: Bad or missing file %s. %s", demoFileName, strerror(errno));
+            spLogDemo("\"@\"-ERROR: Bad or missing file %s. %s", demoFileName, strerror(errno));
             exit(1);
         }
 
@@ -338,7 +338,7 @@ void handlePlayDemoFile(FastModeType fastModeType)
 //lookForAtSignInCommandLine:              //; CODE XREF: start+A6j start+ABj
         if (fastModeType != FastModeTypeNone)
         {
-            spLog("!! File >> Demo: %s", demoFileName); // (meaning: file too long)
+            spLogDemo("!! File >> Demo: %s", demoFileName); // (meaning: file too long)
             exit(1);
         }
         else
@@ -366,7 +366,7 @@ void handlePlayDemoFile(FastModeType fastModeType)
         {
             if (fastModeType != FastModeTypeNone)
             {
-                spLog("!! File < Level: %s", demoFileName); // (meaning: file too short)
+                spLogDemo("!! File < Level: %s", demoFileName); // (meaning: file too short)
                 exit(1);
             }
             else
@@ -395,7 +395,7 @@ void handlePlayDemoFile(FastModeType fastModeType)
 //demoFileNotMissing:              //; CODE XREF: start+10Bj
         if (fileIsDemo != 1)
         {
-            spLog("SP without demo: %s", demoFileName); // (meaning: level only)
+            spLogDemo("SP without demo: %s", demoFileName); // (meaning: level only)
             exit(1);
         }
 

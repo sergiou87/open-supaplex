@@ -67,7 +67,7 @@ Config *initializeConfig()
     Config *config = calloc(1, sizeof(Config));
     if (config == NULL)
     {
-        spLog("Something went really wrong. Couldn't allocate config.");
+        spLogInfo("Something went really wrong. Couldn't allocate config.");
         return NULL;
     }
 
@@ -75,7 +75,7 @@ Config *initializeConfig()
 
     if (config->context == NULL)
     {
-        spLog("Something went really wrong. Couldn't allocate config context.");
+        spLogInfo("Something went really wrong. Couldn't allocate config context.");
         free(config);
         return NULL;
     }
@@ -96,7 +96,7 @@ Config *initializeConfigForWriting(const char *pathname)
 
     if (file == NULL)
     {
-        spLog("Couldn't open %s for writing", pathname);
+        spLogInfo("Couldn't open %s for writing", pathname);
         destroyConfig(config);
         return NULL;
     }
@@ -122,7 +122,7 @@ Config *initializeConfigForReading(const char *pathname)
 
     if (iniConfig == NULL)
     {
-        spLog("Couldn't open %s for reading", configPath);
+        spLogInfo("Couldn't open %s for reading", configPath);
         destroyConfig(config);
         return NULL;
     }
