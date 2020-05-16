@@ -47,7 +47,7 @@ ScalingMode gScalingMode = ScalingModeAspectFit;
 int windowResizingEventWatcher(void* data, SDL_Event* event);
 void updateWindowViewport(void);
 
-void initializeVideo()
+void initializeVideo(uint8_t fastMode)
 {
     int ret = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_JOYSTICK);
     if (ret)
@@ -77,7 +77,15 @@ void initializeVideo()
     SDL_SetWindowResizable(gWindow, SDL_TRUE);
     SDL_AddEventWatch(windowResizingEventWatcher, gWindow);
 
-    gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    Uint32 rendererFlags = SDL_RENDERER_ACCELERATED;
+
+    // Disable vsync in fast mode to prevent limiting FPS rate
+    if (fastMode == 0)
+    {
+        rendererFlags |= SDL_RENDERER_PRESENTVSYNC;
+    }
+
+    gRenderer = SDL_CreateRenderer(gWindow, -1, rendererFlags);
 
     if (gRenderer == NULL)
     {

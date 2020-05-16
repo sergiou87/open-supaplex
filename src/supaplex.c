@@ -3282,7 +3282,7 @@ int main(int argc, char *argv[])
 
     parseCommandLineOptions(argc, argv);
 
-    initializeVideo();
+    initializeVideo(gIsFastModeEnabled);
 
     if (initializeAudio() != 0)
     {
@@ -6502,12 +6502,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 
 //noFlashing4:              ; CODE XREF: runLevel+2D1j
         drawCurrentLevelViewport(gCurrentPanelHeight); // Added by me
-
-        if (gIsFastModeEnabled != 1)
-        {
-            videoloop(); // 01ED:2142
-        }
-
+        videoloop(); // 01ED:2142
         handleGameIterationFinished();
 
 //isFastMode2:              ; CODE XREF: runLevel+2E8j
@@ -13258,6 +13253,11 @@ void limitFPS()
     static const double kMaximumFPS = 70.0;
     static const double kFrameDuration = 1000.0 / kMaximumFPS;
     static Uint32 sLastFrameTime = 0;
+
+    if (gIsFastModeEnabled)
+    {
+        return;
+    }
 
     if (sLastFrameTime != 0)
     {

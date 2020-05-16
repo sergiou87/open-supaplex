@@ -44,7 +44,7 @@ typedef Color ColorPalette[kNumberOfColors];
 
 extern uint8_t *gScreenPixels;
 
-void initializeVideo(void);
+void initializeVideo(uint8_t fastMode);
 void render(void);
 void present(void);
 void destroyVideo(void);
