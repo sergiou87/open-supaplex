@@ -13142,7 +13142,7 @@ void changePlayerCurrentLevelState() // sub_4D24D  proc near       ; CODE XREF: 
 
 void initializeFadePalette() //   proc near       ; CODE XREF: start+296p
 {
-    fadeToPalette(gBlackPalette);
+    setPalette(gBlackPalette);
 }
 
 void resetVideoMode() // sub_4D2E1   proc near       ; CODE XREF: start+450p
@@ -13497,6 +13497,12 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 
 void fadeToPalette(ColorPalette palette) //        proc near       ; CODE XREF: start+2C1p start+312p ...
 {
+    if (gFastMode == FastModeTypeUltra)
+    {
+        setPalette(palette);
+        return;
+    }
+
     // Parameters:
     // si -> points to the first color of the palette to fade to
 
