@@ -23,6 +23,7 @@
 #include "file.h"
 
 #define VERSION_STRING "7.1"
+extern const uint8_t kGameVersion;
 
 typedef enum
 {
@@ -67,6 +68,9 @@ typedef enum
     LevelTileTypeHorizontalChipTop = 38,
     LevelTileTypeHorizontalChipBottom = 39,
 } LevelTileType;
+
+// exact length of a level file, even of each level inside the LEVELS.DAT file
+#define levelDataLength 1536
 
 #define kLevelWidth 60 // 3Ch
 #define kLevelHeight 24 // 18h
@@ -253,5 +257,7 @@ extern uint8_t gIsForcedCheatMode; // byte_59B85
 extern const uint8_t kDefaultGameSpeed;
 extern uint8_t gGameSpeed; // gameSpeed
 extern char demoFileName[kMaxFilePathLength];
+
+extern uint8_t gIsFastModeEnabled;
 
 #endif /* globals_h */

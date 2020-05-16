@@ -17,6 +17,8 @@
 
 #include "globals.h"
 
+const uint8_t kGameVersion = 0x71;
+
 uint16_t gLevelData[kLevelSize];
 uint8_t gPaddedLevelListData[kNumberOfLevelsWithPadding * kListLevelNameLength]; // 0x2A34
 uint8_t *gLevelListData = &gPaddedLevelListData[kFirstLevelIndex * kListLevelNameLength];
@@ -80,3 +82,5 @@ uint8_t gIsForcedCheatMode = 0; // byte_59B85
 const uint8_t kDefaultGameSpeed = 5;
 uint8_t gGameSpeed = kDefaultGameSpeed; // gameSpeed
 char demoFileName[kMaxFilePathLength] = "";
+
+uint8_t gIsFastModeEnabled = 0;

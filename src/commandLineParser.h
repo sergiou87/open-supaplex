@@ -50,6 +50,10 @@ extern uint8_t byte_59B79; // 'Z' command line option
 extern const uint8_t kInvalidForcedInitialGameSpeed;
 extern uint8_t gForcedInitialGameSpeed;
 
+extern uint8_t gIsSPDemoAvailableToRun; // byte_599D4 -> 0=don't run .SP, 1=run .SP, 2=run .SP at startup
+extern uint8_t fileIsDemo;
+extern uint16_t gSelectedOriginalDemoFromCommandLineLevelNumber; // word_599DA -> first demo byte if SP is an old demo
+
 void parseCommandLineOptions(int argc, char *argv[]);
 
 #endif /* commandLineParser_h */

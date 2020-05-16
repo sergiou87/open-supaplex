@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "demo.h"
 #include "globals.h"
 #include "logging.h"
 #include "utils.h"
@@ -55,25 +56,9 @@ uint8_t byte_59B79 = 0; // 'Z' command line option
 const uint8_t kInvalidForcedInitialGameSpeed = 0xFF;
 uint8_t gForcedInitialGameSpeed = kInvalidForcedInitialGameSpeed;
 
-// "/nnn"                                    Force LEVEL number at start (nnn=1...111)"
-// "&nn"                                    Force PLAYER number at start (nn=1...20)"
-// "*nn"                                    Force SpeedFix SPEED at start (nn=0...10, or empty(=0=fast))"
-// "#"                                        Force all levels skipped and no score updates: test mode"
-// "c"                                        If deleted, Create LEVEL.L?? file out of info from LEVELS.D??"
-// "d"                                        Force Debug mode at start: needed to record demo's etc."
-// "f"                                        Force original Floppy 1<->2 symbol function (Invert Alt key)"
-// "h"                                        Force original Supaplex Horizontal smooth-scroll timing"
-// "l"                                        Load and play the available saved game at start"
-// "m"                                        View beyond the game field edges with the debug M key options"
-// "n"                                        Never shake the screen during explosions (See also "S")"
-// "o"                                        Record using Original demo names DEMO?.B?? (not ??S???$?.SP)"
-// "r"                                        Refresh video memory after each game: reload MOVING.DAT"
-// "s"                                        Shake the screen during every explosion (See also "N")"
-// "t"                                        Allow the use of the original infinite Red Disk (ch)eat Trick"
-// "w"                                        Force Writing only one SAVEGAME.SAV (else use SAVEGAME.S??)"
-// ":filename.ext"                            Use SP-file to play at start and from menu with F11 and F12"
-// "@:filename.ext"                        Lightning speed SP-demo test, exits to DOS with message"
-//
+uint8_t gIsSPDemoAvailableToRun = 0;
+uint8_t fileIsDemo = 0;
+uint16_t gSelectedOriginalDemoFromCommandLineLevelNumber = 0;
 
 typedef struct {
     const char *name;
@@ -103,8 +88,8 @@ static const OpenSupaplexCommandLineOption kFullCommandLineOptions[kNumberOfComm
     { "shake-explosions", 's', 0, "Shake the screen during every explosion (See also \"N\")" },
     { "red-disk-cheat", 'k', 0, "Allow the use of the original infinite Red Disk (ch)eat Trick" },
     { "force-savegame-sav", 'f', 0, "Force Writing only one SAVEGAME.SAV (else use SAVEGAME.S??)" },
-    { "play-sp-file", 'p', 0, "Use SP-file to play at start and from menu with F11 and F12" },
-    { "quick-demo", 'q', 0, "Lightning speed SP-demo test, exits to DOS with message" },
+    { "play-sp-file", 'p', 1, "Use SP-file to play at start and from menu with F11 and F12" },
+    { "quick-demo", 'q', 1, "Lightning speed SP-demo test, exits to DOS with message" },
 };
 
 static struct option options[kNumberOfCommandLineOptions + 1];
@@ -115,6 +100,7 @@ void handleForceLevelNumberOption(void);
 void handleForcePlayerNumberOption(void);
 void handleForceGameSpeedOption(void);
 void handleEnableTestModeOption(void);
+void handlePlayDemoFile(uint8_t fastMode);
 
 void parseCommandLineOptions(int argc, char *argv[])
 {
@@ -193,8 +179,10 @@ void parseCommandLineOptions(int argc, char *argv[])
                 strcpy(&gSavegameSavFilename[10], "AV");
                 break;
             case 'p':
+                handlePlayDemoFile(0);
                 break;
             case 'q':
+                handlePlayDemoFile(1);
                 break;
         }
     }
@@ -304,3 +292,103 @@ void handleEnableTestModeOption(void)
     spLog("Enabling test mode");
 }
 
+void handlePlayDemoFile(uint8_t fastMode)
+{
+    strcpy(demoFileName, optarg);
+
+    FILE *file = openWritableFileWithReadonlyFallback(demoFileName, "r");
+    if (file == NULL)
+    {
+        if (fastMode)
+        {
+            spLog("\"@\"-ERROR: Bad or missing file %s", demoFileName);
+            exit(1);
+        }
+
+        strcpy(demoFileName, "");
+        gIsSPDemoAvailableToRun = 0;
+        return;
+    }
+
+    long fileLength = 0;
+
+    if (fseek(file, 0, SEEK_END) != 0)
+    {
+        fclose(file);
+    }
+    else
+    {
+        fileLength = ftell(file);
+
+        if (fileLength >= levelDataLength)
+        {
+            fclose(file);
+        }
+    }
+
+    gSelectedOriginalDemoFromCommandLineLevelNumber = 0;
+
+    if (fileLength > kMaxBaseDemoSize + kMaxDemoSignatureSize + levelDataLength)
+    {
+//lookForAtSignInCommandLine:              //; CODE XREF: start+A6j start+ABj
+        if (fastMode)
+        {
+            spLog("!! File >> Demo: %s", demoFileName); // (meaning: file too long)
+            exit(1);
+        }
+        else
+        {
+            strcpy(demoFileName, "");
+            gIsSPDemoAvailableToRun = 0;
+            return;
+        }
+    }
+
+    if (fileLength < levelDataLength) // all demo files with the new format are greater than a level (1536 bytes)
+    {
+// loc_46CB7:              //; CODE XREF: start:loc_46CADj
+        gSelectedOriginalDemoFromCommandLineLevelNumber = getLevelNumberFromOriginalDemoFile(file, fileLength);
+
+        fclose(file);
+
+        if (gSelectedOriginalDemoFromCommandLineLevelNumber != 0)
+        {
+//loc_46CF6:              //; CODE XREF: start+C2j
+            fileIsDemo = 1;
+            gIsSPDemoAvailableToRun = 2;
+        }
+        else
+        {
+            if (fastMode) // looks for @ in the rest of the command line for some reason
+            {
+                spLog("!! File < Level: %s", demoFileName); // (meaning: file too short)
+                exit(1);
+            }
+            else
+            {
+                strcpy(demoFileName, "");
+                gIsSPDemoAvailableToRun = 0;
+                return;
+            }
+        }
+    }
+//loc_46CF4:              //; CODE XREF: start+B4j
+    else if (fileLength == levelDataLength) // all demo files are greater than a level (1536 bytes)
+    {
+//loc_46CFB:              //; CODE XREF: start:loc_46CF4j
+        gIsSPDemoAvailableToRun = 2;
+    }
+
+    if (fastMode)
+    {
+//demoFileNotMissing:              //; CODE XREF: start+10Bj
+        if (fileIsDemo != 1)
+        {
+            spLog("SP without demo: %s", demoFileName); // (meaning: level only)
+            exit(1);
+        }
+
+//spHasAtAndDemo:              //; CODE XREF: start+11Cj
+        gIsFastModeEnabled = 1;
+    }
+}

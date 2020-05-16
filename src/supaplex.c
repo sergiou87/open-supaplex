@@ -29,6 +29,7 @@
 #include "conditionals.h"
 #include "config.h"
 #include "controller.h"
+#include "demo.h"
 #include "file.h"
 #include "globals.h"
 #include "input.h"
@@ -52,9 +53,6 @@ PSP_HEAP_SIZE_KB(-1024);
 
 // maps are 58 x 22 tiles
 
-uint8_t fastMode = 0;
-static const uint8_t kGameVersion = 0x71;
-
 typedef enum {
     UserInputNone = 0,
     UserInputUp = 1,
@@ -70,8 +68,6 @@ typedef enum {
 
 static const uint8_t kUserInputSpaceAndDirectionOffset = (UserInputSpaceUp - 1);
 
-// exact length of a level file, even of each level inside the LEVELS.DAT file
-#define levelDataLength 1536
 uint8_t byte_50919 = 0;
 uint8_t byte_5091A = 0;
 UserInput gCurrentUserInput = 0; // byte_50941 -> 0x0631
@@ -91,7 +87,6 @@ uint8_t gCurrentSoundDuration = 0; // byte_5988B -> 0x957B -> remaining time of 
 uint16_t word_5988E = 0x4650; // "PF"
 //uint8_t byte_59890 = 0x58; // 88 or 'X'
 //uint16_t word_59891 = 0x3336; // "63"
-uint8_t gIsSPDemoAvailableToRun = 0; // byte_599D4 -> 0=don't run .SP, 1=run .SP, 2=run .SP at startup
 uint8_t gDemoRecordingRandomGeneratorSeedHigh = 0; // byte_59B5C
 uint8_t gDemoRecordingRandomGeneratorSeedLow = 0; // byte_59B5F
 uint8_t byte_59B7A = 0; // data_subrest ?
@@ -1381,7 +1376,6 @@ uint16_t word_58712 = 0;
 uint16_t word_58714 = 0;
 uint16_t gSelectedOriginalDemoIndex = 0; // word_599D6 -> used loading old demo files demo
 uint16_t gSelectedOriginalDemoLevelNumber = 0; // word_599D8 -> used loading old demo files demo -> the high byte is set to -1 in readLevels for some unknown reason
-uint16_t gSelectedOriginalDemoFromCommandLineLevelNumber = 0; // word_599DA -> first demo byte if SP is an old demo
 // These two store the scroll offset to get back to Murphy when we're in "free mode"
 uint16_t gMurphyScrollOffsetX = 0; // word_59B88
 uint16_t gMurphyScrollOffsetY = 0; // word_59B8A
@@ -1404,7 +1398,6 @@ FILE *gCurrentRecordingDemoFile; // word_510E4
 uint8_t gDemoRecordingLowestSpeed; // speed?2
 int16_t gAdditionalScrollOffsetX; // word_51963
 int16_t gAdditionalScrollOffsetY; // word_51965
-uint8_t fileIsDemo = 0;
 uint8_t isJoystickEnabled = 0; // byte_50940
 uint8_t isMusicEnabled = 0; // byte_59886
 uint8_t isFXEnabled = 0; // byte_59885
@@ -1473,52 +1466,6 @@ enum MouseButton
 uint16_t gMouseButtonStatus = 0; // word_5847D
 uint16_t gMouseX = 0, gMouseY = 0;
 
-#define kMaxDemoInputSteps 48648
-#define kMaxBaseDemoSize 1 + kMaxDemoInputSteps + 1
-
-// This struct defines the demo format of the original game (previous to the speed fix mods)
-typedef struct
-{
-    // In demos recorded with the original game (not speed fix versions), it was the level number. After the speed fix
-    // versions, the level itself was included in the demo file, so they set the MSB to 1 to mark them and this byte
-    // loses its original function.
-    //
-    uint8_t levelNumber;
-    uint8_t inputSteps[kMaxDemoInputSteps + 1]; // of UserInput, finishes with 0xFF
-} BaseDemo;
-
-#define kMaxDemoSignatureLength 511
-#define kMaxDemoSignatureSize kMaxDemoSignatureLength + 1
-
-// This struct defines the demo format of the game after the speed fix mods (which includes a demo of the original
-// format inside).
-//
-typedef struct
-{
-    Level level;
-    BaseDemo baseDemo;
-    uint8_t signature[kMaxDemoSignatureSize]; // text that ends with 0xFF
-} DemoFile;
-
-#define kNumberOfDemos 10
-
-typedef struct
-{
-    uint16_t demoFirstIndices[kNumberOfDemos + 1]; // index of the last byte of all demos (starting at demo-segment:0000). there are 11 words because the end of this "list" is marked with 0xFFFF
-    uint8_t demoData[1 + kMaxDemoInputSteps + 1]; // to fit at least one huge demo with 1 byte for level number, then all the possible steps, then 0xFF
-    Level level[kNumberOfDemos];
-} Demos;
-
-uint16_t gDemoRandomSeeds[kNumberOfDemos];
-
-Demos gDemos; // this is located in the demo segment, starting at 0x0000
-
-// uint16_t word_58AEA = 0x3030; // -> 0x87DA
-// uint16_t word_58AEC = 0x0030; // -> 0x87DC
-char gCurrentDemoLevelName[kListLevelNameLength] = ".SP\0----- DEMO LEVEL! -----"; // 0x87DA
-
-char gRecordingDemoMessage[kLevelNameLength] = "--- RECORDING DEMO0 ---";
-
 uint8_t gShouldCloseAdvancedMenu = 0;
 uint8_t gAdvancedMenuRecordDemoIndex = 0;
 uint8_t gAdvancedMenuPlayDemoIndex = 0;
@@ -1527,32 +1474,6 @@ typedef struct {
     uint8_t tile; // of LevelTileType
     uint8_t movingObject;
 } MovingLevelTile;
-
-uint16_t kOriginalDemoFileSizes[10] = { // word_599DC
-    0x00CE, 0x016A, 0x0146, 0x00CD, 0x024D,
-    0x012C, 0x01A7, 0x01FB, 0x01D2, 0x02FD
-};
-
-typedef struct {
-    uint8_t levelNumber;
-    uint8_t firstUserInputs[3];
-} FirstOriginalDemoFileChunk;
-
-// These are literally the first 4 bytes of the original files, used by the spfix version to detect when a demo from
-// the original game was being parsed (since those had a different format).
-//
-FirstOriginalDemoFileChunk kOriginalDemoFirstFileChunks[10] = { // word_599E4
-    { 0x01, { 0xF0, 0xF0, 0xF1 } },
-    { 0x03, { 0xF0, 0x50, 0xF3 } },
-    { 0x07, { 0xF0, 0x60, 0xF4 } },
-    { 0x0B, { 0xF0, 0xF0, 0xF0 } },
-    { 0x1D, { 0xF0, 0xF0, 0xF0 } },
-    { 0x26, { 0xF0, 0xF0, 0x50 } },
-    { 0x37, { 0xF0, 0xD0, 0x41 } },
-    { 0x5F, { 0x10, 0xF3, 0xF3 } },
-    { 0x68, { 0xF0, 0xF0, 0x10 } },
-    { 0x6C, { 0x10, 0xF4, 0x94 } },
-};
 
 typedef struct {
     MovingLevelTile levelState[kLevelSize]; // 0x1834
@@ -2446,7 +2367,6 @@ uint8_t ah, al, bh, bl, ch, cl, dh, dl;
 uint16_t ax, bx, cx, dx, ds, cs, es, bp, sp, di, si;
 
 void startDirectlyFromLevel(uint8_t levelNumber);
-uint8_t getLevelNumberFromOriginalDemoFile(FILE *file, uint16_t fileLength);
 void stopDemoAndPlay(void);
 void startTrackingRenderDeltaTime(void);
 uint32_t updateRenderDeltaTime(void);
@@ -3383,146 +3303,6 @@ int main(int argc, char *argv[])
     memset(&gCurrentGameState, 0, sizeof(GameState));
     gCurrentGameState.word_5195D = 0xF000;
 
-    for (int i = 0; i < argc; ++i)
-    {
-        char *arg = argv[i];
-
-        if (strchr(arg, ':') != NULL)
-        {
-            strcpy(demoFileName, arg); // TODO: copy without ':'
-
-            FILE *file = openWritableFileWithReadonlyFallback(demoFileName, "r");
-            if (file == NULL)
-            {
-                strcpy(demoFileName, "");
-                gIsSPDemoAvailableToRun = 0;
-                continue;
-            }
-
-            long fileLength = 0;
-
-            if (fseek(file, 0, SEEK_END) != 0)
-            {
-                fclose(file);
-            }
-            else
-            {
-                fileLength = ftell(file);
-
-                if (fileLength >= levelDataLength)
-                {
-                    fclose(file);
-                }
-            }
-
-            char *message = "!! File >> Demo: ";
-            gSelectedOriginalDemoFromCommandLineLevelNumber = 0;
-
-            if (file == NULL)
-            {
-                strcpy(demoFileName, "");
-                gIsSPDemoAvailableToRun = 0;
-                continue;
-            }
-
-            if (fileLength > kMaxBaseDemoSize + kMaxDemoSignatureSize + levelDataLength)
-            {
-                //lookForAtSignInCommandLine:              //; CODE XREF: start+A6j start+ABj
-                // pop(cx); // recover number of cmd line bytes
-                // pop(di); // recover command line string
-                // push(di); // save command line string
-                // push(cx); // save number of cmd line bytes
-                if (strchr(arg, '@') != NULL) // looks for @ in the rest of the command line for some reason
-                {
-                    spLog("%s%s", message, demoFileName);
-                    exit(1);
-                }
-                else
-                {
-                    strcpy(demoFileName, "");
-                    gIsSPDemoAvailableToRun = 0;
-                    continue;
-                }
-            }
-
-            message = "!! File >> Level: ";
-
-// loc_46CB7:              //; CODE XREF: start:loc_46CADj
-            if (fileLength < levelDataLength) // all demo files are greater than a level (1536 bytes)
-            {
-                gSelectedOriginalDemoFromCommandLineLevelNumber = getLevelNumberFromOriginalDemoFile(file, fileLength);
-
-                fclose(file);
-
-                if (gSelectedOriginalDemoFromCommandLineLevelNumber != 0)
-                {
-//loc_46CF6:              //; CODE XREF: start+C2j
-                    fileIsDemo = 1;
-                }
-                else
-                {
-                    if (strchr(arg, '@') != NULL) // looks for @ in the rest of the command line for some reason
-                    {
-                        spLog("%s%s", message, demoFileName);
-                        exit(1);
-                    }
-                    else
-                    {
-                        strcpy(demoFileName, "");
-                        gIsSPDemoAvailableToRun = 0;
-                        continue;
-                    }
-                }
-            }
-//loc_46CF4:              //; CODE XREF: start+B4j
-            else if (fileLength == levelDataLength) // all demo files are greater than a level (1536 bytes)
-            {
-//loc_46CFB:              //; CODE XREF: start:loc_46CF4j
-                if (strlen(demoFileName) == 0)
-                {
-                    strcpy(demoFileName, "");
-                    gIsSPDemoAvailableToRun = 0;
-                    continue;
-                }
-
-                gIsSPDemoAvailableToRun = 2;
-            }
-        }
-        else
-        {
-//nohascolon:               ; CODE XREF: start+3Bj
-            //pop(cx); // recover number of cmd line bytes
-            //pop(di); // recover command line string
-            //push(di); // save command line string
-            //push(cx); // save number of cmd line bytes
-            char *hasAt = strchr(arg, '@'); // repne scasb
-            // pop(cx); // recover number of cmd line bytes
-            // pop(di); // recover command line string
-            if (hasAt != NULL)
-            {
-                //; When @ is specd we need a valid file
-                if (strlen(demoFileName) == 0)
-                {
-                    spLog("\"@\"-ERROR: Bad or missing \":filename.ext\"!");
-                    exit(1);
-                }
-
-//demoFileNotMissing:              //; CODE XREF: start+10Bj
-                if (fileIsDemo != 1)
-                {
-                    spLog("SP without demo: %s", demoFileName);
-                    exit(1);
-                }
-
-//spHasAtAndDemo:              //; CODE XREF: start+11Cj
-                fastMode = 1;
-            }
-
-            // TODO: check all letters, upper and lowercase, and store the results
-            // in variables starting from word_59B60
-        }
-    }
-
 //doesNotHaveCommandLine:         //; CODE XREF: start+13j start+23Fj ...
     generateRandomSeedFromClock();
     // checkVideo();
@@ -3531,7 +3311,7 @@ int main(int argc, char *argv[])
     initializeFadePalette(); // 01ED:026F
     initializeMouse();
 //    initializeSound();
-    if (fastMode == 0)
+    if (gIsFastModeEnabled == 0)
     {
         setPalette(gBlackPalette);
         readTitleDatAndGraphics();
@@ -3546,7 +3326,7 @@ int main(int argc, char *argv[])
     if (gShouldStartFromSavedSnapshot
         || gIsForcedLevel
         || gIsSPDemoAvailableToRun
-        || fastMode)
+        || gIsFastModeEnabled)
     {
         readEverything();
     }
@@ -3572,7 +3352,7 @@ int main(int argc, char *argv[])
     }
 
 //loc_46F25:              //; CODE XREF: start+2FEj
-    if (fastMode == 0)
+    if (gIsFastModeEnabled == 0)
     {
 //isNotFastMode:              //; CODE XREF: start+30Aj
         fadeToPalette(gBlackPalette);
@@ -3619,7 +3399,7 @@ int main(int argc, char *argv[])
             }
 
 //loc_46F8E:              //; CODE XREF: start+369j
-            if (fastMode == 1)
+            if (gIsFastModeEnabled == 1)
             {
 //                goto doneWithDemoPlayback;
             }
@@ -3659,8 +3439,7 @@ int main(int argc, char *argv[])
             gIsSPDemoAvailableToRun = 1;
             if (fileIsDemo == 1)
             {
-//              ax = 0;
-//              playDemo();
+                playDemo(0);
             }
             else
             {
@@ -3673,8 +3452,9 @@ int main(int argc, char *argv[])
             gCurrentGameState.byte_510B3 = 0;
             gHasUserCheated = 1;
             strcpy(&a00s0010_sp[3], "---");
-//          push(ax);
-//          goto loc_4701A;
+//loc_4701A:              //; CODE XREF: start+3DDj start+433j
+            startDirectlyFromLevel(1);
+            continue;
         }
         else
         {
@@ -3713,7 +3493,7 @@ int main(int argc, char *argv[])
 /*
 doneWithDemoPlayback:           //; CODE XREF: start+375j
         resetVideoMode();
-        if (fastMode != 1)
+        if (gIsFastModeEnabled != 1)
         {
             goto isNotFastMode3;
         }
@@ -3804,62 +3584,6 @@ void startDirectlyFromLevel(uint8_t levelNumber)
     drawLevelList();
     word_5196C = 0;
     byte_5A19B = 0;
-}
-
-uint8_t getLevelNumberFromOriginalDemoFile(FILE *file, uint16_t fileLength) // fileReadUnk1    proc near       ; CODE XREF: start+B6p readDemoFiles+81p
-{
-    // 01ED:048F
-
-    // Return value:
-    //  - carry flag = 0 on success, 1 on error
-    //  - ax = 0 on error, level number of the original demo on success
-
-    uint8_t isDemoFromOriginalGame = 0;
-    uint8_t originalDemoIndex = 0;
-
-    for (int i = 0; i < 10; ++i)
-    {
-//loop_:                  //; CODE XREF: getLevelNumberFromOriginalDemoFile+Fj
-        if (kOriginalDemoFileSizes[i] == fileLength)
-        {
-            isDemoFromOriginalGame = 1;
-            originalDemoIndex = i;
-            break;
-        }
-    }
-
-    if (isDemoFromOriginalGame == 0)
-    {
-        return 0;
-    }
-
-//loc_47105:              //; CODE XREF: getLevelNumberFromOriginalDemoFile+Aj
-    int result = fseek(file, 0, SEEK_SET);
-
-    if (result < 0)
-    {
-        return 0;
-    }
-
-    FirstOriginalDemoFileChunk firstChunk;
-    size_t bytes = fread(&firstChunk, 1, sizeof(firstChunk), file);
-
-    if (bytes < sizeof(firstChunk))
-    {
-        return 0;
-    }
-
-    FirstOriginalDemoFileChunk referenceChunk = kOriginalDemoFirstFileChunks[originalDemoIndex];
-
-    // If the first chunk we just read doesn't match the reference chunk, we won't
-    // consider it a demo from the original game.
-    //
-    if (memcmp(&referenceChunk, &firstChunk, sizeof(FirstOriginalDemoFileChunk)) != 0)
-    {
-        return 0;
-    }
-
-    return firstChunk.levelNumber;
 }
 
 void slideDownGameDash() // proc near     ; CODE XREF: start:isNotFastMode2p
@@ -4240,11 +3964,11 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
     {
 //loc_47629:              //; CODE XREF: readDemoFiles+175j
         gSelectedOriginalDemoLevelNumber = 0;
+        char *filename = gDemo0BinFilename;
+
         if (gIsSPDemoAvailableToRun == 1)
         {
-            // TODO: Implement loading a demo from command line
-            // dx = &demoFileName;
-            assert(0);
+            filename = demoFileName;
         }
         else
         {
@@ -4253,7 +3977,7 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
         }
 
 //loc_47647:             // ; CODE XREF: readDemoFiles+31j
-        FILE *file = openWritableFileWithReadonlyFallback(gDemo0BinFilename, "r");
+        FILE *file = openWritableFileWithReadonlyFallback(filename, "r");
         if (file == NULL)
         {
             return i;
@@ -6658,7 +6382,7 @@ void handleGameIterationFinished()
 
     float targetIterationDuration = kOriginalIterationDuration * kSpeedTimeFactors[gGameSpeed];
 
-    if (fastMode == 1)
+    if (gIsFastModeEnabled == 1)
     {
         targetIterationDuration = 0;
     }
@@ -6814,7 +6538,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 //noFlashing4:              ; CODE XREF: runLevel+2D1j
         drawCurrentLevelViewport(gCurrentPanelHeight); // Added by me
 
-        if (fastMode != 1)
+        if (gIsFastModeEnabled != 1)
         {
             videoloop(); // 01ED:2142
         }
@@ -6832,7 +6556,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         for (int i = 1; i < gDebugExtraRenderDelay; ++i)
         {
 //loc_48DB6:              ; CODE XREF: runLevel+310j
-            if (fastMode != 1)
+            if (gIsFastModeEnabled != 1)
             {
                 videoloop(); // 01ED:2160
             }
