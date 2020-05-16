@@ -3761,7 +3761,7 @@ void readConfig() //  proc near       ; CODE XREF: start:loc_46F0Fp
     {
         return;
     }
-    
+
     FILE *file = openWritableFile("SUPAPLEX.CFG", "r");
     if (file == NULL)
     {
@@ -13407,6 +13407,12 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
             exitWithError("Error reading %s\n", filename);
         }
 
+        gCurrentGameState.isGravityEnabled = fileLevelData.initialGravitation;
+        gCurrentGameState.areZonksFrozen = fileLevelData.freezeZonks;
+        gCurrentGameState.numberOfInfoTrons = fileLevelData.numberOfInfotrons;
+        gCurrentGameState.numberOfSpecialPorts = fileLevelData.numberOfSpecialPorts;
+        gCurrentGameState.randomSeed = fileLevelData.randomSeed;
+
 //loc_4D618:              ; CODE XREF: readLevels+CBj
         if ((gSelectedOriginalDemoLevelNumber & 0xFF) != 0) // cmp byte ptr gSelectedOriginalDemoLevelNumber, 0
         {
@@ -13461,12 +13467,6 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
     memcpy(levelName, fileLevelData.name, sizeof(fileLevelData.name));
 
     memcpy(&gCurrentGameState.level, &fileLevelData, sizeof(Level));
-
-    gCurrentGameState.isGravityEnabled = gCurrentGameState.level.initialGravitation;
-    gCurrentGameState.areZonksFrozen = gCurrentGameState.level.freezeZonks;
-    gCurrentGameState.numberOfInfoTrons = gCurrentGameState.level.numberOfInfotrons;
-    gCurrentGameState.numberOfSpecialPorts = gCurrentGameState.level.numberOfSpecialPorts;
-    gCurrentGameState.randomSeed = gCurrentGameState.level.randomSeed;
 
     for (int i = 0; i < kLevelSize; ++i) // originally was levelDataLength but sounds like a bug
     {
