@@ -5435,19 +5435,15 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
                 belowTile->movingObject = 0;
             }
 //loc_481EF:              ; CODE XREF: movefun+257j
-            else if (belowRightTile->tile != LevelTileTypeExplosion) // cmp byte ptr [si+18AEh], 1Fh
+            if (belowRightTile->tile != LevelTileTypeExplosion) // cmp byte ptr [si+18AEh], 1Fh
             {
                 belowRightTile->tile = LevelTileTypeSpace;
                 belowRightTile->movingObject = 0;
             }
-//loc_481FC:              ; CODE XREF: movefun+264j
-            else
-            {
 //loc_481FE:              ; CODE XREF: movefun+168j
 //                ; movefun+188j ...
-                detonateBigExplosion(position + kLevelWidth); // Tile below
-                return;
-            }
+            detonateBigExplosion(position + kLevelWidth); // Tile below
+            return;
         }
 
 //loc_48111:              ; CODE XREF: movefun+17Cj
@@ -6230,7 +6226,6 @@ void handleZonkStateAfterFallingOneTile(uint16_t position) // sub_488DC   proc n
         aboveTile->tile = 0x88;
         return;
     }
-    return;
 }
 
 void handleInfotronStateAfterFallingOneTile(uint16_t position) // sub_48957   proc near       ; CODE XREF: movefun2+104p
