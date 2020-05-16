@@ -1512,7 +1512,7 @@ typedef struct {
     uint16_t shouldKillMurphy; // word_510D1
     uint8_t byte_510D3;
     uint8_t areEnemiesFrozen; // byte_510D7 -> 1 = turn on, anything else (0) = turn off
-    uint8_t byte_510D8;
+    uint8_t scratchGravity; // byte_510D8 -> not sure what scratch gravity means exactly, but can be 0 (off) or 1 (on)
     uint16_t isMurphyGoingThroughPortal; // word_510D9
     uint8_t plantedRedDiskCountdown; // byte_510DB
     uint16_t plantedRedDiskPosition; // word_510DC
@@ -2505,7 +2505,7 @@ void detonateBigExplosion(uint16_t position);
 void detonateZonk(uint16_t position, uint8_t movingObject, uint8_t tile);
 void sub_4AA34(uint16_t position, uint8_t movingObject, uint8_t tile);
 void sub_4AAB4(uint16_t position);
-uint8_t checkMurphyMovementToPosition(uint16_t position);
+uint8_t checkMurphyMovementToPosition(uint16_t position, UserInput userInput);
 void handleZonkPushedByMurphy(uint16_t position);
 void decreaseRemainingRedDisksIfNeeded(uint16_t position);
 void updateSpecialPort(uint16_t position);
@@ -13799,7 +13799,7 @@ void playExitSound() // sound10   proc near       ; CODE XREF: update?+7EBp
     }
 
 //loc_4DEB4:              ; CODE XREF: update?+1Fj
-    gCurrentGameState.byte_510D8 = 0;
+    gCurrentGameState.scratchGravity = 0;
 
     if (gCurrentGameState.isGravityEnabled != 0
         && aboveTile->tile != LevelTileTypePortUp
@@ -13808,15 +13808,17 @@ void playExitSound() // sound10   proc near       ; CODE XREF: update?+7EBp
         && (belowTile->movingObject == 0
             && belowTile->tile == LevelTileTypeSpace))
     {
-        gCurrentGameState.byte_510D8 = 1;
+        gCurrentGameState.scratchGravity = 1;
     }
 
 //loc_4DEE1:              ; CODE XREF: update?+2Ej update?+35j ...
-    if (gCurrentUserInput == UserInputNone)
+    UserInput userInput = gCurrentUserInput;
+
+    if (userInput == UserInputNone)
     {
 //loc_4DEED:              ; CODE XREF: update?+58j
         gCurrentGameState.byte_510D3 =  1;
-        if (gCurrentGameState.byte_510D8 != 0)
+        if (gCurrentGameState.scratchGravity != 0)
         {
             MurphyAnimationDescriptor unknownMurphyData;
 //loc_4E38A:              ; CODE XREF: update?+69j update?+2FFj
@@ -13956,22 +13958,22 @@ void playExitSound() // sound10   proc near       ; CODE XREF: update?+7EBp
 
 //loc_4E001:              ; CODE XREF: update?+5Aj
     // 01ED:739E
-    if (gCurrentGameState.byte_510D8 != 0
+    if (gCurrentGameState.scratchGravity != 0
         && (belowTile->movingObject == 0 && belowTile->tile == LevelTileTypeSpace))
     {
-        if (gCurrentUserInput != UserInputUp
+        if (userInput != UserInputUp
             || (aboveTile->movingObject != 0 || aboveTile->tile != LevelTileTypeBase))
         {
 //loc_4E01B:              ; CODE XREF: update?+182j
-            if (gCurrentUserInput != UserInputLeft
+            if (userInput != UserInputLeft
                 || (leftTile->movingObject != 0 || leftTile->tile != LevelTileTypeBase))
             {
 //loc_4E027:              ; CODE XREF: update?+18Ej
-                if (gCurrentUserInput != UserInputRight
+                if (userInput != UserInputRight
                     || (rightTile->movingObject != 0 || rightTile->tile != LevelTileTypeBase))
                 {
 //loc_4E033:              ; CODE XREF: update?+19Aj
-                    gCurrentUserInput = UserInputDown;
+                    userInput = UserInputDown;
                 }
             }
         }
@@ -13979,31 +13981,31 @@ void playExitSound() // sound10   proc near       ; CODE XREF: update?+7EBp
 
 //loc_4E035:              ; CODE XREF: update?+176j update?+17Dj ...
     // 01ED:73D2
-    if (gCurrentUserInput == UserInputUp)
+    if (userInput == UserInputUp)
     {
         gCurrentGameState.byte_510D3 = 0;
         return handleMurphyDirectionUp(position);
     }
 //loc_4E041:              ; CODE XREF: update?+1A8j
-    else if (gCurrentUserInput == UserInputLeft)
+    else if (userInput == UserInputLeft)
     {
         gCurrentGameState.byte_510D3 = 0;
         return handleMurphyDirectionLeft(position);
     }
 //loc_4E04E:              ; CODE XREF: update?+1B4j
-    else if (gCurrentUserInput == UserInputDown)
+    else if (userInput == UserInputDown)
     {
         gCurrentGameState.byte_510D3 = 0;
         return handleMurphyDirectionDown(position);
     }
 //loc_4E05B:              ; CODE XREF: update?+1C1j
-    else if (gCurrentUserInput == UserInputRight)
+    else if (userInput == UserInputRight)
     {
         gCurrentGameState.byte_510D3 = 0;
         return handleMurphyDirectionRight(position);
     }
 //loc_4E068:              ; CODE XREF: update?+1CEj
-    else if (gCurrentUserInput == UserInputSpaceUp)
+    else if (userInput == UserInputSpaceUp)
     {
         gCurrentGameState.byte_510D3 = 0;
 //loc_4E260:              ; CODE XREF: update?+1E2j
@@ -14108,7 +14110,7 @@ void playExitSound() // sound10   proc near       ; CODE XREF: update?+7EBp
         }
     }
 //loc_4E075:              ; CODE XREF: update?+1DBj
-    else if (gCurrentUserInput == UserInputSpaceLeft)
+    else if (userInput == UserInputSpaceLeft)
     {
         gCurrentGameState.byte_510D3 = 0;
 //loc_4E28A:              ; CODE XREF: update?+1EFj
@@ -14214,7 +14216,7 @@ void playExitSound() // sound10   proc near       ; CODE XREF: update?+7EBp
         }
     }
 //loc_4E082:              ; CODE XREF: update?+1E8j
-    else if (gCurrentUserInput == UserInputSpaceDown)
+    else if (userInput == UserInputSpaceDown)
     {
         gCurrentGameState.byte_510D3 = 0;
 //loc_4E2BA:              ; CODE XREF: update?+1FCj
@@ -14319,7 +14321,7 @@ void playExitSound() // sound10   proc near       ; CODE XREF: update?+7EBp
         }
     }
 //loc_4E08F:              ; CODE XREF: update?+1F5j
-    else if (gCurrentUserInput == UserInputSpaceRight)
+    else if (userInput == UserInputSpaceRight)
     {
         gCurrentGameState.byte_510D3 = 0;
 //loc_4E2E4:              ; CODE XREF: update?+209j
@@ -14428,7 +14430,7 @@ void playExitSound() // sound10   proc near       ; CODE XREF: update?+7EBp
         }
     }
 //loc_4E09C:              ; CODE XREF: update?+202j
-    else if (gCurrentUserInput == UserInputSpaceOnly)
+    else if (userInput == UserInputSpaceOnly)
     {
 //loc_4E314:              ; CODE XREF: update?+211j
         if (gCurrentGameState.numberOfRemainingRedDisks == 0
@@ -14696,7 +14698,7 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[43]);
     }
 //loc_4E0FF:              ; CODE XREF: update?+26Aj
-    else if (checkMurphyMovementToPosition(position - kLevelWidth) != 1)
+    else if (checkMurphyMovementToPosition(position - kLevelWidth, UserInputUp) != 1)
     {
         return handleMurphyDirectionUp(position);
     }
@@ -14936,7 +14938,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[47]);
     }
 //loc_4E179:              ; CODE XREF: update?+2E4j
-    else if (checkMurphyMovementToPosition(position - 1) != 1)
+    else if (checkMurphyMovementToPosition(position - 1, UserInputLeft) != 1)
     {
         return handleMurphyDirectionLeft(position);
     }
@@ -15185,7 +15187,7 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[45]);
     }
 //loc_4E1DB:              ; CODE XREF: update?+346j
-    else if (checkMurphyMovementToPosition(position + kLevelWidth) != 1)
+    else if (checkMurphyMovementToPosition(position + kLevelWidth, UserInputDown) != 1)
     {
         return handleMurphyDirectionDown(position);
     }
@@ -15440,7 +15442,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[48]);
     }
 //loc_4E253:              ; CODE XREF: update?+3BEj
-    else if (checkMurphyMovementToPosition(position + 1) != 1)
+    else if (checkMurphyMovementToPosition(position + 1, UserInputRight) != 1)
     {
         return handleMurphyDirectionRight(position);
     }
@@ -16547,13 +16549,13 @@ void drawMovingFrame(uint16_t srcX, uint16_t srcY, uint16_t destPosition) // sub
     }
 }
 
-uint8_t checkMurphyMovementToPosition(uint16_t position) // sub_4F21F   proc near       ; CODE XREF: update?+273p update?+2EDp ...
+uint8_t checkMurphyMovementToPosition(uint16_t position, UserInput userInput) // sub_4F21F   proc near       ; CODE XREF: update?+273p update?+2EDp ...
 {
     // 01ED:85BC
     // Parameters:
     // - si: position
     // - ax: value of that position (movingObject + tile)
-    // - bl: gCurrentUserInput
+    // - bl: user input to process
     MovingLevelTile *tile = &gCurrentGameState.levelState[position];
 
     if ((tile->movingObject == 0xFF && tile->tile == 0xFF)
@@ -16566,7 +16568,7 @@ uint8_t checkMurphyMovementToPosition(uint16_t position) // sub_4F21F   proc nea
     else if (tile->tile == LevelTileTypeZonk)
     {
 //loc_4F24F:              ; CODE XREF: checkMurphyMovementToPosition+11j
-        if (gCurrentUserInput == UserInputLeft)
+        if (userInput == UserInputLeft)
         {
 //loc_4F25E:              ; CODE XREF: checkMurphyMovementToPosition+33j
             uint8_t movingObjectType = (tile->movingObject & 0xF0);
@@ -16585,7 +16587,7 @@ uint8_t checkMurphyMovementToPosition(uint16_t position) // sub_4F21F   proc nea
 //                ; checkMurphyMovementToPosition+4Aj ...
             return 1;
         }
-        else if (gCurrentUserInput != UserInputRight)
+        else if (userInput != UserInputRight)
         {
             detonateBigExplosion(position);
             return 1;
