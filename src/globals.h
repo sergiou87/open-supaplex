@@ -258,6 +258,13 @@ extern const uint8_t kDefaultGameSpeed;
 extern uint8_t gGameSpeed; // gameSpeed
 extern char demoFileName[kMaxFilePathLength];
 
-extern uint8_t gIsFastModeEnabled;
+typedef enum
+{
+    FastModeTypeNone,
+    FastModeTypeNormal,
+    FastModeTypeUltra,
+} FastModeType;
+
+extern FastModeType gFastMode;
 
 #endif /* globals_h */

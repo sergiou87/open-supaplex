@@ -83,4 +83,4 @@ const uint8_t kDefaultGameSpeed = 5;
 uint8_t gGameSpeed = kDefaultGameSpeed; // gameSpeed
 char demoFileName[kMaxFilePathLength] = "";
 
-uint8_t gIsFastModeEnabled = 0;
+FastModeType gFastMode = FastModeTypeNone;

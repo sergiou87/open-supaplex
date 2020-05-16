@@ -3282,7 +3282,7 @@ int main(int argc, char *argv[])
 
     parseCommandLineOptions(argc, argv);
 
-    initializeVideo(gIsFastModeEnabled);
+    initializeVideo(gFastMode);
 
     if (initializeAudio() != 0)
     {
@@ -3310,8 +3310,8 @@ int main(int argc, char *argv[])
 //leaveVideoStatus:           //; CODE XREF: start+28Aj
     initializeFadePalette(); // 01ED:026F
     initializeMouse();
-//    initializeSound();
-    if (gIsFastModeEnabled == 0)
+
+    if (gFastMode == FastModeTypeNone)
     {
         setPalette(gBlackPalette);
         readTitleDatAndGraphics();
@@ -3326,7 +3326,7 @@ int main(int argc, char *argv[])
     if (gShouldStartFromSavedSnapshot
         || gIsForcedLevel
         || gIsSPDemoAvailableToRun
-        || gIsFastModeEnabled)
+        || gFastMode)
     {
         readEverything();
     }
@@ -3352,7 +3352,7 @@ int main(int argc, char *argv[])
     }
 
 //loc_46F25:              //; CODE XREF: start+2FEj
-    if (gIsFastModeEnabled == 0)
+    if (gFastMode == FastModeTypeNone)
     {
 //isNotFastMode:              //; CODE XREF: start+30Aj
         fadeToPalette(gBlackPalette);
@@ -3399,7 +3399,7 @@ int main(int argc, char *argv[])
             }
 
 //loc_46F8E:              //; CODE XREF: start+369j
-            if (gIsFastModeEnabled == 1)
+            if (gFastMode != FastModeTypeNone)
             {
                 break;
             }
@@ -3490,7 +3490,7 @@ int main(int argc, char *argv[])
 
     int runResult = 0;
 
-    if (gIsFastModeEnabled == 1)
+    if (gFastMode != FastModeTypeNone)
     {
         char *message = "";
         if (gIsLevelStartedAsDemo == 0)
@@ -6347,7 +6347,7 @@ void handleGameIterationFinished()
 
     float targetIterationDuration = kOriginalIterationDuration * kSpeedTimeFactors[gGameSpeed];
 
-    if (gIsFastModeEnabled == 1)
+    if (gFastMode != FastModeTypeNone)
     {
         targetIterationDuration = 0;
     }
@@ -6502,7 +6502,10 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 
 //noFlashing4:              ; CODE XREF: runLevel+2D1j
         drawCurrentLevelViewport(gCurrentPanelHeight); // Added by me
-        videoloop(); // 01ED:2142
+        if (gFastMode != FastModeTypeUltra)
+        {
+            videoloop(); // 01ED:2142
+        }
         handleGameIterationFinished();
 
 //isFastMode2:              ; CODE XREF: runLevel+2E8j
@@ -6516,7 +6519,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         for (int i = 1; i < gDebugExtraRenderDelay; ++i)
         {
 //loc_48DB6:              ; CODE XREF: runLevel+310j
-            if (gIsFastModeEnabled != 1)
+            if (gFastMode == FastModeTypeNone)
             {
                 videoloop(); // 01ED:2160
             }
@@ -13240,7 +13243,7 @@ void limitFPS()
     static const double kFrameDuration = 1000.0 / kMaximumFPS;
     static Uint32 sLastFrameTime = 0;
 
-    if (gIsFastModeEnabled)
+    if (gFastMode != FastModeTypeNone)
     {
         return;
     }

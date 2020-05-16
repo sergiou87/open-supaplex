@@ -67,7 +67,7 @@ typedef struct {
     const char *description;
 } OpenSupaplexCommandLineOption;
 
-#define kNumberOfCommandLineOptions 16
+#define kNumberOfCommandLineOptions 17
 
 static const OpenSupaplexCommandLineOption kFullCommandLineOptions[kNumberOfCommandLineOptions] = {
     { "help", 'h', 0, "Shows this help" },
@@ -89,7 +89,8 @@ static const OpenSupaplexCommandLineOption kFullCommandLineOptions[kNumberOfComm
     { "red-disk-cheat", 'k', 0, "Allow the use of the original infinite Red Disk (ch)eat Trick" },
     { "force-savegame-sav", 'f', 0, "Force Writing only one SAVEGAME.SAV (else use SAVEGAME.S??)" },
     { "play-sp-file", 'p', 1, "Use SP-file to play at start and from menu with F11 and F12" },
-    { "quick-demo", 'q', 1, "Lightning speed SP-demo test, exits to DOS with message" },
+    { "quick-demo", 'q', 1, "Lightning speed SP-demo test, exits the game with message" },
+    { "ultra-quick-demo", 'u', 1, "Ludicrous speed SP-demo test, exits the game with message" },
 };
 
 static struct option options[kNumberOfCommandLineOptions + 1];
@@ -100,7 +101,7 @@ void handleForceLevelNumberOption(void);
 void handleForcePlayerNumberOption(void);
 void handleForceGameSpeedOption(void);
 void handleEnableTestModeOption(void);
-void handlePlayDemoFile(uint8_t fastMode);
+void handlePlayDemoFile(FastModeType fastModeType);
 
 void parseCommandLineOptions(int argc, char *argv[])
 {
@@ -179,10 +180,13 @@ void parseCommandLineOptions(int argc, char *argv[])
                 strcpy(&gSavegameSavFilename[10], "AV");
                 break;
             case 'p':
-                handlePlayDemoFile(0);
+                handlePlayDemoFile(FastModeTypeNone);
                 break;
             case 'q':
-                handlePlayDemoFile(1);
+                handlePlayDemoFile(FastModeTypeNormal);
+                break;
+            case 'u':
+                handlePlayDemoFile(FastModeTypeUltra);
                 break;
         }
     }
@@ -292,14 +296,14 @@ void handleEnableTestModeOption(void)
     spLog("Enabling test mode");
 }
 
-void handlePlayDemoFile(uint8_t fastMode)
+void handlePlayDemoFile(FastModeType fastModeType)
 {
     strcpy(demoFileName, optarg);
 
     FILE *file = openWritableFileWithReadonlyFallback(demoFileName, "r");
     if (file == NULL)
     {
-        if (fastMode)
+        if (fastModeType != FastModeTypeNone)
         {
             spLog("\"@\"-ERROR: Bad or missing file %s", demoFileName);
             exit(1);
@@ -331,7 +335,7 @@ void handlePlayDemoFile(uint8_t fastMode)
     if (fileLength > kMaxBaseDemoSize + kMaxDemoSignatureSize + levelDataLength)
     {
 //lookForAtSignInCommandLine:              //; CODE XREF: start+A6j start+ABj
-        if (fastMode)
+        if (fastModeType != FastModeTypeNone)
         {
             spLog("!! File >> Demo: %s", demoFileName); // (meaning: file too long)
             exit(1);
@@ -359,7 +363,7 @@ void handlePlayDemoFile(uint8_t fastMode)
         }
         else
         {
-            if (fastMode) // looks for @ in the rest of the command line for some reason
+            if (fastModeType != FastModeTypeNone)
             {
                 spLog("!! File < Level: %s", demoFileName); // (meaning: file too short)
                 exit(1);
@@ -379,7 +383,7 @@ void handlePlayDemoFile(uint8_t fastMode)
         gIsSPDemoAvailableToRun = 2;
     }
 
-    if (fastMode)
+    if (fastModeType != FastModeTypeNone)
     {
 //demoFileNotMissing:              //; CODE XREF: start+10Bj
         if (fileIsDemo != 1)
@@ -389,6 +393,6 @@ void handlePlayDemoFile(uint8_t fastMode)
         }
 
 //spHasAtAndDemo:              //; CODE XREF: start+11Cj
-        gIsFastModeEnabled = 1;
+        gFastMode = fastModeType;
     }
 }
