@@ -8239,11 +8239,6 @@ void updateBugTiles(uint16_t position) // movefun7  proc near       ; DATA XREF:
         return;
     }
 
-//    if (position == 1000)
-//    {
-//        position = position;
-//    }
-
 //loc_4A045:              ; CODE XREF: movefun7+5j
     if ((gCurrentGameState.word_5195D & 3) != 0)
     {
@@ -9667,10 +9662,10 @@ void detonateZonk(uint16_t position, uint8_t movingObject, uint8_t tile) // sub_
     MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
     MovingLevelTile *belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
 
+    uint8_t movingObjectType = currentTile->movingObject & 0xF0;
+
     currentTile->movingObject = movingObject;
     currentTile->tile = tile;
-
-    uint8_t movingObjectType = currentTile->movingObject & 0xF0;
 
     if (movingObjectType == 0x10
         || movingObjectType == 0x70)
