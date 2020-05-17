@@ -7982,7 +7982,12 @@ void updateMovingObjects() // gameloop   proc near       ; CODE XREF: runLevel:n
 
     MovingObject movingObjects[kLevelSize];
 
-    for (uint16_t i = kLevelWidth + 1; i < kLevelSize; ++i) // starts from si, ends in si + cx
+    // This loop doesn't iterate through _every tile_. Instead it only goes from the first tile in the gamefield
+    // (located at levelWidth + 1) to the last tile in the gamefield (located at levelSize - levelWidth - 2).
+    // From what I've seen some demos depend on this. Demo 00/01s028-1.SP is an example because there is a
+    // non-hardware tile at the bottom edge that explodes, and a SnikSnak goes in there.
+    //
+    for (uint16_t i = kLevelWidth + 1; i < kLevelSize - kLevelWidth - 1; ++i) // starts from si, ends in si + cx
     {
 //checkCellForMovingObject:              ; CODE XREF: updateMovingObjects+84j
         LevelTileType tile = gCurrentGameState.levelState[i].tile; //         mov bl, byte ptr leveldata[si]
@@ -8848,7 +8853,7 @@ void updateOrangeDiskTiles(uint16_t position) // movefun3  proc near       ; DAT
 }
 
 void updateExplosionTiles(uint16_t position) //loc_4A543:              ; DATA XREF: data:1648o
-{
+{ // 01ED:38E0 TODO: check with original.exe
     MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
 
     if (currentTile->tile != LevelTileTypeExplosion)
@@ -18178,20 +18183,10 @@ void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, 
     for (int y = 0; y < height; ++y)
     {
         int16_t finalY = dstY + y;
-        if (finalY >= kLevelBitmapHeight
-            || finalY < 0 )
-        {
-            continue;
-        }
 
         for (int x = 0; x < width; ++x)
         {
             int16_t finalX = dstX + x;
-            if (finalX >= kLevelBitmapWidth
-                || finalX < 0 )
-            {
-                continue;
-            }
 
             size_t srcAddress = (srcY + y) * kMovingBitmapWidth + srcX + x;
             size_t dstAddress = (finalY - kLevelEdgeSize) * kLevelBitmapWidth + finalX - kLevelEdgeSize;
