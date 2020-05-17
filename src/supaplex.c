@@ -3529,9 +3529,9 @@ int main(int argc, char *argv[])
     {
 //loc_47067:              //; CODE XREF: start+36Bj start+391j ...
         fadeToPalette(gBlackPalette); // 0x60D5
-    }
 
-    writeAdvancedConfig();
+        writeAdvancedConfig();
+    }
 
     // Tidy up
     destroyLogging();
