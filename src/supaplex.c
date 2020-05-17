@@ -13081,7 +13081,10 @@ void initializeMouse() //   proc near       ; CODE XREF: start+299p
     gIsMouseAvailable = 1; // THIS IS NOT FROM THE ASM: assume there is a mouse available
     gMouseX = kScreenWidth / 2;
     gMouseY = kScreenHeight / 2;
-    centerMouse();
+    if (getFullscreenMode())
+    {
+        centerMouse();
+    }
     SDL_ShowCursor(SDL_DISABLE);
     handleSDLEvents();
 }
@@ -18224,13 +18227,16 @@ void emulateClock()
 
 void handleSDLEvents()
 {
-    SDL_Event event;
-    while (SDL_PollEvent(&event))
+    if (gFastMode != FastModeTypeUltra)
     {
-        if (event.type == SDL_QUIT)
+        SDL_Event event;
+        while (SDL_PollEvent(&event))
         {
-            gCurrentGameState.shouldExitLevel = 1;
-            gShouldExitGame = 1;
+            if (event.type == SDL_QUIT)
+            {
+                gCurrentGameState.shouldExitLevel = 1;
+                gShouldExitGame = 1;
+            }
         }
     }
 
