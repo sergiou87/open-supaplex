@@ -5404,7 +5404,7 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
         }
 
 //loc_480E7:              ; CODE XREF: movefun+152j
-        if (belowTile->tile == LevelTileTypeMurphy && belowTile->movingObject == 0) // cmp word ptr [si+18ACh], 3
+        if (belowTile->tile == LevelTileTypeMurphy) // cmp byte ptr [si+18ACh], 3
         {
             break;
         }
@@ -5539,7 +5539,7 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
         belowTile->movingObject = 0;
     }
 //loc_481D3:              ; CODE XREF: movefun+23Bj
-    else if (belowLeftTile->tile != LevelTileTypeExplosion) // cmp byte ptr [si+18AAh], 1Fh
+    if (belowLeftTile->tile != LevelTileTypeExplosion) // cmp byte ptr [si+18AAh], 1Fh
     {
         belowLeftTile->tile = LevelTileTypeSpace;
         belowLeftTile->movingObject = 0;
@@ -5971,7 +5971,7 @@ void updateInfotronTiles(uint16_t position) // movefun2  proc near       ; DATA 
         }
 
 //loc_48537:              ; CODE XREF: movefun2+12Aj
-        if (belowTile->tile == LevelTileTypeMurphy && belowTile->movingObject == 0) // cmp word ptr [si+18ACh], 3
+        if (belowTile->tile == LevelTileTypeMurphy) // cmp byte ptr [si+18ACh], 3
         {
 //loc_485F2:              ; CODE XREF: movefun2+136j
             if (belowTile->movingObject == 0xE
