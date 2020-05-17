@@ -2512,7 +2512,7 @@ void updateSpecialPort(uint16_t position);
 void handleInfotronStateAfterFallingOneTile(uint16_t position);
 void drawLevelViewport(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
 void drawCurrentLevelViewport(uint16_t panelHeight);
-void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, uint16_t height, uint16_t dstX, uint16_t dstY);
+void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, uint16_t height, int16_t dstX, int16_t dstY);
 void int9handler(uint8_t shouldYieldCpu);
 void updateDemoRecordingLowestSpeed(void);
 void playDemo(uint16_t demoIndex);
@@ -8345,14 +8345,6 @@ void updateTerminalTiles(uint16_t position) // movefun5  proc near       ; DATA 
 void generateRandomSeedFromClock() // getTime    proc near       ; CODE XREF: start:doesNotHaveCommandLinep
                     // ; handleGameUserInput+669p ...
 {
-//        mov ax, 0
-//        int 1Ah     ; CLOCK - GET TIME OF DAY
-//                    ; Return: CX:DX = clock count
-//                    ; AL = 00h if clock was read or written (via AH=0,1) since the previous
-//                    ; midnight
-//                    ; Otherwise, AL > 0
-//    xor cx, dx
-//    mov gRandomGeneratorSeed, cx
     Uint32 timeInMilliseconds = SDL_GetTicks();
     // In order to keep the same behavior and values, this code will convert
     // the time in milliseconds to the clock count, as described in
@@ -16463,19 +16455,10 @@ void drawMovingFrame(uint16_t srcX, uint16_t srcY, uint16_t destPosition) // sub
     // - di: coordinates on the screen
     // - si: coordinates on the MOVING.DAT bitmap to draw from?
 
-    uint16_t destX = (destPosition % kLevelWidth) * kTileSize;
-    uint16_t destY = (destPosition / kLevelWidth) * kTileSize;
+    int16_t destX = (destPosition % kLevelWidth) * kTileSize;
+    int16_t destY = (destPosition / kLevelWidth) * kTileSize;
 
-    for (int y = 0; y < kTileSize; ++y)
-    {
-        for (int x = 0; x < kTileSize; ++x)
-        {
-//loc_4F208:              ; CODE XREF: drawMovingFrame+1Bj
-            size_t srcAddress = (srcY + y) * kMovingBitmapWidth + srcX + x;
-            size_t dstAddress = (destY + y - kLevelEdgeSize) * kLevelBitmapWidth + destX + x - kLevelEdgeSize;
-            gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
-        }
-    }
+    drawMovingSpriteFrameInLevel(srcX, srcY, kTileSize, kTileSize, destX, destY);
 }
 
 uint8_t checkMurphyMovementToPosition(uint16_t position, UserInput userInput) // sub_4F21F   proc near       ; CODE XREF: update?+273p update?+2EDp ...
@@ -18188,16 +18171,30 @@ void drawCurrentLevelViewport(uint16_t panelHeight)
     }
 }
 
-void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, uint16_t height, uint16_t dstX, uint16_t dstY)
+void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, uint16_t height, int16_t dstX, int16_t dstY)
 {
     assert((width % kTileSize) == 0);
 
     for (int y = 0; y < height; ++y)
     {
+        int16_t finalY = dstY + y;
+        if (finalY >= kLevelBitmapHeight
+            || finalY < 0 )
+        {
+            continue;
+        }
+
         for (int x = 0; x < width; ++x)
         {
+            int16_t finalX = dstX + x;
+            if (finalX >= kLevelBitmapWidth
+                || finalX < 0 )
+            {
+                continue;
+            }
+
             size_t srcAddress = (srcY + y) * kMovingBitmapWidth + srcX + x;
-            size_t dstAddress = (dstY + y - kLevelEdgeSize) * kLevelBitmapWidth + dstX + x - kLevelEdgeSize;
+            size_t dstAddress = (finalY - kLevelEdgeSize) * kLevelBitmapWidth + finalX - kLevelEdgeSize;
             gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
         }
     }
