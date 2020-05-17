@@ -8057,6 +8057,18 @@ void updateScrollOffset() // sub_49EBE   proc near       ; CODE XREF: runLevel+1
                    // ; scrollToMurphy+29p
 {
     // 01ED:325B
+    uint16_t randomNumber = 0;
+
+    // This random number is used to generate the shaking effect on explosions.
+    // The original game generates this random number here for _every_ explosion, even if
+    // normally only Murphy's explosion will make the screen shake. However it's necessary
+    // to do this here to make sure the right sequence of random numbers is generated when
+    // there are explosions in the level.
+    //
+    if (gCurrentGameState.isExplosionStarted == 1)
+    {
+        randomNumber = generateRandomNumber();
+    }
 
 //loc_49ECC:              ; CODE XREF: updateScrollOffset+7j
     int16_t scrollX = gCurrentGameState.murphyPositionX;
@@ -8175,20 +8187,12 @@ void updateScrollOffset() // sub_49EBE   proc near       ; CODE XREF: runLevel+1
 
 //loc_49FA9:              ; CODE XREF: updateScrollOffset+6Ej
 //                ; updateScrollOffset+BDj ...
-    // This makes the screen shake when Murphy dies
+    // This makes the screen shake on an explosion
     if (gShouldShakeWithAllExplosions != 0
         || (gShakeWithExplosionsDisabled == 0
             && (gCurrentGameState.quitLevelCountdown & 0xFF) != 0))
     {
 //loc_49FBE:              ; CODE XREF: updateScrollOffset+F0j
-        uint16_t randomNumber = 0;
-
-        // This makes the shaking effect stop after the explosion is finished
-        if (gCurrentGameState.isExplosionStarted == 1)
-        {
-            randomNumber = generateRandomNumber();
-        }
-
         randomNumber = randomNumber & 0x101;
 
         uint16_t scrollShakeYOffset = randomNumber >> 8;
