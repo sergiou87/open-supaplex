@@ -5637,6 +5637,8 @@ void updateInfotronTiles(uint16_t position) // movefun2  proc near       ; DATA 
             rightTile->tile = 0x88;
         }
 
+        shouldSkipFirstPartOfLoop = 0;
+
 //loc_48495:              ; CODE XREF: movefun2+11j
 //                ; movefun2+60j ...
         uint8_t movingObject = currentTile->movingObject;
