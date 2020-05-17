@@ -8197,7 +8197,7 @@ void updateScrollOffset() // sub_49EBE   proc near       ; CODE XREF: runLevel+1
         scrollY += scrollShakeYOffset;
         if (scrollX > 0x13C) // 316
         {
-            scrollShakeXOffset = ~scrollShakeXOffset;
+            scrollShakeXOffset = -scrollShakeXOffset;
         }
 
 //loc_49FD0:              ; CODE XREF: updateScrollOffset+10Ej
@@ -8217,91 +8217,9 @@ void updateScrollOffset() // sub_49EBE   proc near       ; CODE XREF: runLevel+1
 //    gCurrentGameState.word_51967 = scrollX;
 }
 
-uint8_t waitForJoystickKeyReleased(uint8_t keyOrAxis, uint16_t *outTime) // sub_49FED  proc near       ; CODE XREF: sub_48E59+2Cp
-                   // ; sub_48E59+67p ...
-{
-    // Maybe it waits for a key in the joystick to be released???
-    // Parameters:
-    // ah: bitmask of the button/coordiante to test
-    // Returns:
-    // CF=0 if the key was initially pressed and then released, CF=1 in any other case
-    // ax: will contain the number of iterations where the key was pressed?
-
-    if (isJoystickEnabled == 0)
-    {
-//        ax = 0;
-//        cf = 1; // stc
-        *outTime = 0;
-        return 0;
-    }
-
-//loc_49FF8:              ; CODE XREF: waitForJoystickKeyReleased+5j
-    dx = 0x201; // 513
-//    cli
-    cx = 0;
-
-    char keyWasPressed = 1;
-
-    // This loop waits until the key is not pressed?
-    do
-    {
-//loc_49FFF:              ; CODE XREF: waitForJoystickKeyReleased+21j
-        // 2 possible joysticks: (X1, Y1, 11, 12) and (X2, Y2, 21, 22)
-    //    in  al, dx      ; Game I/O port
-    //                ; bits 0-3: Coordinates (resistive, time-dependent inputs) X1, Y1, X2, Y2
-    //                ; bits 4-7: Buttons/Triggers (digital inputs) 11, 12, 21, 12
-        if ((al & keyOrAxis) == 0)
-        {
-            keyWasPressed = 0;
-            break;
-        }
-        cx--;
-    }
-    while (cx > 0);
-
-    if (keyWasPressed == 1)
-    {
-        cf = 1; //stc
-        return 0;
-    }
-
-//loc_4A013:              ; CODE XREF: waitForJoystickKeyReleased+1Fj
-//    out dx, al      ; Game I/O port
-//                ; bits 0-3: Coordinates (resistive, time-dependent inputs)
-//                ; bits 4-7: Buttons/Triggers (digital inputs)
-    cx = 0;
-
-    do
-    {
-//loc_4A021:              ; CODE XREF: waitForJoystickKeyReleased+44j
-    //    in  al, dx      ; Game I/O port
-    //                ; bits 0-3: Coordinates (resistive, time-dependent inputs)
-    //                ; bits 4-7: Buttons/Triggers (digital inputs)
-        if ((al & keyOrAxis) == 0)
-        {
-            keyWasPressed = 0;
-            break;
-        }
-        cx--;
-    }
-    while (cx > 0);
-
-    if (keyWasPressed == 1)
-    {
-        cf = 1; //stc
-        return 0;
-    }
-
-//loc_4A036:              ; CODE XREF: waitForJoystickKeyReleased+42j
-//    cx = -cx;
-//    ax = cx;
-//    cf = 0; // clc
-    *outTime = ~cx;
-    return 1;
-}
-
 void updateBugTiles(uint16_t position) // movefun7  proc near       ; DATA XREF: data:163Co
 {
+    // 01ED:33DA
     MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
     MovingLevelTile *aboveTile = &gCurrentGameState.levelState[position - kLevelWidth];
     MovingLevelTile *belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
@@ -8317,6 +8235,11 @@ void updateBugTiles(uint16_t position) // movefun7  proc near       ; DATA XREF:
         return;
     }
 
+//    if (position == 1000)
+//    {
+//        position = position;
+//    }
+
 //loc_4A045:              ; CODE XREF: movefun7+5j
     if ((gCurrentGameState.word_5195D & 3) != 0)
     {
@@ -8328,10 +8251,11 @@ void updateBugTiles(uint16_t position) // movefun7  proc near       ; DATA XREF:
     frameNumber++;
     if (frameNumber >= 0xE)
     {
+        // 01ED:33F9
         uint8_t value = generateRandomNumber() & 0xFF;
         value &= 0x3F;
         value += 0x20;
-        value = ~value;
+        value = -value;
         frameNumber = value;
     }
 
@@ -8364,6 +8288,7 @@ void updateBugTiles(uint16_t position) // movefun7  proc near       ; DATA XREF:
 
 void updateTerminalTiles(uint16_t position) // movefun5  proc near       ; DATA XREF: data:1630o
 {
+    // 01ED:346F
     MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
 
     if (currentTile->tile != LevelTileTypeTerminal)
@@ -8383,7 +8308,7 @@ void updateTerminalTiles(uint16_t position) // movefun5  proc near       ; DATA 
 //loc_4A0EA:              ; CODE XREF: updateTerminalTiles+11j
     uint8_t value = generateRandomNumber() & 0xFF;
     value &= gCurrentGameState.byte_5196A;
-    value = ~value;
+    value = -value;
     currentTile->movingObject = value;
 
     // This code basically simulates a scroll effect in the terminal:
