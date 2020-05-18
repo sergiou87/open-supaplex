@@ -4,7 +4,7 @@ tasm/
 *.nam
 *.til
 *.o
-*.SP
+/resources/*.SP
 /solve/
 TESTOUT.TXT
 /tc/
