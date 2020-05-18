@@ -79,7 +79,6 @@ uint16_t gIsDebugModeEnabled = 0; // word_51970
 uint8_t gIsForcedLevel = 0; // byte_59B84
 uint8_t gIsForcedCheatMode = 0; // byte_59B85
 
-const uint8_t kDefaultGameSpeed = 5;
 uint8_t gGameSpeed = kDefaultGameSpeed; // gameSpeed
 char demoFileName[kMaxFilePathLength] = "";
 

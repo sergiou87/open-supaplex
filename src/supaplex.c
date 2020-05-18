@@ -4128,14 +4128,14 @@ void openCreditsBlock() // proc near      ; CODE XREF: start+2E9p
     static const int kEdgeTopY = 26;
     static const int kNumberOfFrames = 60;
 
-    static const uint32_t kAnimationDuration = kNumberOfFrames * 1000 / 70; // ~429 ms
+    const uint32_t kAnimationDuration = kNumberOfFrames * 1000 / 70; // ~429 ms
 
     uint32_t animationTime = 0;
 
     static const int kInitialLeftEdgeX = 147;
-    static const int kInitialRightEdgeX = kInitialLeftEdgeX + kEdgeWidth + 1;
+    const int kInitialRightEdgeX = kInitialLeftEdgeX + kEdgeWidth + 1;
 
-    static const int kEdgeAnimationDistance = (kEdgeStep * kNumberOfFrames) / 2 + 1;
+    const int kEdgeAnimationDistance = (kEdgeStep * kNumberOfFrames) / 2 + 1;
 
     int leftEdgeX = kInitialLeftEdgeX;
     int rightEdgeX = kInitialRightEdgeX;
@@ -11743,7 +11743,7 @@ void scrollLeftToMainMenu() //loc_4C44F:              ; CODE XREF: handleGfxTuto
 
     const int kNumberOfSteps = 80;
 
-    static const uint32_t kAnimationDuration = kNumberOfSteps * 1000 / 70; // ~571 ms
+    const uint32_t kAnimationDuration = kNumberOfSteps * 1000 / 70; // ~571 ms
     uint32_t animationTime = 0;
 
     startTrackingRenderDeltaTime();
@@ -11833,7 +11833,7 @@ void scrollRightToNewScreen() // sub_4C5AF   proc near       ; CODE XREF: handle
 
     const int kNumberOfSteps = 80;
 
-    static const uint32_t kAnimationDuration = kNumberOfSteps * 1000 / 70; // ~571 ms
+    const uint32_t kAnimationDuration = kNumberOfSteps * 1000 / 70; // ~571 ms
     uint32_t animationTime = 0;
 
     startTrackingRenderDeltaTime();
@@ -13169,7 +13169,7 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
 
 void limitFPS()
 {
-    static const double kMaximumFPS = 70.0;
+    #define kMaximumFPS 70.0
     static const double kFrameDuration = 1000.0 / kMaximumFPS;
     static Uint32 sLastFrameTime = 0;
 

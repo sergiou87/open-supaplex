@@ -54,7 +54,6 @@ uint8_t byte_59B77 = 0; // 'X' command line option
 uint8_t byte_59B78 = 0; // 'Y' command line option
 uint8_t byte_59B79 = 0; // 'Z' command line option
 
-const uint8_t kInvalidForcedInitialGameSpeed = 0xFF;
 uint8_t gForcedInitialGameSpeed = kInvalidForcedInitialGameSpeed;
 
 uint8_t gIsSPDemoAvailableToRun = 0;

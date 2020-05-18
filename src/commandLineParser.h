@@ -48,7 +48,7 @@ extern uint8_t byte_59B77; // 'X' command line option
 extern uint8_t byte_59B78; // 'Y' command line option
 extern uint8_t byte_59B79; // 'Z' command line option
 
-extern const uint8_t kInvalidForcedInitialGameSpeed;
+#define kInvalidForcedInitialGameSpeed 0xFF
 extern uint8_t gForcedInitialGameSpeed;
 
 extern uint8_t gIsSPDemoAvailableToRun; // byte_599D4 -> 0=don't run .SP, 1=run .SP, 2=run .SP at startup
