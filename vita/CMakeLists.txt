@@ -29,10 +29,13 @@ set(VITA_ELF_NAME ${SHORT_NAME}.elf)
 add_executable(${SHORT_NAME}
   ../src/supaplex.c
   ../src/audio.c
+  ../src/commandLineParser.c
   ../src/controller.c
   ../src/conditionals.c
   ../src/config.c
+  ../src/demo.c
   ../src/file.c
+  ../src/globals.c
   ../src/touchscreen.c
   ../src/input.c
   ../src/logging.c

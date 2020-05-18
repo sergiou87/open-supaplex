@@ -39,7 +39,7 @@ include $(DEVKITPRO)/libnx/switch_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	OpenSupaplex
 BUILD		:=	build
-SOURCES		:=	../src ../src/nx
+SOURCES		:=	../src ../src/nx ../src/lib/ini
 DATA		:=	data
 INCLUDES	:=	include
 EXCLUDE     :=  nullVirtualKeyboard.c

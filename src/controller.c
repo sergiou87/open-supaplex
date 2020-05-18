@@ -131,14 +131,8 @@ void gameControllerEmulateMouse(float *x, float *y, uint8_t *leftButton, uint8_t
     if (abs(yAxis) < JOYSTICK_MOUSE_THRESHOLD)
         *y = 0;
 
-#ifdef __SWITCH__
-    // Nintendo is special
-    *leftButton = bButton;
-    *rightButton = aButton;
-#else
     *leftButton = confirmButton;
     *rightButton = cancelButton;
-#endif
 }
 
 uint8_t getGameControllerButton(SDL_GameControllerButton button)

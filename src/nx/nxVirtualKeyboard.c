@@ -65,7 +65,7 @@ uint8_t inputVirtualKeyboardText(const char *title, uint16_t maxLength, char *ou
     SwkbdConfig kbd;
     char tmpoutstr[16] = {0};
     Result rc = swkbdCreate(&kbd, 0);
-    spLog("swkbdCreate(): 0x%x\n", rc);
+    spLogInfo("swkbdCreate(): 0x%x\n", rc);
 
     gCurrentKeyboardMaxLength = maxLength;
 
@@ -79,9 +79,9 @@ uint8_t inputVirtualKeyboardText(const char *title, uint16_t maxLength, char *ou
 
         // You can also use swkbdConfigSet*() funcs if you want.
 
-        spLog("Running swkbdShow...\n");
+        spLogInfo("Running swkbdShow...\n");
         rc = swkbdShow(&kbd, tmpoutstr, sizeof(tmpoutstr));
-        spLog("swkbdShow(): 0x%x\n", rc);
+        spLogInfo("swkbdShow(): 0x%x\n", rc);
 
         if (R_SUCCEEDED(rc))
         {

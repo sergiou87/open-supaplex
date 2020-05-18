@@ -118,7 +118,7 @@ uint8_t inputVirtualKeyboardText(const char *title, uint16_t maxLength, char *ou
     int res = sceImeDialogInit(&param);
     if (res != SCE_OK)
     {
-        spLog("Error creating IME dialog for virtual keyboard: %08x", res);
+        spLogInfo("Error creating IME dialog for virtual keyboard: %08x", res);
         return 0;
     }
 

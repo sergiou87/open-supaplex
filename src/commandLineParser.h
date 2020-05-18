@@ -19,6 +19,7 @@
 #define commandLineParser_h
 
 #include <stdio.h>
+#include <stdint.h>
 
 extern uint8_t word_59B60; // 'A' command line option
 extern uint8_t word_59B61; // 'B' command line option
