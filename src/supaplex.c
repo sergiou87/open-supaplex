@@ -3288,12 +3288,15 @@ int main(int argc, char *argv[])
     initializeLogging();
     initializeVideo(gFastMode);
 
-    if (initializeAudio() != 0)
+    if (gFastMode != FastModeTypeUltra)
     {
-        exitWithError("Couldn't initialize audio");
-    }
+        if (initializeAudio() != 0)
+        {
+            exitWithError("Couldn't initialize audio");
+        }
 
-    readAdvancedConfig();
+        readAdvancedConfig();
+    }
 
     // Override the initial game speed with the one from the command line if needed
     if (gForcedInitialGameSpeed != kInvalidForcedInitialGameSpeed)
