@@ -6,18 +6,23 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v1
-    - name: Build OpenSupaplex for Linux
+    - name: Prepare build environment
       run: |
         cd linux
         ./ci-prepare.sh
+      shell: bash
+    - name: Build OpenSupaplex for Linux
+      run: |
+        cd linux
         ./ci-build.sh
       shell: bash
     - name: Run tests
       run: |
-        ./run-tests.rb ../linux/OpenSupaplex-linux/OpenSupaplex > tests-result.log
+        cd tests
+        ./run-tests.rb ../linux/OpenSupaplex-linux/OpenSupaplex > test-results.log
       shell: bash
     - name: Upload test results
       uses: actions/upload-artifact@v1
       with:
-        name: test-results.log
-        path: tests/tests-result.log
+        name: test-results
+        path: tests/test-results.log
