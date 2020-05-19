@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'thread'
+require 'etc'
 
 if ARGV.length < 1 then
 	puts "Missing executable path. Usage: run_tests.rb <path_to_OpenSupaplex>"
@@ -17,7 +18,9 @@ end
 $gamePath = File.dirname($gameBinaryPath)
 $gameBinary = File.basename($gameBinaryPath)
 
-$maxSimultaneousTests = 8
+$maxSimultaneousTests = Etc.nprocessors * 8
+
+puts "Running #{$maxSimultaneousTests} tests simultaneously"
 
 $solvesPath = "solves"
 
