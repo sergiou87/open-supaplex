@@ -1475,8 +1475,19 @@ typedef struct {
 } MovingLevelTile;
 
 typedef struct {
-    MovingLevelTile levelState[kLevelSize]; // 0x1834
-    int8_t explosionTimers[kLevelSize]; // 0x2434
+    // Use 1536 (level file length) instead of 1440 (level actual size in tiles, 60x24) here. The reason? Seems like
+    // some levels/demos rely on this when they use the glitch with empty borders.
+    // A level is 1536 bytes. when loaded into memory , we only care about 1440 tiles (60 x 24) in two "playfields":
+    // - one where every tile needs 2 bytes: that's where the game is actually represented
+    // - another one where every tile needs 1 byte: that's the "explosion timers" for each tile
+    //
+    // I saw the original code used  1536 * 2  bytes for the first playfield, and  1536 * 1  bytes for the second, instead of 1440*2  and 1440*1  respectively. also they were contiguous in memory.
+    // since I knew 1440 is the right size, I just used that and ignored the original code. what happens? when there are empty borders, without the extra padding of those 1536, seems like it was writing in the explosion timers because it's contiguous in memory :joy:
+    // I just added that extra padding back and :tada: no more memory corrupted :joy:
+    // This was reproduced with test 03/03s049-3.sp
+    //
+    MovingLevelTile levelState[levelDataLength]; // 0x1834
+    int8_t explosionTimers[levelDataLength]; // 0x2434
     uint8_t isGravityEnabled; // byte_5101C -> 1 = turn on, anything else (0) = turn off
     uint8_t areZonksFrozen; // byte_51035 -> 2 = turn on, anything else (0) = turn off  (1=off!)
     uint8_t numberOfInfoTrons; // 0xd26 -> byte_51036 -> this seems to be _inside_ of fileLevelData when a level is read
