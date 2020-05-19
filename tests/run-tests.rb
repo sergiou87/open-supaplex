@@ -18,7 +18,7 @@ end
 $gamePath = File.dirname($gameBinaryPath)
 $gameBinary = File.basename($gameBinaryPath)
 
-$maxSimultaneousTests = Etc.nprocessors * 8
+$maxSimultaneousTests = Etc.nprocessors * 4
 
 puts "Running #{$maxSimultaneousTests} tests simultaneously"
 
