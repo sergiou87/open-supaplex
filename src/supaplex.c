@@ -9479,6 +9479,11 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
         }
     }
 
+    // Restore to the main explosion type before evaluating the new tile
+    movingObject = mainMovingObject;
+    tile = mainTile;
+    explosionTimer = mainExplosionTimer;
+
 //loc_4A8B4:              ; CODE XREF: detonateBigExplosion:loc_4A89Ej
 //                ; detonateBigExplosion+289j ...
     // 01ED:3BFE
