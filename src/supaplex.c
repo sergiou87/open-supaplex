@@ -2401,7 +2401,6 @@ void resetNumberOfInfotrons(void);
 void findMurphy(void);
 void drawGamePanelText(void);
 void scrollToMurphy(void);
-void drawMovingFrame(uint16_t srcX, uint16_t srcY, uint16_t destPosition);
 void runLevel(void);
 void slideDownGameDash(void);
 void updateScrollOffset(void);
@@ -4036,6 +4035,11 @@ void convertPaletteDataToPalette(ColorPaletteData paletteData, ColorPalette outP
 
 void readPalettes()  // proc near       ; CODE XREF: readEverythingp
 {
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
+
     FILE *file = openReadonlyFile("PALETTES.DAT", "r");
     if (file == NULL)
     {
@@ -4259,6 +4263,11 @@ void loadScreen2() // proc near       ; CODE XREF: start:loc_46F00p
 void loadMurphySprites() // readMoving  proc near       ; CODE XREF: start:isFastModep
                     //; start+382p ...
 {
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
+
     // 01ED:0D84
 
 //loc_479ED:              // ; CODE XREF: loadMurphySprites+27j
@@ -4376,6 +4385,11 @@ void loadMurphySprites() // readMoving  proc near       ; CODE XREF: start:isFas
 void readPanelDat() //    proc near       ; CODE XREF: readPanelDat+14j
                     // ; readEverything+6p
 {
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
+
     FILE *file = openReadonlyFile("PANEL.DAT", "r");
     if (file == NULL)
     {
@@ -4424,6 +4438,11 @@ void readPanelDat() //    proc near       ; CODE XREF: readPanelDat+14j
 void readBackDat() // proc near       ; CODE XREF: readBackDat+14j
                     // ; readEverything+15p
 {
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
+
     // address: 01ED:0ECD
     FILE *file = openReadonlyFile("BACK.DAT", "r");
     if (file == NULL)
@@ -4456,6 +4475,11 @@ void readBackDat() // proc near       ; CODE XREF: readBackDat+14j
 void readBitmapFonts() //   proc near       ; CODE XREF: readBitmapFonts+14j
                     // ; readEverything+3p
 {
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
+
     FILE *file = openReadonlyFile("CHARS6.DAT", "r");
     if (file == NULL)
     {
@@ -4658,6 +4682,11 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
 void readGfxDat() //  proc near       ; CODE XREF: readGfxDat+14j
                    // ; readEverything+1Ep
 {
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
+
     FILE *file = openReadonlyFile("GFX.DAT", "r");
     if (file == NULL)
     {
@@ -4683,6 +4712,11 @@ void readGfxDat() //  proc near       ; CODE XREF: readGfxDat+14j
 void readControlsDat() // proc near       ; CODE XREF: readControlsDat+14j
                     // ; readEverything+Cp
 {
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
+
     FILE *file = openReadonlyFile("CONTROLS.DAT", "r");
     if (file == NULL)
     {
@@ -6538,6 +6572,11 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 // Draws the fixed stuff from the level (edges of the screen + tiles from FIXED.DAT)
 void drawFixedLevel() // sub_48F6D   proc near       ; CODE XREF: start+335p runLevel+AAp ...
 {
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
+
     // 01ED:230A
 
     static const uint16_t kMovingBitmapTopLeftCornerX = 288;
@@ -8258,6 +8297,12 @@ void updateTerminalTiles(uint16_t position) // movefun5  proc near       ; DATA 
     value &= gCurrentGameState.byte_5196A;
     value = -value;
     currentTile->movingObject = value;
+
+    // From this point it's all rendering, nothing needed in ultra fast mode
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
 
     // This code basically simulates a scroll effect in the terminal:
     // copies the row 2 in the row 10, and then row 3 in 2, 4 in 3...
@@ -10531,42 +10576,12 @@ void showCongratulationsScreen() // sub_4B2FC   proc near       ; CODE XREF: han
 //    mov ah, 0Fh
 //    mov di, 7D31h
     drawTextWithChars6FontWithTransparentBackground(40, 100, 15, "NOT MANY PEOPLE ARE ABLE TO MANAGE THIS");
-//    mov bx, 4D84h
-//    mov dx, 3D4h
-//    al = 0Dh
-//    out dx, al      ; Video: CRT cntrlr addr
-//                ; regen start address (low)
-//    inc dx
-//    al = bl
-//    out dx, al      ; Video: CRT controller internal registers
-//    mov dx, 3D4h
-//    al = 0Ch
-//    out dx, al      ; Video: CRT cntrlr addr
-//                ; regen start address (high)
-//    inc dx
-//    al = bh
-//    out dx, al      ; Video: CRT controller internal registers
 //    mov si, palettesDataBuffer
     fadeToPalette(gInformationScreenPalette);
     waitForKeyMouseOrJoystick();
 //    mov si, 60D5h
     fadeToPalette(gBlackPalette);
     memcpy(gScreenPixels, screenPixelsBackup, kFullScreenFramebufferLength);
-//    mov bx, 4D5Ch
-//    mov dx, 3D4h
-//    al = 0Dh
-//    out dx, al      ; Video: CRT cntrlr addr
-//                ; regen start address (low)
-//    inc dx
-//    al = bl
-//    out dx, al      ; Video: CRT controller internal registers
-//    mov dx, 3D4h
-//    al = 0Ch
-//    out dx, al      ; Video: CRT cntrlr addr
-//                ; regen start address (high)
-//    inc dx
-//    al = bh
-//    out dx, al      ; Video: CRT controller internal registers
 
     fadeToPalette(gGamePalette); // 6015h
     return;
@@ -11079,6 +11094,11 @@ void drawMouseCursor() // sub_4B8BE  proc near       ; CODE XREF: handleNewPlaye
 void drawTextWithChars6FontWithOpaqueBackground(size_t destX, size_t destY, uint8_t color, const char *text) // sub_4BA5F  proc near       ; CODE XREF: handleNewPlayerOptionClick+37p
                   //  ; handleNewPlayerOptionClick+4Ap ...
 {
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
+
     // Parameters:
     // - di is the destination surface
     // - si is the text to be rendered
@@ -11135,6 +11155,11 @@ void drawTextWithChars6FontWithOpaqueBackground(size_t destX, size_t destY, uint
 void drawTextWithChars6FontWithTransparentBackground(size_t destX, size_t destY, uint8_t color, const char *text)  // sub_4BDF0 proc near       ; CODE XREF: recoverFilesFromFloppyDisk+2Ap
                    // ; handleStatisticsOptionClick+EDp ...
 {
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
+
     if (byte_5A33F == 1)
     {
         return;
@@ -16367,22 +16392,6 @@ void handleZonkPushedByMurphy(uint16_t position) // sub_4ED29   proc near       
     }
 }
 
-// srcX and srcY are the coordinates of the frame to draw in MOVING.DAT
-void drawMovingFrame(uint16_t srcX, uint16_t srcY, uint16_t destPosition) // sub_4F200   proc near       ; CODE XREF: scrollToMurphy+26p
-                   // ; updatePlantedRedDisk+2Ap ...
-{
-    // 01ED:859D
-    // Draws a frame from MOVING.DAT on the screen
-    // Parameters:
-    // - di: coordinates on the screen
-    // - si: coordinates on the MOVING.DAT bitmap to draw from?
-
-    int16_t destX = (destPosition % kLevelWidth) * kTileSize;
-    int16_t destY = (destPosition / kLevelWidth) * kTileSize;
-
-    drawMovingSpriteFrameInLevel(srcX, srcY, kTileSize, kTileSize, destX, destY);
-}
-
 uint8_t checkMurphyMovementToPosition(uint16_t position, UserInput userInput) // sub_4F21F   proc near       ; CODE XREF: update?+273p update?+2EDp ...
 {
     // 01ED:85BC
@@ -17799,6 +17808,11 @@ void updateElectronMovementLeft(uint16_t position, uint8_t frame) // sub_4FB79  
 void drawGamePanelText() // sub_4FC20  proc near       ; CODE XREF: stopRecordingDemo:loc_4944Fp
                    // ; drawGamePanel+22p ...
 {
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
+
     // 01ED:8FBD
     if (gIsRecordingDemo != 0) // Recording demo?
     {
@@ -17837,6 +17851,11 @@ void drawGamePanelText() // sub_4FC20  proc near       ; CODE XREF: stopRecordin
 void drawNumberOfRemainingInfotrons() // sub_4FD21   proc near       ; CODE XREF: resetNumberOfInfotrons+13p
                    // ; update?:loc_4EC90p ...
 {
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
+
     if (gCurrentGameState.numberOfRemainingInfotrons < 1)
     {
         gCurrentGameState.numberOfRemainingInfotrons = 0; // WTF? Can this be negative? In theory not...
@@ -17938,6 +17957,11 @@ void drawNumberOfRemainingRedDisks() // sub_4FDCE   proc near       ; CODE XREF:
 void drawGameTime() // sub_4FDFD   proc near       ; CODE XREF: runLevel+29p
                    // ; runLevel:noFlashing2p ...
 {
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
+
     // Only the 2 last digits will be printed, hence why it will be used with &number[1] everywhere
     char number[4] = "000";
 
@@ -17973,6 +17997,11 @@ void drawTextWithChars8Font(size_t destX, size_t destY, uint8_t color, const cha
 
 void drawTextWithChars8FontToBuffer(uint8_t *buffer, size_t destX, size_t destY, uint8_t color, const char *text)
 {
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
+
     // Parameters:
     // - di is the destination surface
     // - si is the text to be rendered
@@ -18021,6 +18050,11 @@ void drawTextWithChars8FontToBuffer(uint8_t *buffer, size_t destX, size_t destY,
 
 void drawGamePanel() // sub_501C0   proc near       ; CODE XREF: start+338p handleGameUserInput+678p ...
 {
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
+
     memcpy(&gPanelRenderedBitmapData, &gPanelDecodedBitmapData, sizeof(gPanelRenderedBitmapData));
     drawGamePanelText();
 }

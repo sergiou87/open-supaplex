@@ -83,5 +83,6 @@ void readMenuDat(void);
 void drawLevelViewport(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
 void drawCurrentLevelViewport(uint16_t panelHeight);
 void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, uint16_t height, int16_t dstX, int16_t dstY);
+void drawMovingFrame(uint16_t srcX, uint16_t srcY, uint16_t destPosition);
 
 #endif /* graphics_h */

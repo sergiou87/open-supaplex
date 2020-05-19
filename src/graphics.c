@@ -40,6 +40,11 @@ uint8_t gLevelBitmapData[kLevelBitmapWidth * kLevelBitmapHeight];
 
 void readMenuDat() // proc near       ; CODE XREF: readEverything+9p
 {
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
+
     FILE *file = openReadonlyFile("MENU.DAT", "r");
     if (file == NULL)
     {
@@ -63,6 +68,11 @@ void readMenuDat() // proc near       ; CODE XREF: readEverything+9p
 
 void drawLevelViewport(uint16_t x, uint16_t y, uint16_t width, uint16_t height)
 {
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
+
     int scrollX = MAX(0, MIN(x, kLevelBitmapWidth - width));
     int scrollY = MAX(0, MIN(y, kLevelBitmapHeight - height));
 
@@ -77,6 +87,11 @@ void drawLevelViewport(uint16_t x, uint16_t y, uint16_t width, uint16_t height)
 
 void drawCurrentLevelViewport(uint16_t panelHeight)
 {
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
+
     uint16_t viewportHeight = kScreenHeight - panelHeight;
 
     drawLevelViewport(gScrollOffsetX, gScrollOffsetY, kScreenWidth, viewportHeight);
@@ -91,6 +106,11 @@ void drawCurrentLevelViewport(uint16_t panelHeight)
 
 void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, uint16_t height, int16_t dstX, int16_t dstY)
 {
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
+
     assert((width % kTileSize) == 0);
 
     for (int y = 0; y < height; ++y)
@@ -107,3 +127,25 @@ void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, 
         }
     }
 }
+
+// srcX and srcY are the coordinates of the frame to draw in MOVING.DAT
+void drawMovingFrame(uint16_t srcX, uint16_t srcY, uint16_t destPosition) // sub_4F200   proc near       ; CODE XREF: scrollToMurphy+26p
+                   // ; updatePlantedRedDisk+2Ap ...
+{
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
+
+    // 01ED:859D
+    // Draws a frame from MOVING.DAT on the screen
+    // Parameters:
+    // - di: coordinates on the screen
+    // - si: coordinates on the MOVING.DAT bitmap to draw from?
+
+    int16_t destX = (destPosition % kLevelWidth) * kTileSize;
+    int16_t destY = (destPosition / kLevelWidth) * kTileSize;
+
+    drawMovingSpriteFrameInLevel(srcX, srcY, kTileSize, kTileSize, destX, destY);
+}
+
