@@ -16,3 +16,16 @@
 */
 
 #include "utils.h"
+
+#include <errno.h>
+#include <SDL2/SDL.h>
+
+void exitWithError(const char *format, ...)
+{
+    va_list argptr;
+    va_start(argptr, format);
+    vfprintf(stderr, format, argptr);
+    va_end(argptr);
+    SDL_Quit();
+    exit(errno);
+}

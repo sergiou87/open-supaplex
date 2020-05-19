@@ -32,6 +32,7 @@
 #include "demo.h"
 #include "file.h"
 #include "globals.h"
+#include "graphics.h"
 #include "input.h"
 #include "logging.h"
 #include "menu.h"
@@ -1349,8 +1350,6 @@ uint16_t word_51852 = 0x2A68; //  -> 0x1268 -> (
 uint16_t word_51854 = 0x2A69; //  -> 0x1268 -> (
 uint16_t word_51856 = 0x2E38; //  -> 0x1268 -> (
 uint16_t word_51858 = 0x2E39; //  -> 0x1268 -> (
-uint16_t gScrollOffsetX = 0; // word_5195F
-uint16_t gScrollOffsetY = 0; // word_51961
 uint16_t word_5196C = 0;
 uint16_t gShouldExitGame = 0; // word_5197A
 uint16_t gIsMoveScrollModeEnabled = 0; // word_51A01
@@ -1561,53 +1560,6 @@ typedef struct {
 #define kNumberOfPalettes 4
 
 typedef uint8_t ColorPaletteData[kPaleteDataSize];
-
-#define kBitmapFontCharacterHeight 7
-#define kBitmapFontCharacter6Width 6
-#define kBitmapFontCharacter8Width 8
-#define kNumberOfCharactersInBitmapFont 64
-#define kBitmapFontLength (kNumberOfCharactersInBitmapFont * 8) // The size of the bitmap is a round number, not 100% related to the size font, there is some padding :shrug:
-
-uint8_t gChars6BitmapFont[kBitmapFontLength];
-uint8_t gChars8BitmapFont[kBitmapFontLength];
-
-// This is a 320x24 bitmap
-#define kPanelBitmapWidth 320
-#define kPanelBitmapHeight 24
-
-uint8_t gPanelDecodedBitmapData[kPanelBitmapWidth * kPanelBitmapHeight];
-uint8_t gPanelRenderedBitmapData[kPanelBitmapWidth * kPanelBitmapHeight];
-uint8_t gCurrentPanelHeight = kPanelBitmapHeight;
-
-#define kFullScreenBitmapLength (kScreenWidth * kScreenHeight / 2) // They use 4 bits to encode pixels
-
-// These buffers contain the raw bitmap data of the corresponding DAT files, separated in 4 bitmaps:
-//  - The bitmap has 4 columns of 40 bytes width x 200 bytes height
-//  - Every column represents a component (R, G, B and intensity).
-//  - In one of these columns/components, every bit represents a pixel (40 bytes x 8 bits = 320 pixels)
-//  - The way these are decoded seems to be to pick, for every pixel, the bit of the r column, the bit of the g column,
-//    the bit from the b column and the bit from the intensity column, and create a 4 bit number that represents an index
-//    in the 16 color palette.
-//
-uint8_t gMenuBitmapData[kFullScreenBitmapLength]; // 0x4D34 ??
-uint8_t gControlsBitmapData[kFullScreenBitmapLength];
-uint8_t gBackBitmapData[kFullScreenBitmapLength];
-uint8_t gGfxBitmapData[kFullScreenBitmapLength];
-
-#define kFullScreenFramebufferLength (kScreenWidth * kScreenHeight) // We only use 16 colors, but SDL doesn't support that mode, so we use 256 colors
-
-// This buffer has the contents of TITLE2.DAT after it's been "decoded" (i.e. after picking the different channels
-// every 40 bytes and forming the 4 bit palette index for each pixel).
-//
-uint8_t gTitle2DecodedBitmapData[kFullScreenFramebufferLength];
-
-uint8_t gScrollDestinationScreenBitmapData[kFullScreenFramebufferLength];
-
-#define kLevelEdgeSize 8
-#define kTileSize 16
-#define kLevelBitmapWidth (kTileSize * (kLevelWidth - 2) + kLevelEdgeSize + kLevelEdgeSize)
-#define kLevelBitmapHeight (kTileSize * (kLevelHeight - 2) + kLevelEdgeSize + kLevelEdgeSize)
-uint8_t gLevelBitmapData[kLevelBitmapWidth * kLevelBitmapHeight];
 
 typedef struct
 {
@@ -2353,14 +2305,6 @@ static const FrameBasedMovingFunction kSnikSnakMovingFunctions[48] = {
     updateSnikSnakMovementRight,
 };
 
-#define kFixedBitmapWidth 640
-#define kFixedBitmapHeight 16
-uint8_t gFixedDecodedBitmapData[kFixedBitmapWidth * kFixedBitmapHeight];
-
-#define kMovingBitmapWidth 320
-#define kMovingBitmapHeight 462
-uint8_t gMovingDecodedBitmapData[kMovingBitmapWidth * kMovingBitmapHeight];
-
 // registers to prevent compiler errors
 uint8_t cf;
 uint8_t ah, al, bh, bl, ch, cl, dh, dl;
@@ -2380,9 +2324,7 @@ void videoloop(void);
 void convertPaletteDataToPalette(ColorPaletteData paletteData, ColorPalette outPalette);
 void loadScreen2(void);
 void readEverything(void);
-void exitWithError(const char *format, ...);
 char characterForSDLScancode(SDL_Scancode scancode);
-void readMenuDat(void);
 void drawSpeedFixTitleAndVersion(void);
 void openCreditsBlock(void);
 void drawSpeedFixCredits(void);
@@ -2510,9 +2452,6 @@ void handleZonkPushedByMurphy(uint16_t position);
 void decreaseRemainingRedDisksIfNeeded(uint16_t position);
 void updateSpecialPort(uint16_t position);
 void handleInfotronStateAfterFallingOneTile(uint16_t position);
-void drawLevelViewport(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
-void drawCurrentLevelViewport(uint16_t panelHeight);
-void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, uint16_t height, int16_t dstX, int16_t dstY);
 void int9handler(uint8_t shouldYieldCpu);
 void updateDemoRecordingLowestSpeed(void);
 void playDemo(uint16_t demoIndex);
@@ -9788,31 +9727,6 @@ void sub_4AAB4(uint16_t position) //   proc near       ; CODE XREF: detonateZonk
     uint16_t dstY = (position / kLevelWidth) * kTileSize;
 
     drawMovingSpriteFrameInLevel(0, 32, kTileSize, kTileSize, dstX, dstY);
-}
-
-void readMenuDat() // proc near       ; CODE XREF: readEverything+9p
-{
-    FILE *file = openReadonlyFile("MENU.DAT", "r");
-    if (file == NULL)
-    {
-        exitWithError("Error opening MENU.DAT\n");
-    }
-
-//loc_4AAED:             // ; CODE XREF: readMenuDat+8j
-
-    size_t bytes = fread(gMenuBitmapData, sizeof(uint8_t), sizeof(gMenuBitmapData), file);
-    if (bytes < sizeof(gMenuBitmapData))
-    {
-        exitWithError("Error reading MENU.DAT\n");
-    }
-
-//loc_4AB0B:              // ; CODE XREF: readMenuDat+25j
-    if (fclose(file) != 0)
-    {
-        exitWithError("Error closing MENU.DAT\n");
-    }
-
-// readMenuDat endp
 }
 
 #define SDL_SCANCODE_TO_CHAR_CASE(scancode, char) case scancode: return char
@@ -18139,63 +18053,6 @@ void drawSpeedFixCredits() // showNewCredits  proc near       ; CODE XREF: start
            && isAnyGameControllerButtonPressed() == 0);
 
     gCurrentGameState.byte_510AB = 1;
-}
-
-void exitWithError(const char *format, ...)
-{
-    va_list argptr;
-    va_start(argptr, format);
-    vfprintf(stderr, format, argptr);
-    va_end(argptr);
-    SDL_Quit();
-    exit(errno);
-}
-
-void drawLevelViewport(uint16_t x, uint16_t y, uint16_t width, uint16_t height)
-{
-    int scrollX = MAX(0, MIN(x, kLevelBitmapWidth - width));
-    int scrollY = MAX(0, MIN(y, kLevelBitmapHeight - height));
-
-    for (int y = 0; y < height; ++y)
-    {
-        for (int x = 0; x < width; ++x)
-        {
-            gScreenPixels[y * kScreenWidth + x] = gLevelBitmapData[(scrollY + y) * kLevelBitmapWidth + x + scrollX];
-        }
-    }
-}
-
-void drawCurrentLevelViewport(uint16_t panelHeight)
-{
-    uint16_t viewportHeight = kScreenHeight - panelHeight;
-
-    drawLevelViewport(gScrollOffsetX, gScrollOffsetY, kScreenWidth, viewportHeight);
-
-    for (int y = 0; y < panelHeight; ++y)
-    {
-        uint32_t srcAddress = y * kPanelBitmapWidth;
-        uint32_t dstAddress = (viewportHeight + y) * kScreenWidth;
-        memcpy(&gScreenPixels[dstAddress], &gPanelRenderedBitmapData[srcAddress], kPanelBitmapWidth);
-    }
-}
-
-void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, uint16_t height, int16_t dstX, int16_t dstY)
-{
-    assert((width % kTileSize) == 0);
-
-    for (int y = 0; y < height; ++y)
-    {
-        int16_t finalY = dstY + y;
-
-        for (int x = 0; x < width; ++x)
-        {
-            int16_t finalX = dstX + x;
-
-            size_t srcAddress = (srcY + y) * kMovingBitmapWidth + srcX + x;
-            size_t dstAddress = (finalY - kLevelEdgeSize) * kLevelBitmapWidth + finalX - kLevelEdgeSize;
-            gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
-        }
-    }
 }
 
 void emulateClock()

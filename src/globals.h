@@ -267,4 +267,7 @@ typedef enum
 
 extern FastModeType gFastMode;
 
+extern uint16_t gScrollOffsetX; // word_5195F
+extern uint16_t gScrollOffsetY; // word_51961
+
 #endif /* globals_h */

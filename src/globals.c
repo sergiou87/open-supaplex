@@ -83,3 +83,6 @@ uint8_t gGameSpeed = kDefaultGameSpeed; // gameSpeed
 char demoFileName[kMaxFilePathLength] = "";
 
 FastModeType gFastMode = FastModeTypeNone;
+
+uint16_t gScrollOffsetX = 0; // word_5195F
+uint16_t gScrollOffsetY = 0; // word_51961

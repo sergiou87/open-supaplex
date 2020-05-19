@@ -24,4 +24,6 @@
 #define SWAP(x, y, __type) do { __type __temp__ = x; x = y; y = __temp__; } while (0)
 #define TOGGLE_BOOL(__value) do { __value = !__value; } while (0)
 
+void exitWithError(const char *format, ...);
+
 #endif /* utils_h */
