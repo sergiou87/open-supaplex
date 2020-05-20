@@ -115,14 +115,24 @@ void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, 
 
     for (int y = 0; y < height; ++y)
     {
-        int16_t finalY = dstY + y;
+        int16_t finalY = dstY + y - kLevelEdgeSize;
+
+        if (finalY < 0 || finalY >= kLevelBitmapHeight)
+        {
+            continue;
+        }
 
         for (int x = 0; x < width; ++x)
         {
-            int16_t finalX = dstX + x;
+            int16_t finalX = dstX + x - kLevelEdgeSize;
+
+            if (finalX < 0 || finalX >= kLevelBitmapWidth)
+            {
+                continue;
+            }
 
             size_t srcAddress = (srcY + y) * kMovingBitmapWidth + srcX + x;
-            size_t dstAddress = (finalY - kLevelEdgeSize) * kLevelBitmapWidth + finalX - kLevelEdgeSize;
+            size_t dstAddress = finalY * kLevelBitmapWidth + finalX;
             gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
         }
     }
