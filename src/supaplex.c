@@ -131,7 +131,6 @@ uint16_t word_5094B = 0;
 uint16_t word_5094D = 0;
 uint16_t word_5094F = 0;
 uint16_t word_50951 = 0;
-uint16_t word_510A2 = 0; // -> used to preserve some palette info??
 uint8_t gShouldShowFPS = 0;
 
 typedef struct {
@@ -1350,7 +1349,6 @@ uint16_t word_51852 = 0x2A68; //  -> 0x1268 -> (
 uint16_t word_51854 = 0x2A69; //  -> 0x1268 -> (
 uint16_t word_51856 = 0x2E38; //  -> 0x1268 -> (
 uint16_t word_51858 = 0x2E39; //  -> 0x1268 -> (
-uint16_t word_5196C = 0;
 uint16_t gShouldExitGame = 0; // word_5197A
 uint16_t gIsMoveScrollModeEnabled = 0; // word_51A01
 uint16_t gDebugExtraRenderDelay = 1; // this was used to add an extra delay in debug mode using keys 1-9
@@ -1487,68 +1485,74 @@ typedef struct {
 // I just added that extra padding back and :tada: no more memory corrupted :joy:
 // This was reproduced with test 03/03s049-3.sp
 //
-StatefulLevelTile gCurrentLevelState[levelDataLength]; // 0x1834
+// Also some levels rely on the memory that lies BEFORE the level state, which contains many things including keys
+// pressed, some strings, etc. This implementation will use some hardcoded data that will be injected when the game is
+// initialized and never touched again. Should be enough to simulate the behavior of the original game.
+//
+#define kSizeOfLevelStatePrecedingPadding 344
+StatefulLevelTile gCurrentLevelStateWithPadding[levelDataLength + kSizeOfLevelStatePrecedingPadding]; // 0x1584
+StatefulLevelTile *gCurrentLevelState = &gCurrentLevelStateWithPadding[kSizeOfLevelStatePrecedingPadding]; // located at 0x1834, size is levelDataLength items
 int8_t gExplosionTimers[levelDataLength]; // 0x2434
-uint8_t gIsGravityEnabled; // byte_5101C -> 1 = turn on, anything else (0) = turn off
-uint8_t gAreZonksFrozen; // byte_51035 -> 2 = turn on, anything else (0) = turn off  (1=off!)
-uint8_t gNumberOfInfoTrons; // 0xd26 -> byte_51036 -> this seems to be _inside_ of fileLevelData when a level is read
-uint8_t gNumberOfSpecialPorts; // 0xd27 -> byte_51037 this seems to be _inside_ of fileLevelData when a level is read, and it's numberOfSpecialPorts
-uint16_t gRandomSeed; // word_51076
-uint16_t word_510A2;
+uint8_t gIsGravityEnabled = 0; // byte_5101C -> 1 = turn on, anything else (0) = turn off
+uint8_t gAreZonksFrozen = 0; // byte_51035 -> 2 = turn on, anything else (0) = turn off  (1=off!)
+uint8_t gNumberOfInfoTrons = 0; // 0xd26 -> byte_51036 -> this seems to be _inside_ of fileLevelData when a level is read
+uint8_t gNumberOfSpecialPorts = 0; // 0xd27 -> byte_51037 this seems to be _inside_ of fileLevelData when a level is read, and it's numberOfSpecialPorts
+uint16_t gRandomSeed = 0; // word_51076
+uint16_t word_510A2 = 0; // -> used to preserve some palette info??
 // uint8_t gNumberOfDotsToShiftDataLeft = 0; // byte_510A6 Used for the scroll effect
 // uint16_t word_510A7  dw 0
 // uint16_t word_510A9  dw 0
-uint8_t byte_510AB;
-uint16_t word_510AC; // stored in 0B5D:0D9C
-uint8_t gAuxGameSeconds20msAccumulator; // byte_510AF ->  -> accumulates game time. The total time is its value * 20ms, so when it reaches 50 it means 1 second. Used to increase the game time in the bottom panel
-uint8_t gGameSeconds; // byte_510B0
-uint8_t gGameMinutes; // byte_510B1
-uint8_t gGameHours; // byte_510B2
-uint8_t byte_510B3;
-uint8_t gLevelFailed; // byte_510BA
-uint8_t byte_510BB;
-uint16_t word_510BC;
-uint16_t word_510BE;
-uint8_t gIsExplosionStarted; // byte_510C0 -> Set to 1 when an explosion is just created. Set back to 0 when _any_ of the explosions on the screen disappears.
+uint8_t byte_510AB = 0;
+uint16_t word_510AC = 0; // stored in 0B5D:0D9C
+uint8_t gAuxGameSeconds20msAccumulator = 0; // byte_510AF ->  -> accumulates game time. The total time is its value * 20ms, so when it reaches 50 it means 1 second. Used to increase the game time in the bottom panel
+uint8_t gGameSeconds = 0; // byte_510B0
+uint8_t gGameMinutes = 0; // byte_510B1
+uint8_t gGameHours = 0; // byte_510B2
+uint8_t byte_510B3 = 0;
+uint8_t gLevelFailed = 0; // byte_510BA
+uint8_t byte_510BB = 0;
+uint16_t word_510BC = 0;
+uint16_t word_510BE = 0;
+uint8_t gIsExplosionStarted = 0; // byte_510C0 -> Set to 1 when an explosion is just created. Set back to 0 when _any_ of the explosions on the screen disappears.
 // These two were actually grouped in word_510C1 for some (compiler) reason
-uint8_t gShouldShowGamePanel; // byte_510C1 -> 0DB1
-uint8_t gToggleGamePanelKeyAutoRepeatCounter; // byte_510C2 -> 0DB2
-uint16_t gMurphyTileX; // word_510C3
-uint16_t gMurphyTileY; // word_510C5
-uint16_t word_510C7; // stores gMurphyLocation too??
-uint16_t gMurphyLocation;
-uint16_t word_510CB;
-uint16_t word_510CD;
-uint16_t word_510CF;
-uint16_t gShouldKillMurphy; // word_510D1
-uint8_t byte_510D3;
-uint8_t gAreEnemiesFrozen; // byte_510D7 -> 1 = turn on, anything else (0) = turn off
-uint8_t gScratchGravity; // byte_510D8 -> not sure what scratch gravity means exactly, but can be 0 (off) or 1 (on)
-uint16_t gIsMurphyGoingThroughPortal; // word_510D9
-uint8_t gPlantedRedDiskCountdown; // byte_510DB
-uint16_t gPlantedRedDiskPosition; // word_510DC
-uint16_t word_510DF;
-uint8_t gDemoCurrentInput; // byte_510E1 -> 0xDD1
-uint8_t gDemoCurrentInputRepeatCounter; // -> 0xDD2 -> byte_510E2
-uint16_t gDemoIndexOrDemoLevelNumber; // word_510E6
-uint16_t gMurphyPositionX; // word_510E8
-uint16_t gMurphyPositionY; // word_510EA
-uint16_t word_510EE;
+uint8_t gShouldShowGamePanel = 0; // byte_510C1 -> 0DB1
+uint8_t gToggleGamePanelKeyAutoRepeatCounter = 0; // byte_510C2 -> 0DB2
+uint16_t gMurphyTileX = 0; // word_510C3
+uint16_t gMurphyTileY = 0; // word_510C5
+uint16_t word_510C7 = 0; // stores gMurphyLocation too??
+uint16_t gMurphyLocation = 0;
+uint16_t word_510CB = 0;
+uint16_t word_510CD = 0;
+uint16_t word_510CF = 0;
+uint16_t gShouldKillMurphy = 0; // word_510D1
+uint8_t byte_510D3 = 0;
+uint8_t gAreEnemiesFrozen = 0; // byte_510D7 -> 1 = turn on, anything else (0) = turn off
+uint8_t gScratchGravity = 0; // byte_510D8 -> not sure what scratch gravity means exactly, but can be 0 (off) or 1 (on)
+uint16_t gIsMurphyGoingThroughPortal = 0; // word_510D9
+uint8_t gPlantedRedDiskCountdown = 0; // byte_510DB
+uint16_t gPlantedRedDiskPosition = 0; // word_510DC
+uint16_t word_510DF = 0;
+uint8_t gDemoCurrentInput = 0; // byte_510E1 -> 0xDD1
+uint8_t gDemoCurrentInputRepeatCounter = 0; // -> 0xDD2 -> byte_510E2
+uint16_t gDemoIndexOrDemoLevelNumber = 0; // word_510E6
+uint16_t gMurphyPositionX = 0; // word_510E8
+uint16_t gMurphyPositionY = 0; // word_510EA
+uint16_t word_510EE = 0;
 MurphyAnimationDescriptor gCurrentMurphyAnimation; // -> starts at 0x0DE0
-uint8_t gNumberOfRemainingInfotrons; // byte_5195A
-uint8_t gTotalNumberOfInfotrons; // byte_5195B
-uint8_t gNumberOfRemainingRedDisks; // byte_5195C
-uint16_t word_5195D; // 0xF000 -> 0x1268 -> (
+uint8_t gNumberOfRemainingInfotrons = 0; // byte_5195A
+uint8_t gTotalNumberOfInfotrons = 0; // byte_5195B
+uint8_t gNumberOfRemainingRedDisks = 0; // byte_5195C
+uint16_t word_5195D = 0; // 0xF000 -> 0x1268 -> (
 // uint16_t word_51967 = 0; // scroll / first pixel of the scroll window
-uint8_t byte_51969; //  db 0
-uint8_t byte_5196A;  //  db 0
-uint8_t byte_5196B; //  db 0
-uint16_t word_5196C; //  dw 0
+uint8_t byte_51969 = 0; //  db 0
+uint8_t byte_5196A = 0;  //  db 0
+uint8_t byte_5196B = 0; //  db 0
+uint16_t word_5196C = 0; //  dw 0
 //dw 1
 //dw 1
-uint16_t gShouldExitLevel; // word_51974
-uint16_t gQuitLevelCountdown; // word_51978 -> this is a counter to end the level after certain number of iterations (to let the game progress a bit before going back to the menu)
-uint8_t byte_5197C; //  db 0
+uint16_t gShouldExitLevel = 0; // word_51974
+uint16_t gQuitLevelCountdown = 0; // word_51978 -> this is a counter to end the level after certain number of iterations (to let the game progress a bit before going back to the menu)
+uint8_t byte_5197C = 0; //  db 0
 // fileLevelData starts at 0x768, when it contains a level goes to 0xD67
 Level gCurrentLevel; // 0x988B
 // ----------- END OF STATE SAVED IN SAVEGAMES -----------
@@ -2320,6 +2324,7 @@ uint8_t cf;
 uint8_t ah, al, bh, bl, ch, cl, dh, dl;
 uint16_t ax, bx, cx, dx, ds, cs, es, bp, sp, di, si;
 
+void initializeGameStateData(void);
 void startDirectlyFromLevel(uint8_t levelNumber);
 void stopDemoAndPlay(void);
 void startTrackingRenderDeltaTime(void);
@@ -3254,10 +3259,7 @@ int main(int argc, char *argv[])
 
     handleSDLEvents();
 
-    // Initialize game state with the same values as in the original game
-    // TODO: implement savegames properly
-    // memset(&gCurrentGameState, 0, sizeof(GameState));
-    word_5195D = 0xF000;
+    initializeGameStateData();
 
 //doesNotHaveCommandLine:         //; CODE XREF: start+13j start+23Fj ...
     generateRandomSeedFromClock();
@@ -3490,6 +3492,68 @@ int main(int argc, char *argv[])
     destroyVideo();
 
     return runResult;
+}
+
+void initializeGameStateData()
+{
+    // Initialize game state with the same values as in the original game
+    // TODO: implement savegames properly
+    // memset(&gCurrentGameState, 0, sizeof(GameState));
+    static const uint16_t kLevelStatePrecedingPadding[kSizeOfLevelStatePrecedingPadding] = {
+        0x8995 , 0x8995 , 0x8995 , 0x8a3b , 0x8a3b , 0x8a3b , 0x8a3b , 0x8a3b ,
+        0x8a3b , 0x8a3b , 0x8a3b , 0x8ae8 , 0x8ae8 , 0x8ae8 , 0x8ae8 , 0x8ae8 ,
+        0x8ae8 , 0x8ae8 , 0x8ae8 , 0x8bb1 , 0x8bb1 , 0x8bb1 , 0x8bb1 , 0x8bb1 ,
+        0x8bb1 , 0x8bb1 , 0x8bb1 , 0x8c85 , 0x8c85 , 0x8c85 , 0x8c85 , 0x8c85 ,
+        0x8c85 , 0x8c85 , 0x8c85 , 0x8d5b , 0x8d5b , 0x8d5b , 0x8d5b , 0x8d5b ,
+        0x8d5b , 0x8d5b , 0x8d5b , 0x8e06 , 0x8e06 , 0x8e06 , 0x8e06 , 0x8e06 ,
+        0x8e06 , 0x8e06 , 0x8e06 , 0x8eac , 0x8eac , 0x8eac , 0x8eac , 0x8eac ,
+        0x8eac , 0x8eac , 0x8eac , 0x8f59 , 0x8f59 , 0x8f59 , 0x8f59 , 0x8f59 ,
+        0x8f59 , 0x8f59 , 0x8f59 , 0x0000 , 0x1370 , 0x0000 , 0x0000 , 0x17e8 ,
+        0x0000 , 0x0000 , 0x0000 , 0x3869 , 0x0000 , 0x0000 , 0x0000 , 0x0000 ,
+        0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x86d0 , 0x0000 , 0x34b2 , 0x0000 ,
+        0x0000 , 0x0000 , 0x0000 , 0x8b8f , 0x341d , 0x0000 , 0x0000 , 0x0000 ,
+        0x0000 , 0x0000 , 0x3923 , 0x0909 , 0x0c00 , 0x0800 , 0x5800 , 0x0000 ,
+        0x0000 , 0x2500 , 0x0677 , 0x007f , 0x0000 , 0x0001 , 0x0000 , 0x0000 ,
+        0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 ,
+        0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 ,
+        0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 ,
+        0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 ,
+        0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 ,
+        0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 ,
+        0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 ,
+        0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 ,
+        0x0000 , 0x0000 , 0x0000 , 0x0000 , 0xec00 , 0x2606 , 0x0005 , 0x0000 ,
+        0x0000 , 0x0100 , 0x0000 , 0x0000 , 0x3231 , 0x3433 , 0x3635 , 0x3837 ,
+        0x3039 , 0x002d , 0x0008 , 0x5751 , 0x5245 , 0x5954 , 0x4955 , 0x504f ,
+        0x0000 , 0x000a , 0x5341 , 0x4644 , 0x4847 , 0x4b4a , 0x004c , 0x0000 ,
+        0x0000 , 0x585a , 0x5643 , 0x4e42 , 0x004d , 0x0000 , 0x0000 , 0x2000 ,
+        0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 ,
+        0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 ,
+        0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 ,
+        0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 ,
+        0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 ,
+        0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 ,
+        0x0000 , 0x0000 , 0x0000 , 0x002e , 0x001e , 0x0031 , 0x0014 , 0x0039 ,
+        0x001f , 0x0014 , 0x0018 , 0xffff , 0x0001 , 0x4c01 , 0x5645 , 0x4c45 ,
+        0x2e53 , 0x4144 , 0x0054 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 ,
+        0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 ,
+        0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 ,
+        0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 ,
+        0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 ,
+        0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 ,
+        0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 ,
+        0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000 , 0x0000
+    };
+
+    for (int idx = 0; idx < kSizeOfLevelStatePrecedingPadding; ++idx)
+    {
+        uint16_t value = kLevelStatePrecedingPadding[idx];
+        StatefulLevelTile *tile = &gCurrentLevelStateWithPadding[idx];
+        tile->tile = (value & 0xFF);
+        tile->state = (value >> 8);
+    }
+
+    word_5195D = 0xF000;
 }
 
 void startDirectlyFromLevel(uint8_t levelNumber)
