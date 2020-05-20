@@ -16,16 +16,31 @@ jobs:
         cd linux
         ./ci-build.sh
       shell: bash
-    - name: Run tests
+    - id: run_tests
+      name: Run tests
       run: |
         cd tests
         #/sbin/start-stop-daemon --start --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 800x600x24 -ac +extension GLX;
         #export SDL_VIDEODRIVER=x11;
         #export DISPLAY=:99.0;
-        ./run-tests.rb ../linux/OpenSupaplex-linux/OpenSupaplex > test-results.log
+        # Save the exit code for later, in case it failed, don't fail now.
+        # If it failed because tests failed, at least it will upload the results.
+        echo "::set-output name=run_tests_exit_code::0"
+        (./run-tests.rb ../linux/OpenSupaplex-linux/OpenSupaplex > test-results.log \
+          || echo "::set-output name=run_tests_exit_code::1")
       shell: bash
     - name: Upload test results
       uses: actions/upload-artifact@v1
       with:
         name: test-results
         path: tests/test-results.log
+    - name: Print test results
+      run: |
+        cd tests
+        cat test-results.log
+      shell: bash
+    - name: Finish job
+      run: |
+        cd tests
+        cat test-results.log
+        exit ${steps.run_tests.outputs.run_tests_exit_code}

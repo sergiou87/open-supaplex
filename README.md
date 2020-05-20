@@ -1,4 +1,7 @@
 # OpenSupaplex
+
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) ![Run OpenSupaplex Tests](https://github.com/sergiou87/open-supaplex/workflows/Run%20OpenSupaplex%20Tests/badge.svg)
+
 [Supaplex](https://en.wikipedia.org/wiki/Supaplex) is a game made in the early nineties.
 
 ![image](https://user-images.githubusercontent.com/3305301/42215866-25134eb4-7ec0-11e8-913d-b64604632fa8.png)
