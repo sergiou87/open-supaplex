@@ -13347,7 +13347,12 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 
     memcpy(&gCurrentGameState.level, &fileLevelData, sizeof(Level));
 
-    for (int i = 0; i < levelDataLength; ++i) // originally was levelDataLength but sounds like a bug
+    // The reason this is 1536 (level file size) and not 1440 (actual gamefield size of 60 * 24 tiles) is because
+    // the game was written like this, and some levels rely on this behavior by removing the bottom border of the level
+    // and using some unused bytes from those 1536 to store tile data.
+    // An example of this is "HIDDEN TRACK" (07/07s062-1.sp)
+    //
+    for (int i = 0; i < levelDataLength; ++i)
     {
 //loc_4D6B8:              ; CODE XREF: readLevels+172j
         MovingLevelTile *tile = &gCurrentGameState.levelState[i];
@@ -13658,7 +13663,7 @@ void playExitSound() // sound10   proc near       ; CODE XREF: update?+7EBp
     playSoundEffect(SoundEffectExit);
 }
 
- uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE XREF: updateMovingObjects+Ep
+uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE XREF: updateMovingObjects+Ep
 {
     // 01ED:722D
 
