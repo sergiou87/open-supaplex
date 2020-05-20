@@ -13347,11 +13347,11 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 
     memcpy(&gCurrentGameState.level, &fileLevelData, sizeof(Level));
 
-    for (int i = 0; i < kLevelSize; ++i) // originally was levelDataLength but sounds like a bug
+    for (int i = 0; i < levelDataLength; ++i) // originally was levelDataLength but sounds like a bug
     {
 //loc_4D6B8:              ; CODE XREF: readLevels+172j
         MovingLevelTile *tile = &gCurrentGameState.levelState[i];
-        tile->tile = fileLevelData.tiles[i];
+        tile->tile = fileLevelData.tiles[i]; // TODO: this is wrong, because exceedes the array limits
         tile->movingObject = 0;
     }
 
