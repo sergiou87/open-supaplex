@@ -1517,10 +1517,10 @@ uint8_t gIsExplosionStarted = 0; // byte_510C0 -> Set to 1 when an explosion is 
 // These two were actually grouped in word_510C1 for some (compiler) reason
 uint8_t gShouldShowGamePanel = 0; // byte_510C1 -> 0DB1
 uint8_t gToggleGamePanelKeyAutoRepeatCounter = 0; // byte_510C2 -> 0DB2
-uint16_t gMurphyTileX = 0; // word_510C3
-uint16_t gMurphyTileY = 0; // word_510C5
-uint16_t word_510C7 = 0; // stores gMurphyLocation too??
-uint16_t gMurphyLocation = 0;
+int16_t gMurphyTileX = 0; // word_510C3
+int16_t gMurphyTileY = 0; // word_510C5
+int16_t word_510C7 = 0; // stores gMurphyLocation too??
+int16_t gMurphyLocation = 0;
 uint16_t word_510CB = 0;
 uint16_t word_510CD = 0;
 uint16_t word_510CF = 0;
@@ -2156,17 +2156,17 @@ ColorPaletteData gTitle2PaletteData = {
     0x00, 0x02, 0x0A, 0x01, 0x05, 0x05, 0x05, 0x08, 0x06, 0x06, 0x06, 0x08, 0x08, 0x08, 0x08, 0x07,
 };
 
-typedef void (*MovingFunction)(uint16_t);
-typedef void (*FrameBasedMovingFunction)(uint16_t, uint8_t);
+typedef void (*MovingFunction)(int16_t);
+typedef void (*FrameBasedMovingFunction)(int16_t, uint8_t);
 
-void updateZonkTiles(uint16_t position);
-void updateInfotronTiles(uint16_t position);
-void updateOrangeDiskTiles(uint16_t position);
-void updateSnikSnakTiles(uint16_t position);
-void updateTerminalTiles(uint16_t position);
-void updateElectronTiles(uint16_t position);
-void updateBugTiles(uint16_t position);
-void updateExplosionTiles(uint16_t position);
+void updateZonkTiles(int16_t position);
+void updateInfotronTiles(int16_t position);
+void updateOrangeDiskTiles(int16_t position);
+void updateSnikSnakTiles(int16_t position);
+void updateTerminalTiles(int16_t position);
+void updateElectronTiles(int16_t position);
+void updateBugTiles(int16_t position);
+void updateExplosionTiles(int16_t position);
 
 static const MovingFunction movingFunctions[32] = {
     NULL,
@@ -2203,12 +2203,12 @@ static const MovingFunction movingFunctions[32] = {
     updateExplosionTiles,
 };
 
-void updateElectronTurnLeft(uint16_t position, uint8_t frame);
-void updateElectronTurnRight(uint16_t position, uint8_t frame);
-void updateElectronMovementUp(uint16_t position, uint8_t frame);
-void updateElectronMovementDown(uint16_t position, uint8_t frame);
-void updateElectronMovementRight(uint16_t position, uint8_t frame);
-void updateElectronMovementLeft(uint16_t position, uint8_t frame);
+void updateElectronTurnLeft(int16_t position, uint8_t frame);
+void updateElectronTurnRight(int16_t position, uint8_t frame);
+void updateElectronMovementUp(int16_t position, uint8_t frame);
+void updateElectronMovementDown(int16_t position, uint8_t frame);
+void updateElectronMovementRight(int16_t position, uint8_t frame);
+void updateElectronMovementLeft(int16_t position, uint8_t frame);
 
 static const FrameBasedMovingFunction kElectronMovingFunctions[] = {
     updateElectronTurnLeft,
@@ -2261,12 +2261,12 @@ static const FrameBasedMovingFunction kElectronMovingFunctions[] = {
     updateElectronMovementLeft,
 };
 
-void updateSnikSnakTurnLeft(uint16_t position, uint8_t frame);
-void updateSnikSnakTurnRight(uint16_t position, uint8_t frame);
-void updateSnikSnakMovementUp(uint16_t position, uint8_t frame);
-void updateSnikSnakMovementLeft(uint16_t position, uint8_t frame);
-void updateSnikSnakMovementDown(uint16_t position, uint8_t frame);
-void updateSnikSnakMovementRight(uint16_t position, uint8_t frame);
+void updateSnikSnakTurnLeft(int16_t position, uint8_t frame);
+void updateSnikSnakTurnRight(int16_t position, uint8_t frame);
+void updateSnikSnakMovementUp(int16_t position, uint8_t frame);
+void updateSnikSnakMovementLeft(int16_t position, uint8_t frame);
+void updateSnikSnakMovementDown(int16_t position, uint8_t frame);
+void updateSnikSnakMovementRight(int16_t position, uint8_t frame);
 
 static const FrameBasedMovingFunction kSnikSnakMovingFunctions[48] = {
     updateSnikSnakTurnLeft,
@@ -2430,13 +2430,13 @@ void checkDebugKeys(void);
 void loc_4988E(void);
 void levelScanThing(void);
 void updateMovingObjects(void);
-uint16_t updateMurphy(uint16_t position);
-uint16_t updateMurphyAnimation(uint16_t position);
-uint16_t updateMurphyAnimationInfo(uint16_t position, MurphyAnimationDescriptor unknownMurphyData);
-uint16_t handleMurphyDirectionRight(uint16_t position);
-uint16_t handleMurphyDirectionDown(uint16_t position);
-uint16_t handleMurphyDirectionLeft(uint16_t position);
-uint16_t handleMurphyDirectionUp(uint16_t position);
+int16_t updateMurphy(int16_t position);
+int16_t updateMurphyAnimation(int16_t position);
+int16_t updateMurphyAnimationInfo(int16_t position, MurphyAnimationDescriptor unknownMurphyData);
+int16_t handleMurphyDirectionRight(int16_t position);
+int16_t handleMurphyDirectionDown(int16_t position);
+int16_t handleMurphyDirectionLeft(int16_t position);
+int16_t handleMurphyDirectionUp(int16_t position);
 void detonateYellowDisks(void);
 void updateUserInputInScrollMovementMode(void);
 void updateUserInput(void);
@@ -2456,16 +2456,16 @@ void updatePlantedRedDisk(void);
 void updateExplosionTimers(void);
 void addCurrentGameTimeToPlayer(void);
 void drawFailedLevelResultScreen(void);
-void handleZonkStateAfterFallingOneTile(uint16_t position);
-void detonateBigExplosion(uint16_t position);
-void detonateZonk(uint16_t position, uint8_t state, uint8_t tile);
-void sub_4AA34(uint16_t position, uint8_t state, uint8_t tile);
-void sub_4AAB4(uint16_t position);
-uint8_t checkMurphyMovementToPosition(uint16_t position, UserInput userInput);
-void handleZonkPushedByMurphy(uint16_t position);
-void decreaseRemainingRedDisksIfNeeded(uint16_t position);
-void updateSpecialPort(uint16_t position);
-void handleInfotronStateAfterFallingOneTile(uint16_t position);
+void handleZonkStateAfterFallingOneTile(int16_t position);
+void detonateBigExplosion(int16_t position);
+void detonateZonk(int16_t position, uint8_t state, uint8_t tile);
+void sub_4AA34(int16_t position, uint8_t state, uint8_t tile);
+void sub_4AAB4(int16_t position);
+uint8_t checkMurphyMovementToPosition(int16_t position, UserInput userInput);
+void handleZonkPushedByMurphy(int16_t position);
+void decreaseRemainingRedDisksIfNeeded(int16_t position);
+void updateSpecialPort(int16_t position);
+void handleInfotronStateAfterFallingOneTile(int16_t position);
 void int9handler(uint8_t shouldYieldCpu);
 void updateDemoRecordingLowestSpeed(void);
 void playDemo(uint16_t demoIndex);
@@ -4982,7 +4982,7 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
     }
 }
 
-void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:160Co
+void updateZonkTiles(int16_t position) //   proc near       ; DATA XREF: data:160Co
 {
     // 01ED:132D
 
@@ -5601,7 +5601,7 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
     detonateBigExplosion(position + kLevelWidth); // Tile below
 }
 
-void updateInfotronTiles(uint16_t position) // movefun2  proc near       ; DATA XREF: data:1612o
+void updateInfotronTiles(int16_t position) // movefun2  proc near       ; DATA XREF: data:1612o
 {
     // 01ED:17A5
 
@@ -6107,7 +6107,7 @@ void updateInfotronTiles(uint16_t position) // movefun2  proc near       ; DATA 
     while (1);
 }
 
-void handleMurphyCollisionAfterMovement(uint16_t position) // sub_487FE   proc near       ; CODE XREF: update?+E0Cp update?+E2Ap ...
+void handleMurphyCollisionAfterMovement(int16_t position) // sub_487FE   proc near       ; CODE XREF: update?+E0Cp update?+E2Ap ...
 {
     // 01ED:1B9B
     StatefulLevelTile *currentTile = &gCurrentLevelState[position];
@@ -6202,7 +6202,7 @@ void handleMurphyCollisionAfterMovement(uint16_t position) // sub_487FE   proc n
     }
 }
 
-void handleZonkStateAfterFallingOneTile(uint16_t position) // sub_488DC   proc near       ; CODE XREF: movefun+124p
+void handleZonkStateAfterFallingOneTile(int16_t position) // sub_488DC   proc near       ; CODE XREF: movefun+124p
                    // ; movefun+2C6p ...
 {
     // 01ED:1C79
@@ -6281,7 +6281,7 @@ void handleZonkStateAfterFallingOneTile(uint16_t position) // sub_488DC   proc n
     }
 }
 
-void handleInfotronStateAfterFallingOneTile(uint16_t position) // sub_48957   proc near       ; CODE XREF: movefun2+104p
+void handleInfotronStateAfterFallingOneTile(int16_t position) // sub_48957   proc near       ; CODE XREF: movefun2+104p
 //                    ; movefun2+257p ...
 {
     StatefulLevelTile *currentTile = &gCurrentLevelState[position];
@@ -8286,7 +8286,7 @@ void updateScrollOffset() // sub_49EBE   proc near       ; CODE XREF: runLevel+1
 //    word_51967 = scrollX;
 }
 
-void updateBugTiles(uint16_t position) // movefun7  proc near       ; DATA XREF: data:163Co
+void updateBugTiles(int16_t position) // movefun7  proc near       ; DATA XREF: data:163Co
 {
     // 01ED:33DA
     StatefulLevelTile *currentTile = &gCurrentLevelState[position];
@@ -8350,7 +8350,7 @@ void updateBugTiles(uint16_t position) // movefun7  proc near       ; DATA XREF:
     drawMovingFrame(frameCoordinates.x, frameCoordinates.y, position);
 }
 
-void updateTerminalTiles(uint16_t position) // movefun5  proc near       ; DATA XREF: data:1630o
+void updateTerminalTiles(int16_t position) // movefun5  proc near       ; DATA XREF: data:1630o
 {
     // 01ED:346F
     StatefulLevelTile *currentTile = &gCurrentLevelState[position];
@@ -8803,7 +8803,7 @@ void fetchAndInitializeLevel() // sub_4A463   proc near       ; CODE XREF: recor
     findMurphy();
 }
 
-void updateOrangeDiskTiles(uint16_t position) // movefun3  proc near       ; DATA XREF: data:161Ao
+void updateOrangeDiskTiles(int16_t position) // movefun3  proc near       ; DATA XREF: data:161Ao
 {
     // 01ED:3826
     StatefulLevelTile *currentTile = &gCurrentLevelState[position];
@@ -8916,7 +8916,7 @@ void updateOrangeDiskTiles(uint16_t position) // movefun3  proc near       ; DAT
     }
 }
 
-void updateExplosionTiles(uint16_t position) //loc_4A543:              ; DATA XREF: data:1648o
+void updateExplosionTiles(int16_t position) //loc_4A543:              ; DATA XREF: data:1648o
 { // 01ED:38E0 TODO: check with original.exe
     StatefulLevelTile *currentTile = &gCurrentLevelState[position];
 
@@ -9019,7 +9019,7 @@ void updateExplosionTimers() // sub_4A5E0   proc near       ; CODE XREF: runLeve
 }
 
 // Creates an explossion of 3x3 tiles around a position
-void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CODE XREF: movefun+271p
+void detonateBigExplosion(int16_t position) // sub_4A61F   proc near       ; CODE XREF: movefun+271p
                    // ; movefun2+20Fp ...
 {
     // 01ED:39BC
@@ -9723,7 +9723,7 @@ void addCurrentGameTimeToPlayer() // sub_4A95F   proc near       ; CODE XREF: ru
     playerEntry->hours = hours;
 }
 
-void detonateZonk(uint16_t position, uint8_t state, uint8_t tile) // sub_4A9C4   proc near       ; CODE XREF: detonateBigExplosion+81p
+void detonateZonk(int16_t position, uint8_t state, uint8_t tile) // sub_4A9C4   proc near       ; CODE XREF: detonateBigExplosion+81p
                   //  ; detonateBigExplosion+D8p ...
 {
     // 01ED:3D61
@@ -9774,7 +9774,7 @@ void detonateZonk(uint16_t position, uint8_t state, uint8_t tile) // sub_4A9C4  
     }
 }
 
-void sub_4AA34(uint16_t position, uint8_t state, uint8_t tile) //   proc near       ; CODE XREF: detonateBigExplosion+77p
+void sub_4AA34(int16_t position, uint8_t state, uint8_t tile) //   proc near       ; CODE XREF: detonateBigExplosion+77p
                    // ; detonateBigExplosion+CEp ...
 {
     // Parameters:
@@ -9834,7 +9834,7 @@ void sub_4AA34(uint16_t position, uint8_t state, uint8_t tile) //   proc near   
     }
 }
 
-void sub_4AAB4(uint16_t position) //   proc near       ; CODE XREF: detonateZonk+2Ep
+void sub_4AAB4(int16_t position) //   proc near       ; CODE XREF: detonateZonk+2Ep
                    // ; detonateZonk+3Dp ...
 {
     // 01ED:3DD1
@@ -13729,7 +13729,7 @@ void playExitSound() // sound10   proc near       ; CODE XREF: update?+7EBp
     playSoundEffect(SoundEffectExit);
 }
 
-uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE XREF: updateMovingObjects+Ep
+int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XREF: updateMovingObjects+Ep
 {
     // 01ED:722D
 
@@ -14409,7 +14409,7 @@ uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE X
     }
 }
 
-uint16_t handleMurphyDirectionUp(uint16_t position)
+int16_t handleMurphyDirectionUp(int16_t position)
 {
     // 01ED:7447
     StatefulLevelTile *murphyTile = &gCurrentLevelState[position];
@@ -14663,7 +14663,7 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
     }
 }
 
-uint16_t handleMurphyDirectionLeft(uint16_t position)
+int16_t handleMurphyDirectionLeft(int16_t position)
 {
     // 01ED:74A9
     StatefulLevelTile *murphyTile = &gCurrentLevelState[position];
@@ -14903,7 +14903,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
     }
 }
 
-uint16_t handleMurphyDirectionDown(uint16_t position)
+int16_t handleMurphyDirectionDown(int16_t position)
 {
     StatefulLevelTile *murphyTile = &gCurrentLevelState[position];
     StatefulLevelTile *belowTile = &gCurrentLevelState[position + kLevelWidth];
@@ -15152,7 +15152,7 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
     }
 }
 
-uint16_t handleMurphyDirectionRight(uint16_t position)
+int16_t handleMurphyDirectionRight(int16_t position)
 {
     StatefulLevelTile *murphyTile = &gCurrentLevelState[position];
     StatefulLevelTile *rightTile = &gCurrentLevelState[position + 1];
@@ -15407,7 +15407,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
     }
 }
 
-uint16_t updateMurphyAnimationInfo(uint16_t position, MurphyAnimationDescriptor unknownMurphyData)
+int16_t updateMurphyAnimationInfo(int16_t position, MurphyAnimationDescriptor unknownMurphyData)
 {
     // 01ED:7D9F
 
@@ -15420,7 +15420,7 @@ uint16_t updateMurphyAnimationInfo(uint16_t position, MurphyAnimationDescriptor 
     return updateMurphyAnimation(position);
 }
 
-uint16_t updateMurphyAnimation(uint16_t position)
+int16_t updateMurphyAnimation(int16_t position)
 {
     // 01ED:7DA4
 
@@ -16467,7 +16467,7 @@ void detonateYellowDisks()
     }
 }
 
-void handleZonkPushedByMurphy(uint16_t position) // sub_4ED29   proc near       ; CODE XREF: update?+E6Fp update?+E92p
+void handleZonkPushedByMurphy(int16_t position) // sub_4ED29   proc near       ; CODE XREF: update?+E6Fp update?+E92p
 {
     StatefulLevelTile *belowTile = &gCurrentLevelState[position + kLevelWidth];
 
@@ -16479,7 +16479,7 @@ void handleZonkPushedByMurphy(uint16_t position) // sub_4ED29   proc near       
     }
 }
 
-uint8_t checkMurphyMovementToPosition(uint16_t position, UserInput userInput) // sub_4F21F   proc near       ; CODE XREF: update?+273p update?+2EDp ...
+uint8_t checkMurphyMovementToPosition(int16_t position, UserInput userInput) // sub_4F21F   proc near       ; CODE XREF: update?+273p update?+2EDp ...
 {
     // 01ED:85BC
     // Parameters:
@@ -16575,7 +16575,7 @@ uint8_t checkMurphyMovementToPosition(uint16_t position, UserInput userInput) //
     }
 }
 
-void updateSpecialPort(uint16_t position) // sub_4F2AF   proc near       ; CODE XREF: update?+116Ap
+void updateSpecialPort(int16_t position) // sub_4F2AF   proc near       ; CODE XREF: update?+116Ap
                    // ; update?+1197p ...
 {
     // 01ED:864C
@@ -16628,7 +16628,7 @@ void updateSpecialPort(uint16_t position) // sub_4F2AF   proc near       ; CODE 
         db 0C0h ; +
 */
 
-void updateSnikSnakTiles(uint16_t position) // movefun4  proc near       ; DATA XREF: data:162Co
+void updateSnikSnakTiles(int16_t position) // movefun4  proc near       ; DATA XREF: data:162Co
 {
     // 01ED:868D
     if (gAreEnemiesFrozen == 1)
@@ -16654,7 +16654,7 @@ void updateSnikSnakTiles(uint16_t position) // movefun4  proc near       ; DATA 
     }
 }
 
-void updateSnikSnakTurnLeft(uint16_t position, uint8_t frame) // sub_4F312   proc near       ; DATA XREF: data:movingFunctions3o
+void updateSnikSnakTurnLeft(int16_t position, uint8_t frame) // sub_4F312   proc near       ; DATA XREF: data:movingFunctions3o
 {
     // 01ED:86AF
     StatefulLevelTile *currentTile = &gCurrentLevelState[position];
@@ -16772,7 +16772,7 @@ void updateSnikSnakTurnLeft(uint16_t position, uint8_t frame) // sub_4F312   pro
     }
 }
 
-void updateSnikSnakTurnRight(uint16_t position, uint8_t frame) // sub_4F40D   proc near       ; DATA XREF: data:155Ao
+void updateSnikSnakTurnRight(int16_t position, uint8_t frame) // sub_4F40D   proc near       ; DATA XREF: data:155Ao
 {
     // 01ED:87AA
     StatefulLevelTile *currentTile = &gCurrentLevelState[position];
@@ -16890,7 +16890,7 @@ void updateSnikSnakTurnRight(uint16_t position, uint8_t frame) // sub_4F40D   pr
     }
 }
 
-void updateSnikSnakMovementUp(uint16_t position, uint8_t frame) // sub_4F50A    proc near       ; DATA XREF: data:156Ao
+void updateSnikSnakMovementUp(int16_t position, uint8_t frame) // sub_4F50A    proc near       ; DATA XREF: data:156Ao
 {
     // 01ED:88A7
     StatefulLevelTile *currentTile = &gCurrentLevelState[position];
@@ -16985,7 +16985,7 @@ void updateSnikSnakMovementUp(uint16_t position, uint8_t frame) // sub_4F50A    
     currentTile->state = 1;
 }
 
-void updateSnikSnakMovementLeft(uint16_t position, uint8_t frame) // sub_4F5B5   proc near       ; DATA XREF: data:157Ao
+void updateSnikSnakMovementLeft(int16_t position, uint8_t frame) // sub_4F5B5   proc near       ; DATA XREF: data:157Ao
 {
     // 01ED:8952
     StatefulLevelTile *currentTile = &gCurrentLevelState[position];
@@ -17078,7 +17078,7 @@ void updateSnikSnakMovementLeft(uint16_t position, uint8_t frame) // sub_4F5B5  
     currentTile->state = 3;
 }
 
-void updateSnikSnakMovementDown(uint16_t position, uint8_t frame) // sub_4F65B   proc near       ; DATA XREF: data:158Ao
+void updateSnikSnakMovementDown(int16_t position, uint8_t frame) // sub_4F65B   proc near       ; DATA XREF: data:158Ao
 {
     // 01ED:89F8
     StatefulLevelTile *currentTile = &gCurrentLevelState[position];
@@ -17176,7 +17176,7 @@ void updateSnikSnakMovementDown(uint16_t position, uint8_t frame) // sub_4F65B  
     currentTile->state = 5;
 }
 
-void updateSnikSnakMovementRight(uint16_t position, uint8_t frame) // sub_4F708   proc near       ; DATA XREF: data:159Ao
+void updateSnikSnakMovementRight(int16_t position, uint8_t frame) // sub_4F708   proc near       ; DATA XREF: data:159Ao
 {
     // 01ED:8AA5
     StatefulLevelTile *currentTile = &gCurrentLevelState[position];
@@ -17270,7 +17270,7 @@ void updateSnikSnakMovementRight(uint16_t position, uint8_t frame) // sub_4F708 
     currentTile->state = 7;
 }
 
-void updateElectronTiles(uint16_t position) // movefun6  proc near       ; DATA XREF: data:163Ao
+void updateElectronTiles(int16_t position) // movefun6  proc near       ; DATA XREF: data:163Ao
 {
     // 01ED:8B4C
     if (gAreEnemiesFrozen == 1)
@@ -17295,7 +17295,7 @@ void updateElectronTiles(uint16_t position) // movefun6  proc near       ; DATA 
     }
 }
 
-void updateElectronTurnLeft(uint16_t position, uint8_t frame) // sub_4F7D1   proc near       ; DATA XREF: data:movingFunctions2o
+void updateElectronTurnLeft(int16_t position, uint8_t frame) // sub_4F7D1   proc near       ; DATA XREF: data:movingFunctions2o
 {
     // 01ED:8B6E
     StatefulLevelTile *currentTile = &gCurrentLevelState[position];
@@ -17401,7 +17401,7 @@ void updateElectronTurnLeft(uint16_t position, uint8_t frame) // sub_4F7D1   pro
     detonateBigExplosion(position);
 }
 
-void updateElectronTurnRight(uint16_t position, uint8_t frame) // sub_4F8A5   proc near       ; DATA XREF: data:15BAo
+void updateElectronTurnRight(int16_t position, uint8_t frame) // sub_4F8A5   proc near       ; DATA XREF: data:15BAo
 {
     // 01ED:8C42
     StatefulLevelTile *currentTile = &gCurrentLevelState[position];
@@ -17508,7 +17508,7 @@ void updateElectronTurnRight(uint16_t position, uint8_t frame) // sub_4F8A5   pr
     detonateBigExplosion(position);
 }
 
-void updateElectronMovementUp(uint16_t position, uint8_t frame) // sub_4F97B   proc near       ; DATA XREF: data:15CAo
+void updateElectronMovementUp(int16_t position, uint8_t frame) // sub_4F97B   proc near       ; DATA XREF: data:15CAo
 {
     // 01ED:8D18
     StatefulLevelTile *currentTile = &gCurrentLevelState[position];
@@ -17604,7 +17604,7 @@ void updateElectronMovementUp(uint16_t position, uint8_t frame) // sub_4F97B   p
     currentTile->state = 1;
 }
 
-void updateElectronMovementDown(uint16_t position, uint8_t frame) // sub_4FA26   proc near       ; DATA XREF: data:15DAo
+void updateElectronMovementDown(int16_t position, uint8_t frame) // sub_4FA26   proc near       ; DATA XREF: data:15DAo
 {
     // 01ED:8DC3
     StatefulLevelTile *currentTile = &gCurrentLevelState[position];
@@ -17698,7 +17698,7 @@ void updateElectronMovementDown(uint16_t position, uint8_t frame) // sub_4FA26  
     currentTile->state = 3;
 }
 
-void updateElectronMovementRight(uint16_t position, uint8_t frame) // sub_4FACC   proc near       ; DATA XREF: data:15EAo
+void updateElectronMovementRight(int16_t position, uint8_t frame) // sub_4FACC   proc near       ; DATA XREF: data:15EAo
 {
     // 01ED:8E69
     StatefulLevelTile *currentTile = &gCurrentLevelState[position];
@@ -17797,7 +17797,7 @@ void updateElectronMovementRight(uint16_t position, uint8_t frame) // sub_4FACC 
     currentTile->state = 5;
 }
 
-void updateElectronMovementLeft(uint16_t position, uint8_t frame) // sub_4FB79   proc near       ; DATA XREF: data:15FAo
+void updateElectronMovementLeft(int16_t position, uint8_t frame) // sub_4FB79   proc near       ; DATA XREF: data:15FAo
 {
     // 01ED:8F16
     StatefulLevelTile *currentTile = &gCurrentLevelState[position];
@@ -18002,7 +18002,7 @@ void clearNumberOfRemainingRedDisks() // sub_4FD65   proc near       ; CODE XREF
     }
 }
 
-void decreaseRemainingRedDisksIfNeeded(uint16_t position) // sub_4FDB5   proc near       ; CODE XREF: update?+124Fp
+void decreaseRemainingRedDisksIfNeeded(int16_t position) // sub_4FDB5   proc near       ; CODE XREF: update?+124Fp
                     // ; update?+1266p ...
 {
     if (word_59B73 == 0
