@@ -1486,57 +1486,57 @@ typedef struct {
     // I just added that extra padding back and :tada: no more memory corrupted :joy:
     // This was reproduced with test 03/03s049-3.sp
     //
-    MovingLevelTile levelState[levelDataLength]; // 0x1834
-    int8_t explosionTimers[levelDataLength]; // 0x2434
-    uint8_t isGravityEnabled; // byte_5101C -> 1 = turn on, anything else (0) = turn off
-    uint8_t areZonksFrozen; // byte_51035 -> 2 = turn on, anything else (0) = turn off  (1=off!)
-    uint8_t numberOfInfoTrons; // 0xd26 -> byte_51036 -> this seems to be _inside_ of fileLevelData when a level is read
-    uint8_t numberOfSpecialPorts; // 0xd27 -> byte_51037 this seems to be _inside_ of fileLevelData when a level is read, and it's numberOfSpecialPorts
-    uint16_t randomSeed; // word_51076
+    MovingLevelTile gCurrentLevelState[levelDataLength]; // 0x1834
+    int8_t gExplosionTimers[levelDataLength]; // 0x2434
+    uint8_t gIsGravityEnabled; // byte_5101C -> 1 = turn on, anything else (0) = turn off
+    uint8_t gAreZonksFrozen; // byte_51035 -> 2 = turn on, anything else (0) = turn off  (1=off!)
+    uint8_t gNumberOfInfoTrons; // 0xd26 -> byte_51036 -> this seems to be _inside_ of fileLevelData when a level is read
+    uint8_t gNumberOfSpecialPorts; // 0xd27 -> byte_51037 this seems to be _inside_ of fileLevelData when a level is read, and it's numberOfSpecialPorts
+    uint16_t gRandomSeed; // word_51076
     uint16_t word_510A2;
     // uint8_t gNumberOfDotsToShiftDataLeft = 0; // byte_510A6 Used for the scroll effect
     // uint16_t word_510A7  dw 0
     // uint16_t word_510A9  dw 0
     uint8_t byte_510AB;
     uint16_t word_510AC; // stored in 0B5D:0D9C
-    uint8_t auxGameSeconds20msAccumulator; // byte_510AF ->  -> accumulates game time. The total time is its value * 20ms, so when it reaches 50 it means 1 second. Used to increase the game time in the bottom panel
-    uint8_t gameSeconds; // byte_510B0
-    uint8_t gameMinutes; // byte_510B1
-    uint8_t gameHours; // byte_510B2
+    uint8_t gAuxGameSeconds20msAccumulator; // byte_510AF ->  -> accumulates game time. The total time is its value * 20ms, so when it reaches 50 it means 1 second. Used to increase the game time in the bottom panel
+    uint8_t gGameSeconds; // byte_510B0
+    uint8_t gGameMinutes; // byte_510B1
+    uint8_t gGameHours; // byte_510B2
     uint8_t byte_510B3;
-    uint8_t levelFailed; // byte_510BA
+    uint8_t gLevelFailed; // byte_510BA
     uint8_t byte_510BB;
     uint16_t word_510BC;
     uint16_t word_510BE;
-    uint8_t isExplosionStarted; // byte_510C0 -> Set to 1 when an explosion is just created. Set back to 0 when _any_ of the explosions on the screen disappears.
+    uint8_t gIsExplosionStarted; // byte_510C0 -> Set to 1 when an explosion is just created. Set back to 0 when _any_ of the explosions on the screen disappears.
     // These two were actually grouped in word_510C1 for some (compiler) reason
-    uint8_t shouldShowGamePanel; // byte_510C1 -> 0DB1
-    uint8_t toggleGamePanelKeyAutoRepeatCounter; // byte_510C2 -> 0DB2
-    uint16_t murphyTileX; // word_510C3
-    uint16_t murphyTileY; // word_510C5
+    uint8_t gShouldShowGamePanel; // byte_510C1 -> 0DB1
+    uint8_t gToggleGamePanelKeyAutoRepeatCounter; // byte_510C2 -> 0DB2
+    uint16_t gMurphyTileX; // word_510C3
+    uint16_t gMurphyTileY; // word_510C5
     uint16_t word_510C7; // stores gMurphyLocation too??
-    uint16_t murphyLocation;
+    uint16_t gMurphyLocation;
     uint16_t word_510CB;
     uint16_t word_510CD;
     uint16_t word_510CF;
-    uint16_t shouldKillMurphy; // word_510D1
+    uint16_t gShouldKillMurphy; // word_510D1
     uint8_t byte_510D3;
-    uint8_t areEnemiesFrozen; // byte_510D7 -> 1 = turn on, anything else (0) = turn off
-    uint8_t scratchGravity; // byte_510D8 -> not sure what scratch gravity means exactly, but can be 0 (off) or 1 (on)
-    uint16_t isMurphyGoingThroughPortal; // word_510D9
-    uint8_t plantedRedDiskCountdown; // byte_510DB
-    uint16_t plantedRedDiskPosition; // word_510DC
+    uint8_t gAreEnemiesFrozen; // byte_510D7 -> 1 = turn on, anything else (0) = turn off
+    uint8_t gScratchGravity; // byte_510D8 -> not sure what scratch gravity means exactly, but can be 0 (off) or 1 (on)
+    uint16_t gIsMurphyGoingThroughPortal; // word_510D9
+    uint8_t gPlantedRedDiskCountdown; // byte_510DB
+    uint16_t gPlantedRedDiskPosition; // word_510DC
     uint16_t word_510DF;
-    uint8_t demoCurrentInput; // byte_510E1 -> 0xDD1
-    uint8_t demoCurrentInputRepeatCounter; // -> 0xDD2 -> byte_510E2
-    uint16_t demoIndexOrDemoLevelNumber; // word_510E6
-    uint16_t murphyPositionX; // word_510E8
-    uint16_t murphyPositionY; // word_510EA
+    uint8_t gDemoCurrentInput; // byte_510E1 -> 0xDD1
+    uint8_t gDemoCurrentInputRepeatCounter; // -> 0xDD2 -> byte_510E2
+    uint16_t gDemoIndexOrDemoLevelNumber; // word_510E6
+    uint16_t gMurphyPositionX; // word_510E8
+    uint16_t gMurphyPositionY; // word_510EA
     uint16_t word_510EE;
-    MurphyAnimationDescriptor currentMurphyAnimation; // -> starts at 0x0DE0
-    uint8_t numberOfRemainingInfotrons; // byte_5195A
-    uint8_t totalNumberOfInfotrons; // byte_5195B
-    uint8_t numberOfRemainingRedDisks; // byte_5195C
+    MurphyAnimationDescriptor gCurrentMurphyAnimation; // -> starts at 0x0DE0
+    uint8_t gNumberOfRemainingInfotrons; // byte_5195A
+    uint8_t gTotalNumberOfInfotrons; // byte_5195B
+    uint8_t gNumberOfRemainingRedDisks; // byte_5195C
     uint16_t word_5195D; // 0xF000 -> 0x1268 -> (
     // uint16_t word_51967 = 0; // scroll / first pixel of the scroll window
     uint8_t byte_51969; //  db 0
@@ -1545,11 +1545,11 @@ typedef struct {
     uint16_t word_5196C; //  dw 0
     //dw 1
     //dw 1
-    uint16_t shouldExitLevel; // word_51974
-    uint16_t quitLevelCountdown; // word_51978 -> this is a counter to end the level after certain number of iterations (to let the game progress a bit before going back to the menu)
+    uint16_t gShouldExitLevel; // word_51974
+    uint16_t gQuitLevelCountdown; // word_51978 -> this is a counter to end the level after certain number of iterations (to let the game progress a bit before going back to the menu)
     uint8_t byte_5197C; //  db 0
     // fileLevelData starts at 0x768, when it contains a level goes to 0xD67
-    Level level; // 0x988B
+    Level gCurrentLevel; // 0x988B
 } GameState;
 
 GameState gCurrentGameState;
@@ -2949,7 +2949,7 @@ void handleStopRecordingDemoOptionSelection()
 
 void handleExitLevelOptionSelection()
 {
-    gCurrentGameState.shouldKillMurphy = 1;
+    gCurrentGameState.gShouldKillMurphy = 1;
     gShouldCloseAdvancedMenu = 1;
 }
 
@@ -3510,7 +3510,7 @@ void startDirectlyFromLevel(uint8_t levelNumber)
 void slideDownGameDash() // proc near     ; CODE XREF: start:isNotFastMode2p
 {
     // 01ED:04ED
-    if (gCurrentGameState.shouldShowGamePanel == 0)
+    if (gCurrentGameState.gShouldShowGamePanel == 0)
     {
 //loc_4715C:              ; CODE XREF: crt?2+5j
 //        cx = 0x90; // 144
@@ -3663,7 +3663,7 @@ void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9
     if (keyPressed == SDL_SCANCODE_X // Key X
         && gIsLeftAltPressed != 0)
     {
-        gCurrentGameState.shouldExitLevel = 1;
+        gCurrentGameState.gShouldExitLevel = 1;
         gShouldExitGame = 1;
     }
 
@@ -3677,19 +3677,19 @@ void int8handler() // proc far        ; DATA XREF: setint8+10o
 {
     if (gIsGameRunning != 0)
     {
-        gCurrentGameState.auxGameSeconds20msAccumulator++;
-        if (gCurrentGameState.auxGameSeconds20msAccumulator >= 50)
+        gCurrentGameState.gAuxGameSeconds20msAccumulator++;
+        if (gCurrentGameState.gAuxGameSeconds20msAccumulator >= 50)
         {
-            gCurrentGameState.auxGameSeconds20msAccumulator = 0;
-            gCurrentGameState.gameSeconds++;
-            if (gCurrentGameState.gameSeconds >= 60)
+            gCurrentGameState.gAuxGameSeconds20msAccumulator = 0;
+            gCurrentGameState.gGameSeconds++;
+            if (gCurrentGameState.gGameSeconds >= 60)
             {
-                gCurrentGameState.gameSeconds = 0;
-                gCurrentGameState.gameMinutes++;
-                if (gCurrentGameState.gameMinutes >= 60)
+                gCurrentGameState.gGameSeconds = 0;
+                gCurrentGameState.gGameMinutes++;
+                if (gCurrentGameState.gGameMinutes >= 60)
                 {
-                    gCurrentGameState.gameMinutes = 0;
-                    gCurrentGameState.gameHours++;
+                    gCurrentGameState.gGameMinutes = 0;
+                    gCurrentGameState.gGameHours++;
                 }
             }
         }
@@ -4922,13 +4922,13 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
 {
     // 01ED:132D
 
-    MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
-    MovingLevelTile *belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
-    MovingLevelTile *belowLeftTile = &gCurrentGameState.levelState[position + kLevelWidth - 1];
-    MovingLevelTile *leftTile = &gCurrentGameState.levelState[position - 1];
-    MovingLevelTile *belowRightTile = &gCurrentGameState.levelState[position + kLevelWidth + 1];
-    MovingLevelTile *rightTile = &gCurrentGameState.levelState[position + 1];
-    MovingLevelTile *aboveRightTile = &gCurrentGameState.levelState[position - kLevelWidth + 1];
+    MovingLevelTile *currentTile = &gCurrentGameState.gCurrentLevelState[position];
+    MovingLevelTile *belowTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth];
+    MovingLevelTile *belowLeftTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth - 1];
+    MovingLevelTile *leftTile = &gCurrentGameState.gCurrentLevelState[position - 1];
+    MovingLevelTile *belowRightTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth + 1];
+    MovingLevelTile *rightTile = &gCurrentGameState.gCurrentLevelState[position + 1];
+    MovingLevelTile *aboveRightTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth + 1];
 
     if (currentTile->tile != LevelTileTypeZonk) // cmp byte ptr leveldata[si], 1
     {
@@ -4946,7 +4946,7 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
     else
     {
 //loc_47FA4:              ; CODE XREF: movefun+Fj
-        if (gCurrentGameState.areZonksFrozen == 2)
+        if (gCurrentGameState.gAreZonksFrozen == 2)
         {
             return;
         }
@@ -5144,7 +5144,7 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
                 }
             }
 //loc_48053:              ; CODE XREF: movefun+BEj
-            else if (gCurrentGameState.areZonksFrozen == 2)
+            else if (gCurrentGameState.gAreZonksFrozen == 2)
             {
                 return;
             }
@@ -5313,13 +5313,13 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
                 // Move down and update tiles
                 position += kLevelWidth;
 
-                currentTile = &gCurrentGameState.levelState[position];
-                belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
-                belowLeftTile = &gCurrentGameState.levelState[position + kLevelWidth - 1];
-                leftTile = &gCurrentGameState.levelState[position - 1];
-                belowRightTile = &gCurrentGameState.levelState[position + kLevelWidth + 1];
-                rightTile = &gCurrentGameState.levelState[position + 1];
-                aboveRightTile = &gCurrentGameState.levelState[position - kLevelWidth + 1];
+                currentTile = &gCurrentGameState.gCurrentLevelState[position];
+                belowTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth];
+                belowLeftTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth - 1];
+                leftTile = &gCurrentGameState.gCurrentLevelState[position - 1];
+                belowRightTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth + 1];
+                rightTile = &gCurrentGameState.gCurrentLevelState[position + 1];
+                aboveRightTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth + 1];
 
                 currentTile->movingObject = 0x10;
                 currentTile->tile = LevelTileTypeZonk;
@@ -5372,7 +5372,7 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
         // This part handles what to do when the zonk finished falling 1 tile
         // 01ED:1462
         currentTile->movingObject = 0;
-        if (gCurrentGameState.areZonksFrozen == 2)
+        if (gCurrentGameState.gAreZonksFrozen == 2)
         {
             return;
         }
@@ -5446,7 +5446,7 @@ void updateZonkTiles(uint16_t position) //   proc near       ; DATA XREF: data:1
         if (belowTile->tile == LevelTileTypeOrangeDisk && belowTile->movingObject == 0) // cmp word ptr [si+18ACh], 8
         {
 //loc_48205:              ; CODE XREF: movefun+192j
-            gCurrentGameState.explosionTimers[position + kLevelWidth] = 6;
+            gCurrentGameState.gExplosionTimers[position + kLevelWidth] = 6;
             return;
         }
 
@@ -5541,12 +5541,12 @@ void updateInfotronTiles(uint16_t position) // movefun2  proc near       ; DATA 
 {
     // 01ED:17A5
 
-    MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
-    MovingLevelTile *belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
-    MovingLevelTile *belowLeftTile = &gCurrentGameState.levelState[position + kLevelWidth - 1];
-    MovingLevelTile *belowRightTile = &gCurrentGameState.levelState[position + kLevelWidth + 1];
-    MovingLevelTile *leftTile = &gCurrentGameState.levelState[position - 1];
-    MovingLevelTile *rightTile = &gCurrentGameState.levelState[position + 1];
+    MovingLevelTile *currentTile = &gCurrentGameState.gCurrentLevelState[position];
+    MovingLevelTile *belowTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth];
+    MovingLevelTile *belowLeftTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth - 1];
+    MovingLevelTile *belowRightTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth + 1];
+    MovingLevelTile *leftTile = &gCurrentGameState.gCurrentLevelState[position - 1];
+    MovingLevelTile *rightTile = &gCurrentGameState.gCurrentLevelState[position + 1];
 
     if (currentTile->tile != LevelTileTypeInfotron)
     {
@@ -5890,12 +5890,12 @@ void updateInfotronTiles(uint16_t position) // movefun2  proc near       ; DATA 
                 // add si, 78h ; 'x'
                 position += kLevelWidth;
 
-                currentTile = &gCurrentGameState.levelState[position];
-                belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
-                belowLeftTile = &gCurrentGameState.levelState[position + kLevelWidth - 1];
-                leftTile = &gCurrentGameState.levelState[position - 1];
-                belowRightTile = &gCurrentGameState.levelState[position + kLevelWidth + 1];
-                rightTile = &gCurrentGameState.levelState[position + 1];
+                currentTile = &gCurrentGameState.gCurrentLevelState[position];
+                belowTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth];
+                belowLeftTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth - 1];
+                leftTile = &gCurrentGameState.gCurrentLevelState[position - 1];
+                belowRightTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth + 1];
+                rightTile = &gCurrentGameState.gCurrentLevelState[position + 1];
 
                 currentTile->movingObject = 0x10;
                 currentTile->tile = LevelTileTypeInfotron;
@@ -6046,12 +6046,12 @@ void updateInfotronTiles(uint16_t position) // movefun2  proc near       ; DATA 
 void handleMurphyCollisionAfterMovement(uint16_t position) // sub_487FE   proc near       ; CODE XREF: update?+E0Cp update?+E2Ap ...
 {
     // 01ED:1B9B
-    MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
-    MovingLevelTile *aboveTile = &gCurrentGameState.levelState[position - kLevelWidth];
-    MovingLevelTile *leftTile = &gCurrentGameState.levelState[position - 1];
-    MovingLevelTile *rightTile = &gCurrentGameState.levelState[position + 1];
-    MovingLevelTile *aboveRightTile = &gCurrentGameState.levelState[position - kLevelWidth + 1];
-    MovingLevelTile *aboveLeftTile = &gCurrentGameState.levelState[position - kLevelWidth - 1];
+    MovingLevelTile *currentTile = &gCurrentGameState.gCurrentLevelState[position];
+    MovingLevelTile *aboveTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth];
+    MovingLevelTile *leftTile = &gCurrentGameState.gCurrentLevelState[position - 1];
+    MovingLevelTile *rightTile = &gCurrentGameState.gCurrentLevelState[position + 1];
+    MovingLevelTile *aboveRightTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth + 1];
+    MovingLevelTile *aboveLeftTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth - 1];
 
     if (currentTile->tile != LevelTileTypeExplosion)
     {
@@ -6142,13 +6142,13 @@ void handleZonkStateAfterFallingOneTile(uint16_t position) // sub_488DC   proc n
                    // ; movefun+2C6p ...
 {
     // 01ED:1C79
-    MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
-    MovingLevelTile *aboveTile = &gCurrentGameState.levelState[position - kLevelWidth];
-    MovingLevelTile *leftTile = &gCurrentGameState.levelState[position - 1];
-    MovingLevelTile *rightTile = &gCurrentGameState.levelState[position + 1];
-    MovingLevelTile *aboveAboveTile = &gCurrentGameState.levelState[position - kLevelWidth * 2];
-    MovingLevelTile *aboveLeftTile = &gCurrentGameState.levelState[position - kLevelWidth - 1];
-    MovingLevelTile *aboveRightTile = &gCurrentGameState.levelState[position - kLevelWidth + 1];
+    MovingLevelTile *currentTile = &gCurrentGameState.gCurrentLevelState[position];
+    MovingLevelTile *aboveTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth];
+    MovingLevelTile *leftTile = &gCurrentGameState.gCurrentLevelState[position - 1];
+    MovingLevelTile *rightTile = &gCurrentGameState.gCurrentLevelState[position + 1];
+    MovingLevelTile *aboveAboveTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth * 2];
+    MovingLevelTile *aboveLeftTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth - 1];
+    MovingLevelTile *aboveRightTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth + 1];
 
     if (currentTile->tile != LevelTileTypeExplosion)
     {
@@ -6220,13 +6220,13 @@ void handleZonkStateAfterFallingOneTile(uint16_t position) // sub_488DC   proc n
 void handleInfotronStateAfterFallingOneTile(uint16_t position) // sub_48957   proc near       ; CODE XREF: movefun2+104p
 //                    ; movefun2+257p ...
 {
-    MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
-    MovingLevelTile *aboveTile = &gCurrentGameState.levelState[position - kLevelWidth];
-    MovingLevelTile *aboveAboveTile = &gCurrentGameState.levelState[position - kLevelWidth * 2];
-    MovingLevelTile *aboveLeftTile = &gCurrentGameState.levelState[position - kLevelWidth - 1];
-    MovingLevelTile *aboveRightTile = &gCurrentGameState.levelState[position - kLevelWidth + 1];
-    MovingLevelTile *leftTile = &gCurrentGameState.levelState[position - 1];
-    MovingLevelTile *rightTile = &gCurrentGameState.levelState[position + 1];
+    MovingLevelTile *currentTile = &gCurrentGameState.gCurrentLevelState[position];
+    MovingLevelTile *aboveTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth];
+    MovingLevelTile *aboveAboveTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth * 2];
+    MovingLevelTile *aboveLeftTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth - 1];
+    MovingLevelTile *aboveRightTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth + 1];
+    MovingLevelTile *leftTile = &gCurrentGameState.gCurrentLevelState[position - 1];
+    MovingLevelTile *rightTile = &gCurrentGameState.gCurrentLevelState[position + 1];
 
     if (currentTile->tile != LevelTileTypeExplosion)
     {
@@ -6296,35 +6296,35 @@ void initializeGameInfo() // sub_48A20   proc near       ; CODE XREF: start+32F
                 // ; runLevel:notFunctionKeyp ...
 {
     // 01ED:1DBD
-    gCurrentGameState.word_510BC = gCurrentGameState.murphyTileX;
-    gCurrentGameState.word_510BE = gCurrentGameState.murphyTileY;
+    gCurrentGameState.word_510BC = gCurrentGameState.gMurphyTileX;
+    gCurrentGameState.word_510BE = gCurrentGameState.gMurphyTileY;
     ax = 0;
     gCurrentGameState.word_510CB = 0;
-    gCurrentGameState.shouldKillMurphy = 0;
-    gCurrentGameState.shouldExitLevel = 0;
-    gCurrentGameState.quitLevelCountdown = 0;
-    gCurrentGameState.numberOfRemainingRedDisks = 0;
+    gCurrentGameState.gShouldKillMurphy = 0;
+    gCurrentGameState.gShouldExitLevel = 0;
+    gCurrentGameState.gQuitLevelCountdown = 0;
+    gCurrentGameState.gNumberOfRemainingRedDisks = 0;
     gCurrentGameState.byte_5197C = 0;
     gCurrentGameState.word_510CD = 0;
     gLastDrawnMinutesAndSeconds = 0xFFFF;
     gLastDrawnHours = 0xFF; // 255
     gIsGameRunning = 1;
-    gCurrentGameState.auxGameSeconds20msAccumulator = 0;
-    gCurrentGameState.gameSeconds = 0;
-    gCurrentGameState.gameMinutes = 0;
-    gCurrentGameState.gameHours = 0;
-    gCurrentGameState.isExplosionStarted = 0;
+    gCurrentGameState.gAuxGameSeconds20msAccumulator = 0;
+    gCurrentGameState.gGameSeconds = 0;
+    gCurrentGameState.gGameMinutes = 0;
+    gCurrentGameState.gGameHours = 0;
+    gCurrentGameState.gIsExplosionStarted = 0;
     gCurrentGameState.byte_5196A = 0x7F; // 127
     gCurrentGameState.byte_5196B = 0;
     gCurrentGameState.word_5195D = 0;
 //    mov byte ptr word_510C1, 1
 //    mov byte ptr word_510C1+1, 0
-    gCurrentGameState.shouldShowGamePanel = 1;
-    gCurrentGameState.toggleGamePanelKeyAutoRepeatCounter = 0;
-    gCurrentGameState.areEnemiesFrozen = 0;
-    gCurrentGameState.isMurphyGoingThroughPortal &= 0xFF00; // mov byte ptr gIsMurphyGoingThroughPortal, 0
-    gCurrentGameState.plantedRedDiskCountdown = 0;
-    gCurrentGameState.plantedRedDiskPosition = 0;
+    gCurrentGameState.gShouldShowGamePanel = 1;
+    gCurrentGameState.gToggleGamePanelKeyAutoRepeatCounter = 0;
+    gCurrentGameState.gAreEnemiesFrozen = 0;
+    gCurrentGameState.gIsMurphyGoingThroughPortal &= 0xFF00; // mov byte ptr gIsMurphyGoingThroughPortal, 0
+    gCurrentGameState.gPlantedRedDiskCountdown = 0;
+    gCurrentGameState.gPlantedRedDiskPosition = 0;
 }
 
 
@@ -6376,12 +6376,12 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
     {
 //loc_48ACE:              ; CODE XREF: runLevel+5j
         gIsLevelStartedAsDemo = 0;
-        gCurrentGameState.levelFailed = 1;
+        gCurrentGameState.gLevelFailed = 1;
     }
     else
     {
         gIsLevelStartedAsDemo = 1;
-        gCurrentGameState.levelFailed = 0;
+        gCurrentGameState.gLevelFailed = 0;
     }
 
 //loc_48AD8:              ; CODE XREF: runLevel+11j
@@ -6408,11 +6408,11 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 
 //loc_48AFF:              ; CODE XREF: runLevel+3Fj
         gIsLevelStartedAsDemo = 0;
-        gCurrentGameState.levelFailed = 1;
+        gCurrentGameState.gLevelFailed = 1;
     }
 
 //loc_48B09:              ; CODE XREF: runLevel+22j
-    gCurrentGameState.plantedRedDiskCountdown = 0;
+    gCurrentGameState.gPlantedRedDiskCountdown = 0;
     byte_5A323 = 0;
     word_510A2 = 1;
 
@@ -6533,19 +6533,19 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
             break;
         }
         gCurrentGameState.word_5195D++;
-        if (gCurrentGameState.shouldExitLevel == 1)
+        if (gCurrentGameState.gShouldExitLevel == 1)
         {
             break;
         }
-        if (gCurrentGameState.quitLevelCountdown == 0) // 01ED:218D
+        if (gCurrentGameState.gQuitLevelCountdown == 0) // 01ED:218D
         {
             continue;
         }
 
 //loc_48DFA:              ; CODE XREF: runLevel+33Aj
         // 01ED:2197
-        gCurrentGameState.quitLevelCountdown--;
-        if (gCurrentGameState.quitLevelCountdown == 0)
+        gCurrentGameState.gQuitLevelCountdown--;
+        if (gCurrentGameState.gQuitLevelCountdown == 0)
         {
             break;
         }
@@ -6729,7 +6729,7 @@ void drawFixedLevel() // sub_48F6D   proc near       ; CODE XREF: start+335p ru
 
             size_t startDstX = kLevelEdgeSize + bitmapTileX * kTileSize;
             size_t startDstY = kLevelEdgeSize + bitmapTileY * kTileSize;
-            uint16_t tileValue = gCurrentGameState.levelState[tileY * kLevelWidth + tileX].tile;
+            uint16_t tileValue = gCurrentGameState.gCurrentLevelState[tileY * kLevelWidth + tileX].tile;
             size_t startSrcX = tileValue * kTileSize;
 
             for (int y = 0; y < kTileSize; ++y)
@@ -6817,7 +6817,7 @@ void updateUserInputInScrollMovementMode() // sub_4914A   proc near       ; CODE
 //loc_491D7:              ; CODE XREF: updateUserInputInScrollMovementMode+84j
     bx -= 0x270; // 312
     ax += 0xA8;
-    if (gCurrentGameState.shouldShowGamePanel != 0)
+    if (gCurrentGameState.gShouldShowGamePanel != 0)
     {
         ax += 0x18;
     }
@@ -6848,9 +6848,9 @@ void simulateDemoInput() // sub_492A8   proc near       ; CODE XREF: handleGameU
                    // ; restartLevel+76p
 {
     // 01ED:2645
-    if (gCurrentGameState.demoCurrentInputRepeatCounter > 1)
+    if (gCurrentGameState.gDemoCurrentInputRepeatCounter > 1)
     {
-        gCurrentGameState.demoCurrentInputRepeatCounter--;
+        gCurrentGameState.gDemoCurrentInputRepeatCounter--;
         return;
     }
 
@@ -6859,8 +6859,8 @@ void simulateDemoInput() // sub_492A8   proc near       ; CODE XREF: handleGameU
 
     if (newInput == 0xFF)
     {
-        gCurrentGameState.quitLevelCountdown = 0x64;
-        gCurrentGameState.shouldExitLevel = 1;
+        gCurrentGameState.gQuitLevelCountdown = 0x64;
+        gCurrentGameState.gShouldExitLevel = 1;
     }
     else
     {
@@ -6869,39 +6869,39 @@ void simulateDemoInput() // sub_492A8   proc near       ; CODE XREF: handleGameU
 
 //loc_492CA:              ; CODE XREF: simulateDemoInput+47j
     gCurrentUserInput = newInput & 0xF;
-    gCurrentGameState.demoCurrentInputRepeatCounter = (newInput >> 4) + 1;
+    gCurrentGameState.gDemoCurrentInputRepeatCounter = (newInput >> 4) + 1;
 }
 
 void saveInputForDemo() // sub_492F1   proc near       ; CODE XREF: handleGameUserInput+1Dp
 {
-    gCurrentGameState.demoCurrentInputRepeatCounter++;
+    gCurrentGameState.gDemoCurrentInputRepeatCounter++;
 
-    if (gCurrentGameState.demoCurrentInputRepeatCounter == 0xFF)
+    if (gCurrentGameState.gDemoCurrentInputRepeatCounter == 0xFF)
     {
-        gCurrentGameState.demoCurrentInput = gCurrentUserInput;
+        gCurrentGameState.gDemoCurrentInput = gCurrentUserInput;
         gDemoRecordingRandomGeneratorSeed = gRandomGeneratorSeed;
         gDemoRecordingRandomGeneratorSeedLow = (gDemoRecordingRandomGeneratorSeed >> 8); // ah;
         gDemoRecordingRandomGeneratorSeedHigh = (gDemoRecordingRandomGeneratorSeed & 0xFF); // al;
     }
 
 //loc_49311:              ; CODE XREF: saveInputForDemo+Dj
-    if (gCurrentGameState.demoCurrentInput == gCurrentUserInput
-        && gCurrentGameState.demoCurrentInputRepeatCounter != 0xF)
+    if (gCurrentGameState.gDemoCurrentInput == gCurrentUserInput
+        && gCurrentGameState.gDemoCurrentInputRepeatCounter != 0xF)
     {
         return;
     }
 
 //loc_4931E:              ; CODE XREF: saveInputForDemo+24j
-    gCurrentGameState.demoCurrentInput = (gCurrentGameState.demoCurrentInput
-                                    | (gCurrentGameState.demoCurrentInputRepeatCounter << 4));
+    gCurrentGameState.gDemoCurrentInput = (gCurrentGameState.gDemoCurrentInput
+                                    | (gCurrentGameState.gDemoCurrentInputRepeatCounter << 4));
 
-    gDemoRecordingRandomGeneratorSeedHigh += gCurrentGameState.demoCurrentInputRepeatCounter;
+    gDemoRecordingRandomGeneratorSeedHigh += gCurrentGameState.gDemoCurrentInputRepeatCounter;
     gDemoRecordingRandomGeneratorSeedHigh++;
 
-    uint8_t value = gCurrentGameState.demoCurrentInput;
+    uint8_t value = gCurrentGameState.gDemoCurrentInput;
     fwrite(&value, sizeof(uint8_t), 1, gCurrentRecordingDemoFile);
-    gCurrentGameState.demoCurrentInputRepeatCounter = 0xFF;
-    gCurrentGameState.demoCurrentInput = gCurrentUserInput;
+    gCurrentGameState.gDemoCurrentInputRepeatCounter = 0xFF;
+    gCurrentGameState.gDemoCurrentInput = gCurrentUserInput;
 }
 
 void stopRecordingDemo() // somethingspsig  proc near       ; CODE XREF: runLevel+355p
@@ -6920,9 +6920,9 @@ void stopRecordingDemo() // somethingspsig  proc near       ; CODE XREF: runLeve
 
     fseek(gCurrentRecordingDemoFile, 0, SEEK_END);
 
-    gCurrentGameState.demoCurrentInput = 0xFF;
+    gCurrentGameState.gDemoCurrentInput = 0xFF;
 
-    uint8_t value = gCurrentGameState.demoCurrentInput;
+    uint8_t value = gCurrentGameState.gDemoCurrentInput;
     fwrite(&value, 1, sizeof(uint8_t), gCurrentRecordingDemoFile);
     if (byte_5A19B != 0)
     {
@@ -7026,7 +7026,7 @@ void recordDemo(uint16_t demoIndex) // sub_4945D   proc near       ; CODE XREF: 
 
 //loc_494B8:              ; CODE XREF: recordDemo+56j
     gCurrentRecordingDemoFile = file; // file handle
-    gCurrentGameState.level.speedFixMagicNumber = 0x20 + kGameVersion;
+    gCurrentGameState.gCurrentLevel.speedFixMagicNumber = 0x20 + kGameVersion;
     // TODO: don't know for sure but this probably is related to adjusting the demo time with the speed or something?
     // bl = speed3;
     // cl = 4;
@@ -7035,7 +7035,7 @@ void recordDemo(uint16_t demoIndex) // sub_4945D   proc near       ; CODE XREF: 
     // speed2 = bl;
     gDemoRecordingLowestSpeed = gGameSpeed;
 
-    size_t bytes = fwrite(&gCurrentGameState.level, 1, sizeof(Level), file);
+    size_t bytes = fwrite(&gCurrentGameState.gCurrentLevel, 1, sizeof(Level), file);
     if (bytes < sizeof(Level))
     {
         return;
@@ -7050,10 +7050,10 @@ void recordDemo(uint16_t demoIndex) // sub_4945D   proc near       ; CODE XREF: 
     {
         return;
     }
-    gCurrentGameState.demoCurrentInput = UserInputNone;
+    gCurrentGameState.gDemoCurrentInput = UserInputNone;
     gDemoRecordingJustStarted = 1;
     gIsPlayingDemo = 0;
-    gCurrentGameState.demoCurrentInputRepeatCounter = 0xFE; // 254
+    gCurrentGameState.gDemoCurrentInputRepeatCounter = 0xFE; // 254
     gDebugExtraRenderDelay = 1;
     if (gIsSPDemoAvailableToRun == 0)
     {
@@ -7126,31 +7126,31 @@ void handleGameUserInput() // sub_4955B   proc near       ; CODE XREF: runLevel:
     }
 
 //loc_4958F:              ; CODE XREF: handleGameUserInput+2Fj
-    if (gCurrentGameState.toggleGamePanelKeyAutoRepeatCounter != 0) // cmp byte ptr word_510C1+1, 0
+    if (gCurrentGameState.gToggleGamePanelKeyAutoRepeatCounter != 0) // cmp byte ptr word_510C1+1, 0
     {
         // 01ED:293E
-        gCurrentGameState.toggleGamePanelKeyAutoRepeatCounter--;
+        gCurrentGameState.gToggleGamePanelKeyAutoRepeatCounter--;
     }
 
 //loc_4959A:              ; CODE XREF: handleGameUserInput+39j
     if (gIsEnterPressed == 0)
     {
-        gCurrentGameState.toggleGamePanelKeyAutoRepeatCounter = 0; // mov byte ptr word_510C1+1, 0
+        gCurrentGameState.gToggleGamePanelKeyAutoRepeatCounter = 0; // mov byte ptr word_510C1+1, 0
     }
 //loc_495A9:              ; CODE XREF: handleGameUserInput+44j
-    else if (gCurrentGameState.toggleGamePanelKeyAutoRepeatCounter == 0) // 01ED:2946
+    else if (gCurrentGameState.gToggleGamePanelKeyAutoRepeatCounter == 0) // 01ED:2946
     {
 //loc_495B3:              ; CODE XREF: handleGameUserInput+53j
-        gCurrentGameState.toggleGamePanelKeyAutoRepeatCounter = 0x20; // mov byte ptr word_510C1+1, 20h ; ' '
-        if (gCurrentGameState.shouldShowGamePanel != 0)
+        gCurrentGameState.gToggleGamePanelKeyAutoRepeatCounter = 0x20; // mov byte ptr word_510C1+1, 20h ; ' '
+        if (gCurrentGameState.gShouldShowGamePanel != 0)
         {
-            gCurrentGameState.shouldShowGamePanel = 0; // mov byte ptr word_510C1, 0
+            gCurrentGameState.gShouldShowGamePanel = 0; // mov byte ptr word_510C1, 0
             gCurrentPanelHeight = 0;
         }
         else
         {
 //loc_495FB:              ; CODE XREF: handleGameUserInput+62j
-            gCurrentGameState.shouldShowGamePanel = 1; // mov byte ptr word_510C1, 1
+            gCurrentGameState.gShouldShowGamePanel = 1; // mov byte ptr word_510C1, 1
             gCurrentPanelHeight = kPanelBitmapHeight;
         }
     }
@@ -7375,8 +7375,8 @@ void handleGameUserInput() // sub_4955B   proc near       ; CODE XREF: runLevel:
             else if (gToggleGravityAutorepeatFlag == 0)
             {
                 gToggleGravityAutorepeatFlag--;
-                gCurrentGameState.isGravityEnabled &= 1;
-                gCurrentGameState.isGravityEnabled = gCurrentGameState.isGravityEnabled ^ 1;
+                gCurrentGameState.gIsGravityEnabled &= 1;
+                gCurrentGameState.gIsGravityEnabled = gCurrentGameState.gIsGravityEnabled ^ 1;
             }
 
             if (gIsF1KeyPressed == 0
@@ -7392,8 +7392,8 @@ void handleGameUserInput() // sub_4955B   proc near       ; CODE XREF: runLevel:
                 else if (gToggleZonksFrozenAutorepeatFlag == 0)
                 {
                     gToggleZonksFrozenAutorepeatFlag--;
-                    gCurrentGameState.areZonksFrozen &= 2;
-                    gCurrentGameState.areZonksFrozen = gCurrentGameState.areZonksFrozen ^ 2;
+                    gCurrentGameState.gAreZonksFrozen &= 2;
+                    gCurrentGameState.gAreZonksFrozen = gCurrentGameState.gAreZonksFrozen ^ 2;
                 }
 
                 if (gIsF2KeyPressed == 0
@@ -7409,8 +7409,8 @@ void handleGameUserInput() // sub_4955B   proc near       ; CODE XREF: runLevel:
                     else if (gToggleEnemiesFrozenAutorepeatFlag == 0)
                     {
                         gToggleEnemiesFrozenAutorepeatFlag--;
-                        gCurrentGameState.areEnemiesFrozen &= 1;
-                        gCurrentGameState.areEnemiesFrozen = gCurrentGameState.areEnemiesFrozen ^ 1;
+                        gCurrentGameState.gAreEnemiesFrozen &= 1;
+                        gCurrentGameState.gAreEnemiesFrozen = gCurrentGameState.gAreEnemiesFrozen ^ 1;
                     }
                 }
             }
@@ -7846,10 +7846,10 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
 
 //loc_49D15:              ; CODE XREF: handleGameUserInput+772j
     if (isExitLevelButtonPressed() // Select/Back/- controller button -> exit game
-        && gCurrentGameState.quitLevelCountdown <= 0)
+        && gCurrentGameState.gQuitLevelCountdown <= 0)
     {
         // This is called when I press ESC to exit the game, but not when I die
-        gCurrentGameState.shouldKillMurphy = 1; // 01ED:30C0
+        gCurrentGameState.gShouldKillMurphy = 1; // 01ED:30C0
     }
 
 //loc_49D29:              ; CODE XREF: handleGameUserInput+7BFj
@@ -7886,7 +7886,7 @@ void levelScanThing() //   proc near       ; CODE XREF: runLevel+A7p
     for (int i = 0; i < kLevelSize; ++i)
     {
 //loc_49D65:              ; CODE XREF: levelScanThing+18j
-        MovingLevelTile *tile = &gCurrentGameState.levelState[i];
+        MovingLevelTile *tile = &gCurrentGameState.gCurrentLevelState[i];
         if (tile->tile == LevelTileTypeExplosion) // 31
         {
             tile->tile = 0xF1; // 241
@@ -7902,13 +7902,13 @@ void levelScanThing() //   proc near       ; CODE XREF: runLevel+A7p
     for (int i = 0; i < kLevelSize; ++i)
     {
 //loc_49D84:              ; CODE XREF: levelScanThing+4Cj
-        MovingLevelTile *tile = &gCurrentGameState.levelState[i];
+        MovingLevelTile *tile = &gCurrentGameState.gCurrentLevelState[i];
         if (tile->movingObject != 0 || tile->tile != LevelTileTypeHardware)
         {
             continue;
         }
 
-        LevelTileType originalTile = gCurrentGameState.level.tiles[i];
+        LevelTileType originalTile = gCurrentGameState.gCurrentLevel.tiles[i];
 
         if (originalTile >= LevelTileTypeHardware2 // 28
             && originalTile <= LevelTileTypeHardware11) // 37
@@ -7922,13 +7922,13 @@ void levelScanThing() //   proc near       ; CODE XREF: runLevel+A7p
     for (int i = 0; i < kLevelSize; ++i)
     {
 //loc_49DAC:              ; CODE XREF: levelScanThing+7Fj
-        MovingLevelTile *tile = &gCurrentGameState.levelState[i];
+        MovingLevelTile *tile = &gCurrentGameState.gCurrentLevelState[i];
         if (tile->movingObject != 0 || tile->tile != LevelTileTypeChip)
         {
             continue;
         }
 
-        LevelTileType originalTile = gCurrentGameState.level.tiles[i];
+        LevelTileType originalTile = gCurrentGameState.gCurrentLevel.tiles[i];
 
         if (originalTile >= LevelTileTypeHorizontalChipLeft // 26
             && originalTile <= LevelTileTypeHorizontalChipBottom) // 39
@@ -7951,7 +7951,7 @@ void updateMovingObjects() // gameloop   proc near       ; CODE XREF: runLevel:n
 {
     // 01ED:317D
 
-    gCurrentGameState.murphyLocation = updateMurphy(gCurrentGameState.murphyLocation); // 01ED:318B
+    gCurrentGameState.gMurphyLocation = updateMurphy(gCurrentGameState.gMurphyLocation); // 01ED:318B
 
     if (gIsFlashingBackgroundModeEnabled != 0)
     {
@@ -7982,7 +7982,7 @@ void updateMovingObjects() // gameloop   proc near       ; CODE XREF: runLevel:n
     for (uint16_t i = kLevelWidth + 1; i < kLevelSize - kLevelWidth - 1; ++i) // starts from si, ends in si + cx
     {
 //checkCellForMovingObject:              ; CODE XREF: updateMovingObjects+84j
-        LevelTileType tile = gCurrentGameState.levelState[i].tile; //         mov bl, byte ptr leveldata[si]
+        LevelTileType tile = gCurrentGameState.gCurrentLevelState[i].tile; //         mov bl, byte ptr leveldata[si]
 
         // Does this check filter out values except like 0, 2, 16 and 18??
         if ((tile & LevelTileTypeSportRight) == 0)
@@ -8032,7 +8032,7 @@ void updateMovingObjects() // gameloop   proc near       ; CODE XREF: runLevel:n
 //    out dx,
 
     // 01ED:3227
-    if (gCurrentGameState.shouldKillMurphy != 1
+    if (gCurrentGameState.gShouldKillMurphy != 1
         && gCurrentGameState.word_510CF != 0)
     {
         return;
@@ -8040,13 +8040,13 @@ void updateMovingObjects() // gameloop   proc near       ; CODE XREF: runLevel:n
 
 //loc_49E99:              ; CODE XREF: updateMovingObjects+AFj
 //                ; updateMovingObjects+B6j
-    if (gCurrentGameState.quitLevelCountdown == 0) // 01ED:3236
+    if (gCurrentGameState.gQuitLevelCountdown == 0) // 01ED:3236
     {
         // 01ED:323D
-        gCurrentGameState.shouldKillMurphy = 0;
+        gCurrentGameState.gShouldKillMurphy = 0;
 //        si = word_510C7;
         detonateBigExplosion(gCurrentGameState.word_510C7); // could use gMurphyLocation too?
-        gCurrentGameState.quitLevelCountdown = 0x40; // 64
+        gCurrentGameState.gQuitLevelCountdown = 0x40; // 64
     }
 
     return;
@@ -8064,14 +8064,14 @@ void updateScrollOffset() // sub_49EBE   proc near       ; CODE XREF: runLevel+1
     // to do this here to make sure the right sequence of random numbers is generated when
     // there are explosions in the level.
     //
-    if (gCurrentGameState.isExplosionStarted == 1)
+    if (gCurrentGameState.gIsExplosionStarted == 1)
     {
         randomNumber = generateRandomNumber();
     }
 
 //loc_49ECC:              ; CODE XREF: updateScrollOffset+7j
-    int16_t scrollX = gCurrentGameState.murphyPositionX;
-    int16_t scrollY = gCurrentGameState.murphyPositionY;
+    int16_t scrollX = gCurrentGameState.gMurphyPositionX;
+    int16_t scrollY = gCurrentGameState.gMurphyPositionY;
     scrollX -= kScreenWidth / 2; // 152
     if (scrollX < 0)
     {
@@ -8086,7 +8086,7 @@ void updateScrollOffset() // sub_49EBE   proc near       ; CODE XREF: runLevel+1
     }
 
 //loc_49EE8:              ; CODE XREF: updateScrollOffset+25j
-    if (gCurrentGameState.shouldShowGamePanel == 0)
+    if (gCurrentGameState.gShouldShowGamePanel == 0)
     {
 //loc_49EF4:              ; CODE XREF: updateScrollOffset+2Fj
         scrollY -= kScreenHeight / 2;
@@ -8105,7 +8105,7 @@ void updateScrollOffset() // sub_49EBE   proc near       ; CODE XREF: runLevel+1
 //loc_49EFE:              ; CODE XREF: updateScrollOffset+3Cj
     uint16_t maxScrollY = 0;
 
-    if (gCurrentGameState.shouldShowGamePanel == 0)
+    if (gCurrentGameState.gShouldShowGamePanel == 0)
     {
 //loc_49F0F:              ; CODE XREF: updateScrollOffset+45j
         maxScrollY = kLevelBitmapHeight - kScreenHeight;
@@ -8189,7 +8189,7 @@ void updateScrollOffset() // sub_49EBE   proc near       ; CODE XREF: runLevel+1
     // This makes the screen shake on an explosion
     if (gShouldShakeWithAllExplosions != 0
         || (gShakeWithExplosionsDisabled == 0
-            && (gCurrentGameState.quitLevelCountdown & 0xFF) != 0))
+            && (gCurrentGameState.gQuitLevelCountdown & 0xFF) != 0))
     {
 //loc_49FBE:              ; CODE XREF: updateScrollOffset+F0j
         randomNumber = randomNumber & 0x101;
@@ -8223,15 +8223,15 @@ void updateScrollOffset() // sub_49EBE   proc near       ; CODE XREF: runLevel+1
 void updateBugTiles(uint16_t position) // movefun7  proc near       ; DATA XREF: data:163Co
 {
     // 01ED:33DA
-    MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
-    MovingLevelTile *aboveTile = &gCurrentGameState.levelState[position - kLevelWidth];
-    MovingLevelTile *belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
-    MovingLevelTile *leftTile = &gCurrentGameState.levelState[position - 1];
-    MovingLevelTile *rightTile = &gCurrentGameState.levelState[position + 1];
-    MovingLevelTile *aboveLeftTile = &gCurrentGameState.levelState[position - kLevelWidth - 1];
-    MovingLevelTile *aboveRightTile = &gCurrentGameState.levelState[position - kLevelWidth + 1];
-    MovingLevelTile *belowLeftTile = &gCurrentGameState.levelState[position + kLevelWidth - 1];
-    MovingLevelTile *belowRightTile = &gCurrentGameState.levelState[position + kLevelWidth + 1];
+    MovingLevelTile *currentTile = &gCurrentGameState.gCurrentLevelState[position];
+    MovingLevelTile *aboveTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth];
+    MovingLevelTile *belowTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth];
+    MovingLevelTile *leftTile = &gCurrentGameState.gCurrentLevelState[position - 1];
+    MovingLevelTile *rightTile = &gCurrentGameState.gCurrentLevelState[position + 1];
+    MovingLevelTile *aboveLeftTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth - 1];
+    MovingLevelTile *aboveRightTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth + 1];
+    MovingLevelTile *belowLeftTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth - 1];
+    MovingLevelTile *belowRightTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth + 1];
 
     if (currentTile->tile != LevelTileTypeBug)
     {
@@ -8287,7 +8287,7 @@ void updateBugTiles(uint16_t position) // movefun7  proc near       ; DATA XREF:
 void updateTerminalTiles(uint16_t position) // movefun5  proc near       ; DATA XREF: data:1630o
 {
     // 01ED:346F
-    MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
+    MovingLevelTile *currentTile = &gCurrentGameState.gCurrentLevelState[position];
 
     if (currentTile->tile != LevelTileTypeTerminal)
     {
@@ -8436,7 +8436,7 @@ void removeTiles(LevelTileType tileType) // sub_4A23C   proc near       ; CODE X
     for (uint16_t i = 0; i < kLevelSize; ++i)
     {
 //loc_4A242:              ; CODE XREF: removeTiles+1Fj
-        MovingLevelTile *tile = &gCurrentGameState.levelState[i];
+        MovingLevelTile *tile = &gCurrentGameState.gCurrentLevelState[i];
         if (tile->tile != tileType)
         {
             if (tileType != LevelTileTypeSnikSnak
@@ -8462,9 +8462,9 @@ void findMurphy() //   proc near       ; CODE XREF: start+344p fetchAndInitiali
     // 01ED:360E
     for (int i = 0; i < kLevelSize; ++i)
     {
-        if (gCurrentGameState.level.tiles[i] == LevelTileTypeMurphy)
+        if (gCurrentGameState.gCurrentLevel.tiles[i] == LevelTileTypeMurphy)
         {
-            gCurrentGameState.murphyLocation = i;
+            gCurrentGameState.gMurphyLocation = i;
             break;
         }
     }
@@ -8479,14 +8479,14 @@ void scrollToMurphy() // sub_4A291   proc near       ; CODE XREF: handleGameUser
     // - si: murphy location * 2
     // - al: murphy location
 
-    gCurrentGameState.murphyTileX = gCurrentGameState.murphyLocation % kLevelWidth; // stores X coord
-    gCurrentGameState.murphyTileY = gCurrentGameState.murphyLocation / kLevelWidth; // stores Y coord
+    gCurrentGameState.gMurphyTileX = gCurrentGameState.gMurphyLocation % kLevelWidth; // stores X coord
+    gCurrentGameState.gMurphyTileY = gCurrentGameState.gMurphyLocation / kLevelWidth; // stores Y coord
 
-    gCurrentGameState.murphyPositionX = gCurrentGameState.murphyTileX * kTileSize;
-    gCurrentGameState.murphyPositionY = gCurrentGameState.murphyTileY * kTileSize;
+    gCurrentGameState.gMurphyPositionX = gCurrentGameState.gMurphyTileX * kTileSize;
+    gCurrentGameState.gMurphyPositionY = gCurrentGameState.gMurphyTileY * kTileSize;
 //    di = si[0x6155];
 //    si = kMurphyStillSpriteCoordinates;
-    drawMovingFrame(304, 132, gCurrentGameState.murphyLocation);
+    drawMovingFrame(304, 132, gCurrentGameState.gMurphyLocation);
     updateScrollOffset();
     word_59B92 = gScrollOffsetY;
     word_59B90 = gScrollOffsetX;
@@ -8503,7 +8503,7 @@ void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
     for (int i = 0; i < kLevelSize; ++i)
     {
 //loc_4A2F0:              ; CODE XREF: sub_4A2E6+D1j
-        MovingLevelTile *currentTile = &gCurrentGameState.levelState[i];
+        MovingLevelTile *currentTile = &gCurrentGameState.gCurrentLevelState[i];
         numberOfSomething++;
 
         if (currentTile->tile == 0xF1)
@@ -8565,9 +8565,9 @@ void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
             }
         }
 
-        MovingLevelTile *leftTile = &gCurrentGameState.levelState[i - 1];
-        MovingLevelTile *aboveTile = &gCurrentGameState.levelState[i - kLevelWidth];
-        MovingLevelTile *rightTile = &gCurrentGameState.levelState[i + 1];
+        MovingLevelTile *leftTile = &gCurrentGameState.gCurrentLevelState[i - 1];
+        MovingLevelTile *aboveTile = &gCurrentGameState.gCurrentLevelState[i - kLevelWidth];
+        MovingLevelTile *rightTile = &gCurrentGameState.gCurrentLevelState[i + 1];
 
         if (currentTile->movingObject != 0 || currentTile->tile != LevelTileTypeElectron) //jz  short loc_4A379
         {
@@ -8644,14 +8644,14 @@ void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
 void resetNumberOfInfotrons() // sub_4A3BB   proc near       ; CODE XREF: start+33Ep fetchAndInitializeLevel+17p
 {
     uint8_t numberOfInfotrons = 0;
-    if (gCurrentGameState.numberOfInfoTrons != 0)
+    if (gCurrentGameState.gNumberOfInfoTrons != 0)
     {
-        numberOfInfotrons = gCurrentGameState.numberOfInfoTrons;
+        numberOfInfotrons = gCurrentGameState.gNumberOfInfoTrons;
     }
 
 //loc_4A3C6:              ; CODE XREF: resetNumberOfInfotrons+5j
-    gCurrentGameState.numberOfRemainingInfotrons = numberOfInfotrons;
-    gCurrentGameState.totalNumberOfInfotrons = numberOfInfotrons;
+    gCurrentGameState.gNumberOfRemainingInfotrons = numberOfInfotrons;
+    gCurrentGameState.gTotalNumberOfInfotrons = numberOfInfotrons;
     drawNumberOfRemainingInfotrons();
 }
 
@@ -8718,7 +8718,7 @@ void restartLevelWithoutAddingCurrentGameTimeToPlayer() //loc_4A3F3:            
     }
 
     gCurrentGameState.word_510DF = word_5A33C;
-    gCurrentGameState.demoCurrentInputRepeatCounter = 1;
+    gCurrentGameState.gDemoCurrentInputRepeatCounter = 1;
     simulateDemoInput();
 }
 
@@ -8740,8 +8740,8 @@ void fetchAndInitializeLevel() // sub_4A463   proc near       ; CODE XREF: recor
 void updateOrangeDiskTiles(uint16_t position) // movefun3  proc near       ; DATA XREF: data:161Ao
 {
     // 01ED:3826
-    MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
-    MovingLevelTile *belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
+    MovingLevelTile *currentTile = &gCurrentGameState.gCurrentLevelState[position];
+    MovingLevelTile *belowTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth];
 
     if (currentTile->tile != LevelTileTypeOrangeDisk)
     {
@@ -8802,8 +8802,8 @@ void updateOrangeDiskTiles(uint16_t position) // movefun3  proc near       ; DAT
         position += kLevelWidth;
 
         // Update tiles
-        currentTile = &gCurrentGameState.levelState[position];
-        belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
+        currentTile = &gCurrentGameState.gCurrentLevelState[position];
+        belowTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth];
 
         if (belowTile->movingObject == 0 && belowTile->tile == LevelTileTypeSpace)
         {
@@ -8852,7 +8852,7 @@ void updateOrangeDiskTiles(uint16_t position) // movefun3  proc near       ; DAT
 
 void updateExplosionTiles(uint16_t position) //loc_4A543:              ; DATA XREF: data:1648o
 { // 01ED:38E0 TODO: check with original.exe
-    MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
+    MovingLevelTile *currentTile = &gCurrentGameState.gCurrentLevelState[position];
 
     if (currentTile->tile != LevelTileTypeExplosion)
     {
@@ -8888,7 +8888,7 @@ void updateExplosionTiles(uint16_t position) //loc_4A543:              ; DATA XR
         {
             currentTile->movingObject = 0;
             currentTile->tile = LevelTileTypeInfotron;
-            gCurrentGameState.isExplosionStarted = 0;
+            gCurrentGameState.gIsExplosionStarted = 0;
         }
     }
     else
@@ -8909,7 +8909,7 @@ void updateExplosionTiles(uint16_t position) //loc_4A543:              ; DATA XR
         {
             currentTile->movingObject = 0;
             currentTile->tile = LevelTileTypeSpace;
-            gCurrentGameState.isExplosionStarted = 0;
+            gCurrentGameState.gIsExplosionStarted = 0;
         }
     }
 }
@@ -8920,7 +8920,7 @@ void updateExplosionTimers() // sub_4A5E0   proc near       ; CODE XREF: runLeve
     for (int i = 0; i < kLevelSize; ++i)
     {
 //loc_4A5E9:              ; CODE XREF: updateExplosionTimers+25j
-        int8_t timer = gCurrentGameState.explosionTimers[i];
+        int8_t timer = gCurrentGameState.gExplosionTimers[i];
 
         if (timer == 0)
         {
@@ -8930,11 +8930,11 @@ void updateExplosionTimers() // sub_4A5E0   proc near       ; CODE XREF: runLeve
         if (timer < 0)
         {
 //loc_4A608:              ; CODE XREF: updateExplosionTimers+10j
-            gCurrentGameState.explosionTimers[i] = timer + 1;
+            gCurrentGameState.gExplosionTimers[i] = timer + 1;
 
-            if (gCurrentGameState.explosionTimers[i] == 0)
+            if (gCurrentGameState.gExplosionTimers[i] == 0)
             {
-                MovingLevelTile *tile = &gCurrentGameState.levelState[i];
+                MovingLevelTile *tile = &gCurrentGameState.gCurrentLevelState[i];
                 tile->movingObject = 0xFF;
                 tile->tile = LevelTileTypeElectron;
                 detonateBigExplosion(i);
@@ -8942,9 +8942,9 @@ void updateExplosionTimers() // sub_4A5E0   proc near       ; CODE XREF: runLeve
         }
         else
         {
-            gCurrentGameState.explosionTimers[i] = timer - 1;
+            gCurrentGameState.gExplosionTimers[i] = timer - 1;
 
-            if (gCurrentGameState.explosionTimers[i] == 0)
+            if (gCurrentGameState.gExplosionTimers[i] == 0)
             {
                 detonateBigExplosion(i);
             }
@@ -8957,15 +8957,15 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
                    // ; movefun2+20Fp ...
 {
     // 01ED:39BC
-    MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
-    MovingLevelTile *aboveTile = &gCurrentGameState.levelState[position - kLevelWidth];
-    MovingLevelTile *belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
-    MovingLevelTile *leftTile = &gCurrentGameState.levelState[position - 1];
-    MovingLevelTile *rightTile = &gCurrentGameState.levelState[position + 1];
-    MovingLevelTile *aboveLeftTile = &gCurrentGameState.levelState[position - kLevelWidth - 1];
-    MovingLevelTile *aboveRightTile = &gCurrentGameState.levelState[position - kLevelWidth + 1];
-    MovingLevelTile *belowLeftTile = &gCurrentGameState.levelState[position + kLevelWidth - 1];
-    MovingLevelTile *belowRightTile = &gCurrentGameState.levelState[position + kLevelWidth + 1];
+    MovingLevelTile *currentTile = &gCurrentGameState.gCurrentLevelState[position];
+    MovingLevelTile *aboveTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth];
+    MovingLevelTile *belowTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth];
+    MovingLevelTile *leftTile = &gCurrentGameState.gCurrentLevelState[position - 1];
+    MovingLevelTile *rightTile = &gCurrentGameState.gCurrentLevelState[position + 1];
+    MovingLevelTile *aboveLeftTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth - 1];
+    MovingLevelTile *aboveRightTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth + 1];
+    MovingLevelTile *belowLeftTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth - 1];
+    MovingLevelTile *belowRightTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth + 1];
 
     // These indicate the kind of the explosion created by this tile.
     // Tiles around may create a different explosion if needed (like Electrons create Infotrons).
@@ -8980,10 +8980,10 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
     }
 
 //loc_4A627:              ; CODE XREF: detonateBigExplosion+5j
-    gCurrentGameState.isExplosionStarted = 1;
+    gCurrentGameState.gIsExplosionStarted = 1;
     if (currentTile->tile == LevelTileTypeMurphy)
     {
-        gCurrentGameState.shouldKillMurphy = 1;
+        gCurrentGameState.gShouldKillMurphy = 1;
     }
 
 //loc_4A639:              ; CODE XREF: detonateBigExplosion+12j
@@ -9018,7 +9018,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+3Ej ...
         if (aboveLeftTile->tile != LevelTileTypeHardware)
         {
-            gCurrentGameState.explosionTimers[position - kLevelWidth - 1] = explosionTimer; // mov [bx+23F7h], dh
+            gCurrentGameState.gExplosionTimers[position - kLevelWidth - 1] = explosionTimer; // mov [bx+23F7h], dh
         }
     }
     else if (aboveLeftTile->tile == LevelTileTypeZonk)
@@ -9043,19 +9043,19 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+3Ej ...
         if (aboveLeftTile->tile != LevelTileTypeHardware)
         {
-            gCurrentGameState.explosionTimers[position - kLevelWidth - 1] = explosionTimer; // mov [bx+23F7h], dh
+            gCurrentGameState.gExplosionTimers[position - kLevelWidth - 1] = explosionTimer; // mov [bx+23F7h], dh
         }
     }
 //loc_4A676:              ; CODE XREF: detonateBigExplosion+4Ej
     else if (aboveLeftTile->tile == LevelTileTypeMurphy)
     {
-        gCurrentGameState.shouldKillMurphy = 1;
+        gCurrentGameState.gShouldKillMurphy = 1;
 
 //loc_4A680:              ; CODE XREF: detonateBigExplosion+3Aj
 //                ; detonateBigExplosion+3Ej ...
         if (aboveLeftTile->tile != LevelTileTypeHardware)
         {
-            gCurrentGameState.explosionTimers[position - kLevelWidth - 1] = explosionTimer; // mov [bx+23F7h], dh
+            gCurrentGameState.gExplosionTimers[position - kLevelWidth - 1] = explosionTimer; // mov [bx+23F7h], dh
         }
     }
 
@@ -9088,7 +9088,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+95j ...
         if (aboveTile->tile != LevelTileTypeHardware)
         {
-            gCurrentGameState.explosionTimers[position - kLevelWidth] = explosionTimer; // mov [bx+23F8h], dh
+            gCurrentGameState.gExplosionTimers[position - kLevelWidth] = explosionTimer; // mov [bx+23F8h], dh
         }
     }
     else if (aboveTile->tile == LevelTileTypeZonk)
@@ -9112,19 +9112,19 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+95j ...
         if (aboveTile->tile != LevelTileTypeHardware)
         {
-            gCurrentGameState.explosionTimers[position - kLevelWidth] = explosionTimer; // mov [bx+23F8h], dh
+            gCurrentGameState.gExplosionTimers[position - kLevelWidth] = explosionTimer; // mov [bx+23F8h], dh
         }
     }
 //loc_4A6CD:              ; CODE XREF: detonateBigExplosion+A5j
     else if (aboveTile->tile == LevelTileTypeMurphy)
     {
-        gCurrentGameState.shouldKillMurphy = 1;
+        gCurrentGameState.gShouldKillMurphy = 1;
 
 //loc_4A6D7:              ; CODE XREF: detonateBigExplosion+91j
 //                ; detonateBigExplosion+95j ...
         if (aboveTile->tile != LevelTileTypeHardware)
         {
-            gCurrentGameState.explosionTimers[position - kLevelWidth] = explosionTimer; // mov [bx+23F8h], dh
+            gCurrentGameState.gExplosionTimers[position - kLevelWidth] = explosionTimer; // mov [bx+23F8h], dh
         }
     }
 
@@ -9157,7 +9157,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+ECj ...
         if (aboveRightTile->tile != LevelTileTypeHardware)
         {
-            gCurrentGameState.explosionTimers[position - kLevelWidth + 1] = explosionTimer; // mov [bx+23F9h], dh
+            gCurrentGameState.gExplosionTimers[position - kLevelWidth + 1] = explosionTimer; // mov [bx+23F9h], dh
         }
     }
     else if (aboveRightTile->tile == LevelTileTypeZonk)
@@ -9181,19 +9181,19 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+ECj ...
         if (aboveRightTile->tile != LevelTileTypeHardware)
         {
-            gCurrentGameState.explosionTimers[position - kLevelWidth + 1] = explosionTimer; // mov [bx+23F9h], dh
+            gCurrentGameState.gExplosionTimers[position - kLevelWidth + 1] = explosionTimer; // mov [bx+23F9h], dh
         }
     }
 //loc_4A724:              ; CODE XREF: detonateBigExplosion+FCj
     else if (aboveRightTile->tile == LevelTileTypeMurphy)
     {
-        gCurrentGameState.shouldKillMurphy = 1;
+        gCurrentGameState.gShouldKillMurphy = 1;
 
 //loc_4A72E:              ; CODE XREF: detonateBigExplosion+E8j
 //                ; detonateBigExplosion+ECj ...
         if (aboveRightTile->tile != LevelTileTypeHardware)
         {
-            gCurrentGameState.explosionTimers[position - kLevelWidth + 1] = explosionTimer; // mov [bx+23F9h], dh
+            gCurrentGameState.gExplosionTimers[position - kLevelWidth + 1] = explosionTimer; // mov [bx+23F9h], dh
         }
     }
 
@@ -9226,7 +9226,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+143j ...
         if (leftTile->tile != LevelTileTypeHardware)
         {
-            gCurrentGameState.explosionTimers[position - 1] = explosionTimer; // mov [bx+2433h], dh
+            gCurrentGameState.gExplosionTimers[position - 1] = explosionTimer; // mov [bx+2433h], dh
         }
     }
     else if (leftTile->tile == LevelTileTypeZonk)
@@ -9250,19 +9250,19 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+143j ...
         if (leftTile->tile != LevelTileTypeHardware)
         {
-            gCurrentGameState.explosionTimers[position - 1] = explosionTimer; // mov [bx+2433h], dh
+            gCurrentGameState.gExplosionTimers[position - 1] = explosionTimer; // mov [bx+2433h], dh
         }
     }
 //loc_4A77B:              ; CODE XREF: detonateBigExplosion+153j
     else if (leftTile->tile == LevelTileTypeMurphy)
     {
-        gCurrentGameState.shouldKillMurphy = 1;
+        gCurrentGameState.gShouldKillMurphy = 1;
 
 //loc_4A785:              ; CODE XREF: detonateBigExplosion+13Fj
 //                ; detonateBigExplosion+143j ...
         if (leftTile->tile != LevelTileTypeHardware)
         {
-            gCurrentGameState.explosionTimers[position - 1] = explosionTimer; // mov [bx+2433h], dh
+            gCurrentGameState.gExplosionTimers[position - 1] = explosionTimer; // mov [bx+2433h], dh
         }
     }
 
@@ -9299,7 +9299,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+19Ej ...
         if (rightTile->tile != LevelTileTypeHardware)
         {
-            gCurrentGameState.explosionTimers[position + 1] = explosionTimer; // mov [bx+2435h], dh
+            gCurrentGameState.gExplosionTimers[position + 1] = explosionTimer; // mov [bx+2435h], dh
         }
     }
     else if (rightTile->tile == LevelTileTypeZonk)
@@ -9323,19 +9323,19 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+19Ej ...
         if (rightTile->tile != LevelTileTypeHardware)
         {
-            gCurrentGameState.explosionTimers[position + 1] = explosionTimer; // mov [bx+2435h], dh
+            gCurrentGameState.gExplosionTimers[position + 1] = explosionTimer; // mov [bx+2435h], dh
         }
     }
 //loc_4A7D6:              ; CODE XREF: detonateBigExplosion+1AEj
     else if (rightTile->tile == LevelTileTypeMurphy)
     {
-        gCurrentGameState.shouldKillMurphy = 1;
+        gCurrentGameState.gShouldKillMurphy = 1;
 
 //loc_4A7E0:              ; CODE XREF: detonateBigExplosion+19Aj
 //                ; detonateBigExplosion+19Ej ...
         if (rightTile->tile != LevelTileTypeHardware)
         {
-            gCurrentGameState.explosionTimers[position + 1] = explosionTimer; // mov [bx+2435h], dh
+            gCurrentGameState.gExplosionTimers[position + 1] = explosionTimer; // mov [bx+2435h], dh
         }
     }
 
@@ -9369,7 +9369,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+1F5j ...
         if (belowLeftTile->tile != LevelTileTypeHardware)
         {
-            gCurrentGameState.explosionTimers[position + kLevelWidth - 1] = explosionTimer; // mov [bx+246Fh], dh
+            gCurrentGameState.gExplosionTimers[position + kLevelWidth - 1] = explosionTimer; // mov [bx+246Fh], dh
         }
     }
     else if (belowLeftTile->tile == LevelTileTypeZonk)
@@ -9393,18 +9393,18 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+1F5j ...
         if (belowLeftTile->tile != LevelTileTypeHardware)
         {
-            gCurrentGameState.explosionTimers[position + kLevelWidth - 1] = explosionTimer; // mov [bx+246Fh], dh
+            gCurrentGameState.gExplosionTimers[position + kLevelWidth - 1] = explosionTimer; // mov [bx+246Fh], dh
         }
     }
 //loc_4A82D:              ; CODE XREF: detonateBigExplosion+205j
     else if (belowLeftTile->tile == LevelTileTypeMurphy)
     {
-        gCurrentGameState.shouldKillMurphy = 1;
+        gCurrentGameState.gShouldKillMurphy = 1;
 //loc_4A837:              ; CODE XREF: detonateBigExplosion+1F1j
 //                ; detonateBigExplosion+1F5j ...
         if (belowLeftTile->tile != LevelTileTypeHardware)
         {
-            gCurrentGameState.explosionTimers[position + kLevelWidth - 1] = explosionTimer; // mov [bx+246Fh], dh
+            gCurrentGameState.gExplosionTimers[position + kLevelWidth - 1] = explosionTimer; // mov [bx+246Fh], dh
         }
     }
 
@@ -9438,7 +9438,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+24Cj ...
         if (belowTile->tile != LevelTileTypeHardware)
         {
-            gCurrentGameState.explosionTimers[position + kLevelWidth] = explosionTimer; // mov [bx+2470h], dh
+            gCurrentGameState.gExplosionTimers[position + kLevelWidth] = explosionTimer; // mov [bx+2470h], dh
         }
     }
     else if (belowTile->tile == LevelTileTypeZonk)
@@ -9462,19 +9462,19 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+24Cj ...
         if (belowTile->tile != LevelTileTypeHardware)
         {
-            gCurrentGameState.explosionTimers[position + kLevelWidth] = explosionTimer; // mov [bx+2470h], dh
+            gCurrentGameState.gExplosionTimers[position + kLevelWidth] = explosionTimer; // mov [bx+2470h], dh
         }
     }
 //loc_4A884:              ; CODE XREF: detonateBigExplosion+25Cj
     else if (belowTile->tile == LevelTileTypeMurphy)
     {
-        gCurrentGameState.shouldKillMurphy = 1;
+        gCurrentGameState.gShouldKillMurphy = 1;
 
 //loc_4A88E:              ; CODE XREF: detonateBigExplosion+248j
 //                ; detonateBigExplosion+24Cj ...
         if (belowTile->tile != LevelTileTypeHardware)
         {
-            gCurrentGameState.explosionTimers[position + kLevelWidth] = explosionTimer; // mov [bx+2470h], dh
+            gCurrentGameState.gExplosionTimers[position + kLevelWidth] = explosionTimer; // mov [bx+2470h], dh
         }
     }
 
@@ -9506,7 +9506,7 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+2A3j ...
         if (belowRightTile->tile != LevelTileTypeHardware)
         {
-            gCurrentGameState.explosionTimers[position + kLevelWidth + 1] = explosionTimer; // mov [bx+2471h], dh
+            gCurrentGameState.gExplosionTimers[position + kLevelWidth + 1] = explosionTimer; // mov [bx+2471h], dh
         }
     }
     else if (belowRightTile->tile == LevelTileTypeZonk)
@@ -9536,19 +9536,19 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 //                ; detonateBigExplosion+2A3j ...
         if (belowRightTile->tile != LevelTileTypeHardware)
         {
-            gCurrentGameState.explosionTimers[position + kLevelWidth + 1] = explosionTimer; // mov [bx+2471h], dh
+            gCurrentGameState.gExplosionTimers[position + kLevelWidth + 1] = explosionTimer; // mov [bx+2471h], dh
         }
     }
 //loc_4A8DB:              ; CODE XREF: detonateBigExplosion+2B3j
     else if (belowRightTile->tile == LevelTileTypeMurphy)
     {
-        gCurrentGameState.shouldKillMurphy = 1;
+        gCurrentGameState.gShouldKillMurphy = 1;
 
 //loc_4A8E5:              ; CODE XREF: detonateBigExplosion+29Fj
 //                ; detonateBigExplosion+2A3j ...
         if (belowRightTile->tile != LevelTileTypeHardware)
         {
-            gCurrentGameState.explosionTimers[position + kLevelWidth + 1] = explosionTimer; // mov [bx+2471h], dh
+            gCurrentGameState.gExplosionTimers[position + kLevelWidth + 1] = explosionTimer; // mov [bx+2471h], dh
         }
     }
 
@@ -9570,12 +9570,12 @@ void detonateBigExplosion(uint16_t position) // sub_4A61F   proc near       ; CO
 void updatePlantedRedDisk() // sub_4A910   proc near       ; CODE XREF: runLevel:noFlashing3p
 {
     // 01ED:3CAD
-    if (gCurrentGameState.plantedRedDiskCountdown <= 1)
+    if (gCurrentGameState.gPlantedRedDiskCountdown <= 1)
     {
         return;
     }
 
-    MovingLevelTile *tile = &gCurrentGameState.levelState[gCurrentGameState.plantedRedDiskPosition];
+    MovingLevelTile *tile = &gCurrentGameState.gCurrentLevelState[gCurrentGameState.gPlantedRedDiskPosition];
 
     if (tile->movingObject == 0 && tile->tile == LevelTileTypeSpace)
     {
@@ -9585,21 +9585,21 @@ void updatePlantedRedDisk() // sub_4A910   proc near       ; CODE XREF: runLevel
 
 //loc_4A932:              ; CODE XREF: updatePlantedRedDisk+1Aj
     // si = word_5177E;
-    drawMovingFrame(256, 164, gCurrentGameState.plantedRedDiskPosition);
-    gCurrentGameState.plantedRedDiskCountdown++;
-    if (gCurrentGameState.plantedRedDiskCountdown >= 0x28)
+    drawMovingFrame(256, 164, gCurrentGameState.gPlantedRedDiskPosition);
+    gCurrentGameState.gPlantedRedDiskCountdown++;
+    if (gCurrentGameState.gPlantedRedDiskCountdown >= 0x28)
     {
-        detonateBigExplosion(gCurrentGameState.plantedRedDiskPosition);
-        gCurrentGameState.plantedRedDiskCountdown = 0;
+        detonateBigExplosion(gCurrentGameState.gPlantedRedDiskPosition);
+        gCurrentGameState.gPlantedRedDiskCountdown = 0;
     }
 }
 
 void addCurrentGameTimeToPlayer() // sub_4A95F   proc near       ; CODE XREF: runLevel+372p
                    // ; restartLevel+7p ...
 {
-    uint8_t seconds = gCurrentGameState.gameSeconds;
-    uint8_t minutes = gCurrentGameState.gameMinutes;
-    uint16_t hours = gCurrentGameState.gameHours;
+    uint8_t seconds = gCurrentGameState.gGameSeconds;
+    uint8_t minutes = gCurrentGameState.gGameMinutes;
+    uint16_t hours = gCurrentGameState.gGameHours;
     if (gIsPlayingDemo != 0)
     {
         return;
@@ -9661,8 +9661,8 @@ void detonateZonk(uint16_t position, uint8_t movingObject, uint8_t tile) // sub_
                   //  ; detonateBigExplosion+D8p ...
 {
     // 01ED:3D61
-    MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
-    MovingLevelTile *belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
+    MovingLevelTile *currentTile = &gCurrentGameState.gCurrentLevelState[position];
+    MovingLevelTile *belowTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth];
 
     uint8_t movingObjectType = currentTile->movingObject & 0xF0;
 
@@ -9715,8 +9715,8 @@ void sub_4AA34(uint16_t position, uint8_t movingObject, uint8_t tile) //   proc 
     // - si: position
     // - cx: movingObject (ch) and tile (cl)
 
-    MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
-    MovingLevelTile *belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
+    MovingLevelTile *currentTile = &gCurrentGameState.gCurrentLevelState[position];
+    MovingLevelTile *belowTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth];
 
     uint8_t movingObjectType = currentTile->movingObject & 0xF0;
 
@@ -9772,7 +9772,7 @@ void sub_4AAB4(uint16_t position) //   proc near       ; CODE XREF: detonateZonk
                    // ; detonateZonk+3Dp ...
 {
     // 01ED:3DD1
-    MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
+    MovingLevelTile *currentTile = &gCurrentGameState.gCurrentLevelState[position];
 
     if (currentTile->tile == LevelTileTypeExplosion)
     {
@@ -10453,13 +10453,13 @@ void handleDemoOptionClick() // sub_4B159   proc near       ; CODE XREF: runMain
 //loc_4B1CF:              ; CODE XREF: handleDemoOptionClick+6Bj
 //                ; handleDemoOptionClick+6Fj
     gRandomGeneratorSeed = gDemoRandomSeeds[demoIndex];
-    gCurrentGameState.demoIndexOrDemoLevelNumber = finalLevelNumber;
+    gCurrentGameState.gDemoIndexOrDemoLevelNumber = finalLevelNumber;
 
     demoFirstIndex++; // To skip the level number
     gCurrentGameState.word_510DF = demoFirstIndex;
     word_5A33C = demoFirstIndex;
-    gCurrentGameState.demoCurrentInput = UserInputNone;
-    gCurrentGameState.demoCurrentInputRepeatCounter = 1;
+    gCurrentGameState.gDemoCurrentInput = UserInputNone;
+    gCurrentGameState.gDemoCurrentInputRepeatCounter = 1;
 }
 
 void playDemo(uint16_t demoIndex) // demoSomething  proc near       ; CODE XREF: start+3BAp
@@ -10493,13 +10493,13 @@ void playDemo(uint16_t demoIndex) // demoSomething  proc near       ; CODE XREF:
 
 //loc_4B248:              ; CODE XREF: playDemo+4Bj
 //                ; playDemo+4Fj
-    gCurrentGameState.demoIndexOrDemoLevelNumber = finalLevelNumber;
+    gCurrentGameState.gDemoIndexOrDemoLevelNumber = finalLevelNumber;
 
     demoFirstIndex++; // To skip the level number
     gCurrentGameState.word_510DF = demoFirstIndex;
     word_5A33C = demoFirstIndex;
-    gCurrentGameState.demoCurrentInput = UserInputNone;
-    gCurrentGameState.demoCurrentInputRepeatCounter = 1;
+    gCurrentGameState.gDemoCurrentInput = UserInputNone;
+    gCurrentGameState.gDemoCurrentInputRepeatCounter = 1;
 }
 
 void handleRankingListScrollUp() // loc_4B262
@@ -11660,9 +11660,9 @@ void prepareLevelDataForCurrentPlayer() // sub_4C34A   proc near       ; CODE XR
 void sub_4C407() //   proc near       ; CODE XREF: runMainMenu+5Dp
 {
     // 01ED:57A4
-    if (gCurrentGameState.levelFailed != 0)
+    if (gCurrentGameState.gLevelFailed != 0)
     {
-        gCurrentGameState.levelFailed = 0;
+        gCurrentGameState.gLevelFailed = 0;
         drawFailedLevelResultScreen(); // 01ED:57B5
         drawMenuBackground(); // 01ED:57B8
         gShouldAutoselectNextLevelToPlay = 0;
@@ -11749,7 +11749,7 @@ void drawFailedLevelResultScreen() // sub_4C4F9   proc near       ; CODE XREF: s
     drawBackBackground();
 
     drawTextWithChars6FontWithTransparentBackground(128, 60, 0xF, "HARD LUCK!");
-    if (gCurrentGameState.numberOfRemainingInfotrons == 0)
+    if (gCurrentGameState.gNumberOfRemainingInfotrons == 0)
     {
         drawTextWithChars6FontWithTransparentBackground(40, 80, 0xF, "YOU COMPLETED ALL THE NECESSARY INFOTRONS");
         drawTextWithChars6FontWithTransparentBackground(72, 100, 0xF, "BUT FAILED TO REACH THE EXIT");
@@ -11759,10 +11759,10 @@ void drawFailedLevelResultScreen() // sub_4C4F9   proc near       ; CODE XREF: s
 //loc_4C52C:              ; CODE XREF: drawFailedLevelResultScreen+19j
         char message[] = "YOU HAVE COLLECTED ??? OUT OF THE ???";
 
-        uint8_t collectedInfotrons = gCurrentGameState.totalNumberOfInfotrons - gCurrentGameState.numberOfRemainingInfotrons;
+        uint8_t collectedInfotrons = gCurrentGameState.gTotalNumberOfInfotrons - gCurrentGameState.gNumberOfRemainingInfotrons;
         convertNumberTo3DigitPaddedString(collectedInfotrons, &message[19], 1);
 
-        convertNumberTo3DigitPaddedString(gCurrentGameState.totalNumberOfInfotrons, &message[34], 1);
+        convertNumberTo3DigitPaddedString(gCurrentGameState.gTotalNumberOfInfotrons, &message[34], 1);
 
         drawTextWithChars6FontWithTransparentBackground(40, 80, 0xF, message);
         drawTextWithChars6FontWithTransparentBackground(104, 100, 0xF, "INFOTRONS NEEDED");
@@ -13203,7 +13203,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
         && gIsSPDemoAvailableToRun == 0)
     {
         // Demos with the new format
-        Level *level = &gDemos.level[gCurrentGameState.demoIndexOrDemoLevelNumber];
+        Level *level = &gDemos.level[gCurrentGameState.gDemoIndexOrDemoLevelNumber];
 
         memcpy(&fileLevelData, level, levelDataLength);
 
@@ -13249,7 +13249,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 //loc_4D5C2:              ; CODE XREF: readLevels+75j
         if (gIsPlayingDemo != 0)
         {
-            levelIndex = gCurrentGameState.demoIndexOrDemoLevelNumber;
+            levelIndex = gCurrentGameState.gDemoIndexOrDemoLevelNumber;
         }
         else
         {
@@ -13286,20 +13286,20 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
             exitWithError("Error reading %s\n", filename);
         }
 
-        gCurrentGameState.isGravityEnabled = fileLevelData.initialGravitation;
-        gCurrentGameState.areZonksFrozen = fileLevelData.freezeZonks;
-        gCurrentGameState.numberOfInfoTrons = fileLevelData.numberOfInfotrons;
-        gCurrentGameState.numberOfSpecialPorts = fileLevelData.numberOfSpecialPorts;
-        gCurrentGameState.randomSeed = fileLevelData.randomSeed;
+        gCurrentGameState.gIsGravityEnabled = fileLevelData.initialGravitation;
+        gCurrentGameState.gAreZonksFrozen = fileLevelData.freezeZonks;
+        gCurrentGameState.gNumberOfInfoTrons = fileLevelData.numberOfInfotrons;
+        gCurrentGameState.gNumberOfSpecialPorts = fileLevelData.numberOfSpecialPorts;
+        gCurrentGameState.gRandomSeed = fileLevelData.randomSeed;
 
 //loc_4D618:              ; CODE XREF: readLevels+CBj
         if ((gSelectedOriginalDemoLevelNumber & 0xFF) != 0) // cmp byte ptr gSelectedOriginalDemoLevelNumber, 0
         {
             gSelectedOriginalDemoLevelNumber |= 0xFF00; // mov byte ptr gSelectedOriginalDemoLevelNumber+1, 0FFh
 
-            gCurrentGameState.demoIndexOrDemoLevelNumber = gSelectedOriginalDemoIndex;
+            gCurrentGameState.gDemoIndexOrDemoLevelNumber = gSelectedOriginalDemoIndex;
 
-            Level *level = &gDemos.level[gCurrentGameState.demoIndexOrDemoLevelNumber];
+            Level *level = &gDemos.level[gCurrentGameState.gDemoIndexOrDemoLevelNumber];
 
             memcpy(level, &fileLevelData, levelDataLength);
         }
@@ -13311,7 +13311,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 //                ; readLevels+D5j
     if (gIsPlayingDemo != 0)
     {
-        gRandomGeneratorSeed = gCurrentGameState.randomSeed;
+        gRandomGeneratorSeed = gCurrentGameState.gRandomSeed;
         levelName = gCurrentDemoLevelName;
     }
     else
@@ -13345,7 +13345,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 //loc_4D68F:              ; CODE XREF: readLevels+142j
     memcpy(levelName, fileLevelData.name, sizeof(fileLevelData.name));
 
-    memcpy(&gCurrentGameState.level, &fileLevelData, sizeof(Level));
+    memcpy(&gCurrentGameState.gCurrentLevel, &fileLevelData, sizeof(Level));
 
     // The reason this is 1536 (level file size) and not 1440 (actual gamefield size of 60 * 24 tiles) is because
     // the game was written like this, and some levels rely on this behavior by removing the bottom border of the level
@@ -13355,12 +13355,12 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
     for (int i = 0; i < levelDataLength; ++i)
     {
 //loc_4D6B8:              ; CODE XREF: readLevels+172j
-        MovingLevelTile *tile = &gCurrentGameState.levelState[i];
+        MovingLevelTile *tile = &gCurrentGameState.gCurrentLevelState[i];
         tile->tile = fileLevelData.tiles[i]; // TODO: this is wrong, because exceedes the array limits
         tile->movingObject = 0;
     }
 
-    memset(&gCurrentGameState.explosionTimers, 0, sizeof(gCurrentGameState.explosionTimers)); // rep stosb
+    memset(&gCurrentGameState.gExplosionTimers, 0, sizeof(gCurrentGameState.gExplosionTimers)); // rep stosb
 
     if (gIsPlayingDemo == 0
         || (gSelectedOriginalDemoLevelNumber & 0xFF) != 0
@@ -13667,11 +13667,11 @@ uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE X
 {
     // 01ED:722D
 
-    MovingLevelTile *murphyTile = &gCurrentGameState.levelState[position];
-    MovingLevelTile *leftTile = &gCurrentGameState.levelState[position - 1];
-    MovingLevelTile *rightTile = &gCurrentGameState.levelState[position + 1];
-    MovingLevelTile *belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
-    MovingLevelTile *aboveTile = &gCurrentGameState.levelState[position - kLevelWidth];
+    MovingLevelTile *murphyTile = &gCurrentGameState.gCurrentLevelState[position];
+    MovingLevelTile *leftTile = &gCurrentGameState.gCurrentLevelState[position - 1];
+    MovingLevelTile *rightTile = &gCurrentGameState.gCurrentLevelState[position + 1];
+    MovingLevelTile *belowTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth];
+    MovingLevelTile *aboveTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth];
 
     if (murphyTile->tile != LevelTileTypeMurphy)
     {
@@ -13688,16 +13688,16 @@ uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE X
     }
 
 //loc_4DEB4:              ; CODE XREF: update?+1Fj
-    gCurrentGameState.scratchGravity = 0;
+    gCurrentGameState.gScratchGravity = 0;
 
-    if (gCurrentGameState.isGravityEnabled != 0
+    if (gCurrentGameState.gIsGravityEnabled != 0
         && aboveTile->tile != LevelTileTypePortUp
         && aboveTile->tile != LevelTileTypePortVertical
         && aboveTile->tile != LevelTileTypePort4Way
         && (belowTile->movingObject == 0
             && belowTile->tile == LevelTileTypeSpace))
     {
-        gCurrentGameState.scratchGravity = 1;
+        gCurrentGameState.gScratchGravity = 1;
     }
 
 //loc_4DEE1:              ; CODE XREF: update?+2Ej update?+35j ...
@@ -13707,7 +13707,7 @@ uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE X
     {
 //loc_4DEED:              ; CODE XREF: update?+58j
         gCurrentGameState.byte_510D3 =  1;
-        if (gCurrentGameState.scratchGravity != 0)
+        if (gCurrentGameState.gScratchGravity != 0)
         {
             MurphyAnimationDescriptor unknownMurphyData;
 //loc_4E38A:              ; CODE XREF: update?+69j update?+2FFj
@@ -13727,7 +13727,7 @@ uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE X
             murphyTile->movingObject = 3;
             murphyTile->tile = LevelTileTypeSpace;
             gCurrentGameState.word_510EE = 0;
-            gCurrentGameState.isMurphyGoingThroughPortal = 0;
+            gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position + kLevelWidth, unknownMurphyData);
         }
 
@@ -13847,7 +13847,7 @@ uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE X
 
 //loc_4E001:              ; CODE XREF: update?+5Aj
     // 01ED:739E
-    if (gCurrentGameState.scratchGravity != 0
+    if (gCurrentGameState.gScratchGravity != 0
         && (belowTile->movingObject == 0 && belowTile->tile == LevelTileTypeSpace))
     {
         if (userInput != UserInputUp
@@ -13911,7 +13911,7 @@ uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE X
 //            dx = 0x0ECE;
             murphyTile->movingObject = 0x10;
             gCurrentGameState.word_510EE = 0;
-            gCurrentGameState.isMurphyGoingThroughPortal = 0;
+            gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[13]);
         }
 //loc_4E26C:              ; CODE XREF: update?+3D7j
@@ -13938,7 +13938,7 @@ uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE X
 //            dx = 0x0ECE;
             murphyTile->movingObject = 0x10;
             gCurrentGameState.word_510EE = 0;
-            gCurrentGameState.isMurphyGoingThroughPortal = 0;
+            gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[13]);
         }
 //loc_4E273:              ; CODE XREF: update?+3DEj
@@ -13955,7 +13955,7 @@ uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE X
             murphyTile->movingObject = 0x14;
             aboveTile->movingObject = 0xFF;
             gCurrentGameState.word_510EE = 0;
-            gCurrentGameState.isMurphyGoingThroughPortal = 0;
+            gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[23]);
         }
 //loc_4E27B:              ; CODE XREF: update?+3E6j
@@ -13990,7 +13990,7 @@ uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE X
             murphyTile->movingObject = 0x20;
             aboveTile->movingObject = 3;
             gCurrentGameState.word_510EE = 0;
-            gCurrentGameState.isMurphyGoingThroughPortal = 0;
+            gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[39]);
         }
         else
@@ -14017,7 +14017,7 @@ uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE X
 //            dx = 0x0EDE;
             murphyTile->movingObject = 0x11;
             gCurrentGameState.word_510EE = 0;
-            gCurrentGameState.isMurphyGoingThroughPortal = 0;
+            gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[14]);
         }
 //loc_4E29C:              ; CODE XREF: update?+407j
@@ -14044,7 +14044,7 @@ uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE X
 //            dx = 0x0EDE;
             murphyTile->movingObject = 0x11;
             gCurrentGameState.word_510EE = 0;
-            gCurrentGameState.isMurphyGoingThroughPortal = 0;
+            gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[14]);
         }
 //loc_4E2A3:              ; CODE XREF: update?+40Ej
@@ -14061,7 +14061,7 @@ uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE X
             murphyTile->movingObject = 0x15;
             leftTile->movingObject = 0xFF;
             gCurrentGameState.word_510EE = 0;
-            gCurrentGameState.isMurphyGoingThroughPortal = 0;
+            gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[24]);
         }
 //loc_4E2AB:              ; CODE XREF: update?+416j
@@ -14096,7 +14096,7 @@ uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE X
             murphyTile->movingObject = 0x21;
             leftTile->movingObject = 3;
             gCurrentGameState.word_510EE = 0;
-            gCurrentGameState.isMurphyGoingThroughPortal = 0;
+            gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[40]);
         }
         else
@@ -14122,7 +14122,7 @@ uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE X
 //            dx = 0x0EEE;
             murphyTile->movingObject = 0x12;
             gCurrentGameState.word_510EE = 0;
-            gCurrentGameState.isMurphyGoingThroughPortal = 0;
+            gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[15]);
         }
 //loc_4E2C6:              ; CODE XREF: update?+431j
@@ -14149,7 +14149,7 @@ uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE X
 //            dx = 0x0EEE;
             murphyTile->movingObject = 0x12;
             gCurrentGameState.word_510EE = 0;
-            gCurrentGameState.isMurphyGoingThroughPortal = 0;
+            gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[15]);
         }
 //loc_4E2CD:              ; CODE XREF: update?+438j
@@ -14166,7 +14166,7 @@ uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE X
             murphyTile->movingObject = 0x16;
             belowTile->movingObject = 0xFF;
             gCurrentGameState.word_510EE = 0;
-            gCurrentGameState.isMurphyGoingThroughPortal = 0;
+            gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[25]);
         }
 //loc_4E2D5:              ; CODE XREF: update?+440j
@@ -14201,7 +14201,7 @@ uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE X
             murphyTile->movingObject = 0x22;
             belowTile->movingObject = 3;
             gCurrentGameState.word_510EE = 0;
-            gCurrentGameState.isMurphyGoingThroughPortal = 0;
+            gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[41]);
         }
         else
@@ -14228,7 +14228,7 @@ uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE X
 //            dx = 0x0EFE;
             murphyTile->movingObject = 0x13;
             gCurrentGameState.word_510EE = 0;
-            gCurrentGameState.isMurphyGoingThroughPortal = 0;
+            gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[16]);
         }
 //loc_4E2F6:              ; CODE XREF: update?+461j
@@ -14255,7 +14255,7 @@ uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE X
 //            dx = 0x0EFE;
             murphyTile->movingObject = 0x13;
             gCurrentGameState.word_510EE = 0;
-            gCurrentGameState.isMurphyGoingThroughPortal = 0;
+            gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[16]);
         }
 //loc_4E2FD:              ; CODE XREF: update?+468j
@@ -14272,7 +14272,7 @@ uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE X
             murphyTile->movingObject = 0x17;
             rightTile->movingObject = 0xFF;
             gCurrentGameState.word_510EE = 0;
-            gCurrentGameState.isMurphyGoingThroughPortal = 0;
+            gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[26]);
         }
 //loc_4E305:              ; CODE XREF: update?+470j
@@ -14290,7 +14290,7 @@ uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE X
 
 //loc_4E8F0:              ; CODE XREF: update?+4DAj update?+4F7j ...
             gCurrentGameState.word_510EE = 0;
-            gCurrentGameState.isMurphyGoingThroughPortal = 0;
+            gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, someBinaryData_5110E[42]);
         }
         else
@@ -14322,8 +14322,8 @@ uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE X
     else if (userInput == UserInputSpaceOnly)
     {
 //loc_4E314:              ; CODE XREF: update?+211j
-        if (gCurrentGameState.numberOfRemainingRedDisks == 0
-            || gCurrentGameState.plantedRedDiskCountdown != 0
+        if (gCurrentGameState.gNumberOfRemainingRedDisks == 0
+            || gCurrentGameState.gPlantedRedDiskCountdown != 0
             || gCurrentGameState.byte_510D3 != 1)
         {
             return position;
@@ -14331,8 +14331,8 @@ uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE X
         murphyTile->movingObject = 0x2A;
         gCurrentGameState.word_510EE = 0x40; // 64
 //        dx = 0x110E;
-        gCurrentGameState.plantedRedDiskCountdown = 1;
-        gCurrentGameState.plantedRedDiskPosition = position;
+        gCurrentGameState.gPlantedRedDiskCountdown = 1;
+        gCurrentGameState.gPlantedRedDiskPosition = position;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[49]);
     }
     else
@@ -14346,9 +14346,9 @@ uint16_t updateMurphy(uint16_t position) // update?     proc near       ; CODE X
 uint16_t handleMurphyDirectionUp(uint16_t position)
 {
     // 01ED:7447
-    MovingLevelTile *murphyTile = &gCurrentGameState.levelState[position];
-    MovingLevelTile *aboveTile = &gCurrentGameState.levelState[position - kLevelWidth];
-    MovingLevelTile *aboveAboveTile = &gCurrentGameState.levelState[position - kLevelWidth * 2];
+    MovingLevelTile *murphyTile = &gCurrentGameState.gCurrentLevelState[position];
+    MovingLevelTile *aboveTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth];
+    MovingLevelTile *aboveAboveTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth * 2];
 
 //loc_4E0AA:              ; CODE XREF: update?+1AFj update?+279j
     if (aboveTile->movingObject == 0 && aboveTile->tile == LevelTileTypeSpace)
@@ -14373,7 +14373,7 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
         murphyTile->tile = LevelTileTypeSpace;
 
         gCurrentGameState.word_510EE = 0;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position - kLevelWidth, unknownMurphyData);
     }
 //loc_4E0B6:              ; CODE XREF: update?+221j
@@ -14400,7 +14400,7 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         gCurrentGameState.word_510EE = 0;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position - kLevelWidth, unknownMurphyData);
     }
 //loc_4E0BE:              ; CODE XREF: update?+229j
@@ -14439,7 +14439,7 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         gCurrentGameState.word_510EE = 0;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position - kLevelWidth, animationDescriptor);
     }
 //loc_4E0C5:              ; CODE XREF: update?+230j
@@ -14465,21 +14465,21 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         gCurrentGameState.word_510EE = 0;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position - kLevelWidth, unknownMurphyData);
     }
 //loc_4E0CD:              ; CODE XREF: update?+238j
     else if (aboveTile->movingObject == 0 && aboveTile->tile == LevelTileTypeExit)
     {
 //loc_4E674:              ; CODE XREF: update?+242j update?+2AAj ...
-        if (gCurrentGameState.numberOfRemainingInfotrons != 0)
+        if (gCurrentGameState.gNumberOfRemainingInfotrons != 0)
         {
             return position;
         }
         playExitSound();
         byte_5A19B = 1;
         gCurrentGameState.byte_510BB = 1;
-        gCurrentGameState.levelFailed = 0;
+        gCurrentGameState.gLevelFailed = 0;
         if (gHasUserCheated == 0
             && gCurrentGameState.byte_510B3 != 0)
         {
@@ -14489,12 +14489,12 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
 
 //loc_4E6A4:              ; CODE XREF: update?+803j update?+80Aj
         changePlayerCurrentLevelState();
-        gCurrentGameState.quitLevelCountdown = 0x40;
+        gCurrentGameState.gQuitLevelCountdown = 0x40;
     //    pop si
 //        dx = 0x0E5E;
         murphyTile->movingObject = 0xD;
         gCurrentGameState.word_510EE = 0;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[6]);
     }
 //loc_4E0D5:              ; CODE XREF: update?+240j
@@ -14538,7 +14538,7 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
         murphyTile->movingObject = 0x18;
         aboveAboveTile->movingObject = 3;
         gCurrentGameState.word_510EE = 0;
-        gCurrentGameState.isMurphyGoingThroughPortal = 1;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 1;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[29]);
     }
 //loc_4E0F1:              ; CODE XREF: update?+25Cj
@@ -14561,7 +14561,7 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
         murphyTile->movingObject = 0x1C;
         aboveTile->movingObject = 3;
         gCurrentGameState.word_510EE = 0;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, unknownMurphyData);
     }
 //loc_4E0F8:              ; CODE XREF: update?+263j
@@ -14583,7 +14583,7 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
 //        dx = 0x10AE;
         murphyTile->movingObject = 0x24;
         gCurrentGameState.word_510EE = 8;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[43]);
     }
 //loc_4E0FF:              ; CODE XREF: update?+26Aj
@@ -14600,9 +14600,9 @@ uint16_t handleMurphyDirectionUp(uint16_t position)
 uint16_t handleMurphyDirectionLeft(uint16_t position)
 {
     // 01ED:74A9
-    MovingLevelTile *murphyTile = &gCurrentGameState.levelState[position];
-    MovingLevelTile *leftLeftTile = &gCurrentGameState.levelState[position - 2];
-    MovingLevelTile *leftTile = &gCurrentGameState.levelState[position - 1];
+    MovingLevelTile *murphyTile = &gCurrentGameState.gCurrentLevelState[position];
+    MovingLevelTile *leftLeftTile = &gCurrentGameState.gCurrentLevelState[position - 2];
+    MovingLevelTile *leftTile = &gCurrentGameState.gCurrentLevelState[position - 1];
 
 //loc_4E10C:              ; CODE XREF: update?+1BBj update?+2F3j
     gCurrentGameState.word_510CB = 1;
@@ -14616,7 +14616,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         gCurrentGameState.word_510EE = 0;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position - 1, someBinaryData_5110E[2]);
     }
 //loc_4E11E:              ; CODE XREF: update?+289j
@@ -14631,7 +14631,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         gCurrentGameState.word_510EE = 0;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position - 1, someBinaryData_5110E[9]);
     }
 //loc_4E126:              ; CODE XREF: update?+291j
@@ -14657,7 +14657,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         gCurrentGameState.word_510EE = 0;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position - 1, someBinaryData_5110E[9]);
     }
 //loc_4E12D:              ; CODE XREF: update?+298j
@@ -14671,21 +14671,21 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         gCurrentGameState.word_510EE = 0;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position - 1, someBinaryData_5110E[19]);
     }
 //loc_4E135:              ; CODE XREF: update?+2A0j
     else if (leftTile->movingObject == 0 && leftTile->tile == LevelTileTypeExit)
     {
 //loc_4E674:              ; CODE XREF: update?+242j update?+2AAj ...
-        if (gCurrentGameState.numberOfRemainingInfotrons != 0)
+        if (gCurrentGameState.gNumberOfRemainingInfotrons != 0)
         {
             return position;
         }
         playExitSound();
         byte_5A19B = 1;
         gCurrentGameState.byte_510BB = 1;
-        gCurrentGameState.levelFailed = 0;
+        gCurrentGameState.gLevelFailed = 0;
         if (gHasUserCheated == 0
             && gCurrentGameState.byte_510B3 != 0)
         {
@@ -14695,12 +14695,12 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
 
 //loc_4E6A4:              ; CODE XREF: update?+803j update?+80Aj
         changePlayerCurrentLevelState();
-        gCurrentGameState.quitLevelCountdown = 0x40;
+        gCurrentGameState.gQuitLevelCountdown = 0x40;
     //    pop si
 //        dx = 0x0E5E;
         murphyTile->movingObject = 0xD;
         gCurrentGameState.word_510EE = 0;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[6]);
     }
 //loc_4E13D:              ; CODE XREF: update?+2A8j
@@ -14723,7 +14723,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
 //        dx = 0x0FAE;
         murphyTile->movingObject = 0xE;
         gCurrentGameState.word_510EE = 8;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[27]);
     }
 //loc_4E145:              ; CODE XREF: update?+2B0j
@@ -14766,7 +14766,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
         murphyTile->movingObject = 0x19;
         leftLeftTile->movingObject = 3;
         gCurrentGameState.word_510EE = 0;
-        gCurrentGameState.isMurphyGoingThroughPortal = 1;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 1;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[30]);
     }
 //loc_4E161:              ; CODE XREF: update?+2CCj
@@ -14779,7 +14779,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         gCurrentGameState.word_510EE = 0;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position - 1, someBinaryData_5110E[35]);
     }
 //loc_4E169:              ; CODE XREF: update?+2D4j
@@ -14801,7 +14801,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
 //        dx = 0x10BE;
         murphyTile->movingObject = 0x25;
         gCurrentGameState.word_510EE = 8;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[44]);
     }
 //loc_4E171:              ; CODE XREF: update?+2DCj
@@ -14823,7 +14823,7 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
 //        dx = 0x10EE;
         murphyTile->movingObject = 0x28;
         gCurrentGameState.word_510EE = 8;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[47]);
     }
 //loc_4E179:              ; CODE XREF: update?+2E4j
@@ -14839,9 +14839,9 @@ uint16_t handleMurphyDirectionLeft(uint16_t position)
 
 uint16_t handleMurphyDirectionDown(uint16_t position)
 {
-    MovingLevelTile *murphyTile = &gCurrentGameState.levelState[position];
-    MovingLevelTile *belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
-    MovingLevelTile *belowBelowTile = &gCurrentGameState.levelState[position + kLevelWidth * 2];
+    MovingLevelTile *murphyTile = &gCurrentGameState.gCurrentLevelState[position];
+    MovingLevelTile *belowTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth];
+    MovingLevelTile *belowBelowTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth * 2];
 
 //loc_4E186:              ; CODE XREF: update?+1C8j update?+355j
 //    mov ax, leveldata[si+78h]
@@ -14866,7 +14866,7 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         gCurrentGameState.word_510EE = 0;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + kLevelWidth, unknownMurphyData);
     }
 //loc_4E192:              ; CODE XREF: update?+2FDj
@@ -14892,7 +14892,7 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         gCurrentGameState.word_510EE = 0;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + kLevelWidth, unknownMurphyData);
     }
 //loc_4E19A:              ; CODE XREF: update?+305j
@@ -14929,7 +14929,7 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         gCurrentGameState.word_510EE = 0;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + kLevelWidth, unknownMurphyData);
     }
 //loc_4E1A1:              ; CODE XREF: update?+30Cj
@@ -14955,21 +14955,21 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeBase;
         gCurrentGameState.word_510EE = 0;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + kLevelWidth, unknownMurphyData);
     }
 //loc_4E1A9:              ; CODE XREF: update?+314j
     else if (belowTile->tile == LevelTileTypeExit)
     {
 //loc_4E674:              ; CODE XREF: update?+242j update?+2AAj ...
-        if (gCurrentGameState.numberOfRemainingInfotrons != 0)
+        if (gCurrentGameState.gNumberOfRemainingInfotrons != 0)
         {
             return position;
         }
         playExitSound();
         byte_5A19B = 1;
         gCurrentGameState.byte_510BB = 1;
-        gCurrentGameState.levelFailed = 0;
+        gCurrentGameState.gLevelFailed = 0;
         if (gHasUserCheated == 0
             && gCurrentGameState.byte_510B3 != 0)
         {
@@ -14979,12 +14979,12 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
 
 //loc_4E6A4:              ; CODE XREF: update?+803j update?+80Aj
         changePlayerCurrentLevelState();
-        gCurrentGameState.quitLevelCountdown = 0x40;
+        gCurrentGameState.gQuitLevelCountdown = 0x40;
     //    pop si
 //        dx = 0x0E5E;
         murphyTile->movingObject = 0xD;
         gCurrentGameState.word_510EE = 0;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[6]);
     }
 //loc_4E1B1:              ; CODE XREF: update?+31Cj
@@ -15027,7 +15027,7 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
         murphyTile->movingObject = 0x1A;
         belowBelowTile->movingObject = 3;
         gCurrentGameState.word_510EE = 0;
-        gCurrentGameState.isMurphyGoingThroughPortal = 1;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 1;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[31]);
     }
 //loc_4E1CD:              ; CODE XREF: update?+338j
@@ -15050,7 +15050,7 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
         murphyTile->movingObject = 0x1E;
         belowTile->movingObject = 3;
         gCurrentGameState.word_510EE = 0;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, unknownMurphyData);
     }
 //loc_4E1D4:              ; CODE XREF: update?+33Fj
@@ -15072,7 +15072,7 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
 //        dx = 0x10CE;
         murphyTile->movingObject = 0x27;
         gCurrentGameState.word_510EE = 8;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[45]);
     }
 //loc_4E1DB:              ; CODE XREF: update?+346j
@@ -15088,10 +15088,10 @@ uint16_t handleMurphyDirectionDown(uint16_t position)
 
 uint16_t handleMurphyDirectionRight(uint16_t position)
 {
-    MovingLevelTile *murphyTile = &gCurrentGameState.levelState[position];
-    MovingLevelTile *rightTile = &gCurrentGameState.levelState[position + 1];
-    MovingLevelTile *rightRightTile = &gCurrentGameState.levelState[position + 2];
-    MovingLevelTile *belowRightTile = &gCurrentGameState.levelState[position + kLevelWidth + 1];
+    MovingLevelTile *murphyTile = &gCurrentGameState.gCurrentLevelState[position];
+    MovingLevelTile *rightTile = &gCurrentGameState.gCurrentLevelState[position + 1];
+    MovingLevelTile *rightRightTile = &gCurrentGameState.gCurrentLevelState[position + 2];
+    MovingLevelTile *belowRightTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth + 1];
 
 //loc_4E1E8:              ; CODE XREF: update?+1D5j update?+3CDj
     gCurrentGameState.word_510CB = 0;
@@ -15105,7 +15105,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         gCurrentGameState.word_510EE = 0;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + 1, someBinaryData_5110E[5]);
     }
 //loc_4E1FA:              ; CODE XREF: update?+365j
@@ -15119,7 +15119,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         gCurrentGameState.word_510EE = 0;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + 1, someBinaryData_5110E[12]);
     }
 //loc_4E202:              ; CODE XREF: update?+36Dj
@@ -15144,7 +15144,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         gCurrentGameState.word_510EE = 0;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + 1, someBinaryData_5110E[12]);
     }
 //loc_4E209:              ; CODE XREF: update?+374j
@@ -15158,21 +15158,21 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         gCurrentGameState.word_510EE = 0;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + 1, someBinaryData_5110E[22]);
     }
 //loc_4E211:              ; CODE XREF: update?+37Cj
     else if (rightTile->movingObject == 0 && rightTile->tile == LevelTileTypeExit)
     {
 //loc_4E674:              ; CODE XREF: update?+242j update?+2AAj ...
-        if (gCurrentGameState.numberOfRemainingInfotrons != 0)
+        if (gCurrentGameState.gNumberOfRemainingInfotrons != 0)
         {
             return position;
         }
         playExitSound();
         byte_5A19B = 1;
         gCurrentGameState.byte_510BB = 1;
-        gCurrentGameState.levelFailed = 0;
+        gCurrentGameState.gLevelFailed = 0;
         if (gHasUserCheated == 0
             && gCurrentGameState.byte_510B3 != 0)
         {
@@ -15182,10 +15182,10 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
 
 //loc_4E6A4:              ; CODE XREF: update?+803j update?+80Aj
         changePlayerCurrentLevelState();
-        gCurrentGameState.quitLevelCountdown = 0x40;
+        gCurrentGameState.gQuitLevelCountdown = 0x40;
         murphyTile->movingObject = 0xD;
         gCurrentGameState.word_510EE = 0;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[6]);
     }
 //loc_4E219:              ; CODE XREF: update?+384j
@@ -15215,7 +15215,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
 //        dx = 0x0FBE;
         murphyTile->movingObject = 0xF;
         gCurrentGameState.word_510EE = 8;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[28]);
     }
 //loc_4E221:              ; CODE XREF: update?+38Cj
@@ -15259,7 +15259,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
         murphyTile->movingObject = 0x1B;
         rightRightTile->movingObject = 3;
         gCurrentGameState.word_510EE = 0;
-        gCurrentGameState.isMurphyGoingThroughPortal = 1;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 1;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[32]);
     }
 //loc_4E23D:              ; CODE XREF: update?+3A8j
@@ -15272,7 +15272,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
         murphyTile->movingObject = 3;
         murphyTile->tile = LevelTileTypeSpace;
         gCurrentGameState.word_510EE = 0;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + 1, someBinaryData_5110E[38]);
     }
 //loc_4E244:              ; CODE XREF: update?+3AFj
@@ -15294,7 +15294,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
 //        dx = 0x10DE;
         murphyTile->movingObject = 0x26;
         gCurrentGameState.word_510EE = 8;
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[46]);
     }
 //loc_4E24B:              ; CODE XREF: update?+3B6j
@@ -15326,7 +15326,7 @@ uint16_t handleMurphyDirectionRight(uint16_t position)
         gCurrentGameState.word_510EE = 8;
 
 //loc_4E9ED:              ; CODE XREF: update?+A66j
-        gCurrentGameState.isMurphyGoingThroughPortal = 0;
+        gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
 
         return updateMurphyAnimationInfo(position, someBinaryData_5110E[48]);
     }
@@ -15349,7 +15349,7 @@ uint16_t updateMurphyAnimationInfo(uint16_t position, MurphyAnimationDescriptor 
 //    di = 0x0DE0;
 //    memcpy(di, si, 7 * 2); // rep movsw
 
-    gCurrentGameState.currentMurphyAnimation = unknownMurphyData;
+    gCurrentGameState.gCurrentMurphyAnimation = unknownMurphyData;
 
     return updateMurphyAnimation(position);
 }
@@ -15358,16 +15358,16 @@ uint16_t updateMurphyAnimation(uint16_t position)
 {
     // 01ED:7DA4
 
-    MovingLevelTile *murphyTile = &gCurrentGameState.levelState[position];
-    MovingLevelTile *leftLeftTile = &gCurrentGameState.levelState[position - 2];
-    MovingLevelTile *leftTile = &gCurrentGameState.levelState[position - 1];
-    MovingLevelTile *rightTile = &gCurrentGameState.levelState[position + 1];
-    MovingLevelTile *rightRightTile = &gCurrentGameState.levelState[position + 2];
-    MovingLevelTile *belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
-    MovingLevelTile *belowBelowTile = &gCurrentGameState.levelState[position + kLevelWidth * 2];
-    MovingLevelTile *aboveTile = &gCurrentGameState.levelState[position - kLevelWidth];
-    MovingLevelTile *aboveAboveTile = &gCurrentGameState.levelState[position - kLevelWidth * 2];
-    MovingLevelTile *belowRightRightTile = &gCurrentGameState.levelState[position + kLevelWidth + 2];
+    MovingLevelTile *murphyTile = &gCurrentGameState.gCurrentLevelState[position];
+    MovingLevelTile *leftLeftTile = &gCurrentGameState.gCurrentLevelState[position - 2];
+    MovingLevelTile *leftTile = &gCurrentGameState.gCurrentLevelState[position - 1];
+    MovingLevelTile *rightTile = &gCurrentGameState.gCurrentLevelState[position + 1];
+    MovingLevelTile *rightRightTile = &gCurrentGameState.gCurrentLevelState[position + 2];
+    MovingLevelTile *belowTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth];
+    MovingLevelTile *belowBelowTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth * 2];
+    MovingLevelTile *aboveTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth];
+    MovingLevelTile *aboveAboveTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth * 2];
+    MovingLevelTile *belowRightRightTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth + 2];
 
 //loc_4EA07:              ; CODE XREF: update?+21j
     gCurrentGameState.word_510CD = 0;
@@ -15375,25 +15375,25 @@ uint16_t updateMurphyAnimation(uint16_t position)
     if (gCurrentGameState.word_510EE == 0)
     {
         // 01ED:7E08
-        uint8_t currentFrame = gCurrentGameState.currentMurphyAnimation.currentFrame;
-        AnimationFrameCoordinates animationFrameCoordinates = frameCoordinates_5142E[gCurrentGameState.currentMurphyAnimation.animationIndex];
+        uint8_t currentFrame = gCurrentGameState.gCurrentMurphyAnimation.currentFrame;
+        AnimationFrameCoordinates animationFrameCoordinates = frameCoordinates_5142E[gCurrentGameState.gCurrentMurphyAnimation.animationIndex];
         Point frameCoordinates = animationFrameCoordinates.coordinates[currentFrame];
 
 //loc_4EA6B:              ; CODE XREF: update?+B83j
     //    push    si
     //    push(di);
-        gCurrentGameState.murphyPositionX += gCurrentGameState.currentMurphyAnimation.speedX;
-        gCurrentGameState.murphyPositionY += gCurrentGameState.currentMurphyAnimation.speedY;
+        gCurrentGameState.gMurphyPositionX += gCurrentGameState.gCurrentMurphyAnimation.speedX;
+        gCurrentGameState.gMurphyPositionY += gCurrentGameState.gCurrentMurphyAnimation.speedY;
     //    mov di, [si+6155h]
 //        di += gSomeUnknownMurphyData.word_510F0; // destination offset
 //        si = gSomeUnknownMurphyData.word_510F8; // coordinates in MOVING.DAT
 //        ax = si;
         si += 2; // advance a frame (2 bytes = 1 word in the list of frames)
 //        gSomeUnknownMurphyData.word_510F8 = si;
-        gCurrentGameState.currentMurphyAnimation.currentFrame++;
+        gCurrentGameState.gCurrentMurphyAnimation.currentFrame++;
         si = ax;
-        bx = gCurrentGameState.currentMurphyAnimation.width * 8;
-        dx = gCurrentGameState.currentMurphyAnimation.height;
+        bx = gCurrentGameState.gCurrentMurphyAnimation.width * 8;
+        dx = gCurrentGameState.gCurrentMurphyAnimation.height;
     //    push    ds
     //    mov ax, es
     //    mov ds, ax
@@ -15403,49 +15403,49 @@ uint16_t updateMurphyAnimation(uint16_t position)
         uint16_t dstX = (position % kLevelWidth) * kTileSize;
         uint16_t dstY = (position / kLevelWidth) * kTileSize;
 
-        int16_t offsetX = (gCurrentGameState.currentMurphyAnimation.word_510F0 % 122) * 8;
-        int16_t offsetY = (gCurrentGameState.currentMurphyAnimation.word_510F0 / 122);
+        int16_t offsetX = (gCurrentGameState.gCurrentMurphyAnimation.word_510F0 % 122) * 8;
+        int16_t offsetY = (gCurrentGameState.gCurrentMurphyAnimation.word_510F0 / 122);
 
 //loc_4EA9F:              ; CODE XREF: update?+C28j
         drawMovingSpriteFrameInLevel(frameCoordinates.x,
                                      frameCoordinates.y,
-                                     gCurrentGameState.currentMurphyAnimation.width * 8,
-                                     gCurrentGameState.currentMurphyAnimation.height,
+                                     gCurrentGameState.gCurrentMurphyAnimation.width * 8,
+                                     gCurrentGameState.gCurrentMurphyAnimation.height,
                                      dstX + offsetX,
                                      dstY + offsetY);
 
-        if (gCurrentGameState.isMurphyGoingThroughPortal != 0)
+        if (gCurrentGameState.gIsMurphyGoingThroughPortal != 0)
         {
             // This +1 is because the "opposite" portal animation is always the next one
-            AnimationFrameCoordinates animationFrameCoordinates = frameCoordinates_5142E[gCurrentGameState.currentMurphyAnimation.animationIndex + 1];
+            AnimationFrameCoordinates animationFrameCoordinates = frameCoordinates_5142E[gCurrentGameState.gCurrentMurphyAnimation.animationIndex + 1];
             Point frameCoordinates = animationFrameCoordinates.coordinates[currentFrame];
 
-            int16_t offsetX = (gCurrentGameState.currentMurphyAnimation.word_510F2 % 122) * 8;
-            int16_t offsetY = (gCurrentGameState.currentMurphyAnimation.word_510F2 / 122);
+            int16_t offsetX = (gCurrentGameState.gCurrentMurphyAnimation.word_510F2 % 122) * 8;
+            int16_t offsetY = (gCurrentGameState.gCurrentMurphyAnimation.word_510F2 / 122);
 
             drawMovingSpriteFrameInLevel(frameCoordinates.x,
                                          frameCoordinates.y,
-                                         gCurrentGameState.currentMurphyAnimation.width * 8,
-                                         gCurrentGameState.currentMurphyAnimation.height,
+                                         gCurrentGameState.gCurrentMurphyAnimation.width * 8,
+                                         gCurrentGameState.gCurrentMurphyAnimation.height,
                                          dstX + offsetX,
                                          dstY + offsetY);
         }
         else
         {
 //loc_4EAFA:              ; CODE XREF: update?+C32j
-            gCurrentGameState.currentMurphyAnimation.word_510F0 += gCurrentGameState.currentMurphyAnimation.word_510F2;
+            gCurrentGameState.gCurrentMurphyAnimation.word_510F0 += gCurrentGameState.gCurrentMurphyAnimation.word_510F2;
         }
 
 //loc_4EB04:              ; CODE XREF: update?+C68j
-        if (gCurrentGameState.currentMurphyAnimation.currentFrame < animationFrameCoordinates.numberOfCoordinates)
+        if (gCurrentGameState.gCurrentMurphyAnimation.currentFrame < animationFrameCoordinates.numberOfCoordinates)
         {
               return position;
         }
 
 //loc_4EB10:              ; CODE XREF: update?+C7Bj
         // 01ED:7EAD
-        gCurrentGameState.murphyTileX += gCurrentGameState.currentMurphyAnimation.speedX / 2;
-        gCurrentGameState.murphyTileY += gCurrentGameState.currentMurphyAnimation.speedY / 2;
+        gCurrentGameState.gMurphyTileX += gCurrentGameState.gCurrentMurphyAnimation.speedX / 2;
+        gCurrentGameState.gMurphyTileY += gCurrentGameState.gCurrentMurphyAnimation.speedY / 2;
         uint8_t previousMurphyMovingObject = murphyTile->movingObject;
         murphyTile->movingObject = 0;
         if (previousMurphyMovingObject == 1)
@@ -15532,9 +15532,9 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 9)
         {
 //loc_4EC85:              ; CODE XREF: update?+CE3j
-            if (gCurrentGameState.numberOfRemainingInfotrons > 0)
+            if (gCurrentGameState.gNumberOfRemainingInfotrons > 0)
             {
-                gCurrentGameState.numberOfRemainingInfotrons--;
+                gCurrentGameState.gNumberOfRemainingInfotrons--;
             }
 
 //loc_4EC90:              ; CODE XREF: update?+DFAj
@@ -15549,9 +15549,9 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 10)
         {
 //loc_4ECA3:              ; CODE XREF: update?+CEBj
-            if (gCurrentGameState.numberOfRemainingInfotrons > 0)
+            if (gCurrentGameState.gNumberOfRemainingInfotrons > 0)
             {
-                gCurrentGameState.numberOfRemainingInfotrons--;
+                gCurrentGameState.gNumberOfRemainingInfotrons--;
             }
 
 //loc_4ECAE:              ; CODE XREF: update?+E18j
@@ -15566,9 +15566,9 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 11)
         {
 //loc_4ECC1:              ; CODE XREF: update?+CF3j
-            if (gCurrentGameState.numberOfRemainingInfotrons > 0)
+            if (gCurrentGameState.gNumberOfRemainingInfotrons > 0)
             {
-                gCurrentGameState.numberOfRemainingInfotrons--;
+                gCurrentGameState.gNumberOfRemainingInfotrons--;
             }
 
 //loc_4ECCC:              ; CODE XREF: update?+E36j
@@ -15590,9 +15590,9 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 12)
         {
 //loc_4EF45:              ; CODE XREF: update?+CFBj
-            if (gCurrentGameState.numberOfRemainingInfotrons > 0)
+            if (gCurrentGameState.gNumberOfRemainingInfotrons > 0)
             {
-                gCurrentGameState.numberOfRemainingInfotrons--;
+                gCurrentGameState.gNumberOfRemainingInfotrons--;
             }
 
 //loc_4EF50:              ; CODE XREF: update?+10BAj
@@ -15692,9 +15692,9 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 20)
         {
 //loc_4EF63:              ; CODE XREF: update?+D33j
-            if (gCurrentGameState.numberOfRemainingInfotrons > 0)
+            if (gCurrentGameState.gNumberOfRemainingInfotrons > 0)
             {
-                gCurrentGameState.numberOfRemainingInfotrons--;
+                gCurrentGameState.gNumberOfRemainingInfotrons--;
             }
 
 //loc_4EF6E:              ; CODE XREF: update?+10D8j
@@ -15713,9 +15713,9 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 21)
         {
 //loc_4EF7F:              ; CODE XREF: update?+D3Bj
-            if (gCurrentGameState.numberOfRemainingInfotrons > 0)
+            if (gCurrentGameState.gNumberOfRemainingInfotrons > 0)
             {
-                gCurrentGameState.numberOfRemainingInfotrons--;
+                gCurrentGameState.gNumberOfRemainingInfotrons--;
             }
 
 //loc_4EF8A:              ; CODE XREF: update?+10F4j
@@ -15734,9 +15734,9 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 23)
         {
 //loc_4EFB7:              ; CODE XREF: update?+D43j
-            if (gCurrentGameState.numberOfRemainingInfotrons > 0)
+            if (gCurrentGameState.gNumberOfRemainingInfotrons > 0)
             {
-                gCurrentGameState.numberOfRemainingInfotrons--;
+                gCurrentGameState.gNumberOfRemainingInfotrons--;
             }
 
 //loc_4EFC2:              ; CODE XREF: update?+112Cj
@@ -15755,9 +15755,9 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 22)
         {
 //loc_4EF9B:              ; CODE XREF: update?+D4Bj
-            if (gCurrentGameState.numberOfRemainingInfotrons > 0)
+            if (gCurrentGameState.gNumberOfRemainingInfotrons > 0)
             {
-                gCurrentGameState.numberOfRemainingInfotrons--;
+                gCurrentGameState.gNumberOfRemainingInfotrons--;
             }
 
 //loc_4EFA6:              ; CODE XREF: update?+1110j
@@ -15776,7 +15776,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else if (previousMurphyMovingObject == 13)
         {
 //loc_4ED42:              ; CODE XREF: update?+D53j
-            gCurrentGameState.shouldExitLevel = 1;
+            gCurrentGameState.gShouldExitLevel = 1;
             return position;
         }
 //loc_4EBE6:              ; CODE XREF: update?+D51j
@@ -15792,7 +15792,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
 //loc_4EFE0:              ; CODE XREF: update?+1148j
             aboveAboveTile->movingObject = 0;
             aboveAboveTile->tile = LevelTileTypeMurphy;
-            gCurrentGameState.isMurphyGoingThroughPortal = 0;
+            gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
             position -= kLevelWidth * 2;
             if (aboveTile->movingObject == 1)
             {
@@ -15814,7 +15814,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
 //loc_4F00E:              ; CODE XREF: update?+1176j
             leftLeftTile->movingObject = 0;
             leftLeftTile->tile = LevelTileTypeMurphy;
-            gCurrentGameState.isMurphyGoingThroughPortal = 0;
+            gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
             position -= 2;
             if (leftTile->movingObject == 1)
             {
@@ -15836,7 +15836,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
 //loc_4F03B:              ; CODE XREF: update?+11A3j
             belowBelowTile->movingObject = 0;
             belowBelowTile->tile = LevelTileTypeMurphy;
-            gCurrentGameState.isMurphyGoingThroughPortal = 0;
+            gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
             position += kLevelWidth * 2;
             if (belowTile->movingObject == 1)
             {
@@ -15858,7 +15858,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
 //loc_4F069:              ; CODE XREF: update?+11D1j
             rightRightTile->movingObject = 0;
             rightRightTile->tile = LevelTileTypeMurphy;
-            gCurrentGameState.isMurphyGoingThroughPortal = 0;
+            gCurrentGameState.gIsMurphyGoingThroughPortal = 0;
             position += 2;
             if (rightTile->movingObject == 1)
             {
@@ -16112,8 +16112,8 @@ uint16_t updateMurphyAnimation(uint16_t position)
 //loc_4F1EA:              ; CODE XREF: update?+DEBj
             murphyTile->movingObject = 0;
             murphyTile->tile = LevelTileTypeMurphy;
-            gCurrentGameState.plantedRedDiskCountdown = 2;
-            gCurrentGameState.numberOfRemainingRedDisks--;
+            gCurrentGameState.gPlantedRedDiskCountdown = 2;
+            gCurrentGameState.gNumberOfRemainingRedDisks--;
             drawNumberOfRemainingRedDisks();
             playPushSound();
             return position;
@@ -16121,7 +16121,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
         else
         {
 //loc_4EC7E:              ; CODE XREF: update?+DE9j
-            gCurrentGameState.shouldExitLevel = 1;
+            gCurrentGameState.gShouldExitLevel = 1;
             return position;
         }
     }
@@ -16363,7 +16363,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
 
             // si = word_51790;
             drawMovingFrame(288, 132, position);
-            gCurrentGameState.plantedRedDiskCountdown = 1;
+            gCurrentGameState.gPlantedRedDiskCountdown = 1;
 
             return position;
         }
@@ -16374,7 +16374,7 @@ uint16_t updateMurphyAnimation(uint16_t position)
 
         // si = kMurphyStillSpriteCoordinates;
         drawMovingFrame(304, 132, position);
-        gCurrentGameState.plantedRedDiskCountdown = 0;
+        gCurrentGameState.gPlantedRedDiskCountdown = 0;
 
         return position;
     }
@@ -16393,7 +16393,7 @@ void detonateYellowDisks()
     for (int i = 0; i < kLevelSize; ++i)
     {
 //loc_4E7C9:              ; CODE XREF: update?+94Aj
-        MovingLevelTile *tile = &gCurrentGameState.levelState[i];
+        MovingLevelTile *tile = &gCurrentGameState.gCurrentLevelState[i];
         if (tile->movingObject == 0 && tile->tile == LevelTileTypeYellowDisk)
         {
             detonateBigExplosion(i);
@@ -16403,7 +16403,7 @@ void detonateYellowDisks()
 
 void handleZonkPushedByMurphy(uint16_t position) // sub_4ED29   proc near       ; CODE XREF: update?+E6Fp update?+E92p
 {
-    MovingLevelTile *belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
+    MovingLevelTile *belowTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth];
 
     if (belowTile->tile == LevelTileTypeSnikSnak
         || belowTile->tile == 0xBB)
@@ -16420,7 +16420,7 @@ uint8_t checkMurphyMovementToPosition(uint16_t position, UserInput userInput) //
     // - si: position
     // - ax: value of that position (movingObject + tile)
     // - bl: user input to process
-    MovingLevelTile *tile = &gCurrentGameState.levelState[position];
+    MovingLevelTile *tile = &gCurrentGameState.gCurrentLevelState[position];
 
     if ((tile->movingObject == 0xFF && tile->tile == 0xFF)
         || (tile->movingObject == 0xAA && tile->tile == 0xAA)
@@ -16513,7 +16513,7 @@ void updateSpecialPort(uint16_t position) // sub_4F2AF   proc near       ; CODE 
                    // ; update?+1197p ...
 {
     // 01ED:864C
-    if (gCurrentGameState.numberOfSpecialPorts == 0)
+    if (gCurrentGameState.gNumberOfSpecialPorts == 0)
     {
         return;
     }
@@ -16521,10 +16521,10 @@ void updateSpecialPort(uint16_t position) // sub_4F2AF   proc near       ; CODE 
     uint8_t isPortInPosition = 0;
     uint8_t portIndex = 0;
 
-    for (uint8_t i = 0; i < gCurrentGameState.numberOfSpecialPorts; ++i)
+    for (uint8_t i = 0; i < gCurrentGameState.gNumberOfSpecialPorts; ++i)
     {
 //loc_4F2BD:              ; CODE XREF: updateSpecialPort+19j
-        SpecialPortInfo portInfo = gCurrentGameState.level.specialPortsInfo[i];
+        SpecialPortInfo portInfo = gCurrentGameState.gCurrentLevel.specialPortsInfo[i];
         // For _reasons_ the port position has its bytes inverted (first high, then low), so we must reverse them
         uint16_t portPosition = SDL_Swap16(portInfo.position);
         portPosition /= 2; // We must divide by 2 because the level format works with words
@@ -16543,10 +16543,10 @@ void updateSpecialPort(uint16_t position) // sub_4F2AF   proc near       ; CODE 
     }
 
 //loc_4F2CB:              ; CODE XREF: updateSpecialPort+14j
-    SpecialPortInfo portInfo = gCurrentGameState.level.specialPortsInfo[portIndex];
-    gCurrentGameState.isGravityEnabled = portInfo.gravity;
-    gCurrentGameState.areZonksFrozen = portInfo.freezeZonks;
-    gCurrentGameState.areEnemiesFrozen = portInfo.freezeEnemies;
+    SpecialPortInfo portInfo = gCurrentGameState.gCurrentLevel.specialPortsInfo[portIndex];
+    gCurrentGameState.gIsGravityEnabled = portInfo.gravity;
+    gCurrentGameState.gAreZonksFrozen = portInfo.freezeZonks;
+    gCurrentGameState.gAreEnemiesFrozen = portInfo.freezeEnemies;
     // TODO: I still don't know where word_510AC is read :fearful:
     // I tried with a breakpoint on memory read and it was never accessed :shrug:
     gCurrentGameState.word_510AC = gCurrentGameState.word_510AC ^ gRandomGeneratorSeed;
@@ -16565,12 +16565,12 @@ void updateSpecialPort(uint16_t position) // sub_4F2AF   proc near       ; CODE 
 void updateSnikSnakTiles(uint16_t position) // movefun4  proc near       ; DATA XREF: data:162Co
 {
     // 01ED:868D
-    if (gCurrentGameState.areEnemiesFrozen == 1)
+    if (gCurrentGameState.gAreEnemiesFrozen == 1)
     {
         return;
     }
 
-    MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
+    MovingLevelTile *currentTile = &gCurrentGameState.gCurrentLevelState[position];
 
     if (currentTile->tile != LevelTileTypeSnikSnak)
     {
@@ -16591,11 +16591,11 @@ void updateSnikSnakTiles(uint16_t position) // movefun4  proc near       ; DATA 
 void updateSnikSnakTurnLeft(uint16_t position, uint8_t frame) // sub_4F312   proc near       ; DATA XREF: data:movingFunctions3o
 {
     // 01ED:86AF
-    MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
-    MovingLevelTile *aboveTile = &gCurrentGameState.levelState[position - kLevelWidth];
-    MovingLevelTile *leftTile = &gCurrentGameState.levelState[position - 1];
-    MovingLevelTile *belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
-    MovingLevelTile *rightTile = &gCurrentGameState.levelState[position + 1];
+    MovingLevelTile *currentTile = &gCurrentGameState.gCurrentLevelState[position];
+    MovingLevelTile *aboveTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth];
+    MovingLevelTile *leftTile = &gCurrentGameState.gCurrentLevelState[position - 1];
+    MovingLevelTile *belowTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth];
+    MovingLevelTile *rightTile = &gCurrentGameState.gCurrentLevelState[position + 1];
 
     uint16_t value = gCurrentGameState.word_5195D & 3;
 
@@ -16709,11 +16709,11 @@ void updateSnikSnakTurnLeft(uint16_t position, uint8_t frame) // sub_4F312   pro
 void updateSnikSnakTurnRight(uint16_t position, uint8_t frame) // sub_4F40D   proc near       ; DATA XREF: data:155Ao
 {
     // 01ED:87AA
-    MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
-    MovingLevelTile *aboveTile = &gCurrentGameState.levelState[position - kLevelWidth];
-    MovingLevelTile *rightTile = &gCurrentGameState.levelState[position + 1];
-    MovingLevelTile *leftTile = &gCurrentGameState.levelState[position - 1];
-    MovingLevelTile *belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
+    MovingLevelTile *currentTile = &gCurrentGameState.gCurrentLevelState[position];
+    MovingLevelTile *aboveTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth];
+    MovingLevelTile *rightTile = &gCurrentGameState.gCurrentLevelState[position + 1];
+    MovingLevelTile *leftTile = &gCurrentGameState.gCurrentLevelState[position - 1];
+    MovingLevelTile *belowTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth];
 
     uint16_t value = gCurrentGameState.word_5195D & 3;
 
@@ -16827,11 +16827,11 @@ void updateSnikSnakTurnRight(uint16_t position, uint8_t frame) // sub_4F40D   pr
 void updateSnikSnakMovementUp(uint16_t position, uint8_t frame) // sub_4F50A    proc near       ; DATA XREF: data:156Ao
 {
     // 01ED:88A7
-    MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
-    MovingLevelTile *belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
-    MovingLevelTile *leftTile = &gCurrentGameState.levelState[position - 1];
-    MovingLevelTile *aboveTile = &gCurrentGameState.levelState[position - kLevelWidth];
-    MovingLevelTile *rightTile = &gCurrentGameState.levelState[position + 1];
+    MovingLevelTile *currentTile = &gCurrentGameState.gCurrentLevelState[position];
+    MovingLevelTile *belowTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth];
+    MovingLevelTile *leftTile = &gCurrentGameState.gCurrentLevelState[position - 1];
+    MovingLevelTile *aboveTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth];
+    MovingLevelTile *rightTile = &gCurrentGameState.gCurrentLevelState[position + 1];
 
     uint16_t finalPosition = position + kLevelWidth;
     Point frameCoordinates = frameCoordinates_51654[frame];
@@ -16922,11 +16922,11 @@ void updateSnikSnakMovementUp(uint16_t position, uint8_t frame) // sub_4F50A    
 void updateSnikSnakMovementLeft(uint16_t position, uint8_t frame) // sub_4F5B5   proc near       ; DATA XREF: data:157Ao
 {
     // 01ED:8952
-    MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
-    MovingLevelTile *belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
-    MovingLevelTile *leftTile = &gCurrentGameState.levelState[position - 1];
-    MovingLevelTile *aboveTile = &gCurrentGameState.levelState[position - kLevelWidth];
-    MovingLevelTile *rightTile = &gCurrentGameState.levelState[position + 1];
+    MovingLevelTile *currentTile = &gCurrentGameState.gCurrentLevelState[position];
+    MovingLevelTile *belowTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth];
+    MovingLevelTile *leftTile = &gCurrentGameState.gCurrentLevelState[position - 1];
+    MovingLevelTile *aboveTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth];
+    MovingLevelTile *rightTile = &gCurrentGameState.gCurrentLevelState[position + 1];
 
     Point frameCoordinates = frameCoordinates_51654[frame];
 
@@ -17015,11 +17015,11 @@ void updateSnikSnakMovementLeft(uint16_t position, uint8_t frame) // sub_4F5B5  
 void updateSnikSnakMovementDown(uint16_t position, uint8_t frame) // sub_4F65B   proc near       ; DATA XREF: data:158Ao
 {
     // 01ED:89F8
-    MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
-    MovingLevelTile *belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
-    MovingLevelTile *leftTile = &gCurrentGameState.levelState[position - 1];
-    MovingLevelTile *aboveTile = &gCurrentGameState.levelState[position - kLevelWidth];
-    MovingLevelTile *rightTile = &gCurrentGameState.levelState[position + 1];
+    MovingLevelTile *currentTile = &gCurrentGameState.gCurrentLevelState[position];
+    MovingLevelTile *belowTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth];
+    MovingLevelTile *leftTile = &gCurrentGameState.gCurrentLevelState[position - 1];
+    MovingLevelTile *aboveTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth];
+    MovingLevelTile *rightTile = &gCurrentGameState.gCurrentLevelState[position + 1];
 
     uint16_t finalPosition = position - kLevelWidth;
     Point frameCoordinates = frameCoordinates_51654[frame];
@@ -17113,11 +17113,11 @@ void updateSnikSnakMovementDown(uint16_t position, uint8_t frame) // sub_4F65B  
 void updateSnikSnakMovementRight(uint16_t position, uint8_t frame) // sub_4F708   proc near       ; DATA XREF: data:159Ao
 {
     // 01ED:8AA5
-    MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
-    MovingLevelTile *belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
-    MovingLevelTile *leftTile = &gCurrentGameState.levelState[position - 1];
-    MovingLevelTile *aboveTile = &gCurrentGameState.levelState[position - kLevelWidth];
-    MovingLevelTile *rightTile = &gCurrentGameState.levelState[position + 1];
+    MovingLevelTile *currentTile = &gCurrentGameState.gCurrentLevelState[position];
+    MovingLevelTile *belowTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth];
+    MovingLevelTile *leftTile = &gCurrentGameState.gCurrentLevelState[position - 1];
+    MovingLevelTile *aboveTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth];
+    MovingLevelTile *rightTile = &gCurrentGameState.gCurrentLevelState[position + 1];
 
     Point frameCoordinates = frameCoordinates_51654[frame];
 
@@ -17207,11 +17207,11 @@ void updateSnikSnakMovementRight(uint16_t position, uint8_t frame) // sub_4F708 
 void updateElectronTiles(uint16_t position) // movefun6  proc near       ; DATA XREF: data:163Ao
 {
     // 01ED:8B4C
-    if (gCurrentGameState.areEnemiesFrozen == 1)
+    if (gCurrentGameState.gAreEnemiesFrozen == 1)
     {
         return;
     }
-    MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
+    MovingLevelTile *currentTile = &gCurrentGameState.gCurrentLevelState[position];
 
     if (currentTile->tile != LevelTileTypeElectron)
     {
@@ -17232,11 +17232,11 @@ void updateElectronTiles(uint16_t position) // movefun6  proc near       ; DATA 
 void updateElectronTurnLeft(uint16_t position, uint8_t frame) // sub_4F7D1   proc near       ; DATA XREF: data:movingFunctions2o
 {
     // 01ED:8B6E
-    MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
-    MovingLevelTile *aboveTile = &gCurrentGameState.levelState[position - kLevelWidth];
-    MovingLevelTile *leftTile = &gCurrentGameState.levelState[position - 1];
-    MovingLevelTile *belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
-    MovingLevelTile *rightTile = &gCurrentGameState.levelState[position + 1];
+    MovingLevelTile *currentTile = &gCurrentGameState.gCurrentLevelState[position];
+    MovingLevelTile *aboveTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth];
+    MovingLevelTile *leftTile = &gCurrentGameState.gCurrentLevelState[position - 1];
+    MovingLevelTile *belowTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth];
+    MovingLevelTile *rightTile = &gCurrentGameState.gCurrentLevelState[position + 1];
 
     uint16_t value = gCurrentGameState.word_5195D & 3;
 
@@ -17338,11 +17338,11 @@ void updateElectronTurnLeft(uint16_t position, uint8_t frame) // sub_4F7D1   pro
 void updateElectronTurnRight(uint16_t position, uint8_t frame) // sub_4F8A5   proc near       ; DATA XREF: data:15BAo
 {
     // 01ED:8C42
-    MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
-    MovingLevelTile *aboveTile = &gCurrentGameState.levelState[position - kLevelWidth];
-    MovingLevelTile *leftTile = &gCurrentGameState.levelState[position - 1];
-    MovingLevelTile *belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
-    MovingLevelTile *rightTile = &gCurrentGameState.levelState[position + 1];
+    MovingLevelTile *currentTile = &gCurrentGameState.gCurrentLevelState[position];
+    MovingLevelTile *aboveTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth];
+    MovingLevelTile *leftTile = &gCurrentGameState.gCurrentLevelState[position - 1];
+    MovingLevelTile *belowTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth];
+    MovingLevelTile *rightTile = &gCurrentGameState.gCurrentLevelState[position + 1];
 
     uint16_t value = gCurrentGameState.word_5195D & 3;
 
@@ -17445,11 +17445,11 @@ void updateElectronTurnRight(uint16_t position, uint8_t frame) // sub_4F8A5   pr
 void updateElectronMovementUp(uint16_t position, uint8_t frame) // sub_4F97B   proc near       ; DATA XREF: data:15CAo
 {
     // 01ED:8D18
-    MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
-    MovingLevelTile *belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
-    MovingLevelTile *leftTile = &gCurrentGameState.levelState[position - 1];
-    MovingLevelTile *aboveTile = &gCurrentGameState.levelState[position - kLevelWidth];
-    MovingLevelTile *rightTile = &gCurrentGameState.levelState[position + 1];
+    MovingLevelTile *currentTile = &gCurrentGameState.gCurrentLevelState[position];
+    MovingLevelTile *belowTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth];
+    MovingLevelTile *leftTile = &gCurrentGameState.gCurrentLevelState[position - 1];
+    MovingLevelTile *aboveTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth];
+    MovingLevelTile *rightTile = &gCurrentGameState.gCurrentLevelState[position + 1];
 
     uint16_t finalPosition = position + kLevelWidth;
     Point frameCoordinates = frameCoordinates_516B4[frame];
@@ -17541,11 +17541,11 @@ void updateElectronMovementUp(uint16_t position, uint8_t frame) // sub_4F97B   p
 void updateElectronMovementDown(uint16_t position, uint8_t frame) // sub_4FA26   proc near       ; DATA XREF: data:15DAo
 {
     // 01ED:8DC3
-    MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
-    MovingLevelTile *belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
-    MovingLevelTile *leftTile = &gCurrentGameState.levelState[position - 1];
-    MovingLevelTile *aboveTile = &gCurrentGameState.levelState[position - kLevelWidth];
-    MovingLevelTile *rightTile = &gCurrentGameState.levelState[position + 1];
+    MovingLevelTile *currentTile = &gCurrentGameState.gCurrentLevelState[position];
+    MovingLevelTile *belowTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth];
+    MovingLevelTile *leftTile = &gCurrentGameState.gCurrentLevelState[position - 1];
+    MovingLevelTile *aboveTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth];
+    MovingLevelTile *rightTile = &gCurrentGameState.gCurrentLevelState[position + 1];
 
     Point frameCoordinates = frameCoordinates_516B4[frame];
 
@@ -17635,11 +17635,11 @@ void updateElectronMovementDown(uint16_t position, uint8_t frame) // sub_4FA26  
 void updateElectronMovementRight(uint16_t position, uint8_t frame) // sub_4FACC   proc near       ; DATA XREF: data:15EAo
 {
     // 01ED:8E69
-    MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
-    MovingLevelTile *belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
-    MovingLevelTile *leftTile = &gCurrentGameState.levelState[position - 1];
-    MovingLevelTile *aboveTile = &gCurrentGameState.levelState[position - kLevelWidth];
-    MovingLevelTile *rightTile = &gCurrentGameState.levelState[position + 1];
+    MovingLevelTile *currentTile = &gCurrentGameState.gCurrentLevelState[position];
+    MovingLevelTile *belowTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth];
+    MovingLevelTile *leftTile = &gCurrentGameState.gCurrentLevelState[position - 1];
+    MovingLevelTile *aboveTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth];
+    MovingLevelTile *rightTile = &gCurrentGameState.gCurrentLevelState[position + 1];
 
     uint16_t finalPosition = position - kLevelWidth;
     Point frameCoordinates = frameCoordinates_516B4[frame];
@@ -17734,11 +17734,11 @@ void updateElectronMovementRight(uint16_t position, uint8_t frame) // sub_4FACC 
 void updateElectronMovementLeft(uint16_t position, uint8_t frame) // sub_4FB79   proc near       ; DATA XREF: data:15FAo
 {
     // 01ED:8F16
-    MovingLevelTile *currentTile = &gCurrentGameState.levelState[position];
-    MovingLevelTile *belowTile = &gCurrentGameState.levelState[position + kLevelWidth];
-    MovingLevelTile *leftTile = &gCurrentGameState.levelState[position - 1];
-    MovingLevelTile *aboveTile = &gCurrentGameState.levelState[position - kLevelWidth];
-    MovingLevelTile *rightTile = &gCurrentGameState.levelState[position + 1];
+    MovingLevelTile *currentTile = &gCurrentGameState.gCurrentLevelState[position];
+    MovingLevelTile *belowTile = &gCurrentGameState.gCurrentLevelState[position + kLevelWidth];
+    MovingLevelTile *leftTile = &gCurrentGameState.gCurrentLevelState[position - 1];
+    MovingLevelTile *aboveTile = &gCurrentGameState.gCurrentLevelState[position - kLevelWidth];
+    MovingLevelTile *rightTile = &gCurrentGameState.gCurrentLevelState[position + 1];
 
     Point frameCoordinates = frameCoordinates_516B4[frame];
 
@@ -17877,17 +17877,17 @@ void drawNumberOfRemainingInfotrons() // sub_4FD21   proc near       ; CODE XREF
         return;
     }
 
-    if (gCurrentGameState.numberOfRemainingInfotrons < 1)
+    if (gCurrentGameState.gNumberOfRemainingInfotrons < 1)
     {
-        gCurrentGameState.numberOfRemainingInfotrons = 0; // WTF? Can this be negative? In theory not...
+        gCurrentGameState.gNumberOfRemainingInfotrons = 0; // WTF? Can this be negative? In theory not...
     }
 
 //loc_4FD2E:              ; CODE XREF: drawNumberOfRemainingInfotrons+6j
     char number[4] = "000";
-    convertNumberTo3DigitStringWithPadding0(gCurrentGameState.numberOfRemainingInfotrons, number);
+    convertNumberTo3DigitStringWithPadding0(gCurrentGameState.gNumberOfRemainingInfotrons, number);
 
 //loc_4FD46:              ; CODE XREF: drawNumberOfRemainingInfotrons+20j
-    uint8_t color = (gCurrentGameState.numberOfRemainingInfotrons == 0
+    uint8_t color = (gCurrentGameState.gNumberOfRemainingInfotrons == 0
                      ? 6
                      : 8);
 
@@ -17940,14 +17940,14 @@ void decreaseRemainingRedDisksIfNeeded(uint16_t position) // sub_4FDB5   proc ne
                     // ; update?+1266p ...
 {
     if (word_59B73 == 0
-        && gCurrentGameState.plantedRedDiskCountdown != 0
-        && gCurrentGameState.plantedRedDiskPosition == position)
+        && gCurrentGameState.gPlantedRedDiskCountdown != 0
+        && gCurrentGameState.gPlantedRedDiskPosition == position)
     {
         return;
     }
 
 //loc_4FDCA:              ; CODE XREF: decreaseRemainingRedDisksIfNeeded+5j decreaseRemainingRedDisksIfNeeded+Cj ...
-    gCurrentGameState.numberOfRemainingRedDisks++;
+    gCurrentGameState.gNumberOfRemainingRedDisks++;
     drawNumberOfRemainingRedDisks();
 }
 
@@ -17956,11 +17956,11 @@ void drawNumberOfRemainingRedDisks() // sub_4FDCE   proc near       ; CODE XREF:
 {
 //loc_4FDD6:              ; CODE XREF: drawNumberOfRemainingRedDisks+5j
     char numberString[4] = "000";
-    convertNumberTo3DigitStringWithPadding0(gCurrentGameState.numberOfRemainingRedDisks, numberString);
+    convertNumberTo3DigitStringWithPadding0(gCurrentGameState.gNumberOfRemainingRedDisks, numberString);
 //    mov di, 6D2h
 //    mov si, 87CAh
     uint8_t color = 0;
-    if (gCurrentGameState.numberOfRemainingRedDisks != 0)
+    if (gCurrentGameState.gNumberOfRemainingRedDisks != 0)
     {
 //loc_4FDF1:              ; CODE XREF: drawNumberOfRemainingRedDisks+1Dj
         color = 6;
@@ -17986,27 +17986,27 @@ void drawGameTime() // sub_4FDFD   proc near       ; CODE XREF: runLevel+29p
     // Only the 2 last digits will be printed, hence why it will be used with &number[1] everywhere
     char number[4] = "000";
 
-    if ((gLastDrawnMinutesAndSeconds & 0xFF) != gCurrentGameState.gameSeconds) // byte
+    if ((gLastDrawnMinutesAndSeconds & 0xFF) != gCurrentGameState.gGameSeconds) // byte
     {
-        gLastDrawnMinutesAndSeconds = (gLastDrawnMinutesAndSeconds & 0xFF00) + gCurrentGameState.gameSeconds; // byte
-        convertNumberTo3DigitStringWithPadding0(gCurrentGameState.gameSeconds, number);
+        gLastDrawnMinutesAndSeconds = (gLastDrawnMinutesAndSeconds & 0xFF00) + gCurrentGameState.gGameSeconds; // byte
+        convertNumberTo3DigitStringWithPadding0(gCurrentGameState.gGameSeconds, number);
 //loc_4FE2C:              ; CODE XREF: drawGameTime+2Aj
         drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 208, 3, 6, &number[1]); // seconds
     }
 
 //loc_4FE36:              ; CODE XREF: drawGameTime+12j
-    if ((gLastDrawnMinutesAndSeconds >> 8) != gCurrentGameState.gameMinutes) // byte
+    if ((gLastDrawnMinutesAndSeconds >> 8) != gCurrentGameState.gGameMinutes) // byte
     {
-        gLastDrawnMinutesAndSeconds = (gCurrentGameState.gameMinutes << 8) + (gLastDrawnMinutesAndSeconds & 0x00FF); // byte
-        convertNumberTo3DigitStringWithPadding0(gCurrentGameState.gameMinutes, number);
+        gLastDrawnMinutesAndSeconds = (gCurrentGameState.gGameMinutes << 8) + (gLastDrawnMinutesAndSeconds & 0x00FF); // byte
+        convertNumberTo3DigitStringWithPadding0(gCurrentGameState.gGameMinutes, number);
         drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 184, 3, 6, &number[1]); // minutes
     }
 
 //loc_4FE5F:              ; CODE XREF: drawGameTime+40j
-    if (gLastDrawnHours != gCurrentGameState.gameHours)
+    if (gLastDrawnHours != gCurrentGameState.gGameHours)
     {
-        gLastDrawnHours = gCurrentGameState.gameHours;
-        convertNumberTo3DigitStringWithPadding0(gCurrentGameState.gameHours, number);
+        gLastDrawnHours = gCurrentGameState.gGameHours;
+        convertNumberTo3DigitStringWithPadding0(gCurrentGameState.gGameHours, number);
         drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 160, 3, 6, &number[1]); // hours
     }
 }
@@ -18142,7 +18142,7 @@ void handleSDLEvents()
         {
             if (event.type == SDL_QUIT)
             {
-                gCurrentGameState.shouldExitLevel = 1;
+                gCurrentGameState.gShouldExitLevel = 1;
                 gShouldExitGame = 1;
             }
         }
