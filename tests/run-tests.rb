@@ -27,6 +27,7 @@ $solvesPath = "solves"
 $totalTests=0
 $totalPassedTests=0
 $totalFailedTests=0
+$failedTests = []
 $globalMutex = Mutex.new
 
 def runSuite(suite)
@@ -86,6 +87,10 @@ def runSuite(suite)
 		$totalTests += suiteTotalTests
 		$totalPassedTests += suiteTotalPassedTests
 		$totalFailedTests += suiteTotalFailedTests
+
+		for failedTest in suiteFailedTests
+			$failedTests += [ "#{suite}/#{failedTest}" ]
+		end
 	end
 end
 
@@ -101,3 +106,11 @@ puts "Finished all tests!"
 puts " - Passed: #{$totalPassedTests}"
 puts " - Failed: #{$totalFailedTests}"
 puts " - Total:  #{$totalTests}"
+puts ""
+puts "Failed tests: #{$failedTests}"
+
+if $totalFailedTests > 0 then
+	exit 1
+else
+	exit 0
+end
