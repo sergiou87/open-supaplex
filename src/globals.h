@@ -270,4 +270,105 @@ extern FastModeType gFastMode;
 extern uint16_t gScrollOffsetX; // word_5195F
 extern uint16_t gScrollOffsetY; // word_51961
 
+typedef struct {
+    int16_t word_510F0; // 0x0DE0 -> seems like an offset from the destination position (in tiles * 2)
+    int16_t word_510F2; // this increases the offset above frame by frame
+    uint16_t width; // word_510F4
+    uint16_t height; // word_510F6
+    uint16_t animationIndex; // word_510F8; -> memory address in someBinaryData_5142E, looks like a list of coordinates of frames in MOVING.DAT
+    int16_t speedX; // word_510FA; -> applied to Murphy X position... speedX?
+    int16_t speedY; // word_510FC; -> applied to Murphy Y position... speedY?
+    uint16_t currentFrame; // Not used in the original code, I will use it to keep track of the current animation frame
+} MurphyAnimationDescriptor;
+
+typedef struct {
+    uint8_t tile; // of LevelTileType
+    uint8_t state;
+} StatefulLevelTile;
+
+// ----------- BEGINNING OF STATE SAVED IN SAVEGAMES -----------
+
+// Use 1536 (level file length) instead of 1440 (level actual size in tiles, 60x24) here. The reason? Seems like
+// some levels/demos rely on this when they use the glitch with empty borders.
+// A level is 1536 bytes. when loaded into memory , we only care about 1440 tiles (60 x 24) in two "playfields":
+// - one where every tile needs 2 bytes: that's where the game is actually represented
+// - another one where every tile needs 1 byte: that's the "explosion timers" for each tile
+//
+// I saw the original code used  1536 * 2  bytes for the first playfield, and  1536 * 1  bytes for the second, instead of 1440*2  and 1440*1  respectively. also they were contiguous in memory.
+// since I knew 1440 is the right size, I just used that and ignored the original code. what happens? when there are empty borders, without the extra padding of those 1536, seems like it was writing in the explosion timers because it's contiguous in memory :joy:
+// I just added that extra padding back and :tada: no more memory corrupted :joy:
+// This was reproduced with test 03/03s049-3.sp
+//
+// Also some levels rely on the memory that lies BEFORE the level state, which contains many things including keys
+// pressed, some strings, etc. This implementation will use some hardcoded data that will be injected when the game is
+// initialized and never touched again. Should be enough to simulate the behavior of the original game.
+//
+#define kSizeOfLevelStatePrecedingPadding 344
+extern StatefulLevelTile gCurrentLevelStateWithPadding[levelDataLength + kSizeOfLevelStatePrecedingPadding]; // 0x1584
+extern StatefulLevelTile *gCurrentLevelState; // located at 0x1834, size is levelDataLength items
+extern int8_t gExplosionTimers[levelDataLength]; // 0x2434
+extern uint8_t gIsGravityEnabled; // byte_5101C -> 1 = turn on, anything else (0) = turn off
+extern uint8_t gAreZonksFrozen; // byte_51035 -> 2 = turn on, anything else (0) = turn off  (1=off!)
+extern uint8_t gNumberOfInfoTrons; // 0xd26 -> byte_51036 -> this seems to be _inside_ of fileLevelData when a level is read
+extern uint8_t gNumberOfSpecialPorts; // 0xd27 -> byte_51037 this seems to be _inside_ of fileLevelData when a level is read, and it's numberOfSpecialPorts
+extern uint16_t gRandomSeed; // word_51076
+extern uint16_t word_510A2; // -> used to preserve some palette info??
+// uint8_t gNumberOfDotsToShiftDataLeft; // byte_510A6 Used for the scroll effect
+// uint16_t word_510A7  dw 0
+// uint16_t word_510A9  dw 0
+extern uint8_t byte_510AB;
+extern uint16_t word_510AC; // stored in 0B5D:0D9C
+extern uint8_t gAuxGameSeconds20msAccumulator; // byte_510AF ->  -> accumulates game time. The total time is its value * 20ms, so when it reaches 50 it means 1 second. Used to increase the game time in the bottom panel
+extern uint8_t gGameSeconds; // byte_510B0
+extern uint8_t gGameMinutes; // byte_510B1
+extern uint8_t gGameHours; // byte_510B2
+extern uint8_t byte_510B3;
+extern uint8_t gLevelFailed; // byte_510BA
+extern uint8_t byte_510BB;
+extern uint16_t word_510BC;
+extern uint16_t word_510BE;
+extern uint8_t gIsExplosionStarted; // byte_510C0 -> Set to 1 when an explosion is just created. Set back to 0 when _any_ of the explosions on the screen disappears.
+// These two were actually grouped in word_510C1 for some (compiler) reason
+extern uint8_t gShouldShowGamePanel; // byte_510C1 -> 0DB1
+extern uint8_t gToggleGamePanelKeyAutoRepeatCounter; // byte_510C2 -> 0DB2
+extern int16_t gMurphyTileX; // word_510C3
+extern int16_t gMurphyTileY; // word_510C5
+extern int16_t word_510C7; // stores gMurphyLocation too??
+extern int16_t gMurphyLocation;
+extern uint16_t word_510CB;
+extern uint16_t word_510CD;
+extern uint16_t word_510CF;
+extern uint16_t gShouldKillMurphy; // word_510D1
+extern uint8_t byte_510D3;
+extern uint8_t gAreEnemiesFrozen; // byte_510D7 -> 1 = turn on, anything else (0) = turn off
+extern uint8_t gScratchGravity; // byte_510D8 -> not sure what scratch gravity means exactly, but can be 0 (off) or 1 (on)
+extern uint16_t gIsMurphyGoingThroughPortal; // word_510D9
+extern uint8_t gPlantedRedDiskCountdown; // byte_510DB
+extern uint16_t gPlantedRedDiskPosition; // word_510DC
+extern uint16_t word_510DF;
+extern uint8_t gDemoCurrentInput; // byte_510E1 -> 0xDD1
+extern uint8_t gDemoCurrentInputRepeatCounter; // -> 0xDD2 -> byte_510E2
+extern uint16_t gDemoIndexOrDemoLevelNumber; // word_510E6
+extern uint16_t gMurphyPositionX; // word_510E8
+extern uint16_t gMurphyPositionY; // word_510EA
+extern uint16_t word_510EE;
+extern MurphyAnimationDescriptor gCurrentMurphyAnimation; // -> starts at 0x0DE0
+extern uint8_t gNumberOfRemainingInfotrons; // byte_5195A
+extern uint8_t gTotalNumberOfInfotrons; // byte_5195B
+extern uint8_t gNumberOfRemainingRedDisks; // byte_5195C
+extern uint16_t gFrameCounter; // word_5195D -> 0x1268
+// uint16_t word_51967; // scroll / first pixel of the scroll window
+extern uint8_t byte_51969; //  db 0
+extern uint8_t byte_5196A;  //  db 0
+extern uint8_t byte_5196B; //  db 0
+extern uint16_t word_5196C; //  dw 0
+//dw 1
+//dw 1
+extern uint16_t gShouldExitLevel; // word_51974
+extern uint16_t gQuitLevelCountdown; // word_51978 -> this is a counter to end the level after certain number of iterations (to let the game progress a bit before going back to the menu)
+extern uint8_t byte_5197C; //  db 0
+// fileLevelData starts at 0x768, when it contains a level goes to 0xD67
+extern Level gCurrentLevel; // 0x988B
+// ----------- END OF STATE SAVED IN SAVEGAMES -----------
+
 #endif /* globals_h */

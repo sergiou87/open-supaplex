@@ -560,6 +560,171 @@ void readControlsDat() // proc near       ; CODE XREF: readControlsDat+14j
     }
 }
 
+// Draws the fixed stuff from the level (edges of the screen + tiles from FIXED.DAT)
+void drawFixedLevel() // sub_48F6D   proc near       ; CODE XREF: start+335p runLevel+AAp ...
+{
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
+
+    // 01ED:230A
+
+    static const uint16_t kMovingBitmapTopLeftCornerX = 288;
+    static const uint16_t kMovingBitmapTopLeftCornerY = 388;
+    static const uint16_t kMovingBitmapTopRightCornerX = 296;
+    static const uint16_t kMovingBitmapTopRightCornerY = 388;
+    static const uint16_t kMovingBitmapBottomRightCornerX = 296;
+    static const uint16_t kMovingBitmapBottomRightCornerY = 396;
+    static const uint16_t kMovingBitmapBottomLeftCornerX = 288;
+    static const uint16_t kMovingBitmapBottomLeftCornerY = 396;
+    static const uint16_t kMovingBitmapTopEdgeX = 304;
+    static const uint16_t kMovingBitmapTopEdgeY = 396;
+    static const uint16_t kMovingBitmapRightEdgeX = 304;
+    static const uint16_t kMovingBitmapRightEdgeY = 388;
+    static const uint16_t kMovingBitmapBottomEdgeX = 304;
+    static const uint16_t kMovingBitmapBottomEdgeY = 396;
+    static const uint16_t kMovingBitmapLeftEdgeX = 312;
+    static const uint16_t kMovingBitmapLeftEdgeY = 388;
+
+    // Draws top-left corner
+    for (int y = 0; y < kLevelEdgeSize; ++y)
+    {
+        for (int x = 0; x < kLevelEdgeSize; ++x)
+        {
+//loc_48F86:              ; CODE XREF: drawFixedLevel+20j
+            size_t srcAddress = (kMovingBitmapTopLeftCornerY + y) * kMovingBitmapWidth + kMovingBitmapTopLeftCornerX + x;
+            size_t dstAddress = (y * kLevelBitmapWidth) + x;
+            gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
+        }
+    }
+
+    // Draws top edge
+    for (int y = 0; y < kLevelEdgeSize; ++y)
+    {
+//loc_48FA0:              ; CODE XREF: drawFixedLevel+41j
+        for (int x = kLevelEdgeSize - 1; x < kLevelBitmapWidth - kLevelEdgeSize; ++x)
+        {
+//loc_48FA3:              ; CODE XREF: drawFixedLevel+38j
+            size_t srcAddress = (kMovingBitmapTopEdgeY + y) * kMovingBitmapWidth + kMovingBitmapTopEdgeX + (x % kLevelEdgeSize);
+            size_t dstAddress = (y * kLevelBitmapWidth) + x;
+            gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
+        }
+    }
+
+    // Top-right corner
+    for (int y = 0; y < kLevelEdgeSize; ++y)
+    {
+        for (int x = kLevelBitmapWidth - 1; x >= kLevelBitmapWidth - kLevelEdgeSize; --x)
+        {
+//loc_48FC8:              ; CODE XREF: drawFixedLevel+62j
+            int srcX = x - kLevelBitmapWidth + kLevelEdgeSize;
+            size_t srcAddress = (kMovingBitmapTopRightCornerY + y) * kMovingBitmapWidth + kMovingBitmapTopRightCornerX + srcX;
+            size_t dstAddress = (y * kLevelBitmapWidth) + x;
+            gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
+        }
+    }
+
+    // Right edge
+    for (int y = kLevelEdgeSize - 1; y < kLevelBitmapHeight - kLevelEdgeSize; ++y)
+    {
+//loc_48FA0:              ; CODE XREF: drawFixedLevel+41j
+        for (int x = kLevelBitmapWidth - 1; x >= kLevelBitmapWidth - kLevelEdgeSize; --x)
+        {
+//loc_48FA3:              ; CODE XREF: drawFixedLevel+38j
+            int srcX = x - kLevelBitmapWidth + kLevelEdgeSize;
+            int srcY = y % kLevelEdgeSize;
+            size_t srcAddress = (kMovingBitmapRightEdgeY + srcY) * kMovingBitmapWidth + kMovingBitmapRightEdgeX + srcX;
+            size_t dstAddress = (y * kLevelBitmapWidth) + x;
+            gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
+        }
+    }
+
+    // Bottom-right corner
+    for (int y = kLevelBitmapHeight - 1; y >= kLevelBitmapHeight - kLevelEdgeSize; --y)
+    {
+        for (int x = kLevelBitmapWidth - 1; x >= kLevelBitmapWidth - kLevelEdgeSize; --x)
+        {
+//loc_48FFE:              ; CODE XREF: drawFixedLevel+98j
+            int srcX = x - kLevelBitmapWidth + kLevelEdgeSize;
+            int srcY = y - kLevelBitmapHeight + kLevelEdgeSize;
+            size_t srcAddress = (kMovingBitmapBottomRightCornerY + srcY) * kMovingBitmapWidth + kMovingBitmapBottomRightCornerX + srcX;
+            size_t dstAddress = (y * kLevelBitmapWidth) + x;
+            gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
+        }
+    }
+
+    // Bottom edge
+    for (int y = kLevelBitmapHeight - 1; y >= kLevelBitmapHeight - kLevelEdgeSize; --y)
+    {
+//loc_4901C:              ; CODE XREF: drawFixedLevel+BDj
+        for (int x = kLevelEdgeSize - 1; x < kLevelBitmapWidth - kLevelEdgeSize; ++x)
+        {
+//loc_4901F:              ; CODE XREF: drawFixedLevel+B4j
+            int srcX = x % kLevelEdgeSize;
+            int srcY = y - kLevelBitmapHeight + kLevelEdgeSize;
+            size_t srcAddress = (kMovingBitmapBottomEdgeY + srcY) * kMovingBitmapWidth + kMovingBitmapBottomEdgeX + srcX;
+            size_t dstAddress = (y * kLevelBitmapWidth) + x;
+            assert(dstAddress < kLevelBitmapWidth * kLevelBitmapHeight);
+            gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
+        }
+    }
+
+    // Draws left edge
+    for (int y = kLevelEdgeSize - 1; y < kLevelBitmapHeight - kLevelEdgeSize; ++y)
+    {
+//loc_49047:              ; CODE XREF: drawFixedLevel+EBj
+        for (int x = 0; x < kLevelEdgeSize; ++x)
+        {
+//loc_4904A:              ; CODE XREF: drawFixedLevel+E4j
+            int srcY = y % kLevelEdgeSize;
+
+            size_t srcAddress = (kMovingBitmapLeftEdgeY + srcY) * kMovingBitmapWidth + kMovingBitmapLeftEdgeX + x;
+            size_t dstAddress = (y * kLevelBitmapWidth) + x;
+            assert(dstAddress < kLevelBitmapWidth * kLevelBitmapHeight);
+            gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
+        }
+    }
+
+    // Bottom-left corner
+    for (int y = kLevelBitmapHeight - 1; y >= kLevelBitmapHeight - kLevelEdgeSize; --y)
+    {
+        for (int x = 0; x < kLevelEdgeSize; ++x)
+        {
+//loc_49067:              ; CODE XREF: drawFixedLevel+101j
+            int srcY = y - kLevelBitmapHeight + kLevelEdgeSize;
+            size_t srcAddress = (kMovingBitmapBottomLeftCornerY + srcY) * kMovingBitmapWidth + kMovingBitmapBottomLeftCornerX + x;
+            size_t dstAddress = (y * kLevelBitmapWidth) + x;
+            assert(dstAddress < kLevelBitmapWidth * kLevelBitmapHeight);
+            gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
+        }
+    }
+
+    for (int tileY = 1; tileY < kLevelHeight - 1; ++tileY)
+    {
+        for (int tileX = 1; tileX < kLevelWidth - 1; ++tileX)
+        {
+            int bitmapTileX = tileX - 1;
+            int bitmapTileY = tileY - 1;
+
+            size_t startDstX = kLevelEdgeSize + bitmapTileX * kTileSize;
+            size_t startDstY = kLevelEdgeSize + bitmapTileY * kTileSize;
+            uint16_t tileValue = gCurrentLevelState[tileY * kLevelWidth + tileX].tile;
+            size_t startSrcX = tileValue * kTileSize;
+
+            for (int y = 0; y < kTileSize; ++y)
+            {
+                for (int x = 0; x < kTileSize; ++x)
+                {
+                    size_t dstAddress = (startDstY + y) * kLevelBitmapWidth + startDstX + x;
+                    size_t srcAddress = (y * kFixedBitmapWidth) + startSrcX + x;
+                    gLevelBitmapData[dstAddress] = gFixedDecodedBitmapData[srcAddress];
+                }
+            }
+        }
+    }
+}
+
 void drawCurrentLevelViewport(uint16_t panelHeight)
 {
     if (gFastMode == FastModeTypeUltra)
@@ -632,4 +797,41 @@ void drawMovingFrame(uint16_t srcX, uint16_t srcY, uint16_t destPosition) // sub
     int16_t destY = (destPosition / kLevelWidth) * kTileSize;
 
     drawMovingSpriteFrameInLevel(srcX, srcY, kTileSize, kTileSize, destX, destY);
+}
+
+void scrollTerminalScreen(int16_t position)
+{
+    // From this point it's all rendering, nothing needed in ultra fast mode
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
+
+    // This code basically simulates a scroll effect in the terminal:
+    // copies the row 2 in the row 10, and then row 3 in 2, 4 in 3...
+    //
+    uint16_t tileX = (position % kLevelWidth) - 1;
+    uint16_t tileY = (position / kLevelWidth) - 1;
+
+    uint16_t x = kLevelEdgeSize + tileX * kTileSize;
+    uint16_t y = kLevelEdgeSize + tileY * kTileSize;
+
+    uint32_t source = 0;
+    uint32_t dest = 0;
+
+    source = dest = y * kLevelBitmapWidth + x;
+
+    dest += kLevelBitmapWidth * 10;
+    source += kLevelBitmapWidth * 2;
+    memcpy(&gLevelBitmapData[dest], &gLevelBitmapData[source], kTileSize);
+
+    dest -= kLevelBitmapWidth * 8;
+    source += kLevelBitmapWidth;
+
+    for (int i = 0; i < 9; ++i)
+    {
+        memcpy(&gLevelBitmapData[dest], &gLevelBitmapData[source], kTileSize);
+        dest += kLevelBitmapWidth;
+        source += kLevelBitmapWidth;
+    }
 }

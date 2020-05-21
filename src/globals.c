@@ -86,3 +86,72 @@ FastModeType gFastMode = FastModeTypeNone;
 
 uint16_t gScrollOffsetX = 0; // word_5195F
 uint16_t gScrollOffsetY = 0; // word_51961
+
+// ----------- BEGINNING OF STATE SAVED IN SAVEGAMES -----------
+
+StatefulLevelTile gCurrentLevelStateWithPadding[levelDataLength + kSizeOfLevelStatePrecedingPadding]; // 0x1584
+StatefulLevelTile *gCurrentLevelState = &gCurrentLevelStateWithPadding[kSizeOfLevelStatePrecedingPadding]; // located at 0x1834, size is levelDataLength items
+int8_t gExplosionTimers[levelDataLength]; // 0x2434
+uint8_t gIsGravityEnabled = 0; // byte_5101C -> 1 = turn on, anything else (0) = turn off
+uint8_t gAreZonksFrozen = 0; // byte_51035 -> 2 = turn on, anything else (0) = turn off  (1=off!)
+uint8_t gNumberOfInfoTrons = 0; // 0xd26 -> byte_51036 -> this seems to be _inside_ of fileLevelData when a level is read
+uint8_t gNumberOfSpecialPorts = 0; // 0xd27 -> byte_51037 this seems to be _inside_ of fileLevelData when a level is read, and it's numberOfSpecialPorts
+uint16_t gRandomSeed = 0; // word_51076
+uint16_t word_510A2 = 0; // -> used to preserve some palette info??
+// uint8_t gNumberOfDotsToShiftDataLeft = 0; // byte_510A6 Used for the scroll effect
+// uint16_t word_510A7  dw 0
+// uint16_t word_510A9  dw 0
+uint8_t byte_510AB = 0;
+uint16_t word_510AC = 0; // stored in 0B5D:0D9C
+uint8_t gAuxGameSeconds20msAccumulator = 0; // byte_510AF ->  -> accumulates game time. The total time is its value * 20ms, so when it reaches 50 it means 1 second. Used to increase the game time in the bottom panel
+uint8_t gGameSeconds = 0; // byte_510B0
+uint8_t gGameMinutes = 0; // byte_510B1
+uint8_t gGameHours = 0; // byte_510B2
+uint8_t byte_510B3 = 0;
+uint8_t gLevelFailed = 0; // byte_510BA
+uint8_t byte_510BB = 0;
+uint16_t word_510BC = 0;
+uint16_t word_510BE = 0;
+uint8_t gIsExplosionStarted = 0; // byte_510C0 -> Set to 1 when an explosion is just created. Set back to 0 when _any_ of the explosions on the screen disappears.
+// These two were actually grouped in word_510C1 for some (compiler) reason
+uint8_t gShouldShowGamePanel = 0; // byte_510C1 -> 0DB1
+uint8_t gToggleGamePanelKeyAutoRepeatCounter = 0; // byte_510C2 -> 0DB2
+int16_t gMurphyTileX = 0; // word_510C3
+int16_t gMurphyTileY = 0; // word_510C5
+int16_t word_510C7 = 0; // stores gMurphyLocation too??
+int16_t gMurphyLocation = 0;
+uint16_t word_510CB = 0;
+uint16_t word_510CD = 0;
+uint16_t word_510CF = 0;
+uint16_t gShouldKillMurphy = 0; // word_510D1
+uint8_t byte_510D3 = 0;
+uint8_t gAreEnemiesFrozen = 0; // byte_510D7 -> 1 = turn on, anything else (0) = turn off
+uint8_t gScratchGravity = 0; // byte_510D8 -> not sure what scratch gravity means exactly, but can be 0 (off) or 1 (on)
+uint16_t gIsMurphyGoingThroughPortal = 0; // word_510D9
+uint8_t gPlantedRedDiskCountdown = 0; // byte_510DB
+uint16_t gPlantedRedDiskPosition = 0; // word_510DC
+uint16_t word_510DF = 0;
+uint8_t gDemoCurrentInput = 0; // byte_510E1 -> 0xDD1
+uint8_t gDemoCurrentInputRepeatCounter = 0; // -> 0xDD2 -> byte_510E2
+uint16_t gDemoIndexOrDemoLevelNumber = 0; // word_510E6
+uint16_t gMurphyPositionX = 0; // word_510E8
+uint16_t gMurphyPositionY = 0; // word_510EA
+uint16_t word_510EE = 0;
+MurphyAnimationDescriptor gCurrentMurphyAnimation; // -> starts at 0x0DE0
+uint8_t gNumberOfRemainingInfotrons = 0; // byte_5195A
+uint8_t gTotalNumberOfInfotrons = 0; // byte_5195B
+uint8_t gNumberOfRemainingRedDisks = 0; // byte_5195C
+uint16_t gFrameCounter = 0xF000; // word_5195D -> 0x1268
+// uint16_t word_51967 = 0; // scroll / first pixel of the scroll window
+uint8_t byte_51969 = 0; //  db 0
+uint8_t byte_5196A = 0;  //  db 0
+uint8_t byte_5196B = 0; //  db 0
+uint16_t word_5196C = 0; //  dw 0
+//dw 1
+//dw 1
+uint16_t gShouldExitLevel = 0; // word_51974
+uint16_t gQuitLevelCountdown = 0; // word_51978 -> this is a counter to end the level after certain number of iterations (to let the game progress a bit before going back to the menu)
+uint8_t byte_5197C = 0; //  db 0
+// fileLevelData starts at 0x768, when it contains a level goes to 0xD67
+Level gCurrentLevel; // 0x988B
+// ----------- END OF STATE SAVED IN SAVEGAMES -----------

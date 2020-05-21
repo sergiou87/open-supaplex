@@ -133,17 +133,6 @@ uint16_t word_5094F = 0;
 uint16_t word_50951 = 0;
 uint8_t gShouldShowFPS = 0;
 
-typedef struct {
-    int16_t word_510F0; // 0x0DE0 -> seems like an offset from the destination position (in tiles * 2)
-    int16_t word_510F2; // this increases the offset above frame by frame
-    uint16_t width; // word_510F4
-    uint16_t height; // word_510F6
-    uint16_t animationIndex; // word_510F8; -> memory address in someBinaryData_5142E, looks like a list of coordinates of frames in MOVING.DAT
-    int16_t speedX; // word_510FA; -> applied to Murphy X position... speedX?
-    int16_t speedY; // word_510FC; -> applied to Murphy Y position... speedY?
-    uint16_t currentFrame; // Not used in the original code, I will use it to keep track of the current animation frame
-} MurphyAnimationDescriptor;
-
 uint8_t someBinaryData_510FE[16] = {
     0, // -> 0xdee
     0, // -> 0xdef
@@ -1467,96 +1456,6 @@ uint8_t gShouldCloseAdvancedMenu = 0;
 uint8_t gAdvancedMenuRecordDemoIndex = 0;
 uint8_t gAdvancedMenuPlayDemoIndex = 0;
 
-typedef struct {
-    uint8_t tile; // of LevelTileType
-    uint8_t state;
-} StatefulLevelTile;
-
-// ----------- BEGINNING OF STATE SAVED IN SAVEGAMES -----------
-
-// Use 1536 (level file length) instead of 1440 (level actual size in tiles, 60x24) here. The reason? Seems like
-// some levels/demos rely on this when they use the glitch with empty borders.
-// A level is 1536 bytes. when loaded into memory , we only care about 1440 tiles (60 x 24) in two "playfields":
-// - one where every tile needs 2 bytes: that's where the game is actually represented
-// - another one where every tile needs 1 byte: that's the "explosion timers" for each tile
-//
-// I saw the original code used  1536 * 2  bytes for the first playfield, and  1536 * 1  bytes for the second, instead of 1440*2  and 1440*1  respectively. also they were contiguous in memory.
-// since I knew 1440 is the right size, I just used that and ignored the original code. what happens? when there are empty borders, without the extra padding of those 1536, seems like it was writing in the explosion timers because it's contiguous in memory :joy:
-// I just added that extra padding back and :tada: no more memory corrupted :joy:
-// This was reproduced with test 03/03s049-3.sp
-//
-// Also some levels rely on the memory that lies BEFORE the level state, which contains many things including keys
-// pressed, some strings, etc. This implementation will use some hardcoded data that will be injected when the game is
-// initialized and never touched again. Should be enough to simulate the behavior of the original game.
-//
-#define kSizeOfLevelStatePrecedingPadding 344
-StatefulLevelTile gCurrentLevelStateWithPadding[levelDataLength + kSizeOfLevelStatePrecedingPadding]; // 0x1584
-StatefulLevelTile *gCurrentLevelState = &gCurrentLevelStateWithPadding[kSizeOfLevelStatePrecedingPadding]; // located at 0x1834, size is levelDataLength items
-int8_t gExplosionTimers[levelDataLength]; // 0x2434
-uint8_t gIsGravityEnabled = 0; // byte_5101C -> 1 = turn on, anything else (0) = turn off
-uint8_t gAreZonksFrozen = 0; // byte_51035 -> 2 = turn on, anything else (0) = turn off  (1=off!)
-uint8_t gNumberOfInfoTrons = 0; // 0xd26 -> byte_51036 -> this seems to be _inside_ of fileLevelData when a level is read
-uint8_t gNumberOfSpecialPorts = 0; // 0xd27 -> byte_51037 this seems to be _inside_ of fileLevelData when a level is read, and it's numberOfSpecialPorts
-uint16_t gRandomSeed = 0; // word_51076
-uint16_t word_510A2 = 0; // -> used to preserve some palette info??
-// uint8_t gNumberOfDotsToShiftDataLeft = 0; // byte_510A6 Used for the scroll effect
-// uint16_t word_510A7  dw 0
-// uint16_t word_510A9  dw 0
-uint8_t byte_510AB = 0;
-uint16_t word_510AC = 0; // stored in 0B5D:0D9C
-uint8_t gAuxGameSeconds20msAccumulator = 0; // byte_510AF ->  -> accumulates game time. The total time is its value * 20ms, so when it reaches 50 it means 1 second. Used to increase the game time in the bottom panel
-uint8_t gGameSeconds = 0; // byte_510B0
-uint8_t gGameMinutes = 0; // byte_510B1
-uint8_t gGameHours = 0; // byte_510B2
-uint8_t byte_510B3 = 0;
-uint8_t gLevelFailed = 0; // byte_510BA
-uint8_t byte_510BB = 0;
-uint16_t word_510BC = 0;
-uint16_t word_510BE = 0;
-uint8_t gIsExplosionStarted = 0; // byte_510C0 -> Set to 1 when an explosion is just created. Set back to 0 when _any_ of the explosions on the screen disappears.
-// These two were actually grouped in word_510C1 for some (compiler) reason
-uint8_t gShouldShowGamePanel = 0; // byte_510C1 -> 0DB1
-uint8_t gToggleGamePanelKeyAutoRepeatCounter = 0; // byte_510C2 -> 0DB2
-int16_t gMurphyTileX = 0; // word_510C3
-int16_t gMurphyTileY = 0; // word_510C5
-int16_t word_510C7 = 0; // stores gMurphyLocation too??
-int16_t gMurphyLocation = 0;
-uint16_t word_510CB = 0;
-uint16_t word_510CD = 0;
-uint16_t word_510CF = 0;
-uint16_t gShouldKillMurphy = 0; // word_510D1
-uint8_t byte_510D3 = 0;
-uint8_t gAreEnemiesFrozen = 0; // byte_510D7 -> 1 = turn on, anything else (0) = turn off
-uint8_t gScratchGravity = 0; // byte_510D8 -> not sure what scratch gravity means exactly, but can be 0 (off) or 1 (on)
-uint16_t gIsMurphyGoingThroughPortal = 0; // word_510D9
-uint8_t gPlantedRedDiskCountdown = 0; // byte_510DB
-uint16_t gPlantedRedDiskPosition = 0; // word_510DC
-uint16_t word_510DF = 0;
-uint8_t gDemoCurrentInput = 0; // byte_510E1 -> 0xDD1
-uint8_t gDemoCurrentInputRepeatCounter = 0; // -> 0xDD2 -> byte_510E2
-uint16_t gDemoIndexOrDemoLevelNumber = 0; // word_510E6
-uint16_t gMurphyPositionX = 0; // word_510E8
-uint16_t gMurphyPositionY = 0; // word_510EA
-uint16_t word_510EE = 0;
-MurphyAnimationDescriptor gCurrentMurphyAnimation; // -> starts at 0x0DE0
-uint8_t gNumberOfRemainingInfotrons = 0; // byte_5195A
-uint8_t gTotalNumberOfInfotrons = 0; // byte_5195B
-uint8_t gNumberOfRemainingRedDisks = 0; // byte_5195C
-uint16_t gFrameCounter = 0xF000; // word_5195D -> 0x1268
-// uint16_t word_51967 = 0; // scroll / first pixel of the scroll window
-uint8_t byte_51969 = 0; //  db 0
-uint8_t byte_5196A = 0;  //  db 0
-uint8_t byte_5196B = 0; //  db 0
-uint16_t word_5196C = 0; //  dw 0
-//dw 1
-//dw 1
-uint16_t gShouldExitLevel = 0; // word_51974
-uint16_t gQuitLevelCountdown = 0; // word_51978 -> this is a counter to end the level after certain number of iterations (to let the game progress a bit before going back to the menu)
-uint8_t byte_5197C = 0; //  db 0
-// fileLevelData starts at 0x768, when it contains a level goes to 0xD67
-Level gCurrentLevel; // 0x988B
-// ----------- END OF STATE SAVED IN SAVEGAMES -----------
-
 // This is the only file format that is not compatible with the original game: while most of the data is
 // still exactly the same, some other things are just useless/pointless in the reimplementation, because
 // they weren't game data only, but also info tightly coupled to the rendering/hardware requirements it had.
@@ -2400,7 +2299,6 @@ void updateOptionsMenuState(uint8_t *destBuffer);
 void convertLevelNumberTo3DigitStringWithPadding0(uint8_t number);
 void readLevels(void);
 void initializeGameInfo(void);
-void drawFixedLevel(void);
 void drawGamePanel(void);
 void drawNumberOfRemainingInfotrons(void);
 void drawGameTime(void);
@@ -3490,8 +3388,6 @@ int main(int argc, char *argv[])
 void initializeGameStateData()
 {
     // Initialize game state with the same values as in the original game
-    // TODO: implement savegames properly
-    // memset(&gCurrentGameState, 0, sizeof(GameState));
     static const uint16_t kLevelStatePrecedingPadding[kSizeOfLevelStatePrecedingPadding] = {
         0x8995 , 0x8995 , 0x8995 , 0x8a3b , 0x8a3b , 0x8a3b , 0x8a3b , 0x8a3b ,
         0x8a3b , 0x8a3b , 0x8a3b , 0x8ae8 , 0x8ae8 , 0x8ae8 , 0x8ae8 , 0x8ae8 ,
@@ -6157,170 +6053,6 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
     replaceCurrentPaletteColor(0, (Color) { 0, 0, 0 });
 }
 
-// Draws the fixed stuff from the level (edges of the screen + tiles from FIXED.DAT)
-void drawFixedLevel() // sub_48F6D   proc near       ; CODE XREF: start+335p runLevel+AAp ...
-{
-    if (gFastMode == FastModeTypeUltra)
-    {
-        return;
-    }
-
-    // 01ED:230A
-
-    static const uint16_t kMovingBitmapTopLeftCornerX = 288;
-    static const uint16_t kMovingBitmapTopLeftCornerY = 388;
-    static const uint16_t kMovingBitmapTopRightCornerX = 296;
-    static const uint16_t kMovingBitmapTopRightCornerY = 388;
-    static const uint16_t kMovingBitmapBottomRightCornerX = 296;
-    static const uint16_t kMovingBitmapBottomRightCornerY = 396;
-    static const uint16_t kMovingBitmapBottomLeftCornerX = 288;
-    static const uint16_t kMovingBitmapBottomLeftCornerY = 396;
-    static const uint16_t kMovingBitmapTopEdgeX = 304;
-    static const uint16_t kMovingBitmapTopEdgeY = 396;
-    static const uint16_t kMovingBitmapRightEdgeX = 304;
-    static const uint16_t kMovingBitmapRightEdgeY = 388;
-    static const uint16_t kMovingBitmapBottomEdgeX = 304;
-    static const uint16_t kMovingBitmapBottomEdgeY = 396;
-    static const uint16_t kMovingBitmapLeftEdgeX = 312;
-    static const uint16_t kMovingBitmapLeftEdgeY = 388;
-
-    // Draws top-left corner
-    for (int y = 0; y < kLevelEdgeSize; ++y)
-    {
-        for (int x = 0; x < kLevelEdgeSize; ++x)
-        {
-//loc_48F86:              ; CODE XREF: drawFixedLevel+20j
-            size_t srcAddress = (kMovingBitmapTopLeftCornerY + y) * kMovingBitmapWidth + kMovingBitmapTopLeftCornerX + x;
-            size_t dstAddress = (y * kLevelBitmapWidth) + x;
-            gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
-        }
-    }
-
-    // Draws top edge
-    for (int y = 0; y < kLevelEdgeSize; ++y)
-    {
-//loc_48FA0:              ; CODE XREF: drawFixedLevel+41j
-        for (int x = kLevelEdgeSize - 1; x < kLevelBitmapWidth - kLevelEdgeSize; ++x)
-        {
-//loc_48FA3:              ; CODE XREF: drawFixedLevel+38j
-            size_t srcAddress = (kMovingBitmapTopEdgeY + y) * kMovingBitmapWidth + kMovingBitmapTopEdgeX + (x % kLevelEdgeSize);
-            size_t dstAddress = (y * kLevelBitmapWidth) + x;
-            gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
-        }
-    }
-
-    // Top-right corner
-    for (int y = 0; y < kLevelEdgeSize; ++y)
-    {
-        for (int x = kLevelBitmapWidth - 1; x >= kLevelBitmapWidth - kLevelEdgeSize; --x)
-        {
-//loc_48FC8:              ; CODE XREF: drawFixedLevel+62j
-            int srcX = x - kLevelBitmapWidth + kLevelEdgeSize;
-            size_t srcAddress = (kMovingBitmapTopRightCornerY + y) * kMovingBitmapWidth + kMovingBitmapTopRightCornerX + srcX;
-            size_t dstAddress = (y * kLevelBitmapWidth) + x;
-            gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
-        }
-    }
-
-    // Right edge
-    for (int y = kLevelEdgeSize - 1; y < kLevelBitmapHeight - kLevelEdgeSize; ++y)
-    {
-//loc_48FA0:              ; CODE XREF: drawFixedLevel+41j
-        for (int x = kLevelBitmapWidth - 1; x >= kLevelBitmapWidth - kLevelEdgeSize; --x)
-        {
-//loc_48FA3:              ; CODE XREF: drawFixedLevel+38j
-            int srcX = x - kLevelBitmapWidth + kLevelEdgeSize;
-            int srcY = y % kLevelEdgeSize;
-            size_t srcAddress = (kMovingBitmapRightEdgeY + srcY) * kMovingBitmapWidth + kMovingBitmapRightEdgeX + srcX;
-            size_t dstAddress = (y * kLevelBitmapWidth) + x;
-            gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
-        }
-    }
-
-    // Bottom-right corner
-    for (int y = kLevelBitmapHeight - 1; y >= kLevelBitmapHeight - kLevelEdgeSize; --y)
-    {
-        for (int x = kLevelBitmapWidth - 1; x >= kLevelBitmapWidth - kLevelEdgeSize; --x)
-        {
-//loc_48FFE:              ; CODE XREF: drawFixedLevel+98j
-            int srcX = x - kLevelBitmapWidth + kLevelEdgeSize;
-            int srcY = y - kLevelBitmapHeight + kLevelEdgeSize;
-            size_t srcAddress = (kMovingBitmapBottomRightCornerY + srcY) * kMovingBitmapWidth + kMovingBitmapBottomRightCornerX + srcX;
-            size_t dstAddress = (y * kLevelBitmapWidth) + x;
-            gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
-        }
-    }
-
-    // Bottom edge
-    for (int y = kLevelBitmapHeight - 1; y >= kLevelBitmapHeight - kLevelEdgeSize; --y)
-    {
-//loc_4901C:              ; CODE XREF: drawFixedLevel+BDj
-        for (int x = kLevelEdgeSize - 1; x < kLevelBitmapWidth - kLevelEdgeSize; ++x)
-        {
-//loc_4901F:              ; CODE XREF: drawFixedLevel+B4j
-            int srcX = x % kLevelEdgeSize;
-            int srcY = y - kLevelBitmapHeight + kLevelEdgeSize;
-            size_t srcAddress = (kMovingBitmapBottomEdgeY + srcY) * kMovingBitmapWidth + kMovingBitmapBottomEdgeX + srcX;
-            size_t dstAddress = (y * kLevelBitmapWidth) + x;
-            assert(dstAddress < kLevelBitmapWidth * kLevelBitmapHeight);
-            gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
-        }
-    }
-
-    // Draws left edge
-    for (int y = kLevelEdgeSize - 1; y < kLevelBitmapHeight - kLevelEdgeSize; ++y)
-    {
-//loc_49047:              ; CODE XREF: drawFixedLevel+EBj
-        for (int x = 0; x < kLevelEdgeSize; ++x)
-        {
-//loc_4904A:              ; CODE XREF: drawFixedLevel+E4j
-            int srcY = y % kLevelEdgeSize;
-
-            size_t srcAddress = (kMovingBitmapLeftEdgeY + srcY) * kMovingBitmapWidth + kMovingBitmapLeftEdgeX + x;
-            size_t dstAddress = (y * kLevelBitmapWidth) + x;
-            assert(dstAddress < kLevelBitmapWidth * kLevelBitmapHeight);
-            gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
-        }
-    }
-
-    // Bottom-left corner
-    for (int y = kLevelBitmapHeight - 1; y >= kLevelBitmapHeight - kLevelEdgeSize; --y)
-    {
-        for (int x = 0; x < kLevelEdgeSize; ++x)
-        {
-//loc_49067:              ; CODE XREF: drawFixedLevel+101j
-            int srcY = y - kLevelBitmapHeight + kLevelEdgeSize;
-            size_t srcAddress = (kMovingBitmapBottomLeftCornerY + srcY) * kMovingBitmapWidth + kMovingBitmapBottomLeftCornerX + x;
-            size_t dstAddress = (y * kLevelBitmapWidth) + x;
-            assert(dstAddress < kLevelBitmapWidth * kLevelBitmapHeight);
-            gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
-        }
-    }
-
-    for (int tileY = 1; tileY < kLevelHeight - 1; ++tileY)
-    {
-        for (int tileX = 1; tileX < kLevelWidth - 1; ++tileX)
-        {
-            int bitmapTileX = tileX - 1;
-            int bitmapTileY = tileY - 1;
-
-            size_t startDstX = kLevelEdgeSize + bitmapTileX * kTileSize;
-            size_t startDstY = kLevelEdgeSize + bitmapTileY * kTileSize;
-            uint16_t tileValue = gCurrentLevelState[tileY * kLevelWidth + tileX].tile;
-            size_t startSrcX = tileValue * kTileSize;
-
-            for (int y = 0; y < kTileSize; ++y)
-            {
-                for (int x = 0; x < kTileSize; ++x)
-                {
-                    size_t dstAddress = (startDstY + y) * kLevelBitmapWidth + startDstX + x;
-                    size_t srcAddress = (y * kFixedBitmapWidth) + startSrcX + x;
-                    gLevelBitmapData[dstAddress] = gFixedDecodedBitmapData[srcAddress];
-                }
-            }
-        }
-    }
-}
 
 void updateUserInputInScrollMovementMode() // sub_4914A   proc near       ; CODE XREF: handleGameUserInput+7p
 {
@@ -7859,39 +7591,7 @@ void updateTerminalTiles(int16_t position) // movefun5  proc near       ; DATA X
     value = -value;
     currentTile->state = value;
 
-    // From this point it's all rendering, nothing needed in ultra fast mode
-    if (gFastMode == FastModeTypeUltra)
-    {
-        return;
-    }
-
-    // This code basically simulates a scroll effect in the terminal:
-    // copies the row 2 in the row 10, and then row 3 in 2, 4 in 3...
-    //
-    uint16_t tileX = (position % kLevelWidth) - 1;
-    uint16_t tileY = (position / kLevelWidth) - 1;
-
-    uint16_t x = kLevelEdgeSize + tileX * kTileSize;
-    uint16_t y = kLevelEdgeSize + tileY * kTileSize;
-
-    uint32_t source = 0;
-    uint32_t dest = 0;
-
-    source = dest = y * kLevelBitmapWidth + x;
-
-    dest += kLevelBitmapWidth * 10;
-    source += kLevelBitmapWidth * 2;
-    memcpy(&gLevelBitmapData[dest], &gLevelBitmapData[source], kTileSize);
-
-    dest -= kLevelBitmapWidth * 8;
-    source += kLevelBitmapWidth;
-
-    for (int i = 0; i < 9; ++i)
-    {
-        memcpy(&gLevelBitmapData[dest], &gLevelBitmapData[source], kTileSize);
-        dest += kLevelBitmapWidth;
-        source += kLevelBitmapWidth;
-    }
+    scrollTerminalScreen(position);
 }
 
 /// Updates the random seed using the clock
