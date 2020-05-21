@@ -2255,22 +2255,15 @@ void drawPlayerList(void);
 void drawLevelList(void);
 void drawHallOfFame(void);
 void drawRankings(void);
-void drawTextWithChars6FontWithOpaqueBackground(size_t destX, size_t destY, uint8_t color, const char *text);
-void drawTextWithChars6FontWithTransparentBackground(size_t destX, size_t destY, uint8_t color, const char *text);
-void drawTextWithChars8Font(size_t destX, size_t destY, uint8_t color, const char *text);
-void drawTextWithChars8FontToBuffer(uint8_t *buffer, size_t destX, size_t destY, uint8_t color, const char *text);
+void drawTextWithChars6FontWithOpaqueBackgroundIfPossible(size_t destX, size_t destY, uint8_t color, const char *text);
+void drawTextWithChars6FontWithTransparentBackgroundIfPossible(size_t destX, size_t destY, uint8_t color, const char *text);
 void waitForKeyMouseOrJoystick(void);
 void drawMenuTitleAndDemoLevelResult(void);
 void scrollRightToNewScreen(void);
 void scrollLeftToMainMenu(void);
-void drawMenuBackground(void);
 void convertNumberTo3DigitStringWithPadding0(uint8_t number, char numberString[3]);
 void changePlayerCurrentLevelState(void);
 void updateHallOfFameEntries(void);
-void drawOptionsBackground(uint8_t *dest);
-void drawBackBackground(void);
-void drawGfxTutorBackground(uint8_t *dest);
-void drawFullScreenBitmap(uint8_t *bitmapData, uint8_t *dest);
 void drawSoundTypeOptionsSelection(uint8_t *destBuffer);
 void dimOptionsButtonText(size_t startX, size_t startY, size_t width, size_t height, uint8_t *destBuffer);
 void drawOptionsMenuLine(ButtonBorderDescriptor border, uint8_t color, uint8_t *destBuffer);
@@ -2324,7 +2317,7 @@ void stopRecordingDemo(void);
 void debugSkipLevel(void);
 void sub_49D53(void);
 void drawNumberOfRemainingRedDisks(void);
-void clearNumberOfRemainingRedDisks(void);
+void clearAdditionalInfoInGamePanelIfNeeded(void);
 void updatePlantedRedDisk(void);
 void updateExplosionTimers(void);
 void addCurrentGameTimeToPlayer(void);
@@ -3082,13 +3075,7 @@ void runAdvancedOptionsRootMenu()
 
     setPalette(gGameDimmedPalette);
 
-    // TODO: We need to preserve this value but no idea what it's for :rofl:
-    uint8_t previous_byte_5A33F = byte_5A33F;
-    byte_5A33F = 0;
-
     runAdvancedOptionsMenu(&menu);
-
-    byte_5A33F = previous_byte_5A33F;
 
     writeAdvancedConfig();
 
@@ -5926,7 +5913,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 
 //noFlashing2:              ; CODE XREF: runLevel+D8j
         drawGameTime();
-        clearNumberOfRemainingRedDisks();
+        clearAdditionalInfoInGamePanelIfNeeded();
         if (gIsFlashingBackgroundModeEnabled != 0)
         {
             replaceCurrentPaletteColor(0, (Color) { 0x2d, 0x21, 0x0f });
@@ -6817,7 +6804,7 @@ void checkDebugKeys() //loc_49949:              ; CODE XREF: handleGameUserInput
     if (gIsScrollLockPressed == 1)
     {
         gIsDebugModeEnabled = 1;
-        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 304, 14, 6, "DB"); // Debug mode enabled
+        drawTextWithChars8FontToGamePanel(304, 14, 6, "DB"); // Debug mode enabled
         byte_5197C = 0x46; // 70
     }
 
@@ -6994,7 +6981,7 @@ void loadGameSnapshot() // loc_49A89:              ; CODE XREF: handleGameUserIn
     gHasUserCheated = 1;
     gIsRecordingDemo = 0;
 
-    drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 304, 14, 6, "LD"); // Means snapshot was loaded successfully
+    drawTextWithChars8FontToGamePanel(304, 14, 6, "LD"); // Means snapshot was loaded successfully
     byte_5197C = 0x46; // 70 or '&'
 
     drawCurrentLevelViewport(gCurrentPanelHeight);
@@ -7018,7 +7005,7 @@ void showSavegameOperationError() //loc_49C28:              ; CODE XREF: handleG
 
 void loc_49C2C(char text[3]) // :              ; CODE XREF: handleGameUserInput+521j
 {
-    drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 304, 14, 6, text);
+    drawTextWithChars8FontToGamePanel(304, 14, 6, text);
     byte_5197C = 0x46; // 70 or '&'
 
 //loc_49C40:              ; CODE XREF: handleGameUserInput+6BDj
@@ -7043,7 +7030,7 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
         gDebugExtraRenderDelay = 1;
         replaceCurrentPaletteColor(0, (Color) { 0, 0, 0 });
 
-        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 304, 14, 6, "--"); // Debug mode disabled
+        drawTextWithChars8FontToGamePanel(304, 14, 6, "--"); // Debug mode disabled
         byte_5197C = 0x46; // 70 or '&'
     }
 
@@ -9089,7 +9076,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
     if (gIsForcedCheatMode != 0)
     {
         //jnz short loc_4AB4A
-        drawTextWithChars6FontWithOpaqueBackground(168, 127, 6, "PLAYER LIST FULL       ");
+        drawTextWithChars6FontWithOpaqueBackgroundIfPossible(168, 127, 6, "PLAYER LIST FULL       ");
         return;
     }
 
@@ -9113,7 +9100,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
     {
 //loc_4AB4A:              ; CODE XREF: handleNewPlayerOptionClick+5j
 //        mov di, 89F7h
-        drawTextWithChars6FontWithOpaqueBackground(168, 127, 6, "PLAYER LIST FULL       ");
+        drawTextWithChars6FontWithOpaqueBackgroundIfPossible(168, 127, 6, "PLAYER LIST FULL       ");
         return;
     }
 
@@ -9130,7 +9117,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
     if (supportsRealKeyboard())
     {
         // mov di, 89F7h
-        drawTextWithChars6FontWithOpaqueBackground(168, 127, 4, "YOUR NAME:             ");
+        drawTextWithChars6FontWithOpaqueBackgroundIfPossible(168, 127, 4, "YOUR NAME:             ");
 
         do
         {
@@ -9185,7 +9172,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
                 }
                 gNewPlayerNameLength--;
                 newPlayerName[gNewPlayerNameLength] = ' ';
-                drawTextWithChars6FontWithOpaqueBackground(232, 127, 6, newPlayerName);
+                drawTextWithChars6FontWithOpaqueBackgroundIfPossible(232, 127, 6, newPlayerName);
                 continue;
             }
             if (gNewPlayerNameLength >= 8) // when more than 8 chars were entered, ignore the rest?
@@ -9194,7 +9181,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
             }
             newPlayerName[gNewPlayerNameLength] = character; // mov [bx+si], al
             gNewPlayerNameLength++;
-            drawTextWithChars6FontWithOpaqueBackground(232, 127, 6, newPlayerName);
+            drawTextWithChars6FontWithOpaqueBackgroundIfPossible(232, 127, 6, newPlayerName);
         }
         while (1);
 
@@ -9213,7 +9200,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
 
         if (result == 0)
         {
-            drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, "                       ");
+            drawTextWithChars6FontWithOpaqueBackgroundIfPossible(168, 127, 8, "                       ");
             saveLastMouseAreaBitmap();
             drawMouseCursor();
             return;
@@ -9257,7 +9244,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
     // Completely empty name: ignore
     if (strcmp(newPlayerName, "        ") == 0)
     {
-        drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, "                       ");
+        drawTextWithChars6FontWithOpaqueBackgroundIfPossible(168, 127, 8, "                       ");
         saveLastMouseAreaBitmap();
         drawMouseCursor();
         return;
@@ -9268,7 +9255,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
     // Name with all dashes: invalid
     if (strcmp(newPlayerName, "--------") == 0)
     {
-        drawTextWithChars6FontWithOpaqueBackground(168, 127, 6, "INVALID NAME           ");
+        drawTextWithChars6FontWithOpaqueBackgroundIfPossible(168, 127, 6, "INVALID NAME           ");
         saveLastMouseAreaBitmap();
         drawMouseCursor();
         return;
@@ -9297,7 +9284,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
 //loc_4AC73:              ; CODE XREF: handleNewPlayerOptionClick+18Cj
         if (strcmp(player.name, newPlayerName) == 0)
         {
-            drawTextWithChars6FontWithOpaqueBackground(168, 127, 6, "PLAYER EXISTS          ");
+            drawTextWithChars6FontWithOpaqueBackgroundIfPossible(168, 127, 6, "PLAYER EXISTS          ");
             saveLastMouseAreaBitmap();
             drawMouseCursor();
             return;
@@ -9309,7 +9296,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
     PlayerEntry *newPlayerEntry = &gPlayerListData[gCurrentPlayerIndex];
     memcpy(newPlayerEntry->name, newPlayerName, sizeof(newPlayerName));
 
-    drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, "                       ");
+    drawTextWithChars6FontWithOpaqueBackgroundIfPossible(168, 127, 8, "                       ");
     savePlayerListData();
     saveHallOfFameData();
     gShouldAutoselectNextLevelToPlay = 1;
@@ -9326,7 +9313,7 @@ void handleDeletePlayerOptionClick() // sub_4AD0E  proc near
     if (gIsForcedCheatMode != 0)
     {
 //loc_4AD3C:              ; CODE XREF: handleDeletePlayerOptionClick+5j
-        drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, "NO PLAYER SELECTED     ");
+        drawTextWithChars6FontWithOpaqueBackgroundIfPossible(168, 127, 8, "NO PLAYER SELECTED     ");
         return;
     }
 
@@ -9335,7 +9322,7 @@ void handleDeletePlayerOptionClick() // sub_4AD0E  proc near
     if (strcmp(currentPlayerEntry->name, "--------") == 0)
     {
 //loc_4AD3C:              ; CODE XREF: handleDeletePlayerOptionClick+5j
-        drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, "NO PLAYER SELECTED     ");
+        drawTextWithChars6FontWithOpaqueBackgroundIfPossible(168, 127, 8, "NO PLAYER SELECTED     ");
         return;
     }
 
@@ -9344,7 +9331,7 @@ void handleDeletePlayerOptionClick() // sub_4AD0E  proc near
     char message[24] = "";
     sprintf(message, "DELETE '%s' ???  ", currentPlayerEntry->name);
 
-    drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, message);
+    drawTextWithChars6FontWithOpaqueBackgroundIfPossible(168, 127, 8, message);
 
     uint16_t mouseX, mouseY;
     uint16_t mouseButtonStatus;
@@ -9385,7 +9372,7 @@ void handleDeletePlayerOptionClick() // sub_4AD0E  proc near
 //loc_4ADCE:              ; CODE XREF: handleDeletePlayerOptionClick+97j
 //                ; handleDeletePlayerOptionClick+9Cj ...
     restoreLastMouseAreaBitmap();
-    drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, "                       ");
+    drawTextWithChars6FontWithOpaqueBackgroundIfPossible(168, 127, 8, "                       ");
     savePlayerListData();
     saveHallOfFameData();
     gShouldAutoselectNextLevelToPlay = 1;
@@ -9410,7 +9397,7 @@ void handleSkipLevelOptionClick() // sub_4ADFF  proc near
 
     if (strcmp(currentPlayerEntry.name, "--------") == 0)
     {
-        drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, "NO PLAYER SELECTED     ");
+        drawTextWithChars6FontWithOpaqueBackgroundIfPossible(168, 127, 8, "NO PLAYER SELECTED     ");
         return;
     }
 
@@ -9432,7 +9419,7 @@ void handleSkipLevelOptionClick() // sub_4ADFF  proc near
 //loc_4AE4A:              ; CODE XREF: handleSkipLevelOptionClick+47j
         if (numberOfSkippedLevels >= 3)
         {
-            drawTextWithChars6FontWithOpaqueBackground(168, 127, 6, "SKIP NOT POSSIBLE      ");
+            drawTextWithChars6FontWithOpaqueBackgroundIfPossible(168, 127, 6, "SKIP NOT POSSIBLE      ");
             return;
         }
     }
@@ -9441,7 +9428,7 @@ void handleSkipLevelOptionClick() // sub_4ADFF  proc near
 //                ; handleSkipLevelOptionClick+4Ej
     if (gCurrentPlayerLevelData[gCurrentSelectedLevelIndex - 1] != kNotCompletedLevelEntryColor)
     {
-        drawTextWithChars6FontWithOpaqueBackground(168, 127, 4, "COLORBLIND I GUESS     ");
+        drawTextWithChars6FontWithOpaqueBackgroundIfPossible(168, 127, 4, "COLORBLIND I GUESS     ");
         return;
     }
 
@@ -9451,7 +9438,7 @@ void handleSkipLevelOptionClick() // sub_4ADFF  proc near
 
     char message[24];
     sprintf(message, "SKIP LEVEL %s ???     ", levelNumber);
-    drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, message);
+    drawTextWithChars6FontWithOpaqueBackgroundIfPossible(168, 127, 8, message);
 
     uint16_t mouseX, mouseY;
     uint16_t mouseButtonStatus;
@@ -9493,7 +9480,7 @@ void handleSkipLevelOptionClick() // sub_4ADFF  proc near
 //loc_4AEE9:              ; CODE XREF: handleSkipLevelOptionClick+C3j
 //                ; handleSkipLevelOptionClick+C8j ...
     restoreLastMouseAreaBitmap();
-    drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, "                       ");
+    drawTextWithChars6FontWithOpaqueBackgroundIfPossible(168, 127, 8, "                       ");
     drawPlayerList();
     drawLevelList();
     drawRankings();
@@ -9512,7 +9499,7 @@ void handleStatisticsOptionClick() // sub_4AF0C   proc near
     PlayerEntry currentPlayerEntry = gPlayerListData[gCurrentPlayerIndex];
     if (strcmp(currentPlayerEntry.name, "--------") == 0)
     {
-        drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, "NO PLAYER SELECTED     ");
+        drawTextWithChars6FontWithOpaqueBackgroundIfPossible(168, 127, 8, "NO PLAYER SELECTED     ");
         return;
     }
 
@@ -9525,14 +9512,14 @@ void handleStatisticsOptionClick() // sub_4AF0C   proc near
     drawBackBackground();
 
     byte_5091A = 0;
-    drawTextWithChars6FontWithTransparentBackground(80, 20, 15, "SUPAPLEX  BY DREAM FACTORY");
-    drawTextWithChars6FontWithTransparentBackground(64, 50, 15, "(C) DIGITAL INTEGRATION LTD 1991");
-    drawTextWithChars6FontWithTransparentBackground(16, 60, 15, "________________________________________________");
-    drawTextWithChars6FontWithTransparentBackground(80, 80, 15, "SUPAPLEX PLAYER STATISTICS");
+    drawTextWithChars6FontWithTransparentBackgroundIfPossible(80, 20, 15, "SUPAPLEX  BY DREAM FACTORY");
+    drawTextWithChars6FontWithTransparentBackgroundIfPossible(64, 50, 15, "(C) DIGITAL INTEGRATION LTD 1991");
+    drawTextWithChars6FontWithTransparentBackgroundIfPossible(16, 60, 15, "________________________________________________");
+    drawTextWithChars6FontWithTransparentBackgroundIfPossible(80, 80, 15, "SUPAPLEX PLAYER STATISTICS");
 
     char currentPlayerText[27] = "";
     sprintf(currentPlayerText, "CURRENT PLAYER :  %s", currentPlayerEntry.name);
-    drawTextWithChars6FontWithTransparentBackground(80, 100, 15, currentPlayerText);
+    drawTextWithChars6FontWithTransparentBackgroundIfPossible(80, 100, 15, currentPlayerText);
 
     if (currentPlayerEntry.nextLevelToPlay == kLastLevelIndex)
     {
@@ -9545,7 +9532,7 @@ void handleStatisticsOptionClick() // sub_4AF0C   proc near
 
     char currentLevelText[27] = "";
     sprintf(currentLevelText, "CURRENT LEVEL  :       %s", levelNumberString);
-    drawTextWithChars6FontWithTransparentBackground(80, 110, 15, currentLevelText);
+    drawTextWithChars6FontWithTransparentBackgroundIfPossible(80, 110, 15, currentLevelText);
 
     char secondsNumberString[4] = ":00";
     char minutesNumberString[4] = ":00";
@@ -9562,7 +9549,7 @@ void handleStatisticsOptionClick() // sub_4AF0C   proc near
     char usedTimeText[27] = "";
     sprintf(usedTimeText, "USED TIME      : %s%s%s", hoursNumberString, minutesNumberString, secondsNumberString);
 
-    drawTextWithChars6FontWithTransparentBackground(80, 120, 15, usedTimeText);
+    drawTextWithChars6FontWithTransparentBackgroundIfPossible(80, 120, 15, usedTimeText);
 
     uint32_t totalMinutes = currentPlayerEntry.hours * 60 + currentPlayerEntry.minutes;
 
@@ -9590,19 +9577,19 @@ void handleStatisticsOptionClick() // sub_4AF0C   proc near
     convertNumberTo3DigitPaddedString(averageMinutesWhole, averageTimeString, 1);
     if (byte_5091A == 1)
     {
-        drawTextWithChars6FontWithTransparentBackground(24, 140, 15, "YOU'VE COMPLETED ALL LEVELS! CONGRATULATIONS!!!");
+        drawTextWithChars6FontWithTransparentBackgroundIfPossible(24, 140, 15, "YOU'VE COMPLETED ALL LEVELS! CONGRATULATIONS!!!");
     }
 //loc_4B0E2:              ; CODE XREF: handleStatisticsOptionClick+1C7j
     else if (byte_5091A == 2)
     {
-        drawTextWithChars6FontWithTransparentBackground(40, 140, 15, "STILL UNDER ONE MINUTE (KEEP IT UP...)");
+        drawTextWithChars6FontWithTransparentBackgroundIfPossible(40, 140, 15, "STILL UNDER ONE MINUTE (KEEP IT UP...)");
     }
 //loc_4B0F6:              ; CODE XREF: handleStatisticsOptionClick+1DBj
     else
     {
         char averageTimeMessage[44] = "";
         sprintf(averageTimeMessage, "AVERAGE TIME USED PER LEVEL  %s MINUTES", averageTimeString);
-        drawTextWithChars6FontWithTransparentBackground(32, 140, 15, averageTimeMessage);
+        drawTextWithChars6FontWithTransparentBackgroundIfPossible(32, 140, 15, averageTimeMessage);
     }
 //loc_4B105:              ; CODE XREF: handleStatisticsOptionClick+1D4j
 //                ; handleStatisticsOptionClick+1E8j
@@ -9805,19 +9792,19 @@ void showCongratulationsScreen() // sub_4B2FC   proc near       ; CODE XREF: han
 //    mov si, 8718h // "CONGRATULATIONS"
 //    mov ah, 0Fh
 //    mov di, 5BDFh
-    drawTextWithChars6FontWithTransparentBackground(120, 30, 15, "CONGRATULATIONS");
+    drawTextWithChars6FontWithTransparentBackgroundIfPossible(120, 30, 15, "CONGRATULATIONS");
 //    mov si, 8728h // "YOU HAVE COMPLETED ALL 111 LEVELS OF SUPAPLEX"
 //    mov ah, 0Fh
 //    mov di, 6EE3h
-    drawTextWithChars6FontWithTransparentBackground(24, 70, 15, "YOU HAVE COMPLETED ALL 111 LEVELS OF SUPAPLEX");
+    drawTextWithChars6FontWithTransparentBackgroundIfPossible(24, 70, 15, "YOU HAVE COMPLETED ALL 111 LEVELS OF SUPAPLEX");
 //    mov si, 8756h // "YOUR BRAIN IS IN FANTASTIC SHAPE"
 //    mov ah, 0Fh
 //    mov di, 760Eh
-    drawTextWithChars6FontWithTransparentBackground(64, 85, 15, "YOUR BRAIN IS IN FANTASTIC SHAPE");
+    drawTextWithChars6FontWithTransparentBackgroundIfPossible(64, 85, 15, "YOUR BRAIN IS IN FANTASTIC SHAPE");
 //    mov si, 8777h // "NOT MANY PEOPLE ARE ABLE TO MANAGE THIS"
 //    mov ah, 0Fh
 //    mov di, 7D31h
-    drawTextWithChars6FontWithTransparentBackground(40, 100, 15, "NOT MANY PEOPLE ARE ABLE TO MANAGE THIS");
+    drawTextWithChars6FontWithTransparentBackgroundIfPossible(40, 100, 15, "NOT MANY PEOPLE ARE ABLE TO MANAGE THIS");
 //    mov si, palettesDataBuffer
     fadeToPalette(gInformationScreenPalette);
     waitForKeyMouseOrJoystick();
@@ -9836,7 +9823,7 @@ void handleOkButtonClick() // sub_4B375  proc near       ; CODE XREF: runMainMen
 
     if (strcmp(currentPlayerEntry.name, "--------") == 0)
     {
-        drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, "NO PLAYER SELECTED     ");
+        drawTextWithChars6FontWithOpaqueBackgroundIfPossible(168, 127, 8, "NO PLAYER SELECTED     ");
         return;
     }
 
@@ -9864,7 +9851,7 @@ void handleOkButtonClick() // sub_4B375  proc near       ; CODE XREF: runMainMen
         else
         {
 //loc_4B3CF:              ; CODE XREF: handleOkButtonClick+54j
-            drawTextWithChars6FontWithOpaqueBackground(168, 127, 2, "COLORBLIND I GUESS     ");
+            drawTextWithChars6FontWithOpaqueBackgroundIfPossible(168, 127, 2, "COLORBLIND I GUESS     ");
             return;
         }
     }
@@ -9879,7 +9866,7 @@ void handleOkButtonClick() // sub_4B375  proc near       ; CODE XREF: runMainMen
     if (currentLevelColor == kBlockedLevelEntryColor)
     {
 //loc_4B404:              ; CODE XREF: handleOkButtonClick+70j
-        drawTextWithChars6FontWithOpaqueBackground(168, 127, 8, "COLORBLIND I GUESS     ");
+        drawTextWithChars6FontWithOpaqueBackgroundIfPossible(168, 127, 8, "COLORBLIND I GUESS     ");
         return;
     }
     word_5196C = 1;
@@ -10038,7 +10025,7 @@ void handleFloppyDiskButtonClick() // sub_4B419  proc near
     }
 
 //loc_4B504:              ; CODE XREF: sub_4B419+E6j
-    drawTextWithChars6FontWithOpaqueBackground(168, 127, 4, message);
+    drawTextWithChars6FontWithOpaqueBackgroundIfPossible(168, 127, 4, message);
     readLevelsLst();
     readDemoFiles();
 
@@ -10233,14 +10220,14 @@ void handleLevelCreditsClick() // sub_4B7B7  proc near
 
     drawBackBackground();
 
-    drawTextWithChars6FontWithTransparentBackground(80, 10, 15, "SUPAPLEX  BY DREAM FACTORY");
-    drawTextWithChars6FontWithTransparentBackground(56, 40, 15, "ORIGINAL DESIGN BY PHILIP JESPERSEN");
-    drawTextWithChars6FontWithTransparentBackground(88, 50, 15, "AND MICHAEL STOPP");
-    drawTextWithChars6FontWithTransparentBackground(56, 90, 15, "NEARLY ALL LEVELS BY MICHEAL STOPP");
-    drawTextWithChars6FontWithTransparentBackground(64, 100, 15, "A FEW LEVELS BY PHILIP JESPERSEN");
-    drawTextWithChars6FontWithTransparentBackground(56, 110, 15, "HARDLY ANY LEVELS BY BARBARA STOPP");
-    drawTextWithChars6FontWithTransparentBackground(64, 170, 15, "NOTE: PRESS ENTER TO REMOVE PANEL");
-    drawTextWithChars6FontWithTransparentBackground(64, 190, 15, "(C) DIGITAL INTEGRATION LTD 1991");
+    drawTextWithChars6FontWithTransparentBackgroundIfPossible(80, 10, 15, "SUPAPLEX  BY DREAM FACTORY");
+    drawTextWithChars6FontWithTransparentBackgroundIfPossible(56, 40, 15, "ORIGINAL DESIGN BY PHILIP JESPERSEN");
+    drawTextWithChars6FontWithTransparentBackgroundIfPossible(88, 50, 15, "AND MICHAEL STOPP");
+    drawTextWithChars6FontWithTransparentBackgroundIfPossible(56, 90, 15, "NEARLY ALL LEVELS BY MICHEAL STOPP");
+    drawTextWithChars6FontWithTransparentBackgroundIfPossible(64, 100, 15, "A FEW LEVELS BY PHILIP JESPERSEN");
+    drawTextWithChars6FontWithTransparentBackgroundIfPossible(56, 110, 15, "HARDLY ANY LEVELS BY BARBARA STOPP");
+    drawTextWithChars6FontWithTransparentBackgroundIfPossible(64, 170, 15, "NOTE: PRESS ENTER TO REMOVE PANEL");
+    drawTextWithChars6FontWithTransparentBackgroundIfPossible(64, 190, 15, "(C) DIGITAL INTEGRATION LTD 1991");
     fadeToPalette(gInformationScreenPalette);
     waitForKeyMouseOrJoystick();
     fadeToPalette(gBlackPalette);
@@ -10248,14 +10235,9 @@ void handleLevelCreditsClick() // sub_4B7B7  proc near
     fadeToPalette(gGamePalette);
 }
 
-void drawTextWithChars6FontWithOpaqueBackground(size_t destX, size_t destY, uint8_t color, const char *text) // sub_4BA5F  proc near       ; CODE XREF: handleNewPlayerOptionClick+37p
+void drawTextWithChars6FontWithOpaqueBackgroundIfPossible(size_t destX, size_t destY, uint8_t color, const char *text) // sub_4BA5F  proc near       ; CODE XREF: handleNewPlayerOptionClick+37p
                   //  ; handleNewPlayerOptionClick+4Ap ...
 {
-    if (gFastMode == FastModeTypeUltra)
-    {
-        return;
-    }
-
     // Parameters:
     // - di is the destination surface
     // - si is the text to be rendered
@@ -10267,104 +10249,18 @@ void drawTextWithChars6FontWithOpaqueBackground(size_t destX, size_t destY, uint
         return;
     }
 
-//loc_4BA69:             // ; CODE XREF: drawTextWithChars6FontWithOpaqueBackground+5j
-    byte_51969 = color;
-
-//loc_4BA8D:             // ; CODE XREF: drawTextWithChars6FontWithOpaqueBackground:loc_4BDECj
-    if (text[0] == '\0')
-    {
-        return;
-    }
-
-//loc_4BA9F:             // ; CODE XREF: drawTextWithChars6FontWithOpaqueBackground+3Bj
-    long textLength = strlen(text);
-
-    for (long idx = 0; idx < textLength; ++idx)
-    {
-        char character = text[idx];
-
-//loc_4BA97:             // ; CODE XREF: drawTextWithChars6FontWithOpaqueBackground+33j
-        if (character == '\n')
-        {
-            return;
-        }
-
-        // ' ' = 0x20 = 32, and is first ascii that can be represented.
-        // This line converts the ascii from the string to the index in the font
-        //
-        uint8_t bitmapCharacterIndex = character - 0x20;
-
-        for (uint8_t y = 0; y < kBitmapFontCharacterHeight; ++y)
-        {
-            for (uint8_t x = 0; x < kBitmapFontCharacter6Width; ++x)
-            {
-                uint8_t bitmapCharacterRow = gChars6BitmapFont[bitmapCharacterIndex + y * kNumberOfCharactersInBitmapFont];
-                uint8_t pixelValue = (bitmapCharacterRow >> (7 - x)) & 0x1;
-
-                // 6 is the wide (in pixels) of this font
-                size_t destAddress = (destY + y) * kScreenWidth + (idx * kBitmapFontCharacter6Width + destX + x);
-                gScreenPixels[destAddress] = color * pixelValue;
-            }
-        }
-    }
+    drawTextWithChars6FontWithOpaqueBackground(destX, destY, color, text);
 }
 
-void drawTextWithChars6FontWithTransparentBackground(size_t destX, size_t destY, uint8_t color, const char *text)  // sub_4BDF0 proc near       ; CODE XREF: recoverFilesFromFloppyDisk+2Ap
+void drawTextWithChars6FontWithTransparentBackgroundIfPossible(size_t destX, size_t destY, uint8_t color, const char *text)  // sub_4BDF0 proc near       ; CODE XREF: recoverFilesFromFloppyDisk+2Ap
                    // ; handleStatisticsOptionClick+EDp ...
 {
-    if (gFastMode == FastModeTypeUltra)
-    {
-        return;
-    }
-
     if (byte_5A33F == 1)
     {
         return;
     }
 
-//loc_4BDFA:             // ; CODE XREF: drawTextWithChars6FontWithTransparentBackground+5j
-    byte_51969 = color;
-
-//loc_4BE1E:             // ; CODE XREF: drawTextWithChars6FontWithTransparentBackground:loc_4BF46j
-    if (text[0] == '\0')
-    {
-        return;
-    }
-
-//loc_4BE30:             // ; CODE XREF: drawTextWithChars6FontWithTransparentBackground+3Bj
-    long textLength = strlen(text);
-
-    for (long idx = 0; idx < textLength; ++idx)
-    {
-        char character = text[idx];
-
-//loc_4BA97:             // ; CODE XREF: drawTextWithChars6FontWithOpaqueBackground+33j
-        if (character == '\n')
-        {
-            return;
-        }
-
-        // ' ' = 0x20 = 32, and is first ascii that can be represented.
-        // This line converts the ascii from the string to the index in the font
-        //
-        uint8_t bitmapCharacterIndex = character - 0x20;
-
-        for (uint8_t y = 0; y < kBitmapFontCharacterHeight; ++y)
-        {
-            for (uint8_t x = 0; x < kBitmapFontCharacter6Width; ++x)
-            {
-                uint8_t bitmapCharacterRow = gChars6BitmapFont[bitmapCharacterIndex + y * kNumberOfCharactersInBitmapFont];
-                uint8_t pixelValue = (bitmapCharacterRow >> (7 - x)) & 0x1;
-
-                if (pixelValue == 1)
-                {
-                    // 6 is the wide (in pixels) of this font
-                    size_t destAddress = (destY + y) * kScreenWidth + (idx * kBitmapFontCharacter6Width + destX + x);
-                    gScreenPixels[destAddress] = color;
-                }
-            }
-        }
-    }
+    drawTextWithChars6FontWithTransparentBackground(destX, destY, color, text);
 }
 
 void convertLevelNumberTo3DigitStringWithPadding0(uint8_t number) // sub_4BF4A   proc near       ; CODE XREF: start+3F7p handleGameUserInput+398p ...
@@ -10528,12 +10424,12 @@ void drawRankings() // sub_4C0DD   proc near       ; CODE XREF: handleNewPlayerO
     {
         const uint8_t y = 110 + kDistanceBetweenLines * (i - 2);
         const uint8_t color = (i == 2 ? 6 : 8);
-        drawTextWithChars6FontWithOpaqueBackground(8, y, color, gRankingTextEntries[byte_58D46 + i]);
+        drawTextWithChars6FontWithOpaqueBackgroundIfPossible(8, y, color, gRankingTextEntries[byte_58D46 + i]);
     }
 
     char numberString[4] = "001"; // 0x8359
     convertNumberTo3DigitStringWithPadding0(byte_58D46 + 1, numberString);
-    drawTextWithChars6FontWithOpaqueBackground(144, 110, 6, &numberString[1]); // Remove the first (left most) digit
+    drawTextWithChars6FontWithOpaqueBackgroundIfPossible(144, 110, 6, &numberString[1]); // Remove the first (left most) digit
 }
 
 void drawLevelList() // sub_4C141  proc near       ; CODE XREF: start+41Ap handleGameUserInput+39Bp ...
@@ -10544,15 +10440,15 @@ void drawLevelList() // sub_4C141  proc near       ; CODE XREF: start+41Ap hand
     byte_59823 = gCurrentPlayerLevelData[gCurrentSelectedLevelIndex];
 
     char *previousLevelName = (char *)&gLevelListData[(gCurrentSelectedLevelIndex - 2) * kListLevelNameLength];
-    drawTextWithChars6FontWithOpaqueBackground(144, 155, byte_59821, previousLevelName);
+    drawTextWithChars6FontWithOpaqueBackgroundIfPossible(144, 155, byte_59821, previousLevelName);
 
     char *currentLevelName = (char *)&gLevelListData[(gCurrentSelectedLevelIndex - 1) * kListLevelNameLength];
-    drawTextWithChars6FontWithOpaqueBackground(144, 164, byte_59822, currentLevelName);
+    drawTextWithChars6FontWithOpaqueBackgroundIfPossible(144, 164, byte_59822, currentLevelName);
 
     memcpy(gCurrentLevelName, currentLevelName, kListLevelNameLength);
 
     char *nextLevelName = (char *)&gLevelListData[gCurrentSelectedLevelIndex * kListLevelNameLength];
-    drawTextWithChars6FontWithOpaqueBackground(144, 173, byte_59823, nextLevelName);
+    drawTextWithChars6FontWithOpaqueBackgroundIfPossible(144, 173, byte_59823, nextLevelName);
 }
 
 void drawHallOfFame() // sub_4C1A9   proc near       ; CODE XREF: handleFloppyDiskButtonClick+15Ap
@@ -10577,7 +10473,7 @@ void drawHallOfFame() // sub_4C1A9   proc near       ; CODE XREF: handleFloppyDi
         uint8_t playerNameLength = MIN(strlen(entry.playerName), sizeof(entry.playerName) - 1);
         memcpy(text, entry.playerName, playerNameLength);
 
-        drawTextWithChars6FontWithOpaqueBackground(184, 28 + i * 9, 8, text);
+        drawTextWithChars6FontWithOpaqueBackgroundIfPossible(184, 28 + i * 9, 8, text);
     }
 }
 
@@ -10585,7 +10481,7 @@ void drawCurrentPlayerRanking() //   proc near       ; CODE XREF: drawPlayerList
 {
     // 01ED:55C1
     PlayerEntry currentPlayerEntry = gPlayerListData[gCurrentPlayerIndex];
-    drawTextWithChars6FontWithOpaqueBackground(168, 93, 8, currentPlayerEntry.name);
+    drawTextWithChars6FontWithOpaqueBackgroundIfPossible(168, 93, 8, currentPlayerEntry.name);
 
     char timeText[10] = "000:00:00";
 
@@ -10600,11 +10496,11 @@ void drawCurrentPlayerRanking() //   proc near       ; CODE XREF: drawPlayerList
     // Hours
     convertNumberTo3DigitStringWithPadding0(currentPlayerEntry.hours, timeText);
 
-    drawTextWithChars6FontWithOpaqueBackground(224, 93, 8, timeText);
+    drawTextWithChars6FontWithOpaqueBackgroundIfPossible(224, 93, 8, timeText);
 
     char nextLevelText[4] = "000";
     convertNumberTo3DigitStringWithPadding0(currentPlayerEntry.nextLevelToPlay, nextLevelText);
-    drawTextWithChars6FontWithOpaqueBackground(288, 93, 8, nextLevelText);
+    drawTextWithChars6FontWithOpaqueBackgroundIfPossible(288, 93, 8, nextLevelText);
 }
 
 void drawPlayerList() // sub_4C293  proc near       ; CODE XREF: start+32Cp start+407p ...
@@ -10612,7 +10508,7 @@ void drawPlayerList() // sub_4C293  proc near       ; CODE XREF: start+32Cp sta
     // 01ED:5630
     PlayerEntry currentPlayer = gPlayerListData[gCurrentPlayerIndex];
     memcpy(gPlayerName, currentPlayer.name, sizeof(currentPlayer.name) - 1);
-    drawTextWithChars6FontWithOpaqueBackground(16, 164, 6, currentPlayer.name);
+    drawTextWithChars6FontWithOpaqueBackgroundIfPossible(16, 164, 6, currentPlayer.name);
 
     char *prevPlayerName = "";
 
@@ -10626,7 +10522,7 @@ void drawPlayerList() // sub_4C293  proc near       ; CODE XREF: start+32Cp sta
     }
 
 //loc_4C2CD:              // ; CODE XREF: drawPlayerList+35j
-    drawTextWithChars6FontWithOpaqueBackground(16, 155, 8, prevPlayerName);
+    drawTextWithChars6FontWithOpaqueBackgroundIfPossible(16, 155, 8, prevPlayerName);
 
     char *nextPlayerName = "";
 
@@ -10640,7 +10536,7 @@ void drawPlayerList() // sub_4C293  proc near       ; CODE XREF: start+32Cp sta
     }
 
 //loc_4C2E6:              // ; CODE XREF: drawPlayerList+4Ej
-    drawTextWithChars6FontWithOpaqueBackground(16, 173, 8, nextPlayerName);
+    drawTextWithChars6FontWithOpaqueBackgroundIfPossible(16, 173, 8, nextPlayerName);
     drawCurrentPlayerRanking();
 }
 
@@ -10648,7 +10544,7 @@ void drawMenuTitleAndDemoLevelResult() // sub_4C2F2   proc near       ; CODE XRE
                     // ; sub_4C407+1Fp ...
 {
     // 01ED:568F
-    drawTextWithChars6FontWithOpaqueBackground(168, 127, 4, "  WELCOME TO SUPAPLEX  ");
+    drawTextWithChars6FontWithOpaqueBackgroundIfPossible(168, 127, 4, "  WELCOME TO SUPAPLEX  ");
     drawPlayerList();
     drawLevelList();
     drawHallOfFame();
@@ -10685,7 +10581,7 @@ void drawMenuTitleAndDemoLevelResult() // sub_4C2F2   proc near       ; CODE XRE
 
 //loc_4C33C:              // ; CODE XREF: drawMenuTitleAndDemoLevelResult+34j
                 // ; drawMenuTitleAndDemoLevelResult+39j ...
-    drawTextWithChars6FontWithOpaqueBackground(168, 127, 4, message);
+    drawTextWithChars6FontWithOpaqueBackgroundIfPossible(168, 127, 4, message);
     byte_5A19B = 0;
 }
 
@@ -10888,11 +10784,11 @@ void drawFailedLevelResultScreen() // sub_4C4F9   proc near       ; CODE XREF: s
     setPalette(gBlackPalette);
     drawBackBackground();
 
-    drawTextWithChars6FontWithTransparentBackground(128, 60, 0xF, "HARD LUCK!");
+    drawTextWithChars6FontWithTransparentBackgroundIfPossible(128, 60, 0xF, "HARD LUCK!");
     if (gNumberOfRemainingInfotrons == 0)
     {
-        drawTextWithChars6FontWithTransparentBackground(40, 80, 0xF, "YOU COMPLETED ALL THE NECESSARY INFOTRONS");
-        drawTextWithChars6FontWithTransparentBackground(72, 100, 0xF, "BUT FAILED TO REACH THE EXIT");
+        drawTextWithChars6FontWithTransparentBackgroundIfPossible(40, 80, 0xF, "YOU COMPLETED ALL THE NECESSARY INFOTRONS");
+        drawTextWithChars6FontWithTransparentBackgroundIfPossible(72, 100, 0xF, "BUT FAILED TO REACH THE EXIT");
     }
     else
     {
@@ -10904,12 +10800,12 @@ void drawFailedLevelResultScreen() // sub_4C4F9   proc near       ; CODE XREF: s
 
         convertNumberTo3DigitPaddedString(gTotalNumberOfInfotrons, &message[34], 1);
 
-        drawTextWithChars6FontWithTransparentBackground(40, 80, 0xF, message);
-        drawTextWithChars6FontWithTransparentBackground(104, 100, 0xF, "INFOTRONS NEEDED");
+        drawTextWithChars6FontWithTransparentBackgroundIfPossible(40, 80, 0xF, message);
+        drawTextWithChars6FontWithTransparentBackgroundIfPossible(104, 100, 0xF, "INFOTRONS NEEDED");
     }
 
 //loc_4C55C:              ; CODE XREF: drawFailedLevelResultScreen+31j
-    drawTextWithChars6FontWithTransparentBackground(72, 120, 0xF, "WHY NOT GIVE IT ANOTHER TRY?");
+    drawTextWithChars6FontWithTransparentBackgroundIfPossible(72, 120, 0xF, "WHY NOT GIVE IT ANOTHER TRY?");
 
     videoloop();
     setPalette(gInformationScreenPalette);
@@ -10964,76 +10860,6 @@ void scrollRightToNewScreen() // sub_4C5AF   proc near       ; CODE XREF: handle
 
 //loc_4C5BA:              ; CODE XREF: scrollRightToGfxTutor+3Cj
         videoloop();
-    }
-}
-
-void drawMenuBackground() //   proc near       ; CODE XREF: sub_4C407+14p
-                    // ; sub_4C407:scrollLeftToMainMenup ...
-{
-    for (int y = 0; y < kScreenHeight; y++)
-    {
-//        loc_4C63E:             // ; CODE XREF: drawMenuBackground+4Dj
-        for (int x = 0; x < kScreenWidth; ++x)
-        {
-//loc_4C641:             // ; CODE XREF: drawMenuBackground+47j
-            uint32_t destPixelAddress = y * kScreenWidth + x;
-
-            uint32_t sourcePixelAddress = y * kScreenWidth / 2 + x / 8;
-            uint8_t sourcePixelBitPosition = 7 - (x % 8);
-
-            uint8_t b = (gMenuBitmapData[sourcePixelAddress + 0] >> sourcePixelBitPosition) & 0x1;
-            uint8_t g = (gMenuBitmapData[sourcePixelAddress + 40] >> sourcePixelBitPosition) & 0x1;
-            uint8_t r = (gMenuBitmapData[sourcePixelAddress + 80] >> sourcePixelBitPosition) & 0x1;
-            uint8_t i = (gMenuBitmapData[sourcePixelAddress + 120] >> sourcePixelBitPosition) & 0x1;
-
-            uint8_t finalColor = ((b << 0)
-                                  | (g << 1)
-                                  | (r << 2)
-                                  | (i << 3));
-
-            gScreenPixels[destPixelAddress] = finalColor;
-        }
-    }
-}
-
-void drawOptionsBackground(uint8_t *dest) // vgaloadcontrolsseg
-{
-    drawFullScreenBitmap(gControlsBitmapData, dest);
-}
-
-void drawBackBackground() // vgaloadbackseg
-{
-    drawFullScreenBitmap(gBackBitmapData, gScreenPixels);
-}
-
-void drawGfxTutorBackground(uint8_t *dest) // vgaloadgfxseg
-{
-    drawFullScreenBitmap(gGfxBitmapData, dest);
-}
-
-void drawFullScreenBitmap(uint8_t *bitmapData, uint8_t *dest)
-{
-    for (int y = 0; y < kScreenHeight; ++y)
-    {
-        for (int x = 0; x < kScreenWidth; ++x)
-        {
-            uint32_t destPixelAddress = y * kScreenWidth + x;
-
-            uint32_t sourcePixelAddress = y * kScreenWidth / 2 + x / 8;
-            uint8_t sourcePixelBitPosition = 7 - (x % 8);
-
-            uint8_t b = (bitmapData[sourcePixelAddress + 0] >> sourcePixelBitPosition) & 0x1;
-            uint8_t g = (bitmapData[sourcePixelAddress + 40] >> sourcePixelBitPosition) & 0x1;
-            uint8_t r = (bitmapData[sourcePixelAddress + 80] >> sourcePixelBitPosition) & 0x1;
-            uint8_t i = (bitmapData[sourcePixelAddress + 120] >> sourcePixelBitPosition) & 0x1;
-
-            uint8_t finalColor = ((b << 0)
-                                  | (g << 1)
-                                  | (r << 2)
-                                  | (i << 3));
-
-            dest[destPixelAddress] = finalColor;
-        }
     }
 }
 
@@ -12295,11 +12121,7 @@ void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
         char frameRateString[5] = "";
         sprintf(frameRateString, "%4.1f", MIN(gFrameRate, 99.9)); // Don't show more than 99.9 FPS, not necessary
 
-        // TODO: No idea what this is _yet_ but I can't print on the screen if it's 1
-        uint8_t previousValue = byte_5A33F;
-        byte_5A33F = 0;
         drawTextWithChars6FontWithOpaqueBackground(0, 0, 6, frameRateString);
-        byte_5A33F = previousValue;
     }
 
     handleSDLEvents(); // Make sure the app stays responsive
@@ -16960,29 +16782,29 @@ void drawGamePanelText() // sub_4FC20  proc near       ; CODE XREF: stopRecordin
     if (gIsRecordingDemo != 0) // Recording demo?
     {
 //    mov si, 87D1h // "  DEMO  "
-        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 72, 3, 8, "  DEMO  ");
+        drawTextWithChars8FontToGamePanel(72, 3, 8, "  DEMO  ");
 //    mov si, 87DAh // "000" -> this address is the ".SP" text
-        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 16, 14, 8, gCurrentDemoLevelName);
+        drawTextWithChars8FontToGamePanel(16, 14, 8, gCurrentDemoLevelName);
 //        mov si, 87F6h // "--- RECORDING DEMO0 ---"
-        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 64, 14, 8, gRecordingDemoMessage);
+        drawTextWithChars8FontToGamePanel(64, 14, 8, gRecordingDemoMessage);
     }
 //loc_4FC6F:              ; CODE XREF: drawGamePanelText+5j
     else if (gIsPlayingDemo != 0) // Playing demo?
     {
-        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 72, 3, 8, "  DEMO  ");
+        drawTextWithChars8FontToGamePanel(72, 3, 8, "  DEMO  ");
 //      mov si, 87DAh // "000" -> this address is the ".SP" text
-        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 16, 14, 8, gCurrentDemoLevelName);
+        drawTextWithChars8FontToGamePanel(16, 14, 8, gCurrentDemoLevelName);
 //      mov si, 87DEh // "----- DEMO LEVEL! -----"
-        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 64, 14, 8, &gCurrentDemoLevelName[4]);
+        drawTextWithChars8FontToGamePanel(64, 14, 8, &gCurrentDemoLevelName[4]);
     }
     else
     {
 //loc_4FCD6:              ; CODE XREF: drawGamePanelText+B1j
-        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 72, 3, 6, gPlayerName);
+        drawTextWithChars8FontToGamePanel(72, 3, 6, gPlayerName);
         char levelNumber[4] = "000";
         memcpy(levelNumber, gCurrentLevelName, 3);
-        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 16, 14, 8, levelNumber);
-        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 64, 14, 8, &gCurrentLevelName[4]);
+        drawTextWithChars8FontToGamePanel(16, 14, 8, levelNumber);
+        drawTextWithChars8FontToGamePanel(64, 14, 8, &gCurrentLevelName[4]);
     }
 
 //loc_4FD1A:              ; CODE XREF: drawGamePanelText+4Cj
@@ -17014,45 +16836,25 @@ void drawNumberOfRemainingInfotrons() // sub_4FD21   proc near       ; CODE XREF
                      : 8);
 
 //loc_4FD56:              ; CODE XREF: drawNumberOfRemainingInfotrons+31j
-    drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 272, 14, color, number);
+    drawTextWithChars8FontToGamePanel(272, 14, color, number);
 }
 
-void clearNumberOfRemainingRedDisks() // sub_4FD65   proc near       ; CODE XREF: runLevel+E9p
+void clearAdditionalInfoInGamePanelIfNeeded() // sub_4FD65   proc near       ; CODE XREF: runLevel+E9p
 {
-//loc_4FD6D:              ; CODE XREF: clearNumberOfRemainingRedDisks+5j
+//loc_4FD6D:              ; CODE XREF: clearAdditionalInfoInGamePanelIfNeeded+5j
     if (byte_5197C == 0)
     {
         return;
     }
 
-//loc_4FD75:              ; CODE XREF: clearNumberOfRemainingRedDisks+Dj
+//loc_4FD75:              ; CODE XREF: clearAdditionalInfoInGamePanelIfNeeded+Dj
     byte_5197C--;
     if (byte_5197C != 0)
     {
         return;
     }
 
-//loc_4FD7D:              ; CODE XREF: clearNumberOfRemainingRedDisks+12j
-
-    // Only draws 7 pixel height? That sprite is 8 pixel height.
-    // (A few days later...) it's 7 because this function just clears the text written
-    // in drawNumberOfRemainingRedDisks, and the text is just 7 pixel height, so no need for the 8th line.
-    //
-    uint8_t spriteHeight = 7;
-
-    uint16_t srcX = 272;
-    uint16_t srcY = 388;
-
-    uint16_t dstX = 304;
-    uint16_t dstY = 14;
-
-//loc_4FD99:              ; CODE XREF: clearNumberOfRemainingRedDisks+3Cj
-    for (int y = 0; y < spriteHeight; ++y)
-    {
-        uint32_t srcAddress = (srcY + y) * kMovingBitmapWidth + srcX;
-        uint32_t dstAddress = (dstY + y) * kScreenWidth + dstX;
-        memcpy(&gPanelRenderedBitmapData[dstAddress], &gMovingDecodedBitmapData[srcAddress], kTileSize);
-    }
+    clearAdditionalInfoInGamePanel();
 }
 
 void decreaseRemainingRedDisksIfNeeded(int16_t position) // sub_4FDB5   proc near       ; CODE XREF: update?+124Fp
@@ -17090,7 +16892,7 @@ void drawNumberOfRemainingRedDisks() // sub_4FDCE   proc near       ; CODE XREF:
     }
 
 //loc_4FDF3:              ; CODE XREF: drawNumberOfRemainingRedDisks+21j
-    drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 304, 14, color, &numberString[1]);
+    drawTextWithChars8FontToGamePanel(304, 14, color, &numberString[1]);
     byte_5197C = 0x46; // 70
 }
 
@@ -17110,7 +16912,7 @@ void drawGameTime() // sub_4FDFD   proc near       ; CODE XREF: runLevel+29p
         gLastDrawnMinutesAndSeconds = (gLastDrawnMinutesAndSeconds & 0xFF00) + gGameSeconds; // byte
         convertNumberTo3DigitStringWithPadding0(gGameSeconds, number);
 //loc_4FE2C:              ; CODE XREF: drawGameTime+2Aj
-        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 208, 3, 6, &number[1]); // seconds
+        drawTextWithChars8FontToGamePanel(208, 3, 6, &number[1]); // seconds
     }
 
 //loc_4FE36:              ; CODE XREF: drawGameTime+12j
@@ -17118,7 +16920,7 @@ void drawGameTime() // sub_4FDFD   proc near       ; CODE XREF: runLevel+29p
     {
         gLastDrawnMinutesAndSeconds = (gGameMinutes << 8) + (gLastDrawnMinutesAndSeconds & 0x00FF); // byte
         convertNumberTo3DigitStringWithPadding0(gGameMinutes, number);
-        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 184, 3, 6, &number[1]); // minutes
+        drawTextWithChars8FontToGamePanel(184, 3, 6, &number[1]); // minutes
     }
 
 //loc_4FE5F:              ; CODE XREF: drawGameTime+40j
@@ -17126,89 +16928,26 @@ void drawGameTime() // sub_4FDFD   proc near       ; CODE XREF: runLevel+29p
     {
         gLastDrawnHours = gGameHours;
         convertNumberTo3DigitStringWithPadding0(gGameHours, number);
-        drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, 160, 3, 6, &number[1]); // hours
-    }
-}
-
-void drawTextWithChars8Font(size_t destX, size_t destY, uint8_t color, const char *text) //   proc near       ; CODE XREF: drawTextWithChars8Font+7p
-{
-    drawTextWithChars8FontToBuffer(gScreenPixels, destX, destY, color, text);
-}
-
-void drawTextWithChars8FontToBuffer(uint8_t *buffer, size_t destX, size_t destY, uint8_t color, const char *text)
-{
-    if (gFastMode == FastModeTypeUltra)
-    {
-        return;
-    }
-
-    // Parameters:
-    // - di is the destination surface
-    // - si is the text to be rendered
-    // - ah is the color index in the current palette
-
-    byte_51969 = color;
-
-//loc_4FEBE:              ; CODE XREF: drawTextWithChars8Font_method1+1C3j
-    if (text[0] == '\0')
-    {
-        return;
-    }
-
-//loc_4FED0:              ; CODE XREF: drawTextWithChars8Font_method1+2Fj
-    long textLength = strlen(text);
-
-    for (long idx = 0; idx < textLength; ++idx)
-    {
-        char character = text[idx];
-
-//loc_4FEC8:              ; CODE XREF: drawTextWithChars8Font_method1+27j
-        if (character == '\n')
-        {
-            return;
-        }
-
-        // ' ' = 0x20 = 32, and is first ascii that can be represented.
-        // This line converts the ascii from the string to the index in the font
-        //
-        uint8_t bitmapCharacterIndex = character - 0x20;
-
-        for (uint8_t y = 0; y < kBitmapFontCharacterHeight; ++y)
-        {
-            for (uint8_t x = 0; x < kBitmapFontCharacter8Width; ++x)
-            {
-                uint8_t bitmapCharacterRow = gChars8BitmapFont[bitmapCharacterIndex + y * kNumberOfCharactersInBitmapFont];
-                uint8_t pixelValue = (bitmapCharacterRow >> (7 - x)) & 0x1;
-
-                // 6 is the wide (in pixels) of this font
-                size_t destAddress = (destY + y) * kScreenWidth + (idx * kBitmapFontCharacter8Width + destX + x);
-                buffer[destAddress] = color * pixelValue;
-            }
-        }
+        drawTextWithChars8FontToGamePanel(160, 3, 6, &number[1]); // hours
     }
 }
 
 void drawGamePanel() // sub_501C0   proc near       ; CODE XREF: start+338p handleGameUserInput+678p ...
 {
-    if (gFastMode == FastModeTypeUltra)
-    {
-        return;
-    }
-
-    memcpy(&gPanelRenderedBitmapData, &gPanelDecodedBitmapData, sizeof(gPanelRenderedBitmapData));
+    clearGamePanel();
     drawGamePanelText();
 }
 
 void drawSpeedFixTitleAndVersion() //   proc near       ; CODE XREF: start+2E6p
 {
-    drawTextWithChars6FontWithOpaqueBackground(102, 11, 1, "SUPAPLEX VERSION " VERSION_STRING);
+    drawTextWithChars6FontWithOpaqueBackgroundIfPossible(102, 11, 1, "SUPAPLEX VERSION " VERSION_STRING);
 }
 
 void drawSpeedFixCredits() // showNewCredits  proc near       ; CODE XREF: start+2ECp
 {
-    drawTextWithChars6FontWithOpaqueBackground(60, 168, 0xE, "VERSIONS 1-4 + 6.X BY HERMAN PERK");
-    drawTextWithChars6FontWithOpaqueBackground(60, 176, 0xE, "VERSIONS 5.X BY ELMER PRODUCTIONS");
-    drawTextWithChars6FontWithOpaqueBackground(60, 184, 0xE, "  VERSION 7.X BY SERGIO PADRINO  ");
+    drawTextWithChars6FontWithOpaqueBackgroundIfPossible(60, 168, 0xE, "VERSIONS 1-4 + 6.X BY HERMAN PERK");
+    drawTextWithChars6FontWithOpaqueBackgroundIfPossible(60, 176, 0xE, "VERSIONS 5.X BY ELMER PRODUCTIONS");
+    drawTextWithChars6FontWithOpaqueBackgroundIfPossible(60, 184, 0xE, "  VERSION 7.X BY SERGIO PADRINO  ");
 
     videoloop();
 

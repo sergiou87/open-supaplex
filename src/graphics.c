@@ -23,17 +23,40 @@
 #include "globals.h"
 #include "utils.h"
 
+#define kBitmapFontCharacter8Width 8
+#define kNumberOfCharactersInBitmapFont 64
+#define kBitmapFontLength (kNumberOfCharactersInBitmapFont * 8) // The size of the bitmap is a round number, not 100% related to the size font, there is some padding :shrug:
+
 uint8_t gChars6BitmapFont[kBitmapFontLength];
 uint8_t gChars8BitmapFont[kBitmapFontLength];
+
+#define kFixedBitmapWidth 640
+#define kFixedBitmapHeight 16
 uint8_t gFixedDecodedBitmapData[kFixedBitmapWidth * kFixedBitmapHeight];
+
+#define kMovingBitmapWidth 320
+#define kMovingBitmapHeight 462
 uint8_t gMovingDecodedBitmapData[kMovingBitmapWidth * kMovingBitmapHeight];
+
 uint8_t gPanelDecodedBitmapData[kPanelBitmapWidth * kPanelBitmapHeight];
 uint8_t gPanelRenderedBitmapData[kPanelBitmapWidth * kPanelBitmapHeight];
 uint8_t gCurrentPanelHeight = kPanelBitmapHeight;
+
+#define kFullScreenBitmapLength (kScreenWidth * kScreenHeight / 2) // They use 4 bits to encode pixels
+
+// These buffers contain the raw bitmap data of the corresponding DAT files, separated in 4 bitmaps:
+//  - The bitmap has 4 columns of 40 bytes width x 200 bytes height
+//  - Every column represents a component (R, G, B and intensity).
+//  - In one of these columns/components, every bit represents a pixel (40 bytes x 8 bits = 320 pixels)
+//  - The way these are decoded seems to be to pick, for every pixel, the bit of the r column, the bit of the g column,
+//    the bit from the b column and the bit from the intensity column, and create a 4 bit number that represents an index
+//    in the 16 color palette.
+//
 uint8_t gMenuBitmapData[kFullScreenBitmapLength]; // 0x4D34 ??
 uint8_t gControlsBitmapData[kFullScreenBitmapLength];
 uint8_t gBackBitmapData[kFullScreenBitmapLength];
 uint8_t gGfxBitmapData[kFullScreenBitmapLength];
+
 uint8_t gTitle2DecodedBitmapData[kFullScreenFramebufferLength];
 uint8_t gScrollDestinationScreenBitmapData[kFullScreenFramebufferLength];
 uint8_t gLevelBitmapData[kLevelBitmapWidth * kLevelBitmapHeight];
@@ -50,6 +73,8 @@ uint16_t gLastMouseCursorOriginAddress = 0; // word_5847B
 //
 #define kLastMouseCursorAreaSize 8
 uint8_t gLastMouseCursorAreaBitmap[kLastMouseCursorAreaSize * kLastMouseCursorAreaSize];
+
+void drawFullScreenBitmap(uint8_t *bitmapData, uint8_t *dest);
 
 void readMenuDat() // proc near       ; CODE XREF: readEverything+9p
 {
@@ -646,6 +671,76 @@ void drawMouseCursor() // sub_4B8BE  proc near       ; CODE XREF: handleNewPlaye
     }
 }
 
+void drawMenuBackground() //   proc near       ; CODE XREF: sub_4C407+14p
+                    // ; sub_4C407:scrollLeftToMainMenup ...
+{
+    for (int y = 0; y < kScreenHeight; y++)
+    {
+//        loc_4C63E:             // ; CODE XREF: drawMenuBackground+4Dj
+        for (int x = 0; x < kScreenWidth; ++x)
+        {
+//loc_4C641:             // ; CODE XREF: drawMenuBackground+47j
+            uint32_t destPixelAddress = y * kScreenWidth + x;
+
+            uint32_t sourcePixelAddress = y * kScreenWidth / 2 + x / 8;
+            uint8_t sourcePixelBitPosition = 7 - (x % 8);
+
+            uint8_t b = (gMenuBitmapData[sourcePixelAddress + 0] >> sourcePixelBitPosition) & 0x1;
+            uint8_t g = (gMenuBitmapData[sourcePixelAddress + 40] >> sourcePixelBitPosition) & 0x1;
+            uint8_t r = (gMenuBitmapData[sourcePixelAddress + 80] >> sourcePixelBitPosition) & 0x1;
+            uint8_t i = (gMenuBitmapData[sourcePixelAddress + 120] >> sourcePixelBitPosition) & 0x1;
+
+            uint8_t finalColor = ((b << 0)
+                                  | (g << 1)
+                                  | (r << 2)
+                                  | (i << 3));
+
+            gScreenPixels[destPixelAddress] = finalColor;
+        }
+    }
+}
+
+void drawOptionsBackground(uint8_t *dest) // vgaloadcontrolsseg
+{
+    drawFullScreenBitmap(gControlsBitmapData, dest);
+}
+
+void drawBackBackground() // vgaloadbackseg
+{
+    drawFullScreenBitmap(gBackBitmapData, gScreenPixels);
+}
+
+void drawGfxTutorBackground(uint8_t *dest) // vgaloadgfxseg
+{
+    drawFullScreenBitmap(gGfxBitmapData, dest);
+}
+
+void drawFullScreenBitmap(uint8_t *bitmapData, uint8_t *dest)
+{
+    for (int y = 0; y < kScreenHeight; ++y)
+    {
+        for (int x = 0; x < kScreenWidth; ++x)
+        {
+            uint32_t destPixelAddress = y * kScreenWidth + x;
+
+            uint32_t sourcePixelAddress = y * kScreenWidth / 2 + x / 8;
+            uint8_t sourcePixelBitPosition = 7 - (x % 8);
+
+            uint8_t b = (bitmapData[sourcePixelAddress + 0] >> sourcePixelBitPosition) & 0x1;
+            uint8_t g = (bitmapData[sourcePixelAddress + 40] >> sourcePixelBitPosition) & 0x1;
+            uint8_t r = (bitmapData[sourcePixelAddress + 80] >> sourcePixelBitPosition) & 0x1;
+            uint8_t i = (bitmapData[sourcePixelAddress + 120] >> sourcePixelBitPosition) & 0x1;
+
+            uint8_t finalColor = ((b << 0)
+                                  | (g << 1)
+                                  | (r << 2)
+                                  | (i << 3));
+
+            dest[destPixelAddress] = finalColor;
+        }
+    }
+}
+
 // Draws the fixed stuff from the level (edges of the screen + tiles from FIXED.DAT)
 void drawFixedLevel() // sub_48F6D   proc near       ; CODE XREF: start+335p runLevel+AAp ...
 {
@@ -920,4 +1015,193 @@ void scrollTerminalScreen(int16_t position)
         dest += kLevelBitmapWidth;
         source += kLevelBitmapWidth;
     }
+}
+
+void clearGamePanel()
+{
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
+
+    memcpy(&gPanelRenderedBitmapData, &gPanelDecodedBitmapData, sizeof(gPanelRenderedBitmapData));
+}
+
+void clearAdditionalInfoInGamePanel() // loc_4FD7D:              ; CODE XREF: clearAdditionalInfoInGamePanelIfNeeded+12j
+{
+    // Only draws 7 pixel height? That sprite is 8 pixel height.
+    // (A few days later...) it's 7 because this function just clears the text written
+    // in drawNumberOfRemainingRedDisks, and the text is just 7 pixel height, so no need for the 8th line.
+    //
+    uint8_t spriteHeight = 7;
+
+    uint16_t srcX = 272;
+    uint16_t srcY = 388;
+
+    uint16_t dstX = 304;
+    uint16_t dstY = 14;
+
+//loc_4FD99:              ; CODE XREF: clearAdditionalInfoInGamePanelIfNeeded+3Cj
+    for (int y = 0; y < spriteHeight; ++y)
+    {
+        uint32_t srcAddress = (srcY + y) * kMovingBitmapWidth + srcX;
+        uint32_t dstAddress = (dstY + y) * kScreenWidth + dstX;
+        memcpy(&gPanelRenderedBitmapData[dstAddress], &gMovingDecodedBitmapData[srcAddress], kTileSize);
+    }
+}
+
+void drawTextWithChars6FontWithOpaqueBackground(size_t destX, size_t destY, uint8_t color, const char *text) // loc_4BA8D:             // ; CODE XREF: drawTextWithChars6FontWithOpaqueBackgroundIfPossible:loc_4BDECj
+{
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
+
+    if (text[0] == '\0')
+    {
+        return;
+    }
+
+//loc_4BA9F:             // ; CODE XREF: drawTextWithChars6FontWithOpaqueBackgroundIfPossible+3Bj
+    long textLength = strlen(text);
+
+    for (long idx = 0; idx < textLength; ++idx)
+    {
+        char character = text[idx];
+
+//loc_4BA97:             // ; CODE XREF: drawTextWithChars6FontWithOpaqueBackgroundIfPossible+33j
+        if (character == '\n')
+        {
+            return;
+        }
+
+        // ' ' = 0x20 = 32, and is first ascii that can be represented.
+        // This line converts the ascii from the string to the index in the font
+        //
+        uint8_t bitmapCharacterIndex = character - 0x20;
+
+        for (uint8_t y = 0; y < kBitmapFontCharacterHeight; ++y)
+        {
+            for (uint8_t x = 0; x < kBitmapFontCharacter6Width; ++x)
+            {
+                uint8_t bitmapCharacterRow = gChars6BitmapFont[bitmapCharacterIndex + y * kNumberOfCharactersInBitmapFont];
+                uint8_t pixelValue = (bitmapCharacterRow >> (7 - x)) & 0x1;
+
+                // 6 is the wide (in pixels) of this font
+                size_t destAddress = (destY + y) * kScreenWidth + (idx * kBitmapFontCharacter6Width + destX + x);
+                gScreenPixels[destAddress] = color * pixelValue;
+            }
+        }
+    }
+}
+
+void drawTextWithChars6FontWithTransparentBackground(size_t destX, size_t destY, uint8_t color, const char *text)  // loc_4BE1E:             // ; CODE XREF: drawTextWithChars6FontWithTransparentBackgroundIfPossible:loc_4BF46j
+{
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
+
+    if (text[0] == '\0')
+    {
+        return;
+    }
+
+//loc_4BE30:             // ; CODE XREF: drawTextWithChars6FontWithTransparentBackgroundIfPossible+3Bj
+    long textLength = strlen(text);
+
+    for (long idx = 0; idx < textLength; ++idx)
+    {
+        char character = text[idx];
+
+//loc_4BA97:             // ; CODE XREF: drawTextWithChars6FontWithOpaqueBackgroundIfPossible+33j
+        if (character == '\n')
+        {
+            return;
+        }
+
+        // ' ' = 0x20 = 32, and is first ascii that can be represented.
+        // This line converts the ascii from the string to the index in the font
+        //
+        uint8_t bitmapCharacterIndex = character - 0x20;
+
+        for (uint8_t y = 0; y < kBitmapFontCharacterHeight; ++y)
+        {
+            for (uint8_t x = 0; x < kBitmapFontCharacter6Width; ++x)
+            {
+                uint8_t bitmapCharacterRow = gChars6BitmapFont[bitmapCharacterIndex + y * kNumberOfCharactersInBitmapFont];
+                uint8_t pixelValue = (bitmapCharacterRow >> (7 - x)) & 0x1;
+
+                if (pixelValue == 1)
+                {
+                    // 6 is the wide (in pixels) of this font
+                    size_t destAddress = (destY + y) * kScreenWidth + (idx * kBitmapFontCharacter6Width + destX + x);
+                    gScreenPixels[destAddress] = color;
+                }
+            }
+        }
+    }
+}
+
+void drawTextWithChars8FontToBuffer(uint8_t *buffer, size_t destX, size_t destY, uint8_t color, const char *text)
+{
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
+
+    // Parameters:
+    // - di is the destination surface
+    // - si is the text to be rendered
+    // - ah is the color index in the current palette
+
+    byte_51969 = color;
+
+//loc_4FEBE:              ; CODE XREF: drawTextWithChars8Font_method1+1C3j
+    if (text[0] == '\0')
+    {
+        return;
+    }
+
+//loc_4FED0:              ; CODE XREF: drawTextWithChars8Font_method1+2Fj
+    long textLength = strlen(text);
+
+    for (long idx = 0; idx < textLength; ++idx)
+    {
+        char character = text[idx];
+
+//loc_4FEC8:              ; CODE XREF: drawTextWithChars8Font_method1+27j
+        if (character == '\n')
+        {
+            return;
+        }
+
+        // ' ' = 0x20 = 32, and is first ascii that can be represented.
+        // This line converts the ascii from the string to the index in the font
+        //
+        uint8_t bitmapCharacterIndex = character - 0x20;
+
+        for (uint8_t y = 0; y < kBitmapFontCharacterHeight; ++y)
+        {
+            for (uint8_t x = 0; x < kBitmapFontCharacter8Width; ++x)
+            {
+                uint8_t bitmapCharacterRow = gChars8BitmapFont[bitmapCharacterIndex + y * kNumberOfCharactersInBitmapFont];
+                uint8_t pixelValue = (bitmapCharacterRow >> (7 - x)) & 0x1;
+
+                // 6 is the wide (in pixels) of this font
+                size_t destAddress = (destY + y) * kScreenWidth + (idx * kBitmapFontCharacter8Width + destX + x);
+                buffer[destAddress] = color * pixelValue;
+            }
+        }
+    }
+}
+
+void drawTextWithChars8Font(size_t destX, size_t destY, uint8_t color, const char *text) //   proc near       ; CODE XREF: drawTextWithChars8Font+7p
+{
+    drawTextWithChars8FontToBuffer(gScreenPixels, destX, destY, color, text);
+}
+
+void drawTextWithChars8FontToGamePanel(size_t destX, size_t destY, uint8_t color, const char *text)
+{
+    drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, destX, destY, color, text);
 }
