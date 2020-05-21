@@ -1542,7 +1542,7 @@ MurphyAnimationDescriptor gCurrentMurphyAnimation; // -> starts at 0x0DE0
 uint8_t gNumberOfRemainingInfotrons = 0; // byte_5195A
 uint8_t gTotalNumberOfInfotrons = 0; // byte_5195B
 uint8_t gNumberOfRemainingRedDisks = 0; // byte_5195C
-uint16_t word_5195D = 0; // 0xF000 -> 0x1268 -> (
+uint16_t gFrameCounter = 0xF000; // word_5195D -> 0x1268
 // uint16_t word_51967 = 0; // scroll / first pixel of the scroll window
 uint8_t byte_51969 = 0; //  db 0
 uint8_t byte_5196A = 0;  //  db 0
@@ -3553,7 +3553,7 @@ void initializeGameStateData()
         tile->state = (value >> 8);
     }
 
-    word_5195D = 0xF000;
+    gFrameCounter = 0xF000;
 }
 
 void startDirectlyFromLevel(uint8_t levelNumber)
@@ -6380,7 +6380,7 @@ void initializeGameInfo() // sub_48A20   proc near       ; CODE XREF: start+32F
     gIsExplosionStarted = 0;
     byte_5196A = 0x7F; // 127
     byte_5196B = 0;
-    word_5195D = 0;
+    gFrameCounter = 0;
 //    mov byte ptr word_510C1, 1
 //    mov byte ptr word_510C1+1, 0
     gShouldShowGamePanel = 1;
@@ -6596,7 +6596,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         {
             break;
         }
-        word_5195D++;
+        gFrameCounter++;
         if (gShouldExitLevel == 1)
         {
             break;
@@ -7425,9 +7425,7 @@ void handleGameUserInput() // sub_4955B   proc near       ; CODE XREF: runLevel:
     else
     {
 //loc_4974C:              ; CODE XREF: handleGameUserInput+1ECj
-        ax = word_5195D;
-        ax &= 7;
-        if (ax == 0
+        if ((gFrameCounter & 7) == 0
             && gIsRecordingDemo == 0)
         {
 //loc_49761:              ; CODE XREF: handleGameUserInput+201j
@@ -8305,7 +8303,7 @@ void updateBugTiles(int16_t position) // movefun7  proc near       ; DATA XREF: 
     }
 
 //loc_4A045:              ; CODE XREF: movefun7+5j
-    if ((word_5195D & 3) != 0)
+    if ((gFrameCounter & 3) != 0)
     {
         return;
     }
@@ -8926,7 +8924,7 @@ void updateExplosionTiles(int16_t position) //loc_4A543:              ; DATA XRE
     }
 
 //loc_4A54B:              ; CODE XREF: code:3928j
-    if ((word_5195D & 3) != 0)
+    if ((gFrameCounter & 3) != 0)
     {
         return;
     }
@@ -10573,16 +10571,15 @@ void handleRankingListScrollUp() // loc_4B262
     gRankingListButtonPressed = 1;
     gRankingListDownButtonPressed = 0;
     gRankingListUpButtonPressed = 1;
-    ax = word_5195D;
-    ax -= word_58471;
-    if (ax < word_58473)
+
+    if (gFrameCounter - word_58471 < word_58473)
     {
         return;
     }
 
 //loc_4B27F:              ; CODE XREF: code:465Cj
     restoreLastMouseAreaBitmap();
-    word_58473 = word_5195D;
+    word_58473 = gFrameCounter;
     if (word_58471 > 1)
     {
         word_58471--;
@@ -10606,16 +10603,15 @@ void handleRankingListScrollDown() // loc_4B2AF
     gRankingListButtonPressed = 1;
     gRankingListDownButtonPressed = 1;
     gRankingListUpButtonPressed = 0;
-    ax = word_5195D;
-    ax -= word_58471;
-    if (ax < word_58473)
+
+    if (gFrameCounter - word_58471 < word_58473)
     {
         return;
     }
 
 //loc_4B2CC:              ; CODE XREF: code:46A9j
     restoreLastMouseAreaBitmap();
-    word_58473 = word_5195D;
+    word_58473 = gFrameCounter;
     if (word_58471 > 1)
     {
         word_58471--;
@@ -10745,15 +10741,13 @@ void handleFloppyDiskButtonClick() // sub_4B419  proc near
 {
     // 01ED:47B6
 //loc_4B433:              ; CODE XREF: sub_4B419+15j
-    ax = word_5195D;
-    ax -= word_59B8C;
-    if (ax < word_59B8E)
+    if (gFrameCounter - word_59B8C < word_59B8E)
     {
         return;
     }
 
 //loc_4B443:              ; CODE XREF: sub_4B419+25j
-    word_59B8E = word_5195D;
+    word_59B8E = gFrameCounter;
     if (word_59B8C > 1)
     {
         word_59B8C--;
@@ -10938,15 +10932,14 @@ void handlePlayerListScrollDown() // sub_4B671  proc near
     gPlayerListButtonPressed = 1;
     gPlayerListDownButtonPressed = 1;
     gPlayerListUpButtonPressed = 0;
-    ax = word_5195D;
-    ax -= word_5846D;
-    if (ax < word_5846F)
+
+    if (gFrameCounter - word_5846D < word_5846F)
     {
         return;
     }
 
 //loc_4B68E:              ; CODE XREF: handlePlayerListScrollDown+1Aj
-    word_5846F = word_5195D;
+    word_5846F = gFrameCounter;
     if (word_5846D > 1)
     {
         word_5846D--;
@@ -10975,15 +10968,14 @@ void handlePlayerListScrollUp() // sub_4B6C9  proc near
     gPlayerListButtonPressed = 1;
     gPlayerListDownButtonPressed = 0;
     gPlayerListUpButtonPressed = 1;
-    ax = word_5195D;
-    ax -= word_5846D;
-    if (ax < word_5846F)
+
+    if (gFrameCounter - word_5846D < word_5846F)
     {
         return;
     }
 
 //loc_4B6E6:              ; CODE XREF: handlePlayerListScrollUp+1Aj
-    word_5846F = word_5195D;
+    word_5846F = gFrameCounter;
     if (word_5846D > 1)
     {
         word_5846D--;
@@ -11018,15 +11010,14 @@ void handleLevelListScrollDown() // sub_4B72B  proc near
     gLevelListButtonPressed = 1;
     gLevelListDownButtonPressed = 1;
     gLevelListUpButtonPressed = 0;
-    ax = word_5195D;
-    ax -= word_58469;
-    if (ax < word_5846B)
+
+    if (gFrameCounter - word_58469 < word_5846B)
     {
         return;
     }
 
 //loc_4B748:              ; CODE XREF: handleLevelListScrollDown+1Aj
-    word_5846B = word_5195D;
+    word_5846B = gFrameCounter;
     if (word_58469 > 1)
     {
         word_58469--;
@@ -11049,15 +11040,14 @@ void handleLevelListScrollUp() // sub_4B771  proc near
     gLevelListButtonPressed = 1;
     gLevelListDownButtonPressed = 0;
     gLevelListUpButtonPressed = 1;
-    ax = word_5195D;
-    ax -= word_58469;
-    if (ax < word_5846B)
+
+    if (gFrameCounter - word_58469 < word_5846B)
     {
         return;
     }
 
 //loc_4B78E:              ; CODE XREF: handleLevelListScrollUp+1Aj
-    word_5846B = word_5195D;
+    word_5846B = gFrameCounter;
     if (word_58469 > 1)
     {
         word_58469--;
@@ -11145,8 +11135,8 @@ void restoreLastMouseAreaBitmap() // sub_4B899  proc near       ; CODE XREF: sta
 void drawMouseCursor() // sub_4B8BE  proc near       ; CODE XREF: handleNewPlayerOptionClick+FFp
 //                    ; handleNewPlayerOptionClick+127p ...
 {
-    // word_5195D = some kind of counter for animations?
-    uint8_t frameNumber = (word_5195D / 4) % 8;
+    // gFrameCounter = some kind of counter for animations?
+    uint8_t frameNumber = (gFrameCounter / 4) % 8;
     uint8_t frameRow = frameNumber / 4;
     uint8_t frameColumn = frameNumber % 4;
 
@@ -12119,7 +12109,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
 //loc_4C81A:              // ; CODE XREF: runMainMenu+77j
         videoloop();
 
-        word_5195D++;
+        gFrameCounter++;
         uint16_t mouseX, mouseY;
         uint16_t mouseButtonStatus;
         getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
@@ -12334,7 +12324,7 @@ void handleControlsOptionClick() //showControls:                              ; 
 //                            ; code:5EBFj ...
         videoloop(); // 01ED:5E04
         updateOptionsMenuState(gScreenPixels);
-        word_5195D++;
+        gFrameCounter++;
         getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
 
         gMouseButtonStatus = mouseButtonStatus;
@@ -12376,7 +12366,7 @@ void handleControlsOptionClick() //showControls:                              ; 
                     {
 //loc_4CAD0:                              ; CODE XREF: code:5EBDj
                         videoloop();
-                        word_5195D++;
+                        gFrameCounter++;
                         getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
                     }
                     while (mouseButtonStatus != 0);
@@ -13798,9 +13788,7 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
         }
 
 //loc_4DEFC:              ; CODE XREF: update?+67j
-        ax = word_5195D;
-        ax &= 3;
-        if (ax != 0)
+        if ((gFrameCounter & 3) != 0)
         {
             return position;
         }
@@ -16663,7 +16651,7 @@ void updateSnikSnakTurnLeft(int16_t position, uint8_t frame) // sub_4F312   proc
     StatefulLevelTile *belowTile = &gCurrentLevelState[position + kLevelWidth];
     StatefulLevelTile *rightTile = &gCurrentLevelState[position + 1];
 
-    uint16_t value = word_5195D & 3;
+    uint16_t value = gFrameCounter & 3;
 
     if (value == 0)
     {
@@ -16781,7 +16769,7 @@ void updateSnikSnakTurnRight(int16_t position, uint8_t frame) // sub_4F40D   pro
     StatefulLevelTile *leftTile = &gCurrentLevelState[position - 1];
     StatefulLevelTile *belowTile = &gCurrentLevelState[position + kLevelWidth];
 
-    uint16_t value = word_5195D & 3;
+    uint16_t value = gFrameCounter & 3;
 
     if (value == 0)
     {
@@ -17304,7 +17292,7 @@ void updateElectronTurnLeft(int16_t position, uint8_t frame) // sub_4F7D1   proc
     StatefulLevelTile *belowTile = &gCurrentLevelState[position + kLevelWidth];
     StatefulLevelTile *rightTile = &gCurrentLevelState[position + 1];
 
-    uint16_t value = word_5195D & 3;
+    uint16_t value = gFrameCounter & 3;
 
     if (value == 0)
     {
@@ -17410,7 +17398,7 @@ void updateElectronTurnRight(int16_t position, uint8_t frame) // sub_4F8A5   pro
     StatefulLevelTile *belowTile = &gCurrentLevelState[position + kLevelWidth];
     StatefulLevelTile *rightTile = &gCurrentLevelState[position + 1];
 
-    uint16_t value = word_5195D & 3;
+    uint16_t value = gFrameCounter & 3;
 
     if (value == 0)
     {
