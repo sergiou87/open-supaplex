@@ -41,4 +41,4 @@ jobs:
       shell: bash
     - name: Finish job
       run: |
-        exit ${steps.run_tests.outputs.run_tests_exit_code}
+        exit ${{ steps.run_tests.outputs.run_tests_exit_code }}
