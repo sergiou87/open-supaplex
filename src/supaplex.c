@@ -2319,11 +2319,6 @@ static const FrameBasedMovingFunction kSnikSnakMovingFunctions[48] = {
     updateSnikSnakMovementRight,
 };
 
-// registers to prevent compiler errors
-uint8_t cf;
-uint8_t ah, al, bh, bl, ch, cl, dh, dl;
-uint16_t ax, bx, cx, dx, ds, cs, es, bp, sp, di, si;
-
 void initializeGameStateData(void);
 void startDirectlyFromLevel(uint8_t levelNumber);
 void stopDemoAndPlay(void);
@@ -3406,7 +3401,6 @@ int main(int argc, char *argv[])
             }
 
 //loc_46FE4:              //; CODE XREF: start+3BDj
-            ax = 1;
             byte_510B3 = 0;
             gHasUserCheated = 1;
             strcpy(&a00s0010_sp[3], "---");
@@ -3576,21 +3570,11 @@ void slideDownGameDash() // proc near     ; CODE XREF: start:isNotFastMode2p
     // 01ED:04ED
     if (gShouldShowGamePanel == 0)
     {
-//loc_4715C:              ; CODE XREF: crt?2+5j
-//        cx = 0x90; // 144
         return;
     }
 
     for (int panelHeight = kPanelBitmapHeight; panelHeight > 0; --panelHeight)
     {
-        // This code probably keeps the scroll in valid values
-        // bx = word_51967;
-        // if (bx > 0x4DAE)
-        // {
-        //     bx -= 122;
-        //     word_51967 = bx;
-        // }
-
         // Move the bottom panel line by line to the bottom of the screen
         for (int y = kScreenHeight - 2; y >= kScreenHeight - panelHeight; --y)
         {
@@ -4036,7 +4020,6 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
 
             if (numberOfDemoBytesRead == 0)
             {
-                ax = 0;
                 if (fclose(file) != 0)
                 {
                     exitWithError("Error closing DEMO file");
@@ -4054,8 +4037,6 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
         }
 
 //loc_47729:              ; CODE XREF: readDemoFiles+11Bj
-        // pop(ax)
-        bx = word_510DF;
         gDemos.demoData[word_510DF] = gDemos.demoData[word_510DF] & 0x7F; // this removes the MSB from the levelNumber that was added in the speed fix mods
         int isZero = (gSelectedOriginalDemoLevelNumber == 0);
         gSelectedOriginalDemoLevelNumber = 0;
@@ -4281,7 +4262,6 @@ void loadScreen2() // proc near       ; CODE XREF: start:loc_46F00p
     }
 
 //loc_4792E:              //; CODE XREF: loadScreen2+76j
-//    word_51967 = gScreenPixels??; // points to where title1.dat was RENDERED
     ColorPalette title1DatPalette;
     convertPaletteDataToPalette(gTitle1PaletteData, title1DatPalette);
     setPalette(title1DatPalette);
@@ -4597,7 +4577,6 @@ void readBitmapFonts() //   proc near       ; CODE XREF: readBitmapFonts+14j
 
 void readTitleDatAndGraphics() // proc near  ; CODE XREF: start+2BBp
 {
-//  word_51967 = 0x4D84; // address where the bitmap will be rendered
     videoloop();
     FILE *file = openReadonlyFile("TITLE.DAT", "r");
 
@@ -6362,7 +6341,6 @@ void initializeGameInfo() // sub_48A20   proc near       ; CODE XREF: start+32F
     // 01ED:1DBD
     word_510BC = gMurphyTileX;
     word_510BE = gMurphyTileY;
-    ax = 0;
     word_510CB = 0;
     gShouldKillMurphy = 0;
     gShouldExitLevel = 0;
@@ -6807,18 +6785,6 @@ void drawFixedLevel() // sub_48F6D   proc near       ; CODE XREF: start+335p ru
             }
         }
     }
-
-//loc_490FD:              ; CODE XREF: drawFixedLevel+18Cj
-    // No idea what's this yet...
-//    bx = gScrollOffsetX;
-//    cl = 3;
-//    bx = bx >> cl;
-//    ax = gScrollOffsetY;
-//    cx = 0x7A; // 122
-//    ax = ax * cx;
-//    bx += ax;
-//    bx += 0x4D34; // 19764
-//    word_51967 = bx;
 }
 
 void updateUserInputInScrollMovementMode() // sub_4914A   proc near       ; CODE XREF: handleGameUserInput+7p
@@ -6876,14 +6842,6 @@ void updateUserInputInScrollMovementMode() // sub_4914A   proc near       ; CODE
     {
         gAdditionalScrollOffsetX = kLevelBitmapWidth - gMurphyScrollOffsetX;
         gAdditionalScrollOffsetY = -gMurphyScrollOffsetY;
-    }
-
-//loc_491D7:              ; CODE XREF: updateUserInputInScrollMovementMode+84j
-    bx -= 0x270; // 312
-    ax += 0xA8;
-    if (gShouldShowGamePanel != 0)
-    {
-        ax += 0x18;
     }
 
 //loc_491E8:              ; CODE XREF: updateUserInputInScrollMovementMode+99j
@@ -8275,13 +8233,6 @@ void updateScrollOffset() // sub_49EBE   proc near       ; CODE XREF: runLevel+1
 //                ; updateScrollOffset+FEj
     gScrollOffsetX = scrollX;
     gScrollOffsetY = scrollY;
-//    cl = 3;
-//    scrollX = scrollX >> cl;
-//    cx = 0x7A; // 122
-//    scrollY = scrollY * cx;
-//    scrollX += scrollY;
-//    scrollX += 0x4D34;
-//    word_51967 = scrollX;
 }
 
 void updateBugTiles(int16_t position) // movefun7  proc near       ; DATA XREF: data:163Co
@@ -8698,10 +8649,6 @@ void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
             currentTile->tile = 0xFF;
             continue; // jmp short loc_4A3B0
         }
-
-//loc_4A3B0:              ; CODE XREF: sub_4A2E6+13j
-//                ; sub_4A2E6:loc_4A33Aj ...
-        bx++;
     }
 }
 
@@ -10877,18 +10824,12 @@ void handleFloppyDiskButtonClick() // sub_4B419  proc near
     drawTextWithChars6FontWithOpaqueBackground(168, 127, 4, message);
     readLevelsLst();
     readDemoFiles();
-//    push    es
-//    push    ds
-//    pop es
-//    assume es:data
+
     // 01ED:48B2
     if (gIsForcedCheatMode != 0)
     {
-        // TODO: no idea what gIsForcedCheatMode is for yet, but seems to be related to some command line option
         assert(0);
     //    lea di, byte_58DB4+4
-        cx = 0x6F; // 11
-        al = 2;
         memset(NULL, kNotCompletedLevelEntryColor, 111); // rep stosb, I think this resets the player level state to skipped
     }
     else
@@ -11239,7 +11180,6 @@ void drawTextWithChars6FontWithTransparentBackground(size_t destX, size_t destY,
 
 //loc_4BDFA:             // ; CODE XREF: drawTextWithChars6FontWithTransparentBackground+5j
     byte_51969 = color;
-    cl = 0;
 
 //loc_4BE1E:             // ; CODE XREF: drawTextWithChars6FontWithTransparentBackground:loc_4BF46j
     if (text[0] == '\0')
@@ -15434,26 +15374,10 @@ int16_t updateMurphyAnimation(int16_t position)
         Point frameCoordinates = animationFrameCoordinates.coordinates[currentFrame];
 
 //loc_4EA6B:              ; CODE XREF: update?+B83j
-    //    push    si
-    //    push(di);
         gMurphyPositionX += gCurrentMurphyAnimation.speedX;
         gMurphyPositionY += gCurrentMurphyAnimation.speedY;
-    //    mov di, [si+6155h]
-//        di += gSomeUnknownMurphyData.word_510F0; // destination offset
-//        si = gSomeUnknownMurphyData.word_510F8; // coordinates in MOVING.DAT
-//        ax = si;
-        si += 2; // advance a frame (2 bytes = 1 word in the list of frames)
-//        gSomeUnknownMurphyData.word_510F8 = si;
         gCurrentMurphyAnimation.currentFrame++;
-        si = ax;
-        bx = gCurrentMurphyAnimation.width * 8;
-        dx = gCurrentMurphyAnimation.height;
-    //    push    ds
-    //    mov ax, es
-    //    mov ds, ax
 
-//        uint16_t srcX = (si % kMovingBitmapWidth);
-//        uint16_t srcY = (si / kMovingBitmapWidth);
         uint16_t dstX = (position % kLevelWidth) * kTileSize;
         uint16_t dstY = (position / kLevelWidth) * kTileSize;
 
@@ -17952,22 +17876,19 @@ void drawNumberOfRemainingInfotrons() // sub_4FD21   proc near       ; CODE XREF
 void clearNumberOfRemainingRedDisks() // sub_4FD65   proc near       ; CODE XREF: runLevel+E9p
 {
 //loc_4FD6D:              ; CODE XREF: clearNumberOfRemainingRedDisks+5j
-    al = byte_5197C;
-    if (al == 0)
+    if (byte_5197C == 0)
     {
         return;
     }
 
 //loc_4FD75:              ; CODE XREF: clearNumberOfRemainingRedDisks+Dj
-    al--;
-    if (al != 0)
+    byte_5197C--;
+    if (byte_5197C != 0)
     {
-        byte_5197C = al;
         return;
     }
 
 //loc_4FD7D:              ; CODE XREF: clearNumberOfRemainingRedDisks+12j
-    byte_5197C = al;
 
     // Only draws 7 pixel height? That sprite is 8 pixel height.
     // (A few days later...) it's 7 because this function just clears the text written
