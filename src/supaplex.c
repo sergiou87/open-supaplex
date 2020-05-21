@@ -1427,18 +1427,6 @@ static const uint16_t kFallAnimationGravityOffsets[18] = {
     0x081A, // -> 0x6CB7
 };
 
-// This points to the address on the screen where the mouse cursor was
-// drawn the last time, used to clear the cursor before redrawing it again
-//
-uint16_t gLastMouseCursorOriginAddress = 0; // word_5847B
-
-// This buffer will hold the bitmap of the area where the cursor is going to be drawn
-// with the intention of restoring that area before rendering the mouse in a new
-// position, hence clearing the trail the mouse would leave.
-//
-#define kLastMouseCursorAreaSize 8
-uint8_t gLastMouseCursorAreaBitmap[kLastMouseCursorAreaSize * kLastMouseCursorAreaSize];
-
 static const int kConfigDataLength = 4;
 
 uint16_t gRandomGeneratorSeed = 0;
@@ -1448,9 +1436,6 @@ enum MouseButton
     MouseButtonLeft = 1 << 0,
     MouseButtonRight = 1 << 1,
 };
-
-uint16_t gMouseButtonStatus = 0; // word_5847D
-uint16_t gMouseX = 0, gMouseY = 0;
 
 uint8_t gShouldCloseAdvancedMenu = 0;
 uint8_t gAdvancedMenuRecordDemoIndex = 0;
@@ -2269,9 +2254,6 @@ void prepareLevelDataForCurrentPlayer(void);
 void drawPlayerList(void);
 void drawLevelList(void);
 void drawHallOfFame(void);
-void saveLastMouseAreaBitmap(void);
-void restoreLastMouseAreaBitmap(void);
-void drawMouseCursor(void);
 void drawRankings(void);
 void drawTextWithChars6FontWithOpaqueBackground(size_t destX, size_t destY, uint8_t color, const char *text);
 void drawTextWithChars6FontWithTransparentBackground(size_t destX, size_t destY, uint8_t color, const char *text);
@@ -10264,79 +10246,6 @@ void handleLevelCreditsClick() // sub_4B7B7  proc near
     fadeToPalette(gBlackPalette);
     memcpy(gScreenPixels, screenPixelsBackup, kFullScreenFramebufferLength);
     fadeToPalette(gGamePalette);
-}
-
-// This function calculates where in the main menu bitmap the cursor will be drawn, and takes in advance
-// the area of the screen so that it can be restored later.
-//
-void saveLastMouseAreaBitmap() // sub_4B85C  proc near       ; CODE XREF: handleNewPlayerOptionClick+FCp
-//                    ; handleNewPlayerOptionClick+124p ...
-{
-    // 01ED:4BF9
-    gLastMouseCursorOriginAddress = gMouseY * kScreenWidth + gMouseX;
-
-    for (int y = 0; y < kLastMouseCursorAreaSize; ++y)
-    {
-        for (int x = 0; x < kLastMouseCursorAreaSize; ++x)
-        {
-            uint32_t destAddress = y * kLastMouseCursorAreaSize + x;
-            uint32_t sourceAddress = (gLastMouseCursorOriginAddress
-                                      + y * kScreenWidth
-                                      + x);
-
-            gLastMouseCursorAreaBitmap[destAddress] = gScreenPixels[sourceAddress];
-        }
-    }
-}
-
-// This function will restore the last portion of the background where the mouse was
-// hence clearing its trail.
-//
-void restoreLastMouseAreaBitmap() // sub_4B899  proc near       ; CODE XREF: start+417p handleNewPlayerOptionClick+3Fp ...
-{
-    for (int y = 0; y < kLastMouseCursorAreaSize; ++y)
-    {
-        for (int x = 0; x < kLastMouseCursorAreaSize; ++x)
-        {
-            uint32_t destAddress = y * kLastMouseCursorAreaSize + x;
-            uint32_t sourceAddress = (gLastMouseCursorOriginAddress
-                                      + y * kScreenWidth
-                                      + x);
-
-            gScreenPixels[sourceAddress] = gLastMouseCursorAreaBitmap[destAddress];
-        }
-    }
-}
-
-void drawMouseCursor() // sub_4B8BE  proc near       ; CODE XREF: handleNewPlayerOptionClick+FFp
-//                    ; handleNewPlayerOptionClick+127p ...
-{
-    // gFrameCounter = some kind of counter for animations?
-    uint8_t frameNumber = (gFrameCounter / 4) % 8;
-    uint8_t frameRow = frameNumber / 4;
-    uint8_t frameColumn = frameNumber % 4;
-
-    static const uint8_t kMouseCursorSize = 8;
-    static const uint32_t kMouseCursorOriginY = 445;
-
-    // In the original code, the address below was just 0x1520 (+ the offset for the current frame)
-    const uint32_t kStartMouseCursorAddr = ((kMouseCursorOriginY * kMovingBitmapWidth) // First pixel of the cursor frames in MOVING.DAT
-                                            + (frameRow * (kMouseCursorSize + 1) * kMovingBitmapWidth) // Y offset depending on the row in which the frame we're gonna draw is. The +1 to the size is because there is 1 pixel separation between rows :shrug:
-                                            + (frameColumn * kMouseCursorSize)); // X offset depending on the column where the frame is
-
-    for (int y = 0; y < kMouseCursorSize; ++y)
-    {
-        for (int x = 0; x < kMouseCursorSize; ++x)
-        {
-            uint8_t sourcePixel = gMovingDecodedBitmapData[kStartMouseCursorAddr + y * kMovingBitmapWidth + x];
-
-            // Only draw non-0 pixels
-            if (sourcePixel > 0)
-            {
-                gScreenPixels[gLastMouseCursorOriginAddress + y * kScreenWidth + x] = sourcePixel;
-            }
-        }
-    }
 }
 
 void drawTextWithChars6FontWithOpaqueBackground(size_t destX, size_t destY, uint8_t color, const char *text) // sub_4BA5F  proc near       ; CODE XREF: handleNewPlayerOptionClick+37p

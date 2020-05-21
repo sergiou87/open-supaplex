@@ -270,6 +270,9 @@ extern FastModeType gFastMode;
 extern uint16_t gScrollOffsetX; // word_5195F
 extern uint16_t gScrollOffsetY; // word_51961
 
+extern uint16_t gMouseButtonStatus; // word_5847D
+extern uint16_t gMouseX, gMouseY;
+
 typedef struct {
     int16_t word_510F0; // 0x0DE0 -> seems like an offset from the destination position (in tiles * 2)
     int16_t word_510F2; // this increases the offset above frame by frame

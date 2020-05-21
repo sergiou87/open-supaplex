@@ -87,6 +87,9 @@ FastModeType gFastMode = FastModeTypeNone;
 uint16_t gScrollOffsetX = 0; // word_5195F
 uint16_t gScrollOffsetY = 0; // word_51961
 
+uint16_t gMouseButtonStatus = 0; // word_5847D
+uint16_t gMouseX = 0, gMouseY = 0;
+
 // ----------- BEGINNING OF STATE SAVED IN SAVEGAMES -----------
 
 StatefulLevelTile gCurrentLevelStateWithPadding[levelDataLength + kSizeOfLevelStatePrecedingPadding]; // 0x1584
