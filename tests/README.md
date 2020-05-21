@@ -3,8 +3,11 @@
 This folder contains "tests" for OpenSupaplex. They're actually solutions for many levels recorded by users and shared
 with the community.
 
-These solutions were collected through the years by [Elmer Productions](http://www.elmerproductions.com/), and the files
+Some of these solutions were collected through the years by [Elmer Productions](http://www.elmerproductions.com/), and the files
 in this folder were downloaded from their website: http://www.elmerproductions.com/sp/solutions.html
+
+Other solutions were collected by Greg from [Supaplex Online](https://www.supaplex.online/) who kindly shared them with me to
+improve the quality of this reimplementation.
 
 Each solution belongs to its author.
 
