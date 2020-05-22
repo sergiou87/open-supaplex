@@ -36,6 +36,7 @@
 #include "input.h"
 #include "logging.h"
 #include "menu.h"
+#include "savegame.h"
 #include "touchscreen.h"
 #include "utils.h"
 #include "video.h"
@@ -1369,17 +1370,11 @@ uint16_t word_59B8C = 0;
 uint16_t word_59B8E = 0;
 uint16_t word_59B90 = 0;
 uint16_t word_59B92 = 0;
-// These two are some kind of magic number to identify savegames
-uint16_t word_5A309 = 0x5053;
-uint16_t word_5A30B = 0x1A0D;
-char kSaveGameMagicNumber[4] = "OSPX";
 uint16_t word_5A30D = 0;
 uint16_t word_5A30F = 0;
 uint8_t gIsGameRunning; // byte_510AE
 uint16_t gLastDrawnMinutesAndSeconds; // word_510B7
 uint8_t gLastDrawnHours; // byte_510B9
-uint8_t gIsPlayingDemo; // byte_510DE -> 0DCE
-uint8_t gIsRecordingDemo; // byte_510E3 -> 0DD3
 FILE *gCurrentRecordingDemoFile; // word_510E4
 uint8_t gDemoRecordingLowestSpeed; // speed?2
 int16_t gAdditionalScrollOffsetX; // word_51963
@@ -1440,19 +1435,6 @@ enum MouseButton
 uint8_t gShouldCloseAdvancedMenu = 0;
 uint8_t gAdvancedMenuRecordDemoIndex = 0;
 uint8_t gAdvancedMenuPlayDemoIndex = 0;
-
-// This is the only file format that is not compatible with the original game: while most of the data is
-// still exactly the same, some other things are just useless/pointless in the reimplementation, because
-// they weren't game data only, but also info tightly coupled to the rendering/hardware requirements it had.
-//
-typedef struct {
-    uint8_t magicNumber[4]; // is expected to be kSaveGameMagicNumber
-    uint8_t savegameVersion; // byte_5988D -> 0x53 = 5.3
-    char levelName[kListLevelNameLength]; // "005 ------ EASY DEAL ------\n" if it's a demo, then there is a \0 after the number
-    char levelsetSuffix[2]; // word_5988E
-    char levelIdentifier[3]; // "001" or ".SP" or "BIN"
-    // GameState gameState;
-} Savegame;
 
 #define kPaleteDataSize (kNumberOfColors * 4)
 #define kNumberOfPalettes 4
@@ -6830,56 +6812,7 @@ void saveGameSnapshot() //loc_499C8:              ; CODE XREF: handleGameUserInp
 {
     gShouldCloseAdvancedMenu = 1;
 
-    FILE *file = openWritableFile(gSavegameSavFilename, "w");
-    if (file == NULL)
-    {
-        showSavegameOperationError();
-        return;
-    }
-
-//loc_499D8:              ; CODE XREF: handleGameUserInput+478j
-    // 01ED:2D7B
-
-    Savegame savegame;
-    memset(&savegame, 0, sizeof(Savegame));
-    memcpy(savegame.magicNumber, kSaveGameMagicNumber, sizeof(savegame.magicNumber));
-
-//loc_499F7:              ; CODE XREF: handleGameUserInput+497j
-    // 01ED:2D9B
-    char *levelName = "";
-    if (gIsPlayingDemo == 0)
-    {
-        levelName = gCurrentLevelName;
-    }
-    else
-    {
-//loc_49A03:              ; CODE XREF: handleGameUserInput+4A1j
-        levelName = gCurrentDemoLevelName;
-    }
-
-//loc_49A06:              ; CODE XREF: handleGameUserInput+4A6j
-
-    savegame.savegameVersion = kGameVersion;
-
-    memcpy(savegame.levelName, levelName, sizeof(savegame.levelName));
-    memcpy(savegame.levelsetSuffix, &gLevelsDatFilename[8], sizeof(savegame.levelsetSuffix));
-    memcpy(savegame.levelIdentifier, levelName, sizeof(savegame.levelIdentifier));
-
-    // TODO: implement savegames properly
-    //savegame.gameState = gCurrentGameState;
-
-    size_t bytes = fwrite(&savegame, 1, sizeof(Savegame), file);
-    if (bytes < sizeof(Savegame))
-    {
-//loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
-//                    ; handleGameUserInput+499j ...
-        fclose(file);
-        showSavegameOperationError();
-        return;
-    }
-
-//loc_49A6A:              ; CODE XREF: handleGameUserInput+50Aj
-    if (fclose(file) != 0)
+    if (saveGameState() != 0)
     {
         showSavegameOperationError();
         return;
@@ -6893,8 +6826,7 @@ void loadGameSnapshot() // loc_49A89:              ; CODE XREF: handleGameUserIn
 {
     gShouldCloseAdvancedMenu = 1;
 
-    FILE *file = openWritableFile(gSavegameSavFilename, "r");
-    if (file == NULL)
+    if (canLoadGameState() == 0)
     {
         showSavegameOperationError();
         return;
@@ -6906,55 +6838,18 @@ void loadGameSnapshot() // loc_49A89:              ; CODE XREF: handleGameUserIn
         stopRecordingDemo();
     }
 
-    Savegame savegame;
-    size_t bytes = fread(&savegame, 1, sizeof(Savegame), file);
-    if (bytes < sizeof(Savegame))
-    {
-//loc_49C1A:              ; CODE XREF: handleGameUserInput+553j
-//                    ; handleGameUserInput+581j ...
-        gIsRecordingDemo = 0;
+    gIsRecordingDemo = 0;
 
-//loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
-//                    ; handleGameUserInput+499j ...
-        fclose(file);
+    if (loadGameState() != 0)
+    {
         showSavegameOperationError();
         return;
     }
-
-//loc_49AB1:              ; CODE XREF: handleGameUserInput+551j
-    if (memcmp(savegame.magicNumber, kSaveGameMagicNumber, sizeof(savegame.magicNumber)) != 0)
-    {
-//loc_49AC5:              ; CODE XREF: handleGameUserInput+55Ej
-        fclose(file);
-        showSavegameOperationError();
-        return;
-    }
-
-//loc_49B6F:              ; CODE XREF: handleGameUserInput+60Fj
-    if (savegame.savegameVersion != kGameVersion)
-    {
-//loc_49C1A:              ; CODE XREF: handleGameUserInput+553j
-//                    ; handleGameUserInput+581j ...
-        gIsRecordingDemo = 0;
-
-//loc_49C1F:              ; CODE XREF: handleGameUserInput+48Bj
-//                    ; handleGameUserInput+499j ...
-        fclose(file);
-        showSavegameOperationError();
-        return;
-    }
-
-//loc_49ADF:              ; CODE XREF: handleGameUserInput+57Fj
-    memcpy(gCurrentLevelName, savegame.levelName, sizeof(gCurrentLevelName));
-
-    // TODO: implement savegames properly
-    // gCurrentGameState = savegame.gameState;
 
     sub_49D53();
 
 //loc_49B84:              ; CODE XREF: handleGameUserInput+619j
 //                    ; handleGameUserInput+624j
-    fclose(file);
     gIsPlayingDemo = 0;
     gIsRecordingDemo = 0;
     gCurrentUserInput = UserInputNone;

@@ -103,6 +103,8 @@
 		40564344247032640042F34B /* DEMO1.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A8A246CB5F500B776FA /* DEMO1.BIN */; };
 		40564345247032640042F34B /* LEVEL.LST in Resources */ = {isa = PBXBuildFile; fileRef = 40487A9C246CB5F600B776FA /* LEVEL.LST */; };
 		40564346247032640042F34B /* GFX.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A86246CB5F500B776FA /* GFX.DAT */; };
+		40E6995424787DAE000ADD53 /* savegame.c in Sources */ = {isa = PBXBuildFile; fileRef = 40E6995324787DAE000ADD53 /* savegame.c */; };
+		40E6995524787DAE000ADD53 /* savegame.c in Sources */ = {isa = PBXBuildFile; fileRef = 40E6995324787DAE000ADD53 /* savegame.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -176,6 +178,8 @@
 		40DA3CFE2468BEF900D4A308 /* ini.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ini.h; sourceTree = "<group>"; };
 		40DA3D012469C03000D4A308 /* config.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../../../src/config.h; sourceTree = "<group>"; };
 		40DA3D022469C03000D4A308 /* config.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = config.c; path = ../../../src/config.c; sourceTree = "<group>"; };
+		40E6995224787DAE000ADD53 /* savegame.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = savegame.h; path = ../../../src/savegame.h; sourceTree = "<group>"; };
+		40E6995324787DAE000ADD53 /* savegame.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = savegame.c; path = ../../../src/savegame.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -292,6 +296,8 @@
 				40564312246F5DB60042F34B /* demo.c */,
 				40517B132473EC57004E2435 /* graphics.h */,
 				40517B142473EC57004E2435 /* graphics.c */,
+				40E6995224787DAE000ADD53 /* savegame.h */,
+				40E6995324787DAE000ADD53 /* savegame.c */,
 			);
 			path = OpenSupaplex;
 			sourceTree = "<group>";
@@ -477,6 +483,7 @@
 				40487A05246C403A00B776FA /* menu.c in Sources */,
 				404879FB246C403A00B776FA /* ini.c in Sources */,
 				40487A00246C403A00B776FA /* logging.c in Sources */,
+				40E6995424787DAE000ADD53 /* savegame.c in Sources */,
 				40517B152473EC57004E2435 /* graphics.c in Sources */,
 				404879FC246C403A00B776FA /* controller.c in Sources */,
 				404879FD246C403A00B776FA /* supaplex.c in Sources */,
@@ -502,6 +509,7 @@
 				40564317247032640042F34B /* menu.c in Sources */,
 				40564318247032640042F34B /* ini.c in Sources */,
 				40564319247032640042F34B /* logging.c in Sources */,
+				40E6995524787DAE000ADD53 /* savegame.c in Sources */,
 				40517B162473EC57004E2435 /* graphics.c in Sources */,
 				4056431A247032640042F34B /* controller.c in Sources */,
 				4056431B247032640042F34B /* supaplex.c in Sources */,

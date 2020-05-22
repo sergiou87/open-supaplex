@@ -84,6 +84,9 @@ char demoFileName[kMaxFilePathLength] = "";
 
 FastModeType gFastMode = FastModeTypeNone;
 
+uint8_t gIsPlayingDemo = 0; // byte_510DE -> 0DCE
+uint8_t gIsRecordingDemo = 0; // byte_510E3 -> 0DD3
+
 uint16_t gScrollOffsetX = 0; // word_5195F
 uint16_t gScrollOffsetY = 0; // word_51961
 
