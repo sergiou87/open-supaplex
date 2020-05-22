@@ -287,7 +287,7 @@ typedef struct {
     uint16_t currentFrame; // Not used in the original code, I will use it to keep track of the current animation frame
 } MurphyAnimationDescriptor;
 
-typedef struct {
+typedef struct __attribute__ ((packed)) {
     uint8_t tile; // of LevelTileType
     uint8_t state;
 } StatefulLevelTile;

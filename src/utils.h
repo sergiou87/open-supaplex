@@ -18,6 +18,8 @@
 #ifndef utils_h
 #define utils_h
 
+#include <stdint.h>
+
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 #define CLAMP(v, a, b) MIN(MAX(a, v), b)
@@ -25,5 +27,9 @@
 #define TOGGLE_BOOL(__value) do { __value = !__value; } while (0)
 
 void exitWithError(const char *format, ...);
+
+// Base64
+char *encodeBase64(const unsigned char *input, size_t inputLength);
+int decodeBase64(const char *input, unsigned char *output, size_t outputLength);
 
 #endif /* utils_h */

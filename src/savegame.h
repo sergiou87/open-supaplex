@@ -24,14 +24,14 @@
 // still exactly the same, some other things are just useless/pointless in the reimplementation, because
 // they weren't game data only, but also info tightly coupled to the rendering/hardware requirements it had.
 //
-typedef struct {
-    uint8_t magicNumber[4]; // is expected to be kSaveGameMagicNumber
-    uint8_t savegameVersion; // byte_5988D -> 0x53 = 5.3
-    char levelName[kListLevelNameLength]; // "005 ------ EASY DEAL ------\n" if it's a demo, then there is a \0 after the number
-    char levelsetSuffix[2]; // word_5988E
-    char levelIdentifier[3]; // "001" or ".SP" or "BIN"
-    // GameState gameState;
-} Savegame;
+//typedef struct {
+//    uint8_t magicNumber[4]; // is expected to be kSaveGameMagicNumber
+//    uint8_t savegameVersion; // byte_5988D -> 0x53 = 5.3
+//    char levelName[kListLevelNameLength]; // "005 ------ EASY DEAL ------\n" if it's a demo, then there is a \0 after the number
+//    char levelsetSuffix[2]; // word_5988E
+//    char levelIdentifier[3]; // "001" or ".SP" or "BIN"
+//    // GameState gameState;
+//} Savegame;
 
 uint8_t saveGameState(void);
 uint8_t canLoadGameState(void);

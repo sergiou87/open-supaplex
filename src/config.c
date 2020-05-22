@@ -159,6 +159,19 @@ void writeConfigInt(Config *config, const char *key, const int value)
     fprintf(file, "%s = %d\n", key, value);
 }
 
+void writeConfigString(Config *config, const char *key, const char *value)
+{
+    assert(config != NULL);
+
+    ConfigContextPriv *context = (ConfigContextPriv *)config->context;
+    assert(context != NULL);
+
+    FILE *file = context->file;
+    assert(file != NULL);
+
+    fprintf(file, "%s = %s\n", key, value);
+}
+
 int readConfigInt(Config *config, const char *section, const char *key, const int defaultValue)
 {
     assert(config != NULL);
