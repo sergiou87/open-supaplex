@@ -195,11 +195,11 @@ typedef struct
 #define kNumberOfHallOfFameEntries 3
 extern HallOfFameEntry gHallOfFameData[kNumberOfHallOfFameEntries]; // 0x9514 -> asc_59824
 
-enum PlayerLevelState {
+typedef enum {
     PlayerLevelStateNotCompleted = 0,
     PlayerLevelStateCompleted = 1,
     PlayerLevelStateSkipped = 2,
-};
+} PlayerLevelState;
 
 // This is a structure I still need to reverse-engineer. It's 128 bytes long:
 // - 9 bytes (0x00-0x08): player name
@@ -318,32 +318,32 @@ extern uint8_t gAreZonksFrozen; // byte_51035 -> 2 = turn on, anything else (0) 
 extern uint8_t gNumberOfInfoTrons; // 0xd26 -> byte_51036 -> this seems to be _inside_ of fileLevelData when a level is read
 extern uint8_t gNumberOfSpecialPorts; // 0xd27 -> byte_51037 this seems to be _inside_ of fileLevelData when a level is read, and it's numberOfSpecialPorts
 extern uint16_t gRandomSeed; // word_51076
-extern uint16_t word_510A2; // -> used to preserve some palette info??
+// extern uint16_t word_510A2; // -> used to preserve some palette info??
 // uint8_t gNumberOfDotsToShiftDataLeft; // byte_510A6 Used for the scroll effect
 // uint16_t word_510A7  dw 0
 // uint16_t word_510A9  dw 0
-extern uint8_t byte_510AB;
-extern uint16_t word_510AC; // stored in 0B5D:0D9C
+// extern uint8_t byte_510AB;
+// extern uint16_t word_510AC; // stored in 0B5D:0D9C
 extern uint8_t gAuxGameSeconds20msAccumulator; // byte_510AF ->  -> accumulates game time. The total time is its value * 20ms, so when it reaches 50 it means 1 second. Used to increase the game time in the bottom panel
 extern uint8_t gGameSeconds; // byte_510B0
 extern uint8_t gGameMinutes; // byte_510B1
 extern uint8_t gGameHours; // byte_510B2
-extern uint8_t byte_510B3;
+extern uint8_t gShouldUpdateTotalLevelTime; // byte_510B3
 extern uint8_t gLevelFailed; // byte_510BA
-extern uint8_t byte_510BB;
-extern uint16_t word_510BC;
-extern uint16_t word_510BE;
+extern PlayerLevelState gCurrentPlayerLevelState; // byte_510BB
+// extern uint16_t word_510BC; -> stores the same as gMurphyTileX wtf?
+// extern uint16_t word_510BE; -> stores the same as gMurphyTileY wtf?
 extern uint8_t gIsExplosionStarted; // byte_510C0 -> Set to 1 when an explosion is just created. Set back to 0 when _any_ of the explosions on the screen disappears.
 // These two were actually grouped in word_510C1 for some (compiler) reason
 extern uint8_t gShouldShowGamePanel; // byte_510C1 -> 0DB1
 extern uint8_t gToggleGamePanelKeyAutoRepeatCounter; // byte_510C2 -> 0DB2
 extern int16_t gMurphyTileX; // word_510C3
 extern int16_t gMurphyTileY; // word_510C5
-extern int16_t word_510C7; // stores gMurphyLocation too??
+extern int16_t gMurphyPreviousLocation; // word_510C7
 extern int16_t gMurphyLocation;
-extern uint16_t word_510CB;
-extern uint16_t word_510CD;
-extern uint16_t word_510CF;
+extern uint16_t gIsMurphyLookingLeft; // word_510CB
+extern uint16_t gMurphyYawnAndSleepCounter;
+extern uint16_t gIsMurphyUpdated;
 extern uint16_t gShouldKillMurphy; // word_510D1
 extern uint8_t byte_510D3;
 extern uint8_t gAreEnemiesFrozen; // byte_510D7 -> 1 = turn on, anything else (0) = turn off

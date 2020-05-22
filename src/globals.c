@@ -103,32 +103,32 @@ uint8_t gAreZonksFrozen = 0; // byte_51035 -> 2 = turn on, anything else (0) = t
 uint8_t gNumberOfInfoTrons = 0; // 0xd26 -> byte_51036 -> this seems to be _inside_ of fileLevelData when a level is read
 uint8_t gNumberOfSpecialPorts = 0; // 0xd27 -> byte_51037 this seems to be _inside_ of fileLevelData when a level is read, and it's numberOfSpecialPorts
 uint16_t gRandomSeed = 0; // word_51076
-uint16_t word_510A2 = 0; // -> used to preserve some palette info??
+// uint16_t word_510A2 = 0; // -> used to preserve some palette info??
 // uint8_t gNumberOfDotsToShiftDataLeft = 0; // byte_510A6 Used for the scroll effect
 // uint16_t word_510A7  dw 0
 // uint16_t word_510A9  dw 0
-uint8_t byte_510AB = 0;
-uint16_t word_510AC = 0; // stored in 0B5D:0D9C
+// uint8_t byte_510AB = 0;
+// uint16_t word_510AC = 0; // stored in 0B5D:0D9C
 uint8_t gAuxGameSeconds20msAccumulator = 0; // byte_510AF ->  -> accumulates game time. The total time is its value * 20ms, so when it reaches 50 it means 1 second. Used to increase the game time in the bottom panel
 uint8_t gGameSeconds = 0; // byte_510B0
 uint8_t gGameMinutes = 0; // byte_510B1
 uint8_t gGameHours = 0; // byte_510B2
-uint8_t byte_510B3 = 0;
+uint8_t gShouldUpdateTotalLevelTime = 0;
 uint8_t gLevelFailed = 0; // byte_510BA
-uint8_t byte_510BB = 0;
-uint16_t word_510BC = 0;
-uint16_t word_510BE = 0;
+PlayerLevelState gCurrentPlayerLevelState = PlayerLevelStateNotCompleted;
+// uint16_t word_510BC = 0;
+// uint16_t word_510BE = 0;
 uint8_t gIsExplosionStarted = 0; // byte_510C0 -> Set to 1 when an explosion is just created. Set back to 0 when _any_ of the explosions on the screen disappears.
 // These two were actually grouped in word_510C1 for some (compiler) reason
 uint8_t gShouldShowGamePanel = 0; // byte_510C1 -> 0DB1
 uint8_t gToggleGamePanelKeyAutoRepeatCounter = 0; // byte_510C2 -> 0DB2
 int16_t gMurphyTileX = 0; // word_510C3
 int16_t gMurphyTileY = 0; // word_510C5
-int16_t word_510C7 = 0; // stores gMurphyLocation too??
+int16_t gMurphyPreviousLocation = 0;
 int16_t gMurphyLocation = 0;
-uint16_t word_510CB = 0;
-uint16_t word_510CD = 0;
-uint16_t word_510CF = 0;
+uint16_t gIsMurphyLookingLeft = 0;
+uint16_t gMurphyYawnAndSleepCounter = 0; // word_510CD
+uint16_t gIsMurphyUpdated = 0; // word_510CF
 uint16_t gShouldKillMurphy = 0; // word_510D1
 uint8_t byte_510D3 = 0;
 uint8_t gAreEnemiesFrozen = 0; // byte_510D7 -> 1 = turn on, anything else (0) = turn off
