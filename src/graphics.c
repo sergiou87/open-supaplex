@@ -1155,8 +1155,6 @@ void drawTextWithChars8FontToBuffer(uint8_t *buffer, size_t destX, size_t destY,
     // - si is the text to be rendered
     // - ah is the color index in the current palette
 
-    byte_51969 = color;
-
 //loc_4FEBE:              ; CODE XREF: drawTextWithChars8Font_method1+1C3j
     if (text[0] == '\0')
     {

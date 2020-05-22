@@ -3407,7 +3407,7 @@ void startDirectlyFromLevel(uint8_t levelNumber)
     gCurrentSelectedLevelIndex = levelNumber;
     restoreLastMouseAreaBitmap();
     drawLevelList();
-    word_5196C = 0;
+    gShouldLeaveMainMenu = 0;
     byte_5A19B = 0;
 }
 
@@ -3775,7 +3775,7 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
 {
     // 01ED:09A6
 
-    word_510DF = 0;
+    gDemoCurrentInputIndex = 0;
     word_5A33C = 0;
 
     memset(&gDemos.demoFirstIndices, 0xFF, sizeof(gDemos.demoFirstIndices)); // fills 11 words (22 bytes) with 0xFFFF
@@ -3844,9 +3844,9 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
 
 //loc_476DB:             // ; CODE XREF: readDemoFiles+59j readDemoFiles+69j ...
         uint16_t maxNumberOfBytesToRead = kMaxDemoInputSteps + 1; // 48649
-        maxNumberOfBytesToRead -= word_510DF;
+        maxNumberOfBytesToRead -= gDemoCurrentInputIndex;
 
-        if (maxNumberOfBytesToRead > kMaxDemoInputSteps + 1) // weird way of checking if word_510DF < 0 ????
+        if (maxNumberOfBytesToRead > kMaxDemoInputSteps + 1) // weird way of checking if gDemoCurrentInputIndex < 0 ????
         {
             maxNumberOfBytesToRead = 0;
         }
@@ -3861,8 +3861,8 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
         else
         {
 //loc_476F3:              // ; CODE XREF: readDemoFiles+E4j
-            // TODO: that word_510DF feels wrong
-            numberOfDemoBytesRead = fread(&gDemos.demoData[word_510DF], 1, maxNumberOfBytesToRead, file);
+            // TODO: that gDemoCurrentInputIndex feels wrong
+            numberOfDemoBytesRead = fread(&gDemos.demoData[gDemoCurrentInputIndex], 1, maxNumberOfBytesToRead, file);
 
             if (numberOfDemoBytesRead == 0)
             {
@@ -3883,17 +3883,17 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
         }
 
 //loc_47729:              ; CODE XREF: readDemoFiles+11Bj
-        gDemos.demoData[word_510DF] = gDemos.demoData[word_510DF] & 0x7F; // this removes the MSB from the levelNumber that was added in the speed fix mods
+        gDemos.demoData[gDemoCurrentInputIndex] = gDemos.demoData[gDemoCurrentInputIndex] & 0x7F; // this removes the MSB from the levelNumber that was added in the speed fix mods
         int isZero = (gSelectedOriginalDemoLevelNumber == 0);
         gSelectedOriginalDemoLevelNumber = 0;
         if (isZero)
         {
-            gDemos.demoData[word_510DF] = gDemos.demoData[word_510DF] | 0x80; // This sets the MSB?? maybe the "interpreter" later needs it
+            gDemos.demoData[gDemoCurrentInputIndex] = gDemos.demoData[gDemoCurrentInputIndex] | 0x80; // This sets the MSB?? maybe the "interpreter" later needs it
         }
 
 //loc_47743:             // ; CODE XREF: readDemoFiles+134j
-        uint16_t demoLastByteIndex = word_510DF + numberOfDemoBytesRead - 1;
-        // cx = bx; // bx here has the value of word_510DF
+        uint16_t demoLastByteIndex = gDemoCurrentInputIndex + numberOfDemoBytesRead - 1;
+        // cx = bx; // bx here has the value of gDemoCurrentInputIndex
         // bx += numberOfDemoBytesRead; // ax here has the number of bytes read regarding the level itself (levelNumber + inputSteps)
         // push(ds);
         // push(es);
@@ -3915,8 +3915,8 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
 
 //loc_47765:             // ; CODE XREF: readDemoFiles+14Fj
                    // ; readDemoFiles+155j
-        gDemos.demoFirstIndices[i] = word_510DF;
-        word_510DF += numberOfDemoBytesRead;
+        gDemos.demoFirstIndices[i] = gDemoCurrentInputIndex;
+        gDemoCurrentInputIndex += numberOfDemoBytesRead;
     }
 
     return kNumberOfDemos;
@@ -5718,7 +5718,7 @@ void initializeGameInfo() // sub_48A20   proc near       ; CODE XREF: start+32F
     gShouldExitLevel = 0;
     gQuitLevelCountdown = 0;
     gNumberOfRemainingRedDisks = 0;
-    byte_5197C = 0;
+    gAdditionalInfoInGamePanelFrameCounter = 0;
     gMurphyYawnAndSleepCounter = 0;
     gLastDrawnMinutesAndSeconds = 0xFFFF;
     gLastDrawnHours = 0xFF; // 255
@@ -5728,8 +5728,8 @@ void initializeGameInfo() // sub_48A20   proc near       ; CODE XREF: start+32F
     gGameMinutes = 0;
     gGameHours = 0;
     gIsExplosionStarted = 0;
-    byte_5196A = 0x7F; // 127
-    byte_5196B = 0;
+    gTerminalMaxFramesToNextScroll = 0x7F; // 127
+    gAreYellowDisksDetonated = 0;
     gFrameCounter = 0;
 //    mov byte ptr word_510C1, 1
 //    mov byte ptr word_510C1+1, 0
@@ -6083,7 +6083,7 @@ void simulateDemoInput() // sub_492A8   proc near       ; CODE XREF: handleGameU
     }
 
 //loc_492B3:              ; CODE XREF: simulateDemoInput+5j
-    uint8_t newInput = gDemos.demoData[word_510DF];
+    uint8_t newInput = gDemos.demoData[gDemoCurrentInputIndex];
 
     if (newInput == 0xFF)
     {
@@ -6092,7 +6092,7 @@ void simulateDemoInput() // sub_492A8   proc near       ; CODE XREF: handleGameU
     }
     else
     {
-        word_510DF++;
+        gDemoCurrentInputIndex++;
     }
 
 //loc_492CA:              ; CODE XREF: simulateDemoInput+47j
@@ -6775,7 +6775,7 @@ void checkDebugKeys() //loc_49949:              ; CODE XREF: handleGameUserInput
     {
         gIsDebugModeEnabled = 1;
         drawTextWithChars8FontToGamePanel(304, 14, 6, "DB"); // Debug mode enabled
-        byte_5197C = 0x46; // 70
+        gAdditionalInfoInGamePanelFrameCounter = 0x46; // 70
     }
 
 //loc_499AA:              ; CODE XREF: handleGameUserInput+42Ej
@@ -6865,7 +6865,7 @@ void loadGameSnapshot() // loc_49A89:              ; CODE XREF: handleGameUserIn
     gIsRecordingDemo = 0;
 
     drawTextWithChars8FontToGamePanel(304, 14, 6, "LD"); // Means snapshot was loaded successfully
-    byte_5197C = 0x46; // 70 or '&'
+    gAdditionalInfoInGamePanelFrameCounter = 0x46; // 70 or '&'
 
     drawCurrentLevelViewport(gCurrentPanelHeight);
     // videoloop();
@@ -6889,7 +6889,7 @@ void showSavegameOperationError() //loc_49C28:              ; CODE XREF: handleG
 void loc_49C2C(char text[3]) // :              ; CODE XREF: handleGameUserInput+521j
 {
     drawTextWithChars8FontToGamePanel(304, 14, 6, text);
-    byte_5197C = 0x46; // 70 or '&'
+    gAdditionalInfoInGamePanelFrameCounter = 0x46; // 70 or '&'
 
 //loc_49C40:              ; CODE XREF: handleGameUserInput+6BDj
 //                    ; handleGameUserInput+6D6j
@@ -6914,7 +6914,7 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
         replaceCurrentPaletteColor(0, (Color) { 0, 0, 0 });
 
         drawTextWithChars8FontToGamePanel(304, 14, 6, "--"); // Debug mode disabled
-        byte_5197C = 0x46; // 70 or '&'
+        gAdditionalInfoInGamePanelFrameCounter = 0x46; // 70 or '&'
     }
 
 //loc_49C96:              ; CODE XREF: handleGameUserInput+6EBj
@@ -7430,7 +7430,7 @@ void updateTerminalTiles(int16_t position) // movefun5  proc near       ; DATA X
 
 //loc_4A0EA:              ; CODE XREF: updateTerminalTiles+11j
     uint8_t value = generateRandomNumber() & 0xFF;
-    value &= byte_5196A;
+    value &= gTerminalMaxFramesToNextScroll;
     value = -value;
     currentTile->state = value;
 
@@ -7806,7 +7806,7 @@ void restartLevelWithoutAddingCurrentGameTimeToPlayer() //loc_4A3F3:            
         return;
     }
 
-    word_510DF = word_5A33C;
+    gDemoCurrentInputIndex = word_5A33C;
     gDemoCurrentInputRepeatCounter = 1;
     simulateDemoInput();
 }
@@ -9492,7 +9492,7 @@ void handleDemoOptionClick() // sub_4B159   proc near       ; CODE XREF: runMain
     }
 
 //loc_4B163:              ; CODE XREF: handleDemoOptionClick+5j
-    word_5196C = 1;
+    gShouldLeaveMainMenu = 1;
     gIsPlayingDemo = 1;
 
     uint8_t numberOfDemos = 0;
@@ -9520,7 +9520,7 @@ void handleDemoOptionClick() // sub_4B159   proc near       ; CODE XREF: runMain
     // This only happens if there are no demos...
     if (demoFirstIndex == 0xFFFF)
     {
-        word_5196C = 0;
+        gShouldLeaveMainMenu = 0;
         gIsPlayingDemo = 0;
     }
 
@@ -9545,7 +9545,7 @@ void handleDemoOptionClick() // sub_4B159   proc near       ; CODE XREF: runMain
     gDemoIndexOrDemoLevelNumber = finalLevelNumber;
 
     demoFirstIndex++; // To skip the level number
-    word_510DF = demoFirstIndex;
+    gDemoCurrentInputIndex = demoFirstIndex;
     word_5A33C = demoFirstIndex;
     gDemoCurrentInput = UserInputNone;
     gDemoCurrentInputRepeatCounter = 1;
@@ -9557,13 +9557,13 @@ void playDemo(uint16_t demoIndex) // demoSomething  proc near       ; CODE XREF:
     readDemoFiles();
 
     gRandomGeneratorSeed = gDemoRandomSeeds[demoIndex];
-    word_5196C = 1;
+    gShouldLeaveMainMenu = 1;
     gIsPlayingDemo = 1;
 
     uint16_t demoFirstIndex = gDemos.demoFirstIndices[demoIndex];
     if (demoFirstIndex == 0xFFFF)
     {
-        word_5196C = 0;
+        gShouldLeaveMainMenu = 0;
         gIsPlayingDemo = 0;
     }
 
@@ -9585,7 +9585,7 @@ void playDemo(uint16_t demoIndex) // demoSomething  proc near       ; CODE XREF:
     gDemoIndexOrDemoLevelNumber = finalLevelNumber;
 
     demoFirstIndex++; // To skip the level number
-    word_510DF = demoFirstIndex;
+    gDemoCurrentInputIndex = demoFirstIndex;
     word_5A33C = demoFirstIndex;
     gDemoCurrentInput = UserInputNone;
     gDemoCurrentInputRepeatCounter = 1;
@@ -9743,7 +9743,7 @@ void handleOkButtonClick() // sub_4B375  proc near       ; CODE XREF: runMainMen
         drawTextWithChars6FontWithOpaqueBackgroundIfPossible(168, 127, 8, "COLORBLIND I GUESS     ");
         return;
     }
-    word_5196C = 1;
+    gShouldLeaveMainMenu = 1;
     gIsPlayingDemo = 0;
 
     if (currentLevelColor == kCompletedLevelEntryColor)
@@ -10884,9 +10884,9 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
         }
 
 //loc_4C806:              // ; CODE XREF: runMainMenu+6Dj
-        if (word_5196C != 0)
+        if (gShouldLeaveMainMenu != 0)
         {
-            word_5196C = 0;
+            gShouldLeaveMainMenu = 0;
             break;
         }
 
@@ -11012,7 +11012,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
                  && strlen(demoFileName) != 0)
         {
             gIsSPDemoAvailableToRun = 1;
-            word_5196C = 1;
+            gShouldLeaveMainMenu = 1;
             gIsPlayingDemo = 0;
             gShouldUpdateTotalLevelTime = 0;
             gHasUserCheated = 1;
@@ -12533,7 +12533,7 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
     if (userInput == UserInputNone)
     {
 //loc_4DEED:              ; CODE XREF: update?+58j
-        byte_510D3 =  1;
+        gPreviousUserInputWasNone =  1;
         if (gScratchGravity != 0)
         {
             MurphyAnimationDescriptor unknownMurphyData;
@@ -12553,7 +12553,7 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
             belowTile->tile = LevelTileTypeMurphy;
             murphyTile->state = 3;
             murphyTile->tile = LevelTileTypeSpace;
-            word_510EE = 0;
+            gMurphyCounterToStartPushAnimation = 0;
             gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position + kLevelWidth, unknownMurphyData);
         }
@@ -12697,31 +12697,31 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
     // 01ED:73D2
     if (userInput == UserInputUp)
     {
-        byte_510D3 = 0;
+        gPreviousUserInputWasNone = 0;
         return handleMurphyDirectionUp(position);
     }
 //loc_4E041:              ; CODE XREF: update?+1A8j
     else if (userInput == UserInputLeft)
     {
-        byte_510D3 = 0;
+        gPreviousUserInputWasNone = 0;
         return handleMurphyDirectionLeft(position);
     }
 //loc_4E04E:              ; CODE XREF: update?+1B4j
     else if (userInput == UserInputDown)
     {
-        byte_510D3 = 0;
+        gPreviousUserInputWasNone = 0;
         return handleMurphyDirectionDown(position);
     }
 //loc_4E05B:              ; CODE XREF: update?+1C1j
     else if (userInput == UserInputRight)
     {
-        byte_510D3 = 0;
+        gPreviousUserInputWasNone = 0;
         return handleMurphyDirectionRight(position);
     }
 //loc_4E068:              ; CODE XREF: update?+1CEj
     else if (userInput == UserInputSpaceUp)
     {
-        byte_510D3 = 0;
+        gPreviousUserInputWasNone = 0;
 //loc_4E260:              ; CODE XREF: update?+1E2j
     //    mov ax, leveldata[si-78h]
         if (aboveTile->state == 0 && aboveTile->tile == LevelTileTypeBase)
@@ -12735,7 +12735,7 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
             playBaseSound();
 //            dx = 0x0ECE;
             murphyTile->state = 0x10;
-            word_510EE = 0;
+            gMurphyCounterToStartPushAnimation = 0;
             gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[13]);
         }
@@ -12762,7 +12762,7 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
             playBaseSound();
 //            dx = 0x0ECE;
             murphyTile->state = 0x10;
-            word_510EE = 0;
+            gMurphyCounterToStartPushAnimation = 0;
             gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[13]);
         }
@@ -12779,7 +12779,7 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
 //            dx = 0x0F6E;
             murphyTile->state = 0x14;
             aboveTile->state = 0xFF;
-            word_510EE = 0;
+            gMurphyCounterToStartPushAnimation = 0;
             gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[23]);
         }
@@ -12792,7 +12792,7 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
 //            si = word_51840;
             drawMovingFrame(160, 64, position);
         //    pop si
-            if (byte_5196B != 0)
+            if (gAreYellowDisksDetonated != 0)
             {
                 gMurphyYawnAndSleepCounter = 0xA;
                 return position;
@@ -12814,7 +12814,7 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
 //            dx = 0x106E;
             murphyTile->state = 0x20;
             aboveTile->state = 3;
-            word_510EE = 0;
+            gMurphyCounterToStartPushAnimation = 0;
             gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[39]);
         }
@@ -12826,7 +12826,7 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
 //loc_4E075:              ; CODE XREF: update?+1DBj
     else if (userInput == UserInputSpaceLeft)
     {
-        byte_510D3 = 0;
+        gPreviousUserInputWasNone = 0;
 //loc_4E28A:              ; CODE XREF: update?+1EFj
         gIsMurphyLookingLeft = 1;
     //    mov ax, [si+1832h]
@@ -12841,7 +12841,7 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
             playBaseSound();
 //            dx = 0x0EDE;
             murphyTile->state = 0x11;
-            word_510EE = 0;
+            gMurphyCounterToStartPushAnimation = 0;
             gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[14]);
         }
@@ -12868,7 +12868,7 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
             playBaseSound();
 //            dx = 0x0EDE;
             murphyTile->state = 0x11;
-            word_510EE = 0;
+            gMurphyCounterToStartPushAnimation = 0;
             gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[14]);
         }
@@ -12885,7 +12885,7 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
 //            dx = 0x0F7E;
             murphyTile->state = 0x15;
             leftTile->state = 0xFF;
-            word_510EE = 0;
+            gMurphyCounterToStartPushAnimation = 0;
             gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[24]);
         }
@@ -12898,7 +12898,7 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
 //            si = word_51842;
             drawMovingFrame(208, 16, position);
         //    pop si
-            if (byte_5196B != 0)
+            if (gAreYellowDisksDetonated != 0)
             {
                 gMurphyYawnAndSleepCounter = 0xA;
                 return position;
@@ -12920,7 +12920,7 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
 //            dx = 0x107E;
             murphyTile->state = 0x21;
             leftTile->state = 3;
-            word_510EE = 0;
+            gMurphyCounterToStartPushAnimation = 0;
             gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[40]);
         }
@@ -12932,7 +12932,7 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
 //loc_4E082:              ; CODE XREF: update?+1E8j
     else if (userInput == UserInputSpaceDown)
     {
-        byte_510D3 = 0;
+        gPreviousUserInputWasNone = 0;
 //loc_4E2BA:              ; CODE XREF: update?+1FCj
     //    mov ax, [si+18ACh]
         if (belowTile->state == 0 && belowTile->tile == LevelTileTypeBase)
@@ -12946,7 +12946,7 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
             playBaseSound();
 //            dx = 0x0EEE;
             murphyTile->state = 0x12;
-            word_510EE = 0;
+            gMurphyCounterToStartPushAnimation = 0;
             gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[15]);
         }
@@ -12973,7 +12973,7 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
             playBaseSound();
 //            dx = 0x0EEE;
             murphyTile->state = 0x12;
-            word_510EE = 0;
+            gMurphyCounterToStartPushAnimation = 0;
             gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[15]);
         }
@@ -12990,7 +12990,7 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
 //            dx = 0x0F8E;
             murphyTile->state = 0x16;
             belowTile->state = 0xFF;
-            word_510EE = 0;
+            gMurphyCounterToStartPushAnimation = 0;
             gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[25]);
         }
@@ -13003,7 +13003,7 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
 //            si = word_51844;
             drawMovingFrame(176, 64, position);
         //    pop si
-            if (byte_5196B != 0)
+            if (gAreYellowDisksDetonated != 0)
             {
                 gMurphyYawnAndSleepCounter = 0xA;
                 return position;
@@ -13025,7 +13025,7 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
 //            dx = 0x108E;
             murphyTile->state = 0x22;
             belowTile->state = 3;
-            word_510EE = 0;
+            gMurphyCounterToStartPushAnimation = 0;
             gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[41]);
         }
@@ -13037,7 +13037,7 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
 //loc_4E08F:              ; CODE XREF: update?+1F5j
     else if (userInput == UserInputSpaceRight)
     {
-        byte_510D3 = 0;
+        gPreviousUserInputWasNone = 0;
 //loc_4E2E4:              ; CODE XREF: update?+209j
         gIsMurphyLookingLeft = 0;
     //    mov ax, [si+1836h]
@@ -13052,7 +13052,7 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
             playBaseSound();
 //            dx = 0x0EFE;
             murphyTile->state = 0x13;
-            word_510EE = 0;
+            gMurphyCounterToStartPushAnimation = 0;
             gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[16]);
         }
@@ -13079,7 +13079,7 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
             playBaseSound();
 //            dx = 0x0EFE;
             murphyTile->state = 0x13;
-            word_510EE = 0;
+            gMurphyCounterToStartPushAnimation = 0;
             gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[16]);
         }
@@ -13096,7 +13096,7 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
 //            dx = 0x0F9E;
             murphyTile->state = 0x17;
             rightTile->state = 0xFF;
-            word_510EE = 0;
+            gMurphyCounterToStartPushAnimation = 0;
             gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[26]);
         }
@@ -13114,7 +13114,7 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
             rightTile->state = 3;
 
 //loc_4E8F0:              ; CODE XREF: update?+4DAj update?+4F7j ...
-            word_510EE = 0;
+            gMurphyCounterToStartPushAnimation = 0;
             gIsMurphyGoingThroughPortal = 0;
             return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[42]);
         }
@@ -13126,7 +13126,7 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
 //            si = word_51846;
             drawMovingFrame(192, 16, position);
         //    pop si
-            if (byte_5196B != 0)
+            if (gAreYellowDisksDetonated != 0)
             {
                 gMurphyYawnAndSleepCounter = 0xA;
                 return position;
@@ -13149,12 +13149,12 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
 //loc_4E314:              ; CODE XREF: update?+211j
         if (gNumberOfRemainingRedDisks == 0
             || gPlantedRedDiskCountdown != 0
-            || byte_510D3 != 1)
+            || gPreviousUserInputWasNone != 1)
         {
             return position;
         }
         murphyTile->state = 0x2A;
-        word_510EE = 0x40; // 64
+        gMurphyCounterToStartPushAnimation = 0x40; // 64
 //        dx = 0x110E;
         gPlantedRedDiskCountdown = 1;
         gPlantedRedDiskPosition = position;
@@ -13163,7 +13163,7 @@ int16_t updateMurphy(int16_t position) // update?     proc near       ; CODE XRE
     else
     {
 //loc_4E0A4:              ; CODE XREF: update?+20Fj
-        byte_510D3 = 0;
+        gPreviousUserInputWasNone = 0;
         return position;
     }
 }
@@ -13197,7 +13197,7 @@ int16_t handleMurphyDirectionUp(int16_t position)
         murphyTile->state = 3;
         murphyTile->tile = LevelTileTypeSpace;
 
-        word_510EE = 0;
+        gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position - kLevelWidth, animationDescriptor);
     }
@@ -13224,7 +13224,7 @@ int16_t handleMurphyDirectionUp(int16_t position)
         aboveTile->tile = LevelTileTypeMurphy;
         murphyTile->state = 3;
         murphyTile->tile = LevelTileTypeSpace;
-        word_510EE = 0;
+        gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position - kLevelWidth, unknownMurphyData);
     }
@@ -13263,7 +13263,7 @@ int16_t handleMurphyDirectionUp(int16_t position)
         aboveTile->tile = LevelTileTypeMurphy;
         murphyTile->state = 3;
         murphyTile->tile = LevelTileTypeSpace;
-        word_510EE = 0;
+        gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position - kLevelWidth, animationDescriptor);
     }
@@ -13289,7 +13289,7 @@ int16_t handleMurphyDirectionUp(int16_t position)
         aboveTile->tile = LevelTileTypeMurphy;
         murphyTile->state = 3;
         murphyTile->tile = LevelTileTypeSpace;
-        word_510EE = 0;
+        gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position - kLevelWidth, unknownMurphyData);
     }
@@ -13318,7 +13318,7 @@ int16_t handleMurphyDirectionUp(int16_t position)
     //    pop si
 //        dx = 0x0E5E;
         murphyTile->state = 0xD;
-        word_510EE = 0;
+        gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[6]);
     }
@@ -13332,7 +13332,7 @@ int16_t handleMurphyDirectionUp(int16_t position)
 //        si = word_51840;
         drawMovingFrame(160, 64, position);
     //    pop si
-        if (byte_5196B != 0)
+        if (gAreYellowDisksDetonated != 0)
         {
             gMurphyYawnAndSleepCounter = 0xA;
             return position;
@@ -13362,7 +13362,7 @@ int16_t handleMurphyDirectionUp(int16_t position)
 //        dx = 0x0FCE;
         murphyTile->state = 0x18;
         aboveAboveTile->state = 3;
-        word_510EE = 0;
+        gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 1;
         return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[29]);
     }
@@ -13385,7 +13385,7 @@ int16_t handleMurphyDirectionUp(int16_t position)
 //loc_4E856:              ; CODE XREF: update?+9C1j
         murphyTile->state = 0x1C;
         aboveTile->state = 3;
-        word_510EE = 0;
+        gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, unknownMurphyData);
     }
@@ -13407,7 +13407,7 @@ int16_t handleMurphyDirectionUp(int16_t position)
     //    pop si
 //        dx = 0x10AE;
         murphyTile->state = 0x24;
-        word_510EE = 8;
+        gMurphyCounterToStartPushAnimation = 8;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[43]);
     }
@@ -13440,7 +13440,7 @@ int16_t handleMurphyDirectionLeft(int16_t position)
         leftTile->tile = LevelTileTypeMurphy;
         murphyTile->state = 3;
         murphyTile->tile = LevelTileTypeSpace;
-        word_510EE = 0;
+        gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position - 1, kMurphyAnimationDescriptors[2]);
     }
@@ -13455,7 +13455,7 @@ int16_t handleMurphyDirectionLeft(int16_t position)
         leftTile->tile = LevelTileTypeMurphy;
         murphyTile->state = 3;
         murphyTile->tile = LevelTileTypeSpace;
-        word_510EE = 0;
+        gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position - 1, kMurphyAnimationDescriptors[9]);
     }
@@ -13481,7 +13481,7 @@ int16_t handleMurphyDirectionLeft(int16_t position)
         leftTile->tile = LevelTileTypeMurphy;
         murphyTile->state = 3;
         murphyTile->tile = LevelTileTypeSpace;
-        word_510EE = 0;
+        gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position - 1, kMurphyAnimationDescriptors[9]);
     }
@@ -13495,7 +13495,7 @@ int16_t handleMurphyDirectionLeft(int16_t position)
         leftTile->tile = LevelTileTypeMurphy;
         murphyTile->state = 3;
         murphyTile->tile = LevelTileTypeSpace;
-        word_510EE = 0;
+        gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position - 1, kMurphyAnimationDescriptors[19]);
     }
@@ -13524,7 +13524,7 @@ int16_t handleMurphyDirectionLeft(int16_t position)
     //    pop si
 //        dx = 0x0E5E;
         murphyTile->state = 0xD;
-        word_510EE = 0;
+        gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[6]);
     }
@@ -13547,7 +13547,7 @@ int16_t handleMurphyDirectionLeft(int16_t position)
     //    pop si
 //        dx = 0x0FAE;
         murphyTile->state = 0xE;
-        word_510EE = 8;
+        gMurphyCounterToStartPushAnimation = 8;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[27]);
     }
@@ -13560,7 +13560,7 @@ int16_t handleMurphyDirectionLeft(int16_t position)
 //        si = word_51842;
         drawMovingFrame(208, 16, position);
     //    pop si
-        if (byte_5196B != 0)
+        if (gAreYellowDisksDetonated != 0)
         {
             gMurphyYawnAndSleepCounter = 0xA;
             return position;
@@ -13590,7 +13590,7 @@ int16_t handleMurphyDirectionLeft(int16_t position)
 //        dx = 0x0FDE;
         murphyTile->state = 0x19;
         leftLeftTile->state = 3;
-        word_510EE = 0;
+        gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 1;
         return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[30]);
     }
@@ -13603,7 +13603,7 @@ int16_t handleMurphyDirectionLeft(int16_t position)
         leftTile->tile = LevelTileTypeMurphy;
         murphyTile->state = 3;
         murphyTile->tile = LevelTileTypeSpace;
-        word_510EE = 0;
+        gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position - 1, kMurphyAnimationDescriptors[35]);
     }
@@ -13625,7 +13625,7 @@ int16_t handleMurphyDirectionLeft(int16_t position)
     //    pop si
 //        dx = 0x10BE;
         murphyTile->state = 0x25;
-        word_510EE = 8;
+        gMurphyCounterToStartPushAnimation = 8;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[44]);
     }
@@ -13647,7 +13647,7 @@ int16_t handleMurphyDirectionLeft(int16_t position)
     //    pop si
 //        dx = 0x10EE;
         murphyTile->state = 0x28;
-        word_510EE = 8;
+        gMurphyCounterToStartPushAnimation = 8;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[47]);
     }
@@ -13690,7 +13690,7 @@ int16_t handleMurphyDirectionDown(int16_t position)
         belowTile->tile = LevelTileTypeMurphy;
         murphyTile->state = 3;
         murphyTile->tile = LevelTileTypeSpace;
-        word_510EE = 0;
+        gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + kLevelWidth, unknownMurphyData);
     }
@@ -13716,7 +13716,7 @@ int16_t handleMurphyDirectionDown(int16_t position)
         belowTile->tile = LevelTileTypeMurphy;
         murphyTile->state = 3;
         murphyTile->tile = LevelTileTypeSpace;
-        word_510EE = 0;
+        gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + kLevelWidth, unknownMurphyData);
     }
@@ -13753,7 +13753,7 @@ int16_t handleMurphyDirectionDown(int16_t position)
         belowTile->tile = LevelTileTypeMurphy;
         murphyTile->state = 3;
         murphyTile->tile = LevelTileTypeSpace;
-        word_510EE = 0;
+        gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + kLevelWidth, unknownMurphyData);
     }
@@ -13779,7 +13779,7 @@ int16_t handleMurphyDirectionDown(int16_t position)
         belowTile->tile = LevelTileTypeMurphy;
         murphyTile->state = 3;
         murphyTile->tile = LevelTileTypeBase;
-        word_510EE = 0;
+        gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + kLevelWidth, unknownMurphyData);
     }
@@ -13808,7 +13808,7 @@ int16_t handleMurphyDirectionDown(int16_t position)
     //    pop si
 //        dx = 0x0E5E;
         murphyTile->state = 0xD;
-        word_510EE = 0;
+        gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[6]);
     }
@@ -13821,7 +13821,7 @@ int16_t handleMurphyDirectionDown(int16_t position)
 //        si = word_51844;
         drawMovingFrame(176, 64, position);
     //    pop si
-        if (byte_5196B != 0)
+        if (gAreYellowDisksDetonated != 0)
         {
             gMurphyYawnAndSleepCounter = 0xA;
             return position;
@@ -13851,7 +13851,7 @@ int16_t handleMurphyDirectionDown(int16_t position)
 //        dx = 0x0FEE;
         murphyTile->state = 0x1A;
         belowBelowTile->state = 3;
-        word_510EE = 0;
+        gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 1;
         return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[31]);
     }
@@ -13874,7 +13874,7 @@ int16_t handleMurphyDirectionDown(int16_t position)
 //loc_4E88E:              ; CODE XREF: update?+9F9j
         murphyTile->state = 0x1E;
         belowTile->state = 3;
-        word_510EE = 0;
+        gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, unknownMurphyData);
     }
@@ -13896,7 +13896,7 @@ int16_t handleMurphyDirectionDown(int16_t position)
     //    pop si
 //        dx = 0x10CE;
         murphyTile->state = 0x27;
-        word_510EE = 8;
+        gMurphyCounterToStartPushAnimation = 8;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[45]);
     }
@@ -13929,7 +13929,7 @@ int16_t handleMurphyDirectionRight(int16_t position)
         rightTile->tile = LevelTileTypeMurphy;
         murphyTile->state = 3;
         murphyTile->tile = LevelTileTypeSpace;
-        word_510EE = 0;
+        gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + 1, kMurphyAnimationDescriptors[5]);
     }
@@ -13943,7 +13943,7 @@ int16_t handleMurphyDirectionRight(int16_t position)
         rightTile->tile = LevelTileTypeMurphy;
         murphyTile->state = 3;
         murphyTile->tile = LevelTileTypeSpace;
-        word_510EE = 0;
+        gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + 1, kMurphyAnimationDescriptors[12]);
     }
@@ -13968,7 +13968,7 @@ int16_t handleMurphyDirectionRight(int16_t position)
         rightTile->tile = LevelTileTypeMurphy;
         murphyTile->state = 3;
         murphyTile->tile = LevelTileTypeSpace;
-        word_510EE = 0;
+        gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + 1, kMurphyAnimationDescriptors[12]);
     }
@@ -13982,7 +13982,7 @@ int16_t handleMurphyDirectionRight(int16_t position)
         rightTile->tile = LevelTileTypeMurphy;
         murphyTile->state = 3;
         murphyTile->tile = LevelTileTypeSpace;
-        word_510EE = 0;
+        gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + 1, kMurphyAnimationDescriptors[22]);
     }
@@ -14009,7 +14009,7 @@ int16_t handleMurphyDirectionRight(int16_t position)
         changePlayerCurrentLevelState();
         gQuitLevelCountdown = 0x40;
         murphyTile->state = 0xD;
-        word_510EE = 0;
+        gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[6]);
     }
@@ -14039,7 +14039,7 @@ int16_t handleMurphyDirectionRight(int16_t position)
     //    pop si
 //        dx = 0x0FBE;
         murphyTile->state = 0xF;
-        word_510EE = 8;
+        gMurphyCounterToStartPushAnimation = 8;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[28]);
     }
@@ -14052,7 +14052,7 @@ int16_t handleMurphyDirectionRight(int16_t position)
 //        si = word_51846;
         drawMovingFrame(192, 16, position);
     //    pop si
-        if (byte_5196B != 0)
+        if (gAreYellowDisksDetonated != 0)
         {
             gMurphyYawnAndSleepCounter = 0xA;
             return position;
@@ -14083,7 +14083,7 @@ int16_t handleMurphyDirectionRight(int16_t position)
 //        dx = 0x0FFE;
         murphyTile->state = 0x1B;
         rightRightTile->state = 3;
-        word_510EE = 0;
+        gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 1;
         return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[32]);
     }
@@ -14096,7 +14096,7 @@ int16_t handleMurphyDirectionRight(int16_t position)
         rightTile->tile = LevelTileTypeMurphy;
         murphyTile->state = 3;
         murphyTile->tile = LevelTileTypeSpace;
-        word_510EE = 0;
+        gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + 1, kMurphyAnimationDescriptors[38]);
     }
@@ -14118,7 +14118,7 @@ int16_t handleMurphyDirectionRight(int16_t position)
     //    pop si
 //        dx = 0x10DE;
         murphyTile->state = 0x26;
-        word_510EE = 8;
+        gMurphyCounterToStartPushAnimation = 8;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position, kMurphyAnimationDescriptors[46]);
     }
@@ -14148,7 +14148,7 @@ int16_t handleMurphyDirectionRight(int16_t position)
         murphyTile->state = 0x29;
 
 //loc_4E9E7:              ; CODE XREF: update?+84Ej update?+87Fj ...
-        word_510EE = 8;
+        gMurphyCounterToStartPushAnimation = 8;
 
 //loc_4E9ED:              ; CODE XREF: update?+A66j
         gIsMurphyGoingThroughPortal = 0;
@@ -14197,7 +14197,7 @@ int16_t updateMurphyAnimation(int16_t position)
 //loc_4EA07:              ; CODE XREF: update?+21j
     gMurphyYawnAndSleepCounter = 0;
 
-    if (word_510EE == 0)
+    if (gMurphyCounterToStartPushAnimation == 0)
     {
         // 01ED:7E08
         uint8_t currentFrame = gCurrentMurphyAnimation.currentFrame;
@@ -14935,8 +14935,8 @@ int16_t updateMurphyAnimation(int16_t position)
         }
     }
 
-    word_510EE--;
-    if (word_510EE == 0)
+    gMurphyCounterToStartPushAnimation--;
+    if (gMurphyCounterToStartPushAnimation == 0)
     {
         playPushSound();
     }
@@ -15165,7 +15165,7 @@ int16_t updateMurphyAnimation(int16_t position)
 //loc_4EF09:              ; CODE XREF: update?+BD7j
         if (gCurrentUserInput == UserInputSpaceOnly)
         {
-            if (word_510EE > 0x20)
+            if (gMurphyCounterToStartPushAnimation > 0x20)
             {
                 return position;
             }
@@ -15196,8 +15196,8 @@ int16_t updateMurphyAnimation(int16_t position)
 void detonateYellowDisks()
 {
 //loc_4E7B8:              ; CODE XREF: update?+8AAj update?+8D4j ...
-    byte_5196A = 7;
-    byte_5196B = 1;
+    gTerminalMaxFramesToNextScroll = 7;
+    gAreYellowDisksDetonated = 1;
 
     for (int i = 0; i < kLevelSize; ++i)
     {
@@ -16698,14 +16698,14 @@ void drawNumberOfRemainingInfotrons() // sub_4FD21   proc near       ; CODE XREF
 void clearAdditionalInfoInGamePanelIfNeeded() // sub_4FD65   proc near       ; CODE XREF: runLevel+E9p
 {
 //loc_4FD6D:              ; CODE XREF: clearAdditionalInfoInGamePanelIfNeeded+5j
-    if (byte_5197C == 0)
+    if (gAdditionalInfoInGamePanelFrameCounter == 0)
     {
         return;
     }
 
 //loc_4FD75:              ; CODE XREF: clearAdditionalInfoInGamePanelIfNeeded+Dj
-    byte_5197C--;
-    if (byte_5197C != 0)
+    gAdditionalInfoInGamePanelFrameCounter--;
+    if (gAdditionalInfoInGamePanelFrameCounter != 0)
     {
         return;
     }
@@ -16749,7 +16749,7 @@ void drawNumberOfRemainingRedDisks() // sub_4FDCE   proc near       ; CODE XREF:
 
 //loc_4FDF3:              ; CODE XREF: drawNumberOfRemainingRedDisks+21j
     drawTextWithChars8FontToGamePanel(304, 14, color, &numberString[1]);
-    byte_5197C = 0x46; // 70
+    gAdditionalInfoInGamePanelFrameCounter = 0x46; // 70
 }
 
 void drawGameTime() // sub_4FDFD   proc near       ; CODE XREF: runLevel+29p

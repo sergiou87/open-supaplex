@@ -130,34 +130,34 @@ uint16_t gIsMurphyLookingLeft = 0;
 uint16_t gMurphyYawnAndSleepCounter = 0; // word_510CD
 uint16_t gIsMurphyUpdated = 0; // word_510CF
 uint16_t gShouldKillMurphy = 0; // word_510D1
-uint8_t byte_510D3 = 0;
+uint8_t gPreviousUserInputWasNone = 0; // byte_510D3 -> used to detect when to release the red disk
 uint8_t gAreEnemiesFrozen = 0; // byte_510D7 -> 1 = turn on, anything else (0) = turn off
 uint8_t gScratchGravity = 0; // byte_510D8 -> not sure what scratch gravity means exactly, but can be 0 (off) or 1 (on)
 uint16_t gIsMurphyGoingThroughPortal = 0; // word_510D9
 uint8_t gPlantedRedDiskCountdown = 0; // byte_510DB
 uint16_t gPlantedRedDiskPosition = 0; // word_510DC
-uint16_t word_510DF = 0;
+uint16_t gDemoCurrentInputIndex = 0;
 uint8_t gDemoCurrentInput = 0; // byte_510E1 -> 0xDD1
 uint8_t gDemoCurrentInputRepeatCounter = 0; // -> 0xDD2 -> byte_510E2
 uint16_t gDemoIndexOrDemoLevelNumber = 0; // word_510E6
 uint16_t gMurphyPositionX = 0; // word_510E8
 uint16_t gMurphyPositionY = 0; // word_510EA
-uint16_t word_510EE = 0;
+uint16_t gMurphyCounterToStartPushAnimation = 0;
 MurphyAnimationDescriptor gCurrentMurphyAnimation; // -> starts at 0x0DE0
 uint8_t gNumberOfRemainingInfotrons = 0; // byte_5195A
 uint8_t gTotalNumberOfInfotrons = 0; // byte_5195B
 uint8_t gNumberOfRemainingRedDisks = 0; // byte_5195C
 uint16_t gFrameCounter = 0xF000; // word_5195D -> 0x1268
 // uint16_t word_51967 = 0; // scroll / first pixel of the scroll window
-uint8_t byte_51969 = 0; //  db 0
-uint8_t byte_5196A = 0;  //  db 0
-uint8_t byte_5196B = 0; //  db 0
-uint16_t word_5196C = 0; //  dw 0
+// uint8_t byte_51969 = 0; //  db 0
+uint8_t gTerminalMaxFramesToNextScroll = 0;  //  db 0
+uint8_t gAreYellowDisksDetonated = 0; //  db 0
+uint16_t gShouldLeaveMainMenu = 0; //  dw 0
 //dw 1
 //dw 1
 uint16_t gShouldExitLevel = 0; // word_51974
 uint16_t gQuitLevelCountdown = 0; // word_51978 -> this is a counter to end the level after certain number of iterations (to let the game progress a bit before going back to the menu)
-uint8_t byte_5197C = 0; //  db 0
+uint8_t gAdditionalInfoInGamePanelFrameCounter = 0; //  db 0
 // fileLevelData starts at 0x768, when it contains a level goes to 0xD67
 Level gCurrentLevel; // 0x988B
 // ----------- END OF STATE SAVED IN SAVEGAMES -----------

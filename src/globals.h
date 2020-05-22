@@ -342,37 +342,37 @@ extern int16_t gMurphyTileY; // word_510C5
 extern int16_t gMurphyPreviousLocation; // word_510C7
 extern int16_t gMurphyLocation;
 extern uint16_t gIsMurphyLookingLeft; // word_510CB
-extern uint16_t gMurphyYawnAndSleepCounter;
-extern uint16_t gIsMurphyUpdated;
+extern uint16_t gMurphyYawnAndSleepCounter; // word_510CD
+extern uint16_t gIsMurphyUpdated; // word_510CF
 extern uint16_t gShouldKillMurphy; // word_510D1
-extern uint8_t byte_510D3;
+extern uint8_t gPreviousUserInputWasNone; // byte_510D3 -> used to detect when to release the red disk
 extern uint8_t gAreEnemiesFrozen; // byte_510D7 -> 1 = turn on, anything else (0) = turn off
 extern uint8_t gScratchGravity; // byte_510D8 -> not sure what scratch gravity means exactly, but can be 0 (off) or 1 (on)
 extern uint16_t gIsMurphyGoingThroughPortal; // word_510D9
 extern uint8_t gPlantedRedDiskCountdown; // byte_510DB
 extern uint16_t gPlantedRedDiskPosition; // word_510DC
-extern uint16_t word_510DF;
+extern uint16_t gDemoCurrentInputIndex; // word_510DF
 extern uint8_t gDemoCurrentInput; // byte_510E1 -> 0xDD1
 extern uint8_t gDemoCurrentInputRepeatCounter; // -> 0xDD2 -> byte_510E2
 extern uint16_t gDemoIndexOrDemoLevelNumber; // word_510E6
 extern uint16_t gMurphyPositionX; // word_510E8
 extern uint16_t gMurphyPositionY; // word_510EA
-extern uint16_t word_510EE;
+extern uint16_t gMurphyCounterToStartPushAnimation; // word_510EE -> also used in the "release red disk" animation
 extern MurphyAnimationDescriptor gCurrentMurphyAnimation; // -> starts at 0x0DE0
 extern uint8_t gNumberOfRemainingInfotrons; // byte_5195A
 extern uint8_t gTotalNumberOfInfotrons; // byte_5195B
 extern uint8_t gNumberOfRemainingRedDisks; // byte_5195C
 extern uint16_t gFrameCounter; // word_5195D -> 0x1268
 // uint16_t word_51967; // scroll / first pixel of the scroll window
-extern uint8_t byte_51969; //  db 0
-extern uint8_t byte_5196A;  //  db 0
-extern uint8_t byte_5196B; //  db 0
-extern uint16_t word_5196C; //  dw 0
+// extern uint8_t byte_51969; //  db 0
+extern uint8_t gTerminalMaxFramesToNextScroll; // byte_5196A -> this is used to make the terminals scroll their screens faster after the yellow disks have been detonated
+extern uint8_t gAreYellowDisksDetonated; // byte_5196B
+extern uint16_t gShouldLeaveMainMenu; // word_5196C
 //dw 1
 //dw 1
 extern uint16_t gShouldExitLevel; // word_51974
 extern uint16_t gQuitLevelCountdown; // word_51978 -> this is a counter to end the level after certain number of iterations (to let the game progress a bit before going back to the menu)
-extern uint8_t byte_5197C; //  db 0
+extern uint8_t gAdditionalInfoInGamePanelFrameCounter; // byte_5197C -> how many more frames the additional info in the game panel will be
 // fileLevelData starts at 0x768, when it contains a level goes to 0xD67
 extern Level gCurrentLevel; // 0x988B
 // ----------- END OF STATE SAVED IN SAVEGAMES -----------
