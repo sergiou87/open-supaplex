@@ -1,0 +1,29 @@
+This textfile accompanies the LEVELS.D93 and LEVEL.L93 files. These three
+files come together in the archive SPLVLS93.ZIP and may be distributed for
+free, as long as the original files are left unchanged and they stay together
+in one archive.
+
+Be sure to check out the Supaplex Webpage too! The Supaplex page contains
+lots of software, new levels (including the latest version of this, and
+other collections), solutions and more. Everything about Supaplex.
+Address: --> http://www.elmerproductions.com/sp
+
+There are two ways to enjoy these levels:
+ - If you have the Supaplex Speed-Fix (by Herman Perk, you can download it
+   from my Supaplex page, see above) you can use certain commandline options
+   to use these datafiles directly. All you have to do is copy LEVELS.D93 and
+   LEVEL.L93 to your Supaplex directory, and use the proper SpeedFix option.
+ - If you do not have the Supaplex Speed-Fix you must first make a backup
+   copy of LEVELS.DAT and LEVEL.LST (which came with the original Supaplex)
+   then, you simply copy LEVELS.D93 to LEVELS.DAT and LEVEL.L93 to LEVEL.LST
+   and you're ready to play.
+
+Please note that the levels do not appear in order of difficulty, but in the
+order in which I received them. You might want to edit the PLAYER.LST file
+so you can start any level right away (or use the SpeedFix '#' option).
+
+If you want to create your own levels, try out the Supaplex Level Editor. You
+can find it on my Supaplex webpage (see above)
+
+Level(s)- Author                         Email (optional)
+  1- 29 - Nowicki Wojciech               nowicki86@interia.pl

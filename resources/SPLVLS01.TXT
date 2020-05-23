@@ -1,0 +1,64 @@
+This textfile accompanies the LEVELS.D01 and LEVEL.L01 files. These three
+files come together in the archive SPLVLS01.ZIP and may be distributed for
+free, as long as the original files are left unchanged and they stay together
+in one archive.
+
+Be sure to check out the Supaplex Webpage too! You can find it at
+http://www.elmerproductions.com/sp or you can do a websearch for "Supaplex"
+if you can't find it.
+
+The Supaplex page contains lots of software, new levels (including the latest
+version of this, and other collections), solutions and more. Everything about
+Supaplex.
+
+There are two ways to enjoy these levels:
+ - If you have the Supaplex Speed-Fix (by Herman Perk, you can download it
+   from my Supaplex page, see above) you can use certain commandline options
+   to use these datafiles directly. All you have to do is copy LEVELS.D01 and
+   LEVEL.L01 to your Supaplex directory.
+ - If you do not have the Supaplex Speed-Fix you must first make a backup
+   copy of LEVELS.DAT and LEVEL.LST (which came with the original Supaplex)
+   then, you simply copy LEVELS.D01 to LEVELS.DAT and LEVEL.L01 to LEVEL.LST
+   and you're ready to play.
+
+Please note that the levels do not appear in order of difficulty, but in the
+order in which I received them. You might want to edit the PLAYER.LST file
+so you can start any level right away (or use the SpeedFix '#' option).
+
+If you want to create your own levels, try out the Supaplex Level Editor. You
+can find it on my Supaplex webpage (see above)
+
+Note that the Infotron levels (by Dave Peck) are silimar, sometimes even equal
+to several original levels.
+
+Level(s)- Author                      Email (optional)
+  1-  4 - Yoram Levi                  leviy@dds.nl
+  5-  6 - Herman Perk                 100327.467@compuserve.com
+      7 - Yoram Levi                  leviy@dds.nl
+      8 - Mario Flipphi               -
+  9- 17 - Gert-Jan de Vos             -
+ 18- 26 - Maarten Egmond              ep@dds.nl
+ 27- 28 - Yoram Levi                  leviy@dds.nl
+ 29- 31 - Dave Peck (Infotron levels, converted by Herman Perk)
+     32 - Goikhman Mikhael            -
+ 33- 53 - Dave Peck (Infotron levels, converted by Herman Perk)
+     54 - Yoram Levi                  leviy@dds.nl
+ 55- 56 - Herman Perk                 100327.467@compuserve.com
+ 57- 58 - Maarten Egmond              ep@dds.nl
+     59 - Herman Perk                 100327.467@compuserve.com
+ 60- 65 - Keith Plunkett              kplunkett@aol.com
+ 66- 73 - Michele Berardicurti        mc5644@mclink.it
+ 74- 75 - Richard Huis in 't Veld     j.van.gutsem@tip.nl
+ 76- 77 - Michele Berardicurti        mc5644@mclink.it
+     78 - Dave Peck (Infotron level, squeezed by Herman Perk)
+ 79- 80 - Michele Berardicurti        mc5644@mclink.it
+ 81- 88 - Tom Geelen                  t.j.geelen@stud.tue.nl
+     89 - Herman Perk                 100327.467@compuserve.com
+ 90- 93 - Maarten Egmond              ep@dds.nl
+ 94- 96 - Tom Geelen                  t.j.h.geelen@stud.tue.nl
+ 97-103 - Alexey Boreisho             kaflt@sovam.com
+    104 - Tom Geelen                  t.j.h.geelen@stud.tue.nl
+    105 - Yoram Levi                  leviy@dds.nl
+    106 - Tom Geelen                  t.j.h.geelen@stud.tue.nl
+107-109 - Alexey Boreisho             kaflt@sovam.com
+110-111 - Maarten Egmond              ep@dds.nl

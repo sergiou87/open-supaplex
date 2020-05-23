@@ -1,0 +1,45 @@
+This textfile accompanies the LEVELS.D09 and LEVEL.L09 files. These three
+files come together in the archive SPLVLS09.ZIP and may be distributed for
+free, as long as the original files are left unchanged and they stay together
+in one archive.
+
+Be sure to check out the Supaplex Webpage too! You can find it at
+http://www.elmerproductions.com/sp or you can do a websearch for "Supaplex"
+if you can't find it.
+
+The Supaplex page contains lots of software, new levels (including the latest
+version of this, and other collections), solutions and more. Everything about
+Supaplex.
+
+There are two ways to enjoy these levels:
+ - If you have the Supaplex Speed-Fix (by Herman Perk, you can download it
+   from my Supaplex page, see above) you can use certain commandline options
+   to use these datafiles directly. All you have to do is copy LEVELS.D09 and
+   LEVEL.L09 to your Supaplex directory, and use the proper SpeedFix option.
+ - If you do not have the Supaplex Speed-Fix you must first make a backup
+   copy of LEVELS.DAT and LEVEL.LST (which came with the original Supaplex)
+   then, you simply copy LEVELS.D09 to LEVELS.DAT and LEVEL.L09 to LEVEL.LST
+   and you're ready to play.
+
+Please note that the levels do not appear in order of difficulty, but in the
+order in which I received them. You might want to edit the PLAYER.LST file
+so you can start any level right away (or use the SpeedFix '#' option).
+
+If you want to create your own levels, try out the Supaplex Level Editor. You
+can find it on my Supaplex webpage (see above)
+
+Level(s)- Author                         Email (optional)
+  1-  2 - Herman Perk                    Herman_Perk@compuserve.com
+  3- 12 - Kim, Min-Soo                   giddy@hanmail.net
+ 13- 16 - Fernando Fernandez             patrical@arnet.com.ar
+     17 - Fabricia Fernandez             patrical@arnet.com.ar
+ 18- 35 - Andrus Paevere                 andrus.paevere@kgk.ee
+ 36- 37 - Dmitry Durovin                 divan63@aha.ru
+ 38- 52 - Fernando Fernandez             patrical@jujuy.noanet.com.ar
+ 53- 60 - Kim, Min-Soo                   giddy@hanmail.net
+     61 - Daniel Perk                    hperk@compuserve.com
+ 62- 71 - Fernando Fernandez             patrical@jujuy.noanet.com.ar
+     72 - Daniel Otazu                   otazu@montevideo.com.uy
+     73 - Ben Darcy                      bendarcy@lycos.com
+ 74-110 - Andrus Paevere                 andrus.paever@kgk.ee
+    111 - Jussi Sipola                   1jussi@mail.suomi.net

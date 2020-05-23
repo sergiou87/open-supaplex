@@ -1,0 +1,30 @@
+I received these levels by e-mail September 28, 2004, anonymously (except for
+the initials DVB.)
+----
+Subject:        New levels for SUPAPLEX
+
+Message body:   Present from Russia
+                dvb           mailto:dvb@samy.krasnoyarsk.su
+----
+
+All demos were MPX files, which I converted to SP files by removing the
+first 20 bytes. Three demos do not finish properly: 93, 104 and 107
+I renamed those original -not finishing- demos with minus signs:
+
+DVB093--.SP
+DVB104--.SP
+DVB107--.SP
+
+I made finishing demos of those three levels plus one extra of level 52.
+
+DVB052HP.SP Now with 18 extra Infotrons eaten.
+DVB093HP.SP All Infotrons eaten, a lot more than necessary.
+DVB104HP.SP All Infotrons eaten, a lot more than necessary.
+DVB104H1.SP Just finishes, leaving many Infotrons = beginning of DVB104HP.SP.
+DVB107HP.SP Using the same idea as DVB, but now finishing properly.
+
+The complete level file was called LEVELS.DVB, which I renamed to LEVELS.D27
+and added LEVEL.L27, just for completeness.
+
+Have fun
+Herman Perk
