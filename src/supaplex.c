@@ -7828,9 +7828,8 @@ void rotateLevelSet(uint8_t descending) // sub_4B419  proc near
     // 01ED:48B2
     if (gIsForcedCheatMode != 0)
     {
-        assert(0);
-    //    lea di, byte_58DB4+4
-        memset(NULL, kNotCompletedLevelEntryColor, 111); // rep stosb, I think this resets the player level state to skipped
+        PlayerEntry *entry = &gPlayerListData[0];
+        memset(entry->levelState, PlayerLevelStateSkipped, sizeof(entry->levelState));
     }
     else
     {
