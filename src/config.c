@@ -183,11 +183,29 @@ int readConfigInt(Config *config, const char *section, const char *key, const in
     assert(iniConfig != NULL);
 
     int value = 0;
-    
+
     if (ini_sget(iniConfig, section, key, "%d", &value) == 0)
     {
         return defaultValue;
     }
 
     return value;
+}
+
+int readConfigString(Config *config, const char *section, const char *key, char *output)
+{
+    assert(config != NULL);
+
+    ConfigContextPriv *context = (ConfigContextPriv *)config->context;
+    assert(context != NULL);
+
+    ini_t *iniConfig = context->iniConfig;
+    assert(iniConfig != NULL);
+
+    if (ini_sget(iniConfig, section, key, "%s", output) == 0)
+    {
+        return 1;
+    }
+
+    return 0;
 }

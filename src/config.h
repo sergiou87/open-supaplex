@@ -32,5 +32,6 @@ void writeConfigSection(Config *config, const char *section);
 void writeConfigInt(Config *config, const char *key, const int value);
 void writeConfigString(Config *config, const char *key, const char *value);
 int readConfigInt(Config *config, const char *section, const char *key, const int defaultValue);
+int readConfigString(Config *config, const char *section, const char *key, char *output);
 
 #endif /* config_h */
