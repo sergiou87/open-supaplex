@@ -42,52 +42,79 @@ char kSaveGameMagicNumber[5] = "OSPX";
     } \
     while (0)
 
+#define SAVE_GAME_STATE_CONFIG_SUBITEM_INT(__keyBase, __valueBase, __value) \
+    do \
+    { \
+        sprintf(configKeyBuffer, "%s_%s", __keyBase, #__value); \
+        writeConfigInt(config, configKeyBuffer, __valueBase.__value); \
+    } \
+    while (0)
+
+#define SAVE_GAME_STATE_CONFIG_SUBITEM_BASE64(__keyBase, __valueBase, __value, __size) \
+    do \
+    { \
+        sprintf(configKeyBuffer, "%s_%s", __keyBase, #__value); \
+        SAVE_GAME_STATE_CONFIG_BASE64(configKeyBuffer, __valueBase.__value, __size); \
+    } \
+    while (0)
+
+#define SAVE_GAME_STATE_CONFIG_INDEXED_SUBITEM_INT(__keyBase, __valueBase, __value) \
+    do \
+    { \
+        sprintf(configKeyBuffer, "%s_%d_%s", __keyBase, idx, #__value); \
+        writeConfigInt(config, configKeyBuffer, __valueBase.__value); \
+    } \
+    while (0)
+
+static const char *kVersionKey = "Version";
+static const char *kLevelNameKey = "LevelName";
+static const char *kLevelStateKey = "LevelState";
+static const char *kExplosionTimersKey = "ExplosionTimers";
+static const char *kMurphyAnimationKeyBase = "MurphyAnimation";
+static const char *kCurrentLevelKeyBase = "CurrentLevel";
+static const char *kCurrentLevelSpecialPortsKeyBase = "CurrentLevel_specialPortsInfo";
+
 void saveCurrentMurphyAnimationGameState(Config *config)
 {
-    writeConfigInt(config, "MurphyAnimationAnimationCoordinatesOffset", gCurrentMurphyAnimation.animationCoordinatesOffset);
-    writeConfigInt(config, "MurphyAnimationAnimationCoordinatesOffsetIncrement", gCurrentMurphyAnimation.animationCoordinatesOffsetIncrement);
-    writeConfigInt(config, "MurphyAnimationWidth", gCurrentMurphyAnimation.width);
-    writeConfigInt(config, "MurphyAnimationHeight", gCurrentMurphyAnimation.height);
-    writeConfigInt(config, "MurphyAnimationAnimationIndex", gCurrentMurphyAnimation.animationIndex);
-    writeConfigInt(config, "MurphyAnimationSpeedX", gCurrentMurphyAnimation.speedX);
-    writeConfigInt(config, "MurphyAnimationSpeedY", gCurrentMurphyAnimation.speedY);
-    writeConfigInt(config, "MurphyAnimationCurrentFrame", gCurrentMurphyAnimation.currentFrame);
+    char configKeyBuffer[256] = "";
+
+    SAVE_GAME_STATE_CONFIG_SUBITEM_INT(kMurphyAnimationKeyBase, gCurrentMurphyAnimation, animationCoordinatesOffset);
+    SAVE_GAME_STATE_CONFIG_SUBITEM_INT(kMurphyAnimationKeyBase, gCurrentMurphyAnimation, animationCoordinatesOffsetIncrement);
+    SAVE_GAME_STATE_CONFIG_SUBITEM_INT(kMurphyAnimationKeyBase, gCurrentMurphyAnimation, width);
+    SAVE_GAME_STATE_CONFIG_SUBITEM_INT(kMurphyAnimationKeyBase, gCurrentMurphyAnimation, height);
+    SAVE_GAME_STATE_CONFIG_SUBITEM_INT(kMurphyAnimationKeyBase, gCurrentMurphyAnimation, animationIndex);
+    SAVE_GAME_STATE_CONFIG_SUBITEM_INT(kMurphyAnimationKeyBase, gCurrentMurphyAnimation, speedX);
+    SAVE_GAME_STATE_CONFIG_SUBITEM_INT(kMurphyAnimationKeyBase, gCurrentMurphyAnimation, speedY);
+    SAVE_GAME_STATE_CONFIG_SUBITEM_INT(kMurphyAnimationKeyBase, gCurrentMurphyAnimation, currentFrame);
 }
 
 uint8_t saveCurrentLevelGameState(Config *config)
 {
-    SAVE_GAME_STATE_CONFIG_BASE64("CurrentLevelTiles", gCurrentLevel.tiles, sizeof(gCurrentLevel.tiles));
-    SAVE_GAME_STATE_CONFIG_BASE64("CurrentLevelUnused", gCurrentLevel.unused, sizeof(gCurrentLevel.unused));
-    writeConfigInt(config, "CurrentLevelInitialGravitation", gCurrentLevel.initialGravitation);
-    writeConfigInt(config, "CurrentLevelSpeedFixMagicNumber", gCurrentLevel.speedFixMagicNumber);
-    SAVE_GAME_STATE_CONFIG_BASE64("CurrentLevelName", gCurrentLevel.name, sizeof(gCurrentLevel.name));
-    writeConfigInt(config, "CurrentLevelFreezeZonks", gCurrentLevel.freezeZonks);
-    writeConfigInt(config, "CurrentLevelNumberOfInfotrons", gCurrentLevel.numberOfInfotrons);
-    writeConfigInt(config, "CurrentLevelNumberOfSpecialPorts", gCurrentLevel.numberOfSpecialPorts);
+    char configKeyBuffer[256] = "";
 
-#define SAVE_GAME_STATE_CONFIG_SPECIAL_PORT_INT(__value) \
-    do \
-    { \
-        sprintf(specialPortKeyBuffer, "CurrentLevelSpecialPortsInfo_%d_%s", idx, #__value); \
-        writeConfigInt(config, specialPortKeyBuffer, gCurrentLevel.specialPortsInfo[idx].__value); \
-    } \
-    while (0)
+    SAVE_GAME_STATE_CONFIG_SUBITEM_BASE64(kCurrentLevelKeyBase, gCurrentLevel, tiles, sizeof(gCurrentLevel.tiles));
+    SAVE_GAME_STATE_CONFIG_SUBITEM_BASE64(kCurrentLevelKeyBase, gCurrentLevel, unused, sizeof(gCurrentLevel.unused));
+    SAVE_GAME_STATE_CONFIG_SUBITEM_INT(kCurrentLevelKeyBase, gCurrentLevel, initialGravitation);
+    SAVE_GAME_STATE_CONFIG_SUBITEM_INT(kCurrentLevelKeyBase, gCurrentLevel, speedFixMagicNumber);
+    SAVE_GAME_STATE_CONFIG_SUBITEM_BASE64(kCurrentLevelKeyBase, gCurrentLevel, name, sizeof(gCurrentLevel.name));
+    SAVE_GAME_STATE_CONFIG_SUBITEM_INT(kCurrentLevelKeyBase, gCurrentLevel, freezeZonks);
+    SAVE_GAME_STATE_CONFIG_SUBITEM_INT(kCurrentLevelKeyBase, gCurrentLevel, numberOfInfotrons);
+    SAVE_GAME_STATE_CONFIG_SUBITEM_INT(kCurrentLevelKeyBase, gCurrentLevel, numberOfSpecialPorts);
 
-    char specialPortKeyBuffer[256] = "";
     for (int idx = 0; idx < kLevelMaxNumberOfSpecialPorts; ++idx)
     {
-        SAVE_GAME_STATE_CONFIG_SPECIAL_PORT_INT(position);
-        SAVE_GAME_STATE_CONFIG_SPECIAL_PORT_INT(gravity);
-        SAVE_GAME_STATE_CONFIG_SPECIAL_PORT_INT(freezeZonks);
-        SAVE_GAME_STATE_CONFIG_SPECIAL_PORT_INT(freezeEnemies);
-        SAVE_GAME_STATE_CONFIG_SPECIAL_PORT_INT(unused);
+        SAVE_GAME_STATE_CONFIG_INDEXED_SUBITEM_INT(kCurrentLevelSpecialPortsKeyBase, gCurrentLevel.specialPortsInfo[idx], position);
+        SAVE_GAME_STATE_CONFIG_INDEXED_SUBITEM_INT(kCurrentLevelSpecialPortsKeyBase, gCurrentLevel.specialPortsInfo[idx], gravity);
+        SAVE_GAME_STATE_CONFIG_INDEXED_SUBITEM_INT(kCurrentLevelSpecialPortsKeyBase, gCurrentLevel.specialPortsInfo[idx], freezeZonks);
+        SAVE_GAME_STATE_CONFIG_INDEXED_SUBITEM_INT(kCurrentLevelSpecialPortsKeyBase, gCurrentLevel.specialPortsInfo[idx], freezeEnemies);
+        SAVE_GAME_STATE_CONFIG_INDEXED_SUBITEM_INT(kCurrentLevelSpecialPortsKeyBase, gCurrentLevel.specialPortsInfo[idx], unused);
     }
 
-#undef SAVE_GAME_STATE_CONFIG_SPECIAL_PORT_INT
+#undef SAVE_GAME_STATE_CONFIG_INDEXED_SUBITEM_INT
 
-    writeConfigInt(config, "CurrentLevelScrambledSpeed", gCurrentLevel.scrambledSpeed);
-    writeConfigInt(config, "CurrentLevelScrambledChecksum", gCurrentLevel.scrambledChecksum);
-    writeConfigInt(config, "CurrentLevelRandomSeed", gCurrentLevel.randomSeed);
+    SAVE_GAME_STATE_CONFIG_SUBITEM_INT(kCurrentLevelKeyBase, gCurrentLevel, scrambledSpeed);
+    SAVE_GAME_STATE_CONFIG_SUBITEM_INT(kCurrentLevelKeyBase, gCurrentLevel, scrambledChecksum);
+    SAVE_GAME_STATE_CONFIG_SUBITEM_INT(kCurrentLevelKeyBase, gCurrentLevel, randomSeed);
 
     return 0;
 }
@@ -125,20 +152,14 @@ uint8_t saveGameState()
 
 //loc_49A06:              ; CODE XREF: handleGameUserInput+4A6j
 
-    writeConfigInt(config, "Version", kGameVersion);
-    SAVE_GAME_STATE_CONFIG_BASE64("LevelName", levelName, kListLevelNameLength);
-//    writeConfigString(config, "LevelSet", &gLevelsDatFilename[8]);
-//    writeConfigString(config, "LevelIdentifier", levelName);
-
-//    memcpy(savegame.levelName, levelName, sizeof(savegame.levelName));
-//    memcpy(savegame.levelsetSuffix, &gLevelsDatFilename[8], sizeof(savegame.levelsetSuffix));
-//    memcpy(savegame.levelIdentifier, levelName, sizeof(savegame.levelIdentifier));
+    writeConfigInt(config, kVersionKey, kGameVersion);
+    SAVE_GAME_STATE_CONFIG_BASE64(kLevelNameKey, levelName, kListLevelNameLength);
 
 #define SAVE_GAME_STATE_CONFIG_INT(__value) \
     writeConfigInt(config, #__value, g##__value)
 
-    SAVE_GAME_STATE_CONFIG_BASE64("LevelState", gCurrentLevelStateWithPadding, sizeof(gCurrentLevelStateWithPadding));
-    SAVE_GAME_STATE_CONFIG_BASE64("ExplosionTimers", gExplosionTimers, sizeof(gExplosionTimers));
+    SAVE_GAME_STATE_CONFIG_BASE64(kLevelStateKey, gCurrentLevelStateWithPadding, sizeof(gCurrentLevelStateWithPadding));
+    SAVE_GAME_STATE_CONFIG_BASE64(kExplosionTimersKey, gExplosionTimers, sizeof(gExplosionTimers));
     SAVE_GAME_STATE_CONFIG_INT(IsGravityEnabled);
     SAVE_GAME_STATE_CONFIG_INT(AreZonksFrozen);
     SAVE_GAME_STATE_CONFIG_INT(NumberOfInfoTrons);
