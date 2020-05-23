@@ -717,6 +717,7 @@ uint8_t gAdvancedOptionsMenuBaseBitmap[kFullScreenFramebufferLength];
 static const char *kAdvancedConfigGeneralSection = "general";
 static const char *kAdvancedConfigDebugSection = "debug";
 
+static const char *kAdvancedConfigLevelSetKey = "levelSet";
 static const char *kAdvancedConfigGameSpeedKey = "gameSpeed";
 static const char *kAdvancedConfigMusicVolumeKey = "musicVolume";
 static const char *kAdvancedConfigFXVolumeKey = "fxVolume";
@@ -732,6 +733,32 @@ void readAdvancedConfig()
     {
         spLogInfo("Couldn't read advanced config");
         return;
+    }
+
+    char currentSuffix[3] = "AT";
+    strcpy(currentSuffix, &gLevelsDatFilename[8]);
+
+    // Only apply level set from config if it wasn't overriden before (by command line)
+    if (strcmp(currentSuffix, "AT") == 0)
+    {
+        int levelSet = readConfigInt(config, kAdvancedConfigGeneralSection, kAdvancedConfigLevelSetKey, 0);
+
+        if (levelSet != 0)
+        {
+            char newSuffix[3] = "00";
+            snprintf(newSuffix, 3, "%02d", levelSet);
+
+            strcpy(&gLevelsDatFilename[8], newSuffix);
+            strcpy(&gLevelLstFilename[7], newSuffix);
+            strcpy(&gDemo0BinFilename[7], newSuffix);
+            strcpy(&gPlayerLstFilename[8], newSuffix);
+            strcpy(&gHallfameLstFilename[10], newSuffix);
+
+            if (gShouldAlwaysWriteSavegameSav == 0) // cmp byte ptr gShouldAlwaysWriteSavegameSav, 0
+            {
+                strcpy(&gSavegameSavFilename[10], newSuffix);
+            }
+        }
     }
 
     gGameSpeed = readConfigInt(config, kAdvancedConfigGeneralSection, kAdvancedConfigGameSpeedKey, kDefaultGameSpeed);
@@ -764,6 +791,18 @@ void writeAdvancedConfig()
     }
 
     writeConfigSection(config, kAdvancedConfigGeneralSection);
+
+    char currentSuffix[3] = "AT";
+    strcpy(currentSuffix, &gLevelsDatFilename[8]);
+
+    int levelSet = 0;
+
+    if (strcmp(currentSuffix, "AT") != 0)
+    {
+        levelSet = atoi(currentSuffix);
+    }
+
+    writeConfigInt(config, kAdvancedConfigLevelSetKey, levelSet);
     writeConfigInt(config, kAdvancedConfigGameSpeedKey, gGameSpeed);
     writeConfigInt(config, kAdvancedConfigMusicVolumeKey, getMusicVolume());
     writeConfigInt(config, kAdvancedConfigFXVolumeKey, getSoundEffectsVolume());
@@ -7003,7 +7042,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
         }
         while (mouseButtonStatus != 0);
 
-        snprintf(newPlayerName, kPlayerNameLength, "PLAYER%2d", gNewPlayerEntryIndex + 1);
+        snprintf(newPlayerName, sizeof(newPlayerName), "PLAYER%2d", gNewPlayerEntryIndex + 1);
         gNewPlayerNameLength = strlen(newPlayerName);
     }
 
@@ -7777,7 +7816,7 @@ void rotateLevelSet(uint8_t descending) // sub_4B419  proc near
     }
 
 //loc_4B4EF:              ; CODE XREF: sub_4B419+D1j
-    if (dword_59B76 == 0)
+    if (gShouldAlwaysWriteSavegameSav == 0)
     {
         strcpy(&gSavegameSavFilename[0xA], currentSuffix);
     }

@@ -43,7 +43,7 @@ extern uint8_t gShouldShakeWithAllExplosions; // 'S' command line option -> Shak
 extern uint8_t word_59B73; // 'T' command line option -> Allow the use of the original infinite Red Disk (ch)eat Trick
 extern uint8_t byte_59B74; // 'U' command line option
 extern uint8_t byte_59B75; // 'V' command line option
-extern uint8_t dword_59B76; // 'W' command line option -> Force Writing only one SAVEGAME.SAV (else use SAVEGAME.S??)
+extern uint8_t gShouldAlwaysWriteSavegameSav; // 'W' command line option -> Force Writing only one SAVEGAME.SAV (else use SAVEGAME.S??)
 extern uint8_t byte_59B77; // 'X' command line option
 extern uint8_t byte_59B78; // 'Y' command line option
 extern uint8_t byte_59B79; // 'Z' command line option

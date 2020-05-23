@@ -49,7 +49,7 @@ uint8_t gShouldShakeWithAllExplosions = 0; // byte_59B72 -> 'S' command line opt
 uint8_t word_59B73 = 0; // 'T' command line option -> Allow the use of the original infinite Red Disk (ch)eat Trick
 uint8_t byte_59B74 = 0; // 'U' command line option
 uint8_t byte_59B75 = 0; // 'V' command line option
-uint8_t dword_59B76 = 0; // 'W' command line option -> Force Writing only one SAVEGAME.SAV (else use SAVEGAME.S??)
+uint8_t gShouldAlwaysWriteSavegameSav = 0; // dword_59B76 -> 'W' command line option -> Force Writing only one SAVEGAME.SAV (else use SAVEGAME.S??)
 uint8_t byte_59B77 = 0; // 'X' command line option
 uint8_t byte_59B78 = 0; // 'Y' command line option
 uint8_t byte_59B79 = 0; // 'Z' command line option
@@ -176,7 +176,7 @@ void parseCommandLineOptions(int argc, char *argv[])
                 word_59B73 = 1;
                 break;
             case 'f':
-                dword_59B76 = 1;
+                gShouldAlwaysWriteSavegameSav = 1;
                 strcpy(&gSavegameSavFilename[10], "AV");
                 break;
             case 'p':
@@ -226,7 +226,7 @@ void handleForceLevelSetOption(void)
     }
 
     char newSuffix[3] = "00";
-    snprintf(newSuffix, 2, "%2d", numberValue);
+    snprintf(newSuffix, 3, "%02d", numberValue);
 
     spLogInfo("Replacing level set with %s", newSuffix);
 
@@ -236,7 +236,7 @@ void handleForceLevelSetOption(void)
     strcpy(&gPlayerLstFilename[8], newSuffix);
     strcpy(&gHallfameLstFilename[10], newSuffix);
 
-    if (dword_59B76 == 0) // cmp byte ptr dword_59B76, 0
+    if (gShouldAlwaysWriteSavegameSav == 0) // cmp byte ptr gShouldAlwaysWriteSavegameSav, 0
     {
         strcpy(&gSavegameSavFilename[10], newSuffix);
     }
