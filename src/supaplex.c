@@ -4777,7 +4777,7 @@ void handleGameUserInput() // sub_4955B   proc near       ; CODE XREF: runLevel:
     }
 
 //loc_4959A:              ; CODE XREF: handleGameUserInput+39j
-    if (gIsEnterPressed == 0)
+    if (isToggleGamePanelButtonPressed() == 0)
     {
         gToggleGamePanelKeyAutoRepeatCounter = 0; // mov byte ptr word_510C1+1, 0
     }

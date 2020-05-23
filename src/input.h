@@ -125,6 +125,7 @@ uint8_t isMenuCancelButtonPressed(void);
 uint8_t isExitLevelButtonPressed(void);
 uint8_t isStartButtonPressed(void);
 uint8_t isPauseButtonPressed(void);
+uint8_t isToggleGamePanelButtonPressed(void);
 
 uint8_t isRotateLevelSetAscendingButtonPressed(void);
 uint8_t isRotateLevelSetDescendingButtonPressed(void);
