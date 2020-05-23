@@ -82,6 +82,7 @@ uint16_t word_50949 = 0;
 uint8_t byte_50953 = 0;
 uint8_t byte_50954 = 0;
 uint8_t gShouldAutoselectNextLevelToPlay = 0; // byte_51ABE
+uint8_t gHasChangedLevelSetFromAdvancedMenu = 0;
 uint8_t byte_58D47 = 0; //
 uint8_t byte_59821 = 0; //
 uint8_t byte_59822 = 0; //
@@ -585,6 +586,7 @@ static const FrameBasedMovingFunction kSnikSnakMovingFunctions[48] = {
 
 void throttledRotateLevelSet(uint8_t descending);
 void rotateLevelSet(uint8_t descending);
+void updateMenuAfterLevelSetChanged(void);
 void initializeGameStateData(void);
 void startDirectlyFromLevel(uint8_t levelNumber);
 void stopDemoAndPlay(void);
@@ -1292,6 +1294,33 @@ void handleDebugOptionSelection()
     runAdvancedOptionsSubMenu(menu);
 }
 
+void buildLevelSetOptionTitle(char output[kMaxAdvancedOptionsMenuEntryTitleLength])
+{
+    const char *kOriginalLevelSetName = "ORIGINAL";
+    char currentSuffix[3] = "AT";
+    strcpy(currentSuffix, &gLevelsDatFilename[8]);
+
+    const char *levelSetName = kOriginalLevelSetName;
+    if (strcmp(currentSuffix, "AT") != 0)
+    {
+        levelSetName = currentSuffix;
+    }
+
+    snprintf(output, kMaxAdvancedOptionsMenuEntryTitleLength, "LEVEL SET: %s", levelSetName);
+}
+
+void decreaseLevelSet()
+{
+    rotateLevelSet(1);
+    gHasChangedLevelSetFromAdvancedMenu = 1;
+}
+
+void increaseLevelSet()
+{
+    rotateLevelSet(0);
+    gHasChangedLevelSetFromAdvancedMenu = 1;
+}
+
 void runAdvancedOptionsRootMenu()
 {
     AdvancedOptionsMenu menu;
@@ -1317,6 +1346,17 @@ void runAdvancedOptionsRootMenu()
             handleResumeOptionSelection,
             NULL,
             NULL,
+        });
+    }
+
+    if (gIsInMainMenu)
+    {
+        addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry) {
+            "",
+            buildLevelSetOptionTitle,
+            NULL,
+            decreaseLevelSet,
+            increaseLevelSet,
         });
     }
 
@@ -1457,6 +1497,12 @@ void runAdvancedOptionsRootMenu()
     videoLoop();
 
     setPalette(gGamePalette);
+
+    if (gHasChangedLevelSetFromAdvancedMenu)
+    {
+        updateMenuAfterLevelSetChanged();
+        gHasChangedLevelSetFromAdvancedMenu = 0;
+    }
 }
 
 int main(int argc, char *argv[])
@@ -7707,10 +7753,6 @@ void rotateLevelSet(uint8_t descending) // sub_4B419  proc near
         exitWithError("Error closing %s\n", gLevelsDatFilename);
     }
 
-//loc_4B4C6:              ; CODE XREF: sub_4B419+A8j
-    char message[] = "     LEVEL SET ??      ";
-    memcpy(&message[0xF], currentSuffix, 2);
-
     if (strcmp(currentSuffix, "AT") == 0)
     {
         strcpy(currentSuffix, "ST");
@@ -7740,14 +7782,7 @@ void rotateLevelSet(uint8_t descending) // sub_4B419  proc near
         strcpy(&gSavegameSavFilename[0xA], currentSuffix);
     }
 
-//loc_4B4F9:              ; CODE XREF: sub_4B419+DBj
-    if (strcmp(currentSuffix, "AV") == 0)
-    {
-        strcpy(message, "  SUPAPLEX LEVEL SET   ");
-    }
-
 //loc_4B504:              ; CODE XREF: sub_4B419+E6j
-    drawTextWithChars6FontWithOpaqueBackgroundIfPossible(168, 127, 4, message);
     readLevelsLst();
     readDemoFiles();
 
@@ -7782,7 +7817,26 @@ void rotateLevelSet(uint8_t descending) // sub_4B419  proc near
         readPlayersLst();
     }
 
-//loc_4B565:              ; CODE XREF: sub_4B419+10Fj
+    updateMenuAfterLevelSetChanged();
+}
+
+void updateMenuAfterLevelSetChanged() // loc_4B565:              ; CODE XREF: sub_4B419+10Fj
+{
+//loc_4B4C6:              ; CODE XREF: sub_4B419+A8j
+    char message[] = "     LEVEL SET ??      ";
+    char currentSuffix[3] = "AT";
+    strcpy(currentSuffix, &gLevelsDatFilename[8]);
+
+    memcpy(&message[0xF], currentSuffix, 2);
+
+//loc_4B4F9:              ; CODE XREF: sub_4B419+DBj
+    if (strcmp(currentSuffix, "AT") == 0)
+    {
+        strcpy(message, "  SUPAPLEX LEVEL SET   ");
+    }
+
+    drawTextWithChars6FontWithOpaqueBackgroundIfPossible(168, 127, 4, message);
+
     gShouldAutoselectNextLevelToPlay = 1;
     prepareLevelDataForCurrentPlayer();
     drawPlayerList();
