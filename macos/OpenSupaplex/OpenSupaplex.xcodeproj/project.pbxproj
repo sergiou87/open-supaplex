@@ -105,6 +105,10 @@
 		40564346247032640042F34B /* GFX.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A86246CB5F500B776FA /* GFX.DAT */; };
 		409F7B632479CD4C00BB3B19 /* system.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7B622479CD4C00BB3B19 /* system.c */; };
 		409F7B642479CD4C00BB3B19 /* system.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7B622479CD4C00BB3B19 /* system.c */; };
+		409F7B672479D45200BB3B19 /* buttonBorders.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7B662479D45200BB3B19 /* buttonBorders.c */; };
+		409F7B682479D45200BB3B19 /* buttonBorders.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7B662479D45200BB3B19 /* buttonBorders.c */; };
+		409F7B6B2479D56D00BB3B19 /* animations.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7B6A2479D56D00BB3B19 /* animations.c */; };
+		409F7B6C2479D56D00BB3B19 /* animations.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7B6A2479D56D00BB3B19 /* animations.c */; };
 		40E6995424787DAE000ADD53 /* savegame.c in Sources */ = {isa = PBXBuildFile; fileRef = 40E6995324787DAE000ADD53 /* savegame.c */; };
 		40E6995524787DAE000ADD53 /* savegame.c in Sources */ = {isa = PBXBuildFile; fileRef = 40E6995324787DAE000ADD53 /* savegame.c */; };
 /* End PBXBuildFile section */
@@ -174,6 +178,10 @@
 		4062C24A244F00CA007A07F5 /* file.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = file.h; path = ../../../src/file.h; sourceTree = "<group>"; };
 		409F7B612479CD4C00BB3B19 /* system.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = system.h; path = ../../../src/system.h; sourceTree = "<group>"; };
 		409F7B622479CD4C00BB3B19 /* system.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = system.c; path = ../../../src/system.c; sourceTree = "<group>"; };
+		409F7B652479D45200BB3B19 /* buttonBorders.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = buttonBorders.h; path = ../../../src/buttonBorders.h; sourceTree = "<group>"; };
+		409F7B662479D45200BB3B19 /* buttonBorders.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = buttonBorders.c; path = ../../../src/buttonBorders.c; sourceTree = "<group>"; };
+		409F7B692479D56D00BB3B19 /* animations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = animations.h; path = ../../../src/animations.h; sourceTree = "<group>"; };
+		409F7B6A2479D56D00BB3B19 /* animations.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = animations.c; path = ../../../src/animations.c; sourceTree = "<group>"; };
 		40C8290C24673197003A103E /* audio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = audio.h; path = ../../../src/audio.h; sourceTree = "<group>"; };
 		40C8290D24673197003A103E /* audio.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = audio.c; path = ../../../src/audio.c; sourceTree = "<group>"; };
 		40DA3CF62468717400D4A308 /* menu.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = menu.h; path = ../../../src/menu.h; sourceTree = "<group>"; };
@@ -304,6 +312,10 @@
 				40E6995324787DAE000ADD53 /* savegame.c */,
 				409F7B612479CD4C00BB3B19 /* system.h */,
 				409F7B622479CD4C00BB3B19 /* system.c */,
+				409F7B652479D45200BB3B19 /* buttonBorders.h */,
+				409F7B662479D45200BB3B19 /* buttonBorders.c */,
+				409F7B692479D56D00BB3B19 /* animations.h */,
+				409F7B6A2479D56D00BB3B19 /* animations.c */,
 			);
 			path = OpenSupaplex;
 			sourceTree = "<group>";
@@ -487,8 +499,10 @@
 			files = (
 				4056430D246F49CE0042F34B /* commandLineParser.c in Sources */,
 				40487A05246C403A00B776FA /* menu.c in Sources */,
+				409F7B6B2479D56D00BB3B19 /* animations.c in Sources */,
 				404879FB246C403A00B776FA /* ini.c in Sources */,
 				40487A00246C403A00B776FA /* logging.c in Sources */,
+				409F7B672479D45200BB3B19 /* buttonBorders.c in Sources */,
 				40E6995424787DAE000ADD53 /* savegame.c in Sources */,
 				40517B152473EC57004E2435 /* graphics.c in Sources */,
 				404879FC246C403A00B776FA /* controller.c in Sources */,
@@ -514,8 +528,10 @@
 			files = (
 				40564316247032640042F34B /* commandLineParser.c in Sources */,
 				40564317247032640042F34B /* menu.c in Sources */,
+				409F7B6C2479D56D00BB3B19 /* animations.c in Sources */,
 				40564318247032640042F34B /* ini.c in Sources */,
 				40564319247032640042F34B /* logging.c in Sources */,
+				409F7B682479D45200BB3B19 /* buttonBorders.c in Sources */,
 				40E6995524787DAE000ADD53 /* savegame.c in Sources */,
 				40517B162473EC57004E2435 /* graphics.c in Sources */,
 				4056431A247032640042F34B /* controller.c in Sources */,
