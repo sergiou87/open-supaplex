@@ -177,3 +177,13 @@ uint8_t isPauseButtonPressed(void)
             || gIsEscapeKeyPressed
             || getGameControllerButton(SDL_CONTROLLER_BUTTON_START));
 }
+
+uint8_t isRotateLevelSetAscendingButtonPressed(void)
+{
+    return getGameControllerButton(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
+}
+
+uint8_t isRotateLevelSetDescendingButtonPressed(void)
+{
+    return getGameControllerButton(SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
+}

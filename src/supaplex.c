@@ -82,14 +82,10 @@ uint16_t word_50949 = 0;
 uint8_t byte_50953 = 0;
 uint8_t byte_50954 = 0;
 uint8_t gShouldAutoselectNextLevelToPlay = 0; // byte_51ABE
-uint8_t byte_5870F = 0; //
 uint8_t byte_58D47 = 0; //
 uint8_t byte_59821 = 0; //
 uint8_t byte_59822 = 0; //
 uint8_t byte_59823 = 0; //
-uint16_t word_5988E = 0x4650; // "PF"
-//uint8_t byte_59890 = 0x58; // 88 or 'X'
-//uint16_t word_59891 = 0x3336; // "63"
 uint8_t gDemoRecordingRandomGeneratorSeedHigh = 0; // byte_59B5C
 uint8_t gDemoRecordingRandomGeneratorSeedLow = 0; // byte_59B5F
 uint8_t byte_59B7A = 0; // data_subrest ?
@@ -104,7 +100,6 @@ uint8_t gDebugSkipNextLevelAutorepeatFlag_2 = 0; // byte_59B82
 uint8_t byte_59B83 = 0;
 uint8_t byte_59B86 = 0;
 uint16_t gDemoRecordingRandomGeneratorSeed = 0; // word_5A199
-uint8_t byte_59B9A = 2;
 // uint8_t byte_5A140 = 0; // speedFixMagicNumber inside of level
 uint8_t byte_5A19B = 0;
 uint8_t gIsLevelStartedAsDemo = 0; // byte_5A19C
@@ -113,7 +108,7 @@ uint8_t gHasUserCheated = 0; // byte_5A2F9
 uint8_t byte_5A323 = 0;
 uint16_t word_5A33C = 0;
 uint8_t gHasUserInterruptedDemo = 0; // byte_5A33E
-uint8_t byte_5A33F = 0;
+uint8_t gIsGameBusy = 0; // byte_5A33F -> this was used mainly to avoid some graphic glitches when some text from the main menu was written on the game field
 uint8_t gIsMouseAvailable = 0; // byte_58487
 uint8_t gLevelListButtonPressed = 0; // byte_50918
 uint8_t gLevelListDownButtonPressed = 0; // byte_50916
@@ -127,12 +122,6 @@ uint8_t gRankingListDownButtonPressed = 0; // byte_50913
 uint8_t gRankingListUpButtonPressed = 0; // byte_50914
 uint16_t gCurrentSelectedLevelIndex = 0; // word_51ABC
 uint16_t gNewPlayerNameLength = 0; // word_58475
-uint16_t word_50942 = 0;
-uint16_t word_50944 = 0;
-uint16_t word_5094B = 0;
-uint16_t word_5094D = 0;
-uint16_t word_5094F = 0;
-uint16_t word_50951 = 0;
 
 uint16_t word_5157A = 0x4A62; // -> 0x126A -> (64, 132)
 uint16_t word_5157C = 0x0502; // -> 0x126C -> (97, 132)
@@ -166,32 +155,19 @@ uint16_t word_58463 = 0;
 uint8_t gIsInMainMenu = 0;
 uint16_t gAutomaticDemoPlaybackCountdown = 0; // word_58465
 uint16_t word_58467 = 0;
-uint16_t word_58469 = 0;
-uint16_t word_5846B = 0;
-uint16_t word_5846D = 0;
-uint16_t word_5846F = 0;
-uint16_t word_58471 = 0;
-uint16_t word_58473 = 0;
-uint16_t word_586FB = 0;
-uint16_t word_586FD = 0;
-uint16_t word_586FF = 0;
-uint16_t word_58701 = 0;
-uint16_t word_58703 = 0;
-uint16_t word_5870D = 0;
-uint16_t word_58710 = 0;
-uint16_t word_58712 = 0;
-uint16_t word_58714 = 0;
+uint16_t gLevelListThrottleCurrentCounter = 0; // word_58469
+uint16_t gLevelListThrottleNextCounter = 0;
+uint16_t gPlayerListThrottleCurrentCounter = 0; // word_5846D
+uint16_t gPlayerListThrottleNextCounter = 0; // word_5846F
+uint16_t gRankingListThrottleCurrentCounter = 0; // word_58471
+uint16_t gRankingListThrottleNextCounter = 0; // word_58473
 uint16_t gSelectedOriginalDemoIndex = 0; // word_599D6 -> used loading old demo files demo
 uint16_t gSelectedOriginalDemoLevelNumber = 0; // word_599D8 -> used loading old demo files demo -> the high byte is set to -1 in readLevels for some unknown reason
 // These two store the scroll offset to get back to Murphy when we're in "free mode"
 uint16_t gMurphyScrollOffsetX = 0; // word_59B88
 uint16_t gMurphyScrollOffsetY = 0; // word_59B8A
-uint16_t word_59B8C = 0;
-uint16_t word_59B8E = 0;
-uint16_t word_59B90 = 0;
-uint16_t word_59B92 = 0;
-uint16_t word_5A30D = 0;
-uint16_t word_5A30F = 0;
+uint16_t gLevelSetRotationThrottleCurrentCounter = 0; // word_59B8C
+uint16_t gLevelSetRotationThrottleNextCounter = 0; // word_59B8E
 uint16_t gLastDrawnMinutesAndSeconds; // word_510B7
 uint8_t gLastDrawnHours; // byte_510B9
 FILE *gCurrentRecordingDemoFile; // word_510E4
@@ -607,6 +583,8 @@ static const FrameBasedMovingFunction kSnikSnakMovingFunctions[48] = {
     updateSnikSnakMovementRight,
 };
 
+void throttledRotateLevelSet(uint8_t descending);
+void rotateLevelSet(uint8_t descending);
 void initializeGameStateData(void);
 void startDirectlyFromLevel(uint8_t levelNumber);
 void stopDemoAndPlay(void);
@@ -1582,7 +1560,7 @@ int main(int argc, char *argv[])
         {
             readLevels(); // 01ED:02F7
             fadeToPalette(gBlackPalette);
-            byte_5A33F = 0;
+            gIsGameBusy = 0;
             drawPlayerList();
             initializeGameInfo();
             drawFixedLevel();
@@ -1603,7 +1581,7 @@ int main(int argc, char *argv[])
             }
 
 //loc_46F77:              //; CODE XREF: start+352j
-            byte_5A33F = 1;
+            gIsGameBusy = 1;
             runLevel();
             gIsSPDemoAvailableToRun = 0;
             if (gShouldExitGame != 0)
@@ -1625,7 +1603,7 @@ int main(int argc, char *argv[])
             }
 
 //loc_46FA5:              //; CODE XREF: start+380j
-            byte_5A33F = 0;
+            gIsGameBusy = 0;
             if (gShouldExitGame != 0)
             {
                 break; // goto loc_47067;
@@ -1808,7 +1786,7 @@ void initializeGameStateData()
 
 void startDirectlyFromLevel(uint8_t levelNumber)
 {
-    byte_5A33F = 1;
+    gIsGameBusy = 1;
     gShouldAutoselectNextLevelToPlay = 1;
     prepareLevelDataForCurrentPlayer();
     drawPlayerList();
@@ -4228,9 +4206,6 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 
 //loc_48D59:              ; CODE XREF: runLevel+19Bj
 //                ; runLevel+1D2j ...
-        word_59B92 = gScrollOffsetY;
-        word_59B90 = gScrollOffsetX;
-
         if (gIsFlashingBackgroundModeEnabled != 0)
         {
             replaceCurrentPaletteColor(0, (Color) { 0x3f, 0x3f, 0x3f });
@@ -4539,7 +4514,7 @@ void stopRecordingDemo() // somethingspsig  proc near       ; CODE XREF: runLeve
 
 //loc_4944F:              ; CODE XREF: stopRecordingDemo+EEj
     drawGamePanelText();
-    byte_5A33F = 1;
+    gIsGameBusy = 1;
     gIsPlayingDemo = 0;
 }
 
@@ -5937,8 +5912,6 @@ void scrollToMurphy() // sub_4A291   proc near       ; CODE XREF: handleGameUser
 //    si = kMurphyStillSpriteCoordinates;
     drawMovingFrame(304, 132, gMurphyLocation);
     updateScrollOffset();
-    word_59B92 = gScrollOffsetY;
-    word_59B90 = gScrollOffsetX;
 
     videoLoop();
 }
@@ -5962,7 +5935,7 @@ void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
         }
 
 //loc_4A2FC:              ; CODE XREF: sub_4A2E6+Ej
-        if (byte_5A33F != 1)
+        if (gIsGameBusy != 1)
         {
             if (currentTile->tile == LevelTileTypeInfotron)
             {
@@ -5971,10 +5944,10 @@ void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
                 continue; // jmp short loc_4A3B0
             }
         }
-        // TODO: what are these byte_5A33F for??
-        if (byte_5A33F == 1 || currentTile->state != 0 || currentTile->tile != LevelTileTypeSnikSnak) //jz  short loc_4A34B
+        // TODO: what are these gIsGameBusy for??
+        if (gIsGameBusy == 1 || currentTile->state != 0 || currentTile->tile != LevelTileTypeSnikSnak) //jz  short loc_4A34B
         {
-            if (byte_5A33F == 1 || currentTile->state != 0 || currentTile->tile != LevelTileTypeElectron) //jz  short loc_4A379
+            if (gIsGameBusy == 1 || currentTile->state != 0 || currentTile->tile != LevelTileTypeElectron) //jz  short loc_4A379
             {
 //loc_4A312:              ; CODE XREF: sub_4A2E6+1Bj
                 if ((currentTile->state == 0 && currentTile->tile == LevelTileTypeHorizontalChipLeft)
@@ -6142,9 +6115,9 @@ void restartLevelWithoutAddingCurrentGameTimeToPlayer() //loc_4A3F3:            
     }
 
 //loc_4A427:              ; CODE XREF: restartLevel+37j
-    byte_5A33F = 0;
+    gIsGameBusy = 0;
     fetchAndInitializeLevel();
-    byte_5A33F = 1;
+    gIsGameBusy = 1;
     if (gHasUserInterruptedDemo >= 1)
     {
         gIsPlayingDemo = 0;
@@ -6173,9 +6146,9 @@ void fetchAndInitializeLevel() // sub_4A463   proc near       ; CODE XREF: recor
     readLevels();
     drawFixedLevel();
     drawGamePanel();
-    byte_5A33F = -byte_5A33F;
+    gIsGameBusy = -gIsGameBusy;
     sub_4A2E6();
-    byte_5A33F = -byte_5A33F;
+    gIsGameBusy = -gIsGameBusy;
     resetNumberOfInfotrons();
     byte_59B7B = 1;
     initializeGameInfo();
@@ -7470,17 +7443,17 @@ void handleRankingListScrollUp() // loc_4B262
     gRankingListDownButtonPressed = 0;
     gRankingListUpButtonPressed = 1;
 
-    if (gFrameCounter - word_58471 < word_58473)
+    if (gFrameCounter - gRankingListThrottleCurrentCounter < gRankingListThrottleNextCounter)
     {
         return;
     }
 
 //loc_4B27F:              ; CODE XREF: code:465Cj
     restoreLastMouseAreaBitmap();
-    word_58473 = gFrameCounter;
-    if (word_58471 > 1)
+    gRankingListThrottleNextCounter = gFrameCounter;
+    if (gRankingListThrottleCurrentCounter > 1)
     {
-        word_58471--;
+        gRankingListThrottleCurrentCounter--;
     }
 
 //loc_4B293:              ; CODE XREF: code:466Dj
@@ -7502,17 +7475,17 @@ void handleRankingListScrollDown() // loc_4B2AF
     gRankingListDownButtonPressed = 1;
     gRankingListUpButtonPressed = 0;
 
-    if (gFrameCounter - word_58471 < word_58473)
+    if (gFrameCounter - gRankingListThrottleCurrentCounter < gRankingListThrottleNextCounter)
     {
         return;
     }
 
 //loc_4B2CC:              ; CODE XREF: code:46A9j
     restoreLastMouseAreaBitmap();
-    word_58473 = gFrameCounter;
-    if (word_58471 > 1)
+    gRankingListThrottleNextCounter = gFrameCounter;
+    if (gRankingListThrottleCurrentCounter > 1)
     {
-        word_58471--;
+        gRankingListThrottleCurrentCounter--;
     }
 
 //loc_4B2E0:              ; CODE XREF: code:46BAj
@@ -7635,22 +7608,27 @@ void handleOkButtonClick() // sub_4B375  proc near       ; CODE XREF: runMainMen
     convertLevelNumberTo3DigitStringWithPadding0(gCurrentSelectedLevelIndex); // 01ED:47B2
 }
 
-void handleFloppyDiskButtonClick() // sub_4B419  proc near
+void throttledRotateLevelSet(uint8_t descending) // sub_4B419  proc near
 {
     // 01ED:47B6
 //loc_4B433:              ; CODE XREF: sub_4B419+15j
-    if (gFrameCounter - word_59B8C < word_59B8E)
+    if (gFrameCounter - gLevelSetRotationThrottleCurrentCounter < gLevelSetRotationThrottleNextCounter)
     {
         return;
     }
 
 //loc_4B443:              ; CODE XREF: sub_4B419+25j
-    word_59B8E = gFrameCounter;
-    if (word_59B8C > 1)
+    gLevelSetRotationThrottleNextCounter = gFrameCounter;
+    if (gLevelSetRotationThrottleCurrentCounter > 1)
     {
-        word_59B8C--;
+        gLevelSetRotationThrottleCurrentCounter--;
     }
 
+    rotateLevelSet(descending);
+}
+
+void rotateLevelSet(uint8_t descending) // sub_4B419  proc near
+{
     FILE *file = NULL;
     char currentSuffix[3] = "AT";
 
@@ -7660,10 +7638,7 @@ void handleFloppyDiskButtonClick() // sub_4B419  proc near
 //                ; sub_4B419+9Aj
         strcpy(currentSuffix, &gLevelsDatFilename[8]);
 
-        // Pressing the shift key will show the level sets in descending order
-        uint8_t shouldSwitchInDescendingOrder = (gIsRightShiftPressed || gIsLeftShiftPressed);
-
-        if (shouldSwitchInDescendingOrder)
+        if (descending)
         {
 //loc_4B482:              ; CODE XREF: sub_4B419+46j
             if (strcmp(currentSuffix, "AT") == 0) // "AT"
@@ -7819,22 +7794,28 @@ void handleFloppyDiskButtonClick() // sub_4B419  proc near
     drawMouseCursor();
 }
 
+void handleFloppyDiskButtonClick()
+{
+    // Pressing the shift key will show the level sets in descending order
+    throttledRotateLevelSet(gIsRightShiftPressed || gIsLeftShiftPressed);
+}
+
 void handlePlayerListScrollDown() // sub_4B671  proc near
 {
     gPlayerListButtonPressed = 1;
     gPlayerListDownButtonPressed = 1;
     gPlayerListUpButtonPressed = 0;
 
-    if (gFrameCounter - word_5846D < word_5846F)
+    if (gFrameCounter - gPlayerListThrottleCurrentCounter < gPlayerListThrottleNextCounter)
     {
         return;
     }
 
 //loc_4B68E:              ; CODE XREF: handlePlayerListScrollDown+1Aj
-    word_5846F = gFrameCounter;
-    if (word_5846D > 1)
+    gPlayerListThrottleNextCounter = gFrameCounter;
+    if (gPlayerListThrottleCurrentCounter > 1)
     {
-        word_5846D--;
+        gPlayerListThrottleCurrentCounter--;
     }
 
 //loc_4B69F:              ; CODE XREF: handlePlayerListScrollDown+28j
@@ -7861,16 +7842,16 @@ void handlePlayerListScrollUp() // sub_4B6C9  proc near
     gPlayerListDownButtonPressed = 0;
     gPlayerListUpButtonPressed = 1;
 
-    if (gFrameCounter - word_5846D < word_5846F)
+    if (gFrameCounter - gPlayerListThrottleCurrentCounter < gPlayerListThrottleNextCounter)
     {
         return;
     }
 
 //loc_4B6E6:              ; CODE XREF: handlePlayerListScrollUp+1Aj
-    word_5846F = gFrameCounter;
-    if (word_5846D > 1)
+    gPlayerListThrottleNextCounter = gFrameCounter;
+    if (gPlayerListThrottleCurrentCounter > 1)
     {
-        word_5846D--;
+        gPlayerListThrottleCurrentCounter--;
     }
 
 //loc_4B6F7:              ; CODE XREF: handlePlayerListScrollUp+28j
@@ -7903,16 +7884,16 @@ void handleLevelListScrollDown() // sub_4B72B  proc near
     gLevelListDownButtonPressed = 1;
     gLevelListUpButtonPressed = 0;
 
-    if (gFrameCounter - word_58469 < word_5846B)
+    if (gFrameCounter - gLevelListThrottleCurrentCounter < gLevelListThrottleNextCounter)
     {
         return;
     }
 
 //loc_4B748:              ; CODE XREF: handleLevelListScrollDown+1Aj
-    word_5846B = gFrameCounter;
-    if (word_58469 > 1)
+    gLevelListThrottleNextCounter = gFrameCounter;
+    if (gLevelListThrottleCurrentCounter > 1)
     {
-        word_58469--;
+        gLevelListThrottleCurrentCounter--;
     }
 
 //loc_4B759:              ; CODE XREF: handleLevelListScrollDown+28j
@@ -7933,16 +7914,16 @@ void handleLevelListScrollUp() // sub_4B771  proc near
     gLevelListDownButtonPressed = 0;
     gLevelListUpButtonPressed = 1;
 
-    if (gFrameCounter - word_58469 < word_5846B)
+    if (gFrameCounter - gLevelListThrottleCurrentCounter < gLevelListThrottleNextCounter)
     {
         return;
     }
 
 //loc_4B78E:              ; CODE XREF: handleLevelListScrollUp+1Aj
-    word_5846B = gFrameCounter;
-    if (word_58469 > 1)
+    gLevelListThrottleNextCounter = gFrameCounter;
+    if (gLevelListThrottleCurrentCounter > 1)
     {
-        word_58469--;
+        gLevelListThrottleCurrentCounter--;
     }
 
 //loc_4B79F:              ; CODE XREF: handleLevelListScrollUp+28j
@@ -7991,7 +7972,7 @@ void drawTextWithChars6FontWithOpaqueBackgroundIfPossible(size_t destX, size_t d
     // - ah is the color index in the current palette
 
     // Address: 01ED:4DFC
-    if (byte_5A33F == 1)
+    if (gIsGameBusy == 1)
     {
         return;
     }
@@ -8002,7 +7983,7 @@ void drawTextWithChars6FontWithOpaqueBackgroundIfPossible(size_t destX, size_t d
 void drawTextWithChars6FontWithTransparentBackgroundIfPossible(size_t destX, size_t destY, uint8_t color, const char *text)  // sub_4BDF0 proc near       ; CODE XREF: recoverFilesFromFloppyDisk+2Ap
                    // ; handleStatisticsOptionClick+EDp ...
 {
-    if (byte_5A33F == 1)
+    if (gIsGameBusy == 1)
     {
         return;
     }
@@ -8903,15 +8884,26 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
         //     gShouldExitGame = 1;
         //     break;
         // }
-        if (getGameControllerButton(SDL_CONTROLLER_BUTTON_BACK) // Select/Back/- controller button -> exit game
+        else if (getGameControllerButton(SDL_CONTROLLER_BUTTON_BACK) // Select/Back/- controller button -> exit game
             || gIsEscapeKeyPressed == 1)
         {
             runAdvancedOptionsRootMenu();
+        }
+        else if (isRotateLevelSetAscendingButtonPressed())
+        {
+            throttledRotateLevelSet(0);
+            continue; // This allows the throttling effect to act
+        }
+        else if (isRotateLevelSetDescendingButtonPressed())
+        {
+            throttledRotateLevelSet(1);
+            continue; // This allows the throttling effect to act
         }
         if (gShouldExitGame == 1)
         {
             break;
         }
+
         if (gMouseButtonStatus == MouseButtonLeft)
         {
 //loc_4C9FF:              // ; CODE XREF: runMainMenu+236j
@@ -8930,21 +8922,19 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
                     buttonDescriptor.handler(); // 01ED:5DC0
                     break;
                 }
-
-//nomousehit:              // ; CODE XREF: runMainMenu+27Ej
-                   // ; runMainMenu+283j ...
             }
         }
         else
         {
-            word_58469 = 0x10;
-            word_5846B = 0;
-            word_5846D = 0x10;
-            word_5846F = 0;
-            word_58471 = 0x10;
-            word_58473 = 0;
-            word_59B8C = 0x10;
-            word_59B8E = 0;
+            // Reset throttle counters
+            gLevelListThrottleCurrentCounter = 0x10;
+            gLevelListThrottleNextCounter = 0;
+            gPlayerListThrottleCurrentCounter = 0x10;
+            gPlayerListThrottleNextCounter = 0;
+            gRankingListThrottleCurrentCounter = 0x10;
+            gRankingListThrottleNextCounter = 0;
+            gLevelSetRotationThrottleCurrentCounter = 0x10;
+            gLevelSetRotationThrottleNextCounter = 0;
         }
     }
 
