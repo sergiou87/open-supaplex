@@ -14212,8 +14212,8 @@ int16_t updateMurphyAnimation(int16_t position)
         uint16_t dstX = (position % kLevelWidth) * kTileSize;
         uint16_t dstY = (position / kLevelWidth) * kTileSize;
 
-        int16_t offsetX = (gCurrentMurphyAnimation.word_510F0 % 122) * 8;
-        int16_t offsetY = (gCurrentMurphyAnimation.word_510F0 / 122);
+        int16_t offsetX = (gCurrentMurphyAnimation.animationCoordinatesOffset % 122) * 8;
+        int16_t offsetY = (gCurrentMurphyAnimation.animationCoordinatesOffset / 122);
 
 //loc_4EA9F:              ; CODE XREF: update?+C28j
         drawMovingSpriteFrameInLevel(frameCoordinates.x,
@@ -14229,8 +14229,8 @@ int16_t updateMurphyAnimation(int16_t position)
             AnimationFrameCoordinates animationFrameCoordinates = frameCoordinates_5142E[gCurrentMurphyAnimation.animationIndex + 1];
             Point frameCoordinates = animationFrameCoordinates.coordinates[currentFrame];
 
-            int16_t offsetX = (gCurrentMurphyAnimation.word_510F2 % 122) * 8;
-            int16_t offsetY = (gCurrentMurphyAnimation.word_510F2 / 122);
+            int16_t offsetX = (gCurrentMurphyAnimation.animationCoordinatesOffsetIncrement % 122) * 8;
+            int16_t offsetY = (gCurrentMurphyAnimation.animationCoordinatesOffsetIncrement / 122);
 
             drawMovingSpriteFrameInLevel(frameCoordinates.x,
                                          frameCoordinates.y,
@@ -14242,7 +14242,7 @@ int16_t updateMurphyAnimation(int16_t position)
         else
         {
 //loc_4EAFA:              ; CODE XREF: update?+C32j
-            gCurrentMurphyAnimation.word_510F0 += gCurrentMurphyAnimation.word_510F2;
+            gCurrentMurphyAnimation.animationCoordinatesOffset += gCurrentMurphyAnimation.animationCoordinatesOffsetIncrement;
         }
 
 //loc_4EB04:              ; CODE XREF: update?+C68j

@@ -137,7 +137,7 @@ typedef struct {
 typedef struct
 {
     uint8_t tiles[kLevelSize]; // [0-0x59F] of LevelTileType
-    uint8_t unknown0[4];
+    uint8_t unused[4];
     uint8_t initialGravitation;
     uint8_t speedFixMagicNumber; // Used from versions 5.3 and up as: 20h + SpeedFix version number in hex format: v5.3 -> 73h, v6.2 -> 82h
     char name[kLevelNameLength - 1];
@@ -277,8 +277,10 @@ extern uint16_t gMouseButtonStatus; // word_5847D
 extern uint16_t gMouseX, gMouseY;
 
 typedef struct {
-    int16_t word_510F0; // 0x0DE0 -> seems like an offset from the destination position (in tiles * 2)
-    int16_t word_510F2; // this increases the offset above frame by frame
+    // TODO: migrate offset to a (X, Y) coordinate system or to at least something that takes 320 pixel width screen
+    // into account instead of the 122 positions of the original game
+    int16_t animationCoordinatesOffset; // word_510F0 -> 0x0DE0 -> seems like an offset from the destination position in dimensions of the original game screen (meaning, you have to divide by 122 to get the Y coordinate, and get module 122 and multiply by 8 to get the X coordinate)
+    int16_t animationCoordinatesOffsetIncrement; // word_510F2 -> this increases the offset above frame by frame
     uint16_t width; // word_510F4
     uint16_t height; // word_510F6
     uint16_t animationIndex; // word_510F8; -> memory address in someBinaryData_5142E, looks like a list of coordinates of frames in MOVING.DAT

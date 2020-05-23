@@ -156,7 +156,7 @@ void writeConfigInt(Config *config, const char *key, const int value)
     FILE *file = context->file;
     assert(file != NULL);
 
-    fprintf(file, "%s = %d\n", key, value);
+    fprintf(file, "%s=%d\n", key, value);
 }
 
 void writeConfigString(Config *config, const char *key, const char *value)
@@ -169,7 +169,7 @@ void writeConfigString(Config *config, const char *key, const char *value)
     FILE *file = context->file;
     assert(file != NULL);
 
-    fprintf(file, "%s = %s\n", key, value);
+    fprintf(file, "%s=%s\n", key, value);
 }
 
 int readConfigInt(Config *config, const char *section, const char *key, const int defaultValue)
