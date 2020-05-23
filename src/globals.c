@@ -84,6 +84,8 @@ char demoFileName[kMaxFilePathLength] = "";
 
 FastModeType gFastMode = FastModeTypeNone;
 
+uint8_t gShouldShowFPS = 0;
+
 uint8_t gIsPlayingDemo = 0; // byte_510DE -> 0DCE
 uint8_t gIsRecordingDemo = 0; // byte_510E3 -> 0DD3
 
@@ -92,6 +94,13 @@ uint16_t gScrollOffsetY = 0; // word_51961
 
 uint16_t gMouseButtonStatus = 0; // word_5847D
 uint16_t gMouseX = 0, gMouseY = 0;
+
+uint16_t gShouldExitGame = 0; // word_5197A
+
+uint8_t gIsGameRunning = 0; // byte_510AE
+
+uint8_t gCurrentSoundPriority = 0; // byte_59889
+uint8_t gCurrentSoundDuration = 0; // byte_5988B
 
 // ----------- BEGINNING OF STATE SAVED IN SAVEGAMES -----------
 

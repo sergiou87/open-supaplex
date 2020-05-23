@@ -17,20 +17,9 @@
 
 #include "utils.h"
 
-#include <errno.h>
-#include <SDL2/SDL.h>
+#include <string.h>
 
 const char b64chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-void exitWithError(const char *format, ...)
-{
-    va_list argptr;
-    va_start(argptr, format);
-    vfprintf(stderr, format, argptr);
-    va_end(argptr);
-    SDL_Quit();
-    exit(errno);
-}
 
 size_t base64EncodedSize(size_t inputLength)
 {

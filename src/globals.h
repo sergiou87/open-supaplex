@@ -267,6 +267,8 @@ typedef enum
 
 extern FastModeType gFastMode;
 
+extern uint8_t gShouldShowFPS;
+
 extern uint8_t gIsPlayingDemo; // byte_510DE -> 0DCE
 extern uint8_t gIsRecordingDemo; // byte_510E3 -> 0DD3
 
@@ -275,6 +277,13 @@ extern uint16_t gScrollOffsetY; // word_51961
 
 extern uint16_t gMouseButtonStatus; // word_5847D
 extern uint16_t gMouseX, gMouseY;
+
+extern uint16_t gShouldExitGame; // word_5197A
+
+extern uint8_t gIsGameRunning; // byte_510AE
+
+extern uint8_t gCurrentSoundPriority; // byte_59889 -> 0x9579 -> the lower this value, the higher its priority. 0 means no sound playing
+extern uint8_t gCurrentSoundDuration; // byte_5988B -> 0x957B -> remaining time of the current sound, each unit is 20ms
 
 typedef struct {
     // TODO: migrate offset to a (X, Y) coordinate system or to at least something that takes 320 pixel width screen

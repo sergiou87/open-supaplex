@@ -15,17 +15,15 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef savegame_h
-#define savegame_h
+#ifndef system_h
+#define system_h
 
-#include "globals.h"
+#include <stdio.h>
 
-// This is the only file format that is not compatible with the original game: while most of the data is
-// still exactly the same, some other things are just useless/pointless in the reimplementation, because
-// they weren't game data only, but also info tightly coupled to the rendering/hardware requirements it had.
+void exitWithError(const char *format, ...);
 
-uint8_t saveGameState(void);
-uint8_t canLoadGameState(void);
-uint8_t loadGameState(void);
+void handleSystemEvents(void);
+uint32_t getTime(void);
+void waitTime(uint32_t time);
 
-#endif /* savegame_h */
+#endif /* system_h */

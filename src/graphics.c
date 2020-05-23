@@ -22,6 +22,7 @@
 
 #include "globals.h"
 #include "utils.h"
+#include "system.h"
 
 #define kBitmapFontCharacter8Width 8
 #define kNumberOfCharactersInBitmapFont 64
@@ -73,6 +74,10 @@ uint16_t gLastMouseCursorOriginAddress = 0; // word_5847B
 //
 #define kLastMouseCursorAreaSize 8
 uint8_t gLastMouseCursorAreaBitmap[kLastMouseCursorAreaSize * kLastMouseCursorAreaSize];
+
+// Used to measure display frame rate
+float gFrameRate = 0.f;
+uint32_t gFrameRateReferenceTime = 0;
 
 void drawFullScreenBitmap(uint8_t *bitmapData, uint8_t *dest);
 
@@ -1202,4 +1207,65 @@ void drawTextWithChars8Font(size_t destX, size_t destY, uint8_t color, const cha
 void drawTextWithChars8FontToGamePanel(size_t destX, size_t destY, uint8_t color, const char *text)
 {
     drawTextWithChars8FontToBuffer(gPanelRenderedBitmapData, destX, destY, color, text);
+}
+
+void limitFPS()
+{
+    #define kMaximumFPS 70.0
+    static const double kFrameDuration = 1000.0 / kMaximumFPS;
+    static uint32_t sLastFrameTime = 0;
+
+    if (gFastMode != FastModeTypeNone)
+    {
+        return;
+    }
+
+    if (sLastFrameTime != 0)
+    {
+        uint32_t duration = (getTime() - sLastFrameTime);
+        if (duration < kFrameDuration)
+        {
+            waitTime(kFrameDuration - duration);
+        }
+    }
+
+    sLastFrameTime = getTime();
+}
+
+void videoLoop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
+{
+    if (gShouldShowFPS)
+    {
+        char frameRateString[5] = "";
+        sprintf(frameRateString, "%4.1f", MIN(gFrameRate, 99.9)); // Don't show more than 99.9 FPS, not necessary
+
+        drawTextWithChars6FontWithOpaqueBackground(0, 0, 6, frameRateString);
+    }
+
+    handleSystemEvents(); // Make sure the app stays responsive
+
+    render();
+    present();
+
+    limitFPS();
+
+    static uint32_t sNumberOfFrames = 0;
+
+    sNumberOfFrames++;
+
+    if (gFrameRateReferenceTime == 0)
+    {
+        gFrameRateReferenceTime = getTime();
+    }
+    else
+    {
+        uint32_t difference = getTime() - gFrameRateReferenceTime;
+
+        if (difference > 1000)
+        {
+            gFrameRate = sNumberOfFrames * 1000.f / difference;
+            sNumberOfFrames = 0;
+            gFrameRateReferenceTime = getTime();
+        }
+    }
 }

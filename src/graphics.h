@@ -79,4 +79,6 @@ void drawTextWithChars6FontWithTransparentBackground(size_t destX, size_t destY,
 void drawTextWithChars8Font(size_t destX, size_t destY, uint8_t color, const char *text);
 void drawTextWithChars8FontToGamePanel(size_t destX, size_t destY, uint8_t color, const char *text);
 
+void videoLoop(void);
+
 #endif /* graphics_h */

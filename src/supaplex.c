@@ -41,6 +41,7 @@
 #include "utils.h"
 #include "video.h"
 #include "virtualKeyboard.h"
+#include "system.h"
 
 #ifdef __PSP__
 #include <pspkernel.h>
@@ -84,8 +85,6 @@ uint8_t byte_58D47 = 0; //
 uint8_t byte_59821 = 0; //
 uint8_t byte_59822 = 0; //
 uint8_t byte_59823 = 0; //
-uint8_t gCurrentSoundPriority = 0; // byte_59889 -> 0x9579 -> the lower this value, the higher its priority. 0 means no sound playing
-uint8_t gCurrentSoundDuration = 0; // byte_5988B -> 0x957B -> remaining time of the current sound, each unit is 20ms
 uint16_t word_5988E = 0x4650; // "PF"
 //uint8_t byte_59890 = 0x58; // 88 or 'X'
 //uint16_t word_59891 = 0x3336; // "63"
@@ -132,7 +131,6 @@ uint16_t word_5094B = 0;
 uint16_t word_5094D = 0;
 uint16_t word_5094F = 0;
 uint16_t word_50951 = 0;
-uint8_t gShouldShowFPS = 0;
 
 uint8_t someBinaryData_510FE[16] = {
     0, // -> 0xdee
@@ -1339,7 +1337,6 @@ uint16_t word_51852 = 0x2A68; //  -> 0x1268 -> (
 uint16_t word_51854 = 0x2A69; //  -> 0x1268 -> (
 uint16_t word_51856 = 0x2E38; //  -> 0x1268 -> (
 uint16_t word_51858 = 0x2E39; //  -> 0x1268 -> (
-uint16_t gShouldExitGame = 0; // word_5197A
 uint16_t gIsMoveScrollModeEnabled = 0; // word_51A01
 uint16_t gDebugExtraRenderDelay = 1; // this was used to add an extra delay in debug mode using keys 1-9
 uint16_t word_58463 = 0;
@@ -1372,7 +1369,6 @@ uint16_t word_59B90 = 0;
 uint16_t word_59B92 = 0;
 uint16_t word_5A30D = 0;
 uint16_t word_5A30F = 0;
-uint8_t gIsGameRunning; // byte_510AE
 uint16_t gLastDrawnMinutesAndSeconds; // word_510B7
 uint8_t gLastDrawnHours; // byte_510B9
 FILE *gCurrentRecordingDemoFile; // word_510E4
@@ -1386,20 +1382,16 @@ uint8_t isFXEnabled = 0; // byte_59885
 uint8_t gIsFlashingBackgroundModeEnabled = 0; // flashingbackgroundon
 const float kSpeedTimeFactors[kNumberOfGameSpeeds] = { 3.5, 3.0, 2.5, 2.0, 1.5, 1.0, 0.75, 2.0 / 3.0, 5.0 / 8.0, 3.0 / 5.0, 1.0 / 70.0 };
 
-// Used to measure display frame rate
-float gFrameRate = 0.f;
-Uint32 gFrameRateReferenceTime = 0;
-
 // Used to measure game speed (reference is 35 iterations per second)
 float gGameIterationRate = 0.f;
-Uint32 gGameIterationRateReferenceTime = 0;
+uint32_t gGameIterationRateReferenceTime = 0;
 
 // Used to limit game speed
-Uint32 gGameIterationStartTime = 0;
-Uint32 gNumberOfGameIterations = 0;
+uint32_t gGameIterationStartTime = 0;
+uint32_t gNumberOfGameIterations = 0;
 
 // Time difference between 2 consecutive renders
-Uint32 gRenderDeltaTime = 0;
+uint32_t gRenderDeltaTime = 0;
 
 static const uint16_t kFallAnimationGravityOffsets[18] = {
     0x0000, // -> 0x6C95
@@ -2191,11 +2183,9 @@ void stopDemoAndPlay(void);
 void startTrackingRenderDeltaTime(void);
 uint32_t updateRenderDeltaTime(void);
 void emulateClock(void);
-void handleSDLEvents(void);
 void replaceCurrentPaletteColor(uint8_t index, Color color);
 void setPalette(ColorPalette palette);
 void fadeToPalette(ColorPalette palette);
-void videoloop(void);
 void convertPaletteDataToPalette(ColorPaletteData paletteData, ColorPalette outPalette);
 void loadScreen2(void);
 void readEverything(void);
@@ -2423,7 +2413,7 @@ void renderAdvancedOptionsMenu(AdvancedOptionsMenu *menu)
         drawTextWithChars6FontWithTransparentBackground(kInitialMenuX, kInitialMenuY + (i + kLinesBelowTitle) * (kBitmapFontCharacterHeight + 1), color, title);
     }
 
-    videoloop();
+    videoLoop();
 }
 
 /// @return 1 if the action was to go back / close the menu
@@ -3062,17 +3052,13 @@ void runAdvancedOptionsRootMenu()
     writeAdvancedConfig();
 
     memcpy(gScreenPixels, gAdvancedOptionsMenuBaseBitmap, sizeof(gAdvancedOptionsMenuBaseBitmap));
-    videoloop();
+    videoLoop();
 
     setPalette(gGamePalette);
 }
 
 int main(int argc, char *argv[])
 {
-#if DEBUG
-    gShouldShowFPS = 1;
-#endif
-
     parseCommandLineOptions(argc, argv);
 
     if (gFastMode == FastModeTypeUltra)
@@ -3099,7 +3085,7 @@ int main(int argc, char *argv[])
         gGameSpeed = gForcedInitialGameSpeed;
     }
 
-    handleSDLEvents();
+    handleSystemEvents();
 
     initializeGameStateData();
 
@@ -3114,7 +3100,7 @@ int main(int argc, char *argv[])
     if (gFastMode == FastModeTypeNone)
     {
         setPalette(gBlackPalette);
-        videoloop();
+        videoLoop();
         readAndRenderTitleDat();
         ColorPalette titleDatPalette; // si = 0x5F15;
         convertPaletteDataToPalette(gTitlePaletteData, titleDatPalette);
@@ -3430,7 +3416,7 @@ void slideDownGameDash() // proc near     ; CODE XREF: start:isNotFastMode2p
         }
 
         drawCurrentLevelViewport(panelHeight);
-        videoloop();
+        videoLoop();
     }
 }
 
@@ -3439,7 +3425,7 @@ void slideDownGameDash() // proc near     ; CODE XREF: start:isNotFastMode2p
 /// @param shouldYieldCpu If 1, will sleep the thread for a bit to prevent 100% CPU usage.
 void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9+1Fo
 {
-    handleSDLEvents();
+    handleSystemEvents();
 
     const Uint8 *keys = SDL_GetKeyboardState(NULL);
 
@@ -3517,7 +3503,7 @@ void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9
     {
         if (shouldYieldCpu)
         {
-            SDL_Delay(10); // Avoid burning the CPU
+            waitTime(10); // Avoid burning the CPU
         }
         return;
     }
@@ -3563,41 +3549,7 @@ void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9
 
     if (shouldYieldCpu)
     {
-        SDL_Delay(10); // Avoid burning the CPU
-    }
-}
-
-void int8handler() // proc far        ; DATA XREF: setint8+10o
-{
-    if (gIsGameRunning != 0)
-    {
-        gAuxGameSeconds20msAccumulator++;
-        if (gAuxGameSeconds20msAccumulator >= 50)
-        {
-            gAuxGameSeconds20msAccumulator = 0;
-            gGameSeconds++;
-            if (gGameSeconds >= 60)
-            {
-                gGameSeconds = 0;
-                gGameMinutes++;
-                if (gGameMinutes >= 60)
-                {
-                    gGameMinutes = 0;
-                    gGameHours++;
-                }
-            }
-        }
-    }
-
-//loc_473B4:              ; CODE XREF: int8handler+4Fj
-    // 01ED:0751
-    if (gCurrentSoundDuration != 0)
-    {
-        gCurrentSoundDuration--;
-        if (gCurrentSoundDuration == 0)
-        {
-            gCurrentSoundPriority = 0;
-        }
+        waitTime(10); // Avoid burning the CPU
     }
 }
 
@@ -4041,7 +3993,7 @@ void openCreditsBlock() // proc near      ; CODE XREF: start+2E9p
             }
         }
 
-        videoloop();
+        videoLoop();
     }
 
 //loc_47884:             // ; CODE XREF: openCreditsBlock+C7j
@@ -4065,7 +4017,7 @@ void loadScreen2() // proc near       ; CODE XREF: start:loc_46F00p
     ColorPalette title1DatPalette;
     convertPaletteDataToPalette(gTitle1PaletteData, title1DatPalette);
     setPalette(title1DatPalette);
-    videoloop();
+    videoLoop();
 
     readTitle2Dat();
 }
@@ -4270,7 +4222,7 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
     for (int i = 0; i < 4200; ++i)
     {
 //loc_47EC6:              ; CODE XREF: waitForKeyMouseOrJoystick+57j
-        videoloop();
+        videoLoop();
 
         getMouseStatus(NULL, NULL, &mouseButtonsStatus);
         int9handler(0);
@@ -5744,13 +5696,13 @@ void initializeGameInfo() // sub_48A20   proc near       ; CODE XREF: start+32F
 
 void handleGameIterationStarted()
 {
-    gGameIterationStartTime = SDL_GetTicks();
+    gGameIterationStartTime = getTime();
 }
 
 void handleGameIterationFinished()
 {
     const float kOriginalIterationDuration = 1000.0 / 35; // 35 iterations per second in the original game
-    float currentIterationDuration = SDL_GetTicks() - gGameIterationStartTime;
+    float currentIterationDuration = getTime() - gGameIterationStartTime;
 
     float targetIterationDuration = kOriginalIterationDuration * kSpeedTimeFactors[gGameSpeed];
 
@@ -5761,24 +5713,24 @@ void handleGameIterationFinished()
 
     if (currentIterationDuration < targetIterationDuration)
     {
-        SDL_Delay(targetIterationDuration - currentIterationDuration);
+        waitTime(targetIterationDuration - currentIterationDuration);
     }
 
     gNumberOfGameIterations++;
 
     if (gGameIterationRateReferenceTime == 0)
     {
-        gGameIterationRateReferenceTime = SDL_GetTicks();
+        gGameIterationRateReferenceTime = getTime();
     }
     else
     {
-        Uint32 difference = SDL_GetTicks() - gGameIterationRateReferenceTime;
+        Uint32 difference = getTime() - gGameIterationRateReferenceTime;
 
         if (difference > 1000)
         {
             gGameIterationRate = gNumberOfGameIterations * 1000.f / difference;
             gNumberOfGameIterations = 0;
-            gGameIterationRateReferenceTime = SDL_GetTicks();
+            gGameIterationRateReferenceTime = getTime();
         }
     }
 }
@@ -5910,7 +5862,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         drawCurrentLevelViewport(gCurrentPanelHeight); // Added by me
         if (gFastMode != FastModeTypeUltra)
         {
-            videoloop(); // 01ED:2142
+            videoLoop(); // 01ED:2142
         }
         handleGameIterationFinished();
 
@@ -5927,7 +5879,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 //loc_48DB6:              ; CODE XREF: runLevel+310j
             if (gFastMode == FastModeTypeNone)
             {
-                videoloop(); // 01ED:2160
+                videoLoop(); // 01ED:2160
             }
 
 //isFastMode3:              ; CODE XREF: runLevel+303j
@@ -6466,7 +6418,7 @@ void handleGameUserInput() // sub_4955B   proc near       ; CODE XREF: runLevel:
 //loc_4969F:              ; CODE XREF: handleGameUserInput+13Dj
         if (gIsRKeyPressed != 0)
         {
-            videoloop();
+            videoLoop();
             restartLevel();
         }
 
@@ -6879,7 +6831,7 @@ void loadGameSnapshot() // loc_49A89:              ; CODE XREF: handleGameUserIn
     // just to prevent graphical glitches. Also they made loading much slower.
     //
     // setPalette(gBlackPalette);
-    // videoloop();
+    // videoLoop();
     drawFixedLevel();
     drawGamePanel();
     sub_4A2E6();
@@ -6894,7 +6846,7 @@ void loadGameSnapshot() // loc_49A89:              ; CODE XREF: handleGameUserIn
     gAdditionalInfoInGamePanelFrameCounter = 0x46; // 70 or '&'
 
     drawCurrentLevelViewport(gCurrentPanelHeight);
-    // videoloop();
+    // videoLoop();
 
 //loc_49C12:              ; CODE XREF: handleGameUserInput+6A8j
     // fadeToPalette(gGamePalette);
@@ -7467,7 +7419,7 @@ void updateTerminalTiles(int16_t position) // movefun5  proc near       ; DATA X
 void generateRandomSeedFromClock() // getTime    proc near       ; CODE XREF: start:doesNotHaveCommandLinep
                     // ; handleGameUserInput+669p ...
 {
-    Uint32 timeInMilliseconds = SDL_GetTicks();
+    Uint32 timeInMilliseconds = getTime();
     // In order to keep the same behavior and values, this code will convert
     // the time in milliseconds to the clock count, as described in
     // http://vitaly_filatov.tripod.com/ng/asm/asm_029.1.html
@@ -7610,7 +7562,7 @@ void scrollToMurphy() // sub_4A291   proc near       ; CODE XREF: handleGameUser
     word_59B92 = gScrollOffsetY;
     word_59B90 = gScrollOffsetX;
 
-    videoloop();
+    videoLoop();
 }
 
 void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
@@ -8549,7 +8501,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
         {
 //noKeyPressed:               ; CODE XREF: handleNewPlayerOptionClick+79j
 //                ; handleNewPlayerOptionClick+8Aj ...
-            videoloop();
+            videoLoop();
 
             int9handler(0);
             getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
@@ -8763,7 +8715,7 @@ void handleDeletePlayerOptionClick() // sub_4AD0E  proc near
     do
     {
 //loc_4AD74:              ; CODE XREF: handleDeletePlayerOptionClick+88j
-        videoloop();
+        videoLoop();
         getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
         gMouseButtonStatus = mouseButtonStatus;
         gMouseX = mouseX;
@@ -8870,7 +8822,7 @@ void handleSkipLevelOptionClick() // sub_4ADFF  proc near
     do
     {
 //loc_4AE91:              ; CODE XREF: handleSkipLevelOptionClick+B4j
-        videoloop();
+        videoLoop();
         getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
         gMouseButtonStatus = mouseButtonStatus;
         gMouseX = mouseX;
@@ -10124,7 +10076,7 @@ void sub_4C407() //   proc near       ; CODE XREF: runMainMenu+5Dp
     //    mov si, 6015h
         fadeToPalette(gGamePalette);
 
-        videoloop();
+        videoLoop();
 
         // This will prevent to leave traces of the options menu
         // area in the main menu.
@@ -10186,7 +10138,7 @@ void scrollLeftToMainMenu() //loc_4C44F:              ; CODE XREF: handleGfxTuto
         }
 
 //loc_4C466:              ; CODE XREF: sub_4C407+90j
-        videoloop();
+        videoLoop();
     }
 
 //loc_4C499:              ; CODE XREF: sub_4C407+28j
@@ -10224,7 +10176,7 @@ void drawFailedLevelResultScreen() // sub_4C4F9   proc near       ; CODE XREF: s
 //loc_4C55C:              ; CODE XREF: drawFailedLevelResultScreen+31j
     drawTextWithChars6FontWithTransparentBackgroundIfPossible(72, 120, 0xF, "WHY NOT GIVE IT ANOTHER TRY?");
 
-    videoloop();
+    videoLoop();
     setPalette(gInformationScreenPalette);
     if (gShouldExitGame != 1)
     {
@@ -10237,7 +10189,7 @@ void drawFailedLevelResultScreen() // sub_4C4F9   proc near       ; CODE XREF: s
 
 void scrollRightToNewScreen() // sub_4C5AF   proc near       ; CODE XREF: handleGfxTutorOptionClick+3p
 {
-    videoloop();
+    videoLoop();
 
     uint8_t screenPixelsBackup[kFullScreenFramebufferLength];
     memcpy(screenPixelsBackup, gScreenPixels, kFullScreenFramebufferLength);
@@ -10276,7 +10228,7 @@ void scrollRightToNewScreen() // sub_4C5AF   proc near       ; CODE XREF: handle
         }
 
 //loc_4C5BA:              ; CODE XREF: scrollRightToGfxTutor+3Cj
-        videoloop();
+        videoLoop();
     }
 }
 
@@ -10398,7 +10350,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
         prepareLevelDataForCurrentPlayer(); // 01ED:5B56
         drawMenuTitleAndDemoLevelResult(); // 01ED:5B59
 
-        videoloop();
+        videoLoop();
         fadeToPalette(gGamePalette); // 6015h
         word_58467 = 0;
     }
@@ -10434,7 +10386,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
         }
 
 //loc_4C81A:              // ; CODE XREF: runMainMenu+77j
-        videoloop();
+        videoLoop();
 
         gFrameCounter++;
         uint16_t mouseX, mouseY;
@@ -10649,7 +10601,7 @@ void handleControlsOptionClick() //showControls:                              ; 
 
 //loc_4CA67:                              ; CODE XREF: code:5E89j
 //                            ; code:5EBFj ...
-        videoloop(); // 01ED:5E04
+        videoLoop(); // 01ED:5E04
         updateOptionsMenuState(gScreenPixels);
         gFrameCounter++;
         getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
@@ -10692,7 +10644,7 @@ void handleControlsOptionClick() //showControls:                              ; 
                     do
                     {
 //loc_4CAD0:                              ; CODE XREF: code:5EBDj
-                        videoloop();
+                        videoLoop();
                         gFrameCounter++;
                         getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
                     }
@@ -11425,7 +11377,7 @@ void initializeMouse() //   proc near       ; CODE XREF: start+299p
         centerMouse();
     }
     SDL_ShowCursor(SDL_DISABLE);
-    handleSDLEvents();
+    handleSystemEvents();
 }
 
 void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonStatus) //   proc near       ; CODE XREF: waitForKeyMouseOrJoystick:mouseIsClickedp
@@ -11436,7 +11388,7 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
 
     if (gIsMouseAvailable != 0)
     {
-        handleSDLEvents();
+        handleSystemEvents();
 
         int x, y;
         Uint32 state = SDL_GetMouseState(&x, &y);
@@ -11504,67 +11456,6 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
         {
             *mouseButtonStatus = (rightButtonPressed << 1
                                   | leftButtonPressed);
-        }
-    }
-}
-
-void limitFPS()
-{
-    #define kMaximumFPS 70.0
-    static const double kFrameDuration = 1000.0 / kMaximumFPS;
-    static Uint32 sLastFrameTime = 0;
-
-    if (gFastMode != FastModeTypeNone)
-    {
-        return;
-    }
-
-    if (sLastFrameTime != 0)
-    {
-        Uint32 duration = (SDL_GetTicks() - sLastFrameTime);
-        if (duration < kFrameDuration)
-        {
-            SDL_Delay(kFrameDuration - duration);
-        }
-    }
-
-    sLastFrameTime = SDL_GetTicks();
-}
-
-void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
-{
-    if (gShouldShowFPS)
-    {
-        char frameRateString[5] = "";
-        sprintf(frameRateString, "%4.1f", MIN(gFrameRate, 99.9)); // Don't show more than 99.9 FPS, not necessary
-
-        drawTextWithChars6FontWithOpaqueBackground(0, 0, 6, frameRateString);
-    }
-
-    handleSDLEvents(); // Make sure the app stays responsive
-
-    render();
-    present();
-
-    limitFPS();
-
-    static Uint32 sNumberOfFrames = 0;
-
-    sNumberOfFrames++;
-
-    if (gFrameRateReferenceTime == 0)
-    {
-        gFrameRateReferenceTime = SDL_GetTicks();
-    }
-    else
-    {
-        Uint32 difference = SDL_GetTicks() - gFrameRateReferenceTime;
-
-        if (difference > 1000)
-        {
-            gFrameRate = sNumberOfFrames * 1000.f / difference;
-            sNumberOfFrames = 0;
-            gFrameRateReferenceTime = SDL_GetTicks();
         }
     }
 }
@@ -11834,7 +11725,7 @@ void fadeToPalette(ColorPalette palette) //        proc near       ; CODE XREF: 
 
         setColorPalette(intermediatePalette);
 
-        videoloop();
+        videoLoop();
     }
 
     setPalette(palette);
@@ -16385,7 +16276,7 @@ void drawSpeedFixCredits() // showNewCredits  proc near       ; CODE XREF: start
     drawTextWithChars6FontWithOpaqueBackgroundIfPossible(60, 176, 0xE, "VERSIONS 5.X BY ELMER PRODUCTIONS");
     drawTextWithChars6FontWithOpaqueBackgroundIfPossible(60, 184, 0xE, "  VERSION 7.X BY SERGIO PADRINO  ");
 
-    videoloop();
+    videoLoop();
 
     do
     {
@@ -16402,56 +16293,15 @@ void drawSpeedFixCredits() // showNewCredits  proc near       ; CODE XREF: start
            && isAnyGameControllerButtonPressed() == 0);
 }
 
-void emulateClock()
-{
-    static Uint32 sLastTickCount = 0;
-    static Uint32 sRemainingTicks = 0;
-    static const Uint32 sClockInterval = 20; // 20 ms is what the original game seemed to use
-
-    if (sLastTickCount == 0)
-    {
-        sLastTickCount = SDL_GetTicks();
-        return;
-    }
-
-    sRemainingTicks += SDL_GetTicks() - sLastTickCount;
-
-    while (sRemainingTicks > sClockInterval)
-    {
-        int8handler();
-        sRemainingTicks -= sClockInterval;
-    }
-
-    sLastTickCount = SDL_GetTicks();
-}
-
-void handleSDLEvents()
-{
-    if (gFastMode != FastModeTypeUltra)
-    {
-        SDL_Event event;
-        while (SDL_PollEvent(&event))
-        {
-            if (event.type == SDL_QUIT)
-            {
-                gShouldExitLevel = 1;
-                gShouldExitGame = 1;
-            }
-        }
-    }
-
-    emulateClock();
-}
-
 void startTrackingRenderDeltaTime()
 {
-    gRenderDeltaTime = SDL_GetTicks();
+    gRenderDeltaTime = getTime();
 }
 
 uint32_t updateRenderDeltaTime()
 {
-    uint32_t duration = SDL_GetTicks() - gRenderDeltaTime;
-    gRenderDeltaTime = SDL_GetTicks();
+    uint32_t duration = getTime() - gRenderDeltaTime;
+    gRenderDeltaTime = getTime();
     return duration;
 }
 

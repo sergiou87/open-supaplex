@@ -103,6 +103,8 @@
 		40564344247032640042F34B /* DEMO1.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A8A246CB5F500B776FA /* DEMO1.BIN */; };
 		40564345247032640042F34B /* LEVEL.LST in Resources */ = {isa = PBXBuildFile; fileRef = 40487A9C246CB5F600B776FA /* LEVEL.LST */; };
 		40564346247032640042F34B /* GFX.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A86246CB5F500B776FA /* GFX.DAT */; };
+		409F7B632479CD4C00BB3B19 /* system.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7B622479CD4C00BB3B19 /* system.c */; };
+		409F7B642479CD4C00BB3B19 /* system.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7B622479CD4C00BB3B19 /* system.c */; };
 		40E6995424787DAE000ADD53 /* savegame.c in Sources */ = {isa = PBXBuildFile; fileRef = 40E6995324787DAE000ADD53 /* savegame.c */; };
 		40E6995524787DAE000ADD53 /* savegame.c in Sources */ = {isa = PBXBuildFile; fileRef = 40E6995324787DAE000ADD53 /* savegame.c */; };
 /* End PBXBuildFile section */
@@ -170,6 +172,8 @@
 		4062C245244CE5D5007A07F5 /* controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = controller.h; path = ../../../src/controller.h; sourceTree = "<group>"; };
 		4062C246244CE5D5007A07F5 /* supaplex.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = supaplex.c; path = ../../../src/supaplex.c; sourceTree = "<group>"; };
 		4062C24A244F00CA007A07F5 /* file.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = file.h; path = ../../../src/file.h; sourceTree = "<group>"; };
+		409F7B612479CD4C00BB3B19 /* system.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = system.h; path = ../../../src/system.h; sourceTree = "<group>"; };
+		409F7B622479CD4C00BB3B19 /* system.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = system.c; path = ../../../src/system.c; sourceTree = "<group>"; };
 		40C8290C24673197003A103E /* audio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = audio.h; path = ../../../src/audio.h; sourceTree = "<group>"; };
 		40C8290D24673197003A103E /* audio.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = audio.c; path = ../../../src/audio.c; sourceTree = "<group>"; };
 		40DA3CF62468717400D4A308 /* menu.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = menu.h; path = ../../../src/menu.h; sourceTree = "<group>"; };
@@ -298,6 +302,8 @@
 				40517B142473EC57004E2435 /* graphics.c */,
 				40E6995224787DAE000ADD53 /* savegame.h */,
 				40E6995324787DAE000ADD53 /* savegame.c */,
+				409F7B612479CD4C00BB3B19 /* system.h */,
+				409F7B622479CD4C00BB3B19 /* system.c */,
 			);
 			path = OpenSupaplex;
 			sourceTree = "<group>";
@@ -497,6 +503,7 @@
 				40487A01246C403A00B776FA /* nullVirtualKeyboard.c in Sources */,
 				40487A07246C403A00B776FA /* input.c in Sources */,
 				40564310246F4A9A0042F34B /* globals.c in Sources */,
+				409F7B632479CD4C00BB3B19 /* system.c in Sources */,
 				40487A03246C403A00B776FA /* utils.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -523,6 +530,7 @@
 				40564323247032640042F34B /* nullVirtualKeyboard.c in Sources */,
 				40564324247032640042F34B /* input.c in Sources */,
 				40564325247032640042F34B /* globals.c in Sources */,
+				409F7B642479CD4C00BB3B19 /* system.c in Sources */,
 				40564326247032640042F34B /* utils.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
