@@ -29,6 +29,14 @@
 // uint16_t word_5A30B = 0x1A0D;
 char kSaveGameMagicNumber[5] = "OSPX";
 
+static const char *kVersionKey = "Version";
+static const char *kLevelNameKey = "LevelName";
+static const char *kLevelStateKey = "LevelState";
+static const char *kExplosionTimersKey = "ExplosionTimers";
+static const char *kMurphyAnimationKeyBase = "MurphyAnimation";
+static const char *kCurrentLevelKeyBase = "CurrentLevel";
+static const char *kCurrentLevelSpecialPortsKeyBase = "CurrentLevel_specialPortsInfo";
+
 // 8KB of buffer should be enough for the strings we'll deal with here
 #define kReadConfigStringBufferSize 8192
 #define kConfigKeyBufferSize 256
@@ -70,13 +78,8 @@ char kSaveGameMagicNumber[5] = "OSPX";
     } \
     while (0)
 
-static const char *kVersionKey = "Version";
-static const char *kLevelNameKey = "LevelName";
-static const char *kLevelStateKey = "LevelState";
-static const char *kExplosionTimersKey = "ExplosionTimers";
-static const char *kMurphyAnimationKeyBase = "MurphyAnimation";
-static const char *kCurrentLevelKeyBase = "CurrentLevel";
-static const char *kCurrentLevelSpecialPortsKeyBase = "CurrentLevel_specialPortsInfo";
+#define SAVE_GAME_STATE_CONFIG_INT(__value) \
+    writeConfigInt(config, #__value, g##__value)
 
 void saveCurrentMurphyAnimationGameState(Config *config)
 {
@@ -121,10 +124,6 @@ uint8_t saveCurrentLevelGameState(Config *config)
     return 0;
 }
 
-#undef SAVE_GAME_STATE_CONFIG_SUBITEM_INT
-#undef SAVE_GAME_STATE_CONFIG_INDEXED_SUBITEM_INT
-#undef SAVE_GAME_STATE_CONFIG_SUBITEM_BASE64
-
 uint8_t saveGameState()
 {
     Config *config = initializeConfigForWriting(gSavegameSavFilename);
@@ -156,9 +155,6 @@ uint8_t saveGameState()
 
     writeConfigInt(config, kVersionKey, kGameVersion);
     SAVE_GAME_STATE_CONFIG_BASE64(kLevelNameKey, levelName, kListLevelNameLength);
-
-#define SAVE_GAME_STATE_CONFIG_INT(__value) \
-    writeConfigInt(config, #__value, g##__value)
 
     SAVE_GAME_STATE_CONFIG_BASE64(kLevelStateKey, gCurrentLevelStateWithPadding, sizeof(gCurrentLevelStateWithPadding));
     SAVE_GAME_STATE_CONFIG_BASE64(kExplosionTimersKey, gExplosionTimers, sizeof(gExplosionTimers));
@@ -210,12 +206,17 @@ uint8_t saveGameState()
     SAVE_GAME_STATE_CONFIG_INT(QuitLevelCountdown);
     SAVE_GAME_STATE_CONFIG_INT(AdditionalInfoInGamePanelFrameCounter);
     saveCurrentLevelGameState(config);
-#undef SAVE_GAME_STATE_CONFIG_INT
 
     destroyConfig(config);
 
     return 0;
 }
+
+#undef SAVE_GAME_STATE_CONFIG_INT
+#undef SAVE_GAME_STATE_CONFIG_BASE64
+#undef SAVE_GAME_STATE_CONFIG_SUBITEM_INT
+#undef SAVE_GAME_STATE_CONFIG_INDEXED_SUBITEM_INT
+#undef SAVE_GAME_STATE_CONFIG_SUBITEM_BASE64
 
 uint8_t canLoadGameState(void)
 {
@@ -267,6 +268,9 @@ uint8_t canLoadGameState(void)
         __valueBase.__value = readConfigInt(config, kSaveGameMagicNumber, configKeyBuffer, __valueBase.__value); \
     } \
     while (0)
+
+#define LOAD_GAME_STATE_CONFIG_INT(__value) \
+    g##__value = readConfigInt(config, kSaveGameMagicNumber, #__value, g##__value)
 
 void loadCurrentMurphyAnimationGameState(Config *config)
 {
@@ -334,9 +338,6 @@ uint8_t loadGameState()
     LOAD_GAME_STATE_CONFIG_BASE64(kLevelStateKey, gCurrentLevelStateWithPadding, sizeof(gCurrentLevelStateWithPadding));
     LOAD_GAME_STATE_CONFIG_BASE64(kExplosionTimersKey, gExplosionTimers, sizeof(gExplosionTimers));
 
-#define LOAD_GAME_STATE_CONFIG_INT(__value) \
-    g##__value = readConfigInt(config, kSaveGameMagicNumber, #__value, g##__value)
-
     LOAD_GAME_STATE_CONFIG_INT(IsGravityEnabled);
     LOAD_GAME_STATE_CONFIG_INT(AreZonksFrozen);
     LOAD_GAME_STATE_CONFIG_INT(NumberOfInfoTrons);
@@ -392,3 +393,8 @@ uint8_t loadGameState()
     return 0;
 }
 
+#undef LOAD_GAME_STATE_CONFIG_BASE64
+#undef LOAD_GAME_STATE_CONFIG_SUBITEM_INT
+#undef LOAD_GAME_STATE_CONFIG_SUBITEM_BASE64
+#undef LOAD_GAME_STATE_CONFIG_INDEXED_SUBITEM_INT
+#undef LOAD_GAME_STATE_CONFIG_INT
