@@ -8067,32 +8067,93 @@ void updateExplosionTimers() // sub_4A5E0   proc near       ; CODE XREF: runLeve
     }
 }
 
+void detonateBigExplosionTile(int16_t position, uint8_t newTile, uint8_t newState, uint8_t newExplosionTimer)
+{
+    StatefulLevelTile *currentTile = &gCurrentLevelState[position];
+
+//loc_4A64C:              ; CODE XREF: detonateBigExplosion+26j
+    uint8_t hasChangedCurrentTile = 0;
+
+    if (currentTile->tile == LevelTileTypeOrangeDisk
+        || currentTile->tile == LevelTileTypeYellowDisk
+        || currentTile->tile == LevelTileTypeSnikSnak)
+    {
+//loc_4A680:              ; CODE XREF: detonateBigExplosion+3Aj
+//                ; detonateBigExplosion+3Ej ...
+        if (currentTile->tile != LevelTileTypeHardware)
+        {
+            gExplosionTimers[position] = newExplosionTimer; // mov [bx+23F7h], dh
+        }
+    }
+    else if (currentTile->tile == LevelTileTypeZonk)
+    {
+//loc_4A69C:              ; CODE XREF: detonateBigExplosion+46j
+        // 01ED:3A39
+        detonateZonk(position, newState, newTile);
+        hasChangedCurrentTile = 1; // to emulate jmp loc_4A6A6
+    }
+    else if (currentTile->tile == LevelTileTypeInfotron)
+    {
+//loc_4A692:              ; CODE XREF: detonateBigExplosion+4Aj 01ED:3A2F
+        sub_4AA34(position, newState, newTile);
+        hasChangedCurrentTile = 1; // to emulate jmp loc_4A6A6
+    }
+    else if (currentTile->tile == LevelTileTypeElectron)
+    {
+        newExplosionTimer = -newExplosionTimer; // dh = -dh;
+        newState = 0x80;
+        newTile = LevelTileTypeExplosion;
+//loc_4A680:              ; CODE XREF: detonateBigExplosion+3Aj
+//                ; detonateBigExplosion+3Ej ...
+        if (currentTile->tile != LevelTileTypeHardware)
+        {
+            gExplosionTimers[position] = newExplosionTimer; // mov [bx+23F7h], dh
+        }
+    }
+//loc_4A676:              ; CODE XREF: detonateBigExplosion+4Ej
+    else if (currentTile->tile == LevelTileTypeMurphy)
+    {
+        gShouldKillMurphy = 1;
+
+//loc_4A680:              ; CODE XREF: detonateBigExplosion+3Aj
+//                ; detonateBigExplosion+3Ej ...
+        if (currentTile->tile != LevelTileTypeHardware)
+        {
+            gExplosionTimers[position] = newExplosionTimer; // mov [bx+23F7h], dh
+        }
+    }
+
+    if (hasChangedCurrentTile == 0)
+    {
+//loc_4A688:              ; CODE XREF: detonateBigExplosion+59j
+//                ; detonateBigExplosion+63j
+        if (currentTile->tile != LevelTileTypeHardware)
+        {
+            // mov [si+17BAh], cx
+            currentTile->state = newState;
+            currentTile->tile = newTile;
+        }
+    }
+}
+
 // Creates an explossion of 3x3 tiles around a position
 void detonateBigExplosion(int16_t position) // sub_4A61F   proc near       ; CODE XREF: movefun+271p
                    // ; movefun2+20Fp ...
 {
     // 01ED:39BC
     StatefulLevelTile *currentTile = &gCurrentLevelState[position];
-    StatefulLevelTile *aboveTile = &gCurrentLevelState[position - kLevelWidth];
-    StatefulLevelTile *belowTile = &gCurrentLevelState[position + kLevelWidth];
-    StatefulLevelTile *leftTile = &gCurrentLevelState[position - 1];
-    StatefulLevelTile *rightTile = &gCurrentLevelState[position + 1];
-    StatefulLevelTile *aboveLeftTile = &gCurrentLevelState[position - kLevelWidth - 1];
-    StatefulLevelTile *aboveRightTile = &gCurrentLevelState[position - kLevelWidth + 1];
-    StatefulLevelTile *belowLeftTile = &gCurrentLevelState[position + kLevelWidth - 1];
-    StatefulLevelTile *belowRightTile = &gCurrentLevelState[position + kLevelWidth + 1];
-
-    // These indicate the kind of the explosion created by this tile.
-    // Tiles around may create a different explosion if needed (like Electrons create Infotrons).
-    //
-    uint8_t mainState = 0;
-    uint8_t mainTile = 0;
-    uint8_t mainExplosionTimer = 0;
 
     if (currentTile->state == 0 && currentTile->tile == LevelTileTypeHardware)
     {
         return;
     }
+
+    // These indicate the kind of the explosion created by this tile.
+    // Tiles around may create a different explosion if needed (like Electrons create Infotrons).
+    //
+    uint8_t newState = 0;
+    uint8_t newTile = 0;
+    uint8_t newExplosionTimer = 0;
 
 //loc_4A627:              ; CODE XREF: detonateBigExplosion+5j
     gIsExplosionStarted = 1;
@@ -8104,577 +8165,33 @@ void detonateBigExplosion(int16_t position) // sub_4A61F   proc near       ; COD
 //loc_4A639:              ; CODE XREF: detonateBigExplosion+12j
     if (currentTile->tile == LevelTileTypeElectron)
     {
-        mainState = 0x80;
-        mainTile = LevelTileTypeExplosion;
-        mainExplosionTimer = -13;
+        newState = 0x80;
+        newTile = LevelTileTypeExplosion;
+        newExplosionTimer = -13;
     }
     else
     {
 //loc_4A647:              ; CODE XREF: detonateBigExplosion+1Fj
         // cx = 0x1F; // 31
-        mainState = 0;
-        mainTile = LevelTileTypeExplosion;
-        mainExplosionTimer = 13;
+        newState = 0;
+        newTile = LevelTileTypeExplosion;
+        newExplosionTimer = 13;
     }
 
-    // These have the tile-specific explosion info, which might differ (or not) from the main type
-    uint8_t state = mainState;
-    uint8_t tile = mainTile;
-    uint8_t explosionTimer = mainExplosionTimer;
-
-//loc_4A64C:              ; CODE XREF: detonateBigExplosion+26j
-    uint8_t skipHardwareCheck7 = 0;
-
-    if (aboveLeftTile->tile == LevelTileTypeOrangeDisk
-        || aboveLeftTile->tile == LevelTileTypeYellowDisk
-        || aboveLeftTile->tile == LevelTileTypeSnikSnak)
-    {
-//loc_4A680:              ; CODE XREF: detonateBigExplosion+3Aj
-//                ; detonateBigExplosion+3Ej ...
-        if (aboveLeftTile->tile != LevelTileTypeHardware)
-        {
-            gExplosionTimers[position - kLevelWidth - 1] = explosionTimer; // mov [bx+23F7h], dh
-        }
-    }
-    else if (aboveLeftTile->tile == LevelTileTypeZonk)
-    {
-//loc_4A69C:              ; CODE XREF: detonateBigExplosion+46j
-        // 01ED:3A39
-        detonateZonk(position - kLevelWidth - 1, state, tile);
-        skipHardwareCheck7 = 1; // to emulate jmp loc_4A6A6
-    }
-    else if (aboveLeftTile->tile == LevelTileTypeInfotron)
-    {
-//loc_4A692:              ; CODE XREF: detonateBigExplosion+4Aj 01ED:3A2F
-        sub_4AA34(position - kLevelWidth - 1, state, tile);
-        skipHardwareCheck7 = 1; // to emulate jmp loc_4A6A6
-    }
-    else if (aboveLeftTile->tile == LevelTileTypeElectron)
-    {
-        explosionTimer = -explosionTimer; // dh = -dh;
-        state = 0x80;
-        tile = LevelTileTypeExplosion;
-//loc_4A680:              ; CODE XREF: detonateBigExplosion+3Aj
-//                ; detonateBigExplosion+3Ej ...
-        if (aboveLeftTile->tile != LevelTileTypeHardware)
-        {
-            gExplosionTimers[position - kLevelWidth - 1] = explosionTimer; // mov [bx+23F7h], dh
-        }
-    }
-//loc_4A676:              ; CODE XREF: detonateBigExplosion+4Ej
-    else if (aboveLeftTile->tile == LevelTileTypeMurphy)
-    {
-        gShouldKillMurphy = 1;
-
-//loc_4A680:              ; CODE XREF: detonateBigExplosion+3Aj
-//                ; detonateBigExplosion+3Ej ...
-        if (aboveLeftTile->tile != LevelTileTypeHardware)
-        {
-            gExplosionTimers[position - kLevelWidth - 1] = explosionTimer; // mov [bx+23F7h], dh
-        }
-    }
-
-    if (skipHardwareCheck7 == 0)
-    {
-//loc_4A688:              ; CODE XREF: detonateBigExplosion+59j
-//                ; detonateBigExplosion+63j
-        if (aboveLeftTile->tile != LevelTileTypeHardware)
-        {
-            // mov [si+17BAh], cx
-            aboveLeftTile->state = state;
-            aboveLeftTile->tile = tile;
-        }
-    }
-
-    // Restore to the main explosion type before evaluating the new tile
-    state = mainState;
-    tile = mainTile;
-    explosionTimer = mainExplosionTimer;
-
-//loc_4A6A6:              ; CODE XREF: detonateBigExplosion:loc_4A690j
-//                ; detonateBigExplosion+7Bj ...
-    uint8_t skipHardwareCheck6 = 0;
-
-    if (aboveTile->tile == LevelTileTypeOrangeDisk
-        || aboveTile->tile == LevelTileTypeYellowDisk
-        || aboveTile->tile == LevelTileTypeSnikSnak)
-    {
-//loc_4A6D7:              ; CODE XREF: detonateBigExplosion+91j
-//                ; detonateBigExplosion+95j ...
-        if (aboveTile->tile != LevelTileTypeHardware)
-        {
-            gExplosionTimers[position - kLevelWidth] = explosionTimer; // mov [bx+23F8h], dh
-        }
-    }
-    else if (aboveTile->tile == LevelTileTypeZonk)
-    {
-//loc_4A6F3:              ; CODE XREF: detonateBigExplosion+9Dj
-        detonateZonk(position - kLevelWidth, state, tile);
-        skipHardwareCheck6 = 1; // to emulate jmp loc_4A6FD
-    }
-    else if (aboveTile->tile == LevelTileTypeInfotron)
-    {
-//loc_4A6E9:              ; CODE XREF: detonateBigExplosion+A1j
-        sub_4AA34(position - kLevelWidth, state, tile);
-        skipHardwareCheck6 = 1; // to emulate jmp loc_4A6FD
-    }
-    else if (aboveTile->tile == LevelTileTypeElectron)
-    {
-        explosionTimer = -explosionTimer; // dh = -dh;
-        state = 0x80;
-        tile = LevelTileTypeExplosion;
-//loc_4A6D7:              ; CODE XREF: detonateBigExplosion+91j
-//                ; detonateBigExplosion+95j ...
-        if (aboveTile->tile != LevelTileTypeHardware)
-        {
-            gExplosionTimers[position - kLevelWidth] = explosionTimer; // mov [bx+23F8h], dh
-        }
-    }
-//loc_4A6CD:              ; CODE XREF: detonateBigExplosion+A5j
-    else if (aboveTile->tile == LevelTileTypeMurphy)
-    {
-        gShouldKillMurphy = 1;
-
-//loc_4A6D7:              ; CODE XREF: detonateBigExplosion+91j
-//                ; detonateBigExplosion+95j ...
-        if (aboveTile->tile != LevelTileTypeHardware)
-        {
-            gExplosionTimers[position - kLevelWidth] = explosionTimer; // mov [bx+23F8h], dh
-        }
-    }
-
-    if (skipHardwareCheck6 == 0)
-    {
-//loc_4A6DF:              ; CODE XREF: detonateBigExplosion+B0j
-//                ; detonateBigExplosion+BAj
-        if (aboveTile->tile != LevelTileTypeHardware)
-        {
-            // mov [si+17BCh], cx
-            aboveTile->state = state;
-            aboveTile->tile = tile;
-        }
-    }
-
-    // Restore to the main explosion type before evaluating the new tile
-    state = mainState;
-    tile = mainTile;
-    explosionTimer = mainExplosionTimer;
-
-//loc_4A6FD:              ; CODE XREF: detonateBigExplosion:loc_4A6E7j
-//                ; detonateBigExplosion+D2j ...
-    uint8_t skipHardwareCheck5 = 0;
-
-    if (aboveRightTile->tile == LevelTileTypeOrangeDisk
-        || aboveRightTile->tile == LevelTileTypeYellowDisk
-        || aboveRightTile->tile == LevelTileTypeSnikSnak)
-    {
-//loc_4A72E:              ; CODE XREF: detonateBigExplosion+E8j
-//                ; detonateBigExplosion+ECj ...
-        if (aboveRightTile->tile != LevelTileTypeHardware)
-        {
-            gExplosionTimers[position - kLevelWidth + 1] = explosionTimer; // mov [bx+23F9h], dh
-        }
-    }
-    else if (aboveRightTile->tile == LevelTileTypeZonk)
-    {
-//loc_4A74A:              ; CODE XREF: detonateBigExplosion+F4j
-        detonateZonk(position - kLevelWidth + 1, state, tile);
-        skipHardwareCheck5 = 1; // to emulate jmp loc_4A754
-    }
-    else if (aboveRightTile->tile == LevelTileTypeInfotron)
-    {
-//loc_4A740:              ; CODE XREF: detonateBigExplosion+F8j
-        sub_4AA34(position - kLevelWidth + 1, state, tile);
-        skipHardwareCheck5 = 1; // to emulate jmp loc_4A754
-    }
-    else if (aboveRightTile->tile == LevelTileTypeElectron)
-    {
-        explosionTimer = -explosionTimer; // dh = -dh;
-        state = 0x80;
-        tile = LevelTileTypeExplosion;
-//loc_4A72E:              ; CODE XREF: detonateBigExplosion+E8j
-//                ; detonateBigExplosion+ECj ...
-        if (aboveRightTile->tile != LevelTileTypeHardware)
-        {
-            gExplosionTimers[position - kLevelWidth + 1] = explosionTimer; // mov [bx+23F9h], dh
-        }
-    }
-//loc_4A724:              ; CODE XREF: detonateBigExplosion+FCj
-    else if (aboveRightTile->tile == LevelTileTypeMurphy)
-    {
-        gShouldKillMurphy = 1;
-
-//loc_4A72E:              ; CODE XREF: detonateBigExplosion+E8j
-//                ; detonateBigExplosion+ECj ...
-        if (aboveRightTile->tile != LevelTileTypeHardware)
-        {
-            gExplosionTimers[position - kLevelWidth + 1] = explosionTimer; // mov [bx+23F9h], dh
-        }
-    }
-
-    if (skipHardwareCheck5 == 0)
-    {
-//loc_4A736:              ; CODE XREF: detonateBigExplosion+107j
-//                ; detonateBigExplosion+111j
-        if (aboveRightTile->tile != LevelTileTypeHardware)
-        {
-            // mov [si+17BEh], cx
-            aboveRightTile->state = state;
-            aboveRightTile->tile = tile;
-        }
-    }
-
-    // Restore to the main explosion type before evaluating the new tile
-    state = mainState;
-    tile = mainTile;
-    explosionTimer = mainExplosionTimer;
-
-//loc_4A754:              ; CODE XREF: detonateBigExplosion:loc_4A73Ej
-//                ; detonateBigExplosion+129j ...
-    uint8_t skipHardwareCheck4 = 0;
-
-    if (leftTile->tile == LevelTileTypeOrangeDisk
-        || leftTile->tile == LevelTileTypeYellowDisk
-        || leftTile->tile == LevelTileTypeSnikSnak)
-    {
-//loc_4A785:              ; CODE XREF: detonateBigExplosion+13Fj
-//                ; detonateBigExplosion+143j ...
-        if (leftTile->tile != LevelTileTypeHardware)
-        {
-            gExplosionTimers[position - 1] = explosionTimer; // mov [bx+2433h], dh
-        }
-    }
-    else if (leftTile->tile == LevelTileTypeZonk)
-    {
-//loc_4A7A1:              ; CODE XREF: detonateBigExplosion+14Bj
-        detonateZonk(position - 1, state, tile);
-        skipHardwareCheck4 = 1; // to emulate jmp loc_4A7AB
-    }
-    else if (leftTile->tile == LevelTileTypeInfotron)
-    {
-//loc_4A797:              ; CODE XREF: detonateBigExplosion+14Fj
-        sub_4AA34(position - 1, state, tile);
-        skipHardwareCheck4 = 1; // to emulate jmp loc_4A7AB
-    }
-    else if (leftTile->tile == LevelTileTypeElectron)
-    {
-        explosionTimer = -explosionTimer; // dh = -dh;
-        state = 0x80;
-        tile = LevelTileTypeExplosion;
-//loc_4A785:              ; CODE XREF: detonateBigExplosion+13Fj
-//                ; detonateBigExplosion+143j ...
-        if (leftTile->tile != LevelTileTypeHardware)
-        {
-            gExplosionTimers[position - 1] = explosionTimer; // mov [bx+2433h], dh
-        }
-    }
-//loc_4A77B:              ; CODE XREF: detonateBigExplosion+153j
-    else if (leftTile->tile == LevelTileTypeMurphy)
-    {
-        gShouldKillMurphy = 1;
-
-//loc_4A785:              ; CODE XREF: detonateBigExplosion+13Fj
-//                ; detonateBigExplosion+143j ...
-        if (leftTile->tile != LevelTileTypeHardware)
-        {
-            gExplosionTimers[position - 1] = explosionTimer; // mov [bx+2433h], dh
-        }
-    }
-
-    if (skipHardwareCheck4 == 0)
-    {
-//loc_4A78D:              ; CODE XREF: detonateBigExplosion+15Ej
-//                ; detonateBigExplosion+168j
-        if (leftTile->tile != LevelTileTypeHardware)
-        {
-            // mov [si+1832h], cx
-            leftTile->state = state;
-            leftTile->tile = tile;
-        }
-    }
-
-    // Restore to the main explosion type before evaluating the new tile
-    state = mainState;
-    tile = mainTile;
-    explosionTimer = mainExplosionTimer;
+    detonateBigExplosionTile(position - kLevelWidth - 1, newTile, newState, newExplosionTimer);
+    detonateBigExplosionTile(position - kLevelWidth, newTile, newState, newExplosionTimer);
+    detonateBigExplosionTile(position - kLevelWidth + 1, newTile, newState, newExplosionTimer);
+    detonateBigExplosionTile(position - 1, newTile, newState, newExplosionTimer);
 
 //loc_4A7AB:              ; CODE XREF: detonateBigExplosion:loc_4A795j
 //                ; detonateBigExplosion+180j ...
-    // mov [si+1834h], cx
-    currentTile->state = state;
-    currentTile->tile = tile;
+    currentTile->state = newState;
+    currentTile->tile = newTile;
 
-    uint8_t skipHardwareCheck3 = 0;
-
-    if (rightTile->tile == LevelTileTypeOrangeDisk
-        || rightTile->tile == LevelTileTypeYellowDisk
-        || rightTile->tile == LevelTileTypeSnikSnak)
-    {
-//loc_4A7E0:              ; CODE XREF: detonateBigExplosion+19Aj
-//                ; detonateBigExplosion+19Ej ...
-        if (rightTile->tile != LevelTileTypeHardware)
-        {
-            gExplosionTimers[position + 1] = explosionTimer; // mov [bx+2435h], dh
-        }
-    }
-    else if (rightTile->tile == LevelTileTypeZonk)
-    {
-//loc_4A7FC:              ; CODE XREF: detonateBigExplosion+1A6j
-        detonateZonk(position + 1, state, tile);
-        skipHardwareCheck3 = 1; // to emulate jmp loc_4A806
-    }
-    else if (rightTile->tile == LevelTileTypeInfotron)
-    {
-//loc_4A7F2:              ; CODE XREF: detonateBigExplosion+1AAj
-        sub_4AA34(position + 1, state, tile);
-        skipHardwareCheck3 = 1; // to emulate jmp loc_4A806
-    }
-    else if (rightTile->tile == LevelTileTypeElectron)
-    {
-        explosionTimer = -explosionTimer; // dh = -dh;
-        state = 0x80;
-        tile = LevelTileTypeExplosion;
-//loc_4A7E0:              ; CODE XREF: detonateBigExplosion+19Aj
-//                ; detonateBigExplosion+19Ej ...
-        if (rightTile->tile != LevelTileTypeHardware)
-        {
-            gExplosionTimers[position + 1] = explosionTimer; // mov [bx+2435h], dh
-        }
-    }
-//loc_4A7D6:              ; CODE XREF: detonateBigExplosion+1AEj
-    else if (rightTile->tile == LevelTileTypeMurphy)
-    {
-        gShouldKillMurphy = 1;
-
-//loc_4A7E0:              ; CODE XREF: detonateBigExplosion+19Aj
-//                ; detonateBigExplosion+19Ej ...
-        if (rightTile->tile != LevelTileTypeHardware)
-        {
-            gExplosionTimers[position + 1] = explosionTimer; // mov [bx+2435h], dh
-        }
-    }
-
-    if (skipHardwareCheck3 == 0)
-    {
-//loc_4A7E8:              ; CODE XREF: detonateBigExplosion+1B9j
-//                ; detonateBigExplosion+1C3j
-        if (rightTile->tile != LevelTileTypeHardware)
-        {
-            // mov [si+1836h], cx
-            rightTile->state = state;
-            rightTile->tile = tile;
-        }
-    }
-
-    // Restore to the main explosion type before evaluating the new tile
-    state = mainState;
-    tile = mainTile;
-    explosionTimer = mainExplosionTimer;
-
-//loc_4A806:              ; CODE XREF: detonateBigExplosion:loc_4A7F0j
-//                ; detonateBigExplosion+1DBj ...
-    // 01ED:3BA7
-    uint8_t skipHardwareCheck2 = 0;
-
-    if (belowLeftTile->tile == LevelTileTypeOrangeDisk
-        || belowLeftTile->tile == LevelTileTypeYellowDisk
-        || belowLeftTile->tile == LevelTileTypeSnikSnak)
-    {
-//loc_4A837:              ; CODE XREF: detonateBigExplosion+1F1j
-//                ; detonateBigExplosion+1F5j ...
-        if (belowLeftTile->tile != LevelTileTypeHardware)
-        {
-            gExplosionTimers[position + kLevelWidth - 1] = explosionTimer; // mov [bx+246Fh], dh
-        }
-    }
-    else if (belowLeftTile->tile == LevelTileTypeZonk)
-    {
-//loc_4A853:              ; CODE XREF: detonateBigExplosion+1FDj
-        detonateZonk(position + kLevelWidth - 1, state, tile);
-        skipHardwareCheck2 = 1; // to emulate jmp loc_4A85D
-    }
-    else if (belowLeftTile->tile == LevelTileTypeInfotron)
-    {
-//loc_4A849:              ; CODE XREF: detonateBigExplosion+201j
-        sub_4AA34(position + kLevelWidth - 1, state, tile);
-        skipHardwareCheck2 = 1; // to emulate jmp loc_4A85D
-    }
-    else if (belowLeftTile->tile == LevelTileTypeElectron)
-    {
-        explosionTimer = -explosionTimer; // dh = -dh;
-        state = 0x80;
-        tile = LevelTileTypeExplosion;
-//loc_4A837:              ; CODE XREF: detonateBigExplosion+1F1j
-//                ; detonateBigExplosion+1F5j ...
-        if (belowLeftTile->tile != LevelTileTypeHardware)
-        {
-            gExplosionTimers[position + kLevelWidth - 1] = explosionTimer; // mov [bx+246Fh], dh
-        }
-    }
-//loc_4A82D:              ; CODE XREF: detonateBigExplosion+205j
-    else if (belowLeftTile->tile == LevelTileTypeMurphy)
-    {
-        gShouldKillMurphy = 1;
-//loc_4A837:              ; CODE XREF: detonateBigExplosion+1F1j
-//                ; detonateBigExplosion+1F5j ...
-        if (belowLeftTile->tile != LevelTileTypeHardware)
-        {
-            gExplosionTimers[position + kLevelWidth - 1] = explosionTimer; // mov [bx+246Fh], dh
-        }
-    }
-
-    if (skipHardwareCheck2 == 0)
-    {
-//loc_4A83F:              ; CODE XREF: detonateBigExplosion+210j
-//                ; detonateBigExplosion+21Aj
-        if (belowLeftTile->tile != LevelTileTypeHardware)
-        {
-            // mov [si+18AAh], cx
-            belowLeftTile->state = state;
-            belowLeftTile->tile = tile;
-        }
-    }
-
-    // Restore to the main explosion type before evaluating the new tile
-    state = mainState;
-    tile = mainTile;
-    explosionTimer = mainExplosionTimer;
-
-//loc_4A85D:              ; CODE XREF: detonateBigExplosion:loc_4A847j
-//                ; detonateBigExplosion+232j ...
-    // 01ED:3BE0
-    uint8_t skipHardwareCheck1 = 0;
-
-    if (belowTile->tile == LevelTileTypeOrangeDisk
-        || belowTile->tile == LevelTileTypeYellowDisk
-        || belowTile->tile == LevelTileTypeSnikSnak)
-    {
-//loc_4A88E:              ; CODE XREF: detonateBigExplosion+248j
-//                ; detonateBigExplosion+24Cj ...
-        if (belowTile->tile != LevelTileTypeHardware)
-        {
-            gExplosionTimers[position + kLevelWidth] = explosionTimer; // mov [bx+2470h], dh
-        }
-    }
-    else if (belowTile->tile == LevelTileTypeZonk)
-    {
-//loc_4A8AA:              ; CODE XREF: detonateBigExplosion+254j
-        detonateZonk(position + kLevelWidth, state, tile);
-        skipHardwareCheck1 = 1; // to emulate jmp loc_4A8B4
-    }
-    else if (belowTile->tile == LevelTileTypeInfotron)
-    {
-//loc_4A8A0:              ; CODE XREF: detonateBigExplosion+258j
-        sub_4AA34(position + kLevelWidth, state, tile);
-        skipHardwareCheck1 = 1; // to emulate jmp loc_4A8B4
-    }
-    else if (belowTile->tile == LevelTileTypeElectron)
-    {
-        explosionTimer = -explosionTimer; // dh = -dh;
-        state = 0x80;
-        tile = LevelTileTypeExplosion;
-//loc_4A88E:              ; CODE XREF: detonateBigExplosion+248j
-//                ; detonateBigExplosion+24Cj ...
-        if (belowTile->tile != LevelTileTypeHardware)
-        {
-            gExplosionTimers[position + kLevelWidth] = explosionTimer; // mov [bx+2470h], dh
-        }
-    }
-//loc_4A884:              ; CODE XREF: detonateBigExplosion+25Cj
-    else if (belowTile->tile == LevelTileTypeMurphy)
-    {
-        gShouldKillMurphy = 1;
-
-//loc_4A88E:              ; CODE XREF: detonateBigExplosion+248j
-//                ; detonateBigExplosion+24Cj ...
-        if (belowTile->tile != LevelTileTypeHardware)
-        {
-            gExplosionTimers[position + kLevelWidth] = explosionTimer; // mov [bx+2470h], dh
-        }
-    }
-
-    if (skipHardwareCheck1 == 0) // to emulate jmp loc_4A8B4
-    {
-//loc_4A896:              ; CODE XREF: detonateBigExplosion+267j
-//                ; detonateBigExplosion+271j
-        if (belowTile->tile != LevelTileTypeHardware)
-        {
-            // mov [si+18ACh], cx
-            belowTile->state = state;
-            belowTile->tile = tile;
-        }
-    }
-
-    // Restore to the main explosion type before evaluating the new tile
-    state = mainState;
-    tile = mainTile;
-    explosionTimer = mainExplosionTimer;
-
-//loc_4A8B4:              ; CODE XREF: detonateBigExplosion:loc_4A89Ej
-//                ; detonateBigExplosion+289j ...
-    // 01ED:3BFE
-    if (belowRightTile->tile == LevelTileTypeOrangeDisk
-        || belowRightTile->tile == LevelTileTypeYellowDisk
-        || belowRightTile->tile == LevelTileTypeSnikSnak)
-    {
-//loc_4A8E5:              ; CODE XREF: detonateBigExplosion+29Fj
-//                ; detonateBigExplosion+2A3j ...
-        if (belowRightTile->tile != LevelTileTypeHardware)
-        {
-            gExplosionTimers[position + kLevelWidth + 1] = explosionTimer; // mov [bx+2471h], dh
-        }
-    }
-    else if (belowRightTile->tile == LevelTileTypeZonk)
-    {
-//loc_4A901:              ; CODE XREF: detonateBigExplosion+2ABj
-        detonateZonk(position + kLevelWidth + 1, state, tile);
-//loc_4A90B:              ; CODE XREF: detonateBigExplosion:loc_4A8F5j
-//                ; detonateBigExplosion+2E0j ...
-        playExplosionSound();
-        return;
-    }
-    else if (belowRightTile->tile == LevelTileTypeInfotron)
-    {
-//loc_4A8F7:              ; CODE XREF: detonateBigExplosion+2AFj
-        sub_4AA34(position + kLevelWidth + 1, state, tile);
-//loc_4A90B:              ; CODE XREF: detonateBigExplosion:loc_4A8F5j
-//                ; detonateBigExplosion+2E0j ...
-        playExplosionSound();
-        return;
-    }
-    else if (belowRightTile->tile == LevelTileTypeElectron)
-    {
-        explosionTimer = -explosionTimer; // dh = -dh;
-        state = 0x80;
-        tile = LevelTileTypeExplosion;
-//loc_4A8E5:              ; CODE XREF: detonateBigExplosion+29Fj
-//                ; detonateBigExplosion+2A3j ...
-        if (belowRightTile->tile != LevelTileTypeHardware)
-        {
-            gExplosionTimers[position + kLevelWidth + 1] = explosionTimer; // mov [bx+2471h], dh
-        }
-    }
-//loc_4A8DB:              ; CODE XREF: detonateBigExplosion+2B3j
-    else if (belowRightTile->tile == LevelTileTypeMurphy)
-    {
-        gShouldKillMurphy = 1;
-
-//loc_4A8E5:              ; CODE XREF: detonateBigExplosion+29Fj
-//                ; detonateBigExplosion+2A3j ...
-        if (belowRightTile->tile != LevelTileTypeHardware)
-        {
-            gExplosionTimers[position + kLevelWidth + 1] = explosionTimer; // mov [bx+2471h], dh
-        }
-    }
-
-//loc_4A8ED:              ; CODE XREF: detonateBigExplosion+2BEj
-//                ; detonateBigExplosion+2C8j
-    if (belowRightTile->tile != LevelTileTypeHardware)
-    {
-        // mov [si+18AEh], cx
-        belowRightTile->state = state;
-        belowRightTile->tile = tile;
-    }
+    detonateBigExplosionTile(position + 1, newTile, newState, newExplosionTimer);
+    detonateBigExplosionTile(position + kLevelWidth - 1, newTile, newState, newExplosionTimer);
+    detonateBigExplosionTile(position + kLevelWidth, newTile, newState, newExplosionTimer);
+    detonateBigExplosionTile(position + kLevelWidth + 1, newTile, newState, newExplosionTimer);
 
 //loc_4A90B:              ; CODE XREF: detonateBigExplosion:loc_4A8F5j
 //                ; detonateBigExplosion+2E0j ...
