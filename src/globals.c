@@ -36,7 +36,7 @@ HallOfFameEntry gHallOfFameData[kNumberOfHallOfFameEntries];
 
 PlayerEntry gPlayerListData[kNumberOfPlayers];
 
-char a00s0010_sp[12] = "00S001$0.SP"; // 0xA014
+char gSPDemoFileName[12] = "00S001-0.SP"; // 0xA014
 char gPlayerName[kPlayerNameLength + 1] = "WIBBLE??"; // 0x879F
 uint8_t gCurrentPlayerIndex = 0; // byte_5981F
 uint8_t byte_58D46 = 0;

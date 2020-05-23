@@ -229,7 +229,7 @@ typedef struct
 //static const int kPlayerEntryLength = 128;
 extern PlayerEntry gPlayerListData[kNumberOfPlayers]; // 0x8A9C -> word_58DAC
 
-extern char a00s0010_sp[12]; // 0xA014
+extern char gSPDemoFileName[12]; // a00s0010_sp -> 0xA014
 extern char gPlayerName[kPlayerNameLength + 1]; // 0x879F
 extern uint8_t gCurrentPlayerIndex; // byte_5981F
 extern uint8_t byte_58D46; // also has the player index??

@@ -3251,7 +3251,7 @@ int main(int argc, char *argv[])
 //loc_46FE4:              //; CODE XREF: start+3BDj
             gShouldUpdateTotalLevelTime = 0;
             gHasUserCheated = 1;
-            strcpy(&a00s0010_sp[3], "---");
+            strcpy(&gSPDemoFileName[3], "---");
 //loc_4701A:              //; CODE XREF: start+3DDj start+433j
             startDirectlyFromLevel(1);
             continue;
@@ -6213,6 +6213,32 @@ void stopRecordingDemo() // somethingspsig  proc near       ; CODE XREF: runLeve
     gIsPlayingDemo = 0;
 }
 
+size_t writeCurrentLevelToFile(FILE *file)
+{
+    size_t bytes = fwrite(gCurrentLevel.tiles, 1, sizeof(gCurrentLevel.tiles), file);
+
+    bytes += fwrite(&gCurrentLevel.unused, 1, sizeof(gCurrentLevel.unused), file);
+    bytes += fwrite(&gCurrentLevel.initialGravitation, 1, sizeof(gCurrentLevel.initialGravitation), file);
+    bytes += fwrite(&gCurrentLevel.speedFixMagicNumber, 1, sizeof(gCurrentLevel.speedFixMagicNumber), file);
+    bytes += fwrite(&gCurrentLevel.name, 1, sizeof(gCurrentLevel.name), file);
+    bytes += fwrite(&gCurrentLevel.freezeZonks, 1, sizeof(gCurrentLevel.freezeZonks), file);
+    bytes += fwrite(&gCurrentLevel.numberOfInfotrons, 1, sizeof(gCurrentLevel.numberOfInfotrons), file);
+    bytes += fwrite(&gCurrentLevel.numberOfSpecialPorts, 1, sizeof(gCurrentLevel.numberOfSpecialPorts), file);
+    for (int idx = 0; idx < kLevelMaxNumberOfSpecialPorts; ++idx)
+    {
+        bytes += fwrite(&gCurrentLevel.specialPortsInfo[idx].position, 1, sizeof(gCurrentLevel.specialPortsInfo[idx].position), file);
+        bytes += fwrite(&gCurrentLevel.specialPortsInfo[idx].gravity, 1, sizeof(gCurrentLevel.specialPortsInfo[idx].gravity), file);
+        bytes += fwrite(&gCurrentLevel.specialPortsInfo[idx].freezeZonks, 1, sizeof(gCurrentLevel.specialPortsInfo[idx].freezeZonks), file);
+        bytes += fwrite(&gCurrentLevel.specialPortsInfo[idx].freezeEnemies, 1, sizeof(gCurrentLevel.specialPortsInfo[idx].freezeEnemies), file);
+        bytes += fwrite(&gCurrentLevel.specialPortsInfo[idx].unused, 1, sizeof(gCurrentLevel.specialPortsInfo[idx].unused), file);
+    }
+    bytes += fwrite(&gCurrentLevel.scrambledSpeed, 1, sizeof(gCurrentLevel.scrambledSpeed), file);
+    bytes += fwrite(&gCurrentLevel.scrambledChecksum, 1, sizeof(gCurrentLevel.scrambledChecksum), file);
+    bytes += fwrite(&gCurrentLevel.randomSeed, 1, sizeof(gCurrentLevel.randomSeed), file);
+
+    return bytes;
+}
+
 void recordDemo(uint16_t demoIndex) // sub_4945D   proc near       ; CODE XREF: handleGameUserInput+294p
                    // ; handleGameUserInput+2A4p ...
 {
@@ -6239,8 +6265,8 @@ void recordDemo(uint16_t demoIndex) // sub_4945D   proc near       ; CODE XREF: 
     if (supportsSPFileDemoPlayback()
         && (gShouldRecordWithOriginalDemoFilenames & 0xFF) == 0) // cmp byte ptr gShouldRecordWithOriginalDemoFilenames, 0
     {
-        a00s0010_sp[7] = demoIndexCharacter;
-        filename = a00s0010_sp;
+        gSPDemoFileName[7] = demoIndexCharacter;
+        filename = gSPDemoFileName;
     }
 
 //loc_494A6:              ; CODE XREF: recordDemo+41j
@@ -6263,8 +6289,8 @@ void recordDemo(uint16_t demoIndex) // sub_4945D   proc near       ; CODE XREF: 
     // speed2 = bl;
     gDemoRecordingLowestSpeed = gGameSpeed;
 
-    size_t bytes = fwrite(&gCurrentLevel, 1, sizeof(Level), file);
-    if (bytes < sizeof(Level))
+    size_t bytes = writeCurrentLevelToFile(file);
+    if (bytes != levelDataLength)
     {
         return;
     }
@@ -6324,7 +6350,7 @@ void prepareDemoRecordingFilename() // sub_49544  proc near       ; CODE XREF: s
     }
 
 //loc_49557:             // ; CODE XREF: prepareDemoRecordingFilename+Ej
-    strcpy(a00s0010_sp, currentSuffix);
+    memcpy(gSPDemoFileName, currentSuffix, 2);
 }
 
 void handleGameUserInput() // sub_4955B   proc near       ; CODE XREF: runLevel:loc_48B6Bp
@@ -10139,7 +10165,7 @@ void drawTextWithChars6FontWithTransparentBackgroundIfPossible(size_t destX, siz
 
 void convertLevelNumberTo3DigitStringWithPadding0(uint8_t number) // sub_4BF4A   proc near       ; CODE XREF: start+3F7p handleGameUserInput+398p ...
 {
-    convertNumberTo3DigitStringWithPadding0(number, &a00s0010_sp[3]);
+    convertNumberTo3DigitStringWithPadding0(number, &gSPDemoFileName[3]);
 }
 
 void convertNumberTo3DigitStringWithPadding0(uint8_t number, char numberString[3]) //  proc near       ; CODE XREF: handleSkipLevelOptionClick+7Cp
@@ -11018,9 +11044,9 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
             gHasUserCheated = 1;
             prepareDemoRecordingFilename();
             // This adds dashes to the level name or something?
-            a00s0010_sp[3] = 0x2D; // '-' ; "001$0.SP"
-            a00s0010_sp[4] = 0x2D; // '-' ; "01$0.SP"
-            a00s0010_sp[5] = 0x2D; // '-' ; "1$0.SP"
+            gSPDemoFileName[3] = 0x2D; // '-' ; "001$0.SP"
+            gSPDemoFileName[4] = 0x2D; // '-' ; "01$0.SP"
+            gSPDemoFileName[5] = 0x2D; // '-' ; "1$0.SP"
             continue;
         }
 //loc_4C9B0:              // ; CODE XREF: runMainMenu+131j
