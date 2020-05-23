@@ -24,6 +24,43 @@
 #include "utils.h"
 #include "system.h"
 
+ColorPalette gCurrentPalette;
+
+// Game palettes:
+// - 0: level credits
+// - 1: main menu
+// - 2: ???
+// - 3: ???
+//
+ColorPalette gPalettes[kNumberOfPalettes];
+ColorPalette gBlackPalette = { // 60D5h
+    {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
+    {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
+    {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
+    {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
+};
+
+ColorPaletteData gTitlePaletteData = {
+    0x02, 0x03, 0x05, 0x00, 0x0D, 0x0A, 0x04, 0x0C, 0x02, 0x06, 0x06, 0x02, 0x03, 0x09, 0x09, 0x03,
+    0x0B, 0x08, 0x03, 0x06, 0x02, 0x07, 0x07, 0x0A, 0x08, 0x06, 0x0D, 0x09, 0x06, 0x04, 0x0B, 0x01,
+    0x09, 0x01, 0x00, 0x04, 0x0B, 0x01, 0x00, 0x04, 0x0D, 0x01, 0x00, 0x0C, 0x0F, 0x01, 0x00, 0x0C,
+    0x0F, 0x06, 0x04, 0x0C, 0x02, 0x05, 0x06, 0x08, 0x0F, 0x0C, 0x06, 0x0E, 0x0C, 0x0C, 0x0D, 0x0E,
+};
+
+ColorPaletteData gTitle1PaletteData = {
+    0x00, 0x00, 0x00, 0x00, 0x0F, 0x0F, 0x0F, 0x0F, 0x08, 0x08, 0x08, 0x08, 0x0A, 0x0A, 0x0A, 0x07,
+    0x0A, 0x0A, 0x0A, 0x07, 0x0B, 0x0B, 0x0B, 0x07, 0x0E, 0x01, 0x01, 0x04, 0x09, 0x09, 0x09, 0x07,
+    0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x09, 0x00, 0x00, 0x04, 0x0B, 0x00, 0x00, 0x0C,
+    0x08, 0x08, 0x08, 0x08, 0x05, 0x05, 0x05, 0x08, 0x06, 0x06, 0x06, 0x08, 0x08, 0x08, 0x08, 0x08,
+};
+
+ColorPaletteData gTitle2PaletteData = {
+    0x00, 0x00, 0x00, 0x00, 0x0F, 0x0F, 0x0F, 0x0F, 0x06, 0x06, 0x06, 0x08, 0x0A, 0x0A, 0x0A, 0x07,
+    0x0A, 0x0A, 0x0A, 0x07, 0x0B, 0x0B, 0x0B, 0x07, 0x0E, 0x01, 0x01, 0x04, 0x09, 0x09, 0x09, 0x07,
+    0x01, 0x03, 0x07, 0x00, 0x08, 0x08, 0x08, 0x08, 0x09, 0x00, 0x00, 0x04, 0x0B, 0x00, 0x00, 0x0C,
+    0x00, 0x02, 0x0A, 0x01, 0x05, 0x05, 0x05, 0x08, 0x06, 0x06, 0x06, 0x08, 0x08, 0x08, 0x08, 0x07,
+};
+
 #define kBitmapFontCharacter8Width 8
 #define kNumberOfCharactersInBitmapFont 64
 #define kBitmapFontLength (kNumberOfCharactersInBitmapFont * 8) // The size of the bitmap is a round number, not 100% related to the size font, there is some padding :shrug:
@@ -62,6 +99,7 @@ uint8_t gTitle2DecodedBitmapData[kFullScreenFramebufferLength];
 uint8_t gScrollDestinationScreenBitmapData[kFullScreenFramebufferLength];
 uint8_t gLevelBitmapData[kLevelBitmapWidth * kLevelBitmapHeight];
 
+uint32_t gRenderDeltaTime = 0;
 
 // This points to the address on the screen where the mouse cursor was
 // drawn the last time, used to clear the cursor before redrawing it again
@@ -1268,4 +1306,120 @@ void videoLoop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
             gFrameRateReferenceTime = getTime();
         }
     }
+}
+
+void convertPaletteDataToPalette(ColorPaletteData paletteData, ColorPalette outPalette)
+{
+    int kExponent = 4; // no idea why (yet)
+
+    for (int i = 0; i < kNumberOfColors; ++i)
+    {
+        outPalette[i].r = paletteData[i * 4 + 0] << kExponent;
+        outPalette[i].g = paletteData[i * 4 + 1] << kExponent;
+        outPalette[i].b = paletteData[i * 4 + 2] << kExponent;
+        outPalette[i].a = paletteData[i * 4 + 3] << kExponent; // intensity, for now
+    }
+}
+
+void readPalettes()  // proc near       ; CODE XREF: readEverythingp
+{
+    if (gFastMode == FastModeTypeUltra)
+    {
+        return;
+    }
+
+    FILE *file = openReadonlyFile("PALETTES.DAT", "r");
+    if (file == NULL)
+    {
+        exitWithError("Error opening PALETTES.DAT\n");
+    }
+
+//loc_4779F:              // ; CODE XREF: readPalettes+8j
+    ColorPaletteData palettesDataBuffer[kNumberOfPalettes];
+    size_t bytes = fread(&palettesDataBuffer, sizeof(ColorPaletteData), kNumberOfPalettes, file);
+    if (bytes == 0)
+    {
+        exitWithError("Couldn't read PALETTES.DAT\n");
+    }
+
+    for (int i = 0; i < kNumberOfPalettes; ++i)
+    {
+        convertPaletteDataToPalette(palettesDataBuffer[i], gPalettes[i]);
+    }
+
+//loc_477B6:              //; CODE XREF: readPalettes+2Bj
+    if (fclose(file) != 0)
+    {
+        exitWithError("Error closing PALETTES.DAT\n");
+    }
+}
+
+void fadeToPalette(ColorPalette palette) //        proc near       ; CODE XREF: start+2C1p start+312p ...
+{
+    if (gFastMode == FastModeTypeUltra)
+    {
+        setPalette(palette);
+        return;
+    }
+
+    // Parameters:
+    // si -> points to the first color of the palette to fade to
+
+    ColorPalette intermediatePalette;
+
+    // The original animation had 64 steps, and the game was written to run in 70Hz displays
+    static const uint32_t kFadeDuration = 64 * 1000 / 70; // ~914 ms
+    uint32_t fadeTime = 0;
+
+    startTrackingRenderDeltaTime();
+
+    // for (uint8_t step = 0; step < totalSteps; ++step)
+    while (fadeTime < kFadeDuration)
+    {
+        fadeTime += updateRenderDeltaTime();
+        fadeTime = MIN(fadeTime, kFadeDuration);
+
+        float animationFactor = (float)fadeTime / kFadeDuration;
+        float complementaryAnimationFactor = 1.0 - animationFactor;
+
+        for (uint8_t i = 0; i < kNumberOfColors; ++i)
+        {
+            uint8_t r = (palette[i].r * animationFactor) + (gCurrentPalette[i].r * complementaryAnimationFactor);
+            uint8_t g = (palette[i].g * animationFactor) + (gCurrentPalette[i].g * complementaryAnimationFactor);
+            uint8_t b = (palette[i].b * animationFactor) + (gCurrentPalette[i].b * complementaryAnimationFactor);
+
+            intermediatePalette[i] = (Color) { r, g, b, 255};
+        }
+
+        setColorPalette(intermediatePalette);
+
+        videoLoop();
+    }
+
+    setPalette(palette);
+}
+
+void replaceCurrentPaletteColor(uint8_t index, Color color)
+{
+    gCurrentPalette[index] = color;
+    setPalette(gCurrentPalette);
+}
+
+void setPalette(ColorPalette palette) // sub_4D836   proc near       ; CODE XREF: start+2B8p
+                   // ; loadScreen2+B5p ...
+{
+    setColorPalette(palette);
+    memcpy(gCurrentPalette, palette, sizeof(ColorPalette));
+}
+
+void startTrackingRenderDeltaTime()
+{
+    gRenderDeltaTime = getTime();
+}
+
+uint32_t updateRenderDeltaTime()
+{
+    uint32_t duration = getTime() - gRenderDeltaTime;
+    gRenderDeltaTime = getTime();
+    return duration;
 }

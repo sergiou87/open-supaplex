@@ -23,6 +23,31 @@
 #include "globals.h"
 #include "video.h"
 
+#define kPaleteDataSize (kNumberOfColors * 4)
+#define kNumberOfPalettes 4
+
+typedef uint8_t ColorPaletteData[kPaleteDataSize];
+
+extern ColorPalette gCurrentPalette;
+
+// Game palettes:
+// - 0: level credits
+// - 1: main menu
+// - 2: ???
+// - 3: ???
+//
+extern ColorPalette gPalettes[kNumberOfPalettes];
+extern ColorPalette gBlackPalette; // 60D5h
+
+#define gInformationScreenPalette gPalettes[0]
+#define gGamePalette gPalettes[1] // 0x6015
+#define gControlsScreenPalette gPalettes[2] // 0x6055
+#define gGameDimmedPalette gPalettes[3] // 6095h
+
+extern ColorPaletteData gTitlePaletteData;
+extern ColorPaletteData gTitle1PaletteData;
+extern ColorPaletteData gTitle2PaletteData;
+
 #define kBitmapFontCharacterHeight 7
 #define kBitmapFontCharacter6Width 6
 
@@ -44,6 +69,9 @@ extern uint8_t gScrollDestinationScreenBitmapData[kFullScreenFramebufferLength];
 #define kTileSize 16
 #define kLevelBitmapWidth (kTileSize * (kLevelWidth - 2) + kLevelEdgeSize + kLevelEdgeSize)
 #define kLevelBitmapHeight (kTileSize * (kLevelHeight - 2) + kLevelEdgeSize + kLevelEdgeSize)
+
+// Time difference between 2 consecutive renders
+extern uint32_t gRenderDeltaTime;
 
 void readMenuDat(void);
 void loadMurphySprites(void);
@@ -80,5 +108,14 @@ void drawTextWithChars8Font(size_t destX, size_t destY, uint8_t color, const cha
 void drawTextWithChars8FontToGamePanel(size_t destX, size_t destY, uint8_t color, const char *text);
 
 void videoLoop(void);
+
+void readPalettes(void);
+void replaceCurrentPaletteColor(uint8_t index, Color color);
+void setPalette(ColorPalette palette);
+void fadeToPalette(ColorPalette palette);
+void convertPaletteDataToPalette(ColorPaletteData paletteData, ColorPalette outPalette);
+
+void startTrackingRenderDeltaTime(void);
+uint32_t updateRenderDeltaTime(void);
 
 #endif /* graphics_h */

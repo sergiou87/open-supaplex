@@ -1390,9 +1390,6 @@ uint32_t gGameIterationRateReferenceTime = 0;
 uint32_t gGameIterationStartTime = 0;
 uint32_t gNumberOfGameIterations = 0;
 
-// Time difference between 2 consecutive renders
-uint32_t gRenderDeltaTime = 0;
-
 static const uint16_t kFallAnimationGravityOffsets[18] = {
     0x0000, // -> 0x6C95
     0x007A, // -> 0x6C97
@@ -1427,11 +1424,6 @@ enum MouseButton
 uint8_t gShouldCloseAdvancedMenu = 0;
 uint8_t gAdvancedMenuRecordDemoIndex = 0;
 uint8_t gAdvancedMenuPlayDemoIndex = 0;
-
-#define kPaleteDataSize (kNumberOfColors * 4)
-#define kNumberOfPalettes 4
-
-typedef uint8_t ColorPaletteData[kPaleteDataSize];
 
 typedef struct
 {
@@ -1972,48 +1964,6 @@ static const ButtonBorderDescriptor kMainMenuButtonBorders[kNumberOfMainMenuButt
     },
 };
 
-ColorPalette gCurrentPalette;
-
-// Game palettes:
-// - 0: level credits
-// - 1: main menu
-// - 2: ???
-// - 3: ???
-//
-ColorPalette gPalettes[kNumberOfPalettes];
-ColorPalette gBlackPalette = { // 60D5h
-    {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
-    {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
-    {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
-    {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0},
-};
-
-#define gInformationScreenPalette gPalettes[0]
-#define gGamePalette gPalettes[1] // 0x6015
-#define gControlsScreenPalette gPalettes[2] // 0x6055
-#define gGameDimmedPalette gPalettes[3] // 6095h
-
-ColorPaletteData gTitlePaletteData = {
-    0x02, 0x03, 0x05, 0x00, 0x0D, 0x0A, 0x04, 0x0C, 0x02, 0x06, 0x06, 0x02, 0x03, 0x09, 0x09, 0x03,
-    0x0B, 0x08, 0x03, 0x06, 0x02, 0x07, 0x07, 0x0A, 0x08, 0x06, 0x0D, 0x09, 0x06, 0x04, 0x0B, 0x01,
-    0x09, 0x01, 0x00, 0x04, 0x0B, 0x01, 0x00, 0x04, 0x0D, 0x01, 0x00, 0x0C, 0x0F, 0x01, 0x00, 0x0C,
-    0x0F, 0x06, 0x04, 0x0C, 0x02, 0x05, 0x06, 0x08, 0x0F, 0x0C, 0x06, 0x0E, 0x0C, 0x0C, 0x0D, 0x0E,
-};
-
-ColorPaletteData gTitle1PaletteData = {
-    0x00, 0x00, 0x00, 0x00, 0x0F, 0x0F, 0x0F, 0x0F, 0x08, 0x08, 0x08, 0x08, 0x0A, 0x0A, 0x0A, 0x07,
-    0x0A, 0x0A, 0x0A, 0x07, 0x0B, 0x0B, 0x0B, 0x07, 0x0E, 0x01, 0x01, 0x04, 0x09, 0x09, 0x09, 0x07,
-    0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x09, 0x00, 0x00, 0x04, 0x0B, 0x00, 0x00, 0x0C,
-    0x08, 0x08, 0x08, 0x08, 0x05, 0x05, 0x05, 0x08, 0x06, 0x06, 0x06, 0x08, 0x08, 0x08, 0x08, 0x08,
-};
-
-ColorPaletteData gTitle2PaletteData = {
-    0x00, 0x00, 0x00, 0x00, 0x0F, 0x0F, 0x0F, 0x0F, 0x06, 0x06, 0x06, 0x08, 0x0A, 0x0A, 0x0A, 0x07,
-    0x0A, 0x0A, 0x0A, 0x07, 0x0B, 0x0B, 0x0B, 0x07, 0x0E, 0x01, 0x01, 0x04, 0x09, 0x09, 0x09, 0x07,
-    0x01, 0x03, 0x07, 0x00, 0x08, 0x08, 0x08, 0x08, 0x09, 0x00, 0x00, 0x04, 0x0B, 0x00, 0x00, 0x0C,
-    0x00, 0x02, 0x0A, 0x01, 0x05, 0x05, 0x05, 0x08, 0x06, 0x06, 0x06, 0x08, 0x08, 0x08, 0x08, 0x07,
-};
-
 typedef void (*MovingFunction)(int16_t);
 typedef void (*FrameBasedMovingFunction)(int16_t, uint8_t);
 
@@ -2180,13 +2130,7 @@ static const FrameBasedMovingFunction kSnikSnakMovingFunctions[48] = {
 void initializeGameStateData(void);
 void startDirectlyFromLevel(uint8_t levelNumber);
 void stopDemoAndPlay(void);
-void startTrackingRenderDeltaTime(void);
-uint32_t updateRenderDeltaTime(void);
 void emulateClock(void);
-void replaceCurrentPaletteColor(uint8_t index, Color color);
-void setPalette(ColorPalette palette);
-void fadeToPalette(ColorPalette palette);
-void convertPaletteDataToPalette(ColorPaletteData paletteData, ColorPalette outPalette);
 void loadScreen2(void);
 void readEverything(void);
 char characterForSDLScancode(SDL_Scancode scancode);
@@ -3872,52 +3816,6 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
     }
 
     return kNumberOfDemos;
-}
-
-void convertPaletteDataToPalette(ColorPaletteData paletteData, ColorPalette outPalette)
-{
-    int kExponent = 4; // no idea why (yet)
-
-    for (int i = 0; i < kNumberOfColors; ++i)
-    {
-        outPalette[i].r = paletteData[i * 4 + 0] << kExponent;
-        outPalette[i].g = paletteData[i * 4 + 1] << kExponent;
-        outPalette[i].b = paletteData[i * 4 + 2] << kExponent;
-        outPalette[i].a = paletteData[i * 4 + 3] << kExponent; // intensity, for now
-    }
-}
-
-void readPalettes()  // proc near       ; CODE XREF: readEverythingp
-{
-    if (gFastMode == FastModeTypeUltra)
-    {
-        return;
-    }
-
-    FILE *file = openReadonlyFile("PALETTES.DAT", "r");
-    if (file == NULL)
-    {
-        exitWithError("Error opening PALETTES.DAT\n");
-    }
-
-//loc_4779F:              // ; CODE XREF: readPalettes+8j
-    ColorPaletteData palettesDataBuffer[kNumberOfPalettes];
-    size_t bytes = fread(&palettesDataBuffer, sizeof(ColorPaletteData), kNumberOfPalettes, file);
-    if (bytes == 0)
-    {
-        exitWithError("Couldn't read PALETTES.DAT\n");
-    }
-
-    for (int i = 0; i < kNumberOfPalettes; ++i)
-    {
-        convertPaletteDataToPalette(palettesDataBuffer[i], gPalettes[i]);
-    }
-
-//loc_477B6:              //; CODE XREF: readPalettes+2Bj
-    if (fclose(file) != 0)
-    {
-        exitWithError("Error closing PALETTES.DAT\n");
-    }
 }
 
 void openCreditsBlock() // proc near      ; CODE XREF: start+2E9p
@@ -11686,64 +11584,6 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
     gSelectedOriginalDemoLevelNumber &= 0xFF00; // mov byte ptr gSelectedOriginalDemoLevelNumber, 0
 }
 
-void fadeToPalette(ColorPalette palette) //        proc near       ; CODE XREF: start+2C1p start+312p ...
-{
-    if (gFastMode == FastModeTypeUltra)
-    {
-        setPalette(palette);
-        return;
-    }
-
-    // Parameters:
-    // si -> points to the first color of the palette to fade to
-
-    ColorPalette intermediatePalette;
-
-    // The original animation had 64 steps, and the game was written to run in 70Hz displays
-    static const uint32_t kFadeDuration = 64 * 1000 / 70; // ~914 ms
-    uint32_t fadeTime = 0;
-
-    startTrackingRenderDeltaTime();
-
-    // for (uint8_t step = 0; step < totalSteps; ++step)
-    while (fadeTime < kFadeDuration)
-    {
-        fadeTime += updateRenderDeltaTime();
-        fadeTime = MIN(fadeTime, kFadeDuration);
-
-        float animationFactor = (float)fadeTime / kFadeDuration;
-        float complementaryAnimationFactor = 1.0 - animationFactor;
-
-        for (uint8_t i = 0; i < kNumberOfColors; ++i)
-        {
-            uint8_t r = (palette[i].r * animationFactor) + (gCurrentPalette[i].r * complementaryAnimationFactor);
-            uint8_t g = (palette[i].g * animationFactor) + (gCurrentPalette[i].g * complementaryAnimationFactor);
-            uint8_t b = (palette[i].b * animationFactor) + (gCurrentPalette[i].b * complementaryAnimationFactor);
-
-            intermediatePalette[i] = (Color) { r, g, b, 255};
-        }
-
-        setColorPalette(intermediatePalette);
-
-        videoLoop();
-    }
-
-    setPalette(palette);
-}
-
-void replaceCurrentPaletteColor(uint8_t index, Color color)
-{
-    gCurrentPalette[index] = color;
-    setPalette(gCurrentPalette);
-}
-
-void setPalette(ColorPalette palette) // sub_4D836   proc near       ; CODE XREF: start+2B8p
-                   // ; loadScreen2+B5p ...
-{
-    setColorPalette(palette);
-    memcpy(gCurrentPalette, palette, sizeof(ColorPalette));
-}
-
 void soundShutdown() //  proc near       ; CODE XREF: start+48Ep
 //                    ; loadScreen2-7DAp
 {
@@ -16291,17 +16131,5 @@ void drawSpeedFixCredits() // showNewCredits  proc near       ; CODE XREF: start
     }
     while (keyPressed == SDL_SCANCODE_UNKNOWN
            && isAnyGameControllerButtonPressed() == 0);
-}
-
-void startTrackingRenderDeltaTime()
-{
-    gRenderDeltaTime = getTime();
-}
-
-uint32_t updateRenderDeltaTime()
-{
-    uint32_t duration = getTime() - gRenderDeltaTime;
-    gRenderDeltaTime = getTime();
-    return duration;
 }
 
