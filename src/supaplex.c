@@ -3808,7 +3808,7 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
         {
             if (gSelectedOriginalDemoFromCommandLineLevelNumber == 0)
             {
-                fseek(file, levelDataLength, SEEK_SET);
+                fseek(file, kLevelDataLength, SEEK_SET);
             }
         }
         else
@@ -3819,7 +3819,7 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
 
             // this is probably to support old level formats
             if (result == 0
-                && fileSize < levelDataLength)
+                && fileSize < kLevelDataLength)
             {
                 gSelectedOriginalDemoLevelNumber = getLevelNumberFromOriginalDemoFile(file, fileSize);
             }
@@ -3830,9 +3830,9 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
             if (gSelectedOriginalDemoLevelNumber == 0)
             {
                 Level *level = &gDemos.level[i];
-                size_t bytes = fread(level, 1, levelDataLength, file);
+                size_t bytes = fread(level, 1, kLevelDataLength, file);
 
-                if (bytes < levelDataLength)
+                if (bytes < kLevelDataLength)
                 {
                     return i;
                 }
@@ -4114,7 +4114,7 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
         {
 // loc_47CF1:             //  ; CODE XREF: readLevelsLst+83j
 
-            int seekOffset = 0x5A6 + i * levelDataLength;
+            int seekOffset = 0x5A6 + i * kLevelDataLength;
 
             fseek(file, seekOffset, SEEK_SET); // position 1446
             size_t bytes = fread(gLevelListData + i * kListLevelNameLength + 4, 1, 23, file);
@@ -6290,7 +6290,7 @@ void recordDemo(uint16_t demoIndex) // sub_4945D   proc near       ; CODE XREF: 
     gDemoRecordingLowestSpeed = gGameSpeed;
 
     size_t bytes = writeCurrentLevelToFile(file);
-    if (bytes != levelDataLength)
+    if (bytes != kLevelDataLength)
     {
         return;
     }
@@ -10494,7 +10494,7 @@ void prepareLevelDataForCurrentPlayer() // sub_4C34A   proc near       ; CODE XR
 
     // Sets everything to 6 which seems to mean all levels are blocked
     memset(gCurrentPlayerPaddedLevelData, kSkippedLevelEntryColor, kNumberOfLevelsWithPadding);
-    memset(gCurrentPlayerLevelData, kBlockedLevelEntryColor, kCurrentPlayerLevelDataLength);
+    memset(gCurrentPlayerLevelData, kBlockedLevelEntryColor, kCurrentPlayerkLevelDataLength);
 
     char isFirstUncompletedLevel = 1;
 
@@ -12052,13 +12052,51 @@ void videoloop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
     }
 }
 
+#define COPY_LEVEL_DATA(__dest, __size) \
+    do \
+    { \
+        memcpy(__dest, &levelFileData[pointer], __size); \
+        pointer += __size; \
+    } \
+    while (0)
+
+void mapLevelFileData(char *levelFileData, Level *level)
+{
+    size_t pointer = 0;
+
+    COPY_LEVEL_DATA(level->tiles, sizeof(level->tiles));
+    COPY_LEVEL_DATA(level->unused, sizeof(level->unused));
+    COPY_LEVEL_DATA(&level->initialGravitation, sizeof(level->initialGravitation));
+    COPY_LEVEL_DATA(&level->speedFixMagicNumber, sizeof(level->speedFixMagicNumber));
+    COPY_LEVEL_DATA(level->name, sizeof(level->name));
+    COPY_LEVEL_DATA(&level->freezeZonks, sizeof(level->freezeZonks));
+    COPY_LEVEL_DATA(&level->numberOfInfotrons, sizeof(level->numberOfInfotrons));
+    COPY_LEVEL_DATA(&level->numberOfSpecialPorts, sizeof(level->numberOfSpecialPorts));
+    for (int idx = 0; idx < kLevelMaxNumberOfSpecialPorts; ++idx)
+    {
+        SpecialPortInfo *specialPortInfo = &level->specialPortsInfo[idx];
+        COPY_LEVEL_DATA(&specialPortInfo->position, sizeof(specialPortInfo->position));
+        COPY_LEVEL_DATA(&specialPortInfo->gravity, sizeof(specialPortInfo->gravity));
+        COPY_LEVEL_DATA(&specialPortInfo->freezeZonks, sizeof(specialPortInfo->freezeZonks));
+        COPY_LEVEL_DATA(&specialPortInfo->freezeEnemies, sizeof(specialPortInfo->freezeEnemies));
+        COPY_LEVEL_DATA(&specialPortInfo->unused, sizeof(specialPortInfo->unused));
+    }
+    COPY_LEVEL_DATA(&level->scrambledSpeed, sizeof(level->scrambledSpeed));
+    COPY_LEVEL_DATA(&level->scrambledChecksum, sizeof(level->scrambledChecksum));
+    COPY_LEVEL_DATA(&level->randomSeed, sizeof(level->randomSeed));
+
+    assert(pointer == kLevelDataLength);
+}
+
+#undef COPY_LEVEL_DATA
+
 void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
                     // ; fetchAndInitializeLevelp
 {
     // 01ED:68E5
     char *filename = "";
     FILE *file = NULL;
-    Level fileLevelData;
+    char levelFileData[kLevelDataLength];
 
     if (gIsPlayingDemo != 0
         && (gSelectedOriginalDemoLevelNumber & 0xFF) == 0
@@ -12067,7 +12105,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
         // Demos with the new format
         Level *level = &gDemos.level[gDemoIndexOrDemoLevelNumber];
 
-        memcpy(&fileLevelData, level, levelDataLength);
+        memcpy(&levelFileData, level, kLevelDataLength);
 
         strcpy(gCurrentDemoLevelName, ".SP");
 
@@ -12132,7 +12170,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 //loc_4D5E3:              ; CODE XREF: readLevels+91j
 //                ; readLevels+98j
         levelIndex--; // Levels anywhere else are 1-index, we need them to start from 0 here
-        size_t fileOffset = levelIndex * levelDataLength;
+        size_t fileOffset = levelIndex * kLevelDataLength;
         // 01ED:699A
         int result = fseek(file, fileOffset, SEEK_SET);
         if (result != 0)
@@ -12142,17 +12180,19 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 
 //loc_4D604:              ; CODE XREF: readLevels+B7j
         // 01ED:69AE
-        size_t bytes = fread(&fileLevelData, 1, levelDataLength, file);
-        if (bytes < levelDataLength)
+        size_t bytes = fread(&levelFileData, 1, kLevelDataLength, file);
+        if (bytes < kLevelDataLength)
         {
             exitWithError("Error reading %s\n", filename);
         }
 
-        gIsGravityEnabled = fileLevelData.initialGravitation;
-        gAreZonksFrozen = fileLevelData.freezeZonks;
-        gNumberOfInfoTrons = fileLevelData.numberOfInfotrons;
-        gNumberOfSpecialPorts = fileLevelData.numberOfSpecialPorts;
-        gRandomSeed = fileLevelData.randomSeed;
+        Level tmpLevel;
+        mapLevelFileData(levelFileData, &tmpLevel);
+        gIsGravityEnabled = tmpLevel.initialGravitation;
+        gAreZonksFrozen = tmpLevel.freezeZonks;
+        gNumberOfInfoTrons = tmpLevel.numberOfInfotrons;
+        gNumberOfSpecialPorts = tmpLevel.numberOfSpecialPorts;
+        gRandomSeed = tmpLevel.randomSeed;
 
 //loc_4D618:              ; CODE XREF: readLevels+CBj
         if ((gSelectedOriginalDemoLevelNumber & 0xFF) != 0) // cmp byte ptr gSelectedOriginalDemoLevelNumber, 0
@@ -12162,8 +12202,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
             gDemoIndexOrDemoLevelNumber = gSelectedOriginalDemoIndex;
 
             Level *level = &gDemos.level[gDemoIndexOrDemoLevelNumber];
-
-            memcpy(level, &fileLevelData, levelDataLength);
+            mapLevelFileData(levelFileData, level);
         }
     }
 
@@ -12199,26 +12238,24 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
     else if (gSelectedOriginalDemoFromCommandLineLevelNumber == 0)
     {
 //loc_4D682:              ; CODE XREF: readLevels+12Fj
-        // TODO: not sure if this code is executed only for demos
         strcpy(gCurrentDemoLevelName, ".SP"); // TODO: not sure if this code is executed only for demos
         levelName += 4;
     }
 
 //loc_4D68F:              ; CODE XREF: readLevels+142j
-    memcpy(levelName, fileLevelData.name, sizeof(fileLevelData.name));
-
-    memcpy(&gCurrentLevel, &fileLevelData, sizeof(Level));
+    mapLevelFileData(levelFileData, &gCurrentLevel);
+    memcpy(levelName, gCurrentLevel.name, sizeof(gCurrentLevel.name));
 
     // The reason this is 1536 (level file size) and not 1440 (actual gamefield size of 60 * 24 tiles) is because
     // the game was written like this, and some levels rely on this behavior by removing the bottom border of the level
     // and using some unused bytes from those 1536 to store tile data.
     // An example of this is "HIDDEN TRACK" (07/07s062-1.sp)
     //
-    for (int i = 0; i < levelDataLength; ++i)
+    for (int i = 0; i < kLevelDataLength; ++i)
     {
 //loc_4D6B8:              ; CODE XREF: readLevels+172j
         StatefulLevelTile *tile = &gCurrentLevelState[i];
-        tile->tile = fileLevelData.tiles[i]; // TODO: this is wrong, because exceedes the array limits
+        tile->tile = levelFileData[i];
         tile->state = 0;
     }
 

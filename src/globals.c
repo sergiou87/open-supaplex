@@ -95,9 +95,9 @@ uint16_t gMouseX = 0, gMouseY = 0;
 
 // ----------- BEGINNING OF STATE SAVED IN SAVEGAMES -----------
 
-StatefulLevelTile gCurrentLevelStateWithPadding[levelDataLength + kSizeOfLevelStatePrecedingPadding]; // 0x1584
-StatefulLevelTile *gCurrentLevelState = &gCurrentLevelStateWithPadding[kSizeOfLevelStatePrecedingPadding]; // located at 0x1834, size is levelDataLength items
-int8_t gExplosionTimers[levelDataLength]; // 0x2434
+StatefulLevelTile gCurrentLevelStateWithPadding[kLevelDataLength + kSizeOfLevelStatePrecedingPadding]; // 0x1584
+StatefulLevelTile *gCurrentLevelState = &gCurrentLevelStateWithPadding[kSizeOfLevelStatePrecedingPadding]; // located at 0x1834, size is kLevelDataLength items
+int8_t gExplosionTimers[kLevelDataLength]; // 0x2434
 uint8_t gIsGravityEnabled = 0; // byte_5101C -> 1 = turn on, anything else (0) = turn off
 uint8_t gAreZonksFrozen = 0; // byte_51035 -> 2 = turn on, anything else (0) = turn off  (1=off!)
 uint8_t gNumberOfInfoTrons = 0; // 0xd26 -> byte_51036 -> this seems to be _inside_ of fileLevelData when a level is read

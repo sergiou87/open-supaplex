@@ -70,7 +70,7 @@ typedef enum
 } LevelTileType;
 
 // exact length of a level file, even of each level inside the LEVELS.DAT file
-#define levelDataLength 1536
+#define kLevelDataLength 1536
 
 #define kLevelWidth 60 // 3Ch
 #define kLevelHeight 24 // 18h
@@ -110,7 +110,7 @@ extern const int kSkippedLevelEntryColor;
 //
 extern uint8_t gCurrentPlayerPaddedLevelData[kNumberOfLevelsWithPadding]; // 0x949C
 
-static const int kCurrentPlayerLevelDataLength = kNumberOfLevels;
+static const int kCurrentPlayerkLevelDataLength = kNumberOfLevels;
 extern uint8_t *gCurrentPlayerLevelData; // 0x949E
 
 // uint16_t word_58AB8 = 0x3231; // -> 0x87A8
@@ -312,9 +312,9 @@ typedef struct __attribute__ ((packed)) {
 // initialized and never touched again. Should be enough to simulate the behavior of the original game.
 //
 #define kSizeOfLevelStatePrecedingPadding 344
-extern StatefulLevelTile gCurrentLevelStateWithPadding[levelDataLength + kSizeOfLevelStatePrecedingPadding]; // 0x1584
-extern StatefulLevelTile *gCurrentLevelState; // located at 0x1834, size is levelDataLength items
-extern int8_t gExplosionTimers[levelDataLength]; // 0x2434
+extern StatefulLevelTile gCurrentLevelStateWithPadding[kLevelDataLength + kSizeOfLevelStatePrecedingPadding]; // 0x1584
+extern StatefulLevelTile *gCurrentLevelState; // located at 0x1834, size is kLevelDataLength items
+extern int8_t gExplosionTimers[kLevelDataLength]; // 0x2434
 extern uint8_t gIsGravityEnabled; // byte_5101C -> 1 = turn on, anything else (0) = turn off
 extern uint8_t gAreZonksFrozen; // byte_51035 -> 2 = turn on, anything else (0) = turn off  (1=off!)
 extern uint8_t gNumberOfInfoTrons; // 0xd26 -> byte_51036 -> this seems to be _inside_ of fileLevelData when a level is read

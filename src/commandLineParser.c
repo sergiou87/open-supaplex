@@ -324,7 +324,7 @@ void handlePlayDemoFile(FastModeType fastModeType)
     {
         fileLength = ftell(file);
 
-        if (fileLength >= levelDataLength)
+        if (fileLength >= kLevelDataLength)
         {
             fclose(file);
         }
@@ -332,7 +332,7 @@ void handlePlayDemoFile(FastModeType fastModeType)
 
     gSelectedOriginalDemoFromCommandLineLevelNumber = 0;
 
-    if (fileLength > kMaxBaseDemoSize + kMaxDemoSignatureSize + levelDataLength)
+    if (fileLength > kMaxBaseDemoSize + kMaxDemoSignatureSize + kLevelDataLength)
     {
 //lookForAtSignInCommandLine:              //; CODE XREF: start+A6j start+ABj
         if (fastModeType != FastModeTypeNone)
@@ -348,7 +348,7 @@ void handlePlayDemoFile(FastModeType fastModeType)
         }
     }
 
-    if (fileLength < levelDataLength) // all demo files with the new format are greater than a level (1536 bytes)
+    if (fileLength < kLevelDataLength) // all demo files with the new format are greater than a level (1536 bytes)
     {
 // loc_46CB7:              //; CODE XREF: start:loc_46CADj
         gSelectedOriginalDemoFromCommandLineLevelNumber = getLevelNumberFromOriginalDemoFile(file, fileLength);
@@ -377,7 +377,7 @@ void handlePlayDemoFile(FastModeType fastModeType)
         }
     }
 //loc_46CF4:              //; CODE XREF: start+B4j
-    else if (fileLength == levelDataLength) // all demo files are greater than a level (1536 bytes)
+    else if (fileLength == kLevelDataLength) // all demo files are greater than a level (1536 bytes)
     {
 //loc_46CFB:              //; CODE XREF: start:loc_46CF4j
         gIsSPDemoAvailableToRun = 2;
