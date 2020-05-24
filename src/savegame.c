@@ -220,7 +220,7 @@ uint8_t saveGameState()
 
 uint8_t canLoadGameState(void)
 {
-    FILE *file = openWritableFile(gSavegameSavFilename, "r");
+    FILE *file = openWritableFile(gSavegameSavFilename, "rb");
     if (file == NULL)
     {
         return 0;

@@ -92,7 +92,7 @@ Config *initializeConfigForWriting(const char *pathname)
         return NULL;
     }
 
-    FILE *file = openWritableFile(pathname, "w");
+    FILE *file = openWritableFile(pathname, "wb");
 
     if (file == NULL)
     {

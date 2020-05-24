@@ -2047,7 +2047,7 @@ void readConfig() //  proc near       ; CODE XREF: start:loc_46F0Fp
         return;
     }
 
-    FILE *file = openWritableFile("SUPAPLEX.CFG", "r");
+    FILE *file = openWritableFile("SUPAPLEX.CFG", "rb");
     if (file == NULL)
     {
         if (errno == ENOENT) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
@@ -2130,7 +2130,7 @@ void readConfig() //  proc near       ; CODE XREF: start:loc_46F0Fp
 
 void saveConfiguration() // sub_4755A      proc near               ; CODE XREF: code:loc_4CAECp
 {
-    FILE *file = openWritableFile("SUPAPLEX.CFG", "w");
+    FILE *file = openWritableFile("SUPAPLEX.CFG", "wb");
     if (file == NULL)
     {
         exitWithError("Error opening SUPAPLEX.CFG\n");
@@ -2236,7 +2236,7 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
         }
 
 //loc_47647:             // ; CODE XREF: readDemoFiles+31j
-        FILE *file = openWritableFileWithReadonlyFallback(filename, "r");
+        FILE *file = openWritableFileWithReadonlyFallback(filename, "rb");
         if (file == NULL)
         {
             return i;
@@ -2479,11 +2479,11 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
            "---- UNBELIEVEABLE!!!! ----",
            kListLevelNameLength);
 
-    FILE *file = openWritableFile(gLevelLstFilename, "r");
+    FILE *file = openWritableFile(gLevelLstFilename, "rb");
     if (file == NULL)
     {
 //errorOpeningLevelLst:             // ; CODE XREF: readLevelsLst+8j
-        FILE *file = openReadonlyFile(gLevelsDatFilename, "r");
+        FILE *file = openReadonlyFile(gLevelsDatFilename, "rb");
         if (file == NULL)
         {
 //errorOpeningLevelsDat:             // ; CODE XREF: readLevelsLst+17j
@@ -2528,7 +2528,7 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
         }
 
 //    loc_47D35:             // ; CODE XREF: readLevelsLst+95j
-        file = openWritableFile(gLevelLstFilename, "w");
+        file = openWritableFile(gLevelLstFilename, "wb");
         if (file == NULL)
         {
             exitWithError("Error opening LEVEL.LST\n");
@@ -2578,7 +2578,7 @@ void readPlayersLst() //  proc near       ; CODE XREF: readEverything+1Bp
         strcpy(gPlayerListData[i].name, "--------");
     }
 
-    FILE *file = openWritableFile(gPlayerLstFilename, "r");
+    FILE *file = openWritableFile(gPlayerLstFilename, "rb");
     if (file == NULL)
     {
         return;
@@ -2601,7 +2601,7 @@ void readHallfameLst() // proc near       ; CODE XREF: readEverything+18p
         return;
     }
     
-    FILE *file = openWritableFile(gHallfameLstFilename, "r");
+    FILE *file = openWritableFile(gHallfameLstFilename, "rb");
     if (file == NULL)
     {
         return;
@@ -4571,7 +4571,7 @@ void stopRecordingDemo() // somethingspsig  proc near       ; CODE XREF: runLeve
     fwrite(&value, 1, sizeof(uint8_t), gCurrentRecordingDemoFile);
     if (byte_5A19B != 0)
     {
-        FILE *sigFile = openWritableFileWithReadonlyFallback("MYSPSIG.TXT", "r");
+        FILE *sigFile = openWritableFileWithReadonlyFallback("MYSPSIG.TXT", "rb");
         if (sigFile != NULL)
         {
             if (fseek(sigFile, 0, SEEK_END) == 0)
@@ -4689,7 +4689,7 @@ void recordDemo(uint16_t demoIndex) // sub_4945D   proc near       ; CODE XREF: 
 //loc_494A6:              ; CODE XREF: recordDemo+41j
     gRecordingDemoMessage[18] = demoIndexCharacter;
 
-    FILE *file = openWritableFile(filename, "w");
+    FILE *file = openWritableFile(filename, "wb");
     if (file == NULL)
     {
         return;
@@ -7804,7 +7804,7 @@ void rotateLevelSet(uint8_t descending) // sub_4B419  proc near
 //                ; sub_4B419+5Aj ...
         strcpy(&gLevelsDatFilename[8], currentSuffix);
 
-        file = openReadonlyFile(gLevelsDatFilename, "r");
+        file = openReadonlyFile(gLevelsDatFilename, "rb");
         if (file == NULL)
         {
             if (errno != ENOENT)
@@ -9465,7 +9465,7 @@ void savePlayerListData() // sub_4CFB2   proc near       ; CODE XREF: handleNewP
         return;
     }
 
-    FILE *file = openWritableFile(gPlayerLstFilename, "w");
+    FILE *file = openWritableFile(gPlayerLstFilename, "wb");
     if (file == NULL)
     {
         return;
@@ -9486,7 +9486,7 @@ void saveHallOfFameData() //   proc near       ; CODE XREF: handleNewPlayerOptio
         return;
     }
 
-    FILE *file = openWritableFile(gHallfameLstFilename, "w");
+    FILE *file = openWritableFile(gHallfameLstFilename, "wb");
     if (file == NULL)
     {
         return;
@@ -10035,7 +10035,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
         }
 
 //loc_4D5BB:              ; CODE XREF: readLevels+63j
-        file = openReadonlyFile(filename, "r");
+        file = openReadonlyFile(filename, "rb");
         if (file == NULL)
         {
             exitWithError("Error opening %s\n", filename);

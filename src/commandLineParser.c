@@ -299,7 +299,7 @@ void handlePlayDemoFile(FastModeType fastModeType)
 {
     strcpy(demoFileName, optarg);
 
-    FILE *file = openWritableFileWithReadonlyFallback(demoFileName, "r");
+    FILE *file = openWritableFileWithReadonlyFallback(demoFileName, "rb");
     if (file == NULL)
     {
         if (fastModeType != FastModeTypeNone)

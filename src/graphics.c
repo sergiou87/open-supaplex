@@ -126,7 +126,7 @@ void readMenuDat() // proc near       ; CODE XREF: readEverything+9p
         return;
     }
 
-    FILE *file = openReadonlyFile("MENU.DAT", "r");
+    FILE *file = openReadonlyFile("MENU.DAT", "rb");
     if (file == NULL)
     {
         exitWithError("Error opening MENU.DAT\n");
@@ -165,7 +165,7 @@ void loadMurphySprites() // readMoving  proc near       ; CODE XREF: start:isFas
 // IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
 // IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
 
-    FILE *file = openReadonlyFile("MOVING.DAT", "r");
+    FILE *file = openReadonlyFile("MOVING.DAT", "rb");
 
     if (file == NULL)
     {
@@ -224,7 +224,7 @@ void loadMurphySprites() // readMoving  proc near       ; CODE XREF: start:isFas
     // IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
     // IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
 
-    file = openReadonlyFile("FIXED.DAT", "r");
+    file = openReadonlyFile("FIXED.DAT", "rb");
     if (file == NULL)
     {
         exitWithError("Error opening FIXED.DAT\n");
@@ -277,7 +277,7 @@ void readPanelDat() //    proc near       ; CODE XREF: readPanelDat+14j
         return;
     }
 
-    FILE *file = openReadonlyFile("PANEL.DAT", "r");
+    FILE *file = openReadonlyFile("PANEL.DAT", "rb");
     if (file == NULL)
     {
         exitWithError("Error opening PANEL.DAT\n");
@@ -331,7 +331,7 @@ void readBackDat() // proc near       ; CODE XREF: readBackDat+14j
     }
 
     // address: 01ED:0ECD
-    FILE *file = openReadonlyFile("BACK.DAT", "r");
+    FILE *file = openReadonlyFile("BACK.DAT", "rb");
     if (file == NULL)
     {
         exitWithError("Error opening BACK.DAT\n");
@@ -367,7 +367,7 @@ void readBitmapFonts() //   proc near       ; CODE XREF: readBitmapFonts+14j
         return;
     }
 
-    FILE *file = openReadonlyFile("CHARS6.DAT", "r");
+    FILE *file = openReadonlyFile("CHARS6.DAT", "rb");
     if (file == NULL)
     {
         exitWithError("Error opening CHARS6.DAT\n");
@@ -387,7 +387,7 @@ void readBitmapFonts() //   proc near       ; CODE XREF: readBitmapFonts+14j
     }
 
 //loc_47BB5:              //; CODE XREF: readBitmapFonts+39j
-    file = openReadonlyFile("CHARS8.DAT", "r");
+    file = openReadonlyFile("CHARS8.DAT", "rb");
     if (file == NULL)
     {
         exitWithError("Error opening CHARS8.DAT\n");
@@ -409,7 +409,7 @@ void readBitmapFonts() //   proc near       ; CODE XREF: readBitmapFonts+14j
 
 void readAndRenderTitleDat() // proc near  ; CODE XREF: start+2BBp
 {
-    FILE *file = openReadonlyFile("TITLE.DAT", "r");
+    FILE *file = openReadonlyFile("TITLE.DAT", "rb");
 
     if (file == NULL)
     {
@@ -464,7 +464,7 @@ void readAndRenderTitleDat() // proc near  ; CODE XREF: start+2BBp
 void readAndRenderTitle1Dat(void)
 {
 //loc_478C0:              // ; CODE XREF: loadScreen2+8j
-    FILE *file = openReadonlyFile("TITLE1.DAT", "r");
+    FILE *file = openReadonlyFile("TITLE1.DAT", "rb");
     if (file == NULL)
     {
         exitWithError("Error opening TITLE1.DAT\n");
@@ -514,7 +514,7 @@ void readAndRenderTitle1Dat(void)
 
 void readTitle2Dat()
 {
-    FILE *file = openReadonlyFile("TITLE2.DAT", "r");
+    FILE *file = openReadonlyFile("TITLE2.DAT", "rb");
     if (file == NULL)
     {
         exitWithError("Error opening TITLE2.DAT\n");
@@ -591,7 +591,7 @@ void readGfxDat() //  proc near       ; CODE XREF: readGfxDat+14j
         return;
     }
 
-    FILE *file = openReadonlyFile("GFX.DAT", "r");
+    FILE *file = openReadonlyFile("GFX.DAT", "rb");
     if (file == NULL)
     {
         exitWithError("Error opening GFX.DAT\n");
@@ -621,7 +621,7 @@ void readControlsDat() // proc near       ; CODE XREF: readControlsDat+14j
         return;
     }
 
-    FILE *file = openReadonlyFile("CONTROLS.DAT", "r");
+    FILE *file = openReadonlyFile("CONTROLS.DAT", "rb");
     if (file == NULL)
     {
         exitWithError("Error opening CONTROLS.DAT\n");
@@ -1328,7 +1328,7 @@ void readPalettes()  // proc near       ; CODE XREF: readEverythingp
         return;
     }
 
-    FILE *file = openReadonlyFile("PALETTES.DAT", "r");
+    FILE *file = openReadonlyFile("PALETTES.DAT", "rb");
     if (file == NULL)
     {
         exitWithError("Error opening PALETTES.DAT\n");
