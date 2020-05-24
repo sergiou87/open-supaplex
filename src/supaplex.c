@@ -4256,9 +4256,37 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         handleGameUserInput(); // 01ED:1F08
         if (gDemoRecordingJustStarted == 1)
         {
-            // TODO: This goes back to the beginning of this function WTF
-            // Maybe it just restarts the demo? Seems to be related to playing demos
-//            jmp loc_48ADF
+            // Restart the demo
+//loc_48ADF:              ; CODE XREF: runLevel+BAj
+            gDemoRecordingJustStarted = 0;
+            drawGameTime();
+
+            do
+            {
+//isFunctionKey:              ; CODE XREF: runLevel+35j
+                int9handler(1);
+            }
+            while (keyPressed >= SDL_SCANCODE_F1
+                   && keyPressed <= SDL_SCANCODE_F10);
+
+//notFunctionKey:             ; CODE XREF: runLevel+31j
+            initializeGameInfo();
+            if (isMusicEnabled == 0)
+            {
+                stopMusic();
+            }
+
+//loc_48AFF:              ; CODE XREF: runLevel+3Fj
+            gIsLevelStartedAsDemo = 0;
+            gLevelFailed = 1;
+
+//loc_48B09:              ; CODE XREF: runLevel+22j
+            gPlantedRedDiskCountdown = 0;
+            byte_5A323 = 0;
+
+            continue;
+
+            // All the code in this "if" is equivalent to "jmp loc_48ADF"
         }
 
 //loc_48B78:              ; CODE XREF: runLevel+B8j
