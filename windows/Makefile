@@ -5,8 +5,12 @@ LDFLAGS = -lSDL2_mixer -lvorbis -lFLAC -logg `sdl2-config --libs` `pkg-config SD
 
 CFLAGS = `sdl2-config --cflags` `pkg-config SDL2_mixer --cflags`
 
-OpenSupaplex: $(obj)
+OpenSupaplex: $(obj) OpenSupaplex.res
 	$(CC) -o $@ $^ $(LDFLAGS)
+
+OpenSupaplex.res:
+	windres OpenSupaplex.rc -O coff -o OpenSupaplex.res
 
 clean:
 	rm $(obj)
+	rm OpenSupaplex.res

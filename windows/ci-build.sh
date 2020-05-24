@@ -22,8 +22,6 @@ mv OpenSupaplex.exe OpenSupaplex-tmp.exe
 cp -R ../resources ./OpenSupaplex
 cp OpenSupaplex-tmp.exe ./OpenSupaplex/OpenSupaplex.exe
 
-ldd OpenSupaplex-tmp.exe
-
 for F in `ldd OpenSupaplex-tmp.exe | grep ${MINGW_PREFFIX} | cut -d' ' -f3`
 do
     cp $F ./OpenSupaplex/
