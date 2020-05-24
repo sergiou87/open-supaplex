@@ -23,34 +23,6 @@
 		40487A08246C403A00B776FA /* conditionals.c in Sources */ = {isa = PBXBuildFile; fileRef = 404879C3246B609900B776FA /* conditionals.c */; };
 		40487A83246CB32400B776FA /* file.m in Sources */ = {isa = PBXBuildFile; fileRef = 40487A82246CB32400B776FA /* file.m */; };
 		40487A85246CB5D200B776FA /* audio in Resources */ = {isa = PBXBuildFile; fileRef = 40487A84246CB5D200B776FA /* audio */; };
-		40487AA2246CB5F700B776FA /* GFX.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A86246CB5F500B776FA /* GFX.DAT */; };
-		40487AA3246CB5F700B776FA /* TITLE.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A87246CB5F500B776FA /* TITLE.DAT */; };
-		40487AA4246CB5F700B776FA /* CONTROLS.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A88246CB5F500B776FA /* CONTROLS.DAT */; };
-		40487AA5246CB5F700B776FA /* BACK.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A89246CB5F500B776FA /* BACK.DAT */; };
-		40487AA6246CB5F700B776FA /* DEMO1.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A8A246CB5F500B776FA /* DEMO1.BIN */; };
-		40487AA7246CB5F700B776FA /* PALETTES.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A8B246CB5F500B776FA /* PALETTES.DAT */; };
-		40487AA8246CB5F700B776FA /* DEMO5.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A8C246CB5F500B776FA /* DEMO5.BIN */; };
-		40487AA9246CB5F700B776FA /* PANEL.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A8D246CB5F500B776FA /* PANEL.DAT */; };
-		40487AAA246CB5F700B776FA /* CHARS6.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A8E246CB5F500B776FA /* CHARS6.DAT */; };
-		40487AAB246CB5F700B776FA /* DEMO0.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A8F246CB5F500B776FA /* DEMO0.BIN */; };
-		40487AAC246CB5F700B776FA /* README.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A90246CB5F500B776FA /* README.TXT */; };
-		40487AAD246CB5F700B776FA /* DEMO7.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A91246CB5F600B776FA /* DEMO7.BIN */; };
-		40487AAE246CB5F700B776FA /* SPFIX63.DOC in Resources */ = {isa = PBXBuildFile; fileRef = 40487A92246CB5F600B776FA /* SPFIX63.DOC */; };
-		40487AAF246CB5F700B776FA /* MENU.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A93246CB5F600B776FA /* MENU.DAT */; };
-		40487AB0246CB5F700B776FA /* CHARS8.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A94246CB5F600B776FA /* CHARS8.DAT */; };
-		40487AB1246CB5F700B776FA /* DEMO2.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A95246CB5F600B776FA /* DEMO2.BIN */; };
-		40487AB2246CB5F700B776FA /* DEMO3.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A96246CB5F600B776FA /* DEMO3.BIN */; };
-		40487AB3246CB5F700B776FA /* DEMO6.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A97246CB5F600B776FA /* DEMO6.BIN */; };
-		40487AB4246CB5F700B776FA /* DEMO8.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A98246CB5F600B776FA /* DEMO8.BIN */; };
-		40487AB5246CB5F700B776FA /* MOVING.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A99246CB5F600B776FA /* MOVING.DAT */; };
-		40487AB6246CB5F700B776FA /* DEMO4.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A9A246CB5F600B776FA /* DEMO4.BIN */; };
-		40487AB7246CB5F700B776FA /* TITLE1.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A9B246CB5F600B776FA /* TITLE1.DAT */; };
-		40487AB8246CB5F700B776FA /* LEVEL.LST in Resources */ = {isa = PBXBuildFile; fileRef = 40487A9C246CB5F600B776FA /* LEVEL.LST */; };
-		40487AB9246CB5F700B776FA /* TITLE2.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A9D246CB5F600B776FA /* TITLE2.DAT */; };
-		40487ABA246CB5F700B776FA /* myspsig.txt in Resources */ = {isa = PBXBuildFile; fileRef = 40487A9E246CB5F600B776FA /* myspsig.txt */; };
-		40487ABB246CB5F700B776FA /* FIXED.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A9F246CB5F600B776FA /* FIXED.DAT */; };
-		40487ABC246CB5F700B776FA /* DEMO9.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487AA0246CB5F700B776FA /* DEMO9.BIN */; };
-		40487ABD246CB5F700B776FA /* LEVELS.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487AA1246CB5F700B776FA /* LEVELS.DAT */; };
 		40517B152473EC57004E2435 /* graphics.c in Sources */ = {isa = PBXBuildFile; fileRef = 40517B142473EC57004E2435 /* graphics.c */; };
 		40517B162473EC57004E2435 /* graphics.c in Sources */ = {isa = PBXBuildFile; fileRef = 40517B142473EC57004E2435 /* graphics.c */; };
 		4056430D246F49CE0042F34B /* commandLineParser.c in Sources */ = {isa = PBXBuildFile; fileRef = 4056430C246F49CE0042F34B /* commandLineParser.c */; };
@@ -73,42 +45,190 @@
 		40564324247032640042F34B /* input.c in Sources */ = {isa = PBXBuildFile; fileRef = 404879C0246B51E600B776FA /* input.c */; };
 		40564325247032640042F34B /* globals.c in Sources */ = {isa = PBXBuildFile; fileRef = 4056430F246F4A9A0042F34B /* globals.c */; };
 		40564326247032640042F34B /* utils.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145AB2462CE9F00620211 /* utils.c */; };
-		40564329247032640042F34B /* DEMO5.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A8C246CB5F500B776FA /* DEMO5.BIN */; };
-		4056432A247032640042F34B /* PANEL.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A8D246CB5F500B776FA /* PANEL.DAT */; };
-		4056432B247032640042F34B /* SPFIX63.DOC in Resources */ = {isa = PBXBuildFile; fileRef = 40487A92246CB5F600B776FA /* SPFIX63.DOC */; };
-		4056432C247032640042F34B /* PALETTES.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A8B246CB5F500B776FA /* PALETTES.DAT */; };
-		4056432D247032640042F34B /* DEMO3.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A96246CB5F600B776FA /* DEMO3.BIN */; };
-		4056432E247032640042F34B /* myspsig.txt in Resources */ = {isa = PBXBuildFile; fileRef = 40487A9E246CB5F600B776FA /* myspsig.txt */; };
-		4056432F247032640042F34B /* TITLE2.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A9D246CB5F600B776FA /* TITLE2.DAT */; };
 		40564330247032640042F34B /* audio in Resources */ = {isa = PBXBuildFile; fileRef = 40487A84246CB5D200B776FA /* audio */; };
-		40564331247032640042F34B /* README.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A90246CB5F500B776FA /* README.TXT */; };
-		40564332247032640042F34B /* TITLE1.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A9B246CB5F600B776FA /* TITLE1.DAT */; };
-		40564333247032640042F34B /* TITLE.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A87246CB5F500B776FA /* TITLE.DAT */; };
-		40564334247032640042F34B /* DEMO7.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A91246CB5F600B776FA /* DEMO7.BIN */; };
-		40564335247032640042F34B /* DEMO9.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487AA0246CB5F700B776FA /* DEMO9.BIN */; };
-		40564336247032640042F34B /* DEMO4.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A9A246CB5F600B776FA /* DEMO4.BIN */; };
-		40564337247032640042F34B /* BACK.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A89246CB5F500B776FA /* BACK.DAT */; };
-		40564338247032640042F34B /* DEMO0.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A8F246CB5F500B776FA /* DEMO0.BIN */; };
-		40564339247032640042F34B /* MENU.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A93246CB5F600B776FA /* MENU.DAT */; };
-		4056433A247032640042F34B /* DEMO6.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A97246CB5F600B776FA /* DEMO6.BIN */; };
 		4056433B247032640042F34B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 404879EF246C402B00B776FA /* Assets.xcassets */; };
-		4056433C247032640042F34B /* CHARS8.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A94246CB5F600B776FA /* CHARS8.DAT */; };
-		4056433D247032640042F34B /* DEMO8.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A98246CB5F600B776FA /* DEMO8.BIN */; };
-		4056433E247032640042F34B /* MOVING.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A99246CB5F600B776FA /* MOVING.DAT */; };
-		4056433F247032640042F34B /* DEMO2.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A95246CB5F600B776FA /* DEMO2.BIN */; };
-		40564340247032640042F34B /* FIXED.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A9F246CB5F600B776FA /* FIXED.DAT */; };
-		40564341247032640042F34B /* CONTROLS.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A88246CB5F500B776FA /* CONTROLS.DAT */; };
-		40564342247032640042F34B /* LEVELS.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487AA1246CB5F700B776FA /* LEVELS.DAT */; };
-		40564343247032640042F34B /* CHARS6.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A8E246CB5F500B776FA /* CHARS6.DAT */; };
-		40564344247032640042F34B /* DEMO1.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 40487A8A246CB5F500B776FA /* DEMO1.BIN */; };
-		40564345247032640042F34B /* LEVEL.LST in Resources */ = {isa = PBXBuildFile; fileRef = 40487A9C246CB5F600B776FA /* LEVEL.LST */; };
-		40564346247032640042F34B /* GFX.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 40487A86246CB5F500B776FA /* GFX.DAT */; };
 		409F7B632479CD4C00BB3B19 /* system.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7B622479CD4C00BB3B19 /* system.c */; };
 		409F7B642479CD4C00BB3B19 /* system.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7B622479CD4C00BB3B19 /* system.c */; };
 		409F7B672479D45200BB3B19 /* buttonBorders.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7B662479D45200BB3B19 /* buttonBorders.c */; };
 		409F7B682479D45200BB3B19 /* buttonBorders.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7B662479D45200BB3B19 /* buttonBorders.c */; };
 		409F7B6B2479D56D00BB3B19 /* animations.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7B6A2479D56D00BB3B19 /* animations.c */; };
 		409F7B6C2479D56D00BB3B19 /* animations.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7B6A2479D56D00BB3B19 /* animations.c */; };
+		409F7DDC247B299100BB3B19 /* LEVEL.L04 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D83247B298900BB3B19 /* LEVEL.L04 */; };
+		409F7DDD247B299100BB3B19 /* LEVEL.L04 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D83247B298900BB3B19 /* LEVEL.L04 */; };
+		409F7DDE247B299100BB3B19 /* myspsig.txt in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D84247B298900BB3B19 /* myspsig.txt */; };
+		409F7DDF247B299100BB3B19 /* myspsig.txt in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D84247B298900BB3B19 /* myspsig.txt */; };
+		409F7DE0247B299100BB3B19 /* LEVELS.D02 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D85247B298900BB3B19 /* LEVELS.D02 */; };
+		409F7DE1247B299100BB3B19 /* LEVELS.D02 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D85247B298900BB3B19 /* LEVELS.D02 */; };
+		409F7DE2247B299100BB3B19 /* SPFIX63.DOC in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D86247B298900BB3B19 /* SPFIX63.DOC */; };
+		409F7DE3247B299100BB3B19 /* SPFIX63.DOC in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D86247B298900BB3B19 /* SPFIX63.DOC */; };
+		409F7DE4247B299100BB3B19 /* LEVELS.D96 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D87247B298900BB3B19 /* LEVELS.D96 */; };
+		409F7DE5247B299100BB3B19 /* LEVELS.D96 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D87247B298900BB3B19 /* LEVELS.D96 */; };
+		409F7DE6247B299100BB3B19 /* SPLVLS11.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D88247B298900BB3B19 /* SPLVLS11.TXT */; };
+		409F7DE7247B299100BB3B19 /* SPLVLS11.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D88247B298900BB3B19 /* SPLVLS11.TXT */; };
+		409F7DE8247B299100BB3B19 /* LEVELS.D07 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D89247B298900BB3B19 /* LEVELS.D07 */; };
+		409F7DE9247B299100BB3B19 /* LEVELS.D07 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D89247B298900BB3B19 /* LEVELS.D07 */; };
+		409F7DEA247B299100BB3B19 /* DEMO3.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D8A247B298900BB3B19 /* DEMO3.BIN */; };
+		409F7DEB247B299100BB3B19 /* DEMO3.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D8A247B298900BB3B19 /* DEMO3.BIN */; };
+		409F7DEC247B299100BB3B19 /* DEMO6.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D8B247B298900BB3B19 /* DEMO6.BIN */; };
+		409F7DED247B299100BB3B19 /* DEMO6.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D8B247B298900BB3B19 /* DEMO6.BIN */; };
+		409F7DEE247B299100BB3B19 /* SPLVLS93.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D8C247B298900BB3B19 /* SPLVLS93.TXT */; };
+		409F7DEF247B299100BB3B19 /* SPLVLS93.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D8C247B298900BB3B19 /* SPLVLS93.TXT */; };
+		409F7DF0247B299100BB3B19 /* SPLVLS04.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D8D247B298900BB3B19 /* SPLVLS04.TXT */; };
+		409F7DF1247B299100BB3B19 /* SPLVLS04.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D8D247B298900BB3B19 /* SPLVLS04.TXT */; };
+		409F7DF2247B299100BB3B19 /* README.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D8E247B298900BB3B19 /* README.TXT */; };
+		409F7DF3247B299100BB3B19 /* README.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D8E247B298900BB3B19 /* README.TXT */; };
+		409F7DF4247B299100BB3B19 /* LEVEL.L27 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D8F247B298900BB3B19 /* LEVEL.L27 */; };
+		409F7DF5247B299100BB3B19 /* LEVEL.L27 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D8F247B298900BB3B19 /* LEVEL.L27 */; };
+		409F7DF6247B299100BB3B19 /* LEVEL.L98 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D90247B298900BB3B19 /* LEVEL.L98 */; };
+		409F7DF7247B299100BB3B19 /* LEVEL.L98 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D90247B298900BB3B19 /* LEVEL.L98 */; };
+		409F7DF8247B299100BB3B19 /* LEVELS.D12 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D91247B298A00BB3B19 /* LEVELS.D12 */; };
+		409F7DF9247B299100BB3B19 /* LEVELS.D12 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D91247B298A00BB3B19 /* LEVELS.D12 */; };
+		409F7DFA247B299100BB3B19 /* LEVEL.L03 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D92247B298A00BB3B19 /* LEVEL.L03 */; };
+		409F7DFB247B299100BB3B19 /* LEVEL.L03 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D92247B298A00BB3B19 /* LEVEL.L03 */; };
+		409F7DFC247B299100BB3B19 /* DEMO7.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D93247B298A00BB3B19 /* DEMO7.BIN */; };
+		409F7DFD247B299100BB3B19 /* DEMO7.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D93247B298A00BB3B19 /* DEMO7.BIN */; };
+		409F7DFE247B299100BB3B19 /* SPLVLS02.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D94247B298A00BB3B19 /* SPLVLS02.TXT */; };
+		409F7DFF247B299100BB3B19 /* SPLVLS02.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D94247B298A00BB3B19 /* SPLVLS02.TXT */; };
+		409F7E00247B299100BB3B19 /* SPLVLS94.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D95247B298A00BB3B19 /* SPLVLS94.TXT */; };
+		409F7E01247B299100BB3B19 /* SPLVLS94.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D95247B298A00BB3B19 /* SPLVLS94.TXT */; };
+		409F7E02247B299100BB3B19 /* SPLVLS01.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D96247B298A00BB3B19 /* SPLVLS01.TXT */; };
+		409F7E03247B299100BB3B19 /* SPLVLS01.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D96247B298A00BB3B19 /* SPLVLS01.TXT */; };
+		409F7E04247B299100BB3B19 /* DEMO9.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D97247B298A00BB3B19 /* DEMO9.BIN */; };
+		409F7E05247B299100BB3B19 /* DEMO9.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D97247B298A00BB3B19 /* DEMO9.BIN */; };
+		409F7E06247B299100BB3B19 /* LEVEL.L95 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D98247B298A00BB3B19 /* LEVEL.L95 */; };
+		409F7E07247B299100BB3B19 /* LEVEL.L95 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D98247B298A00BB3B19 /* LEVEL.L95 */; };
+		409F7E08247B299100BB3B19 /* DEMO2.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D99247B298A00BB3B19 /* DEMO2.BIN */; };
+		409F7E09247B299100BB3B19 /* DEMO2.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D99247B298A00BB3B19 /* DEMO2.BIN */; };
+		409F7E0A247B299100BB3B19 /* SPLVLS07.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D9A247B298A00BB3B19 /* SPLVLS07.TXT */; };
+		409F7E0B247B299100BB3B19 /* SPLVLS07.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D9A247B298A00BB3B19 /* SPLVLS07.TXT */; };
+		409F7E0C247B299100BB3B19 /* LEVEL.L06 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D9B247B298A00BB3B19 /* LEVEL.L06 */; };
+		409F7E0D247B299100BB3B19 /* LEVEL.L06 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D9B247B298A00BB3B19 /* LEVEL.L06 */; };
+		409F7E0E247B299200BB3B19 /* CONTROLS.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D9C247B298A00BB3B19 /* CONTROLS.DAT */; };
+		409F7E0F247B299200BB3B19 /* CONTROLS.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D9C247B298A00BB3B19 /* CONTROLS.DAT */; };
+		409F7E10247B299200BB3B19 /* PALETTES.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D9D247B298A00BB3B19 /* PALETTES.DAT */; };
+		409F7E11247B299200BB3B19 /* PALETTES.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D9D247B298A00BB3B19 /* PALETTES.DAT */; };
+		409F7E12247B299200BB3B19 /* SPLVLS10.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D9E247B298B00BB3B19 /* SPLVLS10.TXT */; };
+		409F7E13247B299200BB3B19 /* SPLVLS10.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D9E247B298B00BB3B19 /* SPLVLS10.TXT */; };
+		409F7E14247B299200BB3B19 /* SPLVLS98.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D9F247B298B00BB3B19 /* SPLVLS98.TXT */; };
+		409F7E15247B299200BB3B19 /* SPLVLS98.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D9F247B298B00BB3B19 /* SPLVLS98.TXT */; };
+		409F7E16247B299200BB3B19 /* LEVEL.L92 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA0247B298B00BB3B19 /* LEVEL.L92 */; };
+		409F7E17247B299200BB3B19 /* LEVEL.L92 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA0247B298B00BB3B19 /* LEVEL.L92 */; };
+		409F7E18247B299200BB3B19 /* CHARS6.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA1247B298B00BB3B19 /* CHARS6.DAT */; };
+		409F7E19247B299200BB3B19 /* CHARS6.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA1247B298B00BB3B19 /* CHARS6.DAT */; };
+		409F7E1A247B299200BB3B19 /* SPLVLS05.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA2247B298B00BB3B19 /* SPLVLS05.TXT */; };
+		409F7E1B247B299200BB3B19 /* SPLVLS05.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA2247B298B00BB3B19 /* SPLVLS05.TXT */; };
+		409F7E1C247B299200BB3B19 /* DEMO4.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA3247B298B00BB3B19 /* DEMO4.BIN */; };
+		409F7E1D247B299200BB3B19 /* DEMO4.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA3247B298B00BB3B19 /* DEMO4.BIN */; };
+		409F7E1E247B299200BB3B19 /* LEVELS.D03 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA4247B298B00BB3B19 /* LEVELS.D03 */; };
+		409F7E1F247B299200BB3B19 /* LEVELS.D03 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA4247B298B00BB3B19 /* LEVELS.D03 */; };
+		409F7E20247B299200BB3B19 /* LEVEL.L05 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA5247B298B00BB3B19 /* LEVEL.L05 */; };
+		409F7E21247B299200BB3B19 /* LEVEL.L05 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA5247B298B00BB3B19 /* LEVEL.L05 */; };
+		409F7E22247B299200BB3B19 /* MENU.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA6247B298B00BB3B19 /* MENU.DAT */; };
+		409F7E23247B299200BB3B19 /* MENU.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA6247B298B00BB3B19 /* MENU.DAT */; };
+		409F7E24247B299200BB3B19 /* SPLVLS09.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA7247B298B00BB3B19 /* SPLVLS09.TXT */; };
+		409F7E25247B299200BB3B19 /* SPLVLS09.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA7247B298B00BB3B19 /* SPLVLS09.TXT */; };
+		409F7E26247B299200BB3B19 /* TITLE2.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA8247B298C00BB3B19 /* TITLE2.DAT */; };
+		409F7E27247B299200BB3B19 /* TITLE2.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA8247B298C00BB3B19 /* TITLE2.DAT */; };
+		409F7E28247B299200BB3B19 /* SPLVLS92.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA9247B298C00BB3B19 /* SPLVLS92.TXT */; };
+		409F7E29247B299200BB3B19 /* SPLVLS92.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA9247B298C00BB3B19 /* SPLVLS92.TXT */; };
+		409F7E2A247B299200BB3B19 /* LEVELS.D98 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DAA247B298C00BB3B19 /* LEVELS.D98 */; };
+		409F7E2B247B299200BB3B19 /* LEVELS.D98 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DAA247B298C00BB3B19 /* LEVELS.D98 */; };
+		409F7E2C247B299200BB3B19 /* LEVELS.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DAB247B298C00BB3B19 /* LEVELS.DAT */; };
+		409F7E2D247B299200BB3B19 /* LEVELS.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DAB247B298C00BB3B19 /* LEVELS.DAT */; };
+		409F7E2E247B299200BB3B19 /* LEVELS.D11 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DAC247B298C00BB3B19 /* LEVELS.D11 */; };
+		409F7E2F247B299200BB3B19 /* LEVELS.D11 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DAC247B298C00BB3B19 /* LEVELS.D11 */; };
+		409F7E30247B299200BB3B19 /* TITLE1.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DAD247B298C00BB3B19 /* TITLE1.DAT */; };
+		409F7E31247B299200BB3B19 /* TITLE1.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DAD247B298C00BB3B19 /* TITLE1.DAT */; };
+		409F7E32247B299200BB3B19 /* LEVELS.D94 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DAE247B298C00BB3B19 /* LEVELS.D94 */; };
+		409F7E33247B299200BB3B19 /* LEVELS.D94 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DAE247B298C00BB3B19 /* LEVELS.D94 */; };
+		409F7E34247B299200BB3B19 /* DEMO5.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DAF247B298C00BB3B19 /* DEMO5.BIN */; };
+		409F7E35247B299200BB3B19 /* DEMO5.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DAF247B298C00BB3B19 /* DEMO5.BIN */; };
+		409F7E36247B299200BB3B19 /* BACK.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB0247B298C00BB3B19 /* BACK.DAT */; };
+		409F7E37247B299200BB3B19 /* BACK.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB0247B298C00BB3B19 /* BACK.DAT */; };
+		409F7E38247B299200BB3B19 /* LEVEL.LST in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB1247B298C00BB3B19 /* LEVEL.LST */; };
+		409F7E39247B299200BB3B19 /* LEVEL.LST in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB1247B298C00BB3B19 /* LEVEL.LST */; };
+		409F7E3A247B299200BB3B19 /* DEMO8.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB2247B298D00BB3B19 /* DEMO8.BIN */; };
+		409F7E3B247B299200BB3B19 /* DEMO8.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB2247B298D00BB3B19 /* DEMO8.BIN */; };
+		409F7E3C247B299200BB3B19 /* GFX.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB3247B298D00BB3B19 /* GFX.DAT */; };
+		409F7E3D247B299200BB3B19 /* GFX.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB3247B298D00BB3B19 /* GFX.DAT */; };
+		409F7E3E247B299200BB3B19 /* SPLVLS12.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB4247B298D00BB3B19 /* SPLVLS12.TXT */; };
+		409F7E3F247B299200BB3B19 /* SPLVLS12.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB4247B298D00BB3B19 /* SPLVLS12.TXT */; };
+		409F7E40247B299200BB3B19 /* SPLVLS03.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB5247B298D00BB3B19 /* SPLVLS03.TXT */; };
+		409F7E41247B299200BB3B19 /* SPLVLS03.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB5247B298D00BB3B19 /* SPLVLS03.TXT */; };
+		409F7E42247B299200BB3B19 /* SPLVLS27.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB6247B298D00BB3B19 /* SPLVLS27.TXT */; };
+		409F7E43247B299200BB3B19 /* SPLVLS27.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB6247B298D00BB3B19 /* SPLVLS27.TXT */; };
+		409F7E44247B299200BB3B19 /* LEVELS.D27 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB7247B298D00BB3B19 /* LEVELS.D27 */; };
+		409F7E45247B299200BB3B19 /* LEVELS.D27 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB7247B298D00BB3B19 /* LEVELS.D27 */; };
+		409F7E46247B299200BB3B19 /* LEVELS.D01 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB8247B298D00BB3B19 /* LEVELS.D01 */; };
+		409F7E47247B299200BB3B19 /* LEVELS.D01 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB8247B298D00BB3B19 /* LEVELS.D01 */; };
+		409F7E48247B299200BB3B19 /* LEVEL.L08 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB9247B298D00BB3B19 /* LEVEL.L08 */; };
+		409F7E49247B299200BB3B19 /* LEVEL.L08 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB9247B298D00BB3B19 /* LEVEL.L08 */; };
+		409F7E4A247B299200BB3B19 /* SPLVLS95.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DBA247B298E00BB3B19 /* SPLVLS95.TXT */; };
+		409F7E4B247B299200BB3B19 /* SPLVLS95.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DBA247B298E00BB3B19 /* SPLVLS95.TXT */; };
+		409F7E4C247B299200BB3B19 /* SPLVLS97.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DBB247B298E00BB3B19 /* SPLVLS97.TXT */; };
+		409F7E4D247B299200BB3B19 /* SPLVLS97.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DBB247B298E00BB3B19 /* SPLVLS97.TXT */; };
+		409F7E4E247B299200BB3B19 /* LEVEL.L07 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DBC247B298E00BB3B19 /* LEVEL.L07 */; };
+		409F7E4F247B299200BB3B19 /* LEVEL.L07 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DBC247B298E00BB3B19 /* LEVEL.L07 */; };
+		409F7E50247B299200BB3B19 /* LEVEL.L96 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DBD247B298E00BB3B19 /* LEVEL.L96 */; };
+		409F7E51247B299200BB3B19 /* LEVEL.L96 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DBD247B298E00BB3B19 /* LEVEL.L96 */; };
+		409F7E52247B299200BB3B19 /* LEVELS.D09 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DBE247B298E00BB3B19 /* LEVELS.D09 */; };
+		409F7E53247B299200BB3B19 /* LEVELS.D09 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DBE247B298E00BB3B19 /* LEVELS.D09 */; };
+		409F7E54247B299200BB3B19 /* LEVEL.L93 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DBF247B298E00BB3B19 /* LEVEL.L93 */; };
+		409F7E55247B299200BB3B19 /* LEVEL.L93 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DBF247B298E00BB3B19 /* LEVEL.L93 */; };
+		409F7E56247B299200BB3B19 /* LEVELS.D04 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC0247B298E00BB3B19 /* LEVELS.D04 */; };
+		409F7E57247B299200BB3B19 /* LEVELS.D04 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC0247B298E00BB3B19 /* LEVELS.D04 */; };
+		409F7E58247B299200BB3B19 /* SPLVLS06.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC1247B298E00BB3B19 /* SPLVLS06.TXT */; };
+		409F7E59247B299200BB3B19 /* SPLVLS06.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC1247B298E00BB3B19 /* SPLVLS06.TXT */; };
+		409F7E5A247B299200BB3B19 /* LEVEL.L02 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC2247B298E00BB3B19 /* LEVEL.L02 */; };
+		409F7E5B247B299200BB3B19 /* LEVEL.L02 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC2247B298E00BB3B19 /* LEVEL.L02 */; };
+		409F7E5C247B299200BB3B19 /* MOVING.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC3247B298F00BB3B19 /* MOVING.DAT */; };
+		409F7E5D247B299200BB3B19 /* MOVING.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC3247B298F00BB3B19 /* MOVING.DAT */; };
+		409F7E5E247B299200BB3B19 /* LEVEL.L97 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC4247B298F00BB3B19 /* LEVEL.L97 */; };
+		409F7E5F247B299200BB3B19 /* LEVEL.L97 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC4247B298F00BB3B19 /* LEVEL.L97 */; };
+		409F7E60247B299200BB3B19 /* DEMO0.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC5247B298F00BB3B19 /* DEMO0.BIN */; };
+		409F7E61247B299200BB3B19 /* DEMO0.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC5247B298F00BB3B19 /* DEMO0.BIN */; };
+		409F7E62247B299200BB3B19 /* LEVELS.D10 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC6247B298F00BB3B19 /* LEVELS.D10 */; };
+		409F7E63247B299200BB3B19 /* LEVELS.D10 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC6247B298F00BB3B19 /* LEVELS.D10 */; };
+		409F7E64247B299200BB3B19 /* LEVELS.D92 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC7247B298F00BB3B19 /* LEVELS.D92 */; };
+		409F7E65247B299200BB3B19 /* LEVELS.D92 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC7247B298F00BB3B19 /* LEVELS.D92 */; };
+		409F7E66247B299200BB3B19 /* LEVELS.D06 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC8247B298F00BB3B19 /* LEVELS.D06 */; };
+		409F7E67247B299200BB3B19 /* LEVELS.D06 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC8247B298F00BB3B19 /* LEVELS.D06 */; };
+		409F7E68247B299200BB3B19 /* LEVEL.L01 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC9247B298F00BB3B19 /* LEVEL.L01 */; };
+		409F7E69247B299200BB3B19 /* LEVEL.L01 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC9247B298F00BB3B19 /* LEVEL.L01 */; };
+		409F7E6A247B299200BB3B19 /* LEVELS.D08 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DCA247B298F00BB3B19 /* LEVELS.D08 */; };
+		409F7E6B247B299200BB3B19 /* LEVELS.D08 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DCA247B298F00BB3B19 /* LEVELS.D08 */; };
+		409F7E6C247B299200BB3B19 /* LEVELS.D93 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DCB247B298F00BB3B19 /* LEVELS.D93 */; };
+		409F7E6D247B299200BB3B19 /* LEVELS.D93 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DCB247B298F00BB3B19 /* LEVELS.D93 */; };
+		409F7E6E247B299200BB3B19 /* TITLE.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DCC247B299000BB3B19 /* TITLE.DAT */; };
+		409F7E6F247B299200BB3B19 /* TITLE.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DCC247B299000BB3B19 /* TITLE.DAT */; };
+		409F7E70247B299200BB3B19 /* LEVELS.D95 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DCD247B299000BB3B19 /* LEVELS.D95 */; };
+		409F7E71247B299200BB3B19 /* LEVELS.D95 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DCD247B299000BB3B19 /* LEVELS.D95 */; };
+		409F7E72247B299200BB3B19 /* PANEL.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DCE247B299000BB3B19 /* PANEL.DAT */; };
+		409F7E73247B299200BB3B19 /* PANEL.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DCE247B299000BB3B19 /* PANEL.DAT */; };
+		409F7E74247B299200BB3B19 /* LEVELS.D97 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DCF247B299000BB3B19 /* LEVELS.D97 */; };
+		409F7E75247B299200BB3B19 /* LEVELS.D97 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DCF247B299000BB3B19 /* LEVELS.D97 */; };
+		409F7E76247B299200BB3B19 /* LEVEL.L10 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD0247B299000BB3B19 /* LEVEL.L10 */; };
+		409F7E77247B299200BB3B19 /* LEVEL.L10 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD0247B299000BB3B19 /* LEVEL.L10 */; };
+		409F7E78247B299200BB3B19 /* FIXED.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD1247B299000BB3B19 /* FIXED.DAT */; };
+		409F7E79247B299200BB3B19 /* FIXED.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD1247B299000BB3B19 /* FIXED.DAT */; };
+		409F7E7A247B299200BB3B19 /* SPLVLS08.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD2247B299000BB3B19 /* SPLVLS08.TXT */; };
+		409F7E7B247B299200BB3B19 /* SPLVLS08.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD2247B299000BB3B19 /* SPLVLS08.TXT */; };
+		409F7E7C247B299200BB3B19 /* CHARS8.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD3247B299000BB3B19 /* CHARS8.DAT */; };
+		409F7E7D247B299200BB3B19 /* CHARS8.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD3247B299000BB3B19 /* CHARS8.DAT */; };
+		409F7E7E247B299200BB3B19 /* LEVEL.L09 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD4247B299100BB3B19 /* LEVEL.L09 */; };
+		409F7E7F247B299200BB3B19 /* LEVEL.L09 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD4247B299100BB3B19 /* LEVEL.L09 */; };
+		409F7E80247B299200BB3B19 /* LEVEL.L94 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD5247B299100BB3B19 /* LEVEL.L94 */; };
+		409F7E81247B299200BB3B19 /* LEVEL.L94 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD5247B299100BB3B19 /* LEVEL.L94 */; };
+		409F7E82247B299200BB3B19 /* LEVEL.L12 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD6247B299100BB3B19 /* LEVEL.L12 */; };
+		409F7E83247B299200BB3B19 /* LEVEL.L12 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD6247B299100BB3B19 /* LEVEL.L12 */; };
+		409F7E84247B299200BB3B19 /* SPLVLS96.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD7247B299100BB3B19 /* SPLVLS96.TXT */; };
+		409F7E85247B299200BB3B19 /* SPLVLS96.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD7247B299100BB3B19 /* SPLVLS96.TXT */; };
+		409F7E86247B299200BB3B19 /* LEVEL.L11 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD8247B299100BB3B19 /* LEVEL.L11 */; };
+		409F7E87247B299200BB3B19 /* LEVEL.L11 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD8247B299100BB3B19 /* LEVEL.L11 */; };
+		409F7E88247B299200BB3B19 /* DEMO1.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD9247B299100BB3B19 /* DEMO1.BIN */; };
+		409F7E89247B299200BB3B19 /* DEMO1.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD9247B299100BB3B19 /* DEMO1.BIN */; };
+		409F7E8A247B299200BB3B19 /* LEVELS.D05 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DDA247B299100BB3B19 /* LEVELS.D05 */; };
+		409F7E8B247B299200BB3B19 /* LEVELS.D05 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DDA247B299100BB3B19 /* LEVELS.D05 */; };
 		40E6995424787DAE000ADD53 /* savegame.c in Sources */ = {isa = PBXBuildFile; fileRef = 40E6995324787DAE000ADD53 /* savegame.c */; };
 		40E6995524787DAE000ADD53 /* savegame.c in Sources */ = {isa = PBXBuildFile; fileRef = 40E6995324787DAE000ADD53 /* savegame.c */; };
 /* End PBXBuildFile section */
@@ -133,34 +253,6 @@
 		404879EF246C402B00B776FA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		40487A82246CB32400B776FA /* file.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = file.m; path = ../../../src/apple/file.m; sourceTree = "<group>"; };
 		40487A84246CB5D200B776FA /* audio */ = {isa = PBXFileReference; lastKnownFileType = folder; name = audio; path = ../../resources/audio; sourceTree = "<group>"; };
-		40487A86246CB5F500B776FA /* GFX.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = GFX.DAT; path = ../../resources/GFX.DAT; sourceTree = "<group>"; };
-		40487A87246CB5F500B776FA /* TITLE.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = TITLE.DAT; path = ../../resources/TITLE.DAT; sourceTree = "<group>"; };
-		40487A88246CB5F500B776FA /* CONTROLS.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = CONTROLS.DAT; path = ../../resources/CONTROLS.DAT; sourceTree = "<group>"; };
-		40487A89246CB5F500B776FA /* BACK.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = BACK.DAT; path = ../../resources/BACK.DAT; sourceTree = "<group>"; };
-		40487A8A246CB5F500B776FA /* DEMO1.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO1.BIN; path = ../../resources/DEMO1.BIN; sourceTree = "<group>"; };
-		40487A8B246CB5F500B776FA /* PALETTES.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = PALETTES.DAT; path = ../../resources/PALETTES.DAT; sourceTree = "<group>"; };
-		40487A8C246CB5F500B776FA /* DEMO5.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO5.BIN; path = ../../resources/DEMO5.BIN; sourceTree = "<group>"; };
-		40487A8D246CB5F500B776FA /* PANEL.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = PANEL.DAT; path = ../../resources/PANEL.DAT; sourceTree = "<group>"; };
-		40487A8E246CB5F500B776FA /* CHARS6.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = CHARS6.DAT; path = ../../resources/CHARS6.DAT; sourceTree = "<group>"; };
-		40487A8F246CB5F500B776FA /* DEMO0.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO0.BIN; path = ../../resources/DEMO0.BIN; sourceTree = "<group>"; };
-		40487A90246CB5F500B776FA /* README.TXT */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = README.TXT; path = ../../resources/README.TXT; sourceTree = "<group>"; };
-		40487A91246CB5F600B776FA /* DEMO7.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO7.BIN; path = ../../resources/DEMO7.BIN; sourceTree = "<group>"; };
-		40487A92246CB5F600B776FA /* SPFIX63.DOC */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SPFIX63.DOC; path = ../../resources/SPFIX63.DOC; sourceTree = "<group>"; };
-		40487A93246CB5F600B776FA /* MENU.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = MENU.DAT; path = ../../resources/MENU.DAT; sourceTree = "<group>"; };
-		40487A94246CB5F600B776FA /* CHARS8.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = CHARS8.DAT; path = ../../resources/CHARS8.DAT; sourceTree = "<group>"; };
-		40487A95246CB5F600B776FA /* DEMO2.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO2.BIN; path = ../../resources/DEMO2.BIN; sourceTree = "<group>"; };
-		40487A96246CB5F600B776FA /* DEMO3.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO3.BIN; path = ../../resources/DEMO3.BIN; sourceTree = "<group>"; };
-		40487A97246CB5F600B776FA /* DEMO6.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO6.BIN; path = ../../resources/DEMO6.BIN; sourceTree = "<group>"; };
-		40487A98246CB5F600B776FA /* DEMO8.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO8.BIN; path = ../../resources/DEMO8.BIN; sourceTree = "<group>"; };
-		40487A99246CB5F600B776FA /* MOVING.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = MOVING.DAT; path = ../../resources/MOVING.DAT; sourceTree = "<group>"; };
-		40487A9A246CB5F600B776FA /* DEMO4.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO4.BIN; path = ../../resources/DEMO4.BIN; sourceTree = "<group>"; };
-		40487A9B246CB5F600B776FA /* TITLE1.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = TITLE1.DAT; path = ../../resources/TITLE1.DAT; sourceTree = "<group>"; };
-		40487A9C246CB5F600B776FA /* LEVEL.LST */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LEVEL.LST; path = ../../resources/LEVEL.LST; sourceTree = "<group>"; };
-		40487A9D246CB5F600B776FA /* TITLE2.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = TITLE2.DAT; path = ../../resources/TITLE2.DAT; sourceTree = "<group>"; };
-		40487A9E246CB5F600B776FA /* myspsig.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = myspsig.txt; path = ../../resources/myspsig.txt; sourceTree = "<group>"; };
-		40487A9F246CB5F600B776FA /* FIXED.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = FIXED.DAT; path = ../../resources/FIXED.DAT; sourceTree = "<group>"; };
-		40487AA0246CB5F700B776FA /* DEMO9.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO9.BIN; path = ../../resources/DEMO9.BIN; sourceTree = "<group>"; };
-		40487AA1246CB5F700B776FA /* LEVELS.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.DAT; path = ../../resources/LEVELS.DAT; sourceTree = "<group>"; };
 		40487ABE246CB6DC00B776FA /* OpenSupaplex.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = OpenSupaplex.entitlements; path = OpenSupaplex/OpenSupaplex.entitlements; sourceTree = "<group>"; };
 		40517B132473EC57004E2435 /* graphics.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = graphics.h; path = ../../../src/graphics.h; sourceTree = "<group>"; };
 		40517B142473EC57004E2435 /* graphics.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = graphics.c; path = ../../../src/graphics.c; sourceTree = "<group>"; };
@@ -182,6 +274,94 @@
 		409F7B662479D45200BB3B19 /* buttonBorders.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = buttonBorders.c; path = ../../../src/buttonBorders.c; sourceTree = "<group>"; };
 		409F7B692479D56D00BB3B19 /* animations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = animations.h; path = ../../../src/animations.h; sourceTree = "<group>"; };
 		409F7B6A2479D56D00BB3B19 /* animations.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = animations.c; path = ../../../src/animations.c; sourceTree = "<group>"; };
+		409F7D83247B298900BB3B19 /* LEVEL.L04 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LEVEL.L04; path = ../../resources/LEVEL.L04; sourceTree = "<group>"; };
+		409F7D84247B298900BB3B19 /* myspsig.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = myspsig.txt; path = ../../resources/myspsig.txt; sourceTree = "<group>"; };
+		409F7D85247B298900BB3B19 /* LEVELS.D02 */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.D02; path = ../../resources/LEVELS.D02; sourceTree = "<group>"; };
+		409F7D86247B298900BB3B19 /* SPFIX63.DOC */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SPFIX63.DOC; path = ../../resources/SPFIX63.DOC; sourceTree = "<group>"; };
+		409F7D87247B298900BB3B19 /* LEVELS.D96 */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.D96; path = ../../resources/LEVELS.D96; sourceTree = "<group>"; };
+		409F7D88247B298900BB3B19 /* SPLVLS11.TXT */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SPLVLS11.TXT; path = ../../resources/SPLVLS11.TXT; sourceTree = "<group>"; };
+		409F7D89247B298900BB3B19 /* LEVELS.D07 */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.D07; path = ../../resources/LEVELS.D07; sourceTree = "<group>"; };
+		409F7D8A247B298900BB3B19 /* DEMO3.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO3.BIN; path = ../../resources/DEMO3.BIN; sourceTree = "<group>"; };
+		409F7D8B247B298900BB3B19 /* DEMO6.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO6.BIN; path = ../../resources/DEMO6.BIN; sourceTree = "<group>"; };
+		409F7D8C247B298900BB3B19 /* SPLVLS93.TXT */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SPLVLS93.TXT; path = ../../resources/SPLVLS93.TXT; sourceTree = "<group>"; };
+		409F7D8D247B298900BB3B19 /* SPLVLS04.TXT */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SPLVLS04.TXT; path = ../../resources/SPLVLS04.TXT; sourceTree = "<group>"; };
+		409F7D8E247B298900BB3B19 /* README.TXT */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = README.TXT; path = ../../resources/README.TXT; sourceTree = "<group>"; };
+		409F7D8F247B298900BB3B19 /* LEVEL.L27 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LEVEL.L27; path = ../../resources/LEVEL.L27; sourceTree = "<group>"; };
+		409F7D90247B298900BB3B19 /* LEVEL.L98 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LEVEL.L98; path = ../../resources/LEVEL.L98; sourceTree = "<group>"; };
+		409F7D91247B298A00BB3B19 /* LEVELS.D12 */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.D12; path = ../../resources/LEVELS.D12; sourceTree = "<group>"; };
+		409F7D92247B298A00BB3B19 /* LEVEL.L03 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LEVEL.L03; path = ../../resources/LEVEL.L03; sourceTree = "<group>"; };
+		409F7D93247B298A00BB3B19 /* DEMO7.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO7.BIN; path = ../../resources/DEMO7.BIN; sourceTree = "<group>"; };
+		409F7D94247B298A00BB3B19 /* SPLVLS02.TXT */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SPLVLS02.TXT; path = ../../resources/SPLVLS02.TXT; sourceTree = "<group>"; };
+		409F7D95247B298A00BB3B19 /* SPLVLS94.TXT */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SPLVLS94.TXT; path = ../../resources/SPLVLS94.TXT; sourceTree = "<group>"; };
+		409F7D96247B298A00BB3B19 /* SPLVLS01.TXT */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SPLVLS01.TXT; path = ../../resources/SPLVLS01.TXT; sourceTree = "<group>"; };
+		409F7D97247B298A00BB3B19 /* DEMO9.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO9.BIN; path = ../../resources/DEMO9.BIN; sourceTree = "<group>"; };
+		409F7D98247B298A00BB3B19 /* LEVEL.L95 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LEVEL.L95; path = ../../resources/LEVEL.L95; sourceTree = "<group>"; };
+		409F7D99247B298A00BB3B19 /* DEMO2.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO2.BIN; path = ../../resources/DEMO2.BIN; sourceTree = "<group>"; };
+		409F7D9A247B298A00BB3B19 /* SPLVLS07.TXT */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SPLVLS07.TXT; path = ../../resources/SPLVLS07.TXT; sourceTree = "<group>"; };
+		409F7D9B247B298A00BB3B19 /* LEVEL.L06 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LEVEL.L06; path = ../../resources/LEVEL.L06; sourceTree = "<group>"; };
+		409F7D9C247B298A00BB3B19 /* CONTROLS.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = CONTROLS.DAT; path = ../../resources/CONTROLS.DAT; sourceTree = "<group>"; };
+		409F7D9D247B298A00BB3B19 /* PALETTES.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = PALETTES.DAT; path = ../../resources/PALETTES.DAT; sourceTree = "<group>"; };
+		409F7D9E247B298B00BB3B19 /* SPLVLS10.TXT */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SPLVLS10.TXT; path = ../../resources/SPLVLS10.TXT; sourceTree = "<group>"; };
+		409F7D9F247B298B00BB3B19 /* SPLVLS98.TXT */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SPLVLS98.TXT; path = ../../resources/SPLVLS98.TXT; sourceTree = "<group>"; };
+		409F7DA0247B298B00BB3B19 /* LEVEL.L92 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LEVEL.L92; path = ../../resources/LEVEL.L92; sourceTree = "<group>"; };
+		409F7DA1247B298B00BB3B19 /* CHARS6.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = CHARS6.DAT; path = ../../resources/CHARS6.DAT; sourceTree = "<group>"; };
+		409F7DA2247B298B00BB3B19 /* SPLVLS05.TXT */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SPLVLS05.TXT; path = ../../resources/SPLVLS05.TXT; sourceTree = "<group>"; };
+		409F7DA3247B298B00BB3B19 /* DEMO4.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO4.BIN; path = ../../resources/DEMO4.BIN; sourceTree = "<group>"; };
+		409F7DA4247B298B00BB3B19 /* LEVELS.D03 */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.D03; path = ../../resources/LEVELS.D03; sourceTree = "<group>"; };
+		409F7DA5247B298B00BB3B19 /* LEVEL.L05 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LEVEL.L05; path = ../../resources/LEVEL.L05; sourceTree = "<group>"; };
+		409F7DA6247B298B00BB3B19 /* MENU.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = MENU.DAT; path = ../../resources/MENU.DAT; sourceTree = "<group>"; };
+		409F7DA7247B298B00BB3B19 /* SPLVLS09.TXT */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SPLVLS09.TXT; path = ../../resources/SPLVLS09.TXT; sourceTree = "<group>"; };
+		409F7DA8247B298C00BB3B19 /* TITLE2.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = TITLE2.DAT; path = ../../resources/TITLE2.DAT; sourceTree = "<group>"; };
+		409F7DA9247B298C00BB3B19 /* SPLVLS92.TXT */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SPLVLS92.TXT; path = ../../resources/SPLVLS92.TXT; sourceTree = "<group>"; };
+		409F7DAA247B298C00BB3B19 /* LEVELS.D98 */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.D98; path = ../../resources/LEVELS.D98; sourceTree = "<group>"; };
+		409F7DAB247B298C00BB3B19 /* LEVELS.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.DAT; path = ../../resources/LEVELS.DAT; sourceTree = "<group>"; };
+		409F7DAC247B298C00BB3B19 /* LEVELS.D11 */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.D11; path = ../../resources/LEVELS.D11; sourceTree = "<group>"; };
+		409F7DAD247B298C00BB3B19 /* TITLE1.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = TITLE1.DAT; path = ../../resources/TITLE1.DAT; sourceTree = "<group>"; };
+		409F7DAE247B298C00BB3B19 /* LEVELS.D94 */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.D94; path = ../../resources/LEVELS.D94; sourceTree = "<group>"; };
+		409F7DAF247B298C00BB3B19 /* DEMO5.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO5.BIN; path = ../../resources/DEMO5.BIN; sourceTree = "<group>"; };
+		409F7DB0247B298C00BB3B19 /* BACK.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = BACK.DAT; path = ../../resources/BACK.DAT; sourceTree = "<group>"; };
+		409F7DB1247B298C00BB3B19 /* LEVEL.LST */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LEVEL.LST; path = ../../resources/LEVEL.LST; sourceTree = "<group>"; };
+		409F7DB2247B298D00BB3B19 /* DEMO8.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO8.BIN; path = ../../resources/DEMO8.BIN; sourceTree = "<group>"; };
+		409F7DB3247B298D00BB3B19 /* GFX.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = GFX.DAT; path = ../../resources/GFX.DAT; sourceTree = "<group>"; };
+		409F7DB4247B298D00BB3B19 /* SPLVLS12.TXT */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SPLVLS12.TXT; path = ../../resources/SPLVLS12.TXT; sourceTree = "<group>"; };
+		409F7DB5247B298D00BB3B19 /* SPLVLS03.TXT */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SPLVLS03.TXT; path = ../../resources/SPLVLS03.TXT; sourceTree = "<group>"; };
+		409F7DB6247B298D00BB3B19 /* SPLVLS27.TXT */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SPLVLS27.TXT; path = ../../resources/SPLVLS27.TXT; sourceTree = "<group>"; };
+		409F7DB7247B298D00BB3B19 /* LEVELS.D27 */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.D27; path = ../../resources/LEVELS.D27; sourceTree = "<group>"; };
+		409F7DB8247B298D00BB3B19 /* LEVELS.D01 */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.D01; path = ../../resources/LEVELS.D01; sourceTree = "<group>"; };
+		409F7DB9247B298D00BB3B19 /* LEVEL.L08 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LEVEL.L08; path = ../../resources/LEVEL.L08; sourceTree = "<group>"; };
+		409F7DBA247B298E00BB3B19 /* SPLVLS95.TXT */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SPLVLS95.TXT; path = ../../resources/SPLVLS95.TXT; sourceTree = "<group>"; };
+		409F7DBB247B298E00BB3B19 /* SPLVLS97.TXT */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SPLVLS97.TXT; path = ../../resources/SPLVLS97.TXT; sourceTree = "<group>"; };
+		409F7DBC247B298E00BB3B19 /* LEVEL.L07 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LEVEL.L07; path = ../../resources/LEVEL.L07; sourceTree = "<group>"; };
+		409F7DBD247B298E00BB3B19 /* LEVEL.L96 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LEVEL.L96; path = ../../resources/LEVEL.L96; sourceTree = "<group>"; };
+		409F7DBE247B298E00BB3B19 /* LEVELS.D09 */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.D09; path = ../../resources/LEVELS.D09; sourceTree = "<group>"; };
+		409F7DBF247B298E00BB3B19 /* LEVEL.L93 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LEVEL.L93; path = ../../resources/LEVEL.L93; sourceTree = "<group>"; };
+		409F7DC0247B298E00BB3B19 /* LEVELS.D04 */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.D04; path = ../../resources/LEVELS.D04; sourceTree = "<group>"; };
+		409F7DC1247B298E00BB3B19 /* SPLVLS06.TXT */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SPLVLS06.TXT; path = ../../resources/SPLVLS06.TXT; sourceTree = "<group>"; };
+		409F7DC2247B298E00BB3B19 /* LEVEL.L02 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LEVEL.L02; path = ../../resources/LEVEL.L02; sourceTree = "<group>"; };
+		409F7DC3247B298F00BB3B19 /* MOVING.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = MOVING.DAT; path = ../../resources/MOVING.DAT; sourceTree = "<group>"; };
+		409F7DC4247B298F00BB3B19 /* LEVEL.L97 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LEVEL.L97; path = ../../resources/LEVEL.L97; sourceTree = "<group>"; };
+		409F7DC5247B298F00BB3B19 /* DEMO0.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO0.BIN; path = ../../resources/DEMO0.BIN; sourceTree = "<group>"; };
+		409F7DC6247B298F00BB3B19 /* LEVELS.D10 */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.D10; path = ../../resources/LEVELS.D10; sourceTree = "<group>"; };
+		409F7DC7247B298F00BB3B19 /* LEVELS.D92 */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.D92; path = ../../resources/LEVELS.D92; sourceTree = "<group>"; };
+		409F7DC8247B298F00BB3B19 /* LEVELS.D06 */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.D06; path = ../../resources/LEVELS.D06; sourceTree = "<group>"; };
+		409F7DC9247B298F00BB3B19 /* LEVEL.L01 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LEVEL.L01; path = ../../resources/LEVEL.L01; sourceTree = "<group>"; };
+		409F7DCA247B298F00BB3B19 /* LEVELS.D08 */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.D08; path = ../../resources/LEVELS.D08; sourceTree = "<group>"; };
+		409F7DCB247B298F00BB3B19 /* LEVELS.D93 */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.D93; path = ../../resources/LEVELS.D93; sourceTree = "<group>"; };
+		409F7DCC247B299000BB3B19 /* TITLE.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = TITLE.DAT; path = ../../resources/TITLE.DAT; sourceTree = "<group>"; };
+		409F7DCD247B299000BB3B19 /* LEVELS.D95 */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.D95; path = ../../resources/LEVELS.D95; sourceTree = "<group>"; };
+		409F7DCE247B299000BB3B19 /* PANEL.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = PANEL.DAT; path = ../../resources/PANEL.DAT; sourceTree = "<group>"; };
+		409F7DCF247B299000BB3B19 /* LEVELS.D97 */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.D97; path = ../../resources/LEVELS.D97; sourceTree = "<group>"; };
+		409F7DD0247B299000BB3B19 /* LEVEL.L10 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LEVEL.L10; path = ../../resources/LEVEL.L10; sourceTree = "<group>"; };
+		409F7DD1247B299000BB3B19 /* FIXED.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = FIXED.DAT; path = ../../resources/FIXED.DAT; sourceTree = "<group>"; };
+		409F7DD2247B299000BB3B19 /* SPLVLS08.TXT */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SPLVLS08.TXT; path = ../../resources/SPLVLS08.TXT; sourceTree = "<group>"; };
+		409F7DD3247B299000BB3B19 /* CHARS8.DAT */ = {isa = PBXFileReference; lastKnownFileType = file; name = CHARS8.DAT; path = ../../resources/CHARS8.DAT; sourceTree = "<group>"; };
+		409F7DD4247B299100BB3B19 /* LEVEL.L09 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LEVEL.L09; path = ../../resources/LEVEL.L09; sourceTree = "<group>"; };
+		409F7DD5247B299100BB3B19 /* LEVEL.L94 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LEVEL.L94; path = ../../resources/LEVEL.L94; sourceTree = "<group>"; };
+		409F7DD6247B299100BB3B19 /* LEVEL.L12 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LEVEL.L12; path = ../../resources/LEVEL.L12; sourceTree = "<group>"; };
+		409F7DD7247B299100BB3B19 /* SPLVLS96.TXT */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SPLVLS96.TXT; path = ../../resources/SPLVLS96.TXT; sourceTree = "<group>"; };
+		409F7DD8247B299100BB3B19 /* LEVEL.L11 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LEVEL.L11; path = ../../resources/LEVEL.L11; sourceTree = "<group>"; };
+		409F7DD9247B299100BB3B19 /* DEMO1.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO1.BIN; path = ../../resources/DEMO1.BIN; sourceTree = "<group>"; };
+		409F7DDA247B299100BB3B19 /* LEVELS.D05 */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.D05; path = ../../resources/LEVELS.D05; sourceTree = "<group>"; };
 		40C8290C24673197003A103E /* audio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = audio.h; path = ../../../src/audio.h; sourceTree = "<group>"; };
 		40C8290D24673197003A103E /* audio.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = audio.c; path = ../../../src/audio.c; sourceTree = "<group>"; };
 		40DA3CF62468717400D4A308 /* menu.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = menu.h; path = ../../../src/menu.h; sourceTree = "<group>"; };
@@ -220,34 +400,94 @@
 				404879EF246C402B00B776FA /* Assets.xcassets */,
 				40487ABE246CB6DC00B776FA /* OpenSupaplex.entitlements */,
 				40487A84246CB5D200B776FA /* audio */,
-				40487A89246CB5F500B776FA /* BACK.DAT */,
-				40487A8E246CB5F500B776FA /* CHARS6.DAT */,
-				40487A94246CB5F600B776FA /* CHARS8.DAT */,
-				40487A88246CB5F500B776FA /* CONTROLS.DAT */,
-				40487A8F246CB5F500B776FA /* DEMO0.BIN */,
-				40487A8A246CB5F500B776FA /* DEMO1.BIN */,
-				40487A95246CB5F600B776FA /* DEMO2.BIN */,
-				40487A96246CB5F600B776FA /* DEMO3.BIN */,
-				40487A9A246CB5F600B776FA /* DEMO4.BIN */,
-				40487A8C246CB5F500B776FA /* DEMO5.BIN */,
-				40487A97246CB5F600B776FA /* DEMO6.BIN */,
-				40487A91246CB5F600B776FA /* DEMO7.BIN */,
-				40487A98246CB5F600B776FA /* DEMO8.BIN */,
-				40487AA0246CB5F700B776FA /* DEMO9.BIN */,
-				40487A9F246CB5F600B776FA /* FIXED.DAT */,
-				40487A86246CB5F500B776FA /* GFX.DAT */,
-				40487A9C246CB5F600B776FA /* LEVEL.LST */,
-				40487AA1246CB5F700B776FA /* LEVELS.DAT */,
-				40487A93246CB5F600B776FA /* MENU.DAT */,
-				40487A99246CB5F600B776FA /* MOVING.DAT */,
-				40487A9E246CB5F600B776FA /* myspsig.txt */,
-				40487A8B246CB5F500B776FA /* PALETTES.DAT */,
-				40487A8D246CB5F500B776FA /* PANEL.DAT */,
-				40487A90246CB5F500B776FA /* README.TXT */,
-				40487A92246CB5F600B776FA /* SPFIX63.DOC */,
-				40487A87246CB5F500B776FA /* TITLE.DAT */,
-				40487A9B246CB5F600B776FA /* TITLE1.DAT */,
-				40487A9D246CB5F600B776FA /* TITLE2.DAT */,
+				409F7DB0247B298C00BB3B19 /* BACK.DAT */,
+				409F7DA1247B298B00BB3B19 /* CHARS6.DAT */,
+				409F7DD3247B299000BB3B19 /* CHARS8.DAT */,
+				409F7D9C247B298A00BB3B19 /* CONTROLS.DAT */,
+				409F7DC5247B298F00BB3B19 /* DEMO0.BIN */,
+				409F7DD9247B299100BB3B19 /* DEMO1.BIN */,
+				409F7D99247B298A00BB3B19 /* DEMO2.BIN */,
+				409F7D8A247B298900BB3B19 /* DEMO3.BIN */,
+				409F7DA3247B298B00BB3B19 /* DEMO4.BIN */,
+				409F7DAF247B298C00BB3B19 /* DEMO5.BIN */,
+				409F7D8B247B298900BB3B19 /* DEMO6.BIN */,
+				409F7D93247B298A00BB3B19 /* DEMO7.BIN */,
+				409F7DB2247B298D00BB3B19 /* DEMO8.BIN */,
+				409F7D97247B298A00BB3B19 /* DEMO9.BIN */,
+				409F7DD1247B299000BB3B19 /* FIXED.DAT */,
+				409F7DB3247B298D00BB3B19 /* GFX.DAT */,
+				409F7DC9247B298F00BB3B19 /* LEVEL.L01 */,
+				409F7DC2247B298E00BB3B19 /* LEVEL.L02 */,
+				409F7D92247B298A00BB3B19 /* LEVEL.L03 */,
+				409F7D83247B298900BB3B19 /* LEVEL.L04 */,
+				409F7DA5247B298B00BB3B19 /* LEVEL.L05 */,
+				409F7D9B247B298A00BB3B19 /* LEVEL.L06 */,
+				409F7DBC247B298E00BB3B19 /* LEVEL.L07 */,
+				409F7DB9247B298D00BB3B19 /* LEVEL.L08 */,
+				409F7DD4247B299100BB3B19 /* LEVEL.L09 */,
+				409F7DD0247B299000BB3B19 /* LEVEL.L10 */,
+				409F7DD8247B299100BB3B19 /* LEVEL.L11 */,
+				409F7DD6247B299100BB3B19 /* LEVEL.L12 */,
+				409F7D8F247B298900BB3B19 /* LEVEL.L27 */,
+				409F7DA0247B298B00BB3B19 /* LEVEL.L92 */,
+				409F7DBF247B298E00BB3B19 /* LEVEL.L93 */,
+				409F7DD5247B299100BB3B19 /* LEVEL.L94 */,
+				409F7D98247B298A00BB3B19 /* LEVEL.L95 */,
+				409F7DBD247B298E00BB3B19 /* LEVEL.L96 */,
+				409F7DC4247B298F00BB3B19 /* LEVEL.L97 */,
+				409F7D90247B298900BB3B19 /* LEVEL.L98 */,
+				409F7DB1247B298C00BB3B19 /* LEVEL.LST */,
+				409F7DB8247B298D00BB3B19 /* LEVELS.D01 */,
+				409F7D85247B298900BB3B19 /* LEVELS.D02 */,
+				409F7DA4247B298B00BB3B19 /* LEVELS.D03 */,
+				409F7DC0247B298E00BB3B19 /* LEVELS.D04 */,
+				409F7DDA247B299100BB3B19 /* LEVELS.D05 */,
+				409F7DC8247B298F00BB3B19 /* LEVELS.D06 */,
+				409F7D89247B298900BB3B19 /* LEVELS.D07 */,
+				409F7DCA247B298F00BB3B19 /* LEVELS.D08 */,
+				409F7DBE247B298E00BB3B19 /* LEVELS.D09 */,
+				409F7DC6247B298F00BB3B19 /* LEVELS.D10 */,
+				409F7DAC247B298C00BB3B19 /* LEVELS.D11 */,
+				409F7D91247B298A00BB3B19 /* LEVELS.D12 */,
+				409F7DB7247B298D00BB3B19 /* LEVELS.D27 */,
+				409F7DC7247B298F00BB3B19 /* LEVELS.D92 */,
+				409F7DCB247B298F00BB3B19 /* LEVELS.D93 */,
+				409F7DAE247B298C00BB3B19 /* LEVELS.D94 */,
+				409F7DCD247B299000BB3B19 /* LEVELS.D95 */,
+				409F7D87247B298900BB3B19 /* LEVELS.D96 */,
+				409F7DCF247B299000BB3B19 /* LEVELS.D97 */,
+				409F7DAA247B298C00BB3B19 /* LEVELS.D98 */,
+				409F7DAB247B298C00BB3B19 /* LEVELS.DAT */,
+				409F7DA6247B298B00BB3B19 /* MENU.DAT */,
+				409F7DC3247B298F00BB3B19 /* MOVING.DAT */,
+				409F7D84247B298900BB3B19 /* myspsig.txt */,
+				409F7D9D247B298A00BB3B19 /* PALETTES.DAT */,
+				409F7DCE247B299000BB3B19 /* PANEL.DAT */,
+				409F7D8E247B298900BB3B19 /* README.TXT */,
+				409F7D86247B298900BB3B19 /* SPFIX63.DOC */,
+				409F7D96247B298A00BB3B19 /* SPLVLS01.TXT */,
+				409F7D94247B298A00BB3B19 /* SPLVLS02.TXT */,
+				409F7DB5247B298D00BB3B19 /* SPLVLS03.TXT */,
+				409F7D8D247B298900BB3B19 /* SPLVLS04.TXT */,
+				409F7DA2247B298B00BB3B19 /* SPLVLS05.TXT */,
+				409F7DC1247B298E00BB3B19 /* SPLVLS06.TXT */,
+				409F7D9A247B298A00BB3B19 /* SPLVLS07.TXT */,
+				409F7DD2247B299000BB3B19 /* SPLVLS08.TXT */,
+				409F7DA7247B298B00BB3B19 /* SPLVLS09.TXT */,
+				409F7D9E247B298B00BB3B19 /* SPLVLS10.TXT */,
+				409F7D88247B298900BB3B19 /* SPLVLS11.TXT */,
+				409F7DB4247B298D00BB3B19 /* SPLVLS12.TXT */,
+				409F7DB6247B298D00BB3B19 /* SPLVLS27.TXT */,
+				409F7DA9247B298C00BB3B19 /* SPLVLS92.TXT */,
+				409F7D8C247B298900BB3B19 /* SPLVLS93.TXT */,
+				409F7D95247B298A00BB3B19 /* SPLVLS94.TXT */,
+				409F7DBA247B298E00BB3B19 /* SPLVLS95.TXT */,
+				409F7DD7247B299100BB3B19 /* SPLVLS96.TXT */,
+				409F7DBB247B298E00BB3B19 /* SPLVLS97.TXT */,
+				409F7D9F247B298B00BB3B19 /* SPLVLS98.TXT */,
+				409F7DCC247B299000BB3B19 /* TITLE.DAT */,
+				409F7DAD247B298C00BB3B19 /* TITLE1.DAT */,
+				409F7DA8247B298C00BB3B19 /* TITLE2.DAT */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -420,36 +660,96 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				40487AA8246CB5F700B776FA /* DEMO5.BIN in Resources */,
-				40487AA9246CB5F700B776FA /* PANEL.DAT in Resources */,
-				40487AAE246CB5F700B776FA /* SPFIX63.DOC in Resources */,
-				40487AA7246CB5F700B776FA /* PALETTES.DAT in Resources */,
-				40487AB2246CB5F700B776FA /* DEMO3.BIN in Resources */,
-				40487ABA246CB5F700B776FA /* myspsig.txt in Resources */,
-				40487AB9246CB5F700B776FA /* TITLE2.DAT in Resources */,
+				409F7E36247B299200BB3B19 /* BACK.DAT in Resources */,
+				409F7E3E247B299200BB3B19 /* SPLVLS12.TXT in Resources */,
+				409F7E7A247B299200BB3B19 /* SPLVLS08.TXT in Resources */,
+				409F7E00247B299100BB3B19 /* SPLVLS94.TXT in Resources */,
+				409F7E1A247B299200BB3B19 /* SPLVLS05.TXT in Resources */,
+				409F7E10247B299200BB3B19 /* PALETTES.DAT in Resources */,
+				409F7E06247B299100BB3B19 /* LEVEL.L95 in Resources */,
+				409F7E52247B299200BB3B19 /* LEVELS.D09 in Resources */,
+				409F7E12247B299200BB3B19 /* SPLVLS10.TXT in Resources */,
+				409F7E78247B299200BB3B19 /* FIXED.DAT in Resources */,
+				409F7E58247B299200BB3B19 /* SPLVLS06.TXT in Resources */,
+				409F7E02247B299100BB3B19 /* SPLVLS01.TXT in Resources */,
+				409F7E38247B299200BB3B19 /* LEVEL.LST in Resources */,
+				409F7E5E247B299200BB3B19 /* LEVEL.L97 in Resources */,
+				409F7E32247B299200BB3B19 /* LEVELS.D94 in Resources */,
+				409F7E4E247B299200BB3B19 /* LEVEL.L07 in Resources */,
+				409F7E7E247B299200BB3B19 /* LEVEL.L09 in Resources */,
+				409F7E48247B299200BB3B19 /* LEVEL.L08 in Resources */,
+				409F7E50247B299200BB3B19 /* LEVEL.L96 in Resources */,
+				409F7DE6247B299100BB3B19 /* SPLVLS11.TXT in Resources */,
+				409F7E16247B299200BB3B19 /* LEVEL.L92 in Resources */,
+				409F7E4C247B299200BB3B19 /* SPLVLS97.TXT in Resources */,
+				409F7E70247B299200BB3B19 /* LEVELS.D95 in Resources */,
+				409F7E64247B299200BB3B19 /* LEVELS.D92 in Resources */,
+				409F7DE2247B299100BB3B19 /* SPFIX63.DOC in Resources */,
+				409F7DE4247B299100BB3B19 /* LEVELS.D96 in Resources */,
 				40487A85246CB5D200B776FA /* audio in Resources */,
-				40487AAC246CB5F700B776FA /* README.TXT in Resources */,
-				40487AB7246CB5F700B776FA /* TITLE1.DAT in Resources */,
-				40487AA3246CB5F700B776FA /* TITLE.DAT in Resources */,
-				40487AAD246CB5F700B776FA /* DEMO7.BIN in Resources */,
-				40487ABC246CB5F700B776FA /* DEMO9.BIN in Resources */,
-				40487AB6246CB5F700B776FA /* DEMO4.BIN in Resources */,
-				40487AA5246CB5F700B776FA /* BACK.DAT in Resources */,
-				40487AAB246CB5F700B776FA /* DEMO0.BIN in Resources */,
-				40487AAF246CB5F700B776FA /* MENU.DAT in Resources */,
-				40487AB3246CB5F700B776FA /* DEMO6.BIN in Resources */,
+				409F7DF2247B299100BB3B19 /* README.TXT in Resources */,
+				409F7E18247B299200BB3B19 /* CHARS6.DAT in Resources */,
+				409F7E62247B299200BB3B19 /* LEVELS.D10 in Resources */,
+				409F7E2E247B299200BB3B19 /* LEVELS.D11 in Resources */,
+				409F7E04247B299100BB3B19 /* DEMO9.BIN in Resources */,
+				409F7E0A247B299100BB3B19 /* SPLVLS07.TXT in Resources */,
+				409F7DEA247B299100BB3B19 /* DEMO3.BIN in Resources */,
+				409F7E8A247B299200BB3B19 /* LEVELS.D05 in Resources */,
+				409F7DDE247B299100BB3B19 /* myspsig.txt in Resources */,
+				409F7E6A247B299200BB3B19 /* LEVELS.D08 in Resources */,
+				409F7E2C247B299200BB3B19 /* LEVELS.DAT in Resources */,
+				409F7DF4247B299100BB3B19 /* LEVEL.L27 in Resources */,
+				409F7E1E247B299200BB3B19 /* LEVELS.D03 in Resources */,
+				409F7DFE247B299100BB3B19 /* SPLVLS02.TXT in Resources */,
+				409F7E14247B299200BB3B19 /* SPLVLS98.TXT in Resources */,
+				409F7DF0247B299100BB3B19 /* SPLVLS04.TXT in Resources */,
+				409F7E84247B299200BB3B19 /* SPLVLS96.TXT in Resources */,
+				409F7E40247B299200BB3B19 /* SPLVLS03.TXT in Resources */,
+				409F7E0E247B299200BB3B19 /* CONTROLS.DAT in Resources */,
+				409F7DEE247B299100BB3B19 /* SPLVLS93.TXT in Resources */,
+				409F7E24247B299200BB3B19 /* SPLVLS09.TXT in Resources */,
+				409F7E30247B299200BB3B19 /* TITLE1.DAT in Resources */,
+				409F7E42247B299200BB3B19 /* SPLVLS27.TXT in Resources */,
+				409F7E28247B299200BB3B19 /* SPLVLS92.TXT in Resources */,
+				409F7E4A247B299200BB3B19 /* SPLVLS95.TXT in Resources */,
+				409F7E20247B299200BB3B19 /* LEVEL.L05 in Resources */,
+				409F7E5A247B299200BB3B19 /* LEVEL.L02 in Resources */,
+				409F7E86247B299200BB3B19 /* LEVEL.L11 in Resources */,
+				409F7DEC247B299100BB3B19 /* DEMO6.BIN in Resources */,
+				409F7E5C247B299200BB3B19 /* MOVING.DAT in Resources */,
+				409F7E56247B299200BB3B19 /* LEVELS.D04 in Resources */,
+				409F7E72247B299200BB3B19 /* PANEL.DAT in Resources */,
+				409F7E60247B299200BB3B19 /* DEMO0.BIN in Resources */,
+				409F7E2A247B299200BB3B19 /* LEVELS.D98 in Resources */,
+				409F7DE8247B299100BB3B19 /* LEVELS.D07 in Resources */,
+				409F7DF6247B299100BB3B19 /* LEVEL.L98 in Resources */,
+				409F7E46247B299200BB3B19 /* LEVELS.D01 in Resources */,
+				409F7DFC247B299100BB3B19 /* DEMO7.BIN in Resources */,
+				409F7DF8247B299100BB3B19 /* LEVELS.D12 in Resources */,
+				409F7E76247B299200BB3B19 /* LEVEL.L10 in Resources */,
+				409F7E74247B299200BB3B19 /* LEVELS.D97 in Resources */,
+				409F7E3C247B299200BB3B19 /* GFX.DAT in Resources */,
+				409F7DDC247B299100BB3B19 /* LEVEL.L04 in Resources */,
+				409F7E44247B299200BB3B19 /* LEVELS.D27 in Resources */,
+				409F7E82247B299200BB3B19 /* LEVEL.L12 in Resources */,
+				409F7E54247B299200BB3B19 /* LEVEL.L93 in Resources */,
+				409F7E08247B299100BB3B19 /* DEMO2.BIN in Resources */,
+				409F7E80247B299200BB3B19 /* LEVEL.L94 in Resources */,
+				409F7E88247B299200BB3B19 /* DEMO1.BIN in Resources */,
 				404879F0246C402B00B776FA /* Assets.xcassets in Resources */,
-				40487AB0246CB5F700B776FA /* CHARS8.DAT in Resources */,
-				40487AB4246CB5F700B776FA /* DEMO8.BIN in Resources */,
-				40487AB5246CB5F700B776FA /* MOVING.DAT in Resources */,
-				40487AB1246CB5F700B776FA /* DEMO2.BIN in Resources */,
-				40487ABB246CB5F700B776FA /* FIXED.DAT in Resources */,
-				40487AA4246CB5F700B776FA /* CONTROLS.DAT in Resources */,
-				40487ABD246CB5F700B776FA /* LEVELS.DAT in Resources */,
-				40487AAA246CB5F700B776FA /* CHARS6.DAT in Resources */,
-				40487AA6246CB5F700B776FA /* DEMO1.BIN in Resources */,
-				40487AB8246CB5F700B776FA /* LEVEL.LST in Resources */,
-				40487AA2246CB5F700B776FA /* GFX.DAT in Resources */,
+				409F7E34247B299200BB3B19 /* DEMO5.BIN in Resources */,
+				409F7DFA247B299100BB3B19 /* LEVEL.L03 in Resources */,
+				409F7E6E247B299200BB3B19 /* TITLE.DAT in Resources */,
+				409F7E1C247B299200BB3B19 /* DEMO4.BIN in Resources */,
+				409F7E0C247B299100BB3B19 /* LEVEL.L06 in Resources */,
+				409F7E26247B299200BB3B19 /* TITLE2.DAT in Resources */,
+				409F7E6C247B299200BB3B19 /* LEVELS.D93 in Resources */,
+				409F7E22247B299200BB3B19 /* MENU.DAT in Resources */,
+				409F7E7C247B299200BB3B19 /* CHARS8.DAT in Resources */,
+				409F7E66247B299200BB3B19 /* LEVELS.D06 in Resources */,
+				409F7E68247B299200BB3B19 /* LEVEL.L01 in Resources */,
+				409F7DE0247B299100BB3B19 /* LEVELS.D02 in Resources */,
+				409F7E3A247B299200BB3B19 /* DEMO8.BIN in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -457,36 +757,96 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				40564329247032640042F34B /* DEMO5.BIN in Resources */,
-				4056432A247032640042F34B /* PANEL.DAT in Resources */,
-				4056432B247032640042F34B /* SPFIX63.DOC in Resources */,
-				4056432C247032640042F34B /* PALETTES.DAT in Resources */,
-				4056432D247032640042F34B /* DEMO3.BIN in Resources */,
-				4056432E247032640042F34B /* myspsig.txt in Resources */,
-				4056432F247032640042F34B /* TITLE2.DAT in Resources */,
+				409F7E37247B299200BB3B19 /* BACK.DAT in Resources */,
+				409F7E3F247B299200BB3B19 /* SPLVLS12.TXT in Resources */,
+				409F7E7B247B299200BB3B19 /* SPLVLS08.TXT in Resources */,
+				409F7E01247B299100BB3B19 /* SPLVLS94.TXT in Resources */,
+				409F7E1B247B299200BB3B19 /* SPLVLS05.TXT in Resources */,
+				409F7E11247B299200BB3B19 /* PALETTES.DAT in Resources */,
+				409F7E07247B299100BB3B19 /* LEVEL.L95 in Resources */,
+				409F7E53247B299200BB3B19 /* LEVELS.D09 in Resources */,
+				409F7E13247B299200BB3B19 /* SPLVLS10.TXT in Resources */,
+				409F7E79247B299200BB3B19 /* FIXED.DAT in Resources */,
+				409F7E59247B299200BB3B19 /* SPLVLS06.TXT in Resources */,
+				409F7E03247B299100BB3B19 /* SPLVLS01.TXT in Resources */,
+				409F7E39247B299200BB3B19 /* LEVEL.LST in Resources */,
+				409F7E5F247B299200BB3B19 /* LEVEL.L97 in Resources */,
+				409F7E33247B299200BB3B19 /* LEVELS.D94 in Resources */,
+				409F7E4F247B299200BB3B19 /* LEVEL.L07 in Resources */,
+				409F7E7F247B299200BB3B19 /* LEVEL.L09 in Resources */,
+				409F7E49247B299200BB3B19 /* LEVEL.L08 in Resources */,
+				409F7E51247B299200BB3B19 /* LEVEL.L96 in Resources */,
+				409F7DE7247B299100BB3B19 /* SPLVLS11.TXT in Resources */,
+				409F7E17247B299200BB3B19 /* LEVEL.L92 in Resources */,
+				409F7E4D247B299200BB3B19 /* SPLVLS97.TXT in Resources */,
+				409F7E71247B299200BB3B19 /* LEVELS.D95 in Resources */,
+				409F7E65247B299200BB3B19 /* LEVELS.D92 in Resources */,
+				409F7DE3247B299100BB3B19 /* SPFIX63.DOC in Resources */,
+				409F7DE5247B299100BB3B19 /* LEVELS.D96 in Resources */,
 				40564330247032640042F34B /* audio in Resources */,
-				40564331247032640042F34B /* README.TXT in Resources */,
-				40564332247032640042F34B /* TITLE1.DAT in Resources */,
-				40564333247032640042F34B /* TITLE.DAT in Resources */,
-				40564334247032640042F34B /* DEMO7.BIN in Resources */,
-				40564335247032640042F34B /* DEMO9.BIN in Resources */,
-				40564336247032640042F34B /* DEMO4.BIN in Resources */,
-				40564337247032640042F34B /* BACK.DAT in Resources */,
-				40564338247032640042F34B /* DEMO0.BIN in Resources */,
-				40564339247032640042F34B /* MENU.DAT in Resources */,
-				4056433A247032640042F34B /* DEMO6.BIN in Resources */,
+				409F7DF3247B299100BB3B19 /* README.TXT in Resources */,
+				409F7E19247B299200BB3B19 /* CHARS6.DAT in Resources */,
+				409F7E63247B299200BB3B19 /* LEVELS.D10 in Resources */,
+				409F7E2F247B299200BB3B19 /* LEVELS.D11 in Resources */,
+				409F7E05247B299100BB3B19 /* DEMO9.BIN in Resources */,
+				409F7E0B247B299100BB3B19 /* SPLVLS07.TXT in Resources */,
+				409F7DEB247B299100BB3B19 /* DEMO3.BIN in Resources */,
+				409F7E8B247B299200BB3B19 /* LEVELS.D05 in Resources */,
+				409F7DDF247B299100BB3B19 /* myspsig.txt in Resources */,
+				409F7E6B247B299200BB3B19 /* LEVELS.D08 in Resources */,
+				409F7E2D247B299200BB3B19 /* LEVELS.DAT in Resources */,
+				409F7DF5247B299100BB3B19 /* LEVEL.L27 in Resources */,
+				409F7E1F247B299200BB3B19 /* LEVELS.D03 in Resources */,
+				409F7DFF247B299100BB3B19 /* SPLVLS02.TXT in Resources */,
+				409F7E15247B299200BB3B19 /* SPLVLS98.TXT in Resources */,
+				409F7DF1247B299100BB3B19 /* SPLVLS04.TXT in Resources */,
+				409F7E85247B299200BB3B19 /* SPLVLS96.TXT in Resources */,
+				409F7E41247B299200BB3B19 /* SPLVLS03.TXT in Resources */,
+				409F7E0F247B299200BB3B19 /* CONTROLS.DAT in Resources */,
+				409F7DEF247B299100BB3B19 /* SPLVLS93.TXT in Resources */,
+				409F7E25247B299200BB3B19 /* SPLVLS09.TXT in Resources */,
+				409F7E31247B299200BB3B19 /* TITLE1.DAT in Resources */,
+				409F7E43247B299200BB3B19 /* SPLVLS27.TXT in Resources */,
+				409F7E29247B299200BB3B19 /* SPLVLS92.TXT in Resources */,
+				409F7E4B247B299200BB3B19 /* SPLVLS95.TXT in Resources */,
+				409F7E21247B299200BB3B19 /* LEVEL.L05 in Resources */,
+				409F7E5B247B299200BB3B19 /* LEVEL.L02 in Resources */,
+				409F7E87247B299200BB3B19 /* LEVEL.L11 in Resources */,
+				409F7DED247B299100BB3B19 /* DEMO6.BIN in Resources */,
+				409F7E5D247B299200BB3B19 /* MOVING.DAT in Resources */,
+				409F7E57247B299200BB3B19 /* LEVELS.D04 in Resources */,
+				409F7E73247B299200BB3B19 /* PANEL.DAT in Resources */,
+				409F7E61247B299200BB3B19 /* DEMO0.BIN in Resources */,
+				409F7E2B247B299200BB3B19 /* LEVELS.D98 in Resources */,
+				409F7DE9247B299100BB3B19 /* LEVELS.D07 in Resources */,
+				409F7DF7247B299100BB3B19 /* LEVEL.L98 in Resources */,
+				409F7E47247B299200BB3B19 /* LEVELS.D01 in Resources */,
+				409F7DFD247B299100BB3B19 /* DEMO7.BIN in Resources */,
+				409F7DF9247B299100BB3B19 /* LEVELS.D12 in Resources */,
+				409F7E77247B299200BB3B19 /* LEVEL.L10 in Resources */,
+				409F7E75247B299200BB3B19 /* LEVELS.D97 in Resources */,
+				409F7E3D247B299200BB3B19 /* GFX.DAT in Resources */,
+				409F7DDD247B299100BB3B19 /* LEVEL.L04 in Resources */,
+				409F7E45247B299200BB3B19 /* LEVELS.D27 in Resources */,
+				409F7E83247B299200BB3B19 /* LEVEL.L12 in Resources */,
+				409F7E55247B299200BB3B19 /* LEVEL.L93 in Resources */,
+				409F7E09247B299100BB3B19 /* DEMO2.BIN in Resources */,
+				409F7E81247B299200BB3B19 /* LEVEL.L94 in Resources */,
+				409F7E89247B299200BB3B19 /* DEMO1.BIN in Resources */,
 				4056433B247032640042F34B /* Assets.xcassets in Resources */,
-				4056433C247032640042F34B /* CHARS8.DAT in Resources */,
-				4056433D247032640042F34B /* DEMO8.BIN in Resources */,
-				4056433E247032640042F34B /* MOVING.DAT in Resources */,
-				4056433F247032640042F34B /* DEMO2.BIN in Resources */,
-				40564340247032640042F34B /* FIXED.DAT in Resources */,
-				40564341247032640042F34B /* CONTROLS.DAT in Resources */,
-				40564342247032640042F34B /* LEVELS.DAT in Resources */,
-				40564343247032640042F34B /* CHARS6.DAT in Resources */,
-				40564344247032640042F34B /* DEMO1.BIN in Resources */,
-				40564345247032640042F34B /* LEVEL.LST in Resources */,
-				40564346247032640042F34B /* GFX.DAT in Resources */,
+				409F7E35247B299200BB3B19 /* DEMO5.BIN in Resources */,
+				409F7DFB247B299100BB3B19 /* LEVEL.L03 in Resources */,
+				409F7E6F247B299200BB3B19 /* TITLE.DAT in Resources */,
+				409F7E1D247B299200BB3B19 /* DEMO4.BIN in Resources */,
+				409F7E0D247B299100BB3B19 /* LEVEL.L06 in Resources */,
+				409F7E27247B299200BB3B19 /* TITLE2.DAT in Resources */,
+				409F7E6D247B299200BB3B19 /* LEVELS.D93 in Resources */,
+				409F7E23247B299200BB3B19 /* MENU.DAT in Resources */,
+				409F7E7D247B299200BB3B19 /* CHARS8.DAT in Resources */,
+				409F7E67247B299200BB3B19 /* LEVELS.D06 in Resources */,
+				409F7E69247B299200BB3B19 /* LEVEL.L01 in Resources */,
+				409F7DE1247B299100BB3B19 /* LEVELS.D02 in Resources */,
+				409F7E3B247B299200BB3B19 /* DEMO8.BIN in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

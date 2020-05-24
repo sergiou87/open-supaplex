@@ -155,7 +155,6 @@ vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
   FILE ../resources/DEMO9.BIN DEMO9.BIN
   FILE ../resources/FIXED.DAT FIXED.DAT
   FILE ../resources/GFX.DAT GFX.DAT
-  FILE ../resources/HALLFAME.LST HALLFAME.LST
   FILE ../resources/LEVEL.L01 LEVEL.L01
   FILE ../resources/LEVEL.L02 LEVEL.L02
   FILE ../resources/LEVEL.L03 LEVEL.L03
