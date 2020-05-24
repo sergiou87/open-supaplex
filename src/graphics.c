@@ -1093,6 +1093,62 @@ void clearAdditionalInfoInGamePanel() // loc_4FD7D:              ; CODE XREF: cl
     }
 }
 
+uint8_t gAdvancedOptionsMenuBaseBitmap[kFullScreenFramebufferLength];
+
+void saveScreenForAdvancedMenu()
+{
+    memcpy(gAdvancedOptionsMenuBaseBitmap, gScreenPixels, sizeof(gAdvancedOptionsMenuBaseBitmap));
+}
+
+void restoreScreenFromAdvancedMenu()
+{
+    memcpy(gScreenPixels, gAdvancedOptionsMenuBaseBitmap, sizeof(gAdvancedOptionsMenuBaseBitmap));
+}
+
+void renderAdvancedOptionsMenu(AdvancedOptionsMenu *menu)
+{
+    memcpy(gScreenPixels, gAdvancedOptionsMenuBaseBitmap, sizeof(gAdvancedOptionsMenuBaseBitmap));
+
+    char entryTitleBuffer[kMaxAdvancedOptionsMenuEntryTitleLength];
+
+    static const uint16_t kInitialMenuX = 104;
+    static const uint16_t kInitialMenuY = 16;
+    static const uint16_t kLinesBelowTitle = 2;
+
+    static const uint8_t kTitleTextColorIndex = 253;
+    static const uint8_t kEntryTextColorIndex = 254;
+    static const uint8_t kSelectedEntryTextColorIndex = 255;
+
+    setGlobalPaletteColor(kTitleTextColorIndex, (Color) { 255, 255, 255 });
+    setGlobalPaletteColor(kEntryTextColorIndex, (Color) { 180, 180, 180 });
+    setGlobalPaletteColor(kSelectedEntryTextColorIndex, (Color) { 224, 16, 16 });
+
+    const uint16_t kMenuTitleX = (kScreenWidth - strlen(menu->title) * kBitmapFontCharacter6Width) / 2;
+
+    drawTextWithChars6FontWithTransparentBackground(kMenuTitleX, kInitialMenuY, kTitleTextColorIndex, menu->title);
+
+    for (int i = 0; i < menu->numberOfEntries; ++i)
+    {
+        AdvancedOptionsMenuEntry entries = menu->entries[i];
+
+        uint8_t color = (i == menu->selectedEntryIndex
+                         ? kSelectedEntryTextColorIndex
+                         : kEntryTextColorIndex);
+
+        char *title = entries.title;
+
+        if (entries.titleBuilder)
+        {
+            entries.titleBuilder(entryTitleBuffer);
+            title = entryTitleBuffer;
+        }
+
+        drawTextWithChars6FontWithTransparentBackground(kInitialMenuX, kInitialMenuY + (i + kLinesBelowTitle) * (kBitmapFontCharacterHeight + 1), color, title);
+    }
+
+    videoLoop();
+}
+
 void drawTextWithChars6FontWithOpaqueBackground(size_t destX, size_t destY, uint8_t color, const char *text) // loc_4BA8D:             // ; CODE XREF: drawTextWithChars6FontWithOpaqueBackgroundIfPossible:loc_4BDECj
 {
     if (gFastMode == FastModeTypeUltra)

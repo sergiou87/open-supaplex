@@ -712,8 +712,6 @@ void int9handler(uint8_t shouldYieldCpu);
 void updateDemoRecordingLowestSpeed(void);
 void playDemo(uint16_t demoIndex);
 
-uint8_t gAdvancedOptionsMenuBaseBitmap[kFullScreenFramebufferLength];
-
 static const char *kAdvancedConfigGeneralSection = "general";
 static const char *kAdvancedConfigDebugSection = "debug";
 
@@ -813,50 +811,6 @@ void writeAdvancedConfig()
     writeConfigInt(config, kAdvancedConfigDisplayFPSKey, gShouldShowFPS);
 
     destroyConfig(config);
-}
-
-void renderAdvancedOptionsMenu(AdvancedOptionsMenu *menu)
-{
-    memcpy(gScreenPixels, gAdvancedOptionsMenuBaseBitmap, sizeof(gAdvancedOptionsMenuBaseBitmap));
-
-    char entryTitleBuffer[kMaxAdvancedOptionsMenuEntryTitleLength];
-
-    static const uint16_t kInitialMenuX = 104;
-    static const uint16_t kInitialMenuY = 16;
-    static const uint16_t kLinesBelowTitle = 2;
-
-    static const uint8_t kTitleTextColorIndex = 253;
-    static const uint8_t kEntryTextColorIndex = 254;
-    static const uint8_t kSelectedEntryTextColorIndex = 255;
-
-    setGlobalPaletteColor(kTitleTextColorIndex, (Color) { 255, 255, 255 });
-    setGlobalPaletteColor(kEntryTextColorIndex, (Color) { 180, 180, 180 });
-    setGlobalPaletteColor(kSelectedEntryTextColorIndex, (Color) { 224, 16, 16 });
-
-    const uint16_t kMenuTitleX = (kScreenWidth - strlen(menu->title) * kBitmapFontCharacter6Width) / 2;
-
-    drawTextWithChars6FontWithTransparentBackground(kMenuTitleX, kInitialMenuY, kTitleTextColorIndex, menu->title);
-
-    for (int i = 0; i < menu->numberOfEntries; ++i)
-    {
-        AdvancedOptionsMenuEntry entries = menu->entries[i];
-
-        uint8_t color = (i == menu->selectedEntryIndex
-                         ? kSelectedEntryTextColorIndex
-                         : kEntryTextColorIndex);
-
-        char *title = entries.title;
-
-        if (entries.titleBuilder)
-        {
-            entries.titleBuilder(entryTitleBuffer);
-            title = entryTitleBuffer;
-        }
-
-        drawTextWithChars6FontWithTransparentBackground(kInitialMenuX, kInitialMenuY + (i + kLinesBelowTitle) * (kBitmapFontCharacterHeight + 1), color, title);
-    }
-
-    videoLoop();
 }
 
 /// @return 1 if the action was to go back / close the menu
@@ -1524,7 +1478,7 @@ void runAdvancedOptionsRootMenu()
 
     gShouldCloseAdvancedMenu = 0;
 
-    memcpy(gAdvancedOptionsMenuBaseBitmap, gScreenPixels, sizeof(gAdvancedOptionsMenuBaseBitmap));
+    saveScreenForAdvancedMenu();
 
     setPalette(gGameDimmedPalette);
 
@@ -1532,7 +1486,7 @@ void runAdvancedOptionsRootMenu()
 
     writeAdvancedConfig();
 
-    memcpy(gScreenPixels, gAdvancedOptionsMenuBaseBitmap, sizeof(gAdvancedOptionsMenuBaseBitmap));
+    restoreScreenFromAdvancedMenu();
     videoLoop();
 
     setPalette(gGamePalette);

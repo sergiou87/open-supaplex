@@ -21,6 +21,7 @@
 #include <stdint.h>
 
 #include "globals.h"
+#include "menu.h"
 #include "video.h"
 
 #define kPaleteDataSize (kNumberOfColors * 4)
@@ -101,6 +102,10 @@ void scrollTerminalScreen(int16_t position);
 
 void clearGamePanel(void);
 void clearAdditionalInfoInGamePanel(void);
+
+void saveScreenForAdvancedMenu(void);
+void restoreScreenFromAdvancedMenu(void);
+void renderAdvancedOptionsMenu(AdvancedOptionsMenu *menu);
 
 void drawTextWithChars6FontWithOpaqueBackground(size_t destX, size_t destY, uint8_t color, const char *text);
 void drawTextWithChars6FontWithTransparentBackground(size_t destX, size_t destY, uint8_t color, const char *text);
