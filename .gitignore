@@ -18,6 +18,9 @@ resources/HALLFAME.*
 linux/OpenSupaplex-linux
 linux/opensupaplex*
 
+# Windows stuff
+windows/OpenSupaplex*
+
 # PS Vita stuff
 vita/debugnetip.txt
 vita/resources/
