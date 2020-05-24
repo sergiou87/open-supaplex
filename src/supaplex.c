@@ -89,8 +89,8 @@ uint8_t byte_59822 = 0; //
 uint8_t byte_59823 = 0; //
 uint8_t gDemoRecordingRandomGeneratorSeedHigh = 0; // byte_59B5C
 uint8_t gDemoRecordingRandomGeneratorSeedLow = 0; // byte_59B5F
-uint8_t byte_59B7A = 0; // data_subrest ?
-uint8_t byte_59B7B = 1; // data_subrstflg ?
+uint8_t gToggleFancyEasyTilesThrottleCounter = 0; // byte_59B7A -> data_subrest
+uint8_t gIsShowingFancyTiles = 1; // byte_59B7B -> data_subrstflg
 uint8_t gToggleGravityAutorepeatFlag = 0; // byte_59B7C
 uint8_t gToggleZonksFrozenAutorepeatFlag = 0; // byte_59B7D
 uint8_t gToggleEnemiesFrozenAutorepeatFlag = 0; // byte_59B7E
@@ -653,7 +653,7 @@ void initializeGameInfo(void);
 void drawGamePanel(void);
 void drawNumberOfRemainingInfotrons(void);
 void drawGameTime(void);
-void sub_4A2E6(void);
+void convertToEasyTiles(void);
 void resetNumberOfInfotrons(void);
 void findMurphy(void);
 void drawGamePanelText(void);
@@ -670,7 +670,7 @@ void saveGameSnapshot(void);
 void loadGameSnapshot(void);
 void checkDebugKeys(void);
 void loc_4988E(void);
-void levelScanThing(void);
+void restoreOriginalFancyTiles(void);
 void updateMovingObjects(void);
 int16_t updateMurphy(int16_t position);
 int16_t updateMurphyAnimation(int16_t position);
@@ -691,7 +691,7 @@ void restartLevelWithoutAddingCurrentGameTimeToPlayer(void);
 void recordDemo(uint16_t demoIndex);
 void stopRecordingDemo(void);
 void debugSkipLevel(void);
-void sub_49D53(void);
+void forceRestoreOriginalFancyTiles(void);
 void drawNumberOfRemainingRedDisks(void);
 void clearAdditionalInfoInGamePanelIfNeeded(void);
 void updatePlantedRedDisk(void);
@@ -1650,7 +1650,7 @@ int main(int argc, char *argv[])
             initializeGameInfo();
             drawFixedLevel();
             drawGamePanel(); // 01ED:0311
-            sub_4A2E6();
+            convertToEasyTiles();
             resetNumberOfInfotrons();
             findMurphy();
             gCurrentPanelHeight = kPanelBitmapHeight;
@@ -4235,20 +4235,20 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 //loc_48B38:              ; CODE XREF: runLevel+6Ej runLevel+75j
         if (gIsDebugModeEnabled != 0)
         {
-            if (byte_59B7A != 0)
+            if (gToggleFancyEasyTilesThrottleCounter != 0)
             {
-                byte_59B7A--;
+                gToggleFancyEasyTilesThrottleCounter--;
             }
 
 //loc_48B4A:              ; CODE XREF: runLevel+89j
             if (gIsEnterPressed == 0
                 && mouseButtonsStatus == MouseButtonLeft //cmp bx, 1
-                && byte_59B7A == 0)
+                && gToggleFancyEasyTilesThrottleCounter == 0)
             {
-                byte_59B7A = 0xA;
-                levelScanThing(); // 01ED:1EFF
+                gToggleFancyEasyTilesThrottleCounter = 0xA;
+                restoreOriginalFancyTiles(); // 01ED:1EFF
                 drawFixedLevel();
-                sub_4A2E6();
+                convertToEasyTiles();
             }
         }
 
@@ -5277,7 +5277,7 @@ void loadGameSnapshot() // loc_49A89:              ; CODE XREF: handleGameUserIn
         return;
     }
 
-    sub_49D53();
+    forceRestoreOriginalFancyTiles();
 
 //loc_49B84:              ; CODE XREF: handleGameUserInput+619j
 //                    ; handleGameUserInput+624j
@@ -5299,7 +5299,7 @@ void loadGameSnapshot() // loc_49A89:              ; CODE XREF: handleGameUserIn
     // videoLoop();
     drawFixedLevel();
     drawGamePanel();
-    sub_4A2E6();
+    convertToEasyTiles();
     scrollToMurphy();
     gLastDrawnMinutesAndSeconds = 0xFFFF;
     gLastDrawnHours = 0xFF;
@@ -5455,30 +5455,31 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
     }
 }
 
-void sub_49D53() //   proc near       ; CODE XREF: handleGameUserInput+626p
+void forceRestoreOriginalFancyTiles() // sub_49D53   proc near       ; CODE XREF: handleGameUserInput+626p
                    // ; removeTiles+21p
 {
     // 01ED:30F0
-    byte_59B7B = 0;
-    levelScanThing();
+    gIsShowingFancyTiles = 0;
+    restoreOriginalFancyTiles();
 }
 
-void levelScanThing() //   proc near       ; CODE XREF: runLevel+A7p
+void restoreOriginalFancyTiles() //   proc near       ; CODE XREF: runLevel+A7p
 {
     // 01ED:30F5
 
     for (int i = 0; i < kLevelSize; ++i)
     {
-//loc_49D65:              ; CODE XREF: levelScanThing+18j
+//loc_49D65:              ; CODE XREF: restoreOriginalFancyTiles+18j
         StatefulLevelTile *tile = &gCurrentLevelState[i];
         if (tile->tile == LevelTileTypeExplosion) // 31
         {
             tile->tile = 0xF1; // 241
         }
     }
-    uint8_t was_byte_59B7B_NonZero = (byte_59B7B != 0);
-    byte_59B7B = 0;
-    if (was_byte_59B7B_NonZero)
+
+    uint8_t was_gIsShowingFancyTiles_NonZero = (gIsShowingFancyTiles != 0);
+    gIsShowingFancyTiles = 0;
+    if (was_gIsShowingFancyTiles_NonZero)
     {
         return;
     }
@@ -5528,7 +5529,7 @@ void levelScanThing() //   proc near       ; CODE XREF: runLevel+A7p
     }
 
 //loc_49DD9:              ; CODE XREF: levelScanThing+59j
-    byte_59B7B = 1;
+    gIsShowingFancyTiles = 1;
 }
 
 void updateMovingObjects() // gameloop   proc near       ; CODE XREF: runLevel:noFlashingp
@@ -5986,9 +5987,9 @@ void removeTiles(LevelTileType tileType) // sub_4A23C   proc near       ; CODE X
         tile->state = 0;
         tile->tile = LevelTileTypeSpace;
     }
-    sub_49D53();
+    forceRestoreOriginalFancyTiles();
     drawFixedLevel();
-    sub_4A2E6();
+    convertToEasyTiles();
     gShouldUpdateTotalLevelTime = 0;
     gHasUserCheated = 1;
 }
@@ -6028,7 +6029,7 @@ void scrollToMurphy() // sub_4A291   proc near       ; CODE XREF: handleGameUser
     videoLoop();
 }
 
-void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
+void convertToEasyTiles() // sub_4A2E6   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
 {
     // 01ED:3683
     uint16_t numberOfInfotrons = 0;
@@ -6036,7 +6037,7 @@ void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
 
     for (int i = 0; i < kLevelSize; ++i)
     {
-//loc_4A2F0:              ; CODE XREF: sub_4A2E6+D1j
+//loc_4A2F0:              ; CODE XREF: convertToEasyTiles+D1j
         StatefulLevelTile *currentTile = &gCurrentLevelState[i];
         numberOfSomething++;
 
@@ -6046,12 +6047,12 @@ void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
             continue; // jmp short loc_4A3B0
         }
 
-//loc_4A2FC:              ; CODE XREF: sub_4A2E6+Ej
+//loc_4A2FC:              ; CODE XREF: convertToEasyTiles+Ej
         if (gIsGameBusy != 1)
         {
             if (currentTile->tile == LevelTileTypeInfotron)
             {
-//loc_4A33C:              ; CODE XREF: sub_4A2E6+20j
+//loc_4A33C:              ; CODE XREF: convertToEasyTiles+20j
                 numberOfInfotrons++;
                 continue; // jmp short loc_4A3B0
             }
@@ -6061,14 +6062,14 @@ void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
         {
             if (gIsGameBusy == 1 || currentTile->state != 0 || currentTile->tile != LevelTileTypeElectron) //jz  short loc_4A379
             {
-//loc_4A312:              ; CODE XREF: sub_4A2E6+1Bj
+//loc_4A312:              ; CODE XREF: convertToEasyTiles+1Bj
                 if ((currentTile->state == 0 && currentTile->tile == LevelTileTypeHorizontalChipLeft)
                     || (currentTile->state == 0 && currentTile->tile == LevelTileTypeHorizontalChipRight)
                     || (currentTile->state == 0 && currentTile->tile == LevelTileTypeHorizontalChipTop)
                     || (currentTile->state == 0 && currentTile->tile == LevelTileTypeHorizontalChipBottom))
                 {
-//loc_4A33F:              ; CODE XREF: sub_4A2E6+2Fj
-//                ; sub_4A2E6+34j ...
+//loc_4A33F:              ; CODE XREF: convertToEasyTiles+2Fj
+//                ; convertToEasyTiles+34j ...
                     currentTile->tile = LevelTileTypeChip; // mov word ptr [si], 5
                     currentTile->state = 0;
                     continue; // jmp short loc_4A3B0
@@ -6077,24 +6078,24 @@ void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
                     && currentTile->tile >= LevelTileTypeHardware2
                     && currentTile->tile <= LevelTileTypeHardware11)
                 {
-//loc_4A345:              ; CODE XREF: sub_4A2E6+48j
+//loc_4A345:              ; CODE XREF: convertToEasyTiles+48j
                     currentTile->tile = LevelTileTypeHardware; // mov word ptr [si], 6
                     currentTile->state = 0;
                     continue; // jmp short loc_4A3B0
                 }
 
-//loc_4A330:              ; CODE XREF: sub_4A2E6+43j
+//loc_4A330:              ; CODE XREF: convertToEasyTiles+43j
                 if (currentTile->state == 0
                     && currentTile->tile >= LevelTileTypeSportRight
                     && currentTile->tile <= LevelTileTypeSportUp)
                 {
-//loc_4A3A7:              ; CODE XREF: sub_4A2E6+52j
+//loc_4A3A7:              ; CODE XREF: convertToEasyTiles+52j
                     currentTile->tile -= 4; // Converts Sport[Direction] to Port[Direction]
                     currentTile->state = 1;
                     continue;
                 }
 
-//loc_4A33A:              ; CODE XREF: sub_4A2E6+4Dj
+//loc_4A33A:              ; CODE XREF: convertToEasyTiles+4Dj
                 continue;
             }
         }
@@ -6105,14 +6106,14 @@ void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
 
         if (currentTile->state != 0 || currentTile->tile != LevelTileTypeElectron) //jz  short loc_4A379
         {
-//loc_4A34B:              ; CODE XREF: sub_4A2E6+25j
+//loc_4A34B:              ; CODE XREF: convertToEasyTiles+25j
             if (leftTile->tile == LevelTileTypeSpace && leftTile->state == 0) //cmp word ptr [si-2], 0
             {
                 currentTile->state = 1;
 //                si[1] = 1; //mov byte ptr [si+1], 1
                 continue; // jmp short loc_4A3B0
             }
-//loc_4A357:              ; CODE XREF: sub_4A2E6+69j
+//loc_4A357:              ; CODE XREF: convertToEasyTiles+69j
         // 0x78 = 120
             if (aboveTile->tile == LevelTileTypeSpace && aboveTile->state == 0) //cmp word ptr [si-78h], 0
             {
@@ -6125,7 +6126,7 @@ void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
                 currentTile->tile = 0xFF;
                 continue; // jmp short loc_4A3B0
             }
-//loc_4A368:              ; CODE XREF: sub_4A2E6+75j
+//loc_4A368:              ; CODE XREF: convertToEasyTiles+75j
             if (rightTile->tile == LevelTileTypeSpace && rightTile->state == 0) //cmp word ptr [si+2], 0
             {
                 // 01ED:370B
@@ -6140,13 +6141,13 @@ void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
 
             continue;
         }
-//loc_4A379:              ; CODE XREF: sub_4A2E6+2Aj
+//loc_4A379:              ; CODE XREF: convertToEasyTiles+2Aj
         if (leftTile->tile == LevelTileTypeSpace && leftTile->state == 0) //cmp word ptr [si-2], 0
         {
             currentTile->state = 1; //mov byte ptr [si+1], 1
             continue; // jmp short loc_4A3B0
         }
-//loc_4A385:              ; CODE XREF: sub_4A2E6+97j
+//loc_4A385:              ; CODE XREF: convertToEasyTiles+97j
         if (aboveTile->tile == LevelTileTypeSpace && aboveTile->state == 0) //cmp word ptr [si-78h], 0
         {
             // mov word ptr [si-78h], 1018h
@@ -6157,7 +6158,7 @@ void sub_4A2E6() //   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
             currentTile->tile = 0xFF;
             continue; // jmp short loc_4A3B0
         }
-//loc_4A396:              ; CODE XREF: sub_4A2E6+A3j
+//loc_4A396:              ; CODE XREF: convertToEasyTiles+A3j
         if (rightTile->tile == LevelTileTypeSpace && rightTile->state == 0) //cmp word ptr [si+2], 0
         {
             // mov word ptr [si+2], 2818h
@@ -6259,10 +6260,10 @@ void fetchAndInitializeLevel() // sub_4A463   proc near       ; CODE XREF: recor
     drawFixedLevel();
     drawGamePanel();
     gIsGameBusy = -gIsGameBusy;
-    sub_4A2E6();
+    convertToEasyTiles();
     gIsGameBusy = -gIsGameBusy;
     resetNumberOfInfotrons();
-    byte_59B7B = 1;
+    gIsShowingFancyTiles = 1;
     initializeGameInfo();
     findMurphy();
 }
