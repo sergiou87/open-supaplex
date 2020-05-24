@@ -248,7 +248,6 @@ void handleForceLevelNumberOption(void)
     // Force LEVEL number at start (nnn=1...111)
     int levelNumber = atoi(optarg);
     levelNumber = CLAMP(levelNumber, 1, kNumberOfLevels);
-    gIsForcedLevel = 0xFF; // TODO: wtf?
     gIsForcedLevel = levelNumber;
     spLogInfo("Playing level %d", levelNumber);
 }

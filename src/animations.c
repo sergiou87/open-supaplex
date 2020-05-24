@@ -825,13 +825,13 @@ const AnimationFrameCoordinates kMurphyAnimationFrameCoordinates[37] = {
             { 224, 308 }, // -> 0x043e -> 145c
             { 256, 308 }, // -> 0x0442 -> 145e
             { 288, 308 }, // -> 0x0446 -> 1460
-            { 288, 308 }, // -> 0x0446 -> 1462 // TODO: this is probably duplicated by mistake
+            { 288, 308 }, // -> 0x0446 -> 1462 // this is probably duplicated by mistake
             { 288, 324 }, // -> 0x0be6 -> 1464
             { 288, 340 }, // -> 0x1386 -> 1466
             { 192, 356 }, // -> 0x1b1a -> 1468
             { 224, 356 }, // -> 0x1b1e -> 146a
         },
-        9 // TODO: this should be 8 or the animation takes too long
+        9 // this should be 8 or the animation takes too long, but fixing this bug will make some demos break. Preserve old behavior or fix bug?
     },
     { // 25
         {

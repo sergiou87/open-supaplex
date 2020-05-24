@@ -2300,7 +2300,6 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
         else
         {
 //loc_476F3:              // ; CODE XREF: readDemoFiles+E4j
-            // TODO: that gDemoCurrentInputIndex feels wrong
             numberOfDemoBytesRead = fread(&gDemos.demoData[gDemoCurrentInputIndex], 1, maxNumberOfBytesToRead, file);
 
             if (numberOfDemoBytesRead == 0)
@@ -4825,7 +4824,7 @@ void handleGameUserInput() // sub_4955B   proc near       ; CODE XREF: runLevel:
 //loc_49663:              ; CODE XREF: handleGameUserInput+100j
         if (gIsZKeyPressed != 0) // cmp byte ptr gIsZKeyPressed, 0
         {
-            // TODO: around 01ED:2A09 (check with ORIGINAL.EXE)
+            // 01ED:2A07
             removeTiles(LevelTileTypeZonk);
         }
 
@@ -5431,14 +5430,14 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
 void sub_49D53() //   proc near       ; CODE XREF: handleGameUserInput+626p
                    // ; removeTiles+21p
 {
-    // TODO: around 01ED:30F0 (check with ORIGINAL.EXE)
+    // 01ED:30F0
     byte_59B7B = 0;
-    levelScanThing(); // added by me, seems like code continues from here? see what happens with the debugger
+    levelScanThing();
 }
 
 void levelScanThing() //   proc near       ; CODE XREF: runLevel+A7p
 {
-    // TODO: around 01ED:30F5 (check with ORIGINAL.EXE)
+    // 01ED:30F5
 
     for (int i = 0; i < kLevelSize; ++i)
     {
@@ -5940,7 +5939,7 @@ void updateUserInput() // sub_4A1BF   proc near       ; CODE XREF: handleGameUse
 void removeTiles(LevelTileType tileType) // sub_4A23C   proc near       ; CODE XREF: handleGameUserInput+111p
                    // ; handleGameUserInput+11Dp ...
 {
-    // TODO: around 01ED:35D9 (check with ORIGINAL.EXE)
+    // 01ED:35D9
     // Looks like this function goes through every tile and clears those that match the parameter
     for (uint16_t i = 0; i < kLevelSize; ++i)
     {
@@ -6354,7 +6353,8 @@ void updateOrangeDiskTiles(int16_t position) // movefun3  proc near       ; DATA
 }
 
 void updateExplosionTiles(int16_t position) //loc_4A543:              ; DATA XREF: data:1648o
-{ // 01ED:38E0 TODO: check with original.exe
+{
+    // 01ED:38E0
     StatefulLevelTile *currentTile = &gCurrentLevelState[position];
 
     if (currentTile->tile != LevelTileTypeExplosion)
@@ -10106,7 +10106,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
     else if (gSelectedOriginalDemoFromCommandLineLevelNumber == 0)
     {
 //loc_4D682:              ; CODE XREF: readLevels+12Fj
-        strcpy(gCurrentDemoLevelName, ".SP"); // TODO: not sure if this code is executed only for demos
+        strcpy(gCurrentDemoLevelName, ".SP");
         levelName += 4;
     }
 
