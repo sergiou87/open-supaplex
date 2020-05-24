@@ -29,7 +29,7 @@
 
 uint8_t word_59B60 = 0; // 'A' command line option
 uint8_t word_59B61 = 0; // 'B' command line option
-uint8_t byte_59B62 = 0; // 'C' command line option -> If deleted, Create LEVEL.L?? file out of info from LEVELS.D??
+uint8_t gShouldRecreateLevelLstIfNeeded = 0; // 'C' command line option -> If deleted, Create LEVEL.L?? file out of info from LEVELS.D??
 uint8_t byte_59B63 = 0; // 'D' command line option -> Force Debug mode at start: needed to record demo's etc.
 uint8_t byte_59B64 = 0; // 'E' command line option -> Force (buggy) EGA mode on VGA hardware
 uint8_t word_59B65 = 0; // 'F' command line option -> Force original Floppy 1<->2 symbol function (Invert Alt key)
@@ -155,7 +155,7 @@ void parseCommandLineOptions(int argc, char *argv[])
                 handleEnableTestModeOption();
                 break;
             case 'r':
-                byte_59B62 = 1;
+                gShouldRecreateLevelLstIfNeeded = 1;
                 break;
             case 'd':
                 byte_59B63 = 1;

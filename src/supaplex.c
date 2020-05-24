@@ -2522,7 +2522,7 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
             exitWithError("Error closing LEVELS.DAT\n");
         }
 
-        if (byte_59B62 == 0)
+        if (gShouldRecreateLevelLstIfNeeded == 0)
         {
             return;
         }
@@ -2531,20 +2531,20 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
         file = openWritableFile(gLevelLstFilename, "wb");
         if (file == NULL)
         {
-            exitWithError("Error opening LEVEL.LST\n");
+            exitWithError("Error opening %s\n", gLevelLstFilename);
         }
 
 //    writeLevelLstData:             // ; CODE XREF: readLevelsLst+A5j
         size_t bytes = fwrite(gLevelListData, 1, kLevelListDataLength, file);
         if (bytes < kLevelListDataLength)
         {
-            exitWithError("Error writing LEVEL.LST\n");
+            exitWithError("Error writing %s\n", gLevelLstFilename);
         }
 
 //    loc_47D5B:             // ; CODE XREF: readLevelsLst+BBj
         if (fclose(file) != 0)
         {
-            exitWithError("Error closing LEVEL.LST\n");
+            exitWithError("Error closing %s\n", gLevelLstFilename);
         }
         return;
     }
