@@ -10,11 +10,11 @@ jobs:
     - uses: actions/checkout@v1
     - name: Prepare build environment
       run: |
-        msys2do ./windows/ci-prepare-x64.sh
-    - name: Build OpenSupaplex for Windows x64
+        msys2do ./windows/ci-prepare.sh x86_64
+    - name: Build OpenSupaplex for Windows x86_64
       run: |
         cd windows
-        msys2do ./ci-build-x64.sh
+        msys2do ./ci-build.sh x86_64
     - name: Deploy Nightly
       uses: WebFreak001/deploy-nightly@v1.0.3
       env:
@@ -22,8 +22,35 @@ jobs:
       with:
         upload_url: https://uploads.github.com/repos/sergiou87/open-supaplex/releases/25661714/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
         release_id: 25661714 # same as above (id can just be taken out the upload_url, it's used to find old releases)
-        asset_path: windows/OpenSupaplex-windows-x64.zip # path to archive to upload
-        asset_name: OpenSupaplex-windows-x64-$$.zip # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
+        asset_path: windows/OpenSupaplex-windows-x86_64.zip # path to archive to upload
+        asset_name: OpenSupaplex-windows-x86_64-$$.zip # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
+        asset_content_type: application/binary # required by GitHub API
+        max_releases: 3 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
+
+  build-windows-i686:
+    runs-on: windows-latest
+    steps:
+    - uses: numworks/setup-msys2@v1
+      with:
+        msystem: MINGW32
+    - run: git config --global core.autocrlf false
+    - uses: actions/checkout@v1
+    - name: Prepare build environment
+      run: |
+        msys2do ./windows/ci-prepare.sh i686
+    - name: Build OpenSupaplex for Windows i686
+      run: |
+        cd windows
+        msys2do ./ci-build.sh i686
+    - name: Deploy Nightly
+      uses: WebFreak001/deploy-nightly@v1.0.3
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
+      with:
+        upload_url: https://uploads.github.com/repos/sergiou87/open-supaplex/releases/25661714/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
+        release_id: 25661714 # same as above (id can just be taken out the upload_url, it's used to find old releases)
+        asset_path: windows/OpenSupaplex-windows-i686.zip # path to archive to upload
+        asset_name: OpenSupaplex-windows-i686-$$.zip # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
         asset_content_type: application/binary # required by GitHub API
         max_releases: 3 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
 
