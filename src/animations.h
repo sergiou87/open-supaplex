@@ -18,7 +18,7 @@
 #ifndef animations_h
 #define animations_h
 
-#include <stdio.h>
+#include <stdint.h>
 
 typedef struct {
     // TODO: migrate offset to a (X, Y) coordinate system or to at least something that takes 320 pixel width screen

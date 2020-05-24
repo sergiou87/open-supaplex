@@ -18,7 +18,7 @@
 #ifndef buttonBorders_h
 #define buttonBorders_h
 
-#include <stdio.h>
+#include <stdint.h>
 
 enum ButtonBorderLineType {
     ButtonBorderLineTypeHorizontal = 0, // from left to right
