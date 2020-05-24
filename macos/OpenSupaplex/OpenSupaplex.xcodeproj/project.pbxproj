@@ -229,6 +229,121 @@
 		409F7E89247B299200BB3B19 /* DEMO1.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD9247B299100BB3B19 /* DEMO1.BIN */; };
 		409F7E8A247B299200BB3B19 /* LEVELS.D05 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DDA247B299100BB3B19 /* LEVELS.D05 */; };
 		409F7E8B247B299200BB3B19 /* LEVELS.D05 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DDA247B299100BB3B19 /* LEVELS.D05 */; };
+		409F7E90247B307400BB3B19 /* commandLineParser.c in Sources */ = {isa = PBXBuildFile; fileRef = 4056430C246F49CE0042F34B /* commandLineParser.c */; };
+		409F7E91247B307400BB3B19 /* menu.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3CF72468717400D4A308 /* menu.c */; };
+		409F7E92247B307400BB3B19 /* animations.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7B6A2479D56D00BB3B19 /* animations.c */; };
+		409F7E93247B307400BB3B19 /* ini.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3CFB2468BEF900D4A308 /* ini.c */; };
+		409F7E94247B307400BB3B19 /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145A0245F7EBF00620211 /* logging.c */; };
+		409F7E95247B307400BB3B19 /* buttonBorders.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7B662479D45200BB3B19 /* buttonBorders.c */; };
+		409F7E96247B307400BB3B19 /* savegame.c in Sources */ = {isa = PBXBuildFile; fileRef = 40E6995324787DAE000ADD53 /* savegame.c */; };
+		409F7E97247B307400BB3B19 /* graphics.c in Sources */ = {isa = PBXBuildFile; fileRef = 40517B142473EC57004E2435 /* graphics.c */; };
+		409F7E98247B307400BB3B19 /* controller.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C244244CE5D4007A07F5 /* controller.c */; };
+		409F7E99247B307400BB3B19 /* supaplex.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C246244CE5D5007A07F5 /* supaplex.c */; };
+		409F7E9A247B307400BB3B19 /* conditionals.c in Sources */ = {isa = PBXBuildFile; fileRef = 404879C3246B609900B776FA /* conditionals.c */; };
+		409F7E9B247B307400BB3B19 /* video.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145A72461A59D00620211 /* video.c */; };
+		409F7E9C247B307400BB3B19 /* audio.c in Sources */ = {isa = PBXBuildFile; fileRef = 40C8290D24673197003A103E /* audio.c */; };
+		409F7E9D247B307400BB3B19 /* touchscreen.c in Sources */ = {isa = PBXBuildFile; fileRef = 4001459D245F7B5A00620211 /* touchscreen.c */; };
+		409F7E9E247B307400BB3B19 /* config.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3D022469C03000D4A308 /* config.c */; };
+		409F7E9F247B307400BB3B19 /* demo.c in Sources */ = {isa = PBXBuildFile; fileRef = 40564312246F5DB60042F34B /* demo.c */; };
+		409F7EA0247B307400BB3B19 /* file.m in Sources */ = {isa = PBXBuildFile; fileRef = 40487A82246CB32400B776FA /* file.m */; };
+		409F7EA1247B307400BB3B19 /* nullVirtualKeyboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145A3245FEDF200620211 /* nullVirtualKeyboard.c */; };
+		409F7EA2247B307400BB3B19 /* input.c in Sources */ = {isa = PBXBuildFile; fileRef = 404879C0246B51E600B776FA /* input.c */; };
+		409F7EA3247B307400BB3B19 /* globals.c in Sources */ = {isa = PBXBuildFile; fileRef = 4056430F246F4A9A0042F34B /* globals.c */; };
+		409F7EA4247B307400BB3B19 /* system.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7B622479CD4C00BB3B19 /* system.c */; };
+		409F7EA5247B307400BB3B19 /* utils.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145AB2462CE9F00620211 /* utils.c */; };
+		409F7EA8247B307400BB3B19 /* BACK.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB0247B298C00BB3B19 /* BACK.DAT */; };
+		409F7EA9247B307400BB3B19 /* SPLVLS12.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB4247B298D00BB3B19 /* SPLVLS12.TXT */; };
+		409F7EAA247B307400BB3B19 /* SPLVLS08.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD2247B299000BB3B19 /* SPLVLS08.TXT */; };
+		409F7EAB247B307400BB3B19 /* SPLVLS94.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D95247B298A00BB3B19 /* SPLVLS94.TXT */; };
+		409F7EAC247B307400BB3B19 /* SPLVLS05.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA2247B298B00BB3B19 /* SPLVLS05.TXT */; };
+		409F7EAD247B307400BB3B19 /* PALETTES.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D9D247B298A00BB3B19 /* PALETTES.DAT */; };
+		409F7EAE247B307400BB3B19 /* LEVEL.L95 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D98247B298A00BB3B19 /* LEVEL.L95 */; };
+		409F7EAF247B307400BB3B19 /* LEVELS.D09 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DBE247B298E00BB3B19 /* LEVELS.D09 */; };
+		409F7EB0247B307400BB3B19 /* SPLVLS10.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D9E247B298B00BB3B19 /* SPLVLS10.TXT */; };
+		409F7EB1247B307400BB3B19 /* FIXED.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD1247B299000BB3B19 /* FIXED.DAT */; };
+		409F7EB2247B307400BB3B19 /* SPLVLS06.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC1247B298E00BB3B19 /* SPLVLS06.TXT */; };
+		409F7EB3247B307400BB3B19 /* SPLVLS01.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D96247B298A00BB3B19 /* SPLVLS01.TXT */; };
+		409F7EB4247B307400BB3B19 /* LEVEL.LST in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB1247B298C00BB3B19 /* LEVEL.LST */; };
+		409F7EB5247B307400BB3B19 /* LEVEL.L97 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC4247B298F00BB3B19 /* LEVEL.L97 */; };
+		409F7EB6247B307400BB3B19 /* LEVELS.D94 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DAE247B298C00BB3B19 /* LEVELS.D94 */; };
+		409F7EB7247B307400BB3B19 /* LEVEL.L07 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DBC247B298E00BB3B19 /* LEVEL.L07 */; };
+		409F7EB8247B307400BB3B19 /* LEVEL.L09 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD4247B299100BB3B19 /* LEVEL.L09 */; };
+		409F7EB9247B307400BB3B19 /* LEVEL.L08 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB9247B298D00BB3B19 /* LEVEL.L08 */; };
+		409F7EBA247B307400BB3B19 /* LEVEL.L96 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DBD247B298E00BB3B19 /* LEVEL.L96 */; };
+		409F7EBB247B307400BB3B19 /* SPLVLS11.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D88247B298900BB3B19 /* SPLVLS11.TXT */; };
+		409F7EBC247B307400BB3B19 /* LEVEL.L92 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA0247B298B00BB3B19 /* LEVEL.L92 */; };
+		409F7EBD247B307400BB3B19 /* SPLVLS97.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DBB247B298E00BB3B19 /* SPLVLS97.TXT */; };
+		409F7EBE247B307400BB3B19 /* LEVELS.D95 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DCD247B299000BB3B19 /* LEVELS.D95 */; };
+		409F7EBF247B307400BB3B19 /* LEVELS.D92 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC7247B298F00BB3B19 /* LEVELS.D92 */; };
+		409F7EC0247B307400BB3B19 /* SPFIX63.DOC in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D86247B298900BB3B19 /* SPFIX63.DOC */; };
+		409F7EC1247B307400BB3B19 /* LEVELS.D96 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D87247B298900BB3B19 /* LEVELS.D96 */; };
+		409F7EC2247B307400BB3B19 /* audio in Resources */ = {isa = PBXBuildFile; fileRef = 40487A84246CB5D200B776FA /* audio */; };
+		409F7EC3247B307400BB3B19 /* README.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D8E247B298900BB3B19 /* README.TXT */; };
+		409F7EC4247B307400BB3B19 /* CHARS6.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA1247B298B00BB3B19 /* CHARS6.DAT */; };
+		409F7EC5247B307400BB3B19 /* LEVELS.D10 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC6247B298F00BB3B19 /* LEVELS.D10 */; };
+		409F7EC6247B307400BB3B19 /* LEVELS.D11 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DAC247B298C00BB3B19 /* LEVELS.D11 */; };
+		409F7EC7247B307400BB3B19 /* DEMO9.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D97247B298A00BB3B19 /* DEMO9.BIN */; };
+		409F7EC8247B307400BB3B19 /* SPLVLS07.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D9A247B298A00BB3B19 /* SPLVLS07.TXT */; };
+		409F7EC9247B307400BB3B19 /* DEMO3.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D8A247B298900BB3B19 /* DEMO3.BIN */; };
+		409F7ECA247B307400BB3B19 /* LEVELS.D05 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DDA247B299100BB3B19 /* LEVELS.D05 */; };
+		409F7ECB247B307400BB3B19 /* myspsig.txt in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D84247B298900BB3B19 /* myspsig.txt */; };
+		409F7ECC247B307400BB3B19 /* LEVELS.D08 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DCA247B298F00BB3B19 /* LEVELS.D08 */; };
+		409F7ECD247B307400BB3B19 /* LEVELS.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DAB247B298C00BB3B19 /* LEVELS.DAT */; };
+		409F7ECE247B307400BB3B19 /* LEVEL.L27 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D8F247B298900BB3B19 /* LEVEL.L27 */; };
+		409F7ECF247B307400BB3B19 /* LEVELS.D03 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA4247B298B00BB3B19 /* LEVELS.D03 */; };
+		409F7ED0247B307400BB3B19 /* SPLVLS02.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D94247B298A00BB3B19 /* SPLVLS02.TXT */; };
+		409F7ED1247B307400BB3B19 /* SPLVLS98.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D9F247B298B00BB3B19 /* SPLVLS98.TXT */; };
+		409F7ED2247B307400BB3B19 /* SPLVLS04.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D8D247B298900BB3B19 /* SPLVLS04.TXT */; };
+		409F7ED3247B307400BB3B19 /* SPLVLS96.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD7247B299100BB3B19 /* SPLVLS96.TXT */; };
+		409F7ED4247B307400BB3B19 /* SPLVLS03.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB5247B298D00BB3B19 /* SPLVLS03.TXT */; };
+		409F7ED5247B307400BB3B19 /* CONTROLS.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D9C247B298A00BB3B19 /* CONTROLS.DAT */; };
+		409F7ED6247B307400BB3B19 /* SPLVLS93.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D8C247B298900BB3B19 /* SPLVLS93.TXT */; };
+		409F7ED7247B307400BB3B19 /* SPLVLS09.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA7247B298B00BB3B19 /* SPLVLS09.TXT */; };
+		409F7ED8247B307400BB3B19 /* TITLE1.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DAD247B298C00BB3B19 /* TITLE1.DAT */; };
+		409F7ED9247B307400BB3B19 /* SPLVLS27.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB6247B298D00BB3B19 /* SPLVLS27.TXT */; };
+		409F7EDA247B307400BB3B19 /* SPLVLS92.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA9247B298C00BB3B19 /* SPLVLS92.TXT */; };
+		409F7EDB247B307400BB3B19 /* SPLVLS95.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DBA247B298E00BB3B19 /* SPLVLS95.TXT */; };
+		409F7EDC247B307400BB3B19 /* LEVEL.L05 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA5247B298B00BB3B19 /* LEVEL.L05 */; };
+		409F7EDD247B307400BB3B19 /* LEVEL.L02 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC2247B298E00BB3B19 /* LEVEL.L02 */; };
+		409F7EDE247B307400BB3B19 /* LEVEL.L11 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD8247B299100BB3B19 /* LEVEL.L11 */; };
+		409F7EDF247B307400BB3B19 /* DEMO6.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D8B247B298900BB3B19 /* DEMO6.BIN */; };
+		409F7EE0247B307400BB3B19 /* MOVING.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC3247B298F00BB3B19 /* MOVING.DAT */; };
+		409F7EE1247B307400BB3B19 /* LEVELS.D04 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC0247B298E00BB3B19 /* LEVELS.D04 */; };
+		409F7EE2247B307400BB3B19 /* PANEL.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DCE247B299000BB3B19 /* PANEL.DAT */; };
+		409F7EE3247B307400BB3B19 /* DEMO0.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC5247B298F00BB3B19 /* DEMO0.BIN */; };
+		409F7EE4247B307400BB3B19 /* LEVELS.D98 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DAA247B298C00BB3B19 /* LEVELS.D98 */; };
+		409F7EE5247B307400BB3B19 /* LEVELS.D07 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D89247B298900BB3B19 /* LEVELS.D07 */; };
+		409F7EE6247B307400BB3B19 /* LEVEL.L98 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D90247B298900BB3B19 /* LEVEL.L98 */; };
+		409F7EE7247B307400BB3B19 /* LEVELS.D01 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB8247B298D00BB3B19 /* LEVELS.D01 */; };
+		409F7EE8247B307400BB3B19 /* DEMO7.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D93247B298A00BB3B19 /* DEMO7.BIN */; };
+		409F7EE9247B307400BB3B19 /* LEVELS.D12 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D91247B298A00BB3B19 /* LEVELS.D12 */; };
+		409F7EEA247B307400BB3B19 /* LEVEL.L10 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD0247B299000BB3B19 /* LEVEL.L10 */; };
+		409F7EEB247B307400BB3B19 /* LEVELS.D97 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DCF247B299000BB3B19 /* LEVELS.D97 */; };
+		409F7EEC247B307400BB3B19 /* GFX.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB3247B298D00BB3B19 /* GFX.DAT */; };
+		409F7EED247B307400BB3B19 /* LEVEL.L04 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D83247B298900BB3B19 /* LEVEL.L04 */; };
+		409F7EEE247B307400BB3B19 /* LEVELS.D27 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB7247B298D00BB3B19 /* LEVELS.D27 */; };
+		409F7EEF247B307400BB3B19 /* LEVEL.L12 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD6247B299100BB3B19 /* LEVEL.L12 */; };
+		409F7EF0247B307400BB3B19 /* LEVEL.L93 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DBF247B298E00BB3B19 /* LEVEL.L93 */; };
+		409F7EF1247B307400BB3B19 /* DEMO2.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D99247B298A00BB3B19 /* DEMO2.BIN */; };
+		409F7EF2247B307400BB3B19 /* LEVEL.L94 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD5247B299100BB3B19 /* LEVEL.L94 */; };
+		409F7EF3247B307400BB3B19 /* DEMO1.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD9247B299100BB3B19 /* DEMO1.BIN */; };
+		409F7EF4247B307400BB3B19 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 404879EF246C402B00B776FA /* Assets.xcassets */; };
+		409F7EF5247B307400BB3B19 /* DEMO5.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DAF247B298C00BB3B19 /* DEMO5.BIN */; };
+		409F7EF6247B307400BB3B19 /* LEVEL.L03 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D92247B298A00BB3B19 /* LEVEL.L03 */; };
+		409F7EF7247B307400BB3B19 /* TITLE.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DCC247B299000BB3B19 /* TITLE.DAT */; };
+		409F7EF8247B307400BB3B19 /* DEMO4.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA3247B298B00BB3B19 /* DEMO4.BIN */; };
+		409F7EF9247B307400BB3B19 /* LEVEL.L06 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D9B247B298A00BB3B19 /* LEVEL.L06 */; };
+		409F7EFA247B307400BB3B19 /* TITLE2.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA8247B298C00BB3B19 /* TITLE2.DAT */; };
+		409F7EFB247B307400BB3B19 /* LEVELS.D93 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DCB247B298F00BB3B19 /* LEVELS.D93 */; };
+		409F7EFC247B307400BB3B19 /* MENU.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DA6247B298B00BB3B19 /* MENU.DAT */; };
+		409F7EFD247B307400BB3B19 /* CHARS8.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DD3247B299000BB3B19 /* CHARS8.DAT */; };
+		409F7EFE247B307400BB3B19 /* LEVELS.D06 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC8247B298F00BB3B19 /* LEVELS.D06 */; };
+		409F7EFF247B307400BB3B19 /* LEVEL.L01 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC9247B298F00BB3B19 /* LEVEL.L01 */; };
+		409F7F00247B307400BB3B19 /* LEVELS.D02 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D85247B298900BB3B19 /* LEVELS.D02 */; };
+		409F7F01247B307400BB3B19 /* DEMO8.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB2247B298D00BB3B19 /* DEMO8.BIN */; };
+		409F7F09247B35AE00BB3B19 /* keyboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7F08247B35AE00BB3B19 /* keyboard.c */; };
+		409F7F0A247B35AE00BB3B19 /* keyboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7F08247B35AE00BB3B19 /* keyboard.c */; };
+		409F7F0B247B35AE00BB3B19 /* keyboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7F08247B35AE00BB3B19 /* keyboard.c */; };
 		40E6995424787DAE000ADD53 /* savegame.c in Sources */ = {isa = PBXBuildFile; fileRef = 40E6995324787DAE000ADD53 /* savegame.c */; };
 		40E6995524787DAE000ADD53 /* savegame.c in Sources */ = {isa = PBXBuildFile; fileRef = 40E6995324787DAE000ADD53 /* savegame.c */; };
 /* End PBXBuildFile section */
@@ -362,6 +477,10 @@
 		409F7DD8247B299100BB3B19 /* LEVEL.L11 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LEVEL.L11; path = ../../resources/LEVEL.L11; sourceTree = "<group>"; };
 		409F7DD9247B299100BB3B19 /* DEMO1.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO1.BIN; path = ../../resources/DEMO1.BIN; sourceTree = "<group>"; };
 		409F7DDA247B299100BB3B19 /* LEVELS.D05 */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.D05; path = ../../resources/LEVELS.D05; sourceTree = "<group>"; };
+		409F7F05247B307400BB3B19 /* OpenSupaplex SDL1.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "OpenSupaplex SDL1.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		409F7F06247B307400BB3B19 /* OpenSupaplex copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "OpenSupaplex copy-Info.plist"; path = "/Users/spadrino/Development/open-supaplex/macos/OpenSupaplex/OpenSupaplex copy-Info.plist"; sourceTree = "<absolute>"; };
+		409F7F07247B35AE00BB3B19 /* keyboard.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = keyboard.h; path = ../../../src/keyboard.h; sourceTree = "<group>"; };
+		409F7F08247B35AE00BB3B19 /* keyboard.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = keyboard.c; path = ../../../src/keyboard.c; sourceTree = "<group>"; };
 		40C8290C24673197003A103E /* audio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = audio.h; path = ../../../src/audio.h; sourceTree = "<group>"; };
 		40C8290D24673197003A103E /* audio.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = audio.c; path = ../../../src/audio.c; sourceTree = "<group>"; };
 		40DA3CF62468717400D4A308 /* menu.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = menu.h; path = ../../../src/menu.h; sourceTree = "<group>"; };
@@ -383,6 +502,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		40564327247032640042F34B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		409F7EA6247B307400BB3B19 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -499,6 +625,7 @@
 				40C0D72E24196126004742A9 /* OpenSupaplex */,
 				40C0D72D24196126004742A9 /* Products */,
 				40C0D73824196423004742A9 /* Frameworks */,
+				409F7F06247B307400BB3B19 /* OpenSupaplex copy-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -507,6 +634,7 @@
 			children = (
 				404879EA246C402900B776FA /* OpenSupaplex.app */,
 				4056434A247032640042F34B /* OpenSupaplex-sandboxed.app */,
+				409F7F05247B307400BB3B19 /* OpenSupaplex SDL1.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -556,6 +684,8 @@
 				409F7B662479D45200BB3B19 /* buttonBorders.c */,
 				409F7B692479D56D00BB3B19 /* animations.h */,
 				409F7B6A2479D56D00BB3B19 /* animations.c */,
+				409F7F07247B35AE00BB3B19 /* keyboard.h */,
+				409F7F08247B35AE00BB3B19 /* keyboard.c */,
 			);
 			path = OpenSupaplex;
 			sourceTree = "<group>";
@@ -622,6 +752,23 @@
 			productReference = 4056434A247032640042F34B /* OpenSupaplex-sandboxed.app */;
 			productType = "com.apple.product-type.application";
 		};
+		409F7E8E247B307400BB3B19 /* OpenSupaplex SDL1 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 409F7F02247B307400BB3B19 /* Build configuration list for PBXNativeTarget "OpenSupaplex SDL1" */;
+			buildPhases = (
+				409F7E8F247B307400BB3B19 /* Sources */,
+				409F7EA6247B307400BB3B19 /* Frameworks */,
+				409F7EA7247B307400BB3B19 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "OpenSupaplex SDL1";
+			productName = OpenSupaplex;
+			productReference = 409F7F05247B307400BB3B19 /* OpenSupaplex SDL1.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -651,6 +798,7 @@
 			targets = (
 				404879E9246C402900B776FA /* OpenSupaplex */,
 				40564314247032640042F34B /* OpenSupaplex-sandboxed */,
+				409F7E8E247B307400BB3B19 /* OpenSupaplex SDL1 */,
 			);
 		};
 /* End PBXProject section */
@@ -850,6 +998,103 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		409F7EA7247B307400BB3B19 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				409F7EA8247B307400BB3B19 /* BACK.DAT in Resources */,
+				409F7EA9247B307400BB3B19 /* SPLVLS12.TXT in Resources */,
+				409F7EAA247B307400BB3B19 /* SPLVLS08.TXT in Resources */,
+				409F7EAB247B307400BB3B19 /* SPLVLS94.TXT in Resources */,
+				409F7EAC247B307400BB3B19 /* SPLVLS05.TXT in Resources */,
+				409F7EAD247B307400BB3B19 /* PALETTES.DAT in Resources */,
+				409F7EAE247B307400BB3B19 /* LEVEL.L95 in Resources */,
+				409F7EAF247B307400BB3B19 /* LEVELS.D09 in Resources */,
+				409F7EB0247B307400BB3B19 /* SPLVLS10.TXT in Resources */,
+				409F7EB1247B307400BB3B19 /* FIXED.DAT in Resources */,
+				409F7EB2247B307400BB3B19 /* SPLVLS06.TXT in Resources */,
+				409F7EB3247B307400BB3B19 /* SPLVLS01.TXT in Resources */,
+				409F7EB4247B307400BB3B19 /* LEVEL.LST in Resources */,
+				409F7EB5247B307400BB3B19 /* LEVEL.L97 in Resources */,
+				409F7EB6247B307400BB3B19 /* LEVELS.D94 in Resources */,
+				409F7EB7247B307400BB3B19 /* LEVEL.L07 in Resources */,
+				409F7EB8247B307400BB3B19 /* LEVEL.L09 in Resources */,
+				409F7EB9247B307400BB3B19 /* LEVEL.L08 in Resources */,
+				409F7EBA247B307400BB3B19 /* LEVEL.L96 in Resources */,
+				409F7EBB247B307400BB3B19 /* SPLVLS11.TXT in Resources */,
+				409F7EBC247B307400BB3B19 /* LEVEL.L92 in Resources */,
+				409F7EBD247B307400BB3B19 /* SPLVLS97.TXT in Resources */,
+				409F7EBE247B307400BB3B19 /* LEVELS.D95 in Resources */,
+				409F7EBF247B307400BB3B19 /* LEVELS.D92 in Resources */,
+				409F7EC0247B307400BB3B19 /* SPFIX63.DOC in Resources */,
+				409F7EC1247B307400BB3B19 /* LEVELS.D96 in Resources */,
+				409F7EC2247B307400BB3B19 /* audio in Resources */,
+				409F7EC3247B307400BB3B19 /* README.TXT in Resources */,
+				409F7EC4247B307400BB3B19 /* CHARS6.DAT in Resources */,
+				409F7EC5247B307400BB3B19 /* LEVELS.D10 in Resources */,
+				409F7EC6247B307400BB3B19 /* LEVELS.D11 in Resources */,
+				409F7EC7247B307400BB3B19 /* DEMO9.BIN in Resources */,
+				409F7EC8247B307400BB3B19 /* SPLVLS07.TXT in Resources */,
+				409F7EC9247B307400BB3B19 /* DEMO3.BIN in Resources */,
+				409F7ECA247B307400BB3B19 /* LEVELS.D05 in Resources */,
+				409F7ECB247B307400BB3B19 /* myspsig.txt in Resources */,
+				409F7ECC247B307400BB3B19 /* LEVELS.D08 in Resources */,
+				409F7ECD247B307400BB3B19 /* LEVELS.DAT in Resources */,
+				409F7ECE247B307400BB3B19 /* LEVEL.L27 in Resources */,
+				409F7ECF247B307400BB3B19 /* LEVELS.D03 in Resources */,
+				409F7ED0247B307400BB3B19 /* SPLVLS02.TXT in Resources */,
+				409F7ED1247B307400BB3B19 /* SPLVLS98.TXT in Resources */,
+				409F7ED2247B307400BB3B19 /* SPLVLS04.TXT in Resources */,
+				409F7ED3247B307400BB3B19 /* SPLVLS96.TXT in Resources */,
+				409F7ED4247B307400BB3B19 /* SPLVLS03.TXT in Resources */,
+				409F7ED5247B307400BB3B19 /* CONTROLS.DAT in Resources */,
+				409F7ED6247B307400BB3B19 /* SPLVLS93.TXT in Resources */,
+				409F7ED7247B307400BB3B19 /* SPLVLS09.TXT in Resources */,
+				409F7ED8247B307400BB3B19 /* TITLE1.DAT in Resources */,
+				409F7ED9247B307400BB3B19 /* SPLVLS27.TXT in Resources */,
+				409F7EDA247B307400BB3B19 /* SPLVLS92.TXT in Resources */,
+				409F7EDB247B307400BB3B19 /* SPLVLS95.TXT in Resources */,
+				409F7EDC247B307400BB3B19 /* LEVEL.L05 in Resources */,
+				409F7EDD247B307400BB3B19 /* LEVEL.L02 in Resources */,
+				409F7EDE247B307400BB3B19 /* LEVEL.L11 in Resources */,
+				409F7EDF247B307400BB3B19 /* DEMO6.BIN in Resources */,
+				409F7EE0247B307400BB3B19 /* MOVING.DAT in Resources */,
+				409F7EE1247B307400BB3B19 /* LEVELS.D04 in Resources */,
+				409F7EE2247B307400BB3B19 /* PANEL.DAT in Resources */,
+				409F7EE3247B307400BB3B19 /* DEMO0.BIN in Resources */,
+				409F7EE4247B307400BB3B19 /* LEVELS.D98 in Resources */,
+				409F7EE5247B307400BB3B19 /* LEVELS.D07 in Resources */,
+				409F7EE6247B307400BB3B19 /* LEVEL.L98 in Resources */,
+				409F7EE7247B307400BB3B19 /* LEVELS.D01 in Resources */,
+				409F7EE8247B307400BB3B19 /* DEMO7.BIN in Resources */,
+				409F7EE9247B307400BB3B19 /* LEVELS.D12 in Resources */,
+				409F7EEA247B307400BB3B19 /* LEVEL.L10 in Resources */,
+				409F7EEB247B307400BB3B19 /* LEVELS.D97 in Resources */,
+				409F7EEC247B307400BB3B19 /* GFX.DAT in Resources */,
+				409F7EED247B307400BB3B19 /* LEVEL.L04 in Resources */,
+				409F7EEE247B307400BB3B19 /* LEVELS.D27 in Resources */,
+				409F7EEF247B307400BB3B19 /* LEVEL.L12 in Resources */,
+				409F7EF0247B307400BB3B19 /* LEVEL.L93 in Resources */,
+				409F7EF1247B307400BB3B19 /* DEMO2.BIN in Resources */,
+				409F7EF2247B307400BB3B19 /* LEVEL.L94 in Resources */,
+				409F7EF3247B307400BB3B19 /* DEMO1.BIN in Resources */,
+				409F7EF4247B307400BB3B19 /* Assets.xcassets in Resources */,
+				409F7EF5247B307400BB3B19 /* DEMO5.BIN in Resources */,
+				409F7EF6247B307400BB3B19 /* LEVEL.L03 in Resources */,
+				409F7EF7247B307400BB3B19 /* TITLE.DAT in Resources */,
+				409F7EF8247B307400BB3B19 /* DEMO4.BIN in Resources */,
+				409F7EF9247B307400BB3B19 /* LEVEL.L06 in Resources */,
+				409F7EFA247B307400BB3B19 /* TITLE2.DAT in Resources */,
+				409F7EFB247B307400BB3B19 /* LEVELS.D93 in Resources */,
+				409F7EFC247B307400BB3B19 /* MENU.DAT in Resources */,
+				409F7EFD247B307400BB3B19 /* CHARS8.DAT in Resources */,
+				409F7EFE247B307400BB3B19 /* LEVELS.D06 in Resources */,
+				409F7EFF247B307400BB3B19 /* LEVEL.L01 in Resources */,
+				409F7F00247B307400BB3B19 /* LEVELS.D02 in Resources */,
+				409F7F01247B307400BB3B19 /* DEMO8.BIN in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -869,6 +1114,7 @@
 				404879FD246C403A00B776FA /* supaplex.c in Sources */,
 				40487A08246C403A00B776FA /* conditionals.c in Sources */,
 				40487A02246C403A00B776FA /* video.c in Sources */,
+				409F7F09247B35AE00BB3B19 /* keyboard.c in Sources */,
 				40487A04246C403A00B776FA /* audio.c in Sources */,
 				404879FF246C403A00B776FA /* touchscreen.c in Sources */,
 				40487A06246C403A00B776FA /* config.c in Sources */,
@@ -898,6 +1144,7 @@
 				4056431B247032640042F34B /* supaplex.c in Sources */,
 				4056431C247032640042F34B /* conditionals.c in Sources */,
 				4056431D247032640042F34B /* video.c in Sources */,
+				409F7F0A247B35AE00BB3B19 /* keyboard.c in Sources */,
 				4056431E247032640042F34B /* audio.c in Sources */,
 				4056431F247032640042F34B /* touchscreen.c in Sources */,
 				40564320247032640042F34B /* config.c in Sources */,
@@ -911,6 +1158,36 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		409F7E8F247B307400BB3B19 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				409F7E90247B307400BB3B19 /* commandLineParser.c in Sources */,
+				409F7E91247B307400BB3B19 /* menu.c in Sources */,
+				409F7E92247B307400BB3B19 /* animations.c in Sources */,
+				409F7E93247B307400BB3B19 /* ini.c in Sources */,
+				409F7E94247B307400BB3B19 /* logging.c in Sources */,
+				409F7E95247B307400BB3B19 /* buttonBorders.c in Sources */,
+				409F7E96247B307400BB3B19 /* savegame.c in Sources */,
+				409F7E97247B307400BB3B19 /* graphics.c in Sources */,
+				409F7E98247B307400BB3B19 /* controller.c in Sources */,
+				409F7E99247B307400BB3B19 /* supaplex.c in Sources */,
+				409F7E9A247B307400BB3B19 /* conditionals.c in Sources */,
+				409F7E9B247B307400BB3B19 /* video.c in Sources */,
+				409F7F0B247B35AE00BB3B19 /* keyboard.c in Sources */,
+				409F7E9C247B307400BB3B19 /* audio.c in Sources */,
+				409F7E9D247B307400BB3B19 /* touchscreen.c in Sources */,
+				409F7E9E247B307400BB3B19 /* config.c in Sources */,
+				409F7E9F247B307400BB3B19 /* demo.c in Sources */,
+				409F7EA0247B307400BB3B19 /* file.m in Sources */,
+				409F7EA1247B307400BB3B19 /* nullVirtualKeyboard.c in Sources */,
+				409F7EA2247B307400BB3B19 /* input.c in Sources */,
+				409F7EA3247B307400BB3B19 /* globals.c in Sources */,
+				409F7EA4247B307400BB3B19 /* system.c in Sources */,
+				409F7EA5247B307400BB3B19 /* utils.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
@@ -921,6 +1198,11 @@
 				CODE_SIGN_ENTITLEMENTS = OpenSupaplex/OpenSupaplex.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					HAVE_SDL2,
+					"DEBUG=1",
+					"$(inherited)",
+				);
 				INFOPLIST_FILE = "macOS-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -950,6 +1232,7 @@
 				CODE_SIGN_ENTITLEMENTS = OpenSupaplex/OpenSupaplex.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = HAVE_SDL2;
 				INFOPLIST_FILE = "macOS-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1021,6 +1304,69 @@
 					"-L/usr/local/lib",
 					"-lSDL2_mixer",
 					"-lSDL2",
+					"-lvorbisfile",
+					"-lvorbis",
+					"-logg",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.OpenSupaplex;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		409F7F03247B307400BB3B19 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = OpenSupaplex/OpenSupaplex.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					HAVE_SDL,
+					"DEBUG=1",
+				);
+				INFOPLIST_FILE = "macOS-SDL1-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				OTHER_CFLAGS = (
+					"-I/usr/local/include",
+					"-D_THREAD_SAFE",
+				);
+				OTHER_LDFLAGS = (
+					"-L/usr/local/lib",
+					"-lSDL_mixer",
+					"-lSDL",
+					"-lvorbisfile",
+					"-lvorbis",
+					"-logg",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.OpenSupaplex;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		409F7F04247B307400BB3B19 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = OpenSupaplex/OpenSupaplex.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = HAVE_SDL;
+				INFOPLIST_FILE = "macOS-SDL1-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				OTHER_CFLAGS = (
+					"-I/usr/local/include",
+					"-D_THREAD_SAFE",
+				);
+				OTHER_LDFLAGS = (
+					"-L/usr/local/lib",
+					"-lSDL_mixer",
+					"-lSDL",
 					"-lvorbisfile",
 					"-lvorbis",
 					"-logg",
@@ -1156,6 +1502,15 @@
 			buildConfigurations = (
 				40564348247032640042F34B /* Debug */,
 				40564349247032640042F34B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		409F7F02247B307400BB3B19 /* Build configuration list for PBXNativeTarget "OpenSupaplex SDL1" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				409F7F03247B307400BB3B19 /* Debug */,
+				409F7F04247B307400BB3B19 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
