@@ -26,7 +26,7 @@ jobs:
         asset_path: vita/build/OpenSupaplex.vpk # path to archive to upload
         asset_name: OpenSupaplex-vita-$$.vpk # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
         asset_content_type: application/binary # required by GitHub API
-        max_releases: 3 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
+        max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
   build-switch:
     runs-on: ubuntu-18.04
     steps:
@@ -49,7 +49,7 @@ jobs:
         asset_path: switch/OpenSupaplex-switch.zip # path to archive to upload
         asset_name: OpenSupaplex-switch-$$.zip # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
         asset_content_type: application/zip # required by GitHub API
-        max_releases: 3 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
+        max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
   build-windows-x86_64:
     runs-on: windows-latest
     steps:
@@ -73,7 +73,7 @@ jobs:
         asset_path: windows/OpenSupaplex-windows-x86_64.zip # path to archive to upload
         asset_name: OpenSupaplex-windows-x86_64-$$.zip # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
         asset_content_type: application/binary # required by GitHub API
-        max_releases: 3 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
+        max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
   # build-windows-i686:
   #   runs-on: windows-latest
   #   steps:
@@ -99,4 +99,4 @@ jobs:
   #       asset_path: windows/OpenSupaplex-windows-i686.zip # path to archive to upload
   #       asset_name: OpenSupaplex-windows-i686-$$.zip # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
   #       asset_content_type: application/binary # required by GitHub API
-  #       max_releases: 3 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
+  #       max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
