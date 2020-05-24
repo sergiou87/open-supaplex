@@ -17,6 +17,7 @@
 
 #include "controller.h"
 
+#include <SDL2/SDL.h>
 #include <stdlib.h>
 
 static int sCurrentGameControllerIndex = -1;
@@ -147,14 +148,54 @@ uint8_t getGameControllerButton(SDL_GameControllerButton button)
     return SDL_GameControllerGetButton(controller, button);
 }
 
-uint8_t getGameControllerConfirmButton(void)
+uint8_t getGameControllerButtonA(void)
 {
     return getGameControllerButton(SDL_CONTROLLER_BUTTON_A);
 }
 
-uint8_t getGameControllerCancelButton(void)
+uint8_t getGameControllerButtonB(void)
 {
     return getGameControllerButton(SDL_CONTROLLER_BUTTON_B);
+}
+
+uint8_t getGameControllerButtonX(void)
+{
+    return getGameControllerButton(SDL_CONTROLLER_BUTTON_X);
+}
+
+uint8_t getGameControllerButtonY(void)
+{
+    return getGameControllerButton(SDL_CONTROLLER_BUTTON_Y);
+}
+
+uint8_t getGameControllerButtonBack(void)
+{
+    return getGameControllerButton(SDL_CONTROLLER_BUTTON_BACK);
+}
+
+uint8_t getGameControllerButtonStart(void)
+{
+    return getGameControllerButton(SDL_CONTROLLER_BUTTON_START);
+}
+
+uint8_t getGameControllerButtonLeftShoulder(void)
+{
+    return getGameControllerButton(SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
+}
+
+uint8_t getGameControllerButtonRightShoulder(void)
+{
+    return getGameControllerButton(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
+}
+
+uint8_t getGameControllerConfirmButton(void)
+{
+    return getGameControllerButtonA();
+}
+
+uint8_t getGameControllerCancelButton(void)
+{
+    return getGameControllerButtonB();
 }
 
 uint8_t isAnyGameControllerButtonPressed(void)

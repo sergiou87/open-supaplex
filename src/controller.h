@@ -18,12 +18,20 @@
 #ifndef controller_h
 #define controller_h
 
-#include <SDL2/SDL.h>
+#include <stdint.h>
 
 // -1, 0, 1
 int8_t getGameControllerX(void);
 int8_t getGameControllerY(void);
-uint8_t getGameControllerButton(SDL_GameControllerButton button);
+uint8_t getGameControllerButtonA(void);
+uint8_t getGameControllerButtonB(void);
+uint8_t getGameControllerButtonX(void);
+uint8_t getGameControllerButtonY(void);
+uint8_t getGameControllerButtonBack(void);
+uint8_t getGameControllerButtonStart(void);
+uint8_t getGameControllerButtonLeftShoulder(void);
+uint8_t getGameControllerButtonRightShoulder(void);
+
 uint8_t isAnyGameControllerButtonPressed(void);
 
 uint8_t getGameControllerConfirmButton(void);
