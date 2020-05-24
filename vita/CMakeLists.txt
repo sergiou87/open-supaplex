@@ -14,7 +14,7 @@ include("${VITASDK}/share/vita.cmake" REQUIRED)
 
 set(VITA_APP_NAME "OpenSupaplex")
 set(VITA_TITLEID  "OSPX00001")
-set(VITA_VERSION  "07.00")
+set(VITA_VERSION  "07.10")
 
 option(DEBUGNET "Enable debugnet for logging" ON)
 
@@ -29,6 +29,8 @@ set(VITA_ELF_NAME ${SHORT_NAME}.elf)
 add_executable(${SHORT_NAME}
   ../src/supaplex.c
   ../src/audio.c
+  ../src/animations.c
+  ../src/buttonBorders.c
   ../src/commandLineParser.c
   ../src/controller.c
   ../src/conditionals.c
@@ -36,12 +38,15 @@ add_executable(${SHORT_NAME}
   ../src/demo.c
   ../src/file.c
   ../src/globals.c
+  ../src/graphics.c
   ../src/touchscreen.c
   ../src/input.c
   ../src/logging.c
   ../src/menu.c
   ../src/utils.c
   ../src/video.c
+  ../src/savegame.c
+  ../src/system.c
   ../src/psp2/psp2VirtualKeyboard.c
   ../src/lib/ini/ini.c
 )
@@ -150,17 +155,77 @@ vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
   FILE ../resources/DEMO9.BIN DEMO9.BIN
   FILE ../resources/FIXED.DAT FIXED.DAT
   FILE ../resources/GFX.DAT GFX.DAT
+  FILE ../resources/HALLFAME.LST HALLFAME.LST
+  FILE ../resources/LEVEL.L01 LEVEL.L01
+  FILE ../resources/LEVEL.L02 LEVEL.L02
+  FILE ../resources/LEVEL.L03 LEVEL.L03
+  FILE ../resources/LEVEL.L04 LEVEL.L04
+  FILE ../resources/LEVEL.L05 LEVEL.L05
+  FILE ../resources/LEVEL.L06 LEVEL.L06
+  FILE ../resources/LEVEL.L07 LEVEL.L07
+  FILE ../resources/LEVEL.L08 LEVEL.L08
+  FILE ../resources/LEVEL.L09 LEVEL.L09
+  FILE ../resources/LEVEL.L10 LEVEL.L10
+  FILE ../resources/LEVEL.L11 LEVEL.L11
+  FILE ../resources/LEVEL.L12 LEVEL.L12
+  FILE ../resources/LEVEL.L27 LEVEL.L27
+  FILE ../resources/LEVEL.L92 LEVEL.L92
+  FILE ../resources/LEVEL.L93 LEVEL.L93
+  FILE ../resources/LEVEL.L94 LEVEL.L94
+  FILE ../resources/LEVEL.L95 LEVEL.L95
+  FILE ../resources/LEVEL.L96 LEVEL.L96
+  FILE ../resources/LEVEL.L97 LEVEL.L97
+  FILE ../resources/LEVEL.L98 LEVEL.L98
   FILE ../resources/LEVEL.LST LEVEL.LST
+  FILE ../resources/LEVELS.D01 LEVELS.D01
+  FILE ../resources/LEVELS.D02 LEVELS.D02
+  FILE ../resources/LEVELS.D03 LEVELS.D03
+  FILE ../resources/LEVELS.D04 LEVELS.D04
+  FILE ../resources/LEVELS.D05 LEVELS.D05
+  FILE ../resources/LEVELS.D06 LEVELS.D06
+  FILE ../resources/LEVELS.D07 LEVELS.D07
+  FILE ../resources/LEVELS.D08 LEVELS.D08
+  FILE ../resources/LEVELS.D09 LEVELS.D09
+  FILE ../resources/LEVELS.D10 LEVELS.D10
+  FILE ../resources/LEVELS.D11 LEVELS.D11
+  FILE ../resources/LEVELS.D12 LEVELS.D12
+  FILE ../resources/LEVELS.D27 LEVELS.D27
+  FILE ../resources/LEVELS.D92 LEVELS.D92
+  FILE ../resources/LEVELS.D93 LEVELS.D93
+  FILE ../resources/LEVELS.D94 LEVELS.D94
+  FILE ../resources/LEVELS.D95 LEVELS.D95
+  FILE ../resources/LEVELS.D96 LEVELS.D96
+  FILE ../resources/LEVELS.D97 LEVELS.D97
+  FILE ../resources/LEVELS.D98 LEVELS.D98
   FILE ../resources/LEVELS.DAT LEVELS.DAT
   FILE ../resources/MENU.DAT MENU.DAT
   FILE ../resources/MOVING.DAT MOVING.DAT
+  FILE ../resources/myspsig.txt myspsig.txt
   FILE ../resources/PALETTES.DAT PALETTES.DAT
   FILE ../resources/PANEL.DAT PANEL.DAT
   FILE ../resources/README.TXT README.TXT
   FILE ../resources/SPFIX63.DOC SPFIX63.DOC
-  FILE ../resources/SUPAPLEX.CFG SUPAPLEX.CFG
+  FILE ../resources/SPLVLS01.TXT SPLVLS01.TXT
+  FILE ../resources/SPLVLS02.TXT SPLVLS02.TXT
+  FILE ../resources/SPLVLS03.TXT SPLVLS03.TXT
+  FILE ../resources/SPLVLS04.TXT SPLVLS04.TXT
+  FILE ../resources/SPLVLS05.TXT SPLVLS05.TXT
+  FILE ../resources/SPLVLS06.TXT SPLVLS06.TXT
+  FILE ../resources/SPLVLS07.TXT SPLVLS07.TXT
+  FILE ../resources/SPLVLS08.TXT SPLVLS08.TXT
+  FILE ../resources/SPLVLS09.TXT SPLVLS09.TXT
+  FILE ../resources/SPLVLS10.TXT SPLVLS10.TXT
+  FILE ../resources/SPLVLS11.TXT SPLVLS11.TXT
+  FILE ../resources/SPLVLS12.TXT SPLVLS12.TXT
+  FILE ../resources/SPLVLS27.TXT SPLVLS27.TXT
+  FILE ../resources/SPLVLS92.TXT SPLVLS92.TXT
+  FILE ../resources/SPLVLS93.TXT SPLVLS93.TXT
+  FILE ../resources/SPLVLS94.TXT SPLVLS94.TXT
+  FILE ../resources/SPLVLS95.TXT SPLVLS95.TXT
+  FILE ../resources/SPLVLS96.TXT SPLVLS96.TXT
+  FILE ../resources/SPLVLS97.TXT SPLVLS97.TXT
+  FILE ../resources/SPLVLS98.TXT SPLVLS98.TXT
   FILE ../resources/TITLE.DAT TITLE.DAT
   FILE ../resources/TITLE1.DAT TITLE1.DAT
   FILE ../resources/TITLE2.DAT TITLE2.DAT
-  FILE ../resources/myspsig.txt myspsig.txt
 )
