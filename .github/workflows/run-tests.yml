@@ -1,7 +1,8 @@
 name: Run OpenSupaplex Tests
 on:
   push:
-    branches
+    branches:
+      - '*'
 jobs:
   run-tests:
     runs-on: macos-latest
