@@ -51,15 +51,13 @@ void initializeVideo(uint8_t fastMode)
     }
 
     SDL_WM_SetCaption("OpenSupaplex", "OpenSupaplex");
-    gWindowSurface = SDL_SetVideoMode( 640, 480, 32, SDL_SWSURFACE );
-
-/*SDL_SetVideoMode(kWindowWidth,
-                                      kWindowHeight,
+    gWindowSurface =  SDL_SetVideoMode(kScreenWidth,
+                                      kScreenHeight,
                                       8,
 #if defined(__SWITCH__) || defined(__vita__) || defined(__PSP__)
                                       SDL_FULLSCREEN |
 #endif
-                                      0);*/
+                                      SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_HWPALETTE);
 
     // SDL_AddEventWatch(windowResizingEventWatcher, gWindow);
 
@@ -86,10 +84,10 @@ void initializeVideo(uint8_t fastMode)
 
 void render()
 {
-    for (int i = 0; i < kScreenWidth * kScreenHeight; ++i)
-    {
-        ((uint8_t *)gWindowSurface->pixels)[i] = 5;
-    }
+    // for (int i = 0; i < kScreenWidth * kScreenHeight; ++i)
+    // {
+    //     ((uint8_t *)gWindowSurface->pixels)[i] = 5;
+    // }
     SDL_BlitSurface(gScreenSurface, NULL, gWindowSurface, NULL);
 //
 //    SDL_UpdateTexture(gTexture, NULL, gTextureSurface->pixels, gTextureSurface->pitch);
@@ -184,12 +182,14 @@ uint8_t getFullscreenMode(void)
 
 void setGlobalPaletteColor(const uint8_t index, const Color color)
 {
-    SDL_SetPalette(gScreenSurface, SDL_PHYSPAL, (SDL_Color *)&color, index, 1);
+    SDL_SetPalette(gScreenSurface, SDL_LOGPAL, (SDL_Color *)&color, index, 1);
+    SDL_SetPalette(gWindowSurface, SDL_PHYSPAL, (SDL_Color *)&color, index, 1);
 }
 
 void setColorPalette(const ColorPalette palette)
 {
-    SDL_SetPalette(gScreenSurface, SDL_PHYSPAL, (SDL_Color *)palette, 0, kNumberOfColors);
+    SDL_SetPalette(gScreenSurface, SDL_LOGPAL, (SDL_Color *)palette, 0, kNumberOfColors);
+    SDL_SetPalette(gWindowSurface, SDL_PHYSPAL, (SDL_Color *)palette, 0, kNumberOfColors);
 }
 
 int windowResizingEventWatcher(void* data, SDL_Event* event)
