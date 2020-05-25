@@ -53,8 +53,11 @@ ScalingMode getScalingMode(void);
 void setScalingMode(ScalingMode mode);
 
 void getWindowSize(int *width, int *height);
+
 void centerMouse(void);
 void moveMouse(int x, int y);
+void hideMouse(void);
+void getMouseState(int *x, int *y, uint8_t *leftButton, uint8_t *rightButton);
 
 void toggleFullscreen(void);
 void setFullscreenMode(uint8_t fullscreen);

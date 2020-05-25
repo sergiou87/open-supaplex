@@ -31,4 +31,6 @@
 char *encodeBase64(const unsigned char *input, size_t inputLength);
 int decodeBase64(const char *input, unsigned char *output, size_t outputLength);
 
+uint16_t swap16(uint16_t value);
+
 #endif /* utils_h */

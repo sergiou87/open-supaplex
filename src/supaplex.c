@@ -19,7 +19,6 @@
 #include <ctype.h>
 #include <errno.h>
 #include <math.h>
-#include <SDL2/SDL.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -5265,7 +5264,7 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
         }
         while (gIsNumLockPressed == 1);
 
-        // From the speed fix mod, but in uppercase so I can use characterForSDLScancode
+        // From the speed fix mod, but in uppercase so I can use characterForLastKeyPressed
         static const char kMagicDisableDebugModeCode[] = "CANT STO";
         uint8_t index = 0;
 
@@ -9681,7 +9680,7 @@ void initializeMouse() //   proc near       ; CODE XREF: start+299p
     {
         centerMouse();
     }
-    SDL_ShowCursor(SDL_DISABLE);
+    hideMouse();
     handleSystemEvents();
 }
 
@@ -9696,7 +9695,9 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
         handleSystemEvents();
 
         int x, y;
-        Uint32 state = SDL_GetMouseState(&x, &y);
+        uint8_t leftButtonPressed,rightButtonPressed;
+
+        getMouseState(&x, &y, &leftButtonPressed, &rightButtonPressed);
 
         int windowWidth, windowHeight;
         getWindowSize(&windowWidth, &windowHeight);
@@ -9734,9 +9735,6 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
 
         x = x * kScreenWidth / windowWidth;
         y = y * kScreenHeight / windowHeight;
-
-        uint8_t leftButtonPressed = (state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
-        uint8_t rightButtonPressed = (state & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0;
 
         leftButtonPressed = (leftButtonPressed
                              || controllerLeftButton
@@ -13053,7 +13051,7 @@ void updateSpecialPort(int16_t position) // sub_4F2AF   proc near       ; CODE X
 //loc_4F2BD:              ; CODE XREF: updateSpecialPort+19j
         SpecialPortInfo portInfo = gCurrentLevel.specialPortsInfo[i];
         // For _reasons_ the port position has its bytes inverted (first high, then low), so we must reverse them
-        uint16_t portPosition = SDL_Swap16(portInfo.position);
+        uint16_t portPosition = swap16(portInfo.position);
         portPosition /= 2; // We must divide by 2 because the level format works with words
 
         if (portPosition == position)

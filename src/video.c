@@ -207,6 +207,18 @@ void moveMouse(int x, int y)
     SDL_WarpMouseInWindow(gWindow, x, y);
 }
 
+void hideMouse(void)
+{
+    SDL_ShowCursor(SDL_DISABLE);
+}
+
+void getMouseState(int *x, int *y, uint8_t *leftButton, uint8_t *rightButton)
+{
+    Uint32 state = SDL_GetMouseState(x, y);
+    *leftButton = (state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
+    *rightButton = (state & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0;
+}
+
 void toggleFullscreen()
 {
     setFullscreenMode(getFullscreenMode() == 0);
