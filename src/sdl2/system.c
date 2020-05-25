@@ -15,13 +15,13 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "system.h"
+#include "../system.h"
 
 #include <errno.h>
 #include <SDL2/SDL.h>
 #include <stdio.h>
 
-#include "globals.h"
+#include "../globals.h"
 
 void exitWithError(const char *format, ...)
 {

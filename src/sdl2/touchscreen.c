@@ -15,7 +15,7 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "touchscreen.h"
+#include "../touchscreen.h"
 
 #include <SDL2/SDL.h>
 

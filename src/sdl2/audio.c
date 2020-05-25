@@ -15,13 +15,13 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "audio.h"
+#include "../audio.h"
 
 #include <math.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 
-#include "logging.h"
+#include "../logging.h"
 
 #define kMaxSoundFilenameLength 256
 

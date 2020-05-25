@@ -15,14 +15,14 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "video.h"
+#include "../video.h"
 
 #include <math.h>
 #include <SDL2/SDL.h>
 #include <stdlib.h>
 
-#include "logging.h"
-#include "utils.h"
+#include "../logging.h"
+#include "../utils.h"
 
 #if defined(__PSP__)
 static const int kWindowWidth = 480;
@@ -155,6 +155,10 @@ void present()
 void destroyVideo()
 {
     SDL_DelEventWatch(windowResizingEventWatcher, gWindow);
+    if (gScreenSurface != NULL)
+    {
+        SDL_FreeSurface(gScreenSurface);
+    }
     if (gTextureSurface != NULL)
     {
         SDL_FreeSurface(gTextureSurface);

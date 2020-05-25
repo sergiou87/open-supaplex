@@ -9,14 +9,9 @@
 /* Begin PBXBuildFile section */
 		404879F0246C402B00B776FA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 404879EF246C402B00B776FA /* Assets.xcassets */; };
 		404879FB246C403A00B776FA /* ini.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3CFB2468BEF900D4A308 /* ini.c */; };
-		404879FC246C403A00B776FA /* controller.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C244244CE5D4007A07F5 /* controller.c */; };
 		404879FD246C403A00B776FA /* supaplex.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C246244CE5D5007A07F5 /* supaplex.c */; };
-		404879FF246C403A00B776FA /* touchscreen.c in Sources */ = {isa = PBXBuildFile; fileRef = 4001459D245F7B5A00620211 /* touchscreen.c */; };
-		40487A00246C403A00B776FA /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145A0245F7EBF00620211 /* logging.c */; };
 		40487A01246C403A00B776FA /* nullVirtualKeyboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145A3245FEDF200620211 /* nullVirtualKeyboard.c */; };
-		40487A02246C403A00B776FA /* video.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145A72461A59D00620211 /* video.c */; };
 		40487A03246C403A00B776FA /* utils.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145AB2462CE9F00620211 /* utils.c */; };
-		40487A04246C403A00B776FA /* audio.c in Sources */ = {isa = PBXBuildFile; fileRef = 40C8290D24673197003A103E /* audio.c */; };
 		40487A05246C403A00B776FA /* menu.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3CF72468717400D4A308 /* menu.c */; };
 		40487A06246C403A00B776FA /* config.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3D022469C03000D4A308 /* config.c */; };
 		40487A07246C403A00B776FA /* input.c in Sources */ = {isa = PBXBuildFile; fileRef = 404879C0246B51E600B776FA /* input.c */; };
@@ -31,13 +26,8 @@
 		40564316247032640042F34B /* commandLineParser.c in Sources */ = {isa = PBXBuildFile; fileRef = 4056430C246F49CE0042F34B /* commandLineParser.c */; };
 		40564317247032640042F34B /* menu.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3CF72468717400D4A308 /* menu.c */; };
 		40564318247032640042F34B /* ini.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3CFB2468BEF900D4A308 /* ini.c */; };
-		40564319247032640042F34B /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145A0245F7EBF00620211 /* logging.c */; };
-		4056431A247032640042F34B /* controller.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C244244CE5D4007A07F5 /* controller.c */; };
 		4056431B247032640042F34B /* supaplex.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C246244CE5D5007A07F5 /* supaplex.c */; };
 		4056431C247032640042F34B /* conditionals.c in Sources */ = {isa = PBXBuildFile; fileRef = 404879C3246B609900B776FA /* conditionals.c */; };
-		4056431D247032640042F34B /* video.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145A72461A59D00620211 /* video.c */; };
-		4056431E247032640042F34B /* audio.c in Sources */ = {isa = PBXBuildFile; fileRef = 40C8290D24673197003A103E /* audio.c */; };
-		4056431F247032640042F34B /* touchscreen.c in Sources */ = {isa = PBXBuildFile; fileRef = 4001459D245F7B5A00620211 /* touchscreen.c */; };
 		40564320247032640042F34B /* config.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3D022469C03000D4A308 /* config.c */; };
 		40564321247032640042F34B /* demo.c in Sources */ = {isa = PBXBuildFile; fileRef = 40564312246F5DB60042F34B /* demo.c */; };
 		40564322247032640042F34B /* file.m in Sources */ = {isa = PBXBuildFile; fileRef = 40487A82246CB32400B776FA /* file.m */; };
@@ -47,8 +37,6 @@
 		40564326247032640042F34B /* utils.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145AB2462CE9F00620211 /* utils.c */; };
 		40564330247032640042F34B /* audio in Resources */ = {isa = PBXBuildFile; fileRef = 40487A84246CB5D200B776FA /* audio */; };
 		4056433B247032640042F34B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 404879EF246C402B00B776FA /* Assets.xcassets */; };
-		409F7B632479CD4C00BB3B19 /* system.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7B622479CD4C00BB3B19 /* system.c */; };
-		409F7B642479CD4C00BB3B19 /* system.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7B622479CD4C00BB3B19 /* system.c */; };
 		409F7B672479D45200BB3B19 /* buttonBorders.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7B662479D45200BB3B19 /* buttonBorders.c */; };
 		409F7B682479D45200BB3B19 /* buttonBorders.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7B662479D45200BB3B19 /* buttonBorders.c */; };
 		409F7B6B2479D56D00BB3B19 /* animations.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7B6A2479D56D00BB3B19 /* animations.c */; };
@@ -233,23 +221,17 @@
 		409F7E91247B307400BB3B19 /* menu.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3CF72468717400D4A308 /* menu.c */; };
 		409F7E92247B307400BB3B19 /* animations.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7B6A2479D56D00BB3B19 /* animations.c */; };
 		409F7E93247B307400BB3B19 /* ini.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3CFB2468BEF900D4A308 /* ini.c */; };
-		409F7E94247B307400BB3B19 /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145A0245F7EBF00620211 /* logging.c */; };
 		409F7E95247B307400BB3B19 /* buttonBorders.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7B662479D45200BB3B19 /* buttonBorders.c */; };
 		409F7E96247B307400BB3B19 /* savegame.c in Sources */ = {isa = PBXBuildFile; fileRef = 40E6995324787DAE000ADD53 /* savegame.c */; };
 		409F7E97247B307400BB3B19 /* graphics.c in Sources */ = {isa = PBXBuildFile; fileRef = 40517B142473EC57004E2435 /* graphics.c */; };
-		409F7E98247B307400BB3B19 /* controller.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C244244CE5D4007A07F5 /* controller.c */; };
 		409F7E99247B307400BB3B19 /* supaplex.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C246244CE5D5007A07F5 /* supaplex.c */; };
 		409F7E9A247B307400BB3B19 /* conditionals.c in Sources */ = {isa = PBXBuildFile; fileRef = 404879C3246B609900B776FA /* conditionals.c */; };
-		409F7E9B247B307400BB3B19 /* video.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145A72461A59D00620211 /* video.c */; };
-		409F7E9C247B307400BB3B19 /* audio.c in Sources */ = {isa = PBXBuildFile; fileRef = 40C8290D24673197003A103E /* audio.c */; };
-		409F7E9D247B307400BB3B19 /* touchscreen.c in Sources */ = {isa = PBXBuildFile; fileRef = 4001459D245F7B5A00620211 /* touchscreen.c */; };
 		409F7E9E247B307400BB3B19 /* config.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3D022469C03000D4A308 /* config.c */; };
 		409F7E9F247B307400BB3B19 /* demo.c in Sources */ = {isa = PBXBuildFile; fileRef = 40564312246F5DB60042F34B /* demo.c */; };
 		409F7EA0247B307400BB3B19 /* file.m in Sources */ = {isa = PBXBuildFile; fileRef = 40487A82246CB32400B776FA /* file.m */; };
 		409F7EA1247B307400BB3B19 /* nullVirtualKeyboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145A3245FEDF200620211 /* nullVirtualKeyboard.c */; };
 		409F7EA2247B307400BB3B19 /* input.c in Sources */ = {isa = PBXBuildFile; fileRef = 404879C0246B51E600B776FA /* input.c */; };
 		409F7EA3247B307400BB3B19 /* globals.c in Sources */ = {isa = PBXBuildFile; fileRef = 4056430F246F4A9A0042F34B /* globals.c */; };
-		409F7EA4247B307400BB3B19 /* system.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7B622479CD4C00BB3B19 /* system.c */; };
 		409F7EA5247B307400BB3B19 /* utils.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145AB2462CE9F00620211 /* utils.c */; };
 		409F7EA8247B307400BB3B19 /* BACK.DAT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB0247B298C00BB3B19 /* BACK.DAT */; };
 		409F7EA9247B307400BB3B19 /* SPLVLS12.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB4247B298D00BB3B19 /* SPLVLS12.TXT */; };
@@ -341,22 +323,37 @@
 		409F7EFF247B307400BB3B19 /* LEVEL.L01 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DC9247B298F00BB3B19 /* LEVEL.L01 */; };
 		409F7F00247B307400BB3B19 /* LEVELS.D02 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D85247B298900BB3B19 /* LEVELS.D02 */; };
 		409F7F01247B307400BB3B19 /* DEMO8.BIN in Resources */ = {isa = PBXBuildFile; fileRef = 409F7DB2247B298D00BB3B19 /* DEMO8.BIN */; };
-		409F7F09247B35AE00BB3B19 /* keyboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7F08247B35AE00BB3B19 /* keyboard.c */; };
-		409F7F0A247B35AE00BB3B19 /* keyboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7F08247B35AE00BB3B19 /* keyboard.c */; };
-		409F7F0B247B35AE00BB3B19 /* keyboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7F08247B35AE00BB3B19 /* keyboard.c */; };
+		409F7F1D247C74D700BB3B19 /* video.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7F16247C74D600BB3B19 /* video.c */; };
+		409F7F1E247C74D700BB3B19 /* keyboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7F17247C74D600BB3B19 /* keyboard.c */; };
+		409F7F1F247C74D700BB3B19 /* controller.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7F18247C74D600BB3B19 /* controller.c */; };
+		409F7F20247C74D700BB3B19 /* system.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7F19247C74D600BB3B19 /* system.c */; };
+		409F7F21247C74D700BB3B19 /* audio.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7F1A247C74D600BB3B19 /* audio.c */; };
+		409F7F22247C74D700BB3B19 /* touchscreen.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7F1B247C74D600BB3B19 /* touchscreen.c */; };
+		409F7F23247C74D700BB3B19 /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7F1C247C74D700BB3B19 /* logging.c */; };
+		409F7F2B247C74E300BB3B19 /* touchscreen.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7F24247C74E300BB3B19 /* touchscreen.c */; };
+		409F7F2C247C74E300BB3B19 /* touchscreen.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7F24247C74E300BB3B19 /* touchscreen.c */; };
+		409F7F2D247C74E300BB3B19 /* controller.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7F25247C74E300BB3B19 /* controller.c */; };
+		409F7F2E247C74E300BB3B19 /* controller.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7F25247C74E300BB3B19 /* controller.c */; };
+		409F7F2F247C74E300BB3B19 /* video.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7F26247C74E300BB3B19 /* video.c */; };
+		409F7F30247C74E300BB3B19 /* video.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7F26247C74E300BB3B19 /* video.c */; };
+		409F7F31247C74E300BB3B19 /* keyboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7F27247C74E300BB3B19 /* keyboard.c */; };
+		409F7F32247C74E300BB3B19 /* keyboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7F27247C74E300BB3B19 /* keyboard.c */; };
+		409F7F33247C74E300BB3B19 /* system.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7F28247C74E300BB3B19 /* system.c */; };
+		409F7F34247C74E300BB3B19 /* system.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7F28247C74E300BB3B19 /* system.c */; };
+		409F7F35247C74E300BB3B19 /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7F29247C74E300BB3B19 /* logging.c */; };
+		409F7F36247C74E300BB3B19 /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7F29247C74E300BB3B19 /* logging.c */; };
+		409F7F37247C74E300BB3B19 /* audio.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7F2A247C74E300BB3B19 /* audio.c */; };
+		409F7F38247C74E300BB3B19 /* audio.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7F2A247C74E300BB3B19 /* audio.c */; };
 		40E6995424787DAE000ADD53 /* savegame.c in Sources */ = {isa = PBXBuildFile; fileRef = 40E6995324787DAE000ADD53 /* savegame.c */; };
 		40E6995524787DAE000ADD53 /* savegame.c in Sources */ = {isa = PBXBuildFile; fileRef = 40E6995324787DAE000ADD53 /* savegame.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		4001459C245F7B5A00620211 /* touchscreen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = touchscreen.h; path = ../../../src/touchscreen.h; sourceTree = "<group>"; };
-		4001459D245F7B5A00620211 /* touchscreen.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = touchscreen.c; path = ../../../src/touchscreen.c; sourceTree = "<group>"; };
 		4001459F245F7EBF00620211 /* logging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = logging.h; path = ../../../src/logging.h; sourceTree = "<group>"; };
-		400145A0245F7EBF00620211 /* logging.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = logging.c; path = ../../../src/logging.c; sourceTree = "<group>"; };
 		400145A2245FEDF200620211 /* virtualKeyboard.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = virtualKeyboard.h; path = ../../../src/virtualKeyboard.h; sourceTree = "<group>"; };
 		400145A3245FEDF200620211 /* nullVirtualKeyboard.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = nullVirtualKeyboard.c; path = ../../../src/nullVirtualKeyboard.c; sourceTree = "<group>"; };
 		400145A62461A59D00620211 /* video.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = video.h; path = ../../../src/video.h; sourceTree = "<group>"; };
-		400145A72461A59D00620211 /* video.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = video.c; path = ../../../src/video.c; sourceTree = "<group>"; };
 		400145AA2462CE9F00620211 /* utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = utils.h; path = ../../../src/utils.h; sourceTree = "<group>"; };
 		400145AB2462CE9F00620211 /* utils.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = utils.c; path = ../../../src/utils.c; sourceTree = "<group>"; };
 		404879BF246B51E600B776FA /* input.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = input.h; path = ../../../src/input.h; sourceTree = "<group>"; };
@@ -379,12 +376,10 @@
 		40564312246F5DB60042F34B /* demo.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = demo.c; path = ../../../src/demo.c; sourceTree = "<group>"; };
 		4056434A247032640042F34B /* OpenSupaplex-sandboxed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "OpenSupaplex-sandboxed.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4056434B247032640042F34B /* macOS-sandboxed-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "macOS-sandboxed-Info.plist"; path = "/Users/spadrino/Development/open-supaplex/macos/OpenSupaplex/macOS-sandboxed-Info.plist"; sourceTree = "<absolute>"; };
-		4062C244244CE5D4007A07F5 /* controller.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = controller.c; path = ../../../src/controller.c; sourceTree = "<group>"; };
 		4062C245244CE5D5007A07F5 /* controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = controller.h; path = ../../../src/controller.h; sourceTree = "<group>"; };
 		4062C246244CE5D5007A07F5 /* supaplex.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = supaplex.c; path = ../../../src/supaplex.c; sourceTree = "<group>"; };
 		4062C24A244F00CA007A07F5 /* file.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = file.h; path = ../../../src/file.h; sourceTree = "<group>"; };
 		409F7B612479CD4C00BB3B19 /* system.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = system.h; path = ../../../src/system.h; sourceTree = "<group>"; };
-		409F7B622479CD4C00BB3B19 /* system.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = system.c; path = ../../../src/system.c; sourceTree = "<group>"; };
 		409F7B652479D45200BB3B19 /* buttonBorders.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = buttonBorders.h; path = ../../../src/buttonBorders.h; sourceTree = "<group>"; };
 		409F7B662479D45200BB3B19 /* buttonBorders.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = buttonBorders.c; path = ../../../src/buttonBorders.c; sourceTree = "<group>"; };
 		409F7B692479D56D00BB3B19 /* animations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = animations.h; path = ../../../src/animations.h; sourceTree = "<group>"; };
@@ -480,9 +475,21 @@
 		409F7F05247B307400BB3B19 /* OpenSupaplex SDL1.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "OpenSupaplex SDL1.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		409F7F06247B307400BB3B19 /* OpenSupaplex copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "OpenSupaplex copy-Info.plist"; path = "/Users/spadrino/Development/open-supaplex/macos/OpenSupaplex/OpenSupaplex copy-Info.plist"; sourceTree = "<absolute>"; };
 		409F7F07247B35AE00BB3B19 /* keyboard.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = keyboard.h; path = ../../../src/keyboard.h; sourceTree = "<group>"; };
-		409F7F08247B35AE00BB3B19 /* keyboard.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = keyboard.c; path = ../../../src/keyboard.c; sourceTree = "<group>"; };
+		409F7F16247C74D600BB3B19 /* video.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = video.c; path = ../../../../src/sdl1/video.c; sourceTree = "<group>"; };
+		409F7F17247C74D600BB3B19 /* keyboard.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = keyboard.c; path = ../../../../src/sdl1/keyboard.c; sourceTree = "<group>"; };
+		409F7F18247C74D600BB3B19 /* controller.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = controller.c; path = ../../../../src/sdl1/controller.c; sourceTree = "<group>"; };
+		409F7F19247C74D600BB3B19 /* system.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = system.c; path = ../../../../src/sdl1/system.c; sourceTree = "<group>"; };
+		409F7F1A247C74D600BB3B19 /* audio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = audio.c; path = ../../../../src/sdl1/audio.c; sourceTree = "<group>"; };
+		409F7F1B247C74D600BB3B19 /* touchscreen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = touchscreen.c; path = ../../../../src/sdl1/touchscreen.c; sourceTree = "<group>"; };
+		409F7F1C247C74D700BB3B19 /* logging.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = logging.c; path = ../../../../src/sdl1/logging.c; sourceTree = "<group>"; };
+		409F7F24247C74E300BB3B19 /* touchscreen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = touchscreen.c; path = ../../../../src/sdl2/touchscreen.c; sourceTree = "<group>"; };
+		409F7F25247C74E300BB3B19 /* controller.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = controller.c; path = ../../../../src/sdl2/controller.c; sourceTree = "<group>"; };
+		409F7F26247C74E300BB3B19 /* video.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = video.c; path = ../../../../src/sdl2/video.c; sourceTree = "<group>"; };
+		409F7F27247C74E300BB3B19 /* keyboard.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = keyboard.c; path = ../../../../src/sdl2/keyboard.c; sourceTree = "<group>"; };
+		409F7F28247C74E300BB3B19 /* system.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = system.c; path = ../../../../src/sdl2/system.c; sourceTree = "<group>"; };
+		409F7F29247C74E300BB3B19 /* logging.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = logging.c; path = ../../../../src/sdl2/logging.c; sourceTree = "<group>"; };
+		409F7F2A247C74E300BB3B19 /* audio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = audio.c; path = ../../../../src/sdl2/audio.c; sourceTree = "<group>"; };
 		40C8290C24673197003A103E /* audio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = audio.h; path = ../../../src/audio.h; sourceTree = "<group>"; };
-		40C8290D24673197003A103E /* audio.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = audio.c; path = ../../../src/audio.c; sourceTree = "<group>"; };
 		40DA3CF62468717400D4A308 /* menu.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = menu.h; path = ../../../src/menu.h; sourceTree = "<group>"; };
 		40DA3CF72468717400D4A308 /* menu.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = menu.c; path = ../../../src/menu.c; sourceTree = "<group>"; };
 		40DA3CFB2468BEF900D4A308 /* ini.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ini.c; sourceTree = "<group>"; };
@@ -618,6 +625,34 @@
 			name = Resources;
 			sourceTree = "<group>";
 		};
+		409F7F14247C74B600BB3B19 /* sdl1 */ = {
+			isa = PBXGroup;
+			children = (
+				409F7F1A247C74D600BB3B19 /* audio.c */,
+				409F7F18247C74D600BB3B19 /* controller.c */,
+				409F7F17247C74D600BB3B19 /* keyboard.c */,
+				409F7F1C247C74D700BB3B19 /* logging.c */,
+				409F7F19247C74D600BB3B19 /* system.c */,
+				409F7F1B247C74D600BB3B19 /* touchscreen.c */,
+				409F7F16247C74D600BB3B19 /* video.c */,
+			);
+			path = sdl1;
+			sourceTree = "<group>";
+		};
+		409F7F15247C74CC00BB3B19 /* sdl2 */ = {
+			isa = PBXGroup;
+			children = (
+				409F7F2A247C74E300BB3B19 /* audio.c */,
+				409F7F25247C74E300BB3B19 /* controller.c */,
+				409F7F27247C74E300BB3B19 /* keyboard.c */,
+				409F7F29247C74E300BB3B19 /* logging.c */,
+				409F7F28247C74E300BB3B19 /* system.c */,
+				409F7F24247C74E300BB3B19 /* touchscreen.c */,
+				409F7F26247C74E300BB3B19 /* video.c */,
+			);
+			path = sdl2;
+			sourceTree = "<group>";
+		};
 		40C0D72324196126004742A9 = {
 			isa = PBXGroup;
 			children = (
@@ -642,24 +677,21 @@
 		40C0D72E24196126004742A9 /* OpenSupaplex */ = {
 			isa = PBXGroup;
 			children = (
+				409F7F15247C74CC00BB3B19 /* sdl2 */,
+				409F7F14247C74B600BB3B19 /* sdl1 */,
 				40DA3CF92468BEF900D4A308 /* lib */,
-				4062C244244CE5D4007A07F5 /* controller.c */,
 				4062C245244CE5D5007A07F5 /* controller.h */,
 				4062C246244CE5D5007A07F5 /* supaplex.c */,
 				4062C24A244F00CA007A07F5 /* file.h */,
 				40487A82246CB32400B776FA /* file.m */,
 				4001459C245F7B5A00620211 /* touchscreen.h */,
-				4001459D245F7B5A00620211 /* touchscreen.c */,
 				4001459F245F7EBF00620211 /* logging.h */,
-				400145A0245F7EBF00620211 /* logging.c */,
 				400145A2245FEDF200620211 /* virtualKeyboard.h */,
 				400145A3245FEDF200620211 /* nullVirtualKeyboard.c */,
 				400145A62461A59D00620211 /* video.h */,
-				400145A72461A59D00620211 /* video.c */,
 				400145AA2462CE9F00620211 /* utils.h */,
 				400145AB2462CE9F00620211 /* utils.c */,
 				40C8290C24673197003A103E /* audio.h */,
-				40C8290D24673197003A103E /* audio.c */,
 				40DA3CF62468717400D4A308 /* menu.h */,
 				40DA3CF72468717400D4A308 /* menu.c */,
 				40DA3D012469C03000D4A308 /* config.h */,
@@ -679,13 +711,11 @@
 				40E6995224787DAE000ADD53 /* savegame.h */,
 				40E6995324787DAE000ADD53 /* savegame.c */,
 				409F7B612479CD4C00BB3B19 /* system.h */,
-				409F7B622479CD4C00BB3B19 /* system.c */,
 				409F7B652479D45200BB3B19 /* buttonBorders.h */,
 				409F7B662479D45200BB3B19 /* buttonBorders.c */,
 				409F7B692479D56D00BB3B19 /* animations.h */,
 				409F7B6A2479D56D00BB3B19 /* animations.c */,
 				409F7F07247B35AE00BB3B19 /* keyboard.h */,
-				409F7F08247B35AE00BB3B19 /* keyboard.c */,
 			);
 			path = OpenSupaplex;
 			sourceTree = "<group>";
@@ -1102,28 +1132,28 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				409F7F31247C74E300BB3B19 /* keyboard.c in Sources */,
 				4056430D246F49CE0042F34B /* commandLineParser.c in Sources */,
 				40487A05246C403A00B776FA /* menu.c in Sources */,
 				409F7B6B2479D56D00BB3B19 /* animations.c in Sources */,
 				404879FB246C403A00B776FA /* ini.c in Sources */,
-				40487A00246C403A00B776FA /* logging.c in Sources */,
 				409F7B672479D45200BB3B19 /* buttonBorders.c in Sources */,
 				40E6995424787DAE000ADD53 /* savegame.c in Sources */,
 				40517B152473EC57004E2435 /* graphics.c in Sources */,
-				404879FC246C403A00B776FA /* controller.c in Sources */,
 				404879FD246C403A00B776FA /* supaplex.c in Sources */,
+				409F7F33247C74E300BB3B19 /* system.c in Sources */,
+				409F7F2F247C74E300BB3B19 /* video.c in Sources */,
 				40487A08246C403A00B776FA /* conditionals.c in Sources */,
-				40487A02246C403A00B776FA /* video.c in Sources */,
-				409F7F09247B35AE00BB3B19 /* keyboard.c in Sources */,
-				40487A04246C403A00B776FA /* audio.c in Sources */,
-				404879FF246C403A00B776FA /* touchscreen.c in Sources */,
 				40487A06246C403A00B776FA /* config.c in Sources */,
 				40564313246F5DB60042F34B /* demo.c in Sources */,
 				40487A83246CB32400B776FA /* file.m in Sources */,
+				409F7F2B247C74E300BB3B19 /* touchscreen.c in Sources */,
+				409F7F2D247C74E300BB3B19 /* controller.c in Sources */,
+				409F7F35247C74E300BB3B19 /* logging.c in Sources */,
+				409F7F37247C74E300BB3B19 /* audio.c in Sources */,
 				40487A01246C403A00B776FA /* nullVirtualKeyboard.c in Sources */,
 				40487A07246C403A00B776FA /* input.c in Sources */,
 				40564310246F4A9A0042F34B /* globals.c in Sources */,
-				409F7B632479CD4C00BB3B19 /* system.c in Sources */,
 				40487A03246C403A00B776FA /* utils.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1132,28 +1162,28 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				409F7F32247C74E300BB3B19 /* keyboard.c in Sources */,
 				40564316247032640042F34B /* commandLineParser.c in Sources */,
 				40564317247032640042F34B /* menu.c in Sources */,
 				409F7B6C2479D56D00BB3B19 /* animations.c in Sources */,
 				40564318247032640042F34B /* ini.c in Sources */,
-				40564319247032640042F34B /* logging.c in Sources */,
 				409F7B682479D45200BB3B19 /* buttonBorders.c in Sources */,
 				40E6995524787DAE000ADD53 /* savegame.c in Sources */,
 				40517B162473EC57004E2435 /* graphics.c in Sources */,
-				4056431A247032640042F34B /* controller.c in Sources */,
 				4056431B247032640042F34B /* supaplex.c in Sources */,
+				409F7F34247C74E300BB3B19 /* system.c in Sources */,
+				409F7F30247C74E300BB3B19 /* video.c in Sources */,
 				4056431C247032640042F34B /* conditionals.c in Sources */,
-				4056431D247032640042F34B /* video.c in Sources */,
-				409F7F0A247B35AE00BB3B19 /* keyboard.c in Sources */,
-				4056431E247032640042F34B /* audio.c in Sources */,
-				4056431F247032640042F34B /* touchscreen.c in Sources */,
 				40564320247032640042F34B /* config.c in Sources */,
 				40564321247032640042F34B /* demo.c in Sources */,
 				40564322247032640042F34B /* file.m in Sources */,
+				409F7F2C247C74E300BB3B19 /* touchscreen.c in Sources */,
+				409F7F2E247C74E300BB3B19 /* controller.c in Sources */,
+				409F7F36247C74E300BB3B19 /* logging.c in Sources */,
+				409F7F38247C74E300BB3B19 /* audio.c in Sources */,
 				40564323247032640042F34B /* nullVirtualKeyboard.c in Sources */,
 				40564324247032640042F34B /* input.c in Sources */,
 				40564325247032640042F34B /* globals.c in Sources */,
-				409F7B642479CD4C00BB3B19 /* system.c in Sources */,
 				40564326247032640042F34B /* utils.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1162,29 +1192,29 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				409F7F21247C74D700BB3B19 /* audio.c in Sources */,
 				409F7E90247B307400BB3B19 /* commandLineParser.c in Sources */,
 				409F7E91247B307400BB3B19 /* menu.c in Sources */,
 				409F7E92247B307400BB3B19 /* animations.c in Sources */,
 				409F7E93247B307400BB3B19 /* ini.c in Sources */,
-				409F7E94247B307400BB3B19 /* logging.c in Sources */,
 				409F7E95247B307400BB3B19 /* buttonBorders.c in Sources */,
 				409F7E96247B307400BB3B19 /* savegame.c in Sources */,
 				409F7E97247B307400BB3B19 /* graphics.c in Sources */,
-				409F7E98247B307400BB3B19 /* controller.c in Sources */,
 				409F7E99247B307400BB3B19 /* supaplex.c in Sources */,
+				409F7F22247C74D700BB3B19 /* touchscreen.c in Sources */,
+				409F7F1E247C74D700BB3B19 /* keyboard.c in Sources */,
+				409F7F1F247C74D700BB3B19 /* controller.c in Sources */,
 				409F7E9A247B307400BB3B19 /* conditionals.c in Sources */,
-				409F7E9B247B307400BB3B19 /* video.c in Sources */,
-				409F7F0B247B35AE00BB3B19 /* keyboard.c in Sources */,
-				409F7E9C247B307400BB3B19 /* audio.c in Sources */,
-				409F7E9D247B307400BB3B19 /* touchscreen.c in Sources */,
 				409F7E9E247B307400BB3B19 /* config.c in Sources */,
 				409F7E9F247B307400BB3B19 /* demo.c in Sources */,
 				409F7EA0247B307400BB3B19 /* file.m in Sources */,
+				409F7F23247C74D700BB3B19 /* logging.c in Sources */,
 				409F7EA1247B307400BB3B19 /* nullVirtualKeyboard.c in Sources */,
 				409F7EA2247B307400BB3B19 /* input.c in Sources */,
 				409F7EA3247B307400BB3B19 /* globals.c in Sources */,
-				409F7EA4247B307400BB3B19 /* system.c in Sources */,
 				409F7EA5247B307400BB3B19 /* utils.c in Sources */,
+				409F7F20247C74D700BB3B19 /* system.c in Sources */,
+				409F7F1D247C74D700BB3B19 /* video.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

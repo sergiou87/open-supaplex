@@ -15,11 +15,11 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "keyboard.h"
+#include "../keyboard.h"
 
 #include <SDL2/SDL.h>
 
-#include "system.h"
+#include "../system.h"
 
 SDL_Scancode gKeyPressed = 0;
 

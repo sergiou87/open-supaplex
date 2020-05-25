@@ -15,7 +15,7 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "controller.h"
+#include "../controller.h"
 
 #include <SDL2/SDL.h>
 #include <stdlib.h>
