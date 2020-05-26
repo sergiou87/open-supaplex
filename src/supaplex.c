@@ -652,8 +652,8 @@ void initializeGameInfo(void);
 void drawGamePanel(void);
 void drawNumberOfRemainingInfotrons(void);
 void drawGameTime(void);
-void convertToEasyTiles(void);
-void resetNumberOfInfotrons(void);
+uint16_t convertToEasyTiles(void);
+void resetNumberOfInfotrons(uint16_t numberOfInfotronsInGameField);
 void findMurphy(void);
 void drawGamePanelText(void);
 void scrollToMurphy(void);
@@ -1603,8 +1603,8 @@ int main(int argc, char *argv[])
             initializeGameInfo();
             drawFixedLevel();
             drawGamePanel(); // 01ED:0311
-            convertToEasyTiles();
-            resetNumberOfInfotrons();
+            uint16_t numberOfInfotrons = convertToEasyTiles();
+            resetNumberOfInfotrons(numberOfInfotrons);
             findMurphy();
             gCurrentPanelHeight = kPanelBitmapHeight;
             drawCurrentLevelViewport(gCurrentPanelHeight); // Added by me
@@ -5908,7 +5908,7 @@ void scrollToMurphy() // sub_4A291   proc near       ; CODE XREF: handleGameUser
     videoLoop();
 }
 
-void convertToEasyTiles() // sub_4A2E6   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
+uint16_t convertToEasyTiles() // sub_4A2E6   proc near       ; CODE XREF: start+33Bp runLevel+ADp ...
 {
     // 01ED:3683
     uint16_t numberOfInfotrons = 0;
@@ -6049,11 +6049,16 @@ void convertToEasyTiles() // sub_4A2E6   proc near       ; CODE XREF: start+33B
             continue; // jmp short loc_4A3B0
         }
     }
+
+    return numberOfInfotrons;
 }
 
-void resetNumberOfInfotrons() // sub_4A3BB   proc near       ; CODE XREF: start+33Ep fetchAndInitializeLevel+17p
+void resetNumberOfInfotrons(uint16_t numberOfInfotronsFoundInLevel) // sub_4A3BB   proc near       ; CODE XREF: start+33Ep fetchAndInitializeLevel+17p
 {
-    uint8_t numberOfInfotrons = 0;
+    // In the original game, the number of infotrons found in a level is stored in a 2-bytes variable,
+    // however, when stored for its use in the game, it's stored in a 1-byte variable.
+    //
+    uint8_t numberOfInfotrons = (numberOfInfotronsFoundInLevel & 0xFF);
     if (gNumberOfInfoTrons != 0)
     {
         numberOfInfotrons = gNumberOfInfoTrons;
@@ -6139,9 +6144,9 @@ void fetchAndInitializeLevel() // sub_4A463   proc near       ; CODE XREF: recor
     drawFixedLevel();
     drawGamePanel();
     gIsGameBusy = -gIsGameBusy;
-    convertToEasyTiles();
+    uint16_t numberOfInfotrons = convertToEasyTiles();
     gIsGameBusy = -gIsGameBusy;
-    resetNumberOfInfotrons();
+    resetNumberOfInfotrons(numberOfInfotrons);
     gIsShowingFancyTiles = 1;
     initializeGameInfo();
     findMurphy();
