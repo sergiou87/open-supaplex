@@ -28,25 +28,26 @@ include_directories(
 set(VITA_ELF_NAME ${SHORT_NAME}.elf)
 add_executable(${SHORT_NAME}
   ../src/supaplex.c
-  ../src/audio.c
   ../src/animations.c
   ../src/buttonBorders.c
   ../src/commandLineParser.c
-  ../src/controller.c
   ../src/conditionals.c
   ../src/config.c
   ../src/demo.c
   ../src/file.c
   ../src/globals.c
   ../src/graphics.c
-  ../src/touchscreen.c
   ../src/input.c
-  ../src/logging.c
   ../src/menu.c
   ../src/utils.c
-  ../src/video.c
   ../src/savegame.c
-  ../src/system.c
+  ../src/sdl2/audio.c
+  ../src/sdl2/controller.c
+  ../src/sdl2/keyboard.c
+  ../src/sdl2/logging.c
+  ../src/sdl2/video.c
+  ../src/sdl2/system.c
+  ../src/sdl2/touchscreen.c
   ../src/psp2/psp2VirtualKeyboard.c
   ../src/lib/ini/ini.c
 )
