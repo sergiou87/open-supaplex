@@ -18,8 +18,8 @@ set(VITA_VERSION  "07.10")
 
 option(DEBUGNET "Enable debugnet for logging" ON)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11 -DHAVE_SDL2")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -DHAVE_SDL2")
 
 include_directories(
   ../common
@@ -37,16 +37,16 @@ add_executable(${SHORT_NAME}
   ../src/file.c
   ../src/globals.c
   ../src/graphics.c
+  ../src/logging.c
   ../src/input.c
   ../src/menu.c
   ../src/utils.c
   ../src/savegame.c
-  ../src/sdl2/audio.c
+  ../src/sdl_common/audio.c
+  ../src/sdl_common/system.c
   ../src/sdl2/controller.c
   ../src/sdl2/keyboard.c
-  ../src/sdl2/logging.c
   ../src/sdl2/video.c
-  ../src/sdl2/system.c
   ../src/sdl2/touchscreen.c
   ../src/psp2/psp2VirtualKeyboard.c
   ../src/lib/ini/ini.c

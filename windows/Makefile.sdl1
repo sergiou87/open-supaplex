@@ -1,0 +1,16 @@
+src = $(wildcard ../src/*.c) $(wildcard ../src/sdl1/*.c) $(wildcard ../src/sdl_common/*.c) ../src/lib/ini/ini.c
+obj = $(src:.c=.o)
+
+LDFLAGS = -lSDL_mixer -lvorbis -lFLAC -logg `sdl-config --libs` `pkg-config SDL_mixer --libs` -lm
+
+CFLAGS = `sdl-config --cflags` `pkg-config SDL_mixer --cflags` -DHAVE_SDL
+
+OpenSupaplex: $(obj) OpenSupaplex.res
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+OpenSupaplex.res:
+	windres OpenSupaplex.rc -O coff -o OpenSupaplex.res
+
+clean:
+	rm $(obj)
+	rm OpenSupaplex.res

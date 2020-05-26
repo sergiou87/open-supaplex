@@ -18,8 +18,14 @@
 #include "../audio.h"
 
 #include <math.h>
+
+#if HAVE_SDL2
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
+#elif HAVE_SDL
+#include <SDL/SDL.h>
+#include <SDL/SDL_mixer.h>
+#endif
 
 #include "../logging.h"
 

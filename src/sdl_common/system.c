@@ -18,7 +18,11 @@
 #include "../system.h"
 
 #include <errno.h>
+#if HAVE_SDL2
 #include <SDL2/SDL.h>
+#elif HAVE_SDL
+#include <SDL/SDL.h>
+#endif
 #include <stdio.h>
 
 #include "../globals.h"

@@ -51,15 +51,13 @@ void initializeVideo(uint8_t fastMode)
     }
 
     SDL_WM_SetCaption("OpenSupaplex", "OpenSupaplex");
-    gWindowSurface =  SDL_SetVideoMode(kScreenWidth,
-                                      kScreenHeight,
+    gWindowSurface =  SDL_SetVideoMode(kWindowWidth,
+                                      kWindowHeight,
                                       8,
-#if defined(__SWITCH__) || defined(__vita__) || defined(__PSP__)
+#if defined(__PSP__)
                                       SDL_FULLSCREEN |
 #endif
                                       SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_HWPALETTE);
-
-    // SDL_AddEventWatch(windowResizingEventWatcher, gWindow);
 
     if (gWindowSurface == NULL)
     {
@@ -84,15 +82,8 @@ void initializeVideo(uint8_t fastMode)
 
 void render()
 {
-    // for (int i = 0; i < kScreenWidth * kScreenHeight; ++i)
-    // {
-    //     ((uint8_t *)gWindowSurface->pixels)[i] = 5;
-    // }
-    SDL_BlitSurface(gScreenSurface, NULL, gWindowSurface, NULL);
-//
-//    SDL_UpdateTexture(gTexture, NULL, gTextureSurface->pixels, gTextureSurface->pitch);
-//    SDL_RenderClear(gRenderer);
-//    SDL_RenderCopy(gRenderer, gTexture, NULL, &gWindowViewport);
+    //SDL_BlitSurface(gScreenSurface, NULL, gWindowSurface, NULL); // TODO: use only this?
+    SDL_SoftStretch(gScreenSurface, NULL, gWindowSurface, NULL);
 }
 
 void present()
@@ -102,7 +93,6 @@ void present()
 
 void destroyVideo()
 {
-    //SDL_DelEventWatch(windowResizingEventWatcher, gWindow);
     if (gScreenSurface != NULL)
     {
         SDL_FreeSurface(gScreenSurface);
@@ -163,21 +153,18 @@ void getMouseState(int *x, int *y, uint8_t *leftButton, uint8_t *rightButton)
 
 void toggleFullscreen()
 {
-    SDL_WM_ToggleFullScreen(gScreenSurface);
-    // setFullscreenMode(getFullscreenMode() == 0);
+    // Not supported
 }
 
 void setFullscreenMode(uint8_t fullscreen)
 {
-    SDL_WM_ToggleFullScreen(gScreenSurface);
-//
+    // Not supported
 }
 
 uint8_t getFullscreenMode(void)
 {
-    return 0;
-//    uint8_t isFullscreen = SDL_GetWindowFlags(gWindow) & SDL_WINDOW_FULLSCREEN;
-//    return (isFullscreen != 0);
+    // Not supported
+    return 0; // TODO: this should always be 1, actually, because SDL 1.2 is only used in consoles
 }
 
 void setGlobalPaletteColor(const uint8_t index, const Color color)
@@ -192,21 +179,9 @@ void setColorPalette(const ColorPalette palette)
     SDL_SetPalette(gWindowSurface, SDL_PHYSPAL, (SDL_Color *)palette, 0, kNumberOfColors);
 }
 
-int windowResizingEventWatcher(void* data, SDL_Event* event)
-{
-//    if (event->type == SDL_WINDOWEVENT
-//        && event->window.event == SDL_WINDOWEVENT_RESIZED)
-//    {
-//        updateWindowViewport();
-//        render();
-//        present();
-//    }
-
-    return 0;
-}
-
 void updateWindowViewport()
 {
+    // TODO: not supported dynamically, but this will be needed to support different screen sizes
     /*
     int windowWidth, windowHeight;
     SDL_GetRendererOutputSize(gRenderer, &windowWidth, &windowHeight);

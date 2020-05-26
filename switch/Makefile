@@ -39,7 +39,7 @@ include $(DEVKITPRO)/libnx/switch_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	OpenSupaplex
 BUILD		:=	build
-SOURCES		:=	../src ../src/nx ../src/lib/ini
+SOURCES		:=	../src ../src/nx ../src/sdl_common ../src/sdl2 ../src/lib/ini
 DATA		:=	data
 INCLUDES	:=	include
 EXCLUDE     :=  nullVirtualKeyboard.c
@@ -57,7 +57,7 @@ ARCH	:=	-march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE
 CFLAGS	:=	-g -Wall -O2 -ffunction-sections \
 			$(ARCH) $(DEFINES)
 
-CFLAGS	+=	$(INCLUDE) -D__SWITCH__ `sdl2-config --cflags`
+CFLAGS	+=	$(INCLUDE) -D__SWITCH__ `sdl2-config --cflags` -DHAVE_SDL2
 
 ifeq ($(DEBUG),1)
 	CFLAGS += -DDEBUG=1
