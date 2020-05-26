@@ -1677,7 +1677,7 @@ int main(int argc, char *argv[])
 //loc_46FE4:              //; CODE XREF: start+3BDj
             gShouldUpdateTotalLevelTime = 0;
             gHasUserCheated = 1;
-            strcpy(&gSPDemoFileName[3], "---");
+            memcpy(&gSPDemoFileName[3], "---", 3);
 //loc_4701A:              //; CODE XREF: start+3DDj start+433j
             startDirectlyFromLevel(1);
             continue;
