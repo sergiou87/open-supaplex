@@ -20,14 +20,29 @@
 #include <SDL/SDL.h>
 #include <stdlib.h>
 
-static int sCurrentGameControllerIndex = -1;
+#include "../logging.h"
+
+const uint8_t GAMEPAD_BUTTON_DOWN = 6;
+const uint8_t GAMEPAD_BUTTON_LEFT = 7;
+const uint8_t GAMEPAD_BUTTON_UP = 8;
+const uint8_t GAMEPAD_BUTTON_RIGHT = 9;
+const uint8_t GAMEPAD_BUTTON_A = 2;
+const uint8_t GAMEPAD_BUTTON_B = 1;
+const uint8_t GAMEPAD_BUTTON_X = 3;
+const uint8_t GAMEPAD_BUTTON_Y = 0;
+const uint8_t GAMEPAD_BUTTON_LSHOULDER = 4;
+const uint8_t GAMEPAD_BUTTON_RSHOULDER = 5;
+const uint8_t GAMEPAD_BUTTON_START = 11;
+const uint8_t GAMEPAD_BUTTON_BACK = 10;
+
 static SDL_Joystick *sCurrentGameController = NULL;
 static const float kJoystickDeadzone = 0.1;
 
 SDL_Joystick *getGameController()
 {
     // The game controller is not valid anymore, invalidate.
-    if (sCurrentGameControllerIndex != -1)
+    // TODO: Make a proper check
+    if (sCurrentGameControllerIndex == -1)
     {
         sCurrentGameController = NULL;
     }
@@ -41,6 +56,7 @@ SDL_Joystick *getGameController()
 
     if (numberOfJoysticks > 0)
     {
+        SDL_JoystickEventState(SDL_ENABLE);
         sCurrentGameController = SDL_JoystickOpen(0);
         sCurrentGameControllerIndex = 0;
     }
@@ -85,12 +101,12 @@ int8_t getGameControllerAxis(int axis, int minButton, int maxButton)
 
 int8_t getGameControllerX(void)
 {
-    return getGameControllerAxis(0, 0, 1);
+    return getGameControllerAxis(0, GAMEPAD_BUTTON_LEFT, GAMEPAD_BUTTON_RIGHT);
 }
 
 int8_t getGameControllerY(void)
 {
-    return getGameControllerAxis(1, 2, 3);
+    return getGameControllerAxis(1, GAMEPAD_BUTTON_UP, GAMEPAD_BUTTON_DOWN);
 }
 
 void gameControllerEmulateMouse(float *x, float *y, uint8_t *leftButton, uint8_t *rightButton)
@@ -141,42 +157,42 @@ uint8_t getGameControllerButton(int button)
 
 uint8_t getGameControllerButtonA(void)
 {
-    return getGameControllerButton(14); //SDL_CONTROLLER_BUTTON_A);
+    return getGameControllerButton(GAMEPAD_BUTTON_A);
 }
 
 uint8_t getGameControllerButtonB(void)
 {
-    return getGameControllerButton(15); //SDL_CONTROLLER_BUTTON_B);
+    return getGameControllerButton(GAMEPAD_BUTTON_B);
 }
 
 uint8_t getGameControllerButtonX(void)
 {
-    return getGameControllerButton(16); //SDL_CONTROLLER_BUTTON_X);
+    return getGameControllerButton(GAMEPAD_BUTTON_X);
 }
 
 uint8_t getGameControllerButtonY(void)
 {
-    return getGameControllerButton(17); //SDL_CONTROLLER_BUTTON_Y);
+    return getGameControllerButton(GAMEPAD_BUTTON_Y);
 }
 
 uint8_t getGameControllerButtonBack(void)
 {
-    return getGameControllerButton(18); //SDL_CONTROLLER_BUTTON_BACK);
+    return getGameControllerButton(GAMEPAD_BUTTON_BACK);
 }
 
 uint8_t getGameControllerButtonStart(void)
 {
-    return getGameControllerButton(19); //SDL_CONTROLLER_BUTTON_START);
+    return getGameControllerButton(GAMEPAD_BUTTON_START);
 }
 
 uint8_t getGameControllerButtonLeftShoulder(void)
 {
-    return getGameControllerButton(20); //SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
+    return getGameControllerButton(GAMEPAD_BUTTON_LSHOULDER);
 }
 
 uint8_t getGameControllerButtonRightShoulder(void)
 {
-    return getGameControllerButton(14); //SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
+    return getGameControllerButton(GAMEPAD_BUTTON_RSHOULDER);
 }
 
 uint8_t getGameControllerConfirmButton(void)

@@ -1,28 +1,16 @@
 TARGET = OpenSupaplex
-OBJS =  ../src/supaplex.o \
-		../src/audio.o \
-		../src/conditionals.o \
-		../src/config.o \
-		../src/controller.o \
-		../src/file.o \
-		../src/input.o \
-		../src/logging.o \
-		../src/menu.o \
-		../src/nullVirtualKeyboard.o \
-		../src/touchscreen.o \
-		../src/utils.o \
-		../src/video.o \
-		../src/lib/ini/ini.o 
+SRC = $(wildcard ../src/*.c) $(wildcard ../src/sdl1/*.c) $(wildcard ../src/sdl_common/*.c) ../src/lib/ini/ini.c
+OBJS = $(SRC:.c=.o)
 
 INCDIR = 
-CFLAGS = -D__PSP__ -DSDL_MAIN_AVAILABLE -O2 -G0 -g -Wall
+CFLAGS = -D__PSP__ -DSDL_MAIN_AVAILABLE -O2 -G0 -g -Wall -DHAVE_SDL
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS = $(CFLAGS)
 
 LIBDIR = 
 LDFLAGS = 
-LIBS = -lSDL2_mixer -lvorbisfile -lvorbis -logg -lSDL2 -lSDL2main -lGL -lGLU -lpspaudiolib -lpspaudio -lm \
-	   -lpspgu -lpspvfpu -lpsprtc -lpspvram -lpsphprm
+LIBS = -lSDL_mixer -lvorbisfile -lvorbis -logg -lSDL -lSDLmain -lGL -lGLU -lmikmod -lpspaudiolib -lpspaudio -lm \
+	   -lpspgu -lpspvfpu -lpsprtc -lpspvram -lpsphprm -lpspirkeyb -lpsppower
 
 EXTRA_TARGETS = EBOOT.PBP
 PSP_EBOOT_TITLE = OpenSupaplex
