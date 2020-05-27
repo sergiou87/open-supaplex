@@ -26,6 +26,7 @@
 
 void getReadonlyFilePath(const char *pathname, char outPath[kMaxFilePathLength])
 {
+    // app0:/ references the folder where the app was installed
     snprintf(outPath, kMaxFilePathLength, "app0:/%s", pathname);
 }
 
@@ -36,7 +37,6 @@ void getWritableFilePath(const char *pathname, char outPath[kMaxFilePathLength])
 
 FILE *openReadonlyFile(const char *pathname, const char *mode)
 {
-    // app0:/ references the folder where the app was installed
     char finalPathname[kMaxFilePathLength];
     getReadonlyFilePath(pathname, finalPathname);
     return fopen(finalPathname, mode);
@@ -52,6 +52,28 @@ FILE *openWritableFile(const char *pathname, const char *mode)
     getWritableFilePath(pathname, finalPathname);
 
     return fopen(finalPathname, mode);
+}
+#elif defined(_3DS)
+void getReadonlyFilePath(const char *pathname, char outPath[kMaxFilePathLength])
+{
+    snprintf(outPath, kMaxFilePathLength, "sdmc:/OpenSupaplex/%s", pathname);
+}
+
+void getWritableFilePath(const char *pathname, char outPath[kMaxFilePathLength])
+{
+    getReadonlyFilePath(pathname, outPath);
+}
+
+FILE *openReadonlyFile(const char *pathname, const char *mode)
+{
+    char finalPathname[kMaxFilePathLength];
+    getReadonlyFilePath(pathname, finalPathname);
+    return fopen(finalPathname, mode);
+}
+
+FILE *openWritableFile(const char *pathname, const char *mode)
+{
+    return openReadonlyFile(pathname, mode);
 }
 #else
 void getReadonlyFilePath(const char *pathname, char outPath[kMaxFilePathLength])
