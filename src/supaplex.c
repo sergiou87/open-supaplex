@@ -1511,11 +1511,7 @@ int main(int argc, char *argv[])
 
     if (gFastMode != FastModeTypeUltra)
     {
-        if (initializeAudio() != 0)
-        {
-            exitWithError("Couldn't initialize audio");
-        }
-
+        initializeAudio();
         readAdvancedConfig();
     }
 

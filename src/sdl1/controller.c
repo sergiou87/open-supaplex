@@ -42,10 +42,10 @@ SDL_Joystick *getGameController()
 {
     // The game controller is not valid anymore, invalidate.
     // TODO: Make a proper check
-    if (sCurrentGameControllerIndex == -1)
-    {
-        sCurrentGameController = NULL;
-    }
+    // if (sCurrentGameControllerIndex == -1)
+    // {
+    //     sCurrentGameController = NULL;
+    // }
 
     if (sCurrentGameController != NULL)
     {
@@ -58,7 +58,6 @@ SDL_Joystick *getGameController()
     {
         SDL_JoystickEventState(SDL_ENABLE);
         sCurrentGameController = SDL_JoystickOpen(0);
-        sCurrentGameControllerIndex = 0;
     }
 
     return sCurrentGameController;

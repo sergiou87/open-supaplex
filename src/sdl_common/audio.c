@@ -54,6 +54,7 @@ char *gSoundEffectNames[SoundEffectCount] = {
 };
 
 int gCurrentSoundChannel = -1;
+uint8_t gIsAudioInitialized = 0;
 
 void loadMusic(void);
 void destroyMusic(void);
@@ -78,8 +79,8 @@ int8_t initializeAudio()
     //
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 768) == -1)
     {
-        spLogInfo("Mix_Init: Failed to open audio!\n");
-        spLogInfo("Mix_Init: %s\n", Mix_GetError());
+        spLogInfo("Mix_OpenAudio: Failed to open audio!\n");
+        spLogInfo("Mix_OpenAudio: %s\n", Mix_GetError());
         return 1;
     }
 
@@ -93,12 +94,18 @@ int8_t initializeAudio()
     }
 
     spLogInfo("Audio initialized correctly");
+    gIsAudioInitialized = 1;
 
     return 0;
 }
 
 void destroyAudio()
 {
+    if (gIsAudioInitialized == 0)
+    {
+        return;
+    }
+
     stopMusic();
     // TODO: stop sounds
     Mix_Quit();
@@ -107,6 +114,11 @@ void destroyAudio()
 
 void loadMusic()
 {
+    if (gIsAudioInitialized == 0)
+    {
+        return;
+    }
+    
     const char *musicSuffix = NULL;
 
     switch (musType)
@@ -140,6 +152,11 @@ void loadMusic()
 
 void loadSounds()
 {
+    if (gIsAudioInitialized == 0)
+    {
+        return;
+    }
+    
     const char *effectsSuffix = NULL;
 
     switch (sndType)
@@ -184,6 +201,11 @@ void destroySounds()
 
 void setSoundType(SoundType musicType, SoundType effectsType)
 {
+    if (gIsAudioInitialized == 0)
+    {
+        return;
+    }
+    
     destroyMusic();
     destroySounds();
 
@@ -196,21 +218,41 @@ void setSoundType(SoundType musicType, SoundType effectsType)
 
 uint8_t getMusicVolume(void)
 {
+    if (gIsAudioInitialized == 0)
+    {
+        return 0;
+    }
+    
     return roundf((float)Mix_VolumeMusic(-1) * 10 / SDL_MIX_MAXVOLUME);
 }
 
 void setMusicVolume(uint8_t volume)
 {
+    if (gIsAudioInitialized == 0)
+    {
+        return;
+    }
+    
     Mix_VolumeMusic(volume * SDL_MIX_MAXVOLUME / 10);
 }
 
 uint8_t getSoundEffectsVolume(void)
 {
+    if (gIsAudioInitialized == 0)
+    {
+        return 0;
+    }
+    
     return roundf((float)Mix_Volume(-1, -1) * 10 / SDL_MIX_MAXVOLUME);
 }
 
 void setSoundEffectsVolume(uint8_t volume)
 {
+    if (gIsAudioInitialized == 0)
+    {
+        return;
+    }
+    
     Mix_Volume(-1, volume * SDL_MIX_MAXVOLUME / 10);
 }
 
@@ -252,6 +294,11 @@ void destroyMusic()
 
 void playSoundEffect(SoundEffect soundEffect)
 {
+    if (gIsAudioInitialized == 0)
+    {
+        return;
+    }
+    
     if (soundEffect >= SoundEffectCount)
     {
         return;
