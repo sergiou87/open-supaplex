@@ -576,10 +576,9 @@ void drawLevelViewport(uint16_t x, uint16_t y, uint16_t width, uint16_t height)
 
     for (int y = 0; y < height; ++y)
     {
-        for (int x = 0; x < width; ++x)
-        {
-            gScreenPixels[y * kScreenWidth + x] = gLevelBitmapData[(scrollY + y) * kLevelBitmapWidth + x + scrollX];
-        }
+        size_t dstAddress = y * kScreenWidth;
+        size_t srcAddress = (scrollY + y) * kLevelBitmapWidth + scrollX;
+        memcpy(&gScreenPixels[dstAddress], &gLevelBitmapData[srcAddress], width);
     }
 }
 
@@ -986,19 +985,12 @@ void drawMovingSpriteFrameInLevel(uint16_t srcX, uint16_t srcY, uint16_t width, 
             continue;
         }
 
-        for (int x = 0; x < width; ++x)
-        {
-            int16_t finalX = dstX + x - kLevelEdgeSize;
+        int16_t finalX = dstX - kLevelEdgeSize;
+        int16_t finalWidth = MIN(width, kLevelBitmapWidth - finalX);
+        size_t srcAddress = (srcY + y) * kMovingBitmapWidth + srcX;
+        size_t dstAddress = finalY * kLevelBitmapWidth + finalX;
 
-            if (finalX < 0 || finalX >= kLevelBitmapWidth)
-            {
-                continue;
-            }
-
-            size_t srcAddress = (srcY + y) * kMovingBitmapWidth + srcX + x;
-            size_t dstAddress = finalY * kLevelBitmapWidth + finalX;
-            gLevelBitmapData[dstAddress] = gMovingDecodedBitmapData[srcAddress];
-        }
+        memcpy(&gLevelBitmapData[dstAddress], &gMovingDecodedBitmapData[srcAddress], finalWidth);
     }
 }
 
