@@ -77,7 +77,18 @@ int8_t initializeAudio()
     // 768 bytes seems to work on both platforms.
     // However, if it ever supports WASM, that needs a power of 2 as buffer size.
     //
-    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 768) == -1)
+    const int kAudioBufferSize = 768;
+
+#if __PSP__
+    // PSP can't handle 44.1Khz stereo Ogg music smoothly. Lowering the quality did the trick.
+    const int kSampleRate = 22050;
+    const int kNumberOfChannels = 1;
+#else
+    const int kSampleRate = 44100;
+    const int kNumberOfChannels = 2;
+#endif
+
+    if (Mix_OpenAudio(kSampleRate, MIX_DEFAULT_FORMAT, kNumberOfChannels, kAudioBufferSize) == -1)
     {
         spLogInfo("Mix_OpenAudio: Failed to open audio!\n");
         spLogInfo("Mix_OpenAudio: %s\n", Mix_GetError());
@@ -156,7 +167,7 @@ void loadSounds()
     {
         return;
     }
-    
+
     const char *effectsSuffix = NULL;
 
     switch (sndType)
