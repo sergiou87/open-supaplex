@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		400531052481706B0082E6FF /* audio-hq in Resources */ = {isa = PBXBuildFile; fileRef = 400531042481706A0082E6FF /* audio-hq */; };
+		400531062481706B0082E6FF /* audio-hq in Resources */ = {isa = PBXBuildFile; fileRef = 400531042481706A0082E6FF /* audio-hq */; };
 		403839C7247E5D7900C1B08B /* audio.c in Sources */ = {isa = PBXBuildFile; fileRef = 403839C5247E5D7900C1B08B /* audio.c */; };
 		403839C8247E5D7900C1B08B /* audio.c in Sources */ = {isa = PBXBuildFile; fileRef = 403839C5247E5D7900C1B08B /* audio.c */; };
 		403839C9247E5D7900C1B08B /* system.c in Sources */ = {isa = PBXBuildFile; fileRef = 403839C6247E5D7900C1B08B /* system.c */; };
@@ -23,7 +25,6 @@
 		40487A07246C403A00B776FA /* input.c in Sources */ = {isa = PBXBuildFile; fileRef = 404879C0246B51E600B776FA /* input.c */; };
 		40487A08246C403A00B776FA /* conditionals.c in Sources */ = {isa = PBXBuildFile; fileRef = 404879C3246B609900B776FA /* conditionals.c */; };
 		40487A83246CB32400B776FA /* file.m in Sources */ = {isa = PBXBuildFile; fileRef = 40487A82246CB32400B776FA /* file.m */; };
-		40487A85246CB5D200B776FA /* audio in Resources */ = {isa = PBXBuildFile; fileRef = 40487A84246CB5D200B776FA /* audio */; };
 		40517B152473EC57004E2435 /* graphics.c in Sources */ = {isa = PBXBuildFile; fileRef = 40517B142473EC57004E2435 /* graphics.c */; };
 		40517B162473EC57004E2435 /* graphics.c in Sources */ = {isa = PBXBuildFile; fileRef = 40517B142473EC57004E2435 /* graphics.c */; };
 		4056430D246F49CE0042F34B /* commandLineParser.c in Sources */ = {isa = PBXBuildFile; fileRef = 4056430C246F49CE0042F34B /* commandLineParser.c */; };
@@ -41,7 +42,6 @@
 		40564324247032640042F34B /* input.c in Sources */ = {isa = PBXBuildFile; fileRef = 404879C0246B51E600B776FA /* input.c */; };
 		40564325247032640042F34B /* globals.c in Sources */ = {isa = PBXBuildFile; fileRef = 4056430F246F4A9A0042F34B /* globals.c */; };
 		40564326247032640042F34B /* utils.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145AB2462CE9F00620211 /* utils.c */; };
-		40564330247032640042F34B /* audio in Resources */ = {isa = PBXBuildFile; fileRef = 40487A84246CB5D200B776FA /* audio */; };
 		4056433B247032640042F34B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 404879EF246C402B00B776FA /* Assets.xcassets */; };
 		409F7B672479D45200BB3B19 /* buttonBorders.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7B662479D45200BB3B19 /* buttonBorders.c */; };
 		409F7B682479D45200BB3B19 /* buttonBorders.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7B662479D45200BB3B19 /* buttonBorders.c */; };
@@ -243,6 +243,7 @@
 		400145A62461A59D00620211 /* video.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = video.h; path = ../../../src/video.h; sourceTree = "<group>"; };
 		400145AA2462CE9F00620211 /* utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = utils.h; path = ../../../src/utils.h; sourceTree = "<group>"; };
 		400145AB2462CE9F00620211 /* utils.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = utils.c; path = ../../../src/utils.c; sourceTree = "<group>"; };
+		400531042481706A0082E6FF /* audio-hq */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "audio-hq"; path = "../../psp/audio-hq"; sourceTree = "<group>"; };
 		403839C5247E5D7900C1B08B /* audio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = audio.c; path = ../../../../src/sdl_common/audio.c; sourceTree = "<group>"; };
 		403839C6247E5D7900C1B08B /* system.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = system.c; path = ../../../../src/sdl_common/system.c; sourceTree = "<group>"; };
 		403839CB247E5DAE00C1B08B /* logging.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = logging.c; path = ../../../src/logging.c; sourceTree = "<group>"; };
@@ -254,7 +255,6 @@
 		404879EA246C402900B776FA /* OpenSupaplex.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OpenSupaplex.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		404879EF246C402B00B776FA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		40487A82246CB32400B776FA /* file.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = file.m; path = ../../../src/apple/file.m; sourceTree = "<group>"; };
-		40487A84246CB5D200B776FA /* audio */ = {isa = PBXFileReference; lastKnownFileType = folder; name = audio; path = ../../resources/audio; sourceTree = "<group>"; };
 		40487ABE246CB6DC00B776FA /* OpenSupaplex.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = OpenSupaplex.entitlements; path = OpenSupaplex/OpenSupaplex.entitlements; sourceTree = "<group>"; };
 		40517B132473EC57004E2435 /* graphics.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = graphics.h; path = ../../../src/graphics.h; sourceTree = "<group>"; };
 		40517B142473EC57004E2435 /* graphics.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = graphics.c; path = ../../../src/graphics.c; sourceTree = "<group>"; };
@@ -412,7 +412,7 @@
 				404879E5246C3FDC00B776FA /* macOS-Info.plist */,
 				404879EF246C402B00B776FA /* Assets.xcassets */,
 				40487ABE246CB6DC00B776FA /* OpenSupaplex.entitlements */,
-				40487A84246CB5D200B776FA /* audio */,
+				400531042481706A0082E6FF /* audio-hq */,
 				409F7DB0247B298C00BB3B19 /* BACK.DAT */,
 				409F7DA1247B298B00BB3B19 /* CHARS6.DAT */,
 				409F7DD3247B299000BB3B19 /* CHARS8.DAT */,
@@ -708,7 +708,6 @@
 				409F7E64247B299200BB3B19 /* LEVELS.D92 in Resources */,
 				409F7DE2247B299100BB3B19 /* SPFIX63.DOC in Resources */,
 				409F7DE4247B299100BB3B19 /* LEVELS.D96 in Resources */,
-				40487A85246CB5D200B776FA /* audio in Resources */,
 				409F7DF2247B299100BB3B19 /* README.TXT in Resources */,
 				409F7E18247B299200BB3B19 /* CHARS6.DAT in Resources */,
 				409F7E62247B299200BB3B19 /* LEVELS.D10 in Resources */,
@@ -759,6 +758,7 @@
 				409F7E80247B299200BB3B19 /* LEVEL.L94 in Resources */,
 				409F7E88247B299200BB3B19 /* DEMO1.BIN in Resources */,
 				404879F0246C402B00B776FA /* Assets.xcassets in Resources */,
+				400531052481706B0082E6FF /* audio-hq in Resources */,
 				409F7E34247B299200BB3B19 /* DEMO5.BIN in Resources */,
 				409F7DFA247B299100BB3B19 /* LEVEL.L03 in Resources */,
 				409F7E6E247B299200BB3B19 /* TITLE.DAT in Resources */,
@@ -805,7 +805,6 @@
 				409F7E65247B299200BB3B19 /* LEVELS.D92 in Resources */,
 				409F7DE3247B299100BB3B19 /* SPFIX63.DOC in Resources */,
 				409F7DE5247B299100BB3B19 /* LEVELS.D96 in Resources */,
-				40564330247032640042F34B /* audio in Resources */,
 				409F7DF3247B299100BB3B19 /* README.TXT in Resources */,
 				409F7E19247B299200BB3B19 /* CHARS6.DAT in Resources */,
 				409F7E63247B299200BB3B19 /* LEVELS.D10 in Resources */,
@@ -856,6 +855,7 @@
 				409F7E81247B299200BB3B19 /* LEVEL.L94 in Resources */,
 				409F7E89247B299200BB3B19 /* DEMO1.BIN in Resources */,
 				4056433B247032640042F34B /* Assets.xcassets in Resources */,
+				400531062481706B0082E6FF /* audio-hq in Resources */,
 				409F7E35247B299200BB3B19 /* DEMO5.BIN in Resources */,
 				409F7DFB247B299100BB3B19 /* LEVEL.L03 in Resources */,
 				409F7E6F247B299200BB3B19 /* TITLE.DAT in Resources */,

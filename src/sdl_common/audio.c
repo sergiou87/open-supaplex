@@ -68,6 +68,14 @@ static const char *kBaseAudioFolder = "app0:/audio";
 static const char *kBaseAudioFolder = "audio";
 #endif
 
+// PSP can't handle High quality audio, it kills performance
+#ifdef __PSP__
+static const char *kBaseAudioFolderSuffix = "lq"; // Low quality
+#else
+static const char *kBaseAudioFolderSuffix = "hq"; // High quality
+#endif
+
+
 int8_t initializeAudio()
 {
     SDL_InitSubSystem(SDL_INIT_AUDIO);
@@ -150,7 +158,7 @@ void loadMusic()
     }
 
     char filename[kMaxSoundFilenameLength] = "";
-    snprintf(filename, kMaxSoundFilenameLength, "%s/music-%s.ogg", kBaseAudioFolder, musicSuffix);
+    snprintf(filename, kMaxSoundFilenameLength, "%s-%s/music-%s.ogg", kBaseAudioFolder, kBaseAudioFolderSuffix, musicSuffix);
 
     gMusic = Mix_LoadMUS(filename);
 
@@ -193,7 +201,7 @@ void loadSounds()
 
     for (int i = 0; i < SoundEffectCount; ++i)
     {
-        snprintf(filename, kMaxSoundFilenameLength, "%s/%s-%s.ogg", kBaseAudioFolder, gSoundEffectNames[i], effectsSuffix);
+        snprintf(filename, kMaxSoundFilenameLength, "%s-%s/%s-%s.ogg", kBaseAudioFolder, kBaseAudioFolderSuffix, gSoundEffectNames[i], effectsSuffix);
         gSoundEffectChunks[i] = Mix_LoadWAV(filename);
     }
 }

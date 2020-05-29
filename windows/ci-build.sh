@@ -20,6 +20,7 @@ make -j8 || exit
 
 mv OpenSupaplex.exe OpenSupaplex-tmp.exe
 cp -R ../resources ./OpenSupaplex
+rm -rf ./OpenSupaplex/audio-lq # we don't need low quality audio here
 cp OpenSupaplex-tmp.exe ./OpenSupaplex/OpenSupaplex.exe
 
 for F in `ldd OpenSupaplex-tmp.exe | grep ${MINGW_PREFFIX} | cut -d' ' -f3`

@@ -109,37 +109,37 @@ vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
   FILE sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
   FILE sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
 
-  FILE ../resources/audio/base-adlib.ogg audio/base-adlib.ogg
-  FILE ../resources/audio/base-beep.ogg audio/base-beep.ogg
-  FILE ../resources/audio/base-blaster.ogg audio/base-blaster.ogg
-  FILE ../resources/audio/base-sample.ogg audio/base-sample.ogg
-  FILE ../resources/audio/bug-adlib.ogg audio/bug-adlib.ogg
-  FILE ../resources/audio/bug-beep.ogg audio/bug-beep.ogg
-  FILE ../resources/audio/bug-blaster.ogg audio/bug-blaster.ogg
-  FILE ../resources/audio/bug-sample.ogg audio/bug-sample.ogg
-  FILE ../resources/audio/exit-adlib.ogg audio/exit-adlib.ogg
-  FILE ../resources/audio/exit-beep.ogg audio/exit-beep.ogg
-  FILE ../resources/audio/exit-blaster.ogg audio/exit-blaster.ogg
-  FILE ../resources/audio/exit-sample.ogg audio/exit-sample.ogg
-  FILE ../resources/audio/explosion-adlib.ogg audio/explosion-adlib.ogg
-  FILE ../resources/audio/explosion-beep.ogg audio/explosion-beep.ogg
-  FILE ../resources/audio/explosion-blaster.ogg audio/explosion-blaster.ogg
-  FILE ../resources/audio/explosion-sample.ogg audio/explosion-sample.ogg
-  FILE ../resources/audio/fall-adlib.ogg audio/fall-adlib.ogg
-  FILE ../resources/audio/fall-beep.ogg audio/fall-beep.ogg
-  FILE ../resources/audio/fall-blaster.ogg audio/fall-blaster.ogg
-  FILE ../resources/audio/fall-sample.ogg audio/fall-sample.ogg
-  FILE ../resources/audio/infotron-adlib.ogg audio/infotron-adlib.ogg
-  FILE ../resources/audio/infotron-beep.ogg audio/infotron-beep.ogg
-  FILE ../resources/audio/infotron-blaster.ogg audio/infotron-blaster.ogg
-  FILE ../resources/audio/infotron-sample.ogg audio/infotron-sample.ogg
-  FILE ../resources/audio/music-beep.ogg audio/music-beep.ogg
-  FILE ../resources/audio/music-blaster.ogg audio/music-blaster.ogg
-  FILE ../resources/audio/music-roland.ogg audio/music-roland.ogg
-  FILE ../resources/audio/push-adlib.ogg audio/push-adlib.ogg
-  FILE ../resources/audio/push-beep.ogg audio/push-beep.ogg
-  FILE ../resources/audio/push-blaster.ogg audio/push-blaster.ogg
-  FILE ../resources/audio/push-sample.ogg audio/push-sample.ogg
+  FILE ../resources/audio-hq/base-adlib.ogg audio-hq/base-adlib.ogg
+  FILE ../resources/audio-hq/base-beep.ogg audio-hq/base-beep.ogg
+  FILE ../resources/audio-hq/base-blaster.ogg audio-hq/base-blaster.ogg
+  FILE ../resources/audio-hq/base-sample.ogg audio-hq/base-sample.ogg
+  FILE ../resources/audio-hq/bug-adlib.ogg audio-hq/bug-adlib.ogg
+  FILE ../resources/audio-hq/bug-beep.ogg audio-hq/bug-beep.ogg
+  FILE ../resources/audio-hq/bug-blaster.ogg audio-hq/bug-blaster.ogg
+  FILE ../resources/audio-hq/bug-sample.ogg audio-hq/bug-sample.ogg
+  FILE ../resources/audio-hq/exit-adlib.ogg audio-hq/exit-adlib.ogg
+  FILE ../resources/audio-hq/exit-beep.ogg audio-hq/exit-beep.ogg
+  FILE ../resources/audio-hq/exit-blaster.ogg audio-hq/exit-blaster.ogg
+  FILE ../resources/audio-hq/exit-sample.ogg audio-hq/exit-sample.ogg
+  FILE ../resources/audio-hq/explosion-adlib.ogg audio-hq/explosion-adlib.ogg
+  FILE ../resources/audio-hq/explosion-beep.ogg audio-hq/explosion-beep.ogg
+  FILE ../resources/audio-hq/explosion-blaster.ogg audio-hq/explosion-blaster.ogg
+  FILE ../resources/audio-hq/explosion-sample.ogg audio-hq/explosion-sample.ogg
+  FILE ../resources/audio-hq/fall-adlib.ogg audio-hq/fall-adlib.ogg
+  FILE ../resources/audio-hq/fall-beep.ogg audio-hq/fall-beep.ogg
+  FILE ../resources/audio-hq/fall-blaster.ogg audio-hq/fall-blaster.ogg
+  FILE ../resources/audio-hq/fall-sample.ogg audio-hq/fall-sample.ogg
+  FILE ../resources/audio-hq/infotron-adlib.ogg audio-hq/infotron-adlib.ogg
+  FILE ../resources/audio-hq/infotron-beep.ogg audio-hq/infotron-beep.ogg
+  FILE ../resources/audio-hq/infotron-blaster.ogg audio-hq/infotron-blaster.ogg
+  FILE ../resources/audio-hq/infotron-sample.ogg audio-hq/infotron-sample.ogg
+  FILE ../resources/audio-hq/music-beep.ogg audio-hq/music-beep.ogg
+  FILE ../resources/audio-hq/music-blaster.ogg audio-hq/music-blaster.ogg
+  FILE ../resources/audio-hq/music-roland.ogg audio-hq/music-roland.ogg
+  FILE ../resources/audio-hq/push-adlib.ogg audio-hq/push-adlib.ogg
+  FILE ../resources/audio-hq/push-beep.ogg audio-hq/push-beep.ogg
+  FILE ../resources/audio-hq/push-blaster.ogg audio-hq/push-blaster.ogg
+  FILE ../resources/audio-hq/push-sample.ogg audio-hq/push-sample.ogg
   FILE ../resources/BACK.DAT BACK.DAT
   FILE ../resources/CHARS6.DAT CHARS6.DAT
   FILE ../resources/CHARS8.DAT CHARS8.DAT
