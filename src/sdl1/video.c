@@ -25,6 +25,8 @@
 #include "../utils.h"
 
 #if defined(__PSP__)
+#include <pspdisplay.h>
+
 static const int kWindowWidth = 480;
 static const int kWindowHeight = 272;
 #else
@@ -90,6 +92,14 @@ void render()
 void present()
 {
     SDL_Flip(gWindowSurface);
+
+#if defined(__PSP__)
+    // On PSP, only enable vsync for integer factor scaling. Otherwise, it will kill performance
+    if (gScalingMode == ScalingModeIntegerFactor)
+    {
+        sceDisplayWaitVblankStart();
+    }
+#endif
 }
 
 void destroyVideo()
