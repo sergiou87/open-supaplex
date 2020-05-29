@@ -34,6 +34,7 @@ static const int kWindowHeight = kScreenHeight * 4;
 
 SDL_Surface *gScreenSurface = NULL;
 uint8_t *gScreenPixels = NULL;
+SDL_Rect gScreenClipRect;
 SDL_Rect gWindowViewport;
 SDL_Surface *gWindowSurface = NULL;
 ScalingMode gScalingMode = ScalingModeAspectFit;
@@ -57,7 +58,7 @@ void initializeVideo(uint8_t fastMode)
 #if defined(__PSP__)
                                       SDL_FULLSCREEN |
 #endif
-                                      SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_HWPALETTE);
+                                      SDL_DOUBLEBUF | SDL_HWPALETTE);
 
     if (gWindowSurface == NULL)
     {
@@ -83,7 +84,7 @@ void initializeVideo(uint8_t fastMode)
 void render()
 {
     //SDL_BlitSurface(gScreenSurface, NULL, gWindowSurface, NULL); // TODO: use only this?
-    SDL_SoftStretch(gScreenSurface, NULL, gWindowSurface, NULL);
+    SDL_SoftStretch(gScreenSurface, &gScreenClipRect, gWindowSurface, &gWindowViewport);
 }
 
 void present()
@@ -118,6 +119,11 @@ void setScalingMode(ScalingMode mode)
 
     gScalingMode = mode;
     updateWindowViewport();
+
+    SDL_FillRect(gWindowSurface, NULL, 0);
+
+    render();
+    present();
 }
 
 void getWindowSize(int *width, int *height)
@@ -129,9 +135,9 @@ void getWindowSize(int *width, int *height)
 
 void centerMouse()
 {
-    int windowWidth, windowHeight;
-    getWindowSize(&windowWidth, &windowHeight);
-    moveMouse(windowWidth / 2, windowHeight / 2);
+    int kWindowWidth, kWindowHeight;
+    getWindowSize(&kWindowWidth, &kWindowHeight);
+    moveMouse(kWindowWidth / 2, kWindowHeight / 2);
 }
 
 void moveMouse(int x, int y)
@@ -181,44 +187,44 @@ void setColorPalette(const ColorPalette palette)
 
 void updateWindowViewport()
 {
-    // TODO: not supported dynamically, but this will be needed to support different screen sizes
-    /*
-    int windowWidth, windowHeight;
-    SDL_GetRendererOutputSize(gRenderer, &windowWidth, &windowHeight);
+    gScreenClipRect.x = 0;
+    gScreenClipRect.y = 0;
+    gScreenClipRect.w = kScreenWidth;
+    gScreenClipRect.h = kScreenHeight;
 
     // If the scaling mode is fullscreen, use the window size
     if (gScalingMode == ScalingModeFullscreen)
     {
         gWindowViewport.x = 0;
         gWindowViewport.y = 0;
-        gWindowViewport.w = windowWidth;
-        gWindowViewport.h = windowHeight;
+        gWindowViewport.w = kWindowWidth;
+        gWindowViewport.h = kWindowHeight;
         return;
     }
 
     float textureAspectRatio = (float)kScreenWidth / kScreenHeight;
 
-    int maxViewportWidth = windowWidth;
-    int maxViewportHeight = windowHeight;
+    int maxViewportWidth = kWindowWidth;
+    int maxViewportHeight = kWindowHeight;
 
     // For "integer factor" scaling, pick the highest integer factor that fits into the window
     if (gScalingMode == ScalingModeIntegerFactor)
     {
-        maxViewportWidth = floorf(windowWidth / kScreenWidth) * kScreenWidth;
-        maxViewportHeight = floorf(windowHeight / kScreenHeight) * kScreenHeight;
+        maxViewportWidth = floorf(kWindowWidth / kScreenWidth) * kScreenWidth;
+        maxViewportHeight = floorf(kWindowHeight / kScreenHeight) * kScreenHeight;
     }
 
     // If the resulting viewport is too small, do proportional scaling according to the window size
     if (maxViewportWidth == 0)
     {
-        maxViewportWidth = windowWidth;
+        maxViewportWidth = kWindowWidth;
     }
     if (maxViewportHeight == 0)
     {
-        maxViewportHeight = windowHeight;
+        maxViewportHeight = kWindowHeight;
     }
 
-    float screenAspectRatio = (float)windowWidth / windowHeight;
+    float screenAspectRatio = (float)kWindowWidth / kWindowHeight;
 
     uint8_t shouldPreserveWidth = (textureAspectRatio > screenAspectRatio);
 
@@ -232,17 +238,39 @@ void updateWindowViewport()
 
     if (shouldPreserveWidth)
     {
-        gWindowViewport.x = (windowWidth - maxViewportWidth) >> 1;
+        gWindowViewport.x = (kWindowWidth - maxViewportWidth) >> 1;
         gWindowViewport.w = maxViewportWidth;
         gWindowViewport.h = gWindowViewport.w / textureAspectRatio;
-        gWindowViewport.y = (windowHeight - gWindowViewport.h) >> 1;
+        gWindowViewport.y = (kWindowHeight - gWindowViewport.h) >> 1;
     }
     else
     {
-        gWindowViewport.y = (windowHeight - maxViewportHeight) >> 1;
+        gWindowViewport.y = (kWindowHeight - maxViewportHeight) >> 1;
         gWindowViewport.h = maxViewportHeight;
         gWindowViewport.w = gWindowViewport.h * textureAspectRatio;
-        gWindowViewport.x = (windowWidth - gWindowViewport.w) >> 1;
+        gWindowViewport.x = (kWindowWidth - gWindowViewport.w) >> 1;
     }
-     */
+
+    // Blit won't work with wrong values, so we must correct the viewport and adjust the clip rect
+    if (gWindowViewport.x < 0)
+    {
+        float proportion = (float) -gWindowViewport.x / gWindowViewport.w;
+        int offset = proportion * kScreenWidth;
+        gScreenClipRect.x = offset;
+        gScreenClipRect.w -= offset * 2;
+
+        gWindowViewport.x = 0;
+        gWindowViewport.w = kWindowWidth;
+    }
+
+    if (gWindowViewport.y < 0)
+    {
+        float proportion = (float) -gWindowViewport.y / gWindowViewport.h;
+        int offset = proportion * kScreenHeight;
+        gScreenClipRect.y = offset;
+        gScreenClipRect.h -= offset * 2;
+
+        gWindowViewport.y = 0;
+        gWindowViewport.h = kWindowHeight;
+    }
 }
