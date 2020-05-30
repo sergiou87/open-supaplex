@@ -28,7 +28,7 @@ uint8_t supportsRealKeyboard(void)
 
 uint8_t supportsVirtualKeyboard(void)
 {
-#if defined(__vita__) || defined(__SWITCH__) // TODO: implement virtual keyboard support for PSP || defined(__PSP__)
+#if defined(__vita__) || defined(__SWITCH__)
     return 1;
 #else
     return 0;

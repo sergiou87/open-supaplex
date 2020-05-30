@@ -48,7 +48,7 @@
 #ifdef __PSP__
 #include <pspkernel.h>
 
-PSP_MODULE_INFO("OpenSupaplex", 0, 7, 1); // This might need to be removed to prevent conflicts when using SDL_main
+// PSP_MODULE_INFO("OpenSupaplex", 0, 7, 1); -> SDL_main sets this for us, for now at least
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER | THREAD_ATTR_VFPU);
 PSP_HEAP_SIZE_KB(-1024);
 #endif

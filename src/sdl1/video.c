@@ -179,8 +179,8 @@ void setFullscreenMode(uint8_t fullscreen)
 
 uint8_t getFullscreenMode(void)
 {
-    // Not supported
-    return 0; // TODO: this should always be 1, actually, because SDL 1.2 is only used in consoles
+    // Not supported. Since SDL 1 is always used in consoles, always return 1.
+    return 1;
 }
 
 void setGlobalPaletteColor(const uint8_t index, const Color color)
