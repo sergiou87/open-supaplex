@@ -1752,6 +1752,7 @@ int main(int argc, char *argv[])
     }
 
     // Tidy up
+    destroyAudio();
     destroyLogging();
     destroyVideo();
 
@@ -9655,17 +9656,6 @@ void changePlayerCurrentLevelState() // sub_4D24D  proc near       ; CODE XREF: 
 void initializeFadePalette() //   proc near       ; CODE XREF: start+296p
 {
     setPalette(gBlackPalette);
-}
-
-void resetVideoMode() // sub_4D2E1   proc near       ; CODE XREF: start+450p
-//                    ; loadScreen2-7D7p
-{
-    // Do nothing because we don't need to restore the video mode?
-//    mov ah, 0
-//    al = currVideoMode
-//    int 10h     ; - VIDEO - SET VIDEO MODE
-//                ; AL = mode
-//    return;
 }
 
 void initializeMouse() //   proc near       ; CODE XREF: start+299p
