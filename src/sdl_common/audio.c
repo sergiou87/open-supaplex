@@ -64,12 +64,14 @@ void destroySounds(void);
 
 #ifdef __vita__
 static const char *kBaseAudioFolder = "app0:/audio";
+#elif defined(_3DS)
+static const char *kBaseAudioFolder = "sdmc:/OpenSupaplex/audio";
 #else
 static const char *kBaseAudioFolder = "audio";
 #endif
 
 // PSP can't handle High quality audio, it kills performance
-#ifdef __PSP__
+#if defined(__PSP__) || defined(_3DS)
 static const char *kBaseAudioFolderSuffix = "lq"; // Low quality
 #else
 static const char *kBaseAudioFolderSuffix = "hq"; // High quality
@@ -87,8 +89,8 @@ int8_t initializeAudio()
     //
     const int kAudioBufferSize = 768;
 
-#if __PSP__
-    // PSP can't handle 44.1Khz stereo Ogg music smoothly. Lowering the quality did the trick.
+#if defined(__PSP__) || defined(_3DS)
+    // PSP and 3DS can't handle 44.1Khz stereo Ogg music smoothly. Lowering the quality did the trick.
     const int kSampleRate = 22050;
     const int kNumberOfChannels = 1;
 #else

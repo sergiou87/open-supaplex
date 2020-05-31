@@ -19,7 +19,7 @@
 
 uint8_t supportsRealKeyboard(void)
 {
-#if defined(__vita__) || defined(__SWITCH__) || defined(__PSP__)
+#if defined(__vita__) || defined(__SWITCH__) || defined(__PSP__) || defined(_3DS)
     return 0;
 #else
     return 1;
@@ -37,7 +37,7 @@ uint8_t supportsVirtualKeyboard(void)
 
 uint8_t supportsSPFileDemoPlayback(void)
 {
-#if defined(__vita__) || defined(__SWITCH__) || defined(__PSP__)
+#if defined(__vita__) || defined(__SWITCH__) || defined(__PSP__) || defined(_3DS)
     return 0;
 #else
     return 1;

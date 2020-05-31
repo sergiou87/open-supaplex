@@ -22,6 +22,7 @@
 
 #include "../logging.h"
 
+#if defined(__PSP__)
 const uint8_t GAMEPAD_BUTTON_DOWN = 6;
 const uint8_t GAMEPAD_BUTTON_LEFT = 7;
 const uint8_t GAMEPAD_BUTTON_UP = 8;
@@ -34,6 +35,21 @@ const uint8_t GAMEPAD_BUTTON_LSHOULDER = 4;
 const uint8_t GAMEPAD_BUTTON_RSHOULDER = 5;
 const uint8_t GAMEPAD_BUTTON_START = 11;
 const uint8_t GAMEPAD_BUTTON_BACK = 10;
+#elif defined(_3DS)
+const uint8_t GAMEPAD_BUTTON_DOWN = 8;
+const uint8_t GAMEPAD_BUTTON_LEFT = 9;
+const uint8_t GAMEPAD_BUTTON_UP = 10;
+const uint8_t GAMEPAD_BUTTON_RIGHT = 11;
+
+const uint8_t GAMEPAD_BUTTON_A = 2;
+const uint8_t GAMEPAD_BUTTON_B = 1;
+const uint8_t GAMEPAD_BUTTON_X = 4;
+const uint8_t GAMEPAD_BUTTON_Y = 3;
+const uint8_t GAMEPAD_BUTTON_LSHOULDER = 5;
+const uint8_t GAMEPAD_BUTTON_RSHOULDER = 6;
+const uint8_t GAMEPAD_BUTTON_START = 0;
+const uint8_t GAMEPAD_BUTTON_BACK = 7;
+#endif
 
 static SDL_Joystick *sCurrentGameController = NULL;
 static const float kJoystickDeadzone = 0.1;
@@ -213,7 +229,7 @@ uint8_t isAnyGameControllerButtonPressed(void)
         return 0;
     }
 
-    for (int button = 0; //SDL_CONTROLLER_BUTTON_A;
+    for (int button = 0;
          button <= SDL_JoystickNumButtons(controller);
          ++button)
     {

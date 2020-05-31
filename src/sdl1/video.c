@@ -29,6 +29,9 @@
 
 static const int kWindowWidth = 480;
 static const int kWindowHeight = 272;
+#elif defined(_3DS)
+static const int kWindowWidth = 400;
+static const int kWindowHeight = 240;
 #else
 static const int kWindowWidth = kScreenWidth * 4;
 static const int kWindowHeight = kScreenHeight * 4;
@@ -53,14 +56,16 @@ void initializeVideo(uint8_t fastMode)
         exit(1);
     }
 
+    int flags = SDL_FULLSCREEN | SDL_SWSURFACE | SDL_HWPALETTE;
+#ifdef _3DS
+	flags |= SDL_CONSOLEBOTTOM;
+#endif	
+
     SDL_WM_SetCaption("OpenSupaplex", "OpenSupaplex");
     gWindowSurface =  SDL_SetVideoMode(kWindowWidth,
                                       kWindowHeight,
                                       8,
-#if defined(__PSP__)
-                                      SDL_FULLSCREEN |
-#endif
-                                      SDL_DOUBLEBUF | SDL_HWPALETTE);
+                                      flags);
 
     if (gWindowSurface == NULL)
     {
