@@ -31,18 +31,25 @@ include $(DEVKITARM)/3ds_rules
 #     - icon.png
 #     - <libctru folder>/default_icon.png
 #---------------------------------------------------------------------------------
-TARGET		:=	OpenSupaplex
-BUILD		:=	build
-SOURCES		:=	../src ../src/sdl_common ../src/sdl1 ../src/lib/ini
-DATA		:=	data
-INCLUDES	:=	include
-GRAPHICS	:=	gfx
-GFXBUILD	:=	$(BUILD)
-#ROMFS		:=	romfs
-#GFXBUILD	:=	$(ROMFS)/gfx
-APP_TITLE	:=  OpenSupaplex
-APP_AUTHOR	:=  sergiou87
-APP_VERSION	:=  7.1
+TARGET				:=	OpenSupaplex
+BUILD				:=	build
+SOURCES				:=	../src ../src/sdl_common ../src/sdl1 ../src/lib/ini
+DATA				:=	data
+INCLUDES			:=	include
+GRAPHICS			:=	gfx
+GFXBUILD			:=	$(BUILD)
+#ROMFS				:=	romfs
+#GFXBUILD			:=	$(ROMFS)/gfx
+APP_TITLE			:=	OpenSupaplex
+APP_PRODUCT_CODE 	:=	CTR-P-OSPX
+APP_UNIQUE_ID		:=	0x995A
+APP_DESCRIPTION		:=	Classic scrolling tile-based puzzle game
+APP_AUTHOR			:=	sergiou87
+APP_VERSION			:=	7.1
+ICON				:=	assets/icon.png
+APP_RSF				:=	$(TOPDIR)/assets/template.rsf
+APP_BANNER			:=	$(TOPDIR)/assets/banner.png
+APP_AUDIO			:=	$(TOPDIR)/assets/sound.wav
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -111,6 +118,26 @@ else
 endif
 #---------------------------------------------------------------------------------
 
+# bannertool binary file
+ifneq ($(findstring Linux,$(shell uname)),)
+	export BANNERTOOL = $(TOPDIR)/tools/bannertool-linux
+else ifneq ($(findstring Darwin,$(shell uname)),)
+	export BANNERTOOL = $(TOPDIR)/tools/bannertool-mac
+else
+	export BANNERTOOL = $(TOPDIR)/tools/bannertool.exe
+endif
+
+# makeroom binary file
+ifneq ($(findstring Linux,$(shell uname)),)
+	export MAKEROM    = $(TOPDIR)/tools/makerom-linux
+else ifneq ($(findstring Darwin,$(shell uname)),)
+	export MAKEROM    = $(TOPDIR)/tools/makerom-mac
+else
+	export MAKEROM    = $(TOPDIR)/tools/makerom.exe
+endif
+
+export MAKEROM_ARGS_COMMON = -rsf $(APP_RSF) -exefslogo -elf $(OUTPUT)-strip.elf -icon $(OUTPUT).icn -banner $(OUTPUT).bnr -DAPP_TITLE="$(APP_TITLE)" -DAPP_PRODUCT_CODE="$(APP_PRODUCT_CODE)" -DAPP_UNIQUE_ID=$(APP_UNIQUE_ID)
+
 export T3XFILES		:=	$(GFXFILES:.t3s=.t3x)
 
 export OFILES_SOURCES 	:=	$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) $(SFILES:.s=.o)
@@ -158,15 +185,13 @@ endif
 
 #---------------------------------------------------------------------------------
 all:
-	@echo "LIBS: $(LIBS)"
-	@echo "LDFLAGS: $(LDFLAGS)"
 	@mkdir -p $(BUILD) $(GFXBUILD)
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -fr $(BUILD) $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).elf
+	@rm -fr $(BUILD) $(TARGET).cia $(TARGET).3ds $(TARGET).3dsx $(OUTPUT).smdh $(TARGET)-strip.elf $(TARGET).elf $(TARGET).icn $(TARGET).bnr
 
 
 #---------------------------------------------------------------------------------
@@ -175,11 +200,26 @@ else
 #---------------------------------------------------------------------------------
 # main targets
 #---------------------------------------------------------------------------------
-$(OUTPUT).3dsx	:	$(OUTPUT).elf $(_3DSXDEPS)
+$(OUTPUT).3dsx	:	$(OUTPUT).elf $(OUTPUT).cia $(_3DSXDEPS)
 
 $(OFILES_SOURCES) : $(HFILES)
 
 $(OUTPUT).elf	:	$(OFILES)
+
+$(OUTPUT)-strip.elf: $(OUTPUT).elf
+	$(STRIP) $(OUTPUT).elf -o $(OUTPUT)-strip.elf
+
+$(OUTPUT).bnr:
+	$(BANNERTOOL) makebanner -i "$(APP_BANNER)" -a "$(APP_AUDIO)" -o $@
+
+$(OUTPUT).icn:
+	$(BANNERTOOL) makesmdh -s "$(APP_TITLE)" -l "$(APP_TITLE)" -p "$(APP_AUTHOR)" -i $(APP_ICON) -o $@
+
+$(OUTPUT).3ds: $(OUTPUT)-strip.elf $(OUTPUT).bnr $(OUTPUT).icn
+	$(MAKEROM) -f cci -o $@ $(MAKEROM_ARGS_COMMON) -DAPP_ENCRYPTED=true
+
+$(OUTPUT).cia: $(OUTPUT)-strip.elf $(OUTPUT).bnr $(OUTPUT).icn
+	$(MAKEROM) -f cia -o $@ $(MAKEROM_ARGS_COMMON) -DAPP_ENCRYPTED=false
 
 #---------------------------------------------------------------------------------
 # you need a rule like this for each extension you use as binary data
