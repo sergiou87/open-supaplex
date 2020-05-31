@@ -57,7 +57,8 @@ void initializeVideo(uint8_t fastMode)
     }
 
     int flags = SDL_FULLSCREEN | SDL_SWSURFACE | SDL_HWPALETTE;
-#ifdef _3DS
+#if defined(_3DS) && DEBUG
+    // When building debug mode for 3DS, show stdout in the bottom screen
 	flags |= SDL_CONSOLEBOTTOM;
 #endif	
 
