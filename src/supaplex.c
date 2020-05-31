@@ -7156,7 +7156,7 @@ void handleStatisticsOptionClick() // sub_4AF0C   proc near
 //loc_4AFE3:              ; CODE XREF: handleStatisticsOptionClick+58j
     fadeToPalette(gBlackPalette);
 
-    uint8_t screenPixelsBackup[kFullScreenFramebufferLength];
+    uint8_t *screenPixelsBackup = malloc(kFullScreenFramebufferLength);
     memcpy(screenPixelsBackup, gScreenPixels, kFullScreenFramebufferLength);
 
     drawBackBackground();
@@ -7248,6 +7248,8 @@ void handleStatisticsOptionClick() // sub_4AF0C   proc near
     fadeToPalette(gBlackPalette);
     memcpy(gScreenPixels, screenPixelsBackup, kFullScreenFramebufferLength);
     fadeToPalette(gGamePalette);
+
+    free(screenPixelsBackup);
 }
 
 void handleGfxTutorOptionClick() // sub_4B149   proc near
@@ -7435,35 +7437,22 @@ void showCongratulationsScreen() // sub_4B2FC   proc near       ; CODE XREF: han
 {
     fadeToPalette(gBlackPalette);
 
-    uint8_t screenPixelsBackup[kFullScreenFramebufferLength];
+    uint8_t *screenPixelsBackup = malloc(kFullScreenFramebufferLength);
     memcpy(screenPixelsBackup, gScreenPixels, kFullScreenFramebufferLength);
 
     drawBackBackground();
-//    mov si, 8718h // "CONGRATULATIONS"
-//    mov ah, 0Fh
-//    mov di, 5BDFh
     drawTextWithChars6FontWithTransparentBackgroundIfPossible(120, 30, 15, "CONGRATULATIONS");
-//    mov si, 8728h // "YOU HAVE COMPLETED ALL 111 LEVELS OF SUPAPLEX"
-//    mov ah, 0Fh
-//    mov di, 6EE3h
     drawTextWithChars6FontWithTransparentBackgroundIfPossible(24, 70, 15, "YOU HAVE COMPLETED ALL 111 LEVELS OF SUPAPLEX");
-//    mov si, 8756h // "YOUR BRAIN IS IN FANTASTIC SHAPE"
-//    mov ah, 0Fh
-//    mov di, 760Eh
     drawTextWithChars6FontWithTransparentBackgroundIfPossible(64, 85, 15, "YOUR BRAIN IS IN FANTASTIC SHAPE");
-//    mov si, 8777h // "NOT MANY PEOPLE ARE ABLE TO MANAGE THIS"
-//    mov ah, 0Fh
-//    mov di, 7D31h
     drawTextWithChars6FontWithTransparentBackgroundIfPossible(40, 100, 15, "NOT MANY PEOPLE ARE ABLE TO MANAGE THIS");
-//    mov si, palettesDataBuffer
     fadeToPalette(gInformationScreenPalette);
     waitForKeyMouseOrJoystick();
-//    mov si, 60D5h
     fadeToPalette(gBlackPalette);
     memcpy(gScreenPixels, screenPixelsBackup, kFullScreenFramebufferLength);
 
     fadeToPalette(gGamePalette); // 6015h
-    return;
+
+    free(screenPixelsBackup);
 }
 
 void handleOkButtonClick() // sub_4B375  proc near       ; CODE XREF: runMainMenu+11Ep
@@ -7880,7 +7869,7 @@ void handleLevelCreditsClick() // sub_4B7B7  proc near
 {
     fadeToPalette(gBlackPalette);
 
-    uint8_t screenPixelsBackup[kFullScreenFramebufferLength];
+    uint8_t *screenPixelsBackup = malloc(kFullScreenFramebufferLength);
     memcpy(screenPixelsBackup, gScreenPixels, kFullScreenFramebufferLength);
 
     drawBackBackground();
@@ -7898,6 +7887,8 @@ void handleLevelCreditsClick() // sub_4B7B7  proc near
     fadeToPalette(gBlackPalette);
     memcpy(gScreenPixels, screenPixelsBackup, kFullScreenFramebufferLength);
     fadeToPalette(gGamePalette);
+
+    free(screenPixelsBackup);
 }
 
 void drawTextWithChars6FontWithOpaqueBackgroundIfPossible(size_t destX, size_t destY, uint8_t color, const char *text) // sub_4BA5F  proc near       ; CODE XREF: handleNewPlayerOptionClick+37p
@@ -8388,7 +8379,7 @@ void sub_4C407() //   proc near       ; CODE XREF: runMainMenu+5Dp
 
 void scrollLeftToMainMenu() //loc_4C44F:              ; CODE XREF: handleGfxTutorOptionClick+9p
 {
-    uint8_t currentScreenPixels[kFullScreenFramebufferLength];
+    uint8_t *currentScreenPixels = malloc(kFullScreenFramebufferLength);
     memcpy(currentScreenPixels, gScreenPixels, kFullScreenFramebufferLength);
 
     drawMenuBackground();
@@ -8397,7 +8388,7 @@ void scrollLeftToMainMenu() //loc_4C44F:              ; CODE XREF: handleGfxTuto
     prepareLevelDataForCurrentPlayer();
     drawMenuTitleAndDemoLevelResult();
 
-    uint8_t menuScreenPixels[kFullScreenFramebufferLength];
+    uint8_t *menuScreenPixels = malloc(kFullScreenFramebufferLength);
     memcpy(menuScreenPixels, gScreenPixels, kFullScreenFramebufferLength);
 
     const int kNumberOfSteps = 80;
@@ -8436,6 +8427,9 @@ void scrollLeftToMainMenu() //loc_4C44F:              ; CODE XREF: handleGfxTuto
 //loc_4C466:              ; CODE XREF: sub_4C407+90j
         videoLoop();
     }
+
+    free(currentScreenPixels);
+    free(menuScreenPixels);
 
 //loc_4C499:              ; CODE XREF: sub_4C407+28j
     // This will prevent to leave traces of the options menu
@@ -8487,7 +8481,7 @@ void scrollRightToNewScreen() // sub_4C5AF   proc near       ; CODE XREF: handle
 {
     videoLoop();
 
-    uint8_t screenPixelsBackup[kFullScreenFramebufferLength];
+    uint8_t *screenPixelsBackup = malloc(kFullScreenFramebufferLength);
     memcpy(screenPixelsBackup, gScreenPixels, kFullScreenFramebufferLength);
 
     const int kNumberOfSteps = 80;
@@ -8526,6 +8520,8 @@ void scrollRightToNewScreen() // sub_4C5AF   proc near       ; CODE XREF: handle
 //loc_4C5BA:              ; CODE XREF: scrollRightToGfxTutor+3Cj
         videoLoop();
     }
+
+    free(screenPixelsBackup);
 }
 
 void handleOptionsStandardClick() // sub_4C705  proc near       ; CODE XREF: code:5ADBp
