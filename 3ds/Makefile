@@ -33,9 +33,10 @@ include $(DEVKITARM)/3ds_rules
 #---------------------------------------------------------------------------------
 TARGET				:=	OpenSupaplex
 BUILD				:=	build
-SOURCES				:=	../src ../src/sdl_common ../src/sdl1 ../src/lib/ini
+SOURCES				:=	../src ../src/sdl_common ../src/sdl1 ../src/3ds ../src/lib/ini
 DATA				:=	data
 INCLUDES			:=	include
+EXCLUDE				:=	nullVirtualKeyboard.c
 GRAPHICS			:=	gfx
 GFXBUILD			:=	$(BUILD)
 #ROMFS				:=	romfs
@@ -103,6 +104,8 @@ PICAFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.v.pica)))
 SHLISTFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.shlist)))
 GFXFILES	:=	$(foreach dir,$(GRAPHICS),$(notdir $(wildcard $(dir)/*.t3s)))
 BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
+
+CFILES := $(filter-out $(EXCLUDE),$(CFILES))
 
 #---------------------------------------------------------------------------------
 # use CXX for linking C++ projects, CC for standard C
@@ -207,19 +210,19 @@ $(OFILES_SOURCES) : $(HFILES)
 $(OUTPUT).elf	:	$(OFILES)
 
 $(OUTPUT)-strip.elf: $(OUTPUT).elf
-	$(STRIP) $(OUTPUT).elf -o $(OUTPUT)-strip.elf
+	@$(STRIP) $(OUTPUT).elf -o $(OUTPUT)-strip.elf
 
 $(OUTPUT).bnr:
-	$(BANNERTOOL) makebanner -i "$(APP_BANNER)" -a "$(APP_AUDIO)" -o $@
+	@$(BANNERTOOL) makebanner -i "$(APP_BANNER)" -a "$(APP_AUDIO)" -o $@
 
 $(OUTPUT).icn:
-	$(BANNERTOOL) makesmdh -s "$(APP_TITLE)" -l "$(APP_TITLE)" -p "$(APP_AUTHOR)" -i $(APP_ICON) -o $@
+	@$(BANNERTOOL) makesmdh -s "$(APP_TITLE)" -l "$(APP_TITLE)" -p "$(APP_AUTHOR)" -i $(APP_ICON) -o $@
 
 $(OUTPUT).3ds: $(OUTPUT)-strip.elf $(OUTPUT).bnr $(OUTPUT).icn
-	$(MAKEROM) -f cci -o $@ $(MAKEROM_ARGS_COMMON) -DAPP_ENCRYPTED=true
+	@$(MAKEROM) -f cci -o $@ $(MAKEROM_ARGS_COMMON) -DAPP_ENCRYPTED=true
 
 $(OUTPUT).cia: $(OUTPUT)-strip.elf $(OUTPUT).bnr $(OUTPUT).icn
-	$(MAKEROM) -f cia -o $@ $(MAKEROM_ARGS_COMMON) -DAPP_ENCRYPTED=false
+	@$(MAKEROM) -f cia -o $@ $(MAKEROM_ARGS_COMMON) -DAPP_ENCRYPTED=false
 
 #---------------------------------------------------------------------------------
 # you need a rule like this for each extension you use as binary data
