@@ -2,7 +2,7 @@
 
 source /etc/profile.d/devkit-env.sh
 cd switch
-make -j8
+make -j8 || exit 1
 
 # Bundle and prepare for release
 mkdir -p switch/OpenSupaplex
