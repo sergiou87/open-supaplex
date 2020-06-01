@@ -255,7 +255,7 @@ extern uint8_t gIsForcedCheatMode; // byte_59B85
 //   fastest, 0 the slowest. 5 means the original speed which was 35 game iterations per second.
 //
 #define kNumberOfGameSpeeds 11
-#define kDefaultGameSpeed 5
+#define kDefaultGameSpeed 6
 extern uint8_t gGameSpeed; // gameSpeed
 extern char demoFileName[kMaxFilePathLength];
 
