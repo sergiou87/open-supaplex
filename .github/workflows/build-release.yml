@@ -35,6 +35,22 @@ jobs:
       with:
         name: switch-build
         path: switch/OpenSupaplex-switch.zip
+  build-3ds:
+    runs-on: ubuntu-18.04
+    container: devkitpro/devkitarm:latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install dependencies
+    - name: Build OpenSupaplex for Nintendo 3DS
+      run: |
+        ./3ds/ci-install-dependencies.sh
+        ./3ds/ci-build.sh
+      shell: bash
+    - name: Upload Nintendo 3DS build
+      uses: actions/upload-artifact@v1
+      with:
+        name: 3ds-build
+        path: 3ds/OpenSupaplex-3ds.zip
   create-release:
     needs: build-vita
     runs-on: ubuntu-latest
@@ -59,6 +75,10 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: switch-build
+    - name: Download Nintendo 3DS Build Asset
+      uses: actions/download-artifact@v1
+      with:
+        name: 3ds-build
     - name: Create Release
       id: create_release
       uses: actions/create-release@latest
@@ -87,4 +107,13 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: switch-build/OpenSupaplex-switch.zip
         asset_name: OpenSupaplex-switch-${{ steps.get_version.outputs.VERSION }}.zip
+        asset_content_type: application/zip
+    - name: Upload Nintendo 3DS Build Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: 3ds-build/OpenSupaplex-3ds.zip
+        asset_name: OpenSupaplex-3ds-${{ steps.get_version.outputs.VERSION }}.zip
         asset_content_type: application/zip
