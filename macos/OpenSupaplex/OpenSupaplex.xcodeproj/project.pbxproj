@@ -7,14 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		400531052481706B0082E6FF /* audio-hq in Resources */ = {isa = PBXBuildFile; fileRef = 400531042481706A0082E6FF /* audio-hq */; };
-		400531062481706B0082E6FF /* audio-hq in Resources */ = {isa = PBXBuildFile; fileRef = 400531042481706A0082E6FF /* audio-hq */; };
 		403839C7247E5D7900C1B08B /* audio.c in Sources */ = {isa = PBXBuildFile; fileRef = 403839C5247E5D7900C1B08B /* audio.c */; };
 		403839C8247E5D7900C1B08B /* audio.c in Sources */ = {isa = PBXBuildFile; fileRef = 403839C5247E5D7900C1B08B /* audio.c */; };
 		403839C9247E5D7900C1B08B /* system.c in Sources */ = {isa = PBXBuildFile; fileRef = 403839C6247E5D7900C1B08B /* system.c */; };
 		403839CA247E5D7900C1B08B /* system.c in Sources */ = {isa = PBXBuildFile; fileRef = 403839C6247E5D7900C1B08B /* system.c */; };
 		403839CC247E5DAF00C1B08B /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 403839CB247E5DAE00C1B08B /* logging.c */; };
 		403839CD247E5DAF00C1B08B /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 403839CB247E5DAE00C1B08B /* logging.c */; };
+		404824412485BA1200D13735 /* audio-hq in Resources */ = {isa = PBXBuildFile; fileRef = 404824402485BA1200D13735 /* audio-hq */; };
+		404824422485BA1200D13735 /* audio-hq in Resources */ = {isa = PBXBuildFile; fileRef = 404824402485BA1200D13735 /* audio-hq */; };
 		404879F0246C402B00B776FA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 404879EF246C402B00B776FA /* Assets.xcassets */; };
 		404879FB246C403A00B776FA /* ini.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3CFB2468BEF900D4A308 /* ini.c */; };
 		404879FD246C403A00B776FA /* supaplex.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C246244CE5D5007A07F5 /* supaplex.c */; };
@@ -243,10 +243,10 @@
 		400145A62461A59D00620211 /* video.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = video.h; path = ../../../src/video.h; sourceTree = "<group>"; };
 		400145AA2462CE9F00620211 /* utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = utils.h; path = ../../../src/utils.h; sourceTree = "<group>"; };
 		400145AB2462CE9F00620211 /* utils.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = utils.c; path = ../../../src/utils.c; sourceTree = "<group>"; };
-		400531042481706A0082E6FF /* audio-hq */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "audio-hq"; path = "../../psp/audio-hq"; sourceTree = "<group>"; };
 		403839C5247E5D7900C1B08B /* audio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = audio.c; path = ../../../../src/sdl_common/audio.c; sourceTree = "<group>"; };
 		403839C6247E5D7900C1B08B /* system.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = system.c; path = ../../../../src/sdl_common/system.c; sourceTree = "<group>"; };
 		403839CB247E5DAE00C1B08B /* logging.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = logging.c; path = ../../../src/logging.c; sourceTree = "<group>"; };
+		404824402485BA1200D13735 /* audio-hq */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "audio-hq"; path = "../../resources/audio-hq"; sourceTree = "<group>"; };
 		404879BF246B51E600B776FA /* input.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = input.h; path = ../../../src/input.h; sourceTree = "<group>"; };
 		404879C0246B51E600B776FA /* input.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = input.c; path = ../../../src/input.c; sourceTree = "<group>"; };
 		404879C2246B5FF500B776FA /* conditionals.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = conditionals.h; path = ../../../src/conditionals.h; sourceTree = "<group>"; };
@@ -412,7 +412,7 @@
 				404879E5246C3FDC00B776FA /* macOS-Info.plist */,
 				404879EF246C402B00B776FA /* Assets.xcassets */,
 				40487ABE246CB6DC00B776FA /* OpenSupaplex.entitlements */,
-				400531042481706A0082E6FF /* audio-hq */,
+				404824402485BA1200D13735 /* audio-hq */,
 				409F7DB0247B298C00BB3B19 /* BACK.DAT */,
 				409F7DA1247B298B00BB3B19 /* CHARS6.DAT */,
 				409F7DD3247B299000BB3B19 /* CHARS8.DAT */,
@@ -758,7 +758,7 @@
 				409F7E80247B299200BB3B19 /* LEVEL.L94 in Resources */,
 				409F7E88247B299200BB3B19 /* DEMO1.BIN in Resources */,
 				404879F0246C402B00B776FA /* Assets.xcassets in Resources */,
-				400531052481706B0082E6FF /* audio-hq in Resources */,
+				404824412485BA1200D13735 /* audio-hq in Resources */,
 				409F7E34247B299200BB3B19 /* DEMO5.BIN in Resources */,
 				409F7DFA247B299100BB3B19 /* LEVEL.L03 in Resources */,
 				409F7E6E247B299200BB3B19 /* TITLE.DAT in Resources */,
@@ -855,7 +855,7 @@
 				409F7E81247B299200BB3B19 /* LEVEL.L94 in Resources */,
 				409F7E89247B299200BB3B19 /* DEMO1.BIN in Resources */,
 				4056433B247032640042F34B /* Assets.xcassets in Resources */,
-				400531062481706B0082E6FF /* audio-hq in Resources */,
+				404824422485BA1200D13735 /* audio-hq in Resources */,
 				409F7E35247B299200BB3B19 /* DEMO5.BIN in Resources */,
 				409F7DFB247B299100BB3B19 /* LEVEL.L03 in Resources */,
 				409F7E6F247B299200BB3B19 /* TITLE.DAT in Resources */,
@@ -955,6 +955,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				OTHER_CFLAGS = (
 					"-I/usr/local/include",
 					"-D_THREAD_SAFE",
@@ -985,6 +986,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				OTHER_CFLAGS = (
 					"-I/usr/local/include",
 					"-D_THREAD_SAFE",
