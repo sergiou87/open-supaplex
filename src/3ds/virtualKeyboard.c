@@ -17,8 +17,9 @@
 
 #include "../virtualKeyboard.h"
 
-#include <SDL/SDL.h>
 #include <3ds.h>
+#include <ctype.h>
+#include <string.h>
 
 #include "../logging.h"
 
@@ -26,7 +27,7 @@ static uint16_t gCurrentKeyboardMaxLength = 0;
 
 static const char *kAllowedCharacters = "0123456789QWERTYUIOPASDFGHJKLZXCVBNM -";
 
-static SwkbdCallbackResult MyCallback(void *user, const char **ppMessage, const char *inputText, size_t textLength)
+static SwkbdCallbackResult validateInputText(void *user, const char **ppMessage, const char *inputText, size_t textLength)
 {
     // inputText is used for outputting an error if validation fails.
     // errorTextMaxLength is the size of the inputText when used as a buffer to output errors. From what I've seen it's 15... ¬_¬'
@@ -68,19 +69,18 @@ uint8_t inputVirtualKeyboardText(const char *title, uint16_t maxLength, char *ou
 	swkbdInit(&swkbd, SWKBD_TYPE_NORMAL, 2, maxLength); // TODO: use maxLength?
 	swkbdSetInitialText(&swkbd, mybuf);
 	swkbdSetHintText(&swkbd, title);
-	swkbdSetFilterCallback(&swkbd, MyCallback, NULL);
+	swkbdSetFilterCallback(&swkbd, validateInputText, NULL);
 
     gCurrentKeyboardMaxLength = maxLength;
 
-	spLogInfo("Running swkbdShow...\n");
+	spLogInfo("Running swkbdInputText...\n");
 	SwkbdButton button = swkbdInputText(&swkbd, mybuf, sizeof(mybuf));
-	spLogInfo("button: %d\n", button);
+	spLogInfo("Button: %d\n", button);
 
 	if (button == SWKBD_BUTTON_CONFIRM)
 	{
 		mybuf[maxLength] = 0;
 		strncpy(outText, mybuf, maxLength);
-
 		success = 1;
 	}
 
