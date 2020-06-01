@@ -4,6 +4,29 @@ on:
     tags:
       - nightly
 jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install dependencies
+      run: |
+        ./macos/ci-prepare.sh
+      shell: bash
+    - name: Build OpenSupaplex
+      run: |
+        ./macos/ci-build.sh
+      shell: bash
+    - name: Deploy Nightly
+      uses: WebFreak001/deploy-nightly@v1.0.3
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
+      with:
+        upload_url: https://uploads.github.com/repos/sergiou87/open-supaplex/releases/25661714/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
+        release_id: 25661714 # same as above (id can just be taken out the upload_url, it's used to find old releases)
+        asset_path: macos/OpenSupaplex-macOS.zip # path to archive to upload
+        asset_name: OpenSupaplex-macOS-$$.zip # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
+        asset_content_type: application/binary # required by GitHub API
+        max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
   build-vita:
     runs-on: ubuntu-18.04
     steps:
@@ -12,7 +35,7 @@ jobs:
       run: |
         ./vita/ci-install-vitasdk.sh
       shell: bash
-    - name: Build OpenSupaplex for PS Vita
+    - name: Build OpenSupaplex
       run: |
         ./vita/ci-build-vita.sh
       shell: bash
