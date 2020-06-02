@@ -4,16 +4,27 @@ on:
     tags:
       - v*
 jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build OpenSupaplex for macOS
+      run: |
+        ./macos/ci-prepare.sh
+        ./macos/ci-build.sh
+      shell: bash
+    - name: Upload macOS build
+      uses: actions/upload-artifact@v1
+      with:
+        name: macos-build
+        path: macos/OpenSupaplex-macOS.zip
   build-vita:
     runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v1
-    - name: Install VitaSDK
-      run: |
-        ./vita/ci-install-vitasdk.sh
-      shell: bash
     - name: Build OpenSupaplex for PS Vita
       run: |
+        ./vita/ci-install-vitasdk.sh
         ./vita/ci-build-vita.sh
       shell: bash
     - name: Upload PS Vita build
@@ -40,7 +51,6 @@ jobs:
     container: devkitpro/devkitarm:latest
     steps:
     - uses: actions/checkout@v1
-    - name: Install dependencies
     - name: Build OpenSupaplex for Nintendo 3DS
       run: |
         ./3ds/ci-install-dependencies.sh
@@ -51,8 +61,23 @@ jobs:
       with:
         name: 3ds-build
         path: 3ds/OpenSupaplex-3ds.zip
+  build-windows-x86_64:
+    runs-on: windows-latest
+    steps:
+    - uses: numworks/setup-msys2@v1
+    - run: git config --global core.autocrlf false
+    - uses: actions/checkout@v1
+    - name: Build OpenSupaplex for Windows x86_64
+      run: |
+        msys2do ./ci-prepare.sh x86_64
+        msys2do ./ci-build.sh x86_64
+    - name: Upload Windows x86_64 build
+      uses: actions/upload-artifact@v1
+      with:
+        name: windows-x86_64-build
+        path: windows/OpenSupaplex-windows-x86_64.zip
   create-release:
-    needs: build-vita
+    needs: build-vita build-macos build-switch build-3ds build-windows-x86_64
     runs-on: ubuntu-latest
     steps:
     - name: Get the version
@@ -67,6 +92,10 @@ jobs:
         CONTENTS="${CONTENTS//$'\r'/'%0D'}" 
         echo "::set-output name=release_notes::${CONTENTS}"
       shell: bash
+    - name: Download macOS Build Asset
+      uses: actions/download-artifact@v1
+      with:
+        name: macos-build
     - name: Download PS Vita Build Asset
       uses: actions/download-artifact@v1
       with:
@@ -79,6 +108,10 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: 3ds-build
+    - name: Download Windows x86_64 Build Asset
+      uses: actions/download-artifact@v1
+      with:
+        name: windows-x86_64-build
     - name: Create Release
       id: create_release
       uses: actions/create-release@latest
@@ -90,6 +123,15 @@ jobs:
         body: ${{ steps.read_release_notes.outputs.release_notes }}
         draft: false
         prerelease: false
+    - name: Upload macOS Build Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: macos-build/OpenSupaplex-macOS.zip
+        asset_name: OpenSupaplex-macOS-${{ steps.get_version.outputs.VERSION }}.zip
+        asset_content_type: application/binary
     - name: Upload PS Vita Build Asset
       uses: actions/upload-release-asset@v1
       env:
@@ -116,4 +158,13 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: 3ds-build/OpenSupaplex-3ds.zip
         asset_name: OpenSupaplex-3ds-${{ steps.get_version.outputs.VERSION }}.zip
+        asset_content_type: application/zip
+    - name: Upload Windows x86_64 Build Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: windows-x86_64-build/OpenSupaplex-windows-x86_64.zip
+        asset_name: OpenSupaplex-windows-x86_64-${{ steps.get_version.outputs.VERSION }}.zip
         asset_content_type: application/zip
