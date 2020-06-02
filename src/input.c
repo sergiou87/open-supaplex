@@ -91,6 +91,24 @@ uint8_t isToggleGamePanelButtonPressed(void)
             || getGameControllerButtonY());
 }
 
+uint8_t isShowNumberOfRedDisksButtonPressed(void)
+{
+    return (gIsRightShiftPressed
+            || getGameControllerButtonB());
+}
+
+uint8_t isIncreaseGameSpeedButtonPressed(void)
+{
+    return (gIsNumpadPlusPressed
+            || getGameControllerButtonRightShoulder());
+}
+
+uint8_t isDecreaseGameSpeedButtonPressed(void)
+{
+    return (gIsNumpadMinusPressed
+            || getGameControllerButtonLeftShoulder());
+}
+
 uint8_t isRotateLevelSetAscendingButtonPressed(void)
 {
     return getGameControllerButtonRightShoulder();

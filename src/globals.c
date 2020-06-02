@@ -80,6 +80,7 @@ uint8_t gIsForcedLevel = 0; // byte_59B84
 uint8_t gIsForcedCheatMode = 0; // byte_59B85
 
 uint8_t gGameSpeed = kDefaultGameSpeed; // gameSpeed
+uint8_t gIsGameSpeedChangeButtonPressed = 0;
 char demoFileName[kMaxFilePathLength] = "";
 
 FastModeType gFastMode = FastModeTypeNone;

@@ -257,6 +257,7 @@ extern uint8_t gIsForcedCheatMode; // byte_59B85
 #define kNumberOfGameSpeeds 11
 #define kDefaultGameSpeed 6
 extern uint8_t gGameSpeed; // gameSpeed
+extern uint8_t gIsGameSpeedChangeButtonPressed;
 extern char demoFileName[kMaxFilePathLength];
 
 typedef enum

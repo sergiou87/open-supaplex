@@ -1865,14 +1865,6 @@ void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9
     updateKeyboardState();
 
     // 01ED:0659
-    if (isAnyKeyPressed() == 0) //test    cl, 80h     ; think key up
-    {
-        if (shouldYieldCpu)
-        {
-            waitTime(10); // Avoid burning the CPU
-        }
-        return;
-    }
 
     if (gIsLeftAltPressed && gIsEnterPressed)
     {
@@ -1893,16 +1885,22 @@ void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9
         updateDemoRecordingLowestSpeed();
     }
 //checkPlus:              ; CODE XREF: int9handler+54j
-    else if (gIsNumpadPlusPressed)
+    else if (gIsGameSpeedChangeButtonPressed == 0)
     {
-        increaseGameSpeed();
-    }
+        if (isIncreaseGameSpeedButtonPressed())
+        {
+            increaseGameSpeed();
+        }
 //checkMinus:             ; CODE XREF: int9handler+65j
 //                ; int9handler+71j
-    else if (gIsNumpadMinusPressed)
-    {
-        decreaseGameSpeed();
+        else if (isDecreaseGameSpeedButtonPressed())
+        {
+            decreaseGameSpeed();
+        }
     }
+
+    gIsGameSpeedChangeButtonPressed = (isIncreaseGameSpeedButtonPressed()
+                                       || isDecreaseGameSpeedButtonPressed());
 
 //checkX:                 ; CODE XREF: int9handler+39j
 //                ; int9handler+60j ...
@@ -5325,7 +5323,7 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
     }
 
 //loc_49D48:              ; CODE XREF: handleGameUserInput+7D3j
-    if (gIsRightShiftPressed != 0)
+    if (isShowNumberOfRedDisksButtonPressed())
     {
         drawNumberOfRemainingRedDisks(); // 01ED:30EC
     }
