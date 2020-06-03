@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4037C21F2487DCFA001B4029 /* virtualKeyboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 4037C2152487DCFA001B4029 /* virtualKeyboard.c */; };
+		4037C2202487DCFA001B4029 /* virtualKeyboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 4037C2152487DCFA001B4029 /* virtualKeyboard.c */; };
 		403839C7247E5D7900C1B08B /* audio.c in Sources */ = {isa = PBXBuildFile; fileRef = 403839C5247E5D7900C1B08B /* audio.c */; };
 		403839C8247E5D7900C1B08B /* audio.c in Sources */ = {isa = PBXBuildFile; fileRef = 403839C5247E5D7900C1B08B /* audio.c */; };
 		403839C9247E5D7900C1B08B /* system.c in Sources */ = {isa = PBXBuildFile; fileRef = 403839C6247E5D7900C1B08B /* system.c */; };
@@ -18,7 +20,6 @@
 		404879F0246C402B00B776FA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 404879EF246C402B00B776FA /* Assets.xcassets */; };
 		404879FB246C403A00B776FA /* ini.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3CFB2468BEF900D4A308 /* ini.c */; };
 		404879FD246C403A00B776FA /* supaplex.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C246244CE5D5007A07F5 /* supaplex.c */; };
-		40487A01246C403A00B776FA /* nullVirtualKeyboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145A3245FEDF200620211 /* nullVirtualKeyboard.c */; };
 		40487A03246C403A00B776FA /* utils.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145AB2462CE9F00620211 /* utils.c */; };
 		40487A05246C403A00B776FA /* menu.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3CF72468717400D4A308 /* menu.c */; };
 		40487A06246C403A00B776FA /* config.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3D022469C03000D4A308 /* config.c */; };
@@ -38,7 +39,6 @@
 		40564320247032640042F34B /* config.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3D022469C03000D4A308 /* config.c */; };
 		40564321247032640042F34B /* demo.c in Sources */ = {isa = PBXBuildFile; fileRef = 40564312246F5DB60042F34B /* demo.c */; };
 		40564322247032640042F34B /* file.m in Sources */ = {isa = PBXBuildFile; fileRef = 40487A82246CB32400B776FA /* file.m */; };
-		40564323247032640042F34B /* nullVirtualKeyboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145A3245FEDF200620211 /* nullVirtualKeyboard.c */; };
 		40564324247032640042F34B /* input.c in Sources */ = {isa = PBXBuildFile; fileRef = 404879C0246B51E600B776FA /* input.c */; };
 		40564325247032640042F34B /* globals.c in Sources */ = {isa = PBXBuildFile; fileRef = 4056430F246F4A9A0042F34B /* globals.c */; };
 		40564326247032640042F34B /* utils.c in Sources */ = {isa = PBXBuildFile; fileRef = 400145AB2462CE9F00620211 /* utils.c */; };
@@ -239,10 +239,10 @@
 		4001459C245F7B5A00620211 /* touchscreen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = touchscreen.h; path = ../../../src/touchscreen.h; sourceTree = "<group>"; };
 		4001459F245F7EBF00620211 /* logging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = logging.h; path = ../../../src/logging.h; sourceTree = "<group>"; };
 		400145A2245FEDF200620211 /* virtualKeyboard.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = virtualKeyboard.h; path = ../../../src/virtualKeyboard.h; sourceTree = "<group>"; };
-		400145A3245FEDF200620211 /* nullVirtualKeyboard.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = nullVirtualKeyboard.c; path = ../../../src/nullVirtualKeyboard.c; sourceTree = "<group>"; };
 		400145A62461A59D00620211 /* video.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = video.h; path = ../../../src/video.h; sourceTree = "<group>"; };
 		400145AA2462CE9F00620211 /* utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = utils.h; path = ../../../src/utils.h; sourceTree = "<group>"; };
 		400145AB2462CE9F00620211 /* utils.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = utils.c; path = ../../../src/utils.c; sourceTree = "<group>"; };
+		4037C2152487DCFA001B4029 /* virtualKeyboard.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = virtualKeyboard.c; sourceTree = "<group>"; };
 		403839C5247E5D7900C1B08B /* audio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = audio.c; path = ../../../../src/sdl_common/audio.c; sourceTree = "<group>"; };
 		403839C6247E5D7900C1B08B /* system.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = system.c; path = ../../../../src/sdl_common/system.c; sourceTree = "<group>"; };
 		403839CB247E5DAE00C1B08B /* logging.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = logging.c; path = ../../../src/logging.c; sourceTree = "<group>"; };
@@ -396,6 +396,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4037C2102487DCFA001B4029 /* null */ = {
+			isa = PBXGroup;
+			children = (
+				4037C2152487DCFA001B4029 /* virtualKeyboard.c */,
+			);
+			name = null;
+			path = ../../../src/null;
+			sourceTree = "<group>";
+		};
 		403839C4247E5D6B00C1B08B /* sdl_common */ = {
 			isa = PBXGroup;
 			children = (
@@ -538,6 +547,7 @@
 		40C0D72E24196126004742A9 /* OpenSupaplex */ = {
 			isa = PBXGroup;
 			children = (
+				4037C2102487DCFA001B4029 /* null */,
 				403839C4247E5D6B00C1B08B /* sdl_common */,
 				409F7F15247C74CC00BB3B19 /* sdl2 */,
 				40DA3CF92468BEF900D4A308 /* lib */,
@@ -549,7 +559,6 @@
 				4001459F245F7EBF00620211 /* logging.h */,
 				403839CB247E5DAE00C1B08B /* logging.c */,
 				400145A2245FEDF200620211 /* virtualKeyboard.h */,
-				400145A3245FEDF200620211 /* nullVirtualKeyboard.c */,
 				400145A62461A59D00620211 /* video.h */,
 				400145AA2462CE9F00620211 /* utils.h */,
 				400145AB2462CE9F00620211 /* utils.c */,
@@ -881,6 +890,7 @@
 			files = (
 				409F7F31247C74E300BB3B19 /* keyboard.c in Sources */,
 				4056430D246F49CE0042F34B /* commandLineParser.c in Sources */,
+				4037C21F2487DCFA001B4029 /* virtualKeyboard.c in Sources */,
 				40487A05246C403A00B776FA /* menu.c in Sources */,
 				403839C9247E5D7900C1B08B /* system.c in Sources */,
 				409F7B6B2479D56D00BB3B19 /* animations.c in Sources */,
@@ -898,7 +908,6 @@
 				403839CC247E5DAF00C1B08B /* logging.c in Sources */,
 				409F7F2D247C74E300BB3B19 /* controller.c in Sources */,
 				403839C7247E5D7900C1B08B /* audio.c in Sources */,
-				40487A01246C403A00B776FA /* nullVirtualKeyboard.c in Sources */,
 				40487A07246C403A00B776FA /* input.c in Sources */,
 				40564310246F4A9A0042F34B /* globals.c in Sources */,
 				40487A03246C403A00B776FA /* utils.c in Sources */,
@@ -911,6 +920,7 @@
 			files = (
 				409F7F32247C74E300BB3B19 /* keyboard.c in Sources */,
 				40564316247032640042F34B /* commandLineParser.c in Sources */,
+				4037C2202487DCFA001B4029 /* virtualKeyboard.c in Sources */,
 				40564317247032640042F34B /* menu.c in Sources */,
 				403839CA247E5D7900C1B08B /* system.c in Sources */,
 				409F7B6C2479D56D00BB3B19 /* animations.c in Sources */,
@@ -928,7 +938,6 @@
 				403839CD247E5DAF00C1B08B /* logging.c in Sources */,
 				409F7F2E247C74E300BB3B19 /* controller.c in Sources */,
 				403839C8247E5D7900C1B08B /* audio.c in Sources */,
-				40564323247032640042F34B /* nullVirtualKeyboard.c in Sources */,
 				40564324247032640042F34B /* input.c in Sources */,
 				40564325247032640042F34B /* globals.c in Sources */,
 				40564326247032640042F34B /* utils.c in Sources */,
