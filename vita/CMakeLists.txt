@@ -229,3 +229,22 @@ vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
   FILE ../resources/TITLE1.DAT TITLE1.DAT
   FILE ../resources/TITLE2.DAT TITLE2.DAT
 )
+
+# Usage: PSVITAIP="192.168.0.224" make launch
+add_custom_target(launch
+  COMMAND curl -T ${PROJECT_NAME}.self ftp://$(PSVITAIP):1337/ux0:/app/${VITA_TITLEID}/eboot.bin
+  COMMAND echo "launch ${VITA_TITLEID}" | nc $ENV{PSVITAIP} 1338
+  DEPENDS ${PROJECT_NAME}.self
+)
+
+# Usage: PSVITAIP="192.168.0.224" make send
+add_custom_target(send
+  COMMAND curl -T ${PROJECT_NAME}.self ftp://$(PSVITAIP):1337/ux0:/app/${VITA_TITLEID}/eboot.bin
+  DEPENDS ${PROJECT_NAME}.self
+)
+
+# Usage: PSVITAIP="192.168.0.224" make vpksend
+add_custom_target(vpksend
+  COMMAND curl -T ${PROJECT_NAME}.vpk ftp://$(PSVITAIP):1337/ux0:/data/
+  DEPENDS ${PROJECT_NAME}.vpk
+)
