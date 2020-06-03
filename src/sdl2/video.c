@@ -104,9 +104,9 @@ void initializeVideo(uint8_t fastMode)
 #endif
 
     gTexture = SDL_CreateTexture(gRenderer,
-                                             format,
-                                             SDL_TEXTUREACCESS_STREAMING,
-                                             kScreenWidth, kScreenHeight);
+                                 format,
+                                 SDL_TEXTUREACCESS_STREAMING,
+                                 kScreenWidth, kScreenHeight);
 
     if (gTexture == NULL)
     {
@@ -246,24 +246,7 @@ void setGlobalPaletteColor(const uint8_t index, const Color color)
 
 void setColorPalette(const ColorPalette palette)
 {
-#ifdef __vita__
-    // For some reason (SDL bug?) in PS Vita using SDL_SetPaletteColors here
-    // specifically breaks the game colors. This seems to work, will investigate later...
-    //
-    for (uint8_t i = 0; i < kNumberOfColors; ++i)
-    {
-        gScreenSurface->format->palette->colors[i].r = palette[i].r;
-        gScreenSurface->format->palette->colors[i].g = palette[i].g;
-        gScreenSurface->format->palette->colors[i].b = palette[i].b;
-    }
-    gScreenSurface->format->palette->version++;
-    if (gScreenSurface->format->palette->version == 0)
-    {
-        gScreenSurface->format->palette->version = 1;
-    }
-#else
     SDL_SetPaletteColors(gScreenSurface->format->palette, (SDL_Color *)palette, 0, kNumberOfColors);
-#endif
 }
 
 int windowResizingEventWatcher(void* data, SDL_Event* event)
