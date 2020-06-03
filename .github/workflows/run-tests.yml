@@ -22,9 +22,6 @@ jobs:
       name: Run tests
       run: |
         cd tests
-        #/sbin/start-stop-daemon --start --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 800x600x24 -ac +extension GLX;
-        #export SDL_VIDEODRIVER=x11;
-        #export DISPLAY=:99.0;
         # Save the exit code for later, in case it failed, don't fail now.
         # If it failed because tests failed, at least it will upload the results.
         echo "::set-output name=run_tests_exit_code::0"

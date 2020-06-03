@@ -15,9 +15,61 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "virtualKeyboard.h"
+#include "../audio.h"
 
-uint8_t inputVirtualKeyboardText(const char *title, uint16_t maxLength, char *outText)
+#include "../logging.h"
+
+SoundType sndType = SoundTypeNone;
+SoundType musType = SoundTypeInternalStandard;
+
+int8_t initializeAudio()
 {
+    spLogInfo("Initialized null driver correctly");
     return 0;
+}
+
+void destroyAudio()
+{
+	// Do nothing
+}
+
+void setSoundType(SoundType musicType, SoundType effectsType)
+{
+    sndType = effectsType;
+    musType = musicType;
+}
+
+uint8_t getMusicVolume(void)
+{
+	return 0;
+}
+
+void setMusicVolume(uint8_t volume)
+{
+	// Do nothing
+}
+
+uint8_t getSoundEffectsVolume(void)
+{
+	return 0;
+}
+
+void setSoundEffectsVolume(uint8_t volume)
+{
+	// Do nothing
+}
+
+void playMusic()
+{
+	// Do nothing
+}
+
+void stopMusic()
+{
+	// Do nothing
+}
+
+void playSoundEffect(SoundEffect soundEffect)
+{
+	// Do nothing
 }
