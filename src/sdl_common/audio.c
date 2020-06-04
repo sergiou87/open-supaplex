@@ -70,13 +70,20 @@ static const char *kBaseAudioFolder = "sdmc:/OpenSupaplex/audio";
 static const char *kBaseAudioFolder = "audio";
 #endif
 
-// PSP can't handle High quality audio, it kills performance
-#if defined(__PSP__) || defined(_3DS)
+// PSP and 3DS can't handle High quality audio, it kills performance
+#if defined(_3DS)
 static const char *kBaseAudioFolderSuffix = "lq"; // Low quality
+static const int kSampleRate = 11025;
+static const int kNumberOfChannels = 1;
+#elif defined(__PSP__)
+static const char *kBaseAudioFolderSuffix = "mq"; // Medium quality
+static const int kSampleRate = 22050;
+static const int kNumberOfChannels = 1;
 #else
 static const char *kBaseAudioFolderSuffix = "hq"; // High quality
+static const int kSampleRate = 44100;
+static const int kNumberOfChannels = 2;
 #endif
-
 
 int8_t initializeAudio()
 {
@@ -88,15 +95,6 @@ int8_t initializeAudio()
     // However, if it ever supports WASM, that needs a power of 2 as buffer size.
     //
     const int kAudioBufferSize = 768;
-
-#if defined(__PSP__) || defined(_3DS)
-    // PSP and 3DS can't handle 44.1Khz stereo Ogg music smoothly. Lowering the quality did the trick.
-    const int kSampleRate = 22050;
-    const int kNumberOfChannels = 1;
-#else
-    const int kSampleRate = 44100;
-    const int kNumberOfChannels = 2;
-#endif
 
     if (Mix_OpenAudio(kSampleRate, MIX_DEFAULT_FORMAT, kNumberOfChannels, kAudioBufferSize) == -1)
     {
@@ -114,7 +112,7 @@ int8_t initializeAudio()
         return 1;
     }
 
-    spLogInfo("Audio initialized correctly");
+    spLogInfo("Audio initialized: %dHz, %d channels, %dB buffer", kSampleRate, kNumberOfChannels, kAudioBufferSize);
     gIsAudioInitialized = 1;
 
     return 0;
