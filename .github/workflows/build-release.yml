@@ -46,6 +46,21 @@ jobs:
       with:
         name: switch-build
         path: switch/OpenSupaplex-switch.zip
+  build-psp:
+    runs-on: ubuntu-18.04
+    container: sergiou87/pspdev-docker-open-supaplex:7.1
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build OpenSupaplex for PSP
+      run: |
+        ./psp/ci-install-dependencies.sh
+        ./psp/ci-build.sh
+      shell: bash
+    - name: Upload PSP build
+      uses: actions/upload-artifact@v1
+      with:
+        name: psp-build
+        path: psp/OpenSupaplex-psp.zip
   build-3ds:
     runs-on: ubuntu-18.04
     container: devkitpro/devkitarm:latest
@@ -104,6 +119,10 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: switch-build
+    - name: Download PSP Build Asset
+      uses: actions/download-artifact@v1
+      with:
+        name: psp-build
     - name: Download Nintendo 3DS Build Asset
       uses: actions/download-artifact@v1
       with:
@@ -149,6 +168,15 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: switch-build/OpenSupaplex-switch.zip
         asset_name: OpenSupaplex-switch-${{ steps.get_version.outputs.VERSION }}.zip
+        asset_content_type: application/zip
+    - name: Upload PSP Build Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: psp-build/OpenSupaplex-psp.zip
+        asset_name: OpenSupaplex-psp-${{ steps.get_version.outputs.VERSION }}.zip
         asset_content_type: application/zip
     - name: Upload Nintendo 3DS Build Asset
       uses: actions/upload-release-asset@v1
