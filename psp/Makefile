@@ -1,5 +1,5 @@
 TARGET = OpenSupaplex
-SRC = $(wildcard ../src/*.c) $(wildcard ../src/sdl1/*.c) $(wildcard ../src/sdl_common/*.c) ../src/lib/ini/ini.c
+SRC = $(wildcard ../src/*.c) $(wildcard ../src/sdl1/*.c) $(wildcard ../src/sdl_common/*.c) ../src/null/virtualKeyboard.c ../src/lib/ini/ini.c
 EXCLUDE = 
 SRC := $(filter-out $(EXCLUDE),$(SRC))
 OBJS = $(SRC:.c=.o)
