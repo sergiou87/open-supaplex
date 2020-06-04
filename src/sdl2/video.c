@@ -94,7 +94,7 @@ void initializeVideo(uint8_t fastMode)
         exit(1);
     }
 
-    Uint32 format = SDL_PIXELFORMAT_ARGB32;
+    Uint32 format = SDL_PIXELFORMAT_RGB24;
 
     // HACK: this is needed for my crappy SDL2 implementation (https://github.com/sergiou87/SDL2/commit/962e4e565562c2cd70b877f3d697ad2084d9405b)
     // but this should be fixed on SDL's side (or pspgl's), I think.
@@ -115,7 +115,7 @@ void initializeVideo(uint8_t fastMode)
         exit(1);
     }
 
-    gTextureSurface = SDL_CreateRGBSurfaceWithFormat(0, kScreenWidth, kScreenHeight, 8, SDL_PIXELFORMAT_ARGB32);
+    gTextureSurface = SDL_CreateRGBSurfaceWithFormat(0, kScreenWidth, kScreenHeight, 8, SDL_PIXELFORMAT_RGB24);
 
     if (gTextureSurface == NULL)
     {

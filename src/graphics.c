@@ -1111,9 +1111,9 @@ void renderAdvancedOptionsMenu(AdvancedOptionsMenu *menu)
     static const uint8_t kEntryTextColorIndex = 254;
     static const uint8_t kSelectedEntryTextColorIndex = 255;
 
-    setGlobalPaletteColor(kTitleTextColorIndex, (Color) { 255, 255, 255, 255 });
-    setGlobalPaletteColor(kEntryTextColorIndex, (Color) { 180, 180, 180, 255 });
-    setGlobalPaletteColor(kSelectedEntryTextColorIndex, (Color) { 224, 16, 16, 255 });
+    setGlobalPaletteColor(kTitleTextColorIndex, (Color) { 255, 255, 255 });
+    setGlobalPaletteColor(kEntryTextColorIndex, (Color) { 180, 180, 180 });
+    setGlobalPaletteColor(kSelectedEntryTextColorIndex, (Color) { 224, 16, 16 });
 
     const uint16_t kMenuTitleX = (kScreenWidth - strlen(menu->title) * kBitmapFontCharacter6Width) / 2;
 
@@ -1365,10 +1365,7 @@ void convertPaletteDataToPalette(ColorPaletteData paletteData, ColorPalette outP
         outPalette[i].r = paletteData[i * 4 + 0] << kExponent;
         outPalette[i].g = paletteData[i * 4 + 1] << kExponent;
         outPalette[i].b = paletteData[i * 4 + 2] << kExponent;
-        // The last component was supposed to be something for EGA mode. SDL will use it as alpha (on Vita at least),
-        // so let's set it to 255.
-        //
-        outPalette[i].a = 255; // paletteData[i * 4 + 3] << kExponent; 
+        outPalette[i].a = paletteData[i * 4 + 3] << kExponent; // intensity, for now
     }
 }
 
