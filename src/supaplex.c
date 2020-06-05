@@ -714,6 +714,7 @@ void playDemo(uint16_t demoIndex);
 static const char *kAdvancedConfigGeneralSection = "general";
 static const char *kAdvancedConfigDebugSection = "debug";
 
+static const char *kAdvancedConfigPlayerKey = "player";
 static const char *kAdvancedConfigLevelSetKey = "levelSet";
 static const char *kAdvancedConfigGameSpeedKey = "gameSpeed";
 static const char *kAdvancedConfigMusicVolumeKey = "musicVolume";
@@ -734,6 +735,10 @@ void readAdvancedConfig()
 
     char currentSuffix[3] = "AT";
     strcpy(currentSuffix, &gLevelsDatFilename[8]);
+
+    int player = readConfigInt(config, kAdvancedConfigGeneralSection, kAdvancedConfigPlayerKey, 0);
+    player = CLAMP(player, 0, kNumberOfPlayers - 1);
+    gCurrentPlayerIndex = player;
 
     // Only apply level set from config if it wasn't overriden before (by command line)
     if (strcmp(currentSuffix, "AT") == 0)
@@ -799,6 +804,7 @@ void writeAdvancedConfig()
         levelSet = atoi(currentSuffix);
     }
 
+    writeConfigInt(config, kAdvancedConfigPlayerKey, gCurrentPlayerIndex);
     writeConfigInt(config, kAdvancedConfigLevelSetKey, levelSet);
     writeConfigInt(config, kAdvancedConfigGameSpeedKey, gGameSpeed);
     writeConfigInt(config, kAdvancedConfigMusicVolumeKey, getMusicVolume());
