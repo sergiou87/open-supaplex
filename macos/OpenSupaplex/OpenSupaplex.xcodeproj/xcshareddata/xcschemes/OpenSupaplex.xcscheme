@@ -57,19 +57,23 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "-q &quot;../tests/solves/demos/24s008-lafiesta.sp&quot;"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "-n 3"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-q &quot;/Users/spadrino/Downloads/solve/JENS0002.SP&quot;"
+            argument = "-u &quot;../tests/solves/demos/00s067$0.sp&quot;"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-u DEMO0.BIN"
+            argument = "-u &quot;../tests/solves/1/JENS0110.SP&quot;"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-s"
+            argument = "-z 27"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
@@ -95,7 +99,7 @@
       shouldUseLaunchSchemeArgsEnv = "YES"
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
-      debugDocumentVersioning = "YES">
+      debugDocumentVersioning = "NO">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
          <BuildableReference
