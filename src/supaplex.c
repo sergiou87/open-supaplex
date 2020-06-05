@@ -110,7 +110,7 @@ uint8_t byte_5A323 = 0;
 uint16_t word_5A33C = 0;
 uint8_t gHasUserInterruptedDemo = 0; // byte_5A33E
 uint8_t gIsGameBusy = 0; // byte_5A33F -> this was used mainly to avoid some graphic glitches when some text from the main menu was written on the game field
-uint8_t gIsMouseAvailable = 0; // byte_58487
+// uint8_t gIsMouseAvailable = 0; // byte_58487
 uint8_t gLevelListButtonPressed = 0; // byte_50918
 uint8_t gLevelListDownButtonPressed = 0; // byte_50916
 uint8_t gLevelListUpButtonPressed = 0; // byte_50917
@@ -2526,7 +2526,7 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
     }
     while (isAnyKeyPressed());
 
-    uint16_t mouseButtonsStatus;
+    uint16_t mouseButtonsStatus = 0;
 
     do
     {
@@ -2542,11 +2542,13 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
 
         getMouseStatus(NULL, NULL, &mouseButtonsStatus);
         int9handler(0);
+        updateUserInput();
 
         if (mouseButtonsStatus != 0)
         {
             break;
         }
+
         if (isAnyKeyPressed())
         {
             break;
@@ -9658,7 +9660,6 @@ void initializeFadePalette() //   proc near       ; CODE XREF: start+296p
 
 void initializeMouse() //   proc near       ; CODE XREF: start+299p
 {
-    gIsMouseAvailable = 1; // THIS IS NOT FROM THE ASM: assume there is a mouse available
     gMouseX = kScreenWidth / 2;
     gMouseY = kScreenHeight / 2;
     if (getFullscreenMode())
@@ -9675,76 +9676,73 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
     // Returns coordinate X in CX (0-320) and coordinate Y in DX (0-200).
     // Also button status in BX.
 
-    if (gIsMouseAvailable != 0)
+    handleSystemEvents();
+
+    int x, y;
+    uint8_t leftButtonPressed,rightButtonPressed;
+
+    getMouseState(&x, &y, &leftButtonPressed, &rightButtonPressed);
+
+    int windowWidth, windowHeight;
+    getWindowSize(&windowWidth, &windowHeight);
+
+    float controllerX = 0, controllerY = 0;
+    uint8_t controllerLeftButton = 0;
+    uint8_t controllerRightButton = 0;
+    gameControllerEmulateMouse(&controllerX,
+                                &controllerY,
+                                &controllerLeftButton,
+                                &controllerRightButton);
+
+    if (controllerX != 0.0 || controllerY != 0.0)
     {
-        handleSystemEvents();
+        float speed = (float) windowWidth / 1280;
 
-        int x, y;
-        uint8_t leftButtonPressed,rightButtonPressed;
+        x += speed * controllerX;
+        y += speed * controllerY;
 
-        getMouseState(&x, &y, &leftButtonPressed, &rightButtonPressed);
+        // Correct mouse position for future events
+        moveMouse(x, y);
+    }
 
-        int windowWidth, windowHeight;
-        getWindowSize(&windowWidth, &windowHeight);
+    // Read touch screen where available
+    float touchScreenX, touchScreenY;
+    uint8_t touchScreenPressed = readTouchScreen(&touchScreenX, &touchScreenY);
+    if (touchScreenPressed)
+    {
+        x = touchScreenX * windowWidth;
+        y = touchScreenY * windowHeight;
 
-        float controllerX = 0, controllerY = 0;
-        uint8_t controllerLeftButton = 0;
-        uint8_t controllerRightButton = 0;
-        gameControllerEmulateMouse(&controllerX,
-                                   &controllerY,
-                                   &controllerLeftButton,
-                                   &controllerRightButton);
+        // Correct mouse position for future events
+        moveMouse(x, y);
+    }
 
-        if (controllerX != 0.0 || controllerY != 0.0)
-        {
-            float speed = (float) windowWidth / 1280;
+    x = x * kScreenWidth / windowWidth;
+    y = y * kScreenHeight / windowHeight;
 
-            x += speed * controllerX;
-            y += speed * controllerY;
+    leftButtonPressed = (leftButtonPressed
+                            || controllerLeftButton
+                            || touchScreenPressed);
+    rightButtonPressed = (rightButtonPressed
+                            || controllerRightButton);
 
-            // Correct mouse position for future events
-            moveMouse(x, y);
-        }
+    // Limit coordinates as in the original game
+    x = CLAMP(x, 16, 304);
+    y = CLAMP(y, 8, 192);
 
-        // Read touch screen where available
-        float touchScreenX, touchScreenY;
-        uint8_t touchScreenPressed = readTouchScreen(&touchScreenX, &touchScreenY);
-        if (touchScreenPressed)
-        {
-            x = touchScreenX * windowWidth;
-            y = touchScreenY * windowHeight;
+    if (mouseX != NULL)
+    {
+        *mouseX = x;
+    }
+    if (mouseY != NULL)
+    {
+        *mouseY = y;
+    }
 
-            // Correct mouse position for future events
-            moveMouse(x, y);
-        }
-
-        x = x * kScreenWidth / windowWidth;
-        y = y * kScreenHeight / windowHeight;
-
-        leftButtonPressed = (leftButtonPressed
-                             || controllerLeftButton
-                             || touchScreenPressed);
-        rightButtonPressed = (rightButtonPressed
-                              || controllerRightButton);
-
-        // Limit coordinates as in the original game
-        x = CLAMP(x, 16, 304);
-        y = CLAMP(y, 8, 192);
-
-        if (mouseX != NULL)
-        {
-            *mouseX = x;
-        }
-        if (mouseY != NULL)
-        {
-            *mouseY = y;
-        }
-
-        if (mouseButtonStatus != NULL)
-        {
-            *mouseButtonStatus = (rightButtonPressed << 1
-                                  | leftButtonPressed);
-        }
+    if (mouseButtonStatus != NULL)
+    {
+        *mouseButtonStatus = (rightButtonPressed << 1
+                                | leftButtonPressed);
     }
 }
 
