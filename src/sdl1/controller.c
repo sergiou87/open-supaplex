@@ -40,7 +40,6 @@ const uint8_t GAMEPAD_BUTTON_DOWN = 8;
 const uint8_t GAMEPAD_BUTTON_LEFT = 9;
 const uint8_t GAMEPAD_BUTTON_UP = 10;
 const uint8_t GAMEPAD_BUTTON_RIGHT = 11;
-
 const uint8_t GAMEPAD_BUTTON_A = 2;
 const uint8_t GAMEPAD_BUTTON_B = 1;
 const uint8_t GAMEPAD_BUTTON_X = 4;
@@ -49,6 +48,19 @@ const uint8_t GAMEPAD_BUTTON_LSHOULDER = 5;
 const uint8_t GAMEPAD_BUTTON_RSHOULDER = 6;
 const uint8_t GAMEPAD_BUTTON_START = 0;
 const uint8_t GAMEPAD_BUTTON_BACK = 7;
+#else
+const uint8_t GAMEPAD_BUTTON_DOWN = 14;
+const uint8_t GAMEPAD_BUTTON_LEFT = 15;
+const uint8_t GAMEPAD_BUTTON_UP = 16;
+const uint8_t GAMEPAD_BUTTON_RIGHT = 17;
+const uint8_t GAMEPAD_BUTTON_A = 1;
+const uint8_t GAMEPAD_BUTTON_B = 2;
+const uint8_t GAMEPAD_BUTTON_X = 0;
+const uint8_t GAMEPAD_BUTTON_Y = 3;
+const uint8_t GAMEPAD_BUTTON_LSHOULDER = 4;
+const uint8_t GAMEPAD_BUTTON_RSHOULDER = 5;
+const uint8_t GAMEPAD_BUTTON_START = 9;
+const uint8_t GAMEPAD_BUTTON_BACK = 8;
 #endif
 
 static SDL_Joystick *sCurrentGameController = NULL;
@@ -56,13 +68,6 @@ static const float kJoystickDeadzone = 0.5;
 
 SDL_Joystick *getGameController()
 {
-    // The game controller is not valid anymore, invalidate.
-    // TODO: Make a proper check
-    // if (sCurrentGameControllerIndex == -1)
-    // {
-    //     sCurrentGameController = NULL;
-    // }
-
     if (sCurrentGameController != NULL)
     {
         return sCurrentGameController;
