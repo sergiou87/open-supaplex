@@ -52,7 +52,7 @@ const uint8_t GAMEPAD_BUTTON_BACK = 7;
 #endif
 
 static SDL_Joystick *sCurrentGameController = NULL;
-static const float kJoystickDeadzone = 0.1;
+static const float kJoystickDeadzone = 0.5;
 
 SDL_Joystick *getGameController()
 {

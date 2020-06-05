@@ -22,7 +22,7 @@
 
 static int sCurrentGameControllerIndex = -1;
 static SDL_GameController *sCurrentGameController = NULL;
-static const float kJoystickDeadzone = 0.1;
+static const float kJoystickDeadzone = 0.5;
 
 SDL_GameController *getGameController()
 {
