@@ -75,6 +75,28 @@ FILE *openWritableFile(const char *pathname, const char *mode)
 {
     return openReadonlyFile(pathname, mode);
 }
+#elif defined(__PSL1GHT__)
+void getReadonlyFilePath(const char *pathname, char outPath[kMaxFilePathLength])
+{
+    snprintf(outPath, kMaxFilePathLength, "/dev_hdd0/OpenSupaplex/%s", pathname);
+}
+
+void getWritableFilePath(const char *pathname, char outPath[kMaxFilePathLength])
+{
+    getReadonlyFilePath(pathname, outPath);
+}
+
+FILE *openReadonlyFile(const char *pathname, const char *mode)
+{
+    char finalPathname[kMaxFilePathLength];
+    getReadonlyFilePath(pathname, finalPathname);
+    return fopen(finalPathname, mode);
+}
+
+FILE *openWritableFile(const char *pathname, const char *mode)
+{
+    return openReadonlyFile(pathname, mode);
+}
 #else
 void getReadonlyFilePath(const char *pathname, char outPath[kMaxFilePathLength])
 {

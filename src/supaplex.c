@@ -9700,6 +9700,8 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
                                 &controllerLeftButton,
                                 &controllerRightButton);
 
+    uint8_t shouldCorrectMousePosition = 0;
+
     if (controllerX != 0.0 || controllerY != 0.0)
     {
         float speed = (float) windowWidth / 1280;
@@ -9707,8 +9709,7 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
         x += speed * controllerX;
         y += speed * controllerY;
 
-        // Correct mouse position for future events
-        moveMouse(x, y);
+        shouldCorrectMousePosition = 1;
     }
 
     // Read touch screen where available
@@ -9719,6 +9720,14 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
         x = touchScreenX * windowWidth;
         y = touchScreenY * windowHeight;
 
+        shouldCorrectMousePosition = 1;
+    }
+
+    if (shouldCorrectMousePosition)
+    {
+        x = CLAMP(x, 0, windowWidth);
+        y = CLAMP(y, 0, windowHeight);
+        
         // Correct mouse position for future events
         moveMouse(x, y);
     }

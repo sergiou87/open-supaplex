@@ -32,6 +32,9 @@ static const int kWindowHeight = 272;
 #elif defined(_3DS)
 static const int kWindowWidth = 400;
 static const int kWindowHeight = 240;
+#elif defined(__PSL1GHT__)
+static const int kWindowWidth = 1280;
+static const int kWindowHeight = 720;
 #else
 static const int kWindowWidth = kScreenWidth * 4;
 static const int kWindowHeight = kScreenHeight * 4;
@@ -144,9 +147,21 @@ void setScalingMode(ScalingMode mode)
 
 void getWindowSize(int *width, int *height)
 {
+#ifdef __PSL1GHT__
+    // This is needed due to a bug in PSL1GHT's port of SDL, where the mouse
+    // movement is limited to the window size I set in SetVideoMode, but when
+    // I retrieve the video info, I'm told a different size.
+    // For example, if I use 720p as resolution but the PS3 is configured to
+    // use 1080p, I would get 1080p here but the mouse would be restricted to 720p.
+    // I might look to fix the bug in SDL in the future… or not
+    //
+    *width = kWindowWidth;
+    *height = kWindowHeight;
+#else
     const SDL_VideoInfo *info = SDL_GetVideoInfo();
     *width = info->current_w;
     *height = info->current_h;
+#endif
 }
 
 void centerMouse()

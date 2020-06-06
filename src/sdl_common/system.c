@@ -23,6 +23,7 @@
 #elif HAVE_SDL
 #include <SDL/SDL.h>
 #endif
+#include <stdarg.h>
 #include <stdio.h>
 
 #include "../globals.h"

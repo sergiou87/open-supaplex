@@ -66,6 +66,8 @@ void destroySounds(void);
 static const char *kBaseAudioFolder = "app0:/audio";
 #elif defined(_3DS)
 static const char *kBaseAudioFolder = "sdmc:/OpenSupaplex/audio";
+#elif defined(__PSL1GHT__)
+static const char *kBaseAudioFolder = "/dev_hdd0/OpenSupaplex/audio";
 #else
 static const char *kBaseAudioFolder = "audio";
 #endif
