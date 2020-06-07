@@ -21,25 +21,36 @@ CONTENTID		:=	UP0001-$(APPID)_00-0000000000000000
 # SOURCES is a list of directories containing source code
 # INCLUDES is a list of directories containing extra header files
 #---------------------------------------------------------------------------------
-TARGET		:=	OpenSupaplex
-BUILD		:=	build
-SOURCES		:=	../src ../src/sdl_common ../src/sdl1 ../src/lib/ini
-DATA		:=	data
-INCLUDES	:=	include
+TARGET			:=	OpenSupaplex
+BUILD			:=	build
+SOURCES			:=	../src ../src/sdl_common ../src/sdl2 ../src/lib/ini
+OTHER_SOURCES	:=	../../src/null/virtualKeyboard.c
+DATA			:=	data
+INCLUDES		:=	include
 
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
 
-CFLAGS		=	-O2 -Wall -mcpu=cell $(MACHDEP) $(INCLUDE) $(LIBPSL1GHT_INC) -I$(PORTLIBS)/include -DHAVE_SDL -D__PSL1GHT__
-CXXFLAGS	=	$(CFLAGS)
-
-LDFLAGS		=	$(LIBPSL1GHT_LIB) -L$(PORTLIBS)/lib $(MACHDEP) -Wl,-Map,$(notdir $@).map
+CFLAGS		=	-O2 -Wall -mcpu=cell $(MACHDEP) $(INCLUDE) $(LIBPSL1GHT_INC) -I$(PORTLIBS)/include -DHAVE_SDL2 -D__PSL1GHT__
 
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS	:=	-lSDL_mixer -lvorbisfile -lvorbis -logg -lmikmod -lSDL -lrsx -lgcm_sys -lio -laudio -lsysutil -lrt -llv2 -lm
+LIBS	:=	-lSDL2_mixer -lvorbisfile -lvorbis -logg -lmikmod -lSDL2 -lrsx -lgcm_sys -lio -laudio -lsysutil -lrt -llv2 -lm
+
+ifeq ($(DEBUG),1)
+	CFLAGS += -DDEBUG=1 -DDEBUGNET
+	LIBS += -ldebugnet
+endif
+
+ifneq ($(strip $(DEBUGNETIP)),)
+	CFLAGS += -DDEBUGNETIP=\"$(DEBUGNETIP)\"
+endif
+
+CXXFLAGS	=	$(CFLAGS)
+
+LDFLAGS		=	$(LIBPSL1GHT_LIB) -L$(PORTLIBS)/lib $(MACHDEP) -Wl,-Map,$(notdir $@).map
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
@@ -72,7 +83,7 @@ sFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
 SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.S)))
 BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
 
-CFILES      := $(CFILES) ../../src/null/virtualKeyboard.c
+CFILES      := $(CFILES) $(OTHER_SOURCES)
 
 #---------------------------------------------------------------------------------
 # use CXX for linking C++ projects, CC for standard C

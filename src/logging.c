@@ -21,7 +21,11 @@
 #include <SDL2/SDL.h>
 #endif
 
-#if defined(__vita__) && DEBUG
+#if (defined(__vita__) || defined(__PSL1GHT__)) && DEBUG
+#define USE_DEBUGNET 1
+#endif
+
+#if USE_DEBUGNET
 #include <debugnet.h>
 #endif
 
@@ -38,9 +42,8 @@ void setLogLevel(LogLevel logLevel)
 
 void initializeLogging(void)
 {
-#if defined(__vita__) && DEBUG
-    int ret;
-    ret = debugNetInit(DEBUGNETIP, 18194, DEBUG);
+#if USE_DEBUGNET
+    debugNetInit(DEBUGNETIP, 18194, DEBUG);
 #endif
 
 #if defined(__SWITCH__) && DEBUG
@@ -75,7 +78,7 @@ void spLog(LogLevel level, const char *format, ...)
     va_start(argptr, format);
     vsprintf(buffer, format, argptr);
     va_end(argptr);
-#if defined(__vita__) && DEBUG
+#if USE_DEBUGNET
     debugNetPrintf(INFO, "%s\n", buffer);
 #endif
 
