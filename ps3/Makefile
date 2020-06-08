@@ -11,8 +11,10 @@ include $(PSL1GHT)/ppu_rules
 
 TITLE			:=	OpenSupaplex
 APPID			:=	OSPX00001
-SFOXML			:=	$(PS3DEV)/bin/sfo.xml
-ICON0			:=	$(PS3DEV)/bin/ICON0.PNG
+SFOXML			:=	../assets/sfo.xml
+ICON0			:=	../assets/ICON0.PNG
+SND0			:=	../assets/SND0.AT3
+PIC1			:=	../assets/PIC1.PNG
 CONTENTID		:=	UP0001-$(APPID)_00-0000000000000000
 
 #---------------------------------------------------------------------------------
@@ -32,7 +34,7 @@ INCLUDES		:=	include
 # options for code generation
 #---------------------------------------------------------------------------------
 
-CFLAGS		=	-O2 -Wall -mcpu=cell $(MACHDEP) $(INCLUDE) $(LIBPSL1GHT_INC) -I$(PORTLIBS)/include -DHAVE_SDL2 -D__PSL1GHT__
+CFLAGS		=	-O2 -Wall -mcpu=cell $(MACHDEP) $(INCLUDE) $(LIBPSL1GHT_INC) -I$(PORTLIBS)/include -DHAVE_SDL2 -D__PSL1GHT__ -DPS3APPID=\"$(APPID)\"
 
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
@@ -113,7 +115,7 @@ export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib) \
 					$(LIBPSL1GHT_LIB)
 
 export OUTPUT	:=	$(CURDIR)/$(TARGET)
-.PHONY: $(BUILD) clean bin
+.PHONY: $(BUILD) clean bin sendpkg
 
 #---------------------------------------------------------------------------------
 $(BUILD):
@@ -129,6 +131,15 @@ clean:
 run:
 	ps3load $(OUTPUT).self
 
+# Usage: PS3IP="192.168.0.6" make sendpkg
+# You need to build the pkg first
+sendpkg:
+	curl -T $(OUTPUT).pkg ftp://$(PS3IP)/dev_hdd0/packages/$(TARGET).pkg
+
+# Usage: PS3IP="192.168.0.6" make send
+# You need to build the pkg first to get the EBOOT.BIN
+send:
+	curl -T $(BUILDDIR)/pkg/USRDIR/EBOOT.BIN ftp://$(PS3IP)/dev_hdd0/game/$(APPID)/USRDIR/EBOOT.BIN
 
 #---------------------------------------------------------------------------------
 else
@@ -138,10 +149,26 @@ DEPENDS	:= $(OFILES:.o=.d)
 #---------------------------------------------------------------------------------
 # main targets
 #---------------------------------------------------------------------------------
+$(OUTPUT).pkg: preparepkg $(OUTPUT).self
 $(OUTPUT).self: $(OUTPUT).elf
 $(OUTPUT).elf: $(OFILES)
-$(OUTPUT).pkg: $(OUTPUT).elf
-	pkg.py --contentid $(CONTENTID) assets OpenSupaplex.pkg
+
+preparepkg:
+ifeq ("$(wildcard ./.pkg_prepared)", "")
+	@echo "Preparing pkg resources"
+	@mkdir -p pkg/USRDIR
+	@cp -R ../../resources/* pkg/USRDIR/
+	@rm -rf pkg/USRDIR/audio-mq
+	@rm -rf pkg/USRDIR/audio-lq
+	@cp $(SND0) pkg/SND0.AT3
+	@cp $(PIC1) pkg/PIC1.PNG
+	@touch .pkg_prepared
+	@echo "pkg resources prepared!"
+else
+	@echo "pkg resources already prepared"
+endif
+
+
 
 #---------------------------------------------------------------------------------
 # This rule links in binary data with the .bin extension

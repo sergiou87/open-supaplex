@@ -53,32 +53,19 @@ FILE *openWritableFile(const char *pathname, const char *mode)
 
     return fopen(finalPathname, mode);
 }
-#elif defined(_3DS)
-void getReadonlyFilePath(const char *pathname, char outPath[kMaxFilePathLength])
-{
-    snprintf(outPath, kMaxFilePathLength, "sdmc:/OpenSupaplex/%s", pathname);
-}
+#else // the rest of the platforms just have a different base path
 
-void getWritableFilePath(const char *pathname, char outPath[kMaxFilePathLength])
-{
-    getReadonlyFilePath(pathname, outPath);
-}
-
-FILE *openReadonlyFile(const char *pathname, const char *mode)
-{
-    char finalPathname[kMaxFilePathLength];
-    getReadonlyFilePath(pathname, finalPathname);
-    return fopen(finalPathname, mode);
-}
-
-FILE *openWritableFile(const char *pathname, const char *mode)
-{
-    return openReadonlyFile(pathname, mode);
-}
+#if defined(_3DS)
+#define FILE_BASE_PATH "sdmc:/OpenSupaplex/"
 #elif defined(__PSL1GHT__)
+#define FILE_BASE_PATH "/dev_hdd0/game/" PS3APPID "/USRDIR/"
+#else
+#define FILE_BASE_PATH ""
+#endif
+
 void getReadonlyFilePath(const char *pathname, char outPath[kMaxFilePathLength])
 {
-    snprintf(outPath, kMaxFilePathLength, "/dev_hdd0/OpenSupaplex/%s", pathname);
+    snprintf(outPath, kMaxFilePathLength, FILE_BASE_PATH "%s", pathname);
 }
 
 void getWritableFilePath(const char *pathname, char outPath[kMaxFilePathLength])
@@ -97,26 +84,7 @@ FILE *openWritableFile(const char *pathname, const char *mode)
 {
     return openReadonlyFile(pathname, mode);
 }
-#else
-void getReadonlyFilePath(const char *pathname, char outPath[kMaxFilePathLength])
-{
-    getWritableFilePath(pathname, outPath);
-}
 
-void getWritableFilePath(const char *pathname, char outPath[kMaxFilePathLength])
-{
-    strncpy(outPath, pathname, kMaxFilePathLength);
-}
-
-FILE *openReadonlyFile(const char *pathname, const char *mode)
-{
-    return fopen(pathname, mode);
-}
-
-FILE *openWritableFile(const char *pathname, const char *mode)
-{
-    return fopen(pathname, mode);
-}
 #endif
 
 FILE *openWritableFileWithReadonlyFallback(const char *pathname, const char *mode)
