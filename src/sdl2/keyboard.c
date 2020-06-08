@@ -120,11 +120,12 @@ void updateKeyboardState()
 {
     handleSystemEvents();
 
-    const Uint8 *keys = SDL_GetKeyboardState(NULL);
+    int numberOfKeys = 0;
+    const Uint8 *keys = SDL_GetKeyboardState(&numberOfKeys);
 
     gKeyPressed = SDL_SCANCODE_UNKNOWN;
 
-    for (SDL_Scancode scancode = 0; scancode < SDL_NUM_SCANCODES; ++scancode)
+    for (SDL_Scancode scancode = 0; scancode < numberOfKeys; ++scancode)
     {
         if (keys[scancode])
         {

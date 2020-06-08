@@ -120,16 +120,12 @@ void updateKeyboardState()
 {
     handleSystemEvents();
 
-    // The PS3 port of SDL is not 1.2 nor 2... but 1.3, which seems to have some SDL2-like APIs while other are still SDL 1.2
-    // The keyboard API seems to be SDL2 based, so nothing from here will build. However, it's not needed anyway (unless someone wants to
-    // play with keyboard instead of a gamepad).
-    //
-#ifndef __PSL1GHT__
-    const Uint8 *keys = SDL_GetKeyState(NULL);
+    int numberOfKeys = 0;
+    const Uint8 *keys = SDL_GetKeyState(&numberOfKeys);
 
     gKeyPressed = SDLK_UNKNOWN;
 
-    for (SDLKey scancode = 0; scancode < SDLK_LAST; ++scancode)
+    for (SDLKey scancode = 0; scancode < numberOfKeys; ++scancode)
     {
         if (keys[scancode])
         {
@@ -199,7 +195,6 @@ void updateKeyboardState()
     gIsF9KeyPressed = keys[SDLK_F9];
     gIsF10KeyPressed = keys[SDLK_F10];
     gIsF12KeyPressed = keys[SDLK_F12];
-#endif
 }
 
 uint8_t isAnyKeyPressed()

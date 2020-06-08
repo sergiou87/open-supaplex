@@ -4,6 +4,7 @@ tasm/
 *.nam
 *.til
 *.o
+*.d
 /resources/*.SP
 /solve/
 TESTOUT.TXT
@@ -33,6 +34,10 @@ vita/resources/
 # PSP stuff
 psp/*.PBP
 psp/*.prx
+
+# PS3 stuff
+ps3/*.self
+ps3/*.elf
 
 # WASM stuff
 wasm/opensupaplex.data
