@@ -9732,8 +9732,11 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
         moveMouse(x, y);
     }
 
-    x = x * kScreenWidth / windowWidth;
-    y = y * kScreenHeight / windowHeight;
+    if (windowWidth != 0 && windowHeight != 0)
+    {
+        x = x * kScreenWidth / windowWidth;
+        y = y * kScreenHeight / windowHeight;
+    }
 
     leftButtonPressed = (leftButtonPressed
                             || controllerLeftButton
