@@ -194,8 +194,3 @@ int decodeBase64(const char *input, unsigned char *output, size_t outputLength)
 
     return 1;
 }
-
-uint16_t swap16(uint16_t value)
-{
-    return ((value << 8) | (value >> 8));
-}

@@ -9785,6 +9785,9 @@ void mapLevelFileData(char *levelFileData, Level *level)
     {
         SpecialPortInfo *specialPortInfo = &level->specialPortsInfo[idx];
         COPY_LEVEL_DATA(&specialPortInfo->position, sizeof(specialPortInfo->position));
+
+        specialPortInfo->position = convert16LE(specialPortInfo->position);
+
         COPY_LEVEL_DATA(&specialPortInfo->gravity, sizeof(specialPortInfo->gravity));
         COPY_LEVEL_DATA(&specialPortInfo->freezeZonks, sizeof(specialPortInfo->freezeZonks));
         COPY_LEVEL_DATA(&specialPortInfo->freezeEnemies, sizeof(specialPortInfo->freezeEnemies));
@@ -9794,6 +9797,8 @@ void mapLevelFileData(char *levelFileData, Level *level)
     COPY_LEVEL_DATA(&level->scrambledChecksum, sizeof(level->scrambledChecksum));
     COPY_LEVEL_DATA(&level->randomSeed, sizeof(level->randomSeed));
 
+    level->randomSeed = convert16LE(level->randomSeed);
+    
     assert(pointer == kLevelDataLength);
 }
 
