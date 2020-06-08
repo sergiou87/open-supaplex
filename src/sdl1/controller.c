@@ -48,19 +48,6 @@ const uint8_t GAMEPAD_BUTTON_LSHOULDER = 5;
 const uint8_t GAMEPAD_BUTTON_RSHOULDER = 6;
 const uint8_t GAMEPAD_BUTTON_START = 0;
 const uint8_t GAMEPAD_BUTTON_BACK = 7;
-#elif defined(__PSL1GHT__)
-const uint8_t GAMEPAD_BUTTON_DOWN = 1;
-const uint8_t GAMEPAD_BUTTON_LEFT = 0;
-const uint8_t GAMEPAD_BUTTON_UP = 3;
-const uint8_t GAMEPAD_BUTTON_RIGHT = 2;
-const uint8_t GAMEPAD_BUTTON_A = 9;
-const uint8_t GAMEPAD_BUTTON_B = 10;
-const uint8_t GAMEPAD_BUTTON_X = 8;
-const uint8_t GAMEPAD_BUTTON_Y = 11;
-const uint8_t GAMEPAD_BUTTON_LSHOULDER = 13;
-const uint8_t GAMEPAD_BUTTON_RSHOULDER = 12;
-const uint8_t GAMEPAD_BUTTON_START = 4;
-const uint8_t GAMEPAD_BUTTON_BACK = 7;
 #else
 const uint8_t GAMEPAD_BUTTON_DOWN = 14;
 const uint8_t GAMEPAD_BUTTON_LEFT = 15;
