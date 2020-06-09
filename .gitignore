@@ -22,14 +22,22 @@ linux/opensupaplex*
 # Windows stuff
 windows/OpenSupaplex*
 
+# Nintendo Switch stuff
+switch/*.nro
+switch/*.elf
+switch/*.nacp
+
+# Nintendo 3DS stuff
+3ds/*.3dsx
+3ds/*.elf
+3ds/*.cia
+3ds/*.bnr
+3ds/*.icn
+3ds/*.smdh
+
 # PS Vita stuff
 vita/debugnetip.txt
 vita/resources/
-
-# Nintendo Switch stuff
-*.nro
-*.elf
-*.nacp
 
 # PSP stuff
 psp/*.PBP
@@ -38,6 +46,8 @@ psp/*.prx
 # PS3 stuff
 ps3/*.self
 ps3/*.elf
+ps3/*.pkg
+ps3/*.map
 
 # WASM stuff
 wasm/opensupaplex.data
