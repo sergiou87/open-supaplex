@@ -4439,11 +4439,15 @@ void stopRecordingDemo() // somethingspsig  proc near       ; CODE XREF: runLeve
     uint16_t scrambleSpeed = ((scrambleSpeedHigh << 8)
                               | scrambleSpeedLow);
 
+    scrambleSpeed = convert16LE(scrambleSpeed);
     fseek(gCurrentRecordingDemoFile, 1532, SEEK_SET);
-
+    spLogInfo("speed high: %02x low: %02x", scrambleSpeedHigh, scrambleSpeedLow);
     fwrite(&scrambleSpeed, 1, sizeof(uint16_t), gCurrentRecordingDemoFile);
 
-    fwrite(&gDemoRecordingRandomGeneratorSeed, 1, sizeof(gDemoRecordingRandomGeneratorSeed), gCurrentRecordingDemoFile);
+    uint16_t randomSeed = convert16LE(gDemoRecordingRandomGeneratorSeed);
+    spLogInfo("before demo: %04x -> %d", gDemoRecordingRandomGeneratorSeed, gDemoRecordingRandomGeneratorSeed);
+    spLogInfo("after demo: %04x -> %d", randomSeed, randomSeed);
+    fwrite(&randomSeed, 1, sizeof(randomSeed), gCurrentRecordingDemoFile);
 
     fseek(gCurrentRecordingDemoFile, 0, SEEK_END);
 
@@ -4525,7 +4529,8 @@ size_t writeCurrentLevelToFile(FILE *file)
     bytes += fwrite(&gCurrentLevel.numberOfSpecialPorts, 1, sizeof(gCurrentLevel.numberOfSpecialPorts), file);
     for (int idx = 0; idx < kLevelMaxNumberOfSpecialPorts; ++idx)
     {
-        bytes += fwrite(&gCurrentLevel.specialPortsInfo[idx].position, 1, sizeof(gCurrentLevel.specialPortsInfo[idx].position), file);
+        uint16_t portPosition = convert16LE(gCurrentLevel.specialPortsInfo[idx].position);
+        bytes += fwrite(&portPosition, 1, sizeof(portPosition), file);
         bytes += fwrite(&gCurrentLevel.specialPortsInfo[idx].gravity, 1, sizeof(gCurrentLevel.specialPortsInfo[idx].gravity), file);
         bytes += fwrite(&gCurrentLevel.specialPortsInfo[idx].freezeZonks, 1, sizeof(gCurrentLevel.specialPortsInfo[idx].freezeZonks), file);
         bytes += fwrite(&gCurrentLevel.specialPortsInfo[idx].freezeEnemies, 1, sizeof(gCurrentLevel.specialPortsInfo[idx].freezeEnemies), file);
@@ -4533,7 +4538,14 @@ size_t writeCurrentLevelToFile(FILE *file)
     }
     bytes += fwrite(&gCurrentLevel.scrambledSpeed, 1, sizeof(gCurrentLevel.scrambledSpeed), file);
     bytes += fwrite(&gCurrentLevel.scrambledChecksum, 1, sizeof(gCurrentLevel.scrambledChecksum), file);
-    bytes += fwrite(&gCurrentLevel.randomSeed, 1, sizeof(gCurrentLevel.randomSeed), file);
+    gCurrentLevel.randomSeed = 6828;
+    spLogInfo("before: %04x -> %d", gCurrentLevel.randomSeed, gCurrentLevel.randomSeed);
+    uint16_t randomSeed = convert16LE(gCurrentLevel.randomSeed);
+    spLogInfo("after: %04x -> %d", randomSeed, randomSeed);
+    spLogInfo("bytes before: %d", bytes);
+    bytes += fwrite(&randomSeed, 1, sizeof(randomSeed), file);
+    spLogInfo("bytes after: %d", bytes);
+    spLogInfo("after-after: %04x -> %d", randomSeed, randomSeed);
 
     return bytes;
 }
@@ -9800,9 +9812,13 @@ void mapLevelFileData(char *levelFileData, Level *level)
     COPY_LEVEL_DATA(&level->scrambledChecksum, sizeof(level->scrambledChecksum));
     COPY_LEVEL_DATA(&level->randomSeed, sizeof(level->randomSeed));
 
+    spLogInfo("read speed high: %02x low: %02x", level->scrambledChecksum, level->scrambledSpeed);
+
     level->randomSeed = convert16LE(level->randomSeed);
-    
+    spLogInfo("randomSeed: %04x -> %d", level->randomSeed, level->randomSeed);
     assert(pointer == kLevelDataLength);
+
+    // exit(0);
 }
 
 #undef COPY_LEVEL_DATA
