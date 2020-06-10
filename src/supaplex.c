@@ -4439,10 +4439,8 @@ void stopRecordingDemo() // somethingspsig  proc near       ; CODE XREF: runLeve
                               | scrambleSpeedLow);
 
     fseek(gCurrentRecordingDemoFile, 1532, SEEK_SET);
-    spLogInfo("speed high: %02x low: %02x", scrambleSpeedHigh, scrambleSpeedLow);
     fileWriteUInt16(scrambleSpeed, gCurrentRecordingDemoFile);
 
-    spLogInfo("before demo: %04x -> %d", gDemoRecordingRandomGeneratorSeed, gDemoRecordingRandomGeneratorSeed);
     fileWriteUInt16(gDemoRecordingRandomGeneratorSeed, gCurrentRecordingDemoFile);
 
     fseek(gCurrentRecordingDemoFile, 0, SEEK_END);
@@ -4532,7 +4530,6 @@ size_t writeCurrentLevelToFile(FILE *file)
     }
     bytes += fileWriteUInt8(gCurrentLevel.scrambledSpeed, file);
     bytes += fileWriteUInt8(gCurrentLevel.scrambledChecksum, file);
-
     bytes += fileWriteUInt16(gCurrentLevel.randomSeed, file);
 
     return bytes;
@@ -9805,11 +9802,7 @@ void mapLevelFileData(char *levelFileData, Level *level)
     COPY_LEVEL_DATA(&level->scrambledChecksum, sizeof(level->scrambledChecksum));
     COPY_LEVEL_DATA_UINT16(level->randomSeed);
 
-    spLogInfo("read speed high: %02x low: %02x", level->scrambledChecksum, level->scrambledSpeed);
-    spLogInfo("randomSeed: %04x -> %d", level->randomSeed, level->randomSeed);
     assert(pointer == kLevelDataLength);
-
-    // exit(0);
 }
 
 #undef COPY_LEVEL_DATA_UINT16

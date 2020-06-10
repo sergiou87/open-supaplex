@@ -19,6 +19,7 @@
 #define file_h
 
 #include <stdio.h>
+#include <stdint.h>
 
 // Some platforms (like PS Vita) won't be able to write in the same folder where the original resources were
 // installed. For those original resources bundled with the game, the openReadonlyFile function will be used.
