@@ -19,6 +19,12 @@
 
 #include <string.h>
 
+#if HAVE_SDL2
+#include <SDL2/SDL.h>
+#elif HAVE_SDL
+#include <SDL/SDL.h>
+#endif
+
 const char b64chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 size_t base64EncodedSize(size_t inputLength)
@@ -193,4 +199,14 @@ int decodeBase64(const char *input, unsigned char *output, size_t outputLength)
     }
 
     return 1;
+}
+
+uint16_t swap16(uint16_t value)
+{
+    return SDL_Swap16(value);
+}
+
+uint16_t convert16LE(uint16_t value)
+{
+    return SDL_SwapLE16(value);
 }

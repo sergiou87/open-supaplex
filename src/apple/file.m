@@ -21,6 +21,8 @@
 
 #include <string.h>
 
+#include "utils.h"
+
 void getReadonlyFilePath(const char *pathname, char outPath[kMaxFilePathLength])
 {
     strncpy(outPath, pathname, kMaxFilePathLength);
@@ -106,4 +108,42 @@ FILE *openWritableFileWithReadonlyFallback(const char *pathname, const char *mod
     }
 
     return file;
+}
+
+size_t fileReadUInt16(uint16_t *value, FILE *file)
+{
+    size_t bytes = fread(value, 1, sizeof(uint16_t), file);
+
+    if (bytes == sizeof(uint16_t))
+    {
+        *value = convert16LE(*value);
+    }
+
+    return bytes;
+}
+
+size_t fileReadUInt8(uint8_t *value, FILE *file)
+{
+    return fread(value, 1, sizeof(uint8_t), file);
+}
+
+size_t fileReadBytes(void *buffer, size_t count, FILE *file)
+{
+    return fread(buffer, 1, count, file);
+}
+
+size_t fileWriteUInt16(uint16_t value, FILE *file)
+{
+    uint16_t finalValue = convert16LE(value);
+    return fwrite(&finalValue, 1, sizeof(uint16_t), file);
+}
+
+size_t fileWriteUInt8(uint8_t value, FILE *file)
+{
+    return fwrite(&value, 1, sizeof(uint8_t), file);
+}
+
+size_t fileWriteBytes(void *buffer, size_t count, FILE *file)
+{
+    return fwrite(buffer, 1, count, file);
 }

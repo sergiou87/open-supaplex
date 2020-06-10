@@ -84,7 +84,7 @@ uint8_t getLevelNumberFromOriginalDemoFile(FILE *file, uint16_t fileLength) // f
     }
 
     FirstOriginalDemoFileChunk firstChunk;
-    size_t bytes = fread(&firstChunk, 1, sizeof(firstChunk), file);
+    size_t bytes = fileReadBytes(&firstChunk, sizeof(firstChunk), file);
 
     if (bytes < sizeof(firstChunk))
     {

@@ -26,7 +26,4 @@ void handleSystemEvents(void);
 uint32_t getTime(void);
 void waitTime(uint32_t time);
 
-uint16_t swap16(uint16_t value);
-uint16_t convert16LE(uint16_t value); // convert to little-endian
-
 #endif /* system_h */

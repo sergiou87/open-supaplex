@@ -122,13 +122,3 @@ void waitTime(uint32_t time)
 {
     SDL_Delay(time);
 }
-
-uint16_t swap16(uint16_t value)
-{
-    return SDL_Swap16(value);
-}
-
-uint16_t convert16LE(uint16_t value)
-{
-    return SDL_SwapLE16(value);
-}

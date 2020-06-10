@@ -134,7 +134,7 @@ void readMenuDat() // proc near       ; CODE XREF: readEverything+9p
 
 //loc_4AAED:             // ; CODE XREF: readMenuDat+8j
 
-    size_t bytes = fread(gMenuBitmapData, sizeof(uint8_t), sizeof(gMenuBitmapData), file);
+    size_t bytes = fileReadBytes(gMenuBitmapData, sizeof(gMenuBitmapData), file);
     if (bytes < sizeof(gMenuBitmapData))
     {
         exitWithError("Error reading MENU.DAT\n");
@@ -177,13 +177,13 @@ void loadMurphySprites() // readMoving  proc near       ; CODE XREF: start:isFas
 //loc_47A13:              ; CODE XREF: loadMurphySprites+Ej
 
     // There is an error in the original code, it uses height 464 (which should be
-    // harmless in the original implementation since fread doesn't fail there, just
+    // harmless in the original implementation since fileReadBytes doesn't fail there, just
     // returns 0. The new implementation will fail on partial reads.
     for (int y = 0; y < kMovingBitmapHeight; ++y)
     {
         uint8_t fileData[kMovingBitmapWidth / 2];
 
-        size_t bytes = fread(fileData, 1, sizeof(fileData), file);
+        size_t bytes = fileReadBytes(fileData, sizeof(fileData), file);
         if (bytes < sizeof(fileData))
         {
             exitWithError("Error reading MOVING.DAT\n");
@@ -232,7 +232,7 @@ void loadMurphySprites() // readMoving  proc near       ; CODE XREF: start:isFas
 
 //loc_47ABE:              //; CODE XREF: loadMurphySprites+D2j
     uint8_t bitmapData[kFixedBitmapWidth * kFixedBitmapHeight / 2];
-    size_t bytes = fread(bitmapData, 1, sizeof(bitmapData), file);
+    size_t bytes = fileReadBytes(bitmapData, sizeof(bitmapData), file);
     if (bytes < sizeof(bitmapData))
     {
         exitWithError("Error reading FIXED.DAT\n");
@@ -285,7 +285,7 @@ void readPanelDat() //    proc near       ; CODE XREF: readPanelDat+14j
 
 //loc_47B0A:             // ; CODE XREF: readPanelDat+8j
     uint8_t bitmapData[kPanelBitmapWidth * kPanelBitmapHeight / 2];
-    size_t bytes = fread(bitmapData, 1, sizeof(bitmapData), file);
+    size_t bytes = fileReadBytes(bitmapData, sizeof(bitmapData), file);
     if (bytes < sizeof(bitmapData))
     {
         exitWithError("Error reading PANEL.DAT\n");
@@ -338,7 +338,7 @@ void readBackDat() // proc near       ; CODE XREF: readBackDat+14j
     }
 
 //loc_47B49:             // ; CODE XREF: readBackDat+8j
-    size_t bytes = fread(gBackBitmapData, 1, sizeof(gBackBitmapData), file);
+    size_t bytes = fileReadBytes(gBackBitmapData, sizeof(gBackBitmapData), file);
     if (bytes < sizeof(gBackBitmapData))
     {
         exitWithError("Error reading BACK.DAT\n");
@@ -374,7 +374,7 @@ void readBitmapFonts() //   proc near       ; CODE XREF: readBitmapFonts+14j
     }
 
 //loc_47B90:              // ; CODE XREF: readBitmapFonts+8j
-    size_t bytes = fread(gChars6BitmapFont, sizeof(uint8_t), kBitmapFontLength, file);
+    size_t bytes = fileReadBytes(gChars6BitmapFont, kBitmapFontLength, file);
     if (bytes < kBitmapFontLength)
     {
         exitWithError("Error reading CHARS6.DAT\n");
@@ -394,7 +394,7 @@ void readBitmapFonts() //   proc near       ; CODE XREF: readBitmapFonts+14j
     }
 
 //loc_47BC2:              //; CODE XREF: readBitmapFonts+46j
-    bytes = fread(gChars8BitmapFont, sizeof(uint8_t), kBitmapFontLength, file);
+    bytes = fileReadBytes(gChars8BitmapFont, kBitmapFontLength, file);
     if (bytes < kBitmapFontLength)
     {
         exitWithError("Error reading CHARS8.DAT\n");
@@ -425,7 +425,7 @@ void readAndRenderTitleDat() // proc near  ; CODE XREF: start+2BBp
     {
 //loc_47C3F:              //; CODE XREF: readAndRenderTitleDat+8Ej
         // read 160 bytes from title.dat
-        size_t bytesRead = fread(fileData, sizeof(uint8_t), kBytesPerRow, file);
+        size_t bytesRead = fileReadBytes(fileData, kBytesPerRow, file);
 
         if (bytesRead < kBytesPerRow)
         {
@@ -477,7 +477,7 @@ void readAndRenderTitle1Dat(void)
     {
 //loc_478E7:              //; CODE XREF: loadScreen2+6Bj
         // read 160 bytes from title.dat
-        size_t bytesRead = fread(fileData, 1, kBytesPerRow, file);
+        size_t bytesRead = fileReadBytes(fileData, kBytesPerRow, file);
 
         if (bytesRead < kBytesPerRow)
         {
@@ -528,7 +528,7 @@ void readTitle2Dat()
     {
         // loc_47995:              //; CODE XREF: loadScreen2+119j
         // read 160 bytes from title.dat
-        size_t bytesRead = fread(fileData, sizeof(uint8_t), kBytesPerRow, file);
+        size_t bytesRead = fileReadBytes(fileData, kBytesPerRow, file);
 
         if (bytesRead < kBytesPerRow)
         {
@@ -597,7 +597,7 @@ void readGfxDat() //  proc near       ; CODE XREF: readGfxDat+14j
     }
 
 //loc_47DB5:             // ; CODE XREF: readGfxDat+8j
-    size_t bytes = fread(gGfxBitmapData, 1, sizeof(gGfxBitmapData), file);
+    size_t bytes = fileReadBytes(gGfxBitmapData, sizeof(gGfxBitmapData), file);
     if (bytes < sizeof(gGfxBitmapData))
     {
         exitWithError("Error reading GFX.DAT\n");
@@ -627,7 +627,7 @@ void readControlsDat() // proc near       ; CODE XREF: readControlsDat+14j
     }
 
 //loc_47DFC:             // ; CODE XREF: readControlsDat+8j
-    size_t bytes = fread(gControlsBitmapData, 1, sizeof(gControlsBitmapData), file);
+    size_t bytes = fileReadBytes(gControlsBitmapData, sizeof(gControlsBitmapData), file);
     if (bytes < sizeof(gControlsBitmapData))
     {
         exitWithError("Error reading CONTROLS.DAT\n");
@@ -1384,7 +1384,7 @@ void readPalettes()  // proc near       ; CODE XREF: readEverythingp
 
 //loc_4779F:              // ; CODE XREF: readPalettes+8j
     ColorPaletteData palettesDataBuffer[kNumberOfPalettes];
-    size_t bytes = fread(&palettesDataBuffer, sizeof(ColorPaletteData), kNumberOfPalettes, file);
+    size_t bytes = fileReadBytes(palettesDataBuffer, sizeof(ColorPaletteData) * kNumberOfPalettes, file);
     if (bytes == 0)
     {
         exitWithError("Couldn't read PALETTES.DAT\n");

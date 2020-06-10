@@ -33,4 +33,11 @@ FILE *openReadonlyFile(const char *pathname, const char *mode);
 FILE *openWritableFile(const char *pathname, const char *mode);
 FILE *openWritableFileWithReadonlyFallback(const char *pathname, const char *mode);
 
+size_t fileReadUInt16(uint16_t *value, FILE *file);
+size_t fileReadUInt8(uint8_t *value, FILE *file);
+size_t fileReadBytes(void *buffer, size_t count, FILE *file);
+size_t fileWriteUInt16(uint16_t value, FILE *file);
+size_t fileWriteUInt8(uint8_t value, FILE *file);
+size_t fileWriteBytes(void *buffer, size_t count, FILE *file);
+
 #endif /* file_h */

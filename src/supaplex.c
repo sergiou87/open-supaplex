@@ -1952,7 +1952,7 @@ void readConfig() //  proc near       ; CODE XREF: start:loc_46F0Fp
 
     uint8_t configData[kConfigDataLength];
 
-    size_t bytes = fread(&configData, 1, sizeof(configData), file);
+    size_t bytes = fileReadBytes(configData, sizeof(configData), file);
 
     if (fclose(file) != 0)
     {
@@ -2078,7 +2078,7 @@ void saveConfiguration() // sub_4755A      proc near               ; CODE XREF: 
     }
 
 //loc_475DF:                              ; CODE XREF: saveConfiguration+80j
-    size_t bytes = fwrite(configData, 1, sizeof(configData), file);
+    size_t bytes = fileWriteBytes(configData, sizeof(configData), file);
     if (bytes < sizeof(configData))
     {
         exitWithError("Error writing SUPAPLEX.CFG\n");
@@ -2151,7 +2151,7 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
             if (gSelectedOriginalDemoLevelNumber == 0)
             {
                 Level *level = &gDemos.level[i];
-                size_t bytes = fread(level, 1, kLevelDataLength, file);
+                size_t bytes = fileReadBytes(level, kLevelDataLength, file);
 
                 if (bytes < kLevelDataLength)
                 {
@@ -2182,7 +2182,7 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
         else
         {
 //loc_476F3:              // ; CODE XREF: readDemoFiles+E4j
-            numberOfDemoBytesRead = fread(&gDemos.demoData[gDemoCurrentInputIndex], 1, maxNumberOfBytesToRead, file);
+            numberOfDemoBytesRead = fileReadBytes(&gDemos.demoData[gDemoCurrentInputIndex], maxNumberOfBytesToRead, file);
 
             if (numberOfDemoBytesRead == 0)
             {
@@ -2391,9 +2391,9 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
             int seekOffset = 0x5A6 + i * kLevelDataLength;
 
             fseek(file, seekOffset, SEEK_SET); // position 1446
-            size_t bytes = fread(gLevelListData + i * kListLevelNameLength + 4, 1, 23, file);
+            size_t bytes = fileReadBytes(gLevelListData + i * kListLevelNameLength + 4, kLevelNameLength - 1, file);
 
-            if (bytes < 23)
+            if (bytes < kLevelNameLength - 1)
             {
                 fclose(file);
                 exitWithError("Error reading LEVELS.DAT\n");
@@ -2417,7 +2417,7 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
         }
 
 //    writeLevelLstData:             // ; CODE XREF: readLevelsLst+A5j
-        size_t bytes = fwrite(gLevelListData, 1, kLevelListDataLength, file);
+        size_t bytes = fileWriteBytes(gLevelListData, kLevelListDataLength, file);
         if (bytes < kLevelListDataLength)
         {
             exitWithError("Error writing %s\n", gLevelLstFilename);
@@ -2432,7 +2432,7 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
     }
 
 //successOpeningLevelLst:             // ; CODE XREF: readLevelsLst+Aj
-    size_t bytes = fread(gLevelListData, 1, kLevelListDataLength, file);
+    size_t bytes = fileReadBytes(gLevelListData, kLevelListDataLength, file);
     if (bytes < kLevelListDataLength)
     {
         fclose(file);
@@ -2466,7 +2466,7 @@ void readPlayersLst() //  proc near       ; CODE XREF: readEverything+1Bp
         return;
     }
 
-    size_t bytes = fread(gPlayerListData, 1, sizeof(gPlayerListData), file);
+    size_t bytes = fileReadBytes(gPlayerListData, sizeof(gPlayerListData), file);
     if (bytes == 0)
     {
         return;
@@ -2489,7 +2489,7 @@ void readHallfameLst() // proc near       ; CODE XREF: readEverything+18p
         return;
     }
     
-    size_t bytes = fread(gHallOfFameData, 1, sizeof(gHallOfFameData), file);
+    size_t bytes = fileReadBytes(gHallOfFameData, sizeof(gHallOfFameData), file);
     if (bytes == 0)
     {
         return;
@@ -4425,8 +4425,7 @@ void saveInputForDemo() // sub_492F1   proc near       ; CODE XREF: handleGameUs
     gDemoRecordingRandomGeneratorSeedHigh += gDemoCurrentInputRepeatCounter;
     gDemoRecordingRandomGeneratorSeedHigh++;
 
-    uint8_t value = gDemoCurrentInput;
-    fwrite(&value, sizeof(uint8_t), 1, gCurrentRecordingDemoFile);
+    fileWriteUInt8(gDemoCurrentInput, gCurrentRecordingDemoFile);
     gDemoCurrentInputRepeatCounter = 0xFF;
     gDemoCurrentInput = gCurrentUserInput;
 }
@@ -4439,22 +4438,18 @@ void stopRecordingDemo() // somethingspsig  proc near       ; CODE XREF: runLeve
     uint16_t scrambleSpeed = ((scrambleSpeedHigh << 8)
                               | scrambleSpeedLow);
 
-    scrambleSpeed = convert16LE(scrambleSpeed);
     fseek(gCurrentRecordingDemoFile, 1532, SEEK_SET);
     spLogInfo("speed high: %02x low: %02x", scrambleSpeedHigh, scrambleSpeedLow);
-    fwrite(&scrambleSpeed, 1, sizeof(uint16_t), gCurrentRecordingDemoFile);
+    fileWriteUInt16(scrambleSpeed, gCurrentRecordingDemoFile);
 
-    uint16_t randomSeed = convert16LE(gDemoRecordingRandomGeneratorSeed);
     spLogInfo("before demo: %04x -> %d", gDemoRecordingRandomGeneratorSeed, gDemoRecordingRandomGeneratorSeed);
-    spLogInfo("after demo: %04x -> %d", randomSeed, randomSeed);
-    fwrite(&randomSeed, 1, sizeof(randomSeed), gCurrentRecordingDemoFile);
+    fileWriteUInt16(gDemoRecordingRandomGeneratorSeed, gCurrentRecordingDemoFile);
 
     fseek(gCurrentRecordingDemoFile, 0, SEEK_END);
 
     gDemoCurrentInput = 0xFF;
 
-    uint8_t value = gDemoCurrentInput;
-    fwrite(&value, 1, sizeof(uint8_t), gCurrentRecordingDemoFile);
+    fileWriteUInt8(gDemoCurrentInput, gCurrentRecordingDemoFile);
     if (byte_5A19B != 0)
     {
         FILE *sigFile = openWritableFileWithReadonlyFallback("MYSPSIG.TXT", "rb");
@@ -4472,7 +4467,7 @@ void stopRecordingDemo() // somethingspsig  proc near       ; CODE XREF: runLeve
                     if (fseek(sigFile, 0, SEEK_SET) == 0)
                     {
                         uint8_t signature[kMaxDemoSignatureLength + 1];
-                        size_t bytes = fread(signature, 1, sigFileSize, sigFile);
+                        size_t bytes = fileReadBytes(signature, sigFileSize, sigFile);
 
                         if (bytes == sigFileSize)
                         {
@@ -4490,7 +4485,7 @@ void stopRecordingDemo() // somethingspsig  proc near       ; CODE XREF: runLeve
                             sigFileSize = idx;
 
 //loc_4941C:              ; CODE XREF: stopRecordingDemo+BCj
-                            fwrite(signature, 1, sigFileSize, sigFile);
+                            fileWriteBytes(signature, sigFileSize, sigFile);
                         }
                     }
                 }
@@ -4518,34 +4513,27 @@ void stopRecordingDemo() // somethingspsig  proc near       ; CODE XREF: runLeve
 
 size_t writeCurrentLevelToFile(FILE *file)
 {
-    size_t bytes = fwrite(gCurrentLevel.tiles, 1, sizeof(gCurrentLevel.tiles), file);
+    size_t bytes = fileWriteBytes(gCurrentLevel.tiles, sizeof(gCurrentLevel.tiles), file);
 
-    bytes += fwrite(&gCurrentLevel.unused, 1, sizeof(gCurrentLevel.unused), file);
-    bytes += fwrite(&gCurrentLevel.initialGravitation, 1, sizeof(gCurrentLevel.initialGravitation), file);
-    bytes += fwrite(&gCurrentLevel.speedFixMagicNumber, 1, sizeof(gCurrentLevel.speedFixMagicNumber), file);
-    bytes += fwrite(&gCurrentLevel.name, 1, sizeof(gCurrentLevel.name), file);
-    bytes += fwrite(&gCurrentLevel.freezeZonks, 1, sizeof(gCurrentLevel.freezeZonks), file);
-    bytes += fwrite(&gCurrentLevel.numberOfInfotrons, 1, sizeof(gCurrentLevel.numberOfInfotrons), file);
-    bytes += fwrite(&gCurrentLevel.numberOfSpecialPorts, 1, sizeof(gCurrentLevel.numberOfSpecialPorts), file);
+    bytes += fileWriteBytes(gCurrentLevel.unused, sizeof(gCurrentLevel.unused), file);
+    bytes += fileWriteUInt8(gCurrentLevel.initialGravitation, file);
+    bytes += fileWriteUInt8(gCurrentLevel.speedFixMagicNumber, file);
+    bytes += fileWriteBytes(gCurrentLevel.name, sizeof(gCurrentLevel.name), file);
+    bytes += fileWriteUInt8(gCurrentLevel.freezeZonks, file);
+    bytes += fileWriteUInt8(gCurrentLevel.numberOfInfotrons, file);
+    bytes += fileWriteUInt8(gCurrentLevel.numberOfSpecialPorts, file);
     for (int idx = 0; idx < kLevelMaxNumberOfSpecialPorts; ++idx)
     {
-        uint16_t portPosition = convert16LE(gCurrentLevel.specialPortsInfo[idx].position);
-        bytes += fwrite(&portPosition, 1, sizeof(portPosition), file);
-        bytes += fwrite(&gCurrentLevel.specialPortsInfo[idx].gravity, 1, sizeof(gCurrentLevel.specialPortsInfo[idx].gravity), file);
-        bytes += fwrite(&gCurrentLevel.specialPortsInfo[idx].freezeZonks, 1, sizeof(gCurrentLevel.specialPortsInfo[idx].freezeZonks), file);
-        bytes += fwrite(&gCurrentLevel.specialPortsInfo[idx].freezeEnemies, 1, sizeof(gCurrentLevel.specialPortsInfo[idx].freezeEnemies), file);
-        bytes += fwrite(&gCurrentLevel.specialPortsInfo[idx].unused, 1, sizeof(gCurrentLevel.specialPortsInfo[idx].unused), file);
+        bytes += fileWriteUInt16(gCurrentLevel.specialPortsInfo[idx].position, file);
+        bytes += fileWriteUInt8(gCurrentLevel.specialPortsInfo[idx].gravity, file);
+        bytes += fileWriteUInt8(gCurrentLevel.specialPortsInfo[idx].freezeZonks, file);
+        bytes += fileWriteUInt8(gCurrentLevel.specialPortsInfo[idx].freezeEnemies, file);
+        bytes += fileWriteUInt8(gCurrentLevel.specialPortsInfo[idx].unused, file);
     }
-    bytes += fwrite(&gCurrentLevel.scrambledSpeed, 1, sizeof(gCurrentLevel.scrambledSpeed), file);
-    bytes += fwrite(&gCurrentLevel.scrambledChecksum, 1, sizeof(gCurrentLevel.scrambledChecksum), file);
-    gCurrentLevel.randomSeed = 6828;
-    spLogInfo("before: %04x -> %d", gCurrentLevel.randomSeed, gCurrentLevel.randomSeed);
-    uint16_t randomSeed = convert16LE(gCurrentLevel.randomSeed);
-    spLogInfo("after: %04x -> %d", randomSeed, randomSeed);
-    spLogInfo("bytes before: %d", bytes);
-    bytes += fwrite(&randomSeed, 1, sizeof(randomSeed), file);
-    spLogInfo("bytes after: %d", bytes);
-    spLogInfo("after-after: %04x -> %d", randomSeed, randomSeed);
+    bytes += fileWriteUInt8(gCurrentLevel.scrambledSpeed, file);
+    bytes += fileWriteUInt8(gCurrentLevel.scrambledChecksum, file);
+
+    bytes += fileWriteUInt16(gCurrentLevel.randomSeed, file);
 
     return bytes;
 }
@@ -4610,7 +4598,7 @@ void recordDemo(uint16_t demoIndex) // sub_4945D   proc near       ; CODE XREF: 
     // but seems to be useless because that value is overriden later.
     //
     uint8_t levelNumber = gCurrentSelectedLevelIndex | 0x80;
-    bytes = fwrite(&levelNumber, 1, 1, file);
+    bytes = fileWriteUInt8(levelNumber, file);
     if (bytes < 1)
     {
         return;
@@ -9304,7 +9292,7 @@ void savePlayerListData() // sub_4CFB2   proc near       ; CODE XREF: handleNewP
 
     assert(sizeof(gPlayerListData) == 0xA00);
 
-    fwrite(gPlayerListData, 1, sizeof(gPlayerListData), file);
+    fileWriteBytes(gPlayerListData, sizeof(gPlayerListData), file);
 
     fclose(file);
 }
@@ -9325,7 +9313,7 @@ void saveHallOfFameData() //   proc near       ; CODE XREF: handleNewPlayerOptio
 
     assert(sizeof(gHallOfFameData) == 0x24);
 
-    fwrite(gHallOfFameData, 1, sizeof(gHallOfFameData), file);
+    fileWriteBytes(gHallOfFameData, sizeof(gHallOfFameData), file);
 
     fclose(file);
 }
@@ -9784,6 +9772,14 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
     } \
     while (0)
 
+#define COPY_LEVEL_DATA_UINT16(__dest) \
+    do \
+    { \
+        COPY_LEVEL_DATA(&__dest, sizeof(uint16_t)); \
+        __dest = convert16LE(__dest); \
+    } \
+    while (0)
+
 void mapLevelFileData(char *levelFileData, Level *level)
 {
     size_t pointer = 0;
@@ -9799,10 +9795,7 @@ void mapLevelFileData(char *levelFileData, Level *level)
     for (int idx = 0; idx < kLevelMaxNumberOfSpecialPorts; ++idx)
     {
         SpecialPortInfo *specialPortInfo = &level->specialPortsInfo[idx];
-        COPY_LEVEL_DATA(&specialPortInfo->position, sizeof(specialPortInfo->position));
-
-        specialPortInfo->position = convert16LE(specialPortInfo->position);
-
+        COPY_LEVEL_DATA_UINT16(specialPortInfo->position);
         COPY_LEVEL_DATA(&specialPortInfo->gravity, sizeof(specialPortInfo->gravity));
         COPY_LEVEL_DATA(&specialPortInfo->freezeZonks, sizeof(specialPortInfo->freezeZonks));
         COPY_LEVEL_DATA(&specialPortInfo->freezeEnemies, sizeof(specialPortInfo->freezeEnemies));
@@ -9810,17 +9803,16 @@ void mapLevelFileData(char *levelFileData, Level *level)
     }
     COPY_LEVEL_DATA(&level->scrambledSpeed, sizeof(level->scrambledSpeed));
     COPY_LEVEL_DATA(&level->scrambledChecksum, sizeof(level->scrambledChecksum));
-    COPY_LEVEL_DATA(&level->randomSeed, sizeof(level->randomSeed));
+    COPY_LEVEL_DATA_UINT16(level->randomSeed);
 
     spLogInfo("read speed high: %02x low: %02x", level->scrambledChecksum, level->scrambledSpeed);
-
-    level->randomSeed = convert16LE(level->randomSeed);
     spLogInfo("randomSeed: %04x -> %d", level->randomSeed, level->randomSeed);
     assert(pointer == kLevelDataLength);
 
     // exit(0);
 }
 
+#undef COPY_LEVEL_DATA_UINT16
 #undef COPY_LEVEL_DATA
 
 void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
@@ -9871,7 +9863,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
         }
 
 //loc_4D5BB:              ; CODE XREF: readLevels+63j
-        file = openReadonlyFile(filename, "rb");
+        file = openWritableFileWithReadonlyFallback(filename, "rb");
         if (file == NULL)
         {
             exitWithError("Error opening %s\n", filename);
@@ -9913,7 +9905,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
 
 //loc_4D604:              ; CODE XREF: readLevels+B7j
         // 01ED:69AE
-        size_t bytes = fread(&levelFileData, 1, kLevelDataLength, file);
+        size_t bytes = fileReadBytes(levelFileData, kLevelDataLength, file);
         if (bytes < kLevelDataLength)
         {
             exitWithError("Error reading %s\n", filename);
