@@ -28,7 +28,7 @@ uint8_t supportsRealKeyboard(void)
 
 uint8_t supportsVirtualKeyboard(void)
 {
-#if defined(__vita__) || defined(__SWITCH__) || defined(_3DS)
+#if defined(__vita__) || defined(__SWITCH__) || defined(_3DS) || defined(__PSL1GHT__)
     return 1;
 #else
     return 0;

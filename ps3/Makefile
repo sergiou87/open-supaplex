@@ -25,8 +25,8 @@ CONTENTID		:=	UP0001-$(APPID)_00-0000000000000000
 #---------------------------------------------------------------------------------
 TARGET			:=	OpenSupaplex
 BUILD			:=	build
-SOURCES			:=	../src ../src/sdl_common ../src/sdl2 ../src/lib/ini
-OTHER_SOURCES	:=	../../src/null/virtualKeyboard.c
+SOURCES			:=	../src ../src/sdl_common ../src/sdl2 ../src/ps3 ../src/lib/ini
+OTHER_SOURCES	:=	
 DATA			:=	data
 INCLUDES		:=	include
 
