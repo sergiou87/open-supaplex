@@ -6891,7 +6891,8 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
         }
         while (mouseButtonStatus != 0);
 
-        snprintf(newPlayerName, sizeof(newPlayerName), "PLAYER%2d", gNewPlayerEntryIndex + 1);
+        // Limit the player number value to avoid -Wformat-truncation warning
+        snprintf(newPlayerName, sizeof(newPlayerName), "PLAYER%2d", MIN(gNewPlayerEntryIndex + 1, kNumberOfPlayers));
         gNewPlayerNameLength = strlen(newPlayerName);
     }
 
