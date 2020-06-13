@@ -61,6 +61,8 @@ FILE *openWritableFile(const char *pathname, const char *mode)
 #define FILE_BASE_PATH "sdmc:/OpenSupaplex/"
 #elif defined(__PSL1GHT__)
 #define FILE_BASE_PATH "/dev_hdd0/game/" PS3APPID "/USRDIR/"
+#elif defined(__WII__)
+#define FILE_BASE_PATH "/apps/OpenSupaplex/"
 #else
 #define FILE_BASE_PATH ""
 #endif

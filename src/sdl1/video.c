@@ -32,6 +32,9 @@ static const int kWindowHeight = 272;
 #elif defined(_3DS)
 static const int kWindowWidth = 400;
 static const int kWindowHeight = 240;
+#elif defined(__WII__)
+static const int kWindowWidth = 640;
+static const int kWindowHeight = 480;
 #else
 static const int kWindowWidth = kScreenWidth * 4;
 static const int kWindowHeight = kScreenHeight * 4;

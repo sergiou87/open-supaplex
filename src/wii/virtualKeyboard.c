@@ -15,31 +15,9 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "conditionals.h"
+#include "../virtualKeyboard.h"
 
-uint8_t supportsRealKeyboard(void)
+uint8_t inputVirtualKeyboardText(const char *title, uint16_t maxLength, char *outText)
 {
-#if defined(__vita__) || defined(__SWITCH__) || defined(__PSP__) || defined(_3DS) || defined(__PSL1GHT__) || defined(__WII__)
     return 0;
-#else
-    return 1;
-#endif
-}
-
-uint8_t supportsVirtualKeyboard(void)
-{
-#if defined(__vita__) || defined(__SWITCH__) || defined(_3DS) || defined(__PSL1GHT__)
-    return 1;
-#else
-    return 0;
-#endif
-}
-
-uint8_t supportsSPFileDemoPlayback(void)
-{
-#if defined(__vita__) || defined(__SWITCH__) || defined(__PSP__) || defined(_3DS) || defined(__PSL1GHT__)
-    return 0;
-#else
-    return 1;
-#endif
 }

@@ -48,6 +48,19 @@ const uint8_t GAMEPAD_BUTTON_LSHOULDER = 5;
 const uint8_t GAMEPAD_BUTTON_RSHOULDER = 6;
 const uint8_t GAMEPAD_BUTTON_START = 0;
 const uint8_t GAMEPAD_BUTTON_BACK = 7;
+#elif defined(__WII__)
+const uint8_t GAMEPAD_BUTTON_DOWN = 20;
+const uint8_t GAMEPAD_BUTTON_LEFT = 20;
+const uint8_t GAMEPAD_BUTTON_UP = 20;
+const uint8_t GAMEPAD_BUTTON_RIGHT = 20;
+const uint8_t GAMEPAD_BUTTON_A = 1;
+const uint8_t GAMEPAD_BUTTON_B = 0;
+const uint8_t GAMEPAD_BUTTON_X = 10;
+const uint8_t GAMEPAD_BUTTON_Y = 9;
+const uint8_t GAMEPAD_BUTTON_LSHOULDER = 11;
+const uint8_t GAMEPAD_BUTTON_RSHOULDER = 12;
+const uint8_t GAMEPAD_BUTTON_START = 5;
+const uint8_t GAMEPAD_BUTTON_BACK = 4;
 #else
 const uint8_t GAMEPAD_BUTTON_DOWN = 14;
 const uint8_t GAMEPAD_BUTTON_LEFT = 15;
@@ -84,7 +97,7 @@ SDL_Joystick *getGameController()
     return sCurrentGameController;
 }
 
-int8_t getGameControllerAxis(int axis, int minButton, int maxButton)
+int8_t getGameControllerAxis(int axis, int minButton, int maxButton, int hat, Uint8 minHat, Uint8 maxHat)
 {
     SDL_Joystick *controller = getGameController();
 
@@ -94,6 +107,7 @@ int8_t getGameControllerAxis(int axis, int minButton, int maxButton)
     }
 
     Sint16 axisValue = SDL_JoystickGetAxis(controller, axis);
+    Uint8 hatValue = SDL_JoystickGetHat(controller, hat);
 
     Sint16 threshold = INT16_MAX * kJoystickDeadzone;
 
@@ -113,6 +127,14 @@ int8_t getGameControllerAxis(int axis, int minButton, int maxButton)
     {
         return -1;
     }
+    else if (hatValue & maxHat)
+    {
+        return 1;
+    }
+    else if (hatValue & minHat)
+    {
+        return -1;
+    }
     else
     {
         return 0;
@@ -121,12 +143,12 @@ int8_t getGameControllerAxis(int axis, int minButton, int maxButton)
 
 int8_t getGameControllerX(void)
 {
-    return getGameControllerAxis(0, GAMEPAD_BUTTON_LEFT, GAMEPAD_BUTTON_RIGHT);
+    return getGameControllerAxis(0, GAMEPAD_BUTTON_LEFT, GAMEPAD_BUTTON_RIGHT, 0, SDL_HAT_LEFT, SDL_HAT_RIGHT);
 }
 
 int8_t getGameControllerY(void)
 {
-    return getGameControllerAxis(1, GAMEPAD_BUTTON_UP, GAMEPAD_BUTTON_DOWN);
+    return getGameControllerAxis(1, GAMEPAD_BUTTON_UP, GAMEPAD_BUTTON_DOWN, 0, SDL_HAT_UP, SDL_HAT_DOWN);
 }
 
 void gameControllerEmulateMouse(float *x, float *y, uint8_t *leftButton, uint8_t *rightButton)
@@ -217,7 +239,7 @@ uint8_t getGameControllerButtonRightShoulder(void)
 
 uint8_t getGameControllerConfirmButton(void)
 {
-#if defined(_3DS)
+#if defined(_3DS) || defined(__WII__)
     return getGameControllerButtonB();
 #else
     return getGameControllerButtonA();
@@ -226,7 +248,7 @@ uint8_t getGameControllerConfirmButton(void)
 
 uint8_t getGameControllerCancelButton(void)
 {
-#if defined(_3DS)
+#if defined(_3DS) || defined(__WII__)
     return getGameControllerButtonA();
 #else
     return getGameControllerButtonB();
