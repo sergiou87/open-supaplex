@@ -100,6 +100,8 @@ int8_t initializeAudio()
     //
     const int kAudioBufferSize = 768;
 
+    spLogInfo("Trying to initialize audio: %dHz, %d channels, format 0x%04x, %d bytes buffer", kSampleRate, kNumberOfChannels, MIX_DEFAULT_FORMAT, kAudioBufferSize);
+
     if (Mix_OpenAudio(kSampleRate, MIX_DEFAULT_FORMAT, kNumberOfChannels, kAudioBufferSize) == -1)
     {
         spLogInfo("Mix_OpenAudio: Failed to open audio!\n");
@@ -116,7 +118,12 @@ int8_t initializeAudio()
         return 1;
     }
 
-    spLogInfo("Audio initialized: %dHz, %d channels, %dB buffer", kSampleRate, kNumberOfChannels, kAudioBufferSize);
+    int sampleRate;
+    Uint16 format;
+    int channels;
+    Mix_QuerySpec(&sampleRate, &format, &channels);
+    
+    spLogInfo("Audio initialized: %dHz, %d channels, format 0x%04x, %d bytes buffer", sampleRate, channels, format, kAudioBufferSize);
     gIsAudioInitialized = 1;
 
     return 0;
