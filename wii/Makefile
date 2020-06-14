@@ -113,6 +113,9 @@ run:
 send:
 	curl -T $(TARGET).dol ftp://$(WIIIP)/sd/APPS/OpenSupaplex/BOOT.DOL
 
+# Usage: WIIIP="192.168.0.118" make run
+run:
+	WIILOAD=tcp:$(WIIIP) wiiload $(TARGET).dol
 #---------------------------------------------------------------------------------
 else
 

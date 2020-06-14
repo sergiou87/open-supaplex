@@ -37,7 +37,7 @@ uint8_t supportsVirtualKeyboard(void)
 
 uint8_t supportsSPFileDemoPlayback(void)
 {
-#if defined(__vita__) || defined(__SWITCH__) || defined(__PSP__) || defined(_3DS) || defined(__PSL1GHT__)
+#if defined(__vita__) || defined(__SWITCH__) || defined(__PSP__) || defined(_3DS) || defined(__PSL1GHT__) || defined(__WII__)
     return 0;
 #else
     return 1;
