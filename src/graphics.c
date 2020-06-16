@@ -933,6 +933,15 @@ void drawFixedLevel() // sub_48F6D   proc near       ; CODE XREF: start+335p ru
             size_t startDstX = kLevelEdgeSize + bitmapTileX * kTileSize;
             size_t startDstY = kLevelEdgeSize + bitmapTileY * kTileSize;
             uint16_t tileValue = gCurrentLevelState[tileY * kLevelWidth + tileX].tile;
+
+            // Tile values greater than the official ones (including 40, the invisible wall) will be rendered as empty
+            // spaces, to prevent issues even with custom graphics.
+            //
+            if (tileValue >= LevelTileTypeCount)
+            {
+                tileValue = LevelTileTypeSpace;
+            }
+
             size_t startSrcX = tileValue * kTileSize;
 
             for (int y = 0; y < kTileSize; ++y)

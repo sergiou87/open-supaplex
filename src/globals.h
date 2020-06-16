@@ -68,6 +68,7 @@ typedef enum
     LevelTileTypeHardware11 = 37,
     LevelTileTypeHorizontalChipTop = 38,
     LevelTileTypeHorizontalChipBottom = 39,
+    LevelTileTypeCount,
 } LevelTileType;
 
 // exact length of a level file, even of each level inside the LEVELS.DAT file
