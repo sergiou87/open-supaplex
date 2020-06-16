@@ -12942,7 +12942,7 @@ void handleZonkPushedByMurphy(int16_t position) // sub_4ED29   proc near       ;
         || belowTile->tile == 0xBB)
     {
 //loc_4ED38:              ; CODE XREF: handleZonkPushedByMurphy+5j handleZonkPushedByMurphy+Cj
-        handleZonkStateAfterFallingOneTile(position + kLevelWidth);
+        detonateBigExplosion(position + kLevelWidth);
     }
 }
 
