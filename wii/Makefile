@@ -25,15 +25,24 @@ INCLUDES		:=
 # options for code generation
 #---------------------------------------------------------------------------------
 
-CFLAGS	= -g -O2 -Wall $(MACHDEP) $(INCLUDE) -I$(PORTLIBS_PATH)/ppc/include -DHAVE_SDL -Dmain=SDL_main -D__WII__
+CFLAGS	= -g -O2 -Wall $(MACHDEP) $(INCLUDE) -I$(PORTLIBS_PATH)/wii/include -I$(PORTLIBS_PATH)/ppc/include -DHAVE_SDL -Dmain=SDL_main -D__WII__
 CXXFLAGS	=	$(CFLAGS)
 
-LDFLAGS	=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map -L$(PORTLIBS_PATH)/ppc/lib
+LDFLAGS	=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map -L$(PORTLIBS_PATH)/wii/lib -L$(PORTLIBS_PATH)/ppc/lib
 
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS	:=	-lSDL_mixer -lSDL -lSDLmain -lmad -lvorbisidec -logg -lwiiuse -lwiikeyboard -lfat -lbte -logc -lm
+LIBS	:=	-lSDL_mixer -lSDL -lSDLmain -lmad -lvorbisfile -lvorbis -logg -laesnd -lwiiuse -lwiikeyboard -lfat -lbte -logc -lm
+
+ifeq ($(DEBUG),1)
+	CFLAGS += -DDEBUG=1 -DDEBUGNET
+	LIBS += -ldebugnet
+endif
+
+ifneq ($(strip $(DEBUGNETIP)),)
+	CFLAGS += -DDEBUGNETIP=\"$(DEBUGNETIP)\"
+endif
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
@@ -106,8 +115,6 @@ clean:
 	@rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).dol
 
 #---------------------------------------------------------------------------------
-run:
-	wiiload $(TARGET).dol
 
 # Usage: WIIIP="192.168.0.118" make send
 send:
@@ -115,7 +122,7 @@ send:
 
 # Usage: WIIIP="192.168.0.118" make run
 run:
-	WIILOAD=tcp:$(WIIIP) wiiload $(TARGET).dol
+	WIILOAD=tcp:$(WIIIP) wiiload $(TARGET).elf
 #---------------------------------------------------------------------------------
 else
 

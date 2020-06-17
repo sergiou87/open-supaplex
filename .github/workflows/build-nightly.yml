@@ -118,6 +118,26 @@ jobs:
         asset_name: OpenSupaplex-3ds-$$.zip # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
         asset_content_type: application/zip # required by GitHub API
         max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
+  build-wii:
+    runs-on: ubuntu-18.04
+    container: sergiou87/wii-docker-open-supaplex:7.1
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build OpenSupaplex
+      run: |
+        ./wii/ci-build.sh
+      shell: bash
+    - name: Deploy Nightly
+      uses: WebFreak001/deploy-nightly@v1.0.3
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
+      with:
+        upload_url: https://uploads.github.com/repos/sergiou87/open-supaplex/releases/25661714/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
+        release_id: 25661714 # same as above (id can just be taken out the upload_url, it's used to find old releases)
+        asset_path: wii/OpenSupaplex-wii.zip # path to archive to upload
+        asset_name: OpenSupaplex-wii-$$.zip # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
+        asset_content_type: application/zip # required by GitHub API
+        max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
   build-switch:
     runs-on: ubuntu-18.04
     container: devkitpro/devkita64:latest
