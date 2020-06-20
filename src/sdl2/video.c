@@ -30,7 +30,7 @@ static const int kWindowHeight = 272;
 #elif defined(__vita__)
 static const int kWindowWidth = 960;
 static const int kWindowHeight = 544;
-#elif defined(__PSL1GHT__)
+#elif defined(__PSL1GHT__) || defined(__WIIU__)
 static const int kWindowWidth = 1280;
 static const int kWindowHeight = 720;
 #else
@@ -64,7 +64,7 @@ void initializeVideo(uint8_t fastMode)
                                SDL_WINDOWPOS_UNDEFINED,
                                kWindowWidth,
                                kWindowHeight,
-#if defined(__SWITCH__) || defined(__vita__) || defined(__PSP__) || defined(__PSL1GHT__)
+#if defined(__SWITCH__) || defined(__vita__) || defined(__PSP__) || defined(__PSL1GHT__) || defined(__WIIU__)
                                SDL_WINDOW_FULLSCREEN);
 #else
                                0);

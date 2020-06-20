@@ -70,6 +70,8 @@ static const char *kBaseAudioFolder = "sdmc:/OpenSupaplex/audio";
 static const char *kBaseAudioFolder = "/dev_hdd0/game/" PS3APPID "/USRDIR/audio";
 #elif defined(__WII__)
 static const char *kBaseAudioFolder = "/apps/OpenSupaplex/audio";
+#elif defined(__WIIU__)
+static const char *kBaseAudioFolder = "fs:/vol/external01/wiiu/apps/OpenSupaplex/audio";
 #else
 static const char *kBaseAudioFolder = "audio";
 #endif
