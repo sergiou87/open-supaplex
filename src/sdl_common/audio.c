@@ -17,6 +17,10 @@
 
 #include "../audio.h"
 
+#if defined(_3DS)
+#include <3ds.h>
+#endif
+
 #include <math.h>
 
 #if HAVE_SDL2
@@ -76,12 +80,26 @@ static const char *kBaseAudioFolder = "fs:/vol/external01/wiiu/apps/OpenSupaplex
 static const char *kBaseAudioFolder = "audio";
 #endif
 
+// Keep buffer size as low as possible to prevent latency with sound effects.
+// In macOS I was able to set it to 512, but that caused a lot of issues playing music on Nintendo Switch.
+// If it ever supports WASM, that needs a power of 2 as buffer size.
+//
+#if defined(__SWITCH__) || defined(__WIIU__) || defined(__WII__) || (defined(_3DS) && NEW3DS)
+const int kAudioBufferSize = 1024;
+#elif defined(_3DS) && NEW3DS
+const int kAudioBufferSize = 768;
+#else // macOS, PS Vita, PS3, PSP
+// PS3 seems to ignore this and always use number_of_samples (256) * sizeof(float) * number_of_channels = 2048
+// PSP and PS Vita only need this value to be a multiple of 64
+const int kAudioBufferSize = 512;
+#endif
+
 // PSP and 3DS can't handle High quality audio, it kills performance
-#if defined(_3DS)
+#if defined(_3DS) && !NEW3DS
 static const char *kBaseAudioFolderSuffix = "lq"; // Low quality
 static const int kSampleRate = 11025;
 static const int kNumberOfChannels = 1;
-#elif defined(__PSP__)
+#elif defined(__PSP__) || (defined(_3DS) && NEW3DS)
 static const char *kBaseAudioFolderSuffix = "mq"; // Medium quality
 static const int kSampleRate = 22050;
 static const int kNumberOfChannels = 1;
@@ -95,12 +113,15 @@ int8_t initializeAudio()
 {
     SDL_InitSubSystem(SDL_INIT_AUDIO);
 
-    // Keep buffer size as low as possible to prevent latency with sound effects.
-    // In macOS I was able to set it to 512, but that caused a lot of issues playing music on Nintendo Switch.
-    // 768 bytes seems to work on both platforms.
-    // However, if it ever supports WASM, that needs a power of 2 as buffer size.
-    //
-    const int kAudioBufferSize = 768;
+#if defined(_3DS)
+    _Bool isN3DS;
+	APT_CheckNew3DS(&isN3DS);
+	if(isN3DS)
+    {
+		osSetSpeedupEnable(true);
+        spLogInfo("Using New3DS speed up for better performance");
+    }
+#endif
 
     spLogInfo("Trying to initialize audio: %dHz, %d channels, format 0x%04x, %d bytes buffer", kSampleRate, kNumberOfChannels, MIX_DEFAULT_FORMAT, kAudioBufferSize);
 
@@ -177,7 +198,7 @@ void loadMusic()
 
     if(gMusic == NULL)
     {
-        spLogInfo("Unable to load Ogg file: %s\n", Mix_GetError());
+        spLogInfo("Unable to load music file: %s\n", Mix_GetError());
         return;
     }
 }
@@ -297,7 +318,7 @@ void playMusic()
 
     if(Mix_PlayMusic(gMusic, -1) == -1)
     {
-        spLogInfo("Unable to play Ogg file: %s\n", Mix_GetError());
+        spLogInfo("Unable to play music file: %s\n", Mix_GetError());
         return;
     }
 

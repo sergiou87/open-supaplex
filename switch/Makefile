@@ -184,6 +184,8 @@ else
 	@rm -fr $(BUILD) $(TARGET).nsp $(TARGET).nso $(TARGET).npdm $(TARGET).elf
 endif
 
+run:
+	nxlink -p OpenSupaplex/OpenSupaplex.nro -s OpenSupaplex.nro
 
 #---------------------------------------------------------------------------------
 else

@@ -67,6 +67,10 @@ ifeq ($(DEBUG),1)
 	CFLAGS += -DDEBUG=1
 endif
 
+ifeq ($(NEW3DS),1)
+	CFLAGS += -DNEW3DS=1
+endif
+
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
 
 ASFLAGS	:=	-g $(ARCH)
@@ -196,6 +200,8 @@ clean:
 	@echo clean ...
 	@rm -fr $(BUILD) $(TARGET).cia $(TARGET).3ds $(TARGET).3dsx $(OUTPUT).smdh $(TARGET)-strip.elf $(TARGET).elf $(TARGET).icn $(TARGET).bnr
 
+run:
+	$(DEVKITPRO)/tools/bin/3dslink $(TARGET).3dsx
 
 #---------------------------------------------------------------------------------
 else

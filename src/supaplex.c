@@ -1817,6 +1817,7 @@ void initializeGameStateData()
     for (int idx = 0; idx < kSizeOfLevelStatePrecedingPadding; ++idx)
     {
         uint16_t value = kLevelStatePrecedingPadding[idx];
+        value = convert16LE(value);
         StatefulLevelTile *tile = &gCurrentLevelStateWithPadding[idx];
         tile->tile = (value & 0xFF);
         tile->state = (value >> 8);

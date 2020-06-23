@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<app version="1">
+  <name>OpenSupplex</name>
+  <coder>sergiou87</coder>
+  <version>7.1</version>
+  <url>https://github.com/sergiou87/open-supaplex/</url>
+  <release_date>20200620000000</release_date>
+  <short_description>Classic scrolling tile-based puzzle game</short_description> 
+  <long_description>OpenSupaplex is an open-source reimplementation of Supaplex by sergiou87. Supaplex is a video game created by Philip Jespersen and Michael Stopp, two Swiss students, and published by Digital Integration in 1991. It is an extended clone of Boulder Dash.
+
+Controls:
+ - You need to use your Wii U Gamepad. Other controllers are not supported.
+ - Up/Down/Left/Right: directional pad
+ - Removing bases/infotrons next to Murphy: Y button + direction
+ - Detonate red disk: Y button
+ - Show/hide bottom game panel: X button
+ - Show number of red disks: A button
+ - Exit/back: - button</long_description> 
+  <category>game</category>
+</app>

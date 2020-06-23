@@ -233,7 +233,7 @@ vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
 # Usage: PSVITAIP="192.168.0.224" make launch
 add_custom_target(launch
   COMMAND curl -T ${PROJECT_NAME}.self ftp://$(PSVITAIP):1337/ux0:/app/${VITA_TITLEID}/eboot.bin
-  COMMAND echo "launch ${VITA_TITLEID}" | nc $ENV{PSVITAIP} 1338
+  COMMAND echo "launch ${VITA_TITLEID}" | nc $(PSVITAIP) 1338
   DEPENDS ${PROJECT_NAME}.self
 )
 
