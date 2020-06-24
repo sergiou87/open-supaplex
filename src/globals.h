@@ -253,10 +253,10 @@ extern uint8_t gIsForcedLevel; // byte_59B84
 extern uint8_t gIsForcedCheatMode; // byte_59B85
 
 // Game Speed in "Speed Fix values" from 0 to 10, but inverted. 10 is the
-//   fastest, 0 the slowest. 5 means the original speed which was 35 game iterations per second.
+//   fastest, 0 the slowest. 5 is the "target" speed in spfix63, which was 35 game iterations per second.
 //
 #define kNumberOfGameSpeeds 11
-#define kDefaultGameSpeed 6
+#define kDefaultGameSpeed 10
 extern uint8_t gGameSpeed; // gameSpeed
 extern uint8_t gIsGameSpeedChangeButtonPressed;
 extern char demoFileName[kMaxFilePathLength];
