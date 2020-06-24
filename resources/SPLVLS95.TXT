@@ -1,3 +1,17 @@
+﻿## Supaplex Levelset 94
+
+### Levelset changes
+1999-05-07 -- v1.0 -- Initial release
+
+### Credits
+
+Level(s) | Author       | Email             | Notes
+--------:|:------------ |:------------------|:--------------------------------
+001-111  | Kim, Min-Soo |`giddy@hanmail.net`| "Original levels more difficult"
+
+
+### Description by Kim, Min-Soo [SET#95.TXT]
+```
  ------------------------------------------------------------------------------
  SUPAPLEX LEVEL SET #95                                   by Min-Soo Kim, Korea
  ==============================================================================
@@ -63,3 +77,7 @@
  021 *-         044 ***        067 *****      090 ******+
  022 ***        045 *****      068 ***-       091 ****
  023 ****-      046 ****-      069 ****-      092 ****
+```
+
+### Note by Timofey Vasenin
+Level 42 has wrong title in LST, as it is in original Supaplex levelset!

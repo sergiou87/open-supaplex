@@ -1,50 +1,28 @@
-This textfile accompanies the LEVELS.D07 and LEVEL.L07 files. These three
-files come together in the archive SPLVLS07.ZIP and may be distributed for
-free, as long as the original files are left unchanged and they stay together
-in one archive.
+## Supaplex Levelset 07
 
-Be sure to check out the Supaplex Webpage too! You can find it at
-http://www.elmerproductions.com/sp or you can do a websearch for "Supaplex"
-if you can't find it.
+### Levelset changes
+1999-04-11 -- v1.0 -- Initial release
 
-The Supaplex page contains lots of software, new levels (including the latest
-version of this, and other collections), solutions and more. Everything about
-Supaplex.
+### Credits
 
-There are two ways to enjoy these levels:
- - If you have the Supaplex Speed-Fix (by Herman Perk, you can download it
-   from my Supaplex page, see above) you can use certain commandline options
-   to use these datafiles directly. All you have to do is copy LEVELS.D07 and
-   LEVEL.L07 to your Supaplex directory, and use the proper SpeedFix option.
- - If you do not have the Supaplex Speed-Fix you must first make a backup
-   copy of LEVELS.DAT and LEVEL.LST (which came with the original Supaplex)
-   then, you simply copy LEVELS.D07 to LEVELS.DAT and LEVEL.L07 to LEVEL.LST
-   and you're ready to play.
-
-Please note that the levels do not appear in order of difficulty, but in the
-order in which I received them. You might want to edit the PLAYER.LST file
-so you can start any level right away (or use the SpeedFix '#' option).
-
-If you want to create your own levels, try out the Supaplex Level Editor. You
-can find it on my Supaplex webpage (see above)
-
-Level(s)- Author                         Email (optional)
-      1 - ?                              ?
-  2- 11 - Dmitry Durovin                 miclefpf@aha.ru
- 12- 14 - Lee Myoung Jae                 J1E0@chollian.net
-     15 - Fernando MoisÇs Fern†ndez      patrical@mail.imagine.com.ar
-     16 - Fabricio Alejandro Fern†ndez   patrical@mail.imagine.com.ar
-     17 - Herman Perk (adapted from FAF) Herman_Perk@compuserve.com
- 18- 20 - Dmitry Durovin                 miclefpf@aha.ru
- 21- 27 - Fernando MoisÇs Fern†ndez      patrical@mail.imagine.com.ar
-     28 - Herman Perk                    herman_perk@compuserve.com
- 29- 30 - Dmitry Durovin                 miclefpf@aha.ru
- 31- 38 - Fernando MoisÇs Fern†ndez      patrical@mail.imagine.com.ar
- 39- 69 - Kim, Min-Soo                   giddy@hanmail.net
-     70 - Dmitry Durovin                 miclefpf@aha.ru
- 71- 88 - Kim, Min-Soo                   giddy@hanmail.net
- 89- 94 - Dmitry Durovin                 miclefpf@aha.ru
-     95 - Ilkka                          ?
- 96- 98 - Fernando MoisÇs Fern†ndez      patrical@mail.imagine.com.ar
- 99-101 - Fabricio Alejandro Fern†ndez   patrical@mail.imagine.com.ar
-102-111 - Kim, Min-Soo                   giddy@hanmail.net
+Level(s) | Author                       | Email                        | Notes
+--------:|:---------------------------- |:---------------------------- |:------------------
+    001  | ?                            |                              |
+002-011  | Dmitry Durovin               |`miclefpf@aha.ru`             |
+012-014  | Lee Myoung Jae               |`J1E0@chollian.net`           |
+    015  | Fernando Mois√©s Fern√°ndez    |`patrical@mail.imagine.com.ar`|
+    016  | Fabricio Alejandro Fern√°ndez |`patrical@mail.imagine.com.ar`|
+    017  | Herman Perk                  |`Herman_Perk@compuserve.com`  | "adapted from FAF"
+018-020  | Dmitry Durovin               |`miclefpf@aha.ru`             |
+021-027  | Fernando Mois√©s Fern√°ndez    |`patrical@mail.imagine.com.ar`|
+    028  | Herman Perk                  |`herman_perk@compuserve.com`  |
+029-030  | Dmitry Durovin               |`miclefpf@aha.ru`             |
+031-038  | Fernando Mois√©s Fern√°ndez    |`patrical@mail.imagine.com.ar`|
+039-069  | Kim, Min-Soo                 |`giddy@hanmail.net`           |
+    070  | Dmitry Durovin               |`miclefpf@aha.ru`             |
+071-088  | Kim, Min-Soo                 |`giddy@hanmail.net`           |
+089-094  | Dmitry Durovin               |`miclefpf@aha.ru`             |
+    095  | Ilkka                        |                              |
+096-098  | Fernando Mois√©s Fern√°ndez    |`patrical@mail.imagine.com.ar`|
+099-101  | Fabricio Alejandro Fern√°ndez |`patrical@mail.imagine.com.ar`|
+102-111  | Kim, Min-Soo                 |`giddy@hanmail.net`           |

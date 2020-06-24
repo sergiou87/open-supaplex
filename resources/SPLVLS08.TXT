@@ -1,53 +1,37 @@
-This textfile accompanies the LEVELS.D08 and LEVEL.L08 files. These three
-files come together in the archive SPLVLS08.ZIP and may be distributed for
-free, as long as the original files are left unchanged and they stay together
-in one archive.
+## Supaplex Levelset 08
 
-Be sure to check out the Supaplex Webpage too! You can find it at
-http://www.elmerproductions.com/sp or you can do a websearch for "Supaplex"
-if you can't find it.
+### Levelset changes
+2000-08-18 -- v1.0 -- Initial release
 
-The Supaplex page contains lots of software, new levels (including the latest
-version of this, and other collections), solutions and more. Everything about
-Supaplex.
+2007-01-31 -- v1.0.1 -- [Martijn Mooji] Fix LST level strings for levels 100, 101 and 105
 
-There are two ways to enjoy these levels:
- - If you have the Supaplex Speed-Fix (by Herman Perk, you can download it
-   from my Supaplex page, see above) you can use certain commandline options
-   to use these datafiles directly. All you have to do is copy LEVELS.D08 and
-   LEVEL.L08 to your Supaplex directory, and use the proper SpeedFix option.
- - If you do not have the Supaplex Speed-Fix you must first make a backup
-   copy of LEVELS.DAT and LEVEL.LST (which came with the original Supaplex)
-   then, you simply copy LEVELS.D08 to LEVELS.DAT and LEVEL.L08 to LEVEL.LST
-   and you're ready to play.
+2007-02-02 -- v1.1 -- [Martijn Mooji] Add dashes / align titles in DAT for levels 068, 079, 080, 081, 082, 083 (safe)
 
-Please note that the levels do not appear in order of difficulty, but in the
-order in which I received them. You might want to edit the PLAYER.LST file
-so you can start any level right away (or use the SpeedFix '#' option).
+2012-08-05 -- v1.1.1 -- [Timofey Vasenin] Sync LST level titles (levels 068, 079, 080, 081, 082, 083) to the changes in v1.1
 
-If you want to create your own levels, try out the Supaplex Level Editor. You
-can find it on my Supaplex webpage (see above)
+### Credits
 
-Level(s)- Author                         Email (optional)
-  1-  6 - Kim, Min-Soo                   giddy@hanmail.net
-  7- 13 - Hakan Gurel                    ogurel@dzkk.tsk.mil.tr
- 14- 17 - Kim, Min-Soo                   giddy@hanmail.net
- 18- 21 - Luke Tudge                     luketudge@bigfoot.com
- 22- 35 - Kim, Min-Soo                   giddy@hanmail.net
- 36- 46 - Janne Vieri                    javieri@nic.fi
-     47 - Ivor Nr1                       shark-mage@usa.net
-     48 - Herman Perk                    Herman_Perk@compuserve.com
-     49 - Herman Perk (modified it)      Herman_Perk@compuserve.com
- 50- 61 - Nick Smith                     simonsmith@xtra.co.nz
- 62- 64 - Fernando MoisÇs Fern†ndez      patrical@arnet.com.ar
- 65- 66 - Nick Smith                     simonsmith@xtra.co.nz
-     67 - Herman Perk                    Herman_Perk@compuserve.com
-     68 - Andrus Paevere                 Andrus.paevere@kgk.ee
- 69- 78 - Nick Smith                     simonsmith@xtra.co.nz
- 79- 83 - Andrus Paevere                 Andrus.paevere@kgk.ee
- 84- 97 - Rickard Moller                 rickard.moller@telia.com
- 98- 99 - Dmitry Durovin                 divan63@aha.ru
-100-101 - Alexey Soukhov                 old_gamer@medvedkovo.net
-    102 - Dmitry Durovin                 divan63@aha.ru
-103-107 - Fernando MoisÇs Fern†ndez      patrical@arnet.com.ar
-108-111 - Mario                          ?
+Level(s) | Author                    | Email                      | Notes
+--------:|:------------------------- |:-------------------------- |:---------------
+001-006  | Kim, Min-Soo              |`giddy@hanmail.net`         |
+007-013  | Hakan Gurel               |`ogurel@dzkk.tsk.mil.tr`    |
+014-017  | Kim, Min-Soo              |`giddy@hanmail.net`         |
+018-021  | Luke Tudge                |`luketudge@bigfoot.com`     |
+022-035  | Kim, Min-Soo              |`giddy@hanmail.net`         |
+036-046  | Janne Vieri               |`javieri@nic.fi`            |
+    047  | Ivor Nr1                  |`shark-mage@usa.net`        |
+    048  | Herman Perk               |`Herman_Perk@compuserve.com`|
+    049  | Herman Perk               |`Herman_Perk@compuserve.com`| "(modified it)"
+050-061  | Nick Smith                |`simonsmith@xtra.co.nz`     |
+062-064  | Fernando Mois√©s Fern√°ndez |`patrical@arnet.com.ar `    |
+065-066  | Nick Smith                |`simonsmith@xtra.co.nz`     |
+    067  | Herman Perk               |`Herman_Perk@compuserve.com`|
+    068  | Andrus Paevere            |`Andrus.paevere@kgk.ee`     |
+069-078  | Nick Smith                |`simonsmith@xtra.co.nz`     |
+079-083  | Andrus Paevere            |`Andrus.paevere@kgk.ee`     |
+084-097  | Rickard Moller            |`rickard.moller@telia.com`  |
+098-099  | Dmitry Durovin            |`divan63@aha.ru`            |
+100-101  | Alexey Soukhov            |`old_gamer@medvedkovo.net`  |
+    102  | Dmitry Durovin            |`divan63@aha.ru`            |
+103-107  | Fernando Mois√©s Fern√°ndez |`patrical@arnet.com.ar`     |
+108-111  | Mario                     |?                           |
