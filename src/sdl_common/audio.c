@@ -88,7 +88,7 @@ static const char *kBaseAudioFolder = "audio";
 const int kAudioBufferSize = 1024;
 #elif defined(_3DS) && NEW3DS
 const int kAudioBufferSize = 768;
-#else // macOS, PS Vita, PS3, PSP
+#else // macOS, PS Vita, PS3, PSP and Windows
 // PS3 seems to ignore this and always use number_of_samples (256) * sizeof(float) * number_of_channels = 2048
 // PSP and PS Vita only need this value to be a multiple of 64
 const int kAudioBufferSize = 512;
