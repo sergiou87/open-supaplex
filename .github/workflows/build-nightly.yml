@@ -94,7 +94,7 @@ jobs:
         asset_name: OpenSupaplex-ps3-$$.pkg # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
         asset_content_type: application/binary # required by GitHub API
         max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
-  build-3ds:
+  build-old-3ds:
     runs-on: ubuntu-18.04
     container: devkitpro/devkitarm:latest
     steps:
@@ -103,9 +103,9 @@ jobs:
       run: |
         ./3ds/ci-install-dependencies.sh
       shell: bash
-    - name: Build OpenSupaplex
+    - name: Build OpenSupaplex for Old Nintendo 3DS
       run: |
-        ./3ds/ci-build.sh
+        ./3ds/ci-build-old-3ds.sh
       shell: bash
     - name: Deploy Nightly
       uses: WebFreak001/deploy-nightly@v1.0.3
@@ -114,8 +114,32 @@ jobs:
       with:
         upload_url: https://uploads.github.com/repos/sergiou87/open-supaplex/releases/25661714/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
         release_id: 25661714 # same as above (id can just be taken out the upload_url, it's used to find old releases)
-        asset_path: 3ds/OpenSupaplex-3ds.zip # path to archive to upload
-        asset_name: OpenSupaplex-3ds-$$.zip # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
+        asset_path: 3ds/OpenSupaplex-old-3ds.zip # path to archive to upload
+        asset_name: OpenSupaplex-old-3ds-$$.zip # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
+        asset_content_type: application/zip # required by GitHub API
+        max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
+  build-new-3ds:
+    runs-on: ubuntu-18.04
+    container: devkitpro/devkitarm:latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install dependencies
+      run: |
+        ./3ds/ci-install-dependencies.sh
+      shell: bash
+    - name: Build OpenSupaplex for New Nintendo 3DS
+      run: |
+        ./3ds/ci-build-new-3ds.sh
+      shell: bash
+    - name: Deploy Nightly
+      uses: WebFreak001/deploy-nightly@v1.0.3
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
+      with:
+        upload_url: https://uploads.github.com/repos/sergiou87/open-supaplex/releases/25661714/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
+        release_id: 25661714 # same as above (id can just be taken out the upload_url, it's used to find old releases)
+        asset_path: 3ds/OpenSupaplex-new-3ds.zip # path to archive to upload
+        asset_name: OpenSupaplex-new-3ds-$$.zip # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
         asset_content_type: application/zip # required by GitHub API
         max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
   build-wii:
