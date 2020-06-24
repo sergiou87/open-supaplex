@@ -27,6 +27,14 @@ switch/*.nro
 switch/*.elf
 switch/*.nacp
 
+# Wii stuff
+wii/*.dol
+wii/*.elf
+
+# Wii U stuff
+wiiu/*.rpx
+wiiu/*.elf
+
 # Nintendo 3DS stuff
 3ds/*.3dsx
 3ds/*.elf
