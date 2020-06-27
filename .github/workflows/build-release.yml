@@ -22,9 +22,12 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v1
-    - name: Build OpenSupaplex for PS Vita
+    - name: Install VitaSDK
       run: |
         ./vita/ci-install-vitasdk.sh
+      shell: bash
+    - name: Build OpenSupaplex for PS Vita
+      run: |
         ./vita/ci-build-vita.sh
       shell: bash
     - name: Upload PS Vita build
@@ -34,11 +37,12 @@ jobs:
         path: vita/build/OpenSupaplex.vpk
   build-switch:
     runs-on: ubuntu-18.04
+    container: devkitpro/devkita64:latest
     steps:
     - uses: actions/checkout@v1
     - name: Build OpenSupaplex for Nintendo Switch
       run: |
-        ./switch/ci-install-devkitpro.sh
+        ./switch/ci-install-dependencies.sh
         ./switch/ci-build-switch.sh
       shell: bash
     - name: Upload Nintendo Switch build
@@ -74,7 +78,7 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: ps3-build
-        path: ps3/OpenSupaplex-ps3.zip
+        path: ps3/OpenSupaplex.pkg
   build-wii:
     runs-on: ubuntu-18.04
     container: sergiou87/wii-docker-open-supaplex:7.1
@@ -89,6 +93,20 @@ jobs:
       with:
         name: wii-build
         path: wii/OpenSupaplex-wii.zip
+  build-wiiu:
+    runs-on: ubuntu-18.04
+    container: sergiou87/wiiu-docker-open-supaplex:7.1
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build OpenSupaplex for Wii U
+      run: |
+        ./wiiu/ci-build.sh
+      shell: bash
+    - name: Upload Wii Ubuild
+      uses: actions/upload-artifact@v1
+      with:
+        name: wiiu-build
+        path: wiiu/OpenSupaplex-wiiu.zip
   build-old-3ds:
     runs-on: ubuntu-18.04
     container: devkitpro/devkitarm:latest
@@ -125,9 +143,12 @@ jobs:
     - uses: numworks/setup-msys2@v1
     - run: git config --global core.autocrlf false
     - uses: actions/checkout@v1
+    - name: Prepare build environment
+      run: |
+        msys2do ./windows/ci-prepare.sh x86_64
     - name: Build OpenSupaplex for Windows x86_64
       run: |
-        msys2do ./ci-prepare.sh x86_64
+        cd windows
         msys2do ./ci-build.sh x86_64
     - name: Upload Windows x86_64 build
       uses: actions/upload-artifact@v1
@@ -135,7 +156,7 @@ jobs:
         name: windows-x86_64-build
         path: windows/OpenSupaplex-windows-x86_64.zip
   create-release:
-    needs: build-vita build-macos build-switch build-old-3ds build-new-3ds build-windows-x86_64 build-psp build-ps3 build-wii
+    needs: [ build-vita, build-macos, build-switch, build-old-3ds, build-new-3ds, build-windows-x86_64, build-psp, build-ps3, build-wii, build-wiiu ]
     runs-on: ubuntu-latest
     steps:
     - name: Get the version
@@ -174,6 +195,10 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: wii-build
+    - name: Download Wii U Build Asset
+      uses: actions/download-artifact@v1
+      with:
+        name: wiiu-build
     - name: Download Old Nintendo 3DS Build Asset
       uses: actions/download-artifact@v1
       with:
@@ -239,9 +264,9 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ps3-build/OpenSupaplex-ps3.zip
-        asset_name: OpenSupaplex-ps3-${{ steps.get_version.outputs.VERSION }}.zip
-        asset_content_type: application/zip
+        asset_path: ps3-build/OpenSupaplex.pkg
+        asset_name: OpenSupaplex-ps3-${{ steps.get_version.outputs.VERSION }}.pkg
+        asset_content_type: application/binary
     - name: Upload Wii Build Asset
       uses: actions/upload-release-asset@v1
       env:
@@ -250,6 +275,15 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: wii-build/OpenSupaplex-wii.zip
         asset_name: OpenSupaplex-wii-${{ steps.get_version.outputs.VERSION }}.zip
+        asset_content_type: application/zip
+    - name: Upload Wii U Build Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: wiiu-build/OpenSupaplex-wiiu.zip
+        asset_name: OpenSupaplex-wiiu-${{ steps.get_version.outputs.VERSION }}.zip
         asset_content_type: application/zip
     - name: Upload Old Nintendo 3DS Build Asset
       uses: actions/upload-release-asset@v1
