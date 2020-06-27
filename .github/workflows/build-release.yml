@@ -20,12 +20,9 @@ jobs:
         path: macos/OpenSupaplex-macOS.zip
   build-vita:
     runs-on: ubuntu-18.04
+    container: sergiou87/vita-docker-open-supaplex:7.1
     steps:
     - uses: actions/checkout@v1
-    - name: Install VitaSDK
-      run: |
-        ./vita/ci-install-vitasdk.sh
-      shell: bash
     - name: Build OpenSupaplex for PS Vita
       run: |
         ./vita/ci-build-vita.sh
@@ -37,12 +34,11 @@ jobs:
         path: vita/build/OpenSupaplex.vpk
   build-switch:
     runs-on: ubuntu-18.04
-    container: devkitpro/devkita64:latest
+    container: sergiou87/switch-docker-open-supaplex:7.1
     steps:
     - uses: actions/checkout@v1
     - name: Build OpenSupaplex for Nintendo Switch
       run: |
-        ./switch/ci-install-dependencies.sh
         ./switch/ci-build-switch.sh
       shell: bash
     - name: Upload Nintendo Switch build
@@ -109,12 +105,11 @@ jobs:
         path: wiiu/OpenSupaplex-wiiu.zip
   build-old-3ds:
     runs-on: ubuntu-18.04
-    container: devkitpro/devkitarm:latest
+    container: sergiou87/3ds-docker-open-supaplex:7.1
     steps:
     - uses: actions/checkout@v1
     - name: Build OpenSupaplex for Old Nintendo 3DS
       run: |
-        ./3ds/ci-install-dependencies.sh
         ./3ds/ci-build-old-3ds.sh
       shell: bash
     - name: Upload Old Nintendo 3DS build
@@ -124,12 +119,11 @@ jobs:
         path: 3ds/OpenSupaplex-old-3ds.zip
   build-new-3ds:
     runs-on: ubuntu-18.04
-    container: devkitpro/devkitarm:latest
+    container: sergiou87/3ds-docker-open-supaplex:7.1
     steps:
     - uses: actions/checkout@v1
     - name: Build OpenSupaplex for New Nintendo 3DS
       run: |
-        ./3ds/ci-install-dependencies.sh
         ./3ds/ci-build-new-3ds.sh
       shell: bash
     - name: Upload New Nintendo 3DS build

@@ -29,12 +29,9 @@ jobs:
         max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
   build-vita:
     runs-on: ubuntu-18.04
+    container: sergiou87/vita-docker-open-supaplex:7.1
     steps:
     - uses: actions/checkout@v1
-    - name: Install VitaSDK
-      run: |
-        ./vita/ci-install-vitasdk.sh
-      shell: bash
     - name: Build OpenSupaplex
       run: |
         ./vita/ci-build-vita.sh
@@ -96,13 +93,9 @@ jobs:
         max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
   build-old-3ds:
     runs-on: ubuntu-18.04
-    container: devkitpro/devkitarm:latest
+    container: sergiou87/3ds-docker-open-supaplex:7.1
     steps:
     - uses: actions/checkout@v1
-    - name: Install dependencies
-      run: |
-        ./3ds/ci-install-dependencies.sh
-      shell: bash
     - name: Build OpenSupaplex for Old Nintendo 3DS
       run: |
         ./3ds/ci-build-old-3ds.sh
@@ -120,13 +113,9 @@ jobs:
         max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
   build-new-3ds:
     runs-on: ubuntu-18.04
-    container: devkitpro/devkitarm:latest
+    container: sergiou87/3ds-docker-open-supaplex:7.1
     steps:
     - uses: actions/checkout@v1
-    - name: Install dependencies
-      run: |
-        ./3ds/ci-install-dependencies.sh
-      shell: bash
     - name: Build OpenSupaplex for New Nintendo 3DS
       run: |
         ./3ds/ci-build-new-3ds.sh
@@ -184,13 +173,9 @@ jobs:
         max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
   build-switch:
     runs-on: ubuntu-18.04
-    container: devkitpro/devkita64:latest
+    container: sergiou87/switch-docker-open-supaplex:7.1
     steps:
     - uses: actions/checkout@v1
-    - name: Install dependencies
-      run: |
-        ./switch/ci-install-dependencies.sh
-      shell: bash
     - name: Build OpenSupaplex
       run: |
         ./switch/ci-build-switch.sh
