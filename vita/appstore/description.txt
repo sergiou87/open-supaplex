@@ -14,8 +14,11 @@ Controls:
 - Up/Down/Left/Right: left joystick or directional pad
 - Removing bases/infotrons next to Murphy: Square button + direction
 - Detonate red disk: hold Square button
-- Exit/back: Circle button
-
+- Show/hide bottom game panel: Triangle button
+- Show number of red disks: Circle button
+- Change game speed: L and R buttons
+- Exit/back: Select button
+- Pause: Start button
 
 Source code: https://github.com/sergiou87/open-supaplex
 

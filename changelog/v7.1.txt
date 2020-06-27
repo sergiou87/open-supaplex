@@ -5,20 +5,20 @@ NEW:
 - Bumped the default game speed from 5 to 10 (maximum). 
 - Added different scaling modes.
 - Improved gamepad controls:
-	- LB/L1/L and RB/R1/R buttons can be used in the main menu to select a different level set.
-	- LB/L1/L and RB/R1/R buttons can be used in during the game to change the game speed.
-	- Y/Triangle button (X on Nintendo consoles) shows/hides the bottom panel during the game.
-	- B/Circle button (A on Nintendo consoles) displays, for a few seconds, the number of red disks you have.
-	- Back/Select/Minus during a game will exit the level immediately.
-	- Start/Plus during a game will pause the game.
+    - LB/L1/L and RB/R1/R buttons can be used in the main menu to select a different level set.
+    - LB/L1/L and RB/R1/R buttons can be used in during the game to change the game speed.
+    - Y/Triangle button (X on Nintendo consoles) shows/hides the bottom panel during the game.
+    - B/Circle button (A on Nintendo consoles) displays, for a few seconds, the number of red disks you have.
+    - Back/Select/Minus during a game will exit the level immediately.
+    - Start/Plus during a game will pause the game.
 - Added advanced menu giving access to many options that were only available with a keyboard before, or not available at all:
-	- Restart the level.
-	- Sound and music volume.
-	- Change the scaling mode.
-	- Game speed.
-	- Play/record demos.
-	- Debug options (show FPS, load/save state, remove Zonks/Snik Snaks…). If you use these, your progress won't count!!
-	- And more things!
+    - Restart the level.
+    - Sound and music volume.
+    - Change the scaling mode.
+    - Game speed.
+    - Play/record demos.
+    - Debug options (show FPS, load/save state, remove Zonks/Snik Snaks…). If you use these, your progress won't count!!
+    - And more things!
 - Added command line options in platforms that support this. Just run the game with `--help` for more info.
 
 FIXED:
