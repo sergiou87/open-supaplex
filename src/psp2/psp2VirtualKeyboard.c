@@ -156,8 +156,7 @@ uint8_t inputVirtualKeyboardText(const char *title, uint16_t maxLength, char *ou
 
         vita2d_end_drawing();
         vita2d_common_dialog_update();
-        vita2d_swap_buffers();
-        sceDisplayWaitVblankStart();
+        present();
     }
 
     return success;
