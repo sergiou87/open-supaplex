@@ -979,8 +979,6 @@
 				CODE_SIGN_ENTITLEMENTS = OpenSupaplex/OpenSupaplex.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = H4CYRPH94L;
-				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
@@ -1000,7 +998,7 @@
 					"-D_THREAD_SAFE",
 				);
 				OTHER_CODE_SIGN_FLAGS = "--deep";
-				PRODUCT_BUNDLE_IDENTIFIER = com.spadrino.OpenSupaplex;
+				PRODUCT_BUNDLE_IDENTIFIER = com.OpenSupaplex;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -1012,8 +1010,6 @@
 				CODE_SIGN_ENTITLEMENTS = OpenSupaplex/OpenSupaplex.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = H4CYRPH94L;
-				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
@@ -1029,7 +1025,7 @@
 					"-D_THREAD_SAFE",
 				);
 				OTHER_CODE_SIGN_FLAGS = "--deep";
-				PRODUCT_BUNDLE_IDENTIFIER = com.spadrino.OpenSupaplex;
+				PRODUCT_BUNDLE_IDENTIFIER = com.OpenSupaplex;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
