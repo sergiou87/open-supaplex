@@ -233,7 +233,25 @@
 		409F7F32247C74E300BB3B19 /* keyboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7F27247C74E300BB3B19 /* keyboard.c */; };
 		40E6995424787DAE000ADD53 /* savegame.c in Sources */ = {isa = PBXBuildFile; fileRef = 40E6995324787DAE000ADD53 /* savegame.c */; };
 		40E6995524787DAE000ADD53 /* savegame.c in Sources */ = {isa = PBXBuildFile; fileRef = 40E6995324787DAE000ADD53 /* savegame.c */; };
+		40EE92CE24A8B39E0004152D /* SDL2_mixer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 40EE92CC24A8B39D0004152D /* SDL2_mixer.framework */; };
+		40EE92CF24A8B39E0004152D /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 40EE92CD24A8B39E0004152D /* SDL2.framework */; };
+		40EE92D124A8B3C40004152D /* SDL2_mixer.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 40EE92CC24A8B39D0004152D /* SDL2_mixer.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		40EE92D224A8B3C40004152D /* SDL2.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 40EE92CD24A8B39E0004152D /* SDL2.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		40EE92D024A8B3B80004152D /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				40EE92D124A8B3C40004152D /* SDL2_mixer.framework in CopyFiles */,
+				40EE92D224A8B3C40004152D /* SDL2.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		4001459C245F7B5A00620211 /* touchscreen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = touchscreen.h; path = ../../../src/touchscreen.h; sourceTree = "<group>"; };
@@ -376,6 +394,8 @@
 		40DA3D022469C03000D4A308 /* config.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = config.c; path = ../../../src/config.c; sourceTree = "<group>"; };
 		40E6995224787DAE000ADD53 /* savegame.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = savegame.h; path = ../../../src/savegame.h; sourceTree = "<group>"; };
 		40E6995324787DAE000ADD53 /* savegame.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = savegame.c; path = ../../../src/savegame.c; sourceTree = "<group>"; };
+		40EE92CC24A8B39D0004152D /* SDL2_mixer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_mixer.framework; path = Frameworks/SDL2_mixer.framework; sourceTree = "<group>"; };
+		40EE92CD24A8B39E0004152D /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = Frameworks/SDL2.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -383,6 +403,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				40EE92CE24A8B39E0004152D /* SDL2_mixer.framework in Frameworks */,
+				40EE92CF24A8B39E0004152D /* SDL2.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -594,6 +616,8 @@
 		40C0D73824196423004742A9 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				40EE92CC24A8B39D0004152D /* SDL2_mixer.framework */,
+				40EE92CD24A8B39E0004152D /* SDL2.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -626,6 +650,7 @@
 				404879E6246C402900B776FA /* Sources */,
 				404879E7246C402900B776FA /* Frameworks */,
 				404879E8246C402900B776FA /* Resources */,
+				40EE92D024A8B3B80004152D /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -954,6 +979,10 @@
 				CODE_SIGN_ENTITLEMENTS = OpenSupaplex/OpenSupaplex.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Frameworks",
+				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					HAVE_SDL2,
 					"DEBUG=1",
@@ -968,14 +997,7 @@
 					"-I/usr/local/include",
 					"-D_THREAD_SAFE",
 				);
-				OTHER_LDFLAGS = (
-					"-L/usr/local/lib",
-					"-lSDL2_mixer",
-					"-lSDL2",
-					"-lvorbisfile",
-					"-lvorbis",
-					"-logg",
-				);
+				OTHER_CODE_SIGN_FLAGS = "--deep";
 				PRODUCT_BUNDLE_IDENTIFIER = com.OpenSupaplex;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -988,6 +1010,10 @@
 				CODE_SIGN_ENTITLEMENTS = OpenSupaplex/OpenSupaplex.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Frameworks",
+				);
 				GCC_PREPROCESSOR_DEFINITIONS = HAVE_SDL2;
 				INFOPLIST_FILE = "macOS-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -998,14 +1024,7 @@
 					"-I/usr/local/include",
 					"-D_THREAD_SAFE",
 				);
-				OTHER_LDFLAGS = (
-					"-L/usr/local/lib",
-					"-lSDL2_mixer",
-					"-lSDL2",
-					"-lvorbisfile",
-					"-lvorbis",
-					"-logg",
-				);
+				OTHER_CODE_SIGN_FLAGS = "--deep";
 				PRODUCT_BUNDLE_IDENTIFIER = com.OpenSupaplex;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
