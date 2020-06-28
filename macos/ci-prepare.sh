@@ -1,3 +1,3 @@
 #!/bin/bash
 
-brew install sdl2 sdl2_mixer libvorbis libogg zip
+brew install zip # sdl2 sdl2_mixer libvorbis libogg
