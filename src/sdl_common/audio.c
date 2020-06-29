@@ -25,7 +25,11 @@
 
 #if HAVE_SDL2
 #include <SDL2/SDL.h>
+#if TARGET_OS_MAC
+#include <SDL2_mixer/SDL_mixer.h>
+#else
 #include <SDL2/SDL_mixer.h>
+#endif
 #elif HAVE_SDL
 #include <SDL/SDL.h>
 #include <SDL/SDL_mixer.h>
