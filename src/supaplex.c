@@ -1879,35 +1879,38 @@ void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9
     }
 
 //storeKey:               ; CODE XREF: int9handler+2Bj
-    if (gIsNumpadMultiplyPressed) // Key * in the numpad, restore speed
+    if (gIsInMainMenu == 0)
     {
-        gGameSpeed = kDefaultGameSpeed;
-        updateDemoRecordingLowestSpeed();
-    }
+        if (gIsNumpadMultiplyPressed) // Key * in the numpad, restore speed
+        {
+            gGameSpeed = kDefaultGameSpeed;
+            updateDemoRecordingLowestSpeed();
+        }
 //checkSlash:             ; CODE XREF: int9handler+3Ej
 //                ; int9handler+45j
-    else if (gIsNumpadDividePressed) // Keypad / -> fastest playback seed
-    {
-        gGameSpeed = kNumberOfGameSpeeds - 1;
-        updateDemoRecordingLowestSpeed();
-    }
-//checkPlus:              ; CODE XREF: int9handler+54j
-    else if (gIsGameSpeedChangeButtonPressed == 0)
-    {
-        if (isIncreaseGameSpeedButtonPressed())
+        else if (gIsNumpadDividePressed) // Keypad / -> fastest playback seed
         {
-            increaseGameSpeed();
+            gGameSpeed = kNumberOfGameSpeeds - 1;
+            updateDemoRecordingLowestSpeed();
         }
+//checkPlus:              ; CODE XREF: int9handler+54j
+        else if (gIsGameSpeedChangeButtonPressed == 0)
+        {
+            if (isIncreaseGameSpeedButtonPressed())
+            {
+                increaseGameSpeed();
+            }
 //checkMinus:             ; CODE XREF: int9handler+65j
 //                ; int9handler+71j
-        else if (isDecreaseGameSpeedButtonPressed())
-        {
-            decreaseGameSpeed();
+            else if (isDecreaseGameSpeedButtonPressed())
+            {
+                decreaseGameSpeed();
+            }
         }
-    }
 
-    gIsGameSpeedChangeButtonPressed = (isIncreaseGameSpeedButtonPressed()
-                                       || isDecreaseGameSpeedButtonPressed());
+        gIsGameSpeedChangeButtonPressed = (isIncreaseGameSpeedButtonPressed()
+                                           || isDecreaseGameSpeedButtonPressed());
+    }
 
 //checkX:                 ; CODE XREF: int9handler+39j
 //                ; int9handler+60j ...
