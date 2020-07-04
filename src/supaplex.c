@@ -4014,6 +4014,7 @@ void initializeGameInfo() // sub_48A20   proc near       ; CODE XREF: start+32F
 //    mov byte ptr word_510C1, 1
 //    mov byte ptr word_510C1+1, 0
     gShouldShowGamePanel = 1;
+    gCurrentPanelHeight = kPanelBitmapHeight;
     gToggleGamePanelKeyAutoRepeatCounter = 0;
     gAreEnemiesFrozen = 0;
     gIsMurphyGoingThroughPortal &= 0xFF00; // mov byte ptr gIsMurphyGoingThroughPortal, 0
