@@ -2,7 +2,7 @@
 <app version="1">
   <name>OpenSupaplex</name>
   <coder>sergiou87</coder>
-  <version>7.1</version>
+  <version>7.1.1</version>
   <url>https://github.com/sergiou87/open-supaplex/</url>
   <release_date>20200620000000</release_date>
   <short_description>Classic scrolling tile-based puzzle game</short_description> 
