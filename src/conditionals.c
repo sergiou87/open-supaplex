@@ -37,7 +37,7 @@ uint8_t supportsVirtualKeyboard(void)
 #elif defined(__SWITCH__)
     // If app is ran in applet mode, SwKbd will not work
     AppletType at = appletGetAppletType();
-    return at == AppletType_Application || at == AppletType_SystemApplication ? 1 : 0;
+    return at == AppletType_Application || at == AppletType_SystemApplication;
 #else
     return 0;
 #endif
