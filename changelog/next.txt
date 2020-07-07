@@ -1,0 +1,2 @@
+FIXED:
+- Switch: Virtual keyboard wouldn't work when the game is running in Applet mode. Instead, now it will just autogenerate a player name. Thanks @rjimenezda for this fix!
