@@ -89,8 +89,12 @@ uint8_t inputVirtualKeyboardText(const char *title, uint16_t maxLength, char *ou
             strncpy(outText, tmpoutstr, maxLength);
 
             success = 1;
+        } else {
+            spLogInfo("Failed to show software keyboard"); 
         }
         swkbdClose(&kbd);
+    } else {
+        spLogInfo("Failed to create software keyboard"); 
     }
 
     return success;
