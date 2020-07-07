@@ -17,6 +17,10 @@
 
 #include "conditionals.h"
 
+#ifdef __SWITCH__
+#include <switch.h>
+#endif
+
 uint8_t supportsRealKeyboard(void)
 {
 #if defined(__vita__) || defined(__SWITCH__) || defined(__PSP__) || defined(_3DS) || defined(__PSL1GHT__) || defined(__WII__) || defined(__WIIU__)
@@ -28,8 +32,12 @@ uint8_t supportsRealKeyboard(void)
 
 uint8_t supportsVirtualKeyboard(void)
 {
-#if defined(__vita__) || defined(__SWITCH__) || defined(_3DS) || defined(__PSL1GHT__)
+#if defined(__vita__) || defined(_3DS) || defined(__PSL1GHT__)
     return 1;
+#elif defined(__SWITCH__)
+    // If app is ran in applet mode, SwKbd will not work
+    AppletType at = appletGetAppletType();
+    return at == AppletType_Application ? 1 : 0;
 #else
     return 0;
 #endif
