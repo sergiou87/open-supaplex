@@ -10,12 +10,12 @@ jobs:
     - uses: actions/checkout@v1
     - name: Prepare build environment
       run: |
-        cd linux
+        cd tests
         ./ci-prepare.sh
       shell: bash
     - name: Build OpenSupaplex
       run: |
-        cd linux
+        cd tests
         ./ci-build.sh
       shell: bash
     - id: run_tests
@@ -25,7 +25,7 @@ jobs:
         # Save the exit code for later, in case it failed, don't fail now.
         # If it failed because tests failed, at least it will upload the results.
         echo "::set-output name=run_tests_exit_code::0"
-        (./run-tests.rb ../linux/OpenSupaplex-linux/OpenSupaplex > test-results.log \
+        (./run-tests.rb ./OpenSupaplex-tests/OpenSupaplex > test-results.log \
           || echo "::set-output name=run_tests_exit_code::1")
       shell: bash
     - name: Upload test results
