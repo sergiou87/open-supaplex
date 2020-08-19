@@ -55,6 +55,113 @@ FILE *openWritableFile(const char *pathname, const char *mode)
 
     return fopen(finalPathname, mode);
 }
+#elif defined(FILE_FHS_XDG_DIRS)
+
+#if defined(FILE_DATA_PATH)
+#define FILE_PATH_STR_HELPER(x) #x
+#define FILE_PATH_STR(x) FILE_PATH_STR_HELPER(x)
+#define FILE_BASE_PATH FILE_PATH_STR(FILE_DATA_PATH)
+#else
+#define FILE_BASE_PATH ""
+#endif
+
+void getReadonlyFilePath(const char *pathname, char outPath[kMaxFilePathLength])
+{
+    if (*pathname == '/') {
+        strncpy(outPath, pathname, kMaxFilePathLength);
+        return;
+    }
+    // This can be used to ignore /usr/share and just use local dir
+    // Unfortunately, with current Makefile there's no way to build test
+    // separately from the main executable, so this allows to run tests during
+    // emerge on Gentoo before installing the package.
+    char *path = getenv("OPENSUPAPLEX_PATH");
+    if (path && *path) {
+        snprintf(outPath, kMaxFilePathLength, "%s/%s", path, pathname);
+        return;
+    }
+    snprintf(outPath, kMaxFilePathLength, "%s/%s", FILE_BASE_PATH, pathname);
+}
+
+#include <errno.h>
+#include <sys/stat.h>
+// https://gist.github.com/JonathonReinhart/8c0d90191c38af2dcadb102c4e202950
+static int mkdir_p(const char *path)
+{
+    /* Adapted from http://stackoverflow.com/a/2336245/119527 */
+    const size_t len = strlen(path);
+    char _path[kMaxFilePathLength];
+    char *p;
+
+    errno = 0;
+
+    /* Copy string so its mutable */
+    if (len > sizeof(_path)-1) {
+        errno = ENAMETOOLONG;
+        return -1;
+    }
+    strcpy(_path, path);
+
+    /* Iterate the string */
+    for (p = _path + 1; *p; p++) {
+        if (*p == '/') {
+            /* Temporarily truncate */
+            *p = '\0';
+
+            if (mkdir(_path, S_IRWXU) != 0) {
+                if (errno != EEXIST)
+                    return -1;
+            }
+
+            *p = '/';
+        }
+    }
+
+    if (mkdir(_path, S_IRWXU) != 0) {
+        if (errno != EEXIST)
+            return -1;
+    }
+
+    return 0;
+}
+
+void getWritableFilePath(const char *pathname, char outPath[kMaxFilePathLength])
+{
+    if (*pathname == '/') {
+        strncpy(outPath, pathname, kMaxFilePathLength);
+        return;
+    }
+    char *path = getenv("OPENSUPAPLEX_PATH");
+    if (path && *path) {
+        getReadonlyFilePath(pathname, outPath);
+        return;
+    }
+    char *xdg = getenv("XDG_DATA_HOME");
+    char *home = getenv("HOME");
+    char dirPath[kMaxFilePathLength] = {};
+    if (xdg && *xdg) {
+        snprintf(dirPath, kMaxFilePathLength, "%s/OpenSupaplex", xdg);
+    } else if (home && *home) {
+        snprintf(dirPath, kMaxFilePathLength, "%s/.local/share/OpenSupaplex", home);
+    }
+    mkdir_p(dirPath);
+    snprintf(outPath, kMaxFilePathLength, "%s/%s", dirPath, pathname);
+}
+
+FILE *openReadonlyFile(const char *pathname, const char *mode)
+{
+    char finalPathname[kMaxFilePathLength];
+    getReadonlyFilePath(pathname, finalPathname);
+    return fopen(finalPathname, mode);
+}
+
+FILE *openWritableFile(const char *pathname, const char *mode)
+{
+    char finalPathname[kMaxFilePathLength];
+    getWritableFilePath(pathname, finalPathname);
+    return fopen(finalPathname, mode);
+}
+
 #else // the rest of the platforms just have a different base path
 
 #if defined(_3DS)

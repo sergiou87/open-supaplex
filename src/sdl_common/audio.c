@@ -70,7 +70,12 @@ void destroyMusic(void);
 void loadSounds(void);
 void destroySounds(void);
 
-#ifdef __vita__
+#if defined(FILE_DATA_PATH)
+#define FILE_PATH_STR_HELPER(x) #x
+#define FILE_PATH_STR(x) FILE_PATH_STR_HELPER(x)
+#define FILE_BASE_PATH FILE_PATH_STR(FILE_DATA_PATH)
+static const char *kBaseAudioFolder = FILE_BASE_PATH "/audio";
+#elif defined(__vita__)
 static const char *kBaseAudioFolder = "app0:/audio";
 #elif defined(_3DS)
 static const char *kBaseAudioFolder = "sdmc:/OpenSupaplex/audio";
