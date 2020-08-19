@@ -87,6 +87,10 @@ I [have](https://github.com/SDL-mirror/SDL_mixer/commit/786f515337a51f3cb5cdbfdb
 I'm also very open to suggestions about how to make things better. **Constructive** feedback on my code, how to structure the project
 to make it easier to handle all the ports… just file an issue and we can discuss it there.
 
+### Hint for packagers for Linux distros
+
+By default OpenSupaplex on Linux reads and writes files in current working directory. To make it more package-friendly, provide the following in CFLAGS: `-DFILE_FHS_XDG_DIRS -DFILE_DATA_PATH=/usr/share/OpenSupaplex`
+
 ## License
 As expressed in [cilliemalan's repo](https://github.com/cilliemalan/supaplex), the
 disassembled assembly source code of the game is released under the MIT license.
