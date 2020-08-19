@@ -4,6 +4,18 @@ on:
     tags:
       - nightly
 jobs:
+  build-linux:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install dependencies
+      run: |
+        ./linux/ci-prepare.sh
+      shell: bash
+    - name: Build OpenSupaplex
+      run: |
+        ./linux/ci-build.sh
+      shell: bash
   build-macos:
     runs-on: macos-latest
     steps:

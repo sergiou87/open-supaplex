@@ -20,6 +20,7 @@ the instructions in [cilliemalan's repo](https://github.com/cilliemalan/supaplex
 Other than that, **OpenSupaplex** can be built for any of the following platforms:
 - macOS
 - Windows
+- Linux
 - PSP
 - PS Vita
 - PlayStation 3

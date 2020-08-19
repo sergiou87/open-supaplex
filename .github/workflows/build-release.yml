@@ -4,6 +4,15 @@ on:
     tags:
       - v*
 jobs:
+  build-linux:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build OpenSupaplex for Ubuntu
+      run: |
+        ./linux/ci-prepare.sh
+        ./linux/ci-build.sh
+      shell: bash
   build-macos:
     runs-on: macos-latest
     steps:
