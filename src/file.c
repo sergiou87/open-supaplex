@@ -67,24 +67,30 @@ FILE *openWritableFile(const char *pathname, const char *mode)
 
 void getReadonlyFilePath(const char *pathname, char outPath[kMaxFilePathLength])
 {
-    if (*pathname == '/') {
+    if (pathname[0] == '/')
+    {
         strncpy(outPath, pathname, kMaxFilePathLength);
         return;
     }
+    
     // This can be used to ignore /usr/share and just use local dir
     // Unfortunately, with current Makefile there's no way to build test
     // separately from the main executable, so this allows to run tests during
     // emerge on Gentoo before installing the package.
     char *path = getenv("OPENSUPAPLEX_PATH");
-    if (path && *path) {
+    
+    if (path && *path) 
+    {
         snprintf(outPath, kMaxFilePathLength, "%s/%s", path, pathname);
         return;
     }
+    
     snprintf(outPath, kMaxFilePathLength, "%s/%s", FILE_BASE_PATH, pathname);
 }
 
 #include <errno.h>
 #include <sys/stat.h>
+
 // https://gist.github.com/JonathonReinhart/8c0d90191c38af2dcadb102c4e202950
 static int mkdir_p(const char *path)
 {
@@ -96,30 +102,40 @@ static int mkdir_p(const char *path)
     errno = 0;
 
     /* Copy string so its mutable */
-    if (len > sizeof(_path)-1) {
+    if (len > sizeof(_path) - 1)
+    {
         errno = ENAMETOOLONG;
         return -1;
     }
+    
     strcpy(_path, path);
 
     /* Iterate the string */
-    for (p = _path + 1; *p; p++) {
-        if (*p == '/') {
+    for (p = _path + 1; *p; p++) 
+    {
+        if (*p == '/') 
+        {
             /* Temporarily truncate */
             *p = '\0';
 
-            if (mkdir(_path, S_IRWXU) != 0) {
+            if (mkdir(_path, S_IRWXU) != 0) 
+            {
                 if (errno != EEXIST)
+                {
                     return -1;
+                }
             }
 
             *p = '/';
         }
     }
 
-    if (mkdir(_path, S_IRWXU) != 0) {
+    if (mkdir(_path, S_IRWXU) != 0) 
+    {
         if (errno != EEXIST)
+        {
             return -1;
+        }
     }
 
     return 0;
@@ -127,23 +143,33 @@ static int mkdir_p(const char *path)
 
 void getWritableFilePath(const char *pathname, char outPath[kMaxFilePathLength])
 {
-    if (*pathname == '/') {
+    if (pathname[0] == '/') 
+    {
         strncpy(outPath, pathname, kMaxFilePathLength);
         return;
     }
+    
     char *path = getenv("OPENSUPAPLEX_PATH");
-    if (path && *path) {
+    
+    if (path && *path) 
+    {
         getReadonlyFilePath(pathname, outPath);
         return;
     }
+    
     char *xdg = getenv("XDG_DATA_HOME");
     char *home = getenv("HOME");
     char dirPath[kMaxFilePathLength] = {};
-    if (xdg && *xdg) {
+    
+    if (xdg && *xdg) 
+    {
         snprintf(dirPath, kMaxFilePathLength, "%s/OpenSupaplex", xdg);
-    } else if (home && *home) {
+    } 
+    else if (home && *home) 
+    {
         snprintf(dirPath, kMaxFilePathLength, "%s/.local/share/OpenSupaplex", home);
     }
+    
     mkdir_p(dirPath);
     snprintf(outPath, kMaxFilePathLength, "%s/%s", dirPath, pathname);
 }
