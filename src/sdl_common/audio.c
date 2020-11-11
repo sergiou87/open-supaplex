@@ -201,7 +201,7 @@ void loadMusic()
     }
 
     char filename[kMaxSoundFilenameLength] = "";
-    snprintf(filename, kMaxSoundFilenameLength, "%s-%s/music-%s.ogg", kBaseAudioFolder, kBaseAudioFolderSuffix, musicSuffix);
+    snprintf(filename, kMaxSoundFilenameLength, "%s-%s/music-%s.xm", kBaseAudioFolder, kBaseAudioFolderSuffix, musicSuffix);
 
     gMusic = Mix_LoadMUS(filename);
 
