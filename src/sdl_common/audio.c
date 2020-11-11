@@ -141,7 +141,7 @@ int8_t initializeAudio()
         return 1;
     }
 
-    int flags = MIX_INIT_OGG;
+    int flags = MIX_INIT_OGG | MIX_INIT_MOD;
     int initted = Mix_Init(flags);
     if((initted & flags) != flags)
     {
