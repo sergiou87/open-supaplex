@@ -979,6 +979,7 @@
 				CODE_SIGN_ENTITLEMENTS = OpenSupaplex/OpenSupaplex.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				EXCLUDED_ARCHS = arm64;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
@@ -1010,6 +1011,7 @@
 				CODE_SIGN_ENTITLEMENTS = OpenSupaplex/OpenSupaplex.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				EXCLUDED_ARCHS = arm64;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Frameworks",
@@ -1037,6 +1039,7 @@
 				CODE_SIGN_ENTITLEMENTS = OpenSupaplex/OpenSupaplex.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				EXCLUDED_ARCHS = arm64;
 				INFOPLIST_FILE = "macOS-sandboxed-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1066,6 +1069,7 @@
 				CODE_SIGN_ENTITLEMENTS = OpenSupaplex/OpenSupaplex.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				EXCLUDED_ARCHS = arm64;
 				INFOPLIST_FILE = "macOS-sandboxed-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
