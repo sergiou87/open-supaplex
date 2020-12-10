@@ -134,9 +134,9 @@ vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
   FILE ../resources/audio-hq/infotron-beep.ogg audio-hq/infotron-beep.ogg
   FILE ../resources/audio-hq/infotron-blaster.ogg audio-hq/infotron-blaster.ogg
   FILE ../resources/audio-hq/infotron-sample.ogg audio-hq/infotron-sample.ogg
-  FILE ../resources/audio-hq/music-beep.ogg audio-hq/music-beep.ogg
-  FILE ../resources/audio-hq/music-blaster.ogg audio-hq/music-blaster.ogg
-  FILE ../resources/audio-hq/music-roland.ogg audio-hq/music-roland.ogg
+  FILE ../resources/audio-hq/music-beep.xm audio-hq/music-beep.xm
+  FILE ../resources/audio-hq/music-blaster.xm audio-hq/music-blaster.xm
+  FILE ../resources/audio-hq/music-roland.xm audio-hq/music-roland.xm
   FILE ../resources/audio-hq/push-adlib.ogg audio-hq/push-adlib.ogg
   FILE ../resources/audio-hq/push-beep.ogg audio-hq/push-beep.ogg
   FILE ../resources/audio-hq/push-blaster.ogg audio-hq/push-blaster.ogg
