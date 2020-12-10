@@ -143,16 +143,16 @@ jobs:
   build-windows-x86_64:
     runs-on: windows-latest
     steps:
-    - uses: numworks/setup-msys2@v1
+    - uses: msys2/setup-msys2@v2
     - run: git config --global core.autocrlf false
     - uses: actions/checkout@v1
     - name: Prepare build environment
       run: |
-        msys2do ./windows/ci-prepare.sh x86_64
+        msys2 -c './windows/ci-prepare.sh x86_64'
     - name: Build OpenSupaplex for Windows x86_64
       run: |
         cd windows
-        msys2do ./ci-build.sh x86_64
+        msys2 -c './ci-build.sh x86_64'
     - name: Upload Windows x86_64 build
       uses: actions/upload-artifact@v1
       with:
