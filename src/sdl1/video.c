@@ -29,15 +29,24 @@
 
 static const int kWindowWidth = 480;
 static const int kWindowHeight = 272;
+static const int kWindowFlags = SDL_FULLSCREEN | SDL_SWSURFACE | SDL_HWPALETTE;
 #elif defined(_3DS)
 static const int kWindowWidth = 400;
 static const int kWindowHeight = 240;
+#if DEBUG
+// When building debug mode for 3DS, show stdout in the bottom screen
+static const int kWindowFlags = SDL_FULLSCREEN | SDL_SWSURFACE | SDL_HWPALETTE | SDL_CONSOLEBOTTOM;
+#else
+static const int kWindowFlags = SDL_FULLSCREEN | SDL_SWSURFACE | SDL_HWPALETTE;
+#endif
 #elif defined(__WII__)
 static const int kWindowWidth = 640;
 static const int kWindowHeight = 480;
+static const int kWindowFlags = SDL_FULLSCREEN | SDL_SWSURFACE | SDL_HWPALETTE;
 #else
 static const int kWindowWidth = kScreenWidth * 4;
 static const int kWindowHeight = kScreenHeight * 4;
+static const int kWindowFlags = SDL_RESIZABLE | SDL_SWSURFACE | SDL_HWPALETTE;
 #endif
 
 SDL_Surface *gScreenSurface = NULL;
@@ -46,8 +55,11 @@ SDL_Rect gScreenClipRect;
 SDL_Rect gWindowViewport;
 SDL_Surface *gWindowSurface = NULL;
 ScalingMode gScalingMode = ScalingModeAspectFit;
+int fullScreenWidth, fullScreenHeight;
+int lastWindowedWidth, lastWindowedHeight;
 
-int windowResizingEventWatcher(void* data, SDL_Event* event);
+int windowResizingEventFilter(const SDL_Event* event);
+void updateWindowSize(int w, int h, Uint32 flags);
 void updateWindowViewport(void);
 
 void initializeVideo(uint8_t fastMode)
@@ -59,24 +71,20 @@ void initializeVideo(uint8_t fastMode)
         exit(1);
     }
 
-    int flags = SDL_FULLSCREEN | SDL_SWSURFACE | SDL_HWPALETTE;
-#if defined(_3DS) && DEBUG
-    // When building debug mode for 3DS, show stdout in the bottom screen
-	flags |= SDL_CONSOLEBOTTOM;
-#endif	
+    getWindowSize(&fullScreenWidth, &fullScreenHeight);
+    lastWindowedWidth = kWindowWidth;
+    lastWindowedHeight = kWindowHeight;
 
     SDL_WM_SetCaption("OpenSupaplex", "OpenSupaplex");
-    gWindowSurface =  SDL_SetVideoMode(kWindowWidth,
-                                      kWindowHeight,
-                                      8,
-                                      flags);
-
+    gWindowSurface =  SDL_SetVideoMode(kWindowWidth, kWindowHeight, 8, kWindowFlags);
     if (gWindowSurface == NULL)
     {
         spLogInfo("Could not create a window surface: %s", SDL_GetError());
         destroyVideo();
         exit(1);
     }
+
+    SDL_SetEventFilter(windowResizingEventFilter);
 
     gScreenSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, kScreenWidth, kScreenHeight, 8, 0, 0, 0, 0);
 
@@ -148,15 +156,20 @@ void setScalingMode(ScalingMode mode)
 void getWindowSize(int *width, int *height)
 {
     const SDL_VideoInfo *info = SDL_GetVideoInfo();
-    *width = info->current_w;
-    *height = info->current_h;
+    if (info && info->current_w > 0 && info->current_h > 0) {
+        *width = info->current_w;
+        *height = info->current_h;
+    } else {
+        *width = kWindowWidth;
+        *height = kWindowHeight;
+    }
 }
 
 void centerMouse()
 {
-    int kWindowWidth, kWindowHeight;
-    getWindowSize(&kWindowWidth, &kWindowHeight);
-    moveMouse(kWindowWidth / 2, kWindowHeight / 2);
+    int windowWidth, windowHeight;
+    getWindowSize(&windowWidth, &windowHeight);
+    moveMouse(windowWidth / 2, windowHeight / 2);
 }
 
 void moveMouse(int x, int y)
@@ -178,18 +191,25 @@ void getMouseState(int *x, int *y, uint8_t *leftButton, uint8_t *rightButton)
 
 void toggleFullscreen()
 {
-    // Not supported
+    setFullscreenMode(getFullscreenMode() == 0);
 }
 
 void setFullscreenMode(uint8_t fullscreen)
 {
-    // Not supported
+    if (fullscreen) {
+        if ((gWindowSurface->flags & SDL_FULLSCREEN) == 0) {
+            lastWindowedWidth = gWindowSurface->w;
+            lastWindowedHeight = gWindowSurface->h;
+        }
+        updateWindowSize(fullScreenWidth, fullScreenHeight, gWindowSurface->flags | SDL_FULLSCREEN);
+    } else {
+        updateWindowSize(lastWindowedWidth, lastWindowedHeight, gWindowSurface->flags & ~SDL_FULLSCREEN);
+    }
 }
 
 uint8_t getFullscreenMode(void)
 {
-    // Not supported. Since SDL 1 is always used in consoles, always return 1.
-    return 1;
+    return (gWindowSurface->flags & SDL_FULLSCREEN) != 0;
 }
 
 void setGlobalPaletteColor(const uint8_t index, const Color color)
@@ -204,8 +224,33 @@ void setColorPalette(const ColorPalette palette)
     SDL_SetPalette(gWindowSurface, SDL_PHYSPAL, (SDL_Color *)palette, 0, kNumberOfColors);
 }
 
+int windowResizingEventFilter(const SDL_Event* event)
+{
+    if (event->type == SDL_VIDEORESIZE)
+    {
+        updateWindowSize(event->resize.w, event->resize.h, gWindowSurface->flags);
+    }
+
+    return 0;
+}
+
+void updateWindowSize(int w, int h, Uint32 flags)
+{
+    gWindowSurface =  SDL_SetVideoMode(w, h, 8, flags);
+
+    SDL_Palette *palette = gScreenSurface->format->palette;
+    SDL_SetPalette(gWindowSurface, SDL_PHYSPAL, palette->colors, 0, palette->ncolors);
+
+    updateWindowViewport();
+    render();
+    present();
+}
+
 void updateWindowViewport()
 {
+    int windowWidth, windowHeight;
+    getWindowSize(&windowWidth, &windowHeight);
+
     gScreenClipRect.x = 0;
     gScreenClipRect.y = 0;
     gScreenClipRect.w = kScreenWidth;
@@ -216,34 +261,34 @@ void updateWindowViewport()
     {
         gWindowViewport.x = 0;
         gWindowViewport.y = 0;
-        gWindowViewport.w = kWindowWidth;
-        gWindowViewport.h = kWindowHeight;
+        gWindowViewport.w = windowWidth;
+        gWindowViewport.h = windowHeight;
         return;
     }
 
     float textureAspectRatio = (float)kScreenWidth / kScreenHeight;
 
-    int maxViewportWidth = kWindowWidth;
-    int maxViewportHeight = kWindowHeight;
+    int maxViewportWidth = windowWidth;
+    int maxViewportHeight = windowHeight;
 
     // For "integer factor" scaling, pick the highest integer factor that fits into the window
     if (gScalingMode == ScalingModeIntegerFactor)
     {
-        maxViewportWidth = floorf(kWindowWidth / kScreenWidth) * kScreenWidth;
-        maxViewportHeight = floorf(kWindowHeight / kScreenHeight) * kScreenHeight;
+        maxViewportWidth = floorf(windowWidth / kScreenWidth) * kScreenWidth;
+        maxViewportHeight = floorf(windowHeight / kScreenHeight) * kScreenHeight;
     }
 
     // If the resulting viewport is too small, do proportional scaling according to the window size
     if (maxViewportWidth == 0)
     {
-        maxViewportWidth = kWindowWidth;
+        maxViewportWidth = windowWidth;
     }
     if (maxViewportHeight == 0)
     {
-        maxViewportHeight = kWindowHeight;
+        maxViewportHeight = windowHeight;
     }
 
-    float screenAspectRatio = (float)kWindowWidth / kWindowHeight;
+    float screenAspectRatio = (float)windowWidth / windowHeight;
 
     uint8_t shouldPreserveWidth = (textureAspectRatio > screenAspectRatio);
 
@@ -257,17 +302,17 @@ void updateWindowViewport()
 
     if (shouldPreserveWidth)
     {
-        gWindowViewport.x = (kWindowWidth - maxViewportWidth) >> 1;
+        gWindowViewport.x = (windowWidth - maxViewportWidth) >> 1;
         gWindowViewport.w = maxViewportWidth;
         gWindowViewport.h = gWindowViewport.w / textureAspectRatio;
-        gWindowViewport.y = (kWindowHeight - gWindowViewport.h) >> 1;
+        gWindowViewport.y = (windowHeight - gWindowViewport.h) >> 1;
     }
     else
     {
-        gWindowViewport.y = (kWindowHeight - maxViewportHeight) >> 1;
+        gWindowViewport.y = (windowHeight - maxViewportHeight) >> 1;
         gWindowViewport.h = maxViewportHeight;
         gWindowViewport.w = gWindowViewport.h * textureAspectRatio;
-        gWindowViewport.x = (kWindowWidth - gWindowViewport.w) >> 1;
+        gWindowViewport.x = (windowWidth - gWindowViewport.w) >> 1;
     }
 
     // Blit won't work with wrong values, so we must correct the viewport and adjust the clip rect
@@ -279,7 +324,7 @@ void updateWindowViewport()
         gScreenClipRect.w -= offset * 2;
 
         gWindowViewport.x = 0;
-        gWindowViewport.w = kWindowWidth;
+        gWindowViewport.w = windowWidth;
     }
 
     if (gWindowViewport.y < 0)
@@ -290,6 +335,6 @@ void updateWindowViewport()
         gScreenClipRect.h -= offset * 2;
 
         gWindowViewport.y = 0;
-        gWindowViewport.h = kWindowHeight;
+        gWindowViewport.h = windowHeight;
     }
 }
