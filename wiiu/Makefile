@@ -36,7 +36,7 @@ CXXFLAGS	:= $(CFLAGS)
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-g $(ARCH) $(RPXSPECS) -Wl,-Map,$(notdir $*.map)
 
-LIBS	:= `$(PREFIX)pkg-config --libs SDL2_mixer sdl2`
+LIBS	:= `$(PREFIX)pkg-config --libs SDL2_mixer sdl2` -lmpg123
 
 #-------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level
