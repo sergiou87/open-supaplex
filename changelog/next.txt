@@ -1,2 +1,5 @@
+NEW:
+- Switched music from OGG to MOD files, which are lighter and require less CPU usage, which means better performance! Thanks @mills32 for this contribution!
+
 FIXED:
 - Switch: Virtual keyboard wouldn't work when the game is running in Applet mode. Instead, now it will just autogenerate a player name. Thanks @rjimenezda for this fix!
