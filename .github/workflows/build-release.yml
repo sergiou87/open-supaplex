@@ -100,7 +100,7 @@ jobs:
           path: wii/OpenSupaplex-wii.zip
   build-wiiu:
     runs-on: ubuntu-18.04
-    container: sergiou87/wiiu-docker-open-supaplex:7.1
+    container: sergiou87/wiiu-docker-open-supaplex:7.2
     steps:
       - uses: actions/checkout@v1
       - name: Build OpenSupaplex for Wii U
