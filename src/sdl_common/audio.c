@@ -141,11 +141,17 @@ int8_t initializeAudio()
         return 1;
     }
 
-    int flags = MIX_INIT_OGG | MIX_INIT_MOD;
+    int flags = MIX_INIT_OGG;
+
+    // Wii uses ModPlug instead of MikMod, so MIX_INIT_MOD is not required
+#if !defined(__WII__)
+     flags |= MIX_INIT_MOD;
+#endif
+
     int initted = Mix_Init(flags);
     if((initted & flags) != flags)
     {
-        spLogInfo("Mix_Init: Failed to init required ogg support!\n");
+        spLogInfo("Mix_Init: Failed to init required ogg and mod support!\n");
         spLogInfo("Mix_Init: %s\n", Mix_GetError());
         return 1;
     }
