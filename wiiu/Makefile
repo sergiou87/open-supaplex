@@ -36,7 +36,7 @@ CXXFLAGS	:= $(CFLAGS)
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-g $(ARCH) $(RPXSPECS) -Wl,-Map,$(notdir $*.map)
 
-LIBS	:= -lSDL2_mixer `sdl2-config --libs` -lvorbisfile -lvorbis -logg -lmpg123 -lwut -lm
+LIBS	:= `$(PREFIX)pkg-config --libs SDL2_mixer sdl2`
 
 #-------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level

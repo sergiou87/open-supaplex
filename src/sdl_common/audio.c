@@ -143,8 +143,8 @@ int8_t initializeAudio()
 
     int flags = MIX_INIT_OGG;
 
-    // Wii uses ModPlug instead of MikMod, so MIX_INIT_MOD is not required
-#if !defined(__WII__)
+    // Wii and Wii U use ModPlug instead of MikMod, so MIX_INIT_MOD is not required
+#if !defined(__WII__) && !defined(__WIIU__)
      flags |= MIX_INIT_MOD;
 #endif
 

@@ -33,7 +33,7 @@ LDFLAGS	=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map -L$(PORTLIBS_PATH)/wii/lib -L$
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS	:=	-lSDL_mixer -lSDL -lSDLmain -lmad -lmodplug -lvorbisfile -lvorbis -logg -laesnd -lwiiuse -lwiikeyboard -lfat -lbte -logc -lstdc++ -lm
+LIBS	:=	`$(PREFIX)pkg-config --libs SDL_mixer sdl` -lmad
 
 ifeq ($(DEBUG),1)
 	CFLAGS += -DDEBUG=1 -DDEBUGNET
