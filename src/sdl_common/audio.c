@@ -103,12 +103,12 @@ const int kAudioBufferSize = 768;
 const int kAudioBufferSize = 512;
 #endif
 
-// PSP and 3DS can't handle High quality audio, it kills performance
+// 3DS can't handle High quality audio, it kills performance
 #if defined(_3DS) && !NEW3DS
 static const char *kBaseAudioFolderSuffix = "lq"; // Low quality
 static const int kSampleRate = 11025;
 static const int kNumberOfChannels = 1;
-#elif defined(__PSP__) || (defined(_3DS) && NEW3DS)
+#elif defined(_3DS) && NEW3DS
 static const char *kBaseAudioFolderSuffix = "mq"; // Medium quality
 static const int kSampleRate = 22050;
 static const int kNumberOfChannels = 1;
