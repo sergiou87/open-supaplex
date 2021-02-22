@@ -2,7 +2,7 @@
 <app version="1">
   <name>OpenSupaplex</name>
   <coder>sergiou87</coder>
-  <version>7.1.2</version>
+  <version>7.2</version>
   <release_date>20200614000000</release_date>
   <short_description>Classic scrolling tile-based puzzle game</short_description> 
   <long_description>OpenSupaplex is an open-source reimplementation of Supaplex by sergiou87. Supaplex is a video game created by Philip Jespersen and Michael Stopp, two Swiss students, and published by Digital Integration in 1991. It is an extended clone of Boulder Dash.

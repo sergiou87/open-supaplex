@@ -46,7 +46,7 @@ EXCLUDE     :=  nullVirtualKeyboard.c
 #ROMFS	:=	romfs
 APP_TITLE	:=  OpenSupaplex
 APP_AUTHOR	:=  sergiou87
-APP_VERSION	:=  7.1.2
+APP_VERSION	:=  7.2
 ICON        :=  resources/launcher-icon.jpg
 
 #---------------------------------------------------------------------------------
