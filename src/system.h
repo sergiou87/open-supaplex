@@ -21,6 +21,7 @@
 #include <stdint.h>
 
 void initializeSystem(void);
+void destroySystem(void);
 
 void exitWithError(const char *format, ...);
 

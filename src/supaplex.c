@@ -1763,6 +1763,7 @@ int main(int argc, char *argv[])
     destroyAudio();
     destroyLogging();
     destroyVideo();
+    destroySystem();
 
     return runResult;
 }

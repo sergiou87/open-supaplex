@@ -129,7 +129,6 @@ void destroyVideo()
     {
         SDL_FreeSurface(gWindowSurface);
     }
-    SDL_Quit();
 }
 
 ScalingMode getScalingMode(void)

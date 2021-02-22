@@ -41,6 +41,11 @@ void initializeSystem(void)
     spLogInfo("SDL_Init succeeded.");
 }
 
+void destroySystem(void)
+{
+    SDL_Quit();
+}
+
 void exitWithError(const char *format, ...)
 {
     va_list argptr;
