@@ -24,6 +24,11 @@ static int sCurrentGameControllerIndex = -1;
 static SDL_GameController *sCurrentGameController = NULL;
 static const float kJoystickDeadzone = 0.5;
 
+void initializeControllers(void)
+{
+    SDL_InitSubSystem(SDL_INIT_JOYSTICK);
+}
+
 SDL_GameController *getGameController()
 {
     // The game controller is not valid anymore, invalidate.

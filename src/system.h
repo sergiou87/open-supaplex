@@ -20,6 +20,8 @@
 
 #include <stdint.h>
 
+void initializeSystem(void);
+
 void exitWithError(const char *format, ...);
 
 void handleSystemEvents(void);

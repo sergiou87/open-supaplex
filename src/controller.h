@@ -20,6 +20,8 @@
 
 #include <stdint.h>
 
+void initializeControllers(void);
+
 // -1, 0, 1
 int8_t getGameControllerX(void);
 int8_t getGameControllerY(void);

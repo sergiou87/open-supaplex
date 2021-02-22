@@ -1513,7 +1513,9 @@ int main(int argc, char *argv[])
     }
 
     initializeLogging();
+    initializeSystem();
     initializeVideo(gFastMode);
+    initializeControllers();
 
     if (gFastMode != FastModeTypeUltra)
     {

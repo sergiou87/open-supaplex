@@ -27,6 +27,19 @@
 #include <stdio.h>
 
 #include "../globals.h"
+#include "../logging.h"
+
+void initializeSystem(void)
+{
+    int ret = SDL_Init(SDL_INIT_TIMER);
+    if (ret)
+    {
+        spLogInfo("SDL_Init failed with %d", ret);
+        exit(1);
+    }
+
+    spLogInfo("SDL_Init succeeded.");
+}
 
 void exitWithError(const char *format, ...)
 {

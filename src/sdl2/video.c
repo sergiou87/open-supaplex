@@ -52,10 +52,10 @@ void updateWindowViewport(void);
 
 void initializeVideo(uint8_t fastMode)
 {
-    int ret = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_JOYSTICK);
+    int ret = SDL_InitSubSystem(SDL_INIT_VIDEO);
     if (ret)
     {
-        spLogInfo("SDL_Init failed with %d", ret);
+        spLogInfo("SDL_InitSubSystem failed with %d", ret);
         exit(1);
     }
 
