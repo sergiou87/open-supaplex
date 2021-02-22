@@ -35,6 +35,11 @@ wii/*.elf
 wiiu/*.rpx
 wiiu/*.elf
 
+# Nintendo DS stuff
+nds/*.nds
+nds/*.elf
+nds/nitro
+
 # Nintendo 3DS stuff
 3ds/*.3dsx
 3ds/*.elf

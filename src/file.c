@@ -158,6 +158,9 @@ FILE *openWritableFile(const char *pathname, const char *mode)
 
 #if defined(_3DS)
 #define FILE_BASE_PATH "sdmc:/OpenSupaplex/"
+#elif defined(__NDS__)
+#define FILE_BASE_PATH "nitro:/resources/"
+#define FILE_BASE_WRITABLE_PATH ""
 #elif defined(__PSL1GHT__)
 #define FILE_BASE_PATH "/dev_hdd0/game/" PS3APPID "/USRDIR/"
 #elif defined(__riscos__)

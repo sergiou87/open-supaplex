@@ -39,6 +39,10 @@ static const int kWindowFlags = SDL_FULLSCREEN | SDL_SWSURFACE | SDL_HWPALETTE |
 #else
 static const int kWindowFlags = SDL_FULLSCREEN | SDL_SWSURFACE | SDL_HWPALETTE;
 #endif
+#elif defined(__NDS__)
+static const int kWindowWidth = kScreenWidth;
+static const int kWindowHeight = kScreenHeight;
+static const int kWindowFlags = SDL_FULLSCREEN | SDL_SWSURFACE | SDL_HWPALETTE | SDL_BOTTOMSCR;
 #elif defined(__WII__)
 static const int kWindowWidth = 640;
 static const int kWindowHeight = 480;

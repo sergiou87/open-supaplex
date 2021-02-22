@@ -45,6 +45,11 @@
 #include "virtualKeyboard.h"
 #include "system.h"
 
+#ifdef __NDS__
+#include <stdbool.h>
+#include <filesystem.h>
+#endif
+
 #ifdef __PSP__
 #include <pspkernel.h>
 
@@ -1505,6 +1510,10 @@ void runAdvancedOptionsRootMenu()
 
 int main(int argc, char *argv[])
 {
+#ifdef __NDS__
+    nitroFSInit(NULL);
+#endif
+
     parseCommandLineOptions(argc, argv);
 
     if (gFastMode == FastModeTypeUltra)
@@ -1939,7 +1948,11 @@ void readConfig() //  proc near       ; CODE XREF: start:loc_46F0Fp
     FILE *file = openWritableFile("SUPAPLEX.CFG", "rb");
     if (file == NULL)
     {
+#ifdef __NDS__
+        if (errno == ENOENT || errno == ENOSYS)
+#else
         if (errno == ENOENT) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
+#endif
         {
 //loc_47551:              //; CODE XREF: readConfig+Fj
                        // ; readConfig+17j
@@ -2022,7 +2035,8 @@ void saveConfiguration() // sub_4755A      proc near               ; CODE XREF: 
     FILE *file = openWritableFile("SUPAPLEX.CFG", "wb");
     if (file == NULL)
     {
-        exitWithError("Error opening SUPAPLEX.CFG\n");
+        spLogInfo("Error opening SUPAPLEX.CFG\n");
+        return;
     }
 
 //loc_4756A:                              ; CODE XREF: saveConfiguration+Bj
