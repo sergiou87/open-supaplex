@@ -21,41 +21,7 @@
 
 #include "utils.h"
 
-#ifdef __vita__
-#include <psp2/io/stat.h>
-
-#define VITA_WRITABLE_PATH "ux0:/data/OpenSupaplex/"
-
-void getReadonlyFilePath(const char *pathname, char outPath[kMaxFilePathLength])
-{
-    // app0:/ references the folder where the app was installed
-    snprintf(outPath, kMaxFilePathLength, "app0:/%s", pathname);
-}
-
-void getWritableFilePath(const char *pathname, char outPath[kMaxFilePathLength])
-{
-    snprintf(outPath, kMaxFilePathLength, VITA_WRITABLE_PATH "%s", pathname);
-}
-
-FILE *openReadonlyFile(const char *pathname, const char *mode)
-{
-    char finalPathname[kMaxFilePathLength];
-    getReadonlyFilePath(pathname, finalPathname);
-    return fopen(finalPathname, mode);
-}
-
-FILE *openWritableFile(const char *pathname, const char *mode)
-{
-    // Create base folder in a writable area
-    sceIoMkdir(VITA_WRITABLE_PATH, 0777);
-
-    // For writable files we'll use a subfolder in ux0:/data/
-    char finalPathname[kMaxFilePathLength];
-    getWritableFilePath(pathname, finalPathname);
-
-    return fopen(finalPathname, mode);
-}
-#elif defined(FILE_FHS_XDG_DIRS)
+#if defined(FILE_FHS_XDG_DIRS)
 
 #if defined(FILE_DATA_PATH)
 #define FILE_PATH_STR_HELPER(x) #x
@@ -188,18 +154,26 @@ FILE *openWritableFile(const char *pathname, const char *mode)
     return fopen(finalPathname, mode);
 }
 
-#else // the rest of the platforms just have a different base path
+#else // the rest of the platforms just have different base paths
 
 #if defined(_3DS)
 #define FILE_BASE_PATH "sdmc:/OpenSupaplex/"
 #elif defined(__PSL1GHT__)
 #define FILE_BASE_PATH "/dev_hdd0/game/" PS3APPID "/USRDIR/"
+#elif defined(__vita__)
+#include <psp2/io/stat.h>
+#define FILE_BASE_PATH "app0:/"
+#define FILE_BASE_WRITABLE_PATH "ux0:/data/OpenSupaplex/"
 #elif defined(__WII__)
 #define FILE_BASE_PATH "/apps/OpenSupaplex/"
 #elif defined(__WIIU__)
 #define FILE_BASE_PATH "fs:/vol/external01/wiiu/apps/OpenSupaplex/"
 #else
 #define FILE_BASE_PATH ""
+#endif
+
+#ifndef FILE_BASE_WRITABLE_PATH
+#define FILE_BASE_WRITABLE_PATH FILE_BASE_PATH
 #endif
 
 void getReadonlyFilePath(const char *pathname, char outPath[kMaxFilePathLength])
@@ -209,7 +183,7 @@ void getReadonlyFilePath(const char *pathname, char outPath[kMaxFilePathLength])
 
 void getWritableFilePath(const char *pathname, char outPath[kMaxFilePathLength])
 {
-    getReadonlyFilePath(pathname, outPath);
+    snprintf(outPath, kMaxFilePathLength, FILE_BASE_WRITABLE_PATH "%s", pathname);
 }
 
 FILE *openReadonlyFile(const char *pathname, const char *mode)
@@ -221,7 +195,14 @@ FILE *openReadonlyFile(const char *pathname, const char *mode)
 
 FILE *openWritableFile(const char *pathname, const char *mode)
 {
-    return openReadonlyFile(pathname, mode);
+    // Create base folder in a writable area
+#ifdef __vita__
+    sceIoMkdir(FILE_BASE_WRITABLE_PATH, 0777);
+#endif
+
+    char finalPathname[kMaxFilePathLength];
+    getWritableFilePath(pathname, finalPathname);
+    return fopen(finalPathname, mode);
 }
 
 #endif
