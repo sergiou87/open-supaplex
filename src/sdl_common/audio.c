@@ -127,7 +127,7 @@ int8_t initializeAudio()
         return 1;
     }
 
-    int flags = MIX_INIT_OGG;
+    int flags = 0;
 
     // Wii and Wii U use ModPlug instead of MikMod, so MIX_INIT_MOD is not required
 #if !defined(__WII__) && !defined(__WIIU__)
@@ -137,7 +137,7 @@ int8_t initializeAudio()
     int initted = Mix_Init(flags);
     if((initted & flags) != flags)
     {
-        spLogInfo("Mix_Init: Failed to init required ogg and mod support!\n");
+        spLogInfo("Mix_Init: Failed to init required mod support!\n");
         spLogInfo("Mix_Init: %s\n", Mix_GetError());
         return 1;
     }
@@ -236,7 +236,7 @@ void loadSounds()
 
     for (int i = 0; i < SoundEffectCount; ++i)
     {
-        snprintf(filename, kMaxSoundFilenameLength, "%s-%s/%s-%s.ogg", kBaseAudioFolder, kBaseAudioFolderSuffix, gSoundEffectNames[i], effectsSuffix);
+        snprintf(filename, kMaxSoundFilenameLength, "%s-%s/%s-%s.wav", kBaseAudioFolder, kBaseAudioFolderSuffix, gSoundEffectNames[i], effectsSuffix);
         gSoundEffectChunks[i] = Mix_LoadWAV(filename);
     }
 }
