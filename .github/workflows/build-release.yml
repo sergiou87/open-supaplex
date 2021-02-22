@@ -5,6 +5,7 @@ on:
       - v*
 jobs:
   build-linux:
+    name: Linux
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v1
@@ -14,6 +15,7 @@ jobs:
           ./linux/ci-build.sh
         shell: bash
   build-macos:
+    name: macOS
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v1
@@ -28,6 +30,7 @@ jobs:
           name: macos-build
           path: macos/OpenSupaplex-macOS.zip
   build-vita:
+    name: PS Vita
     runs-on: ubuntu-18.04
     container: sergiou87/vita-docker-open-supaplex:7.2
     steps:
@@ -42,6 +45,7 @@ jobs:
           name: vita-build
           path: vita/build/OpenSupaplex.vpk
   build-switch:
+    name: Nintendo Switch
     runs-on: ubuntu-18.04
     container: sergiou87/switch-docker-open-supaplex:7.1
     steps:
@@ -56,6 +60,7 @@ jobs:
           name: switch-build
           path: switch/OpenSupaplex-switch.zip
   build-psp:
+    name: PSP
     runs-on: ubuntu-18.04
     container: sergiou87/pspdev-docker-open-supaplex:7.1
     steps:
@@ -71,6 +76,7 @@ jobs:
           name: psp-build
           path: psp/OpenSupaplex-psp.zip
   build-ps3:
+    name: PS3
     runs-on: ubuntu-18.04
     container: sergiou87/ps3dev-docker-open-supaplex:7.2
     steps:
@@ -85,6 +91,7 @@ jobs:
           name: ps3-build
           path: ps3/OpenSupaplex.pkg
   build-wii:
+    name: Wii
     runs-on: ubuntu-18.04
     container: sergiou87/wii-docker-open-supaplex:7.2
     steps:
@@ -99,6 +106,7 @@ jobs:
           name: wii-build
           path: wii/OpenSupaplex-wii.zip
   build-wiiu:
+    name: Wii U
     runs-on: ubuntu-18.04
     container: sergiou87/wiiu-docker-open-supaplex:7.2
     steps:
@@ -113,6 +121,7 @@ jobs:
           name: wiiu-build
           path: wiiu/OpenSupaplex-wiiu.zip
   build-old-3ds:
+    name: Nintendo "Old" 3DS
     runs-on: ubuntu-18.04
     container: sergiou87/3ds-docker-open-supaplex:7.1
     steps:
@@ -127,6 +136,7 @@ jobs:
           name: old-3ds-build
           path: 3ds/OpenSupaplex-old-3ds.zip
   build-new-3ds:
+    name: Nintendo New 3DS
     runs-on: ubuntu-18.04
     container: sergiou87/3ds-docker-open-supaplex:7.1
     steps:
@@ -141,6 +151,7 @@ jobs:
           name: new-3ds-build
           path: 3ds/OpenSupaplex-new-3ds.zip
   build-windows-x86_64:
+    name: Windows x86_64
     runs-on: windows-latest
     steps:
       - uses: msys2/setup-msys2@v2
@@ -159,6 +170,7 @@ jobs:
           name: windows-x86_64-build
           path: windows/OpenSupaplex-windows-x86_64.zip
   create-release:
+    name: Create release
     needs:
       [
         build-vita,

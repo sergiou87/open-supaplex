@@ -2,42 +2,42 @@ name: Run OpenSupaplex Tests
 on:
   push:
     branches:
-      - '*'
+      - "*"
 jobs:
   run-tests:
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v1
-    - name: Prepare build environment
-      run: |
-        cd tests
-        ./ci-prepare.sh
-      shell: bash
-    - name: Build OpenSupaplex
-      run: |
-        cd tests
-        ./ci-build.sh
-      shell: bash
-    - id: run_tests
-      name: Run tests
-      run: |
-        cd tests
-        # Save the exit code for later, in case it failed, don't fail now.
-        # If it failed because tests failed, at least it will upload the results.
-        echo "::set-output name=run_tests_exit_code::0"
-        (./run-tests.rb ./OpenSupaplex-tests/OpenSupaplex > test-results.log \
-          || echo "::set-output name=run_tests_exit_code::1")
-      shell: bash
-    - name: Upload test results
-      uses: actions/upload-artifact@v1
-      with:
-        name: test-results
-        path: tests/test-results.log
-    - name: Print test results
-      run: |
-        cd tests
-        cat test-results.log
-      shell: bash
-    - name: Finish job
-      run: |
-        exit ${{ steps.run_tests.outputs.run_tests_exit_code }}
+      - uses: actions/checkout@v1
+      - name: Prepare build environment
+        run: |
+          cd tests
+          ./ci-prepare.sh
+        shell: bash
+      - name: Build OpenSupaplex
+        run: |
+          cd tests
+          ./ci-build.sh
+        shell: bash
+      - id: run_tests
+        name: Run tests
+        run: |
+          cd tests
+          # Save the exit code for later, in case it failed, don't fail now.
+          # If it failed because tests failed, at least it will upload the results.
+          echo "::set-output name=run_tests_exit_code::0"
+          (./run-tests.rb ./OpenSupaplex-tests/OpenSupaplex > test-results.log \
+            || echo "::set-output name=run_tests_exit_code::1")
+        shell: bash
+      - name: Upload test results
+        uses: actions/upload-artifact@v1
+        with:
+          name: test-results
+          path: tests/test-results.log
+      - name: Print test results
+        run: |
+          cd tests
+          cat test-results.log
+        shell: bash
+      - name: Finish job
+        run: |
+          exit ${{ steps.run_tests.outputs.run_tests_exit_code }}

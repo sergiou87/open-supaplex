@@ -1,0 +1,241 @@
+name: Run OpenSupaplex CI
+on:
+  push:
+    branches:
+      - master
+    pull_request:
+jobs:
+  build-linux:
+    name: Linux
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install dependencies
+        run: |
+          ./linux/ci-prepare.sh
+        shell: bash
+      - name: Build OpenSupaplex
+        run: |
+          ./linux/ci-build.sh
+        shell: bash
+  build-macos:
+    name: macOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install dependencies
+        run: |
+          ./macos/ci-prepare.sh
+        shell: bash
+      - name: Build OpenSupaplex
+        run: |
+          ./macos/ci-build.sh
+        shell: bash
+      - name: Deploy Nightly
+        uses: WebFreak001/deploy-nightly@v1.0.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
+        with:
+          upload_url: https://uploads.github.com/repos/sergiou87/open-supaplex/releases/25661714/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
+          release_id: 25661714 # same as above (id can just be taken out the upload_url, it's used to find old releases)
+          asset_path: macos/OpenSupaplex-macOS.zip # path to archive to upload
+          asset_name: OpenSupaplex-macOS-$$.zip # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
+          asset_content_type: application/zip # required by GitHub API
+          max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
+  build-vita:
+    name: PS Vita
+    runs-on: ubuntu-18.04
+    container: sergiou87/vita-docker-open-supaplex:7.2
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build OpenSupaplex
+        run: |
+          ./vita/ci-build-vita.sh
+        shell: bash
+      - name: Deploy Nightly
+        uses: WebFreak001/deploy-nightly@v1.0.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
+        with:
+          upload_url: https://uploads.github.com/repos/sergiou87/open-supaplex/releases/25661714/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
+          release_id: 25661714 # same as above (id can just be taken out the upload_url, it's used to find old releases)
+          asset_path: vita/build/OpenSupaplex.vpk # path to archive to upload
+          asset_name: OpenSupaplex-vita-$$.vpk # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
+          asset_content_type: application/binary # required by GitHub API
+          max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
+  build-psp:
+    name: PSP
+    runs-on: ubuntu-18.04
+    container: sergiou87/pspdev-docker-open-supaplex:7.1
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install dependencies
+        run: |
+          ./psp/ci-install-dependencies.sh
+        shell: bash
+      - name: Build OpenSupaplex
+        run: |
+          ./psp/ci-build.sh
+        shell: bash
+      - name: Deploy Nightly
+        uses: WebFreak001/deploy-nightly@v1.0.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
+        with:
+          upload_url: https://uploads.github.com/repos/sergiou87/open-supaplex/releases/25661714/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
+          release_id: 25661714 # same as above (id can just be taken out the upload_url, it's used to find old releases)
+          asset_path: psp/OpenSupaplex-psp.zip # path to archive to upload
+          asset_name: OpenSupaplex-psp-$$.zip # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
+          asset_content_type: application/zip # required by GitHub API
+          max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
+  build-ps3:
+    name: PS3
+    runs-on: ubuntu-18.04
+    container: sergiou87/ps3dev-docker-open-supaplex:7.2
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build OpenSupaplex
+        run: |
+          ./ps3/ci-build.sh
+        shell: bash
+      - name: Deploy Nightly
+        uses: WebFreak001/deploy-nightly@v1.0.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
+        with:
+          upload_url: https://uploads.github.com/repos/sergiou87/open-supaplex/releases/25661714/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
+          release_id: 25661714 # same as above (id can just be taken out the upload_url, it's used to find old releases)
+          asset_path: ps3/OpenSupaplex.pkg # path to archive to upload
+          asset_name: OpenSupaplex-ps3-$$.pkg # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
+          asset_content_type: application/binary # required by GitHub API
+          max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
+  build-old-3ds:
+    name: Nintendo "Old" 3DS
+    runs-on: ubuntu-18.04
+    container: sergiou87/3ds-docker-open-supaplex:7.1
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build OpenSupaplex for Old Nintendo 3DS
+        run: |
+          ./3ds/ci-build-old-3ds.sh
+        shell: bash
+      - name: Deploy Nightly
+        uses: WebFreak001/deploy-nightly@v1.0.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
+        with:
+          upload_url: https://uploads.github.com/repos/sergiou87/open-supaplex/releases/25661714/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
+          release_id: 25661714 # same as above (id can just be taken out the upload_url, it's used to find old releases)
+          asset_path: 3ds/OpenSupaplex-old-3ds.zip # path to archive to upload
+          asset_name: OpenSupaplex-old-3ds-$$.zip # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
+          asset_content_type: application/zip # required by GitHub API
+          max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
+  build-new-3ds:
+    name: Nintendo New 3DS
+    runs-on: ubuntu-18.04
+    container: sergiou87/3ds-docker-open-supaplex:7.1
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build OpenSupaplex for New Nintendo 3DS
+        run: |
+          ./3ds/ci-build-new-3ds.sh
+        shell: bash
+      - name: Deploy Nightly
+        uses: WebFreak001/deploy-nightly@v1.0.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
+        with:
+          upload_url: https://uploads.github.com/repos/sergiou87/open-supaplex/releases/25661714/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
+          release_id: 25661714 # same as above (id can just be taken out the upload_url, it's used to find old releases)
+          asset_path: 3ds/OpenSupaplex-new-3ds.zip # path to archive to upload
+          asset_name: OpenSupaplex-new-3ds-$$.zip # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
+          asset_content_type: application/zip # required by GitHub API
+          max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
+  build-wii:
+    name: Wii
+    runs-on: ubuntu-18.04
+    container: sergiou87/wii-docker-open-supaplex:7.2
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build OpenSupaplex
+        run: |
+          ./wii/ci-build.sh
+        shell: bash
+      - name: Deploy Nightly
+        uses: WebFreak001/deploy-nightly@v1.0.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
+        with:
+          upload_url: https://uploads.github.com/repos/sergiou87/open-supaplex/releases/25661714/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
+          release_id: 25661714 # same as above (id can just be taken out the upload_url, it's used to find old releases)
+          asset_path: wii/OpenSupaplex-wii.zip # path to archive to upload
+          asset_name: OpenSupaplex-wii-$$.zip # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
+          asset_content_type: application/zip # required by GitHub API
+          max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
+  build-wiiu:
+    name: Wii U
+    runs-on: ubuntu-18.04
+    container: sergiou87/wiiu-docker-open-supaplex:7.2
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build OpenSupaplex
+        run: |
+          ./wiiu/ci-build.sh
+        shell: bash
+      - name: Deploy Nightly
+        uses: WebFreak001/deploy-nightly@v1.0.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
+        with:
+          upload_url: https://uploads.github.com/repos/sergiou87/open-supaplex/releases/25661714/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
+          release_id: 25661714 # same as above (id can just be taken out the upload_url, it's used to find old releases)
+          asset_path: wiiu/OpenSupaplex-wiiu.zip # path to archive to upload
+          asset_name: OpenSupaplex-wiiu-$$.zip # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
+          asset_content_type: application/zip # required by GitHub API
+          max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
+  build-switch:
+    name: Nintendo Switch
+    runs-on: ubuntu-18.04
+    container: sergiou87/switch-docker-open-supaplex:7.1
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build OpenSupaplex
+        run: |
+          ./switch/ci-build-switch.sh
+        shell: bash
+      - name: Deploy Nightly
+        uses: WebFreak001/deploy-nightly@v1.0.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
+        with:
+          upload_url: https://uploads.github.com/repos/sergiou87/open-supaplex/releases/25661714/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
+          release_id: 25661714 # same as above (id can just be taken out the upload_url, it's used to find old releases)
+          asset_path: switch/OpenSupaplex-switch.zip # path to archive to upload
+          asset_name: OpenSupaplex-switch-$$.zip # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
+          asset_content_type: application/zip # required by GitHub API
+          max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
+  build-windows-x86_64:
+    name: Windows x86_64
+    runs-on: windows-latest
+    steps:
+      - uses: msys2/setup-msys2@v2
+      - run: git config --global core.autocrlf false
+      - uses: actions/checkout@v1
+      - name: Prepare build environment
+        run: |
+          msys2 -c './windows/ci-prepare.sh x86_64'
+      - name: Build OpenSupaplex for Windows x86_64
+        run: |
+          cd windows
+          msys2 -c './ci-build.sh x86_64'
+      - name: Deploy Nightly
+        uses: WebFreak001/deploy-nightly@v1.0.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
+        with:
+          upload_url: https://uploads.github.com/repos/sergiou87/open-supaplex/releases/25661714/assets{?name,label} # find out this value by opening https://api.github.com/repos/<owner>/<repo>/releases in your browser and copy the full "upload_url" value including the {?name,label} part
+          release_id: 25661714 # same as above (id can just be taken out the upload_url, it's used to find old releases)
+          asset_path: windows/OpenSupaplex-windows-x86_64.zip # path to archive to upload
+          asset_name: OpenSupaplex-windows-x86_64-$$.zip # name to upload the release as, use $$ to insert date (YYYYMMDD) and 6 letter commit hash
+          asset_content_type: application/binary # required by GitHub API
+          max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
