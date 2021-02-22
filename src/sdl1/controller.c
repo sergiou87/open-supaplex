@@ -35,15 +35,15 @@ const uint8_t GAMEPAD_BUTTON_LSHOULDER = 4;
 const uint8_t GAMEPAD_BUTTON_RSHOULDER = 5;
 const uint8_t GAMEPAD_BUTTON_START = 11;
 const uint8_t GAMEPAD_BUTTON_BACK = 10;
-#elif defined(_3DS)
-const uint8_t GAMEPAD_BUTTON_DOWN = 8;
-const uint8_t GAMEPAD_BUTTON_LEFT = 9;
+#elif defined(__NDS__) || defined(_3DS)
+const uint8_t GAMEPAD_BUTTON_DOWN = 10;
+const uint8_t GAMEPAD_BUTTON_LEFT = 10;
 const uint8_t GAMEPAD_BUTTON_UP = 10;
-const uint8_t GAMEPAD_BUTTON_RIGHT = 11;
-const uint8_t GAMEPAD_BUTTON_A = 2;
-const uint8_t GAMEPAD_BUTTON_B = 1;
-const uint8_t GAMEPAD_BUTTON_X = 4;
-const uint8_t GAMEPAD_BUTTON_Y = 3;
+const uint8_t GAMEPAD_BUTTON_RIGHT = 10;
+const uint8_t GAMEPAD_BUTTON_A = 1;
+const uint8_t GAMEPAD_BUTTON_B = 2;
+const uint8_t GAMEPAD_BUTTON_X = 3;
+const uint8_t GAMEPAD_BUTTON_Y = 4;
 const uint8_t GAMEPAD_BUTTON_LSHOULDER = 5;
 const uint8_t GAMEPAD_BUTTON_RSHOULDER = 6;
 const uint8_t GAMEPAD_BUTTON_START = 0;
@@ -266,9 +266,7 @@ uint8_t getGameControllerButtonRightShoulder(void)
 
 uint8_t getGameControllerConfirmButton(void)
 {
-#if defined(_3DS)
-    return getGameControllerButtonB();
-#elif defined(__WII__)
+#if defined(__WII__)
     return (getGameControllerButtonB()
             || getGameControllerButton(GAMEPAD_BUTTON_2));
 #else
@@ -278,9 +276,7 @@ uint8_t getGameControllerConfirmButton(void)
 
 uint8_t getGameControllerCancelButton(void)
 {
-#if defined(_3DS)
-    return getGameControllerButtonA();
-#elif defined(__WII__)
+#if defined(__WII__)
     return (getGameControllerButtonA()
             || getGameControllerButton(GAMEPAD_BUTTON_1));
 #else

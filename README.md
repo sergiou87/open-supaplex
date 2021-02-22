@@ -24,6 +24,7 @@ Other than that, **OpenSupaplex** can be built for any of the following platform
 - PSP
 - PS Vita
 - PlayStation 3
+- Nintendo DS
 - Nintendo 3DS
 - Nintendo Wii
 - Nintendo Wii U
@@ -35,8 +36,8 @@ More platforms (like Android, iOS and tvOS) to come Soon™.
 ### Prerequisites
 Depending on the platform, you need to install a different toolchain to build the game for that platform.
 You will also need to install the libraries needed to make it work. Those are basically SDL and SDL_mixer,
-and their dependencies. All ports use SDL 2, except for PSP, Nintendo 3DS, Nintendo Wii and RISC OS, which
-use SDL 1.2.
+and their dependencies. All ports use SDL 2, except for PSP, Nintendo DS, Nintendo 3DS, Nintendo Wii and
+RISC OS, which use SDL 1.2.
 
 All platforms supported are built from CI using [GitHub Actions](https://github.com/sergiou87/open-supaplex/actions). You can check [those workflows](https://github.com/sergiou87/open-supaplex/tree/master/.github/workflows)
 and the CI scripts used in them for more info about how to prepare the dev environment.
