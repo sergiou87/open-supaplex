@@ -63,7 +63,7 @@ uint8_t isOld3DSSystem(void)
 #if defined(_3DS)
     _Bool isN3DS;
 	APT_CheckNew3DS(&isN3DS);
-	if(isN3DS)
+	if (isN3DS == 0)
     {
         return 1;
     }
