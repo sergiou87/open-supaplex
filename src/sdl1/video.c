@@ -156,10 +156,13 @@ void setScalingMode(ScalingMode mode)
 void getWindowSize(int *width, int *height)
 {
     const SDL_VideoInfo *info = SDL_GetVideoInfo();
-    if (info && info->current_w > 0 && info->current_h > 0) {
+    if (info && info->current_w > 0 && info->current_h > 0)
+    {
         *width = info->current_w;
         *height = info->current_h;
-    } else {
+    }
+    else
+    {
         *width = kWindowWidth;
         *height = kWindowHeight;
     }
@@ -196,13 +199,17 @@ void toggleFullscreen()
 
 void setFullscreenMode(uint8_t fullscreen)
 {
-    if (fullscreen) {
-        if ((gWindowSurface->flags & SDL_FULLSCREEN) == 0) {
+    if (fullscreen)
+    {
+        if ((gWindowSurface->flags & SDL_FULLSCREEN) == 0)
+        {
             lastWindowedWidth = gWindowSurface->w;
             lastWindowedHeight = gWindowSurface->h;
         }
         updateWindowSize(fullScreenWidth, fullScreenHeight, gWindowSurface->flags | SDL_FULLSCREEN);
-    } else {
+    }
+    else
+    {
         updateWindowSize(lastWindowedWidth, lastWindowedHeight, gWindowSurface->flags & ~SDL_FULLSCREEN);
     }
 }
