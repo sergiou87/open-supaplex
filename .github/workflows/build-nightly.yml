@@ -5,27 +5,23 @@ on:
       - nightly
 jobs:
   build-linux:
+    name: Linux
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v1
-      - name: Install dependencies
-        run: |
-          ./linux/ci-prepare.sh
-        shell: bash
       - name: Build OpenSupaplex
         run: |
+          ./linux/ci-prepare.sh
           ./linux/ci-build.sh
         shell: bash
   build-macos:
+    name: macOS
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v1
-      - name: Install dependencies
-        run: |
-          ./macos/ci-prepare.sh
-        shell: bash
       - name: Build OpenSupaplex
         run: |
+          ./macos/ci-prepare.sh
           ./macos/ci-build.sh
         shell: bash
       - name: Deploy Nightly
@@ -40,6 +36,7 @@ jobs:
           asset_content_type: application/zip # required by GitHub API
           max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
   build-vita:
+    name: PS Vita
     runs-on: ubuntu-18.04
     container: sergiou87/vita-docker-open-supaplex:7.2
     steps:
@@ -60,16 +57,14 @@ jobs:
           asset_content_type: application/binary # required by GitHub API
           max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
   build-psp:
+    name: PSP
     runs-on: ubuntu-18.04
     container: sergiou87/pspdev-docker-open-supaplex:7.1
     steps:
       - uses: actions/checkout@v1
-      - name: Install dependencies
-        run: |
-          ./psp/ci-install-dependencies.sh
-        shell: bash
       - name: Build OpenSupaplex
         run: |
+          ./psp/ci-install-dependencies.sh
           ./psp/ci-build.sh
         shell: bash
       - name: Deploy Nightly
@@ -84,6 +79,7 @@ jobs:
           asset_content_type: application/zip # required by GitHub API
           max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
   build-ps3:
+    name: PS3
     runs-on: ubuntu-18.04
     container: sergiou87/ps3dev-docker-open-supaplex:7.2
     steps:
@@ -104,11 +100,12 @@ jobs:
           asset_content_type: application/binary # required by GitHub API
           max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
   build-old-3ds:
+    name: Old Nintendo 3DS
     runs-on: ubuntu-18.04
     container: sergiou87/3ds-docker-open-supaplex:7.1
     steps:
       - uses: actions/checkout@v1
-      - name: Build OpenSupaplex for Old Nintendo 3DS
+      - name: Build OpenSupaplex
         run: |
           ./3ds/ci-build-old-3ds.sh
         shell: bash
@@ -124,11 +121,12 @@ jobs:
           asset_content_type: application/zip # required by GitHub API
           max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
   build-new-3ds:
+    name: New Nintendo 3DS
     runs-on: ubuntu-18.04
     container: sergiou87/3ds-docker-open-supaplex:7.1
     steps:
       - uses: actions/checkout@v1
-      - name: Build OpenSupaplex for New Nintendo 3DS
+      - name: Build OpenSupaplex
         run: |
           ./3ds/ci-build-new-3ds.sh
         shell: bash
@@ -144,6 +142,7 @@ jobs:
           asset_content_type: application/zip # required by GitHub API
           max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
   build-wii:
+    name: Wii
     runs-on: ubuntu-18.04
     container: sergiou87/wii-docker-open-supaplex:7.2
     steps:
@@ -164,6 +163,7 @@ jobs:
           asset_content_type: application/zip # required by GitHub API
           max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
   build-wiiu:
+    name: Wii U
     runs-on: ubuntu-18.04
     container: sergiou87/wiiu-docker-open-supaplex:7.2
     steps:
@@ -184,6 +184,7 @@ jobs:
           asset_content_type: application/zip # required by GitHub API
           max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
   build-switch:
+    name: Nintendo Switch
     runs-on: ubuntu-18.04
     container: sergiou87/switch-docker-open-supaplex:7.1
     steps:
@@ -204,6 +205,7 @@ jobs:
           asset_content_type: application/zip # required by GitHub API
           max_releases: 1 # optional, if there are more releases than this matching the asset_name, the oldest ones are going to be deleted
   build-windows-x86_64:
+    name: Windows x86_64
     runs-on: windows-latest
     steps:
       - uses: msys2/setup-msys2@v2
@@ -212,7 +214,7 @@ jobs:
       - name: Prepare build environment
         run: |
           msys2 -c './windows/ci-prepare.sh x86_64'
-      - name: Build OpenSupaplex for Windows x86_64
+      - name: Build OpenSupaplex
         run: |
           cd windows
           msys2 -c './ci-build.sh x86_64'

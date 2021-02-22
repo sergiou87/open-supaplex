@@ -1,0 +1,177 @@
+name: Run OpenSupaplex CI
+on:
+  push:
+    branches:
+      - master
+    pull_request:
+jobs:
+  build-linux:
+    name: Linux
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build OpenSupaplex
+        run: |
+          ./linux/ci-prepare.sh
+          ./linux/ci-build.sh
+        shell: bash
+      - name: Linux artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: linux-build
+          path: linux/OpenSupaplex-linux.zip
+  build-macos:
+    name: macOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build OpenSupaplex
+        run: |
+          ./macos/ci-prepare.sh
+          ./macos/ci-build.sh
+        shell: bash
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: macos-build
+          path: macos/OpenSupaplex-macOS.zip
+  build-vita:
+    name: PS Vita
+    runs-on: ubuntu-18.04
+    container: sergiou87/vita-docker-open-supaplex:7.2
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build OpenSupaplex
+        run: |
+          ./vita/ci-build-vita.sh
+        shell: bash
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: vita-build
+          path: vita/build/OpenSupaplex.vpk
+  build-switch:
+    name: Nintendo Switch
+    runs-on: ubuntu-18.04
+    container: sergiou87/switch-docker-open-supaplex:7.1
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build OpenSupaplex
+        run: |
+          ./switch/ci-build-switch.sh
+        shell: bash
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: switch-build
+          path: switch/OpenSupaplex-switch.zip
+  build-psp:
+    name: PSP
+    runs-on: ubuntu-18.04
+    container: sergiou87/pspdev-docker-open-supaplex:7.1
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build OpenSupaplex
+        run: |
+          ./psp/ci-install-dependencies.sh
+          ./psp/ci-build.sh
+        shell: bash
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: psp-build
+          path: psp/OpenSupaplex-psp.zip
+  build-ps3:
+    name: PS3
+    runs-on: ubuntu-18.04
+    container: sergiou87/ps3dev-docker-open-supaplex:7.2
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build OpenSupaplex
+        run: |
+          ./ps3/ci-build.sh
+        shell: bash
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: ps3-build
+          path: ps3/OpenSupaplex.pkg
+  build-wii:
+    name: Wii
+    runs-on: ubuntu-18.04
+    container: sergiou87/wii-docker-open-supaplex:7.2
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build OpenSupaplex
+        run: |
+          ./wii/ci-build.sh
+        shell: bash
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: wii-build
+          path: wii/OpenSupaplex-wii.zip
+  build-wiiu:
+    name: Wii U
+    runs-on: ubuntu-18.04
+    container: sergiou87/wiiu-docker-open-supaplex:7.2
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build OpenSupaplex
+        run: |
+          ./wiiu/ci-build.sh
+        shell: bash
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: wiiu-build
+          path: wiiu/OpenSupaplex-wiiu.zip
+  build-old-3ds:
+    name: Old Nintendo 3DS
+    runs-on: ubuntu-18.04
+    container: sergiou87/3ds-docker-open-supaplex:7.1
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build OpenSupaplex
+        run: |
+          ./3ds/ci-build-old-3ds.sh
+        shell: bash
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: old-3ds-build
+          path: 3ds/OpenSupaplex-old-3ds.zip
+  build-new-3ds:
+    name: New Nintendo 3DS
+    runs-on: ubuntu-18.04
+    container: sergiou87/3ds-docker-open-supaplex:7.1
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build OpenSupaplex
+        run: |
+          ./3ds/ci-build-new-3ds.sh
+        shell: bash
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: new-3ds-build
+          path: 3ds/OpenSupaplex-new-3ds.zip
+  build-windows-x86_64:
+    name: Windows x86_64
+    runs-on: windows-latest
+    steps:
+      - uses: msys2/setup-msys2@v2
+      - run: git config --global core.autocrlf false
+      - uses: actions/checkout@v1
+      - name: Prepare build environment
+        run: |
+          msys2 -c './windows/ci-prepare.sh x86_64'
+      - name: Build OpenSupaplex
+        run: |
+          cd windows
+          msys2 -c './ci-build.sh x86_64'
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: windows-x86_64-build
+          path: windows/OpenSupaplex-windows-x86_64.zip

@@ -5,142 +5,153 @@ on:
       - v*
 jobs:
   build-linux:
+    name: Linux
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v1
-      - name: Build OpenSupaplex for Ubuntu
+      - name: Build OpenSupaplex
         run: |
           ./linux/ci-prepare.sh
           ./linux/ci-build.sh
         shell: bash
   build-macos:
+    name: macOS
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v1
-      - name: Build OpenSupaplex for macOS
+      - name: Build OpenSupaplex
         run: |
           ./macos/ci-prepare.sh
           ./macos/ci-build.sh
         shell: bash
-      - name: Upload macOS build
+      - name: Upload artifact
         uses: actions/upload-artifact@v1
         with:
           name: macos-build
           path: macos/OpenSupaplex-macOS.zip
   build-vita:
+    name: PS Vita
     runs-on: ubuntu-18.04
     container: sergiou87/vita-docker-open-supaplex:7.2
     steps:
       - uses: actions/checkout@v1
-      - name: Build OpenSupaplex for PS Vita
+      - name: Build OpenSupaplex
         run: |
           ./vita/ci-build-vita.sh
         shell: bash
-      - name: Upload PS Vita build
+      - name: Upload artifact
         uses: actions/upload-artifact@v1
         with:
           name: vita-build
           path: vita/build/OpenSupaplex.vpk
   build-switch:
+    name: Nintendo Switch
     runs-on: ubuntu-18.04
     container: sergiou87/switch-docker-open-supaplex:7.1
     steps:
       - uses: actions/checkout@v1
-      - name: Build OpenSupaplex for Nintendo Switch
+      - name: Build OpenSupaplex
         run: |
           ./switch/ci-build-switch.sh
         shell: bash
-      - name: Upload Nintendo Switch build
+      - name: Upload artifact
         uses: actions/upload-artifact@v1
         with:
           name: switch-build
           path: switch/OpenSupaplex-switch.zip
   build-psp:
+    name: PSP
     runs-on: ubuntu-18.04
     container: sergiou87/pspdev-docker-open-supaplex:7.1
     steps:
       - uses: actions/checkout@v1
-      - name: Build OpenSupaplex for PSP
+      - name: Build OpenSupaplex
         run: |
           ./psp/ci-install-dependencies.sh
           ./psp/ci-build.sh
         shell: bash
-      - name: Upload PSP build
+      - name: Upload artifact
         uses: actions/upload-artifact@v1
         with:
           name: psp-build
           path: psp/OpenSupaplex-psp.zip
   build-ps3:
+    name: PS3
     runs-on: ubuntu-18.04
     container: sergiou87/ps3dev-docker-open-supaplex:7.2
     steps:
       - uses: actions/checkout@v1
-      - name: Build OpenSupaplex for PS3
+      - name: Build OpenSupaplex
         run: |
           ./ps3/ci-build.sh
         shell: bash
-      - name: Upload PS3 build
+      - name: Upload artifact
         uses: actions/upload-artifact@v1
         with:
           name: ps3-build
           path: ps3/OpenSupaplex.pkg
   build-wii:
+    name: Wii
     runs-on: ubuntu-18.04
     container: sergiou87/wii-docker-open-supaplex:7.2
     steps:
       - uses: actions/checkout@v1
-      - name: Build OpenSupaplex for Wii
+      - name: Build OpenSupaplex
         run: |
           ./wii/ci-build.sh
         shell: bash
-      - name: Upload Wii build
+      - name: Upload artifact
         uses: actions/upload-artifact@v1
         with:
           name: wii-build
           path: wii/OpenSupaplex-wii.zip
   build-wiiu:
+    name: Wii U
     runs-on: ubuntu-18.04
     container: sergiou87/wiiu-docker-open-supaplex:7.2
     steps:
       - uses: actions/checkout@v1
-      - name: Build OpenSupaplex for Wii U
+      - name: Build OpenSupaplex
         run: |
           ./wiiu/ci-build.sh
         shell: bash
-      - name: Upload Wii Ubuild
+      - name: Upload artifact
         uses: actions/upload-artifact@v1
         with:
           name: wiiu-build
           path: wiiu/OpenSupaplex-wiiu.zip
   build-old-3ds:
+    name: Old Nintendo 3DS
     runs-on: ubuntu-18.04
     container: sergiou87/3ds-docker-open-supaplex:7.1
     steps:
       - uses: actions/checkout@v1
-      - name: Build OpenSupaplex for Old Nintendo 3DS
+      - name: Build OpenSupaplex
         run: |
           ./3ds/ci-build-old-3ds.sh
         shell: bash
-      - name: Upload Old Nintendo 3DS build
+      - name: Upload artifact
         uses: actions/upload-artifact@v1
         with:
           name: old-3ds-build
           path: 3ds/OpenSupaplex-old-3ds.zip
   build-new-3ds:
+    name: New Nintendo 3DS
     runs-on: ubuntu-18.04
     container: sergiou87/3ds-docker-open-supaplex:7.1
     steps:
       - uses: actions/checkout@v1
-      - name: Build OpenSupaplex for New Nintendo 3DS
+      - name: Build OpenSupaplex
         run: |
           ./3ds/ci-build-new-3ds.sh
         shell: bash
-      - name: Upload New Nintendo 3DS build
+      - name: Upload artifact
         uses: actions/upload-artifact@v1
         with:
           name: new-3ds-build
           path: 3ds/OpenSupaplex-new-3ds.zip
   build-windows-x86_64:
+    name: Windows x86_64
     runs-on: windows-latest
     steps:
       - uses: msys2/setup-msys2@v2
@@ -149,16 +160,17 @@ jobs:
       - name: Prepare build environment
         run: |
           msys2 -c './windows/ci-prepare.sh x86_64'
-      - name: Build OpenSupaplex for Windows x86_64
+      - name: Build OpenSupaplex
         run: |
           cd windows
           msys2 -c './ci-build.sh x86_64'
-      - name: Upload Windows x86_64 build
+      - name: Upload artifact
         uses: actions/upload-artifact@v1
         with:
           name: windows-x86_64-build
           path: windows/OpenSupaplex-windows-x86_64.zip
   create-release:
+    name: Create release
     needs:
       [
         build-vita,
