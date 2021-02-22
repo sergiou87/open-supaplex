@@ -26,6 +26,10 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+#if defined(_3DS)
+#include <3ds.h>
+#endif
+
 #include "../globals.h"
 #include "../logging.h"
 
@@ -39,6 +43,16 @@ void initializeSystem(void)
     }
 
     spLogInfo("SDL_Init succeeded.");
+
+#if defined(_3DS)
+    _Bool isN3DS;
+	APT_CheckNew3DS(&isN3DS);
+	if(isN3DS)
+    {
+		osSetSpeedupEnable(true);
+        spLogInfo("Using New3DS speed up for better performance");
+    }
+#endif
 }
 
 void destroySystem(void)

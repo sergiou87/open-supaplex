@@ -17,10 +17,6 @@
 
 #include "../audio.h"
 
-#if defined(_3DS)
-#include <3ds.h>
-#endif
-
 #include <math.h>
 
 #if HAVE_SDL2
@@ -121,16 +117,6 @@ static const int kNumberOfChannels = 2;
 int8_t initializeAudio()
 {
     SDL_InitSubSystem(SDL_INIT_AUDIO);
-
-#if defined(_3DS)
-    _Bool isN3DS;
-	APT_CheckNew3DS(&isN3DS);
-	if(isN3DS)
-    {
-		osSetSpeedupEnable(true);
-        spLogInfo("Using New3DS speed up for better performance");
-    }
-#endif
 
     spLogInfo("Trying to initialize audio: %dHz, %d channels, format 0x%04x, %d bytes buffer", kSampleRate, kNumberOfChannels, MIX_DEFAULT_FORMAT, kAudioBufferSize);
 
