@@ -23,6 +23,8 @@
 void initializeSystem(void);
 void destroySystem(void);
 
+uint8_t isOld3DSSystem(void);
+
 void exitWithError(const char *format, ...);
 
 void handleSystemEvents(void);

@@ -24,7 +24,7 @@ Other than that, **OpenSupaplex** can be built for any of the following platform
 - PSP
 - PS Vita
 - PlayStation 3
-- Nintendo 3DS (one build for Old 3DS, and another one for New 3DS)
+- Nintendo 3DS
 - Nintendo Wii
 - Nintendo Wii U
 - Nintendo Switch

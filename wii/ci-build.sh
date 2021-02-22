@@ -9,6 +9,4 @@ mkdir -p apps/OpenSupaplex
 mv OpenSupaplex.dol apps/OpenSupaplex/BOOT.DOL
 cp -R ../resources/* apps/OpenSupaplex/
 cp assets/* apps/OpenSupaplex/
-rm -rf apps/OpenSupaplex/audio-mq # we don't need medium quality audio here
-rm -rf apps/OpenSupaplex/audio-lq # we don't need loq quality audio here
 zip -r OpenSupaplex-wii.zip apps

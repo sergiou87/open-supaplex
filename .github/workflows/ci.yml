@@ -126,36 +126,21 @@ jobs:
         with:
           name: wiiu-build
           path: wiiu/OpenSupaplex-wiiu.zip
-  build-old-3ds:
-    name: Old Nintendo 3DS
+  build-3ds:
+    name: Nintendo 3DS
     runs-on: ubuntu-18.04
     container: sergiou87/3ds-docker-open-supaplex:7.1
     steps:
       - uses: actions/checkout@v1
       - name: Build OpenSupaplex
         run: |
-          ./3ds/ci-build-old-3ds.sh
+          ./3ds/ci-build-3ds.sh
         shell: bash
       - name: Upload artifact
         uses: actions/upload-artifact@v1
         with:
-          name: old-3ds-build
-          path: 3ds/OpenSupaplex-old-3ds.zip
-  build-new-3ds:
-    name: New Nintendo 3DS
-    runs-on: ubuntu-18.04
-    container: sergiou87/3ds-docker-open-supaplex:7.1
-    steps:
-      - uses: actions/checkout@v1
-      - name: Build OpenSupaplex
-        run: |
-          ./3ds/ci-build-new-3ds.sh
-        shell: bash
-      - name: Upload artifact
-        uses: actions/upload-artifact@v1
-        with:
-          name: new-3ds-build
-          path: 3ds/OpenSupaplex-new-3ds.zip
+          name: 3ds-build
+          path: 3ds/OpenSupaplex-3ds.zip
   build-windows-x86_64:
     name: Windows x86_64
     runs-on: windows-latest

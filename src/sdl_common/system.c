@@ -45,9 +45,7 @@ void initializeSystem(void)
     spLogInfo("SDL_Init succeeded.");
 
 #if defined(_3DS)
-    _Bool isN3DS;
-	APT_CheckNew3DS(&isN3DS);
-	if(isN3DS)
+	if(isOld3DSSystem() == 0)
     {
 		osSetSpeedupEnable(true);
         spLogInfo("Using New3DS speed up for better performance");
@@ -58,6 +56,20 @@ void initializeSystem(void)
 void destroySystem(void)
 {
     SDL_Quit();
+}
+
+uint8_t isOld3DSSystem(void)
+{
+#if defined(_3DS)
+    _Bool isN3DS;
+	APT_CheckNew3DS(&isN3DS);
+	if(isN3DS)
+    {
+        return 1;
+    }
+#endif
+
+    return 0;
 }
 
 void exitWithError(const char *format, ...)

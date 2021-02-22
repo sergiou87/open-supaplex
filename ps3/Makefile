@@ -158,8 +158,6 @@ ifeq ("$(wildcard ./.pkg_prepared)", "")
 	@echo "Preparing pkg resources"
 	@mkdir -p pkg/USRDIR
 	@cp -R ../../resources/* pkg/USRDIR/
-	@rm -rf pkg/USRDIR/audio-mq
-	@rm -rf pkg/USRDIR/audio-lq
 	@cp $(SND0) pkg/SND0.AT3
 	@cp $(PIC1) pkg/PIC1.PNG
 	@touch .pkg_prepared

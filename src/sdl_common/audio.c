@@ -32,6 +32,7 @@
 #endif
 
 #include "../logging.h"
+#include "../system.h"
 
 #define kMaxSoundFilenameLength 256
 
@@ -89,10 +90,8 @@ static const char *kBaseAudioFolder = "audio";
 // In macOS I was able to set it to 512, but that caused a lot of issues playing music on Nintendo Switch.
 // If it ever supports WASM, that needs a power of 2 as buffer size.
 //
-#if defined(__SWITCH__) || defined(__WIIU__) || defined(__WII__) || (defined(_3DS) && NEW3DS)
+#if defined(__SWITCH__) || defined(__WIIU__) || defined(__WII__) || defined(_3DS)
 const int kAudioBufferSize = 1024;
-#elif defined(_3DS) && NEW3DS
-const int kAudioBufferSize = 768;
 #else // macOS, PS Vita, PS3, PSP and Windows
 // PS3 seems to ignore this and always use number_of_samples (256) * sizeof(float) * number_of_channels = 2048
 // PSP and PS Vita only need this value to be a multiple of 64
@@ -100,16 +99,10 @@ const int kAudioBufferSize = 512;
 #endif
 
 // 3DS can't handle High quality audio, it kills performance
-#if defined(_3DS) && !NEW3DS
-static const char *kBaseAudioFolderSuffix = "lq"; // Low quality
-static const int kSampleRate = 11025;
-static const int kNumberOfChannels = 1;
-#elif defined(_3DS) && NEW3DS
-static const char *kBaseAudioFolderSuffix = "mq"; // Medium quality
+#if defined(_3DS)
 static const int kSampleRate = 22050;
 static const int kNumberOfChannels = 1;
 #else
-static const char *kBaseAudioFolderSuffix = "hq"; // High quality
 static const int kSampleRate = 44100;
 static const int kNumberOfChannels = 2;
 #endif
@@ -118,9 +111,22 @@ int8_t initializeAudio()
 {
     SDL_InitSubSystem(SDL_INIT_AUDIO);
 
-    spLogInfo("Trying to initialize audio: %dHz, %d channels, format 0x%04x, %d bytes buffer", kSampleRate, kNumberOfChannels, MIX_DEFAULT_FORMAT, kAudioBufferSize);
+    int sampleRate = kSampleRate;
+    int numberOfChannels = kNumberOfChannels;
+    int audioBufferSize = kAudioBufferSize;
 
-    if (Mix_OpenAudio(kSampleRate, MIX_DEFAULT_FORMAT, kNumberOfChannels, kAudioBufferSize) == -1)
+    // The Old Nintendo 3DS requires very low quality audio to perform well
+    if (isOld3DSSystem())
+    {
+        sampleRate = 11025;
+        numberOfChannels = 1;
+        audioBufferSize = 512;
+    }
+
+    spLogInfo("Trying to initialize audio: %dHz, %d channels, format 0x%04x, %d bytes buffer",
+              sampleRate, numberOfChannels, MIX_DEFAULT_FORMAT, audioBufferSize);
+
+    if (Mix_OpenAudio(sampleRate, MIX_DEFAULT_FORMAT, numberOfChannels, audioBufferSize) == -1)
     {
         spLogInfo("Mix_OpenAudio: Failed to open audio!\n");
         spLogInfo("Mix_OpenAudio: %s\n", Mix_GetError());
@@ -142,12 +148,13 @@ int8_t initializeAudio()
         return 1;
     }
 
-    int sampleRate;
-    Uint16 format;
-    int channels;
-    Mix_QuerySpec(&sampleRate, &format, &channels);
+    int queriedSampleRate;
+    Uint16 queriedFormat;
+    int queriedChannels;
+    Mix_QuerySpec(&queriedSampleRate, &queriedFormat, &queriedChannels);
     
-    spLogInfo("Audio initialized: %dHz, %d channels, format 0x%04x, %d bytes buffer", sampleRate, channels, format, kAudioBufferSize);
+    spLogInfo("Audio initialized: %dHz, %d channels, format 0x%04x, %d bytes buffer",
+              queriedSampleRate, queriedChannels, queriedFormat, kAudioBufferSize);
     gIsAudioInitialized = 1;
 
     return 0;
@@ -193,7 +200,7 @@ void loadMusic()
     }
 
     char filename[kMaxSoundFilenameLength] = "";
-    snprintf(filename, kMaxSoundFilenameLength, "%s-%s/music-%s.xm", kBaseAudioFolder, kBaseAudioFolderSuffix, musicSuffix);
+    snprintf(filename, kMaxSoundFilenameLength, "%s/music-%s.xm", kBaseAudioFolder, musicSuffix);
 
     gMusic = Mix_LoadMUS(filename);
 
@@ -236,7 +243,7 @@ void loadSounds()
 
     for (int i = 0; i < SoundEffectCount; ++i)
     {
-        snprintf(filename, kMaxSoundFilenameLength, "%s-%s/%s-%s.wav", kBaseAudioFolder, kBaseAudioFolderSuffix, gSoundEffectNames[i], effectsSuffix);
+        snprintf(filename, kMaxSoundFilenameLength, "%s/%s-%s.wav", kBaseAudioFolder, gSoundEffectNames[i], effectsSuffix);
         gSoundEffectChunks[i] = Mix_LoadWAV(filename);
     }
 }

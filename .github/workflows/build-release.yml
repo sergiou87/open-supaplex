@@ -120,36 +120,21 @@ jobs:
         with:
           name: wiiu-build
           path: wiiu/OpenSupaplex-wiiu.zip
-  build-old-3ds:
-    name: Old Nintendo 3DS
+  build-3ds:
+    name: Nintendo 3DS
     runs-on: ubuntu-18.04
     container: sergiou87/3ds-docker-open-supaplex:7.1
     steps:
       - uses: actions/checkout@v1
       - name: Build OpenSupaplex
         run: |
-          ./3ds/ci-build-old-3ds.sh
+          ./3ds/ci-build-3ds.sh
         shell: bash
       - name: Upload artifact
         uses: actions/upload-artifact@v1
         with:
-          name: old-3ds-build
-          path: 3ds/OpenSupaplex-old-3ds.zip
-  build-new-3ds:
-    name: New Nintendo 3DS
-    runs-on: ubuntu-18.04
-    container: sergiou87/3ds-docker-open-supaplex:7.1
-    steps:
-      - uses: actions/checkout@v1
-      - name: Build OpenSupaplex
-        run: |
-          ./3ds/ci-build-new-3ds.sh
-        shell: bash
-      - name: Upload artifact
-        uses: actions/upload-artifact@v1
-        with:
-          name: new-3ds-build
-          path: 3ds/OpenSupaplex-new-3ds.zip
+          name: 3ds-build
+          path: 3ds/OpenSupaplex-3ds.zip
   build-windows-x86_64:
     name: Windows x86_64
     runs-on: windows-latest
@@ -176,8 +161,7 @@ jobs:
         build-vita,
         build-macos,
         build-switch,
-        build-old-3ds,
-        build-new-3ds,
+        build-3ds,
         build-windows-x86_64,
         build-psp,
         build-ps3,
@@ -226,14 +210,10 @@ jobs:
         uses: actions/download-artifact@v1
         with:
           name: wiiu-build
-      - name: Download Old Nintendo 3DS Build Asset
+      - name: Download Nintendo 3DS Build Asset
         uses: actions/download-artifact@v1
         with:
-          name: old-3ds-build
-      - name: Download New Nintendo 3DS Build Asset
-        uses: actions/download-artifact@v1
-        with:
-          name: new-3ds-build
+          name: 3ds-build
       - name: Download Windows x86_64 Build Asset
         uses: actions/download-artifact@v1
         with:
@@ -312,23 +292,14 @@ jobs:
           asset_path: wiiu-build/OpenSupaplex-wiiu.zip
           asset_name: OpenSupaplex-wiiu-${{ steps.get_version.outputs.VERSION }}.zip
           asset_content_type: application/zip
-      - name: Upload Old Nintendo 3DS Build Asset
+      - name: Upload Nintendo 3DS Build Asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: old-3ds-build/OpenSupaplex-old-3ds.zip
-          asset_name: OpenSupaplex-old-3ds-${{ steps.get_version.outputs.VERSION }}.zip
-          asset_content_type: application/zip
-      - name: Upload New Nintendo 3DS Build Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: new-3ds-build/OpenSupaplex-new-3ds.zip
-          asset_name: OpenSupaplex-new-3ds-${{ steps.get_version.outputs.VERSION }}.zip
+          asset_path: 3ds-build/OpenSupaplex-3ds.zip
+          asset_name: OpenSupaplex-3ds-${{ steps.get_version.outputs.VERSION }}.zip
           asset_content_type: application/zip
       - name: Upload Windows x86_64 Build Asset
         uses: actions/upload-release-asset@v1
