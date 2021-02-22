@@ -43,6 +43,10 @@ static const int kWindowFlags = SDL_FULLSCREEN | SDL_SWSURFACE | SDL_HWPALETTE;
 static const int kWindowWidth = 640;
 static const int kWindowHeight = 480;
 static const int kWindowFlags = SDL_FULLSCREEN | SDL_SWSURFACE | SDL_HWPALETTE;
+#elif defined(__riscos__)
+static const int kWindowWidth = kScreenWidth * 2;
+static const int kWindowHeight = kScreenHeight * 2;
+static const int kWindowFlags = SDL_RESIZABLE | SDL_SWSURFACE | SDL_HWPALETTE;
 #else
 static const int kWindowWidth = kScreenWidth * 4;
 static const int kWindowHeight = kScreenHeight * 4;

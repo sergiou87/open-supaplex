@@ -62,3 +62,9 @@ wasm/opensupaplex.data
 wasm/opensupaplex.html
 wasm/opensupaplex.js
 wasm/opensupaplex.wasm
+
+# RISC OS stuff
+riscos/*,e1f
+riscos/\!OSupaplex/*,ff8
+riscos/\!OSupaplex/audio
+riscos/\!OSupaplex/data

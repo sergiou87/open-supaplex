@@ -160,6 +160,10 @@ FILE *openWritableFile(const char *pathname, const char *mode)
 #define FILE_BASE_PATH "sdmc:/OpenSupaplex/"
 #elif defined(__PSL1GHT__)
 #define FILE_BASE_PATH "/dev_hdd0/game/" PS3APPID "/USRDIR/"
+#elif defined(__riscos__)
+#include <sys/stat.h>
+#define FILE_BASE_PATH "/<OpenSupaplex$Dir>/data/"
+#define FILE_BASE_WRITABLE_PATH "/<OpenSupaplex$Saves>/"
 #elif defined(__vita__)
 #include <psp2/io/stat.h>
 #define FILE_BASE_PATH "app0:/"
@@ -198,6 +202,8 @@ FILE *openWritableFile(const char *pathname, const char *mode)
     // Create base folder in a writable area
 #ifdef __vita__
     sceIoMkdir(FILE_BASE_WRITABLE_PATH, 0777);
+#elif defined(__riscos__)
+    mkdir(FILE_BASE_WRITABLE_PATH, 0777);
 #endif
 
     char finalPathname[kMaxFilePathLength];
