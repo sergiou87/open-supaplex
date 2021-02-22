@@ -14,7 +14,7 @@ include("${VITASDK}/share/vita.cmake" REQUIRED)
 
 set(VITA_APP_NAME "OpenSupaplex")
 set(VITA_TITLEID  "OSPX00001")
-set(VITA_VERSION  "07.2")
+set(VITA_VERSION  "07.20")
 
 option(DEBUGNET "Enable debugnet for logging" ON)
 
