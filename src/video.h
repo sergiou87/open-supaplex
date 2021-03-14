@@ -36,6 +36,7 @@ typedef enum {
     ScalingModeAspectFill,
     ScalingModeIntegerFactor,
     ScalingModeFullscreen,
+    ScalingModeAspectCorrect,
     ScalingModeCount,
 } ScalingMode;
 

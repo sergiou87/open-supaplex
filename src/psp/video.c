@@ -238,6 +238,13 @@ void updateWindowViewport()
 
     float textureAspectRatio = (float)kScreenWidth / kScreenHeight;
 
+    // The only way in which "aspect correct" differs from "aspect fit"
+    // is that 4:3 is used instead of kScreenWidth:kScreenHeight
+    if (gScalingMode == ScalingModeAspectCorrect)
+    {
+        textureAspectRatio = 4.f/3.f;
+    }
+
     int maxViewportWidth = kWindowWidth;
     int maxViewportHeight = kWindowHeight;
 

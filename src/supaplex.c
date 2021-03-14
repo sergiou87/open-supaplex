@@ -947,6 +947,7 @@ void buildScalingModeOptionTitle(char output[kMaxAdvancedOptionsMenuEntryTitleLe
     static const char *kAspectFillScalingModeString = "ZOOM";
     static const char *kIntegerFactorScalingModeString = "INTEGER FACTOR";
     static const char *kFullscreenScalingModeString = "FULLSCREEN";
+    static const char *kAspectCorrectScalingModeString = "4:3";
 
     const char *mode = kAspectFitScalingModeString;
 
@@ -960,6 +961,9 @@ void buildScalingModeOptionTitle(char output[kMaxAdvancedOptionsMenuEntryTitleLe
             break;
         case ScalingModeFullscreen:
             mode = kFullscreenScalingModeString;
+            break;
+        case ScalingModeAspectCorrect:
+            mode = kAspectCorrectScalingModeString;
             break;
         default:
             mode = kAspectFitScalingModeString;
