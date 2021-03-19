@@ -35,11 +35,25 @@ const uint8_t GAMEPAD_BUTTON_LSHOULDER = 4;
 const uint8_t GAMEPAD_BUTTON_RSHOULDER = 5;
 const uint8_t GAMEPAD_BUTTON_START = 11;
 const uint8_t GAMEPAD_BUTTON_BACK = 10;
-#elif defined(__NDS__) || defined(_3DS)
+#elif defined(__NDS__)
 const uint8_t GAMEPAD_BUTTON_DOWN = 10;
 const uint8_t GAMEPAD_BUTTON_LEFT = 10;
 const uint8_t GAMEPAD_BUTTON_UP = 10;
 const uint8_t GAMEPAD_BUTTON_RIGHT = 10;
+const uint8_t GAMEPAD_BUTTON_A = 1;
+const uint8_t GAMEPAD_BUTTON_B = 2;
+const uint8_t GAMEPAD_BUTTON_X = 3;
+const uint8_t GAMEPAD_BUTTON_Y = 4;
+const uint8_t GAMEPAD_BUTTON_LSHOULDER = 5;
+const uint8_t GAMEPAD_BUTTON_RSHOULDER = 6;
+const uint8_t GAMEPAD_BUTTON_START = 0;
+const uint8_t GAMEPAD_BUTTON_BACK = 7;
+#elif defined(_3DS)
+// TODO: When built with the latest SDL for 3DS, the dpad becomes a hat instead of 4 buttons. At that point 3DS and NDS will use the same button values
+const uint8_t GAMEPAD_BUTTON_DOWN = 8;
+const uint8_t GAMEPAD_BUTTON_LEFT = 9;
+const uint8_t GAMEPAD_BUTTON_UP = 10;
+const uint8_t GAMEPAD_BUTTON_RIGHT = 11;
 const uint8_t GAMEPAD_BUTTON_A = 1;
 const uint8_t GAMEPAD_BUTTON_B = 2;
 const uint8_t GAMEPAD_BUTTON_X = 3;
