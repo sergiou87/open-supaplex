@@ -45,11 +45,6 @@
 #include "virtualKeyboard.h"
 #include "system.h"
 
-#ifdef __NDS__
-#include <stdbool.h>
-#include <filesystem.h>
-#endif
-
 #ifdef __PSP__
 #include <pspkernel.h>
 
@@ -1510,10 +1505,6 @@ void runAdvancedOptionsRootMenu()
 
 int main(int argc, char *argv[])
 {
-#ifdef __NDS__
-    nitroFSInit(NULL);
-#endif
-
     parseCommandLineOptions(argc, argv);
 
     if (gFastMode == FastModeTypeUltra)

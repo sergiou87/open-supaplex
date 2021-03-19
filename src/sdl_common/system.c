@@ -26,6 +26,11 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+#ifdef __NDS__
+#include <stdbool.h>
+#include <filesystem.h>
+#endif
+
 #if defined(_3DS)
 #include <3ds.h>
 #endif
@@ -43,6 +48,10 @@ void initializeSystem(void)
     }
 
     spLogInfo("SDL_Init succeeded.");
+
+#ifdef __NDS__
+    nitroFSInit(NULL);
+#endif
 
 #if defined(_3DS)
 	if(isOld3DSSystem() == 0)
