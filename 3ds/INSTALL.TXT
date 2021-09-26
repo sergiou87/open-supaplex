@@ -3,8 +3,8 @@ Thanks for downloading OpenSupaplex for Nintendo 3DS!
 In order to install this, you have two options: using the 3dsx file or install the cia file.
 
 - 3ds file:
-	Just copy the OpenSupaplex and 3ds folders into the root of your SD card and open the 3dsx file with the Homebrew Launcher.
+	Just copy 3ds folder into the root of your SD card and open the 3dsx file with the Homebrew Launcher.
 
 - cia file:
-	Copy the OpenSupaplex folder to the root of your SD card, and then the cia file (inside the cias folder) somewhere in your SD card.
+	Copy the cia file (inside the cia folder) somewhere in your SD card.
 	Once you've done that, use FBI to install the cia file. Then, just run the game from your home screen.

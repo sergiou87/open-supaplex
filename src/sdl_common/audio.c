@@ -75,7 +75,7 @@ static const char *kBaseAudioFolder = FILE_BASE_PATH "/audio";
 #elif defined(__vita__)
 static const char *kBaseAudioFolder = "app0:/audio";
 #elif defined(_3DS)
-static const char *kBaseAudioFolder = "sdmc:/OpenSupaplex/audio";
+static const char *kBaseAudioFolder = "romfs:/audio";
 #elif defined(__PSL1GHT__)
 static const char *kBaseAudioFolder = "/dev_hdd0/game/" PS3APPID "/USRDIR/audio";
 #elif defined(__riscos__)

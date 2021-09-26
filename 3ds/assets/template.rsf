@@ -13,6 +13,9 @@ CardInfo:
   MediaType               : Card1 # Card1 / Card2
   CardDevice              : None # NorFlash(Pick this if you use savedata) / None
   
+RomFs:
+  # Specifies the root path of the read only file system to include in the ROM.
+  RootPath                : $(APP_ROMFS)
 
 Option:
   UseOnSD                 : true # true if App is to be installed to SD

@@ -39,7 +39,7 @@ INCLUDES			:=	include
 EXCLUDE				:=	nullVirtualKeyboard.c
 GRAPHICS			:=	gfx
 GFXBUILD			:=	$(BUILD)
-#ROMFS				:=	romfs
+ROMFS				:=	../resources
 #GFXBUILD			:=	$(ROMFS)/gfx
 APP_TITLE			:=	OpenSupaplex
 APP_PRODUCT_CODE 	:=	CTR-P-OSPX
@@ -143,7 +143,14 @@ else
 	export MAKEROM    = $(TOPDIR)/tools/makerom.exe
 endif
 
-export MAKEROM_ARGS_COMMON = -rsf $(APP_RSF) -exefslogo -elf $(OUTPUT)-strip.elf -icon $(OUTPUT).icn -banner $(OUTPUT).bnr -DAPP_TITLE="$(APP_TITLE)" -DAPP_PRODUCT_CODE="$(APP_PRODUCT_CODE)" -DAPP_UNIQUE_ID=$(APP_UNIQUE_ID)
+MAKEROM_ARGS_COMMON = -rsf $(APP_RSF) -exefslogo -elf $(OUTPUT)-strip.elf -icon $(OUTPUT).icn -banner $(OUTPUT).bnr -DAPP_TITLE="$(APP_TITLE)" -DAPP_PRODUCT_CODE="$(APP_PRODUCT_CODE)" -DAPP_UNIQUE_ID=$(APP_UNIQUE_ID)
+
+ifneq ($(ROMFS),)
+	APP_ROMFS := $(TOPDIR)/$(ROMFS)
+	MAKEROM_ARGS_COMMON += -DAPP_ROMFS="$(APP_ROMFS)"
+endif
+
+export MAKEROM_ARGS_COMMON := $(MAKEROM_ARGS_COMMON)
 
 export T3XFILES		:=	$(GFXFILES:.t3s=.t3x)
 
