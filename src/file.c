@@ -157,7 +157,9 @@ FILE *openWritableFile(const char *pathname, const char *mode)
 #else // the rest of the platforms just have different base paths
 
 #if defined(_3DS)
-#define FILE_BASE_PATH "sdmc:/OpenSupaplex/"
+#include <sys/stat.h>
+#define FILE_BASE_PATH "romfs:/"
+#define FILE_BASE_WRITABLE_PATH "sdmc:/3ds/OpenSupaplex/"
 #elif defined(__NDS__)
 #define FILE_BASE_PATH "nitro:/resources/"
 #define FILE_BASE_WRITABLE_PATH ""
@@ -205,7 +207,7 @@ FILE *openWritableFile(const char *pathname, const char *mode)
     // Create base folder in a writable area
 #ifdef __vita__
     sceIoMkdir(FILE_BASE_WRITABLE_PATH, 0777);
-#elif defined(__riscos__)
+#elif defined(__riscos__) || defined(_3DS)
     mkdir(FILE_BASE_WRITABLE_PATH, 0777);
 #endif
 

@@ -59,12 +59,16 @@ void initializeSystem(void)
 		osSetSpeedupEnable(true);
         spLogInfo("Using New3DS speed up for better performance");
     }
+    romfsInit();
 #endif
 }
 
 void destroySystem(void)
 {
     SDL_Quit();
+#if defined(_3DS)
+    romfsExit();
+#endif
 }
 
 uint8_t isOld3DSSystem(void)
@@ -88,6 +92,9 @@ void exitWithError(const char *format, ...)
     vfprintf(stderr, format, argptr);
     va_end(argptr);
     SDL_Quit();
+#if defined(_3DS)
+    romfsExit();
+#endif
     exit(errno);
 }
 
