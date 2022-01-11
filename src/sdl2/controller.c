@@ -20,6 +20,7 @@
 #include <SDL2/SDL.h>
 #include <stdlib.h>
 
+static int sHasNoWorkingJoysticks = 0;
 static int sCurrentGameControllerIndex = -1;
 static SDL_GameController *sCurrentGameController = NULL;
 static const float kJoystickDeadzone = 0.5;
@@ -31,6 +32,11 @@ void initializeControllers(void)
 
 SDL_GameController *getGameController()
 {
+    if (sHasNoWorkingJoysticks)
+    {
+        return NULL;
+    }
+
     // The game controller is not valid anymore, invalidate.
     if (sCurrentGameControllerIndex != -1
         && SDL_IsGameController(sCurrentGameControllerIndex) == 0)
@@ -55,6 +61,7 @@ SDL_GameController *getGameController()
         }
     }
 
+    sHasNoWorkingJoysticks = 1;
     return sCurrentGameController;
 }
 
