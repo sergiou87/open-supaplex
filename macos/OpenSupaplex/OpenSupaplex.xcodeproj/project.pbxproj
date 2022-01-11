@@ -1053,9 +1053,6 @@
 					"-L/usr/local/lib",
 					"-lSDL2_mixer",
 					"-lSDL2",
-					"-lvorbisfile",
-					"-lvorbis",
-					"-logg",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.OpenSupaplex;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1083,9 +1080,6 @@
 					"-L/usr/local/lib",
 					"-lSDL2_mixer",
 					"-lSDL2",
-					"-lvorbisfile",
-					"-lvorbis",
-					"-logg",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.OpenSupaplex;
 				PRODUCT_NAME = "$(TARGET_NAME)";

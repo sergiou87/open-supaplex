@@ -1,7 +1,7 @@
 src = $(wildcard ../src/*.c) $(wildcard ../src/sdl1/*.c) $(wildcard ../src/sdl_common/*.c) ../src/null/virtualKeyboard.c ../src/lib/ini/ini.c
 obj = $(src:.c=.o)
 
-LDFLAGS = -lSDL_mixer -lvorbis -lFLAC -logg `sdl-config --libs` `pkg-config SDL_mixer --libs` -lm
+LDFLAGS = -lSDL_mixer `sdl-config --libs` `pkg-config SDL_mixer --libs` -lm
 
 CFLAGS = `sdl-config --cflags` `pkg-config SDL_mixer --cflags` -DHAVE_SDL
 

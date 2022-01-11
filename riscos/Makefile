@@ -3,7 +3,7 @@ obj = $(src:.c=.o)
 
 CC=arm-unknown-riscos-gcc
 CFLAGS = -O3 -std=c99 -I$(GCCSDK_INSTALL_ENV)/include -DHAVE_SDL
-LDFLAGS = -static -L$(GCCSDK_INSTALL_ENV)/lib -lSDL_mixer -lSDL -lvorbisidec -logg -lmikmod
+LDFLAGS = -static -L$(GCCSDK_INSTALL_ENV)/lib -lSDL_mixer -lSDL -lmikmod
 ZIP = $(GCCSDK_INSTALL_ENV)/bin/zip
 
 all: !OSupaplex/!RunImage,ff8 !OSupaplex/data !OSupaplex/audio

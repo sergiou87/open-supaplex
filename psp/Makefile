@@ -11,7 +11,7 @@ ASFLAGS = $(CFLAGS)
 
 LIBDIR = 
 LDFLAGS = 
-LIBS = -lSDL_mixer -lvorbisfile -lvorbis -logg -lSDL -lSDLmain -lGL -lGLU -lmikmod -lpspaudiolib -lpspaudio -lm \
+LIBS = -lSDL_mixer -lSDL -lSDLmain -lGL -lGLU -lmikmod -lpspaudiolib -lpspaudio -lm \
 	   -lpspgu -lpspvfpu -lpsprtc -lpspvram -lpsphprm -lpspirkeyb -lpsppower
 
 EXTRA_TARGETS = EBOOT.PBP
