@@ -39,7 +39,7 @@ CFLAGS		=	-O2 -Wall -mcpu=cell $(MACHDEP) $(INCLUDE) $(LIBPSL1GHT_INC) -I$(PORTL
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS	:=	-lSDL2_mixer -lmikmod -lSDL2 -lrsx -lgcm_sys -lio -laudio -lsysutil -lrt -llv2 -lm
+LIBS	:=	-lSDL2_mixer -lvorbisfile -lvorbis -logg -lmikmod -lSDL2 -lrsx -lgcm_sys -lio -laudio -lsysutil -lrt -llv2 -lm
 
 ifeq ($(DEBUG),1)
 	CFLAGS += -DDEBUG=1 -DDEBUGNET
