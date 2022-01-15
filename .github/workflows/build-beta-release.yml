@@ -5,11 +5,15 @@ on:
       version:
         required: true
         type: string
+      release_notes:
+        required: true
+        type: string
 
 jobs:
-  create-release:
-    name: Create release
+  create-beta-release:
+    name: Create beta release
     uses: sergiou87/open-supaplex/.github/workflows/build-release.yml@master
     with:
       version: ${{ github.event.inputs.version }}
+      release_notes: ${{ github.event.inputs.release_notes }}
       prerelease: true

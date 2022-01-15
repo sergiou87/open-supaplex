@@ -9,6 +9,9 @@ on:
         required: true
         default: false
         type: boolean
+      release_notes:
+        required: false
+        type: string
 
 jobs:
   build-linux:
@@ -188,6 +191,7 @@ jobs:
           CONTENTS="${CONTENTS//$'\r'/'%0D'}"
           echo "::set-output name=release_notes::${CONTENTS}"
         shell: bash
+        if: ${{ !inputs.release_notes }}
       - name: Download macOS Build Asset
         uses: actions/download-artifact@v1
         with:
@@ -232,7 +236,7 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: OpenSupaplex ${{ github.ref }}
-          body: ${{ steps.read_release_notes.outputs.release_notes }}
+          body: ${{ inputs.release_notes || steps.read_release_notes.outputs.release_notes }}
           draft: false
           prerelease: ${{ inputs.prerelease }}
       - name: Upload macOS Build Asset
