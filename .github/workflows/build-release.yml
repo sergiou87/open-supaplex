@@ -234,8 +234,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          tag_name: ${{ github.ref }}
-          release_name: OpenSupaplex ${{ github.ref }}
+          tag_name: ${{ inputs.version }}
+          release_name: OpenSupaplex ${{ inputs.version }}
           body: ${{ inputs.release_notes || steps.read_release_notes.outputs.release_notes }}
           draft: false
           prerelease: ${{ inputs.prerelease }}
