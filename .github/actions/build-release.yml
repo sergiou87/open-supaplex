@@ -5,6 +5,10 @@ on:
       version:
         required: true
         type: string
+      prerelease:
+        required: true
+        default: false
+        type: boolean
 
 jobs:
   build-linux:
@@ -230,7 +234,7 @@ jobs:
           release_name: OpenSupaplex ${{ github.ref }}
           body: ${{ steps.read_release_notes.outputs.release_notes }}
           draft: false
-          prerelease: false
+          prerelease: ${{ inputs.prerelease }}
       - name: Upload macOS Build Asset
         uses: actions/upload-release-asset@v1
         env:
