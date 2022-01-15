@@ -5,14 +5,8 @@ on:
       - v*
 jobs:
   create-release:
-    name: Create release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get the version
-        id: get_version
-        run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
-      - name: Build
-        uses: ./.github/actions/build-release@v1
-        with:
-          version: ${{ steps.get_version.outputs.VERSION }}
-          prerelease: false
+    name: Create production release
+    uses: sergiou87/open-supaplex/.github/workflows/build-release.yml@master
+    with:
+      version: ${{ github.ref_name }}
+      prerelease: false
