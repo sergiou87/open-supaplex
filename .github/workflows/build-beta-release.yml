@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Build
-        - uses: ./.github/actions/build-release@v1
-          with:
-            version: ${{ inputs.version }}
-            prerelease: true
+        uses: ./.github/actions/build-release@v1
+        with:
+          version: ${{ inputs.version }}
+          prerelease: true
