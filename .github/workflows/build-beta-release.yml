@@ -11,5 +11,5 @@ jobs:
     name: Create release
     uses: sergiou87/open-supaplex/.github/workflows/build-release.yml@master
     with:
-      version: ${{ inputs.version }}
+      version: ${{ github.event.inputs.version }}
       prerelease: true
