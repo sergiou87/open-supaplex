@@ -15,3 +15,4 @@ jobs:
         - uses: ./.github/actions/build-release@v1
           with:
             version: ${{ steps.get_version.outputs.VERSION }}
+            prerelease: false
