@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Build
-        uses: ./.github/actions/build-release@v1
+        uses: ./.github/workflows/build-release.yml
         with:
           version: ${{ inputs.version }}
           prerelease: true
