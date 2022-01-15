@@ -12,7 +12,7 @@ jobs:
         id: get_version
         run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
       - name: Build
-        - uses: ./.github/actions/build-release@v1
-          with:
-            version: ${{ steps.get_version.outputs.VERSION }}
-            prerelease: false
+        uses: ./.github/actions/build-release@v1
+        with:
+          version: ${{ steps.get_version.outputs.VERSION }}
+          prerelease: false
