@@ -159,7 +159,7 @@ FILE *openWritableFile(const char *pathname, const char *mode)
 #if defined(_3DS)
 #include <sys/stat.h>
 #define FILE_BASE_PATH "romfs:/"
-#define FILE_BASE_WRITABLE_PATH "sdmc:/3ds/OpenSupaplex/"
+#define FILE_BASE_WRITABLE_PATH "sdmc:/OpenSupaplex/"
 #elif defined(__NDS__)
 #define FILE_BASE_PATH "nitro:/resources/"
 #define FILE_BASE_WRITABLE_PATH ""
