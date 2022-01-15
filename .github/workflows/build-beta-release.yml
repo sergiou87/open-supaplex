@@ -9,7 +9,7 @@ on:
 jobs:
   create-release:
     name: Create release
-    uses: ./.github/workflows/build-release.yml
-      with:
-        version: ${{ inputs.version }}
-        prerelease: true
+    uses: ./.github/workflows/build-release.yml@master
+    with:
+      version: ${{ inputs.version }}
+      prerelease: true
