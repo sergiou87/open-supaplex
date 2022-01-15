@@ -1,8 +1,11 @@
 name: Build OpenSupaplex Release
 on:
-  push:
-    tags:
-      - v*
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+
 jobs:
   build-linux:
     name: Linux
@@ -170,16 +173,15 @@ jobs:
       ]
     runs-on: ubuntu-latest
     steps:
-      - name: Get the version
-        id: get_version
-        run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
-      - uses: actions/checkout@v1
-      - id: read_release_notes
+      - name: Checking out...
+        uses: actions/checkout@v1
+      - name: Read release notes
+        id: read_release_notes
         run: |
-          CONTENTS=`cat changelog/${{ steps.get_version.outputs.VERSION }}.txt`
+          CONTENTS=`cat changelog/${{ inputs.version }}.txt`
           CONTENTS="${CONTENTS//'%'/'%25'}"
           CONTENTS="${CONTENTS//$'\n'/'%0A'}"
-          CONTENTS="${CONTENTS//$'\r'/'%0D'}" 
+          CONTENTS="${CONTENTS//$'\r'/'%0D'}"
           echo "::set-output name=release_notes::${CONTENTS}"
         shell: bash
       - name: Download macOS Build Asset
@@ -236,7 +238,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: macos-build/OpenSupaplex-macOS.zip
-          asset_name: OpenSupaplex-macOS-${{ steps.get_version.outputs.VERSION }}.zip
+          asset_name: OpenSupaplex-macOS-${{ inputs.version }}.zip
           asset_content_type: application/binary
       - name: Upload PS Vita Build Asset
         uses: actions/upload-release-asset@v1
@@ -245,7 +247,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: vita-build/OpenSupaplex.vpk
-          asset_name: OpenSupaplex-vita-${{ steps.get_version.outputs.VERSION }}.vpk
+          asset_name: OpenSupaplex-vita-${{ inputs.version }}.vpk
           asset_content_type: application/binary
       - name: Upload Nintendo Switch Build Asset
         uses: actions/upload-release-asset@v1
@@ -254,7 +256,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: switch-build/OpenSupaplex-switch.zip
-          asset_name: OpenSupaplex-switch-${{ steps.get_version.outputs.VERSION }}.zip
+          asset_name: OpenSupaplex-switch-${{ inputs.version }}.zip
           asset_content_type: application/zip
       - name: Upload PSP Build Asset
         uses: actions/upload-release-asset@v1
@@ -263,7 +265,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: psp-build/OpenSupaplex-psp.zip
-          asset_name: OpenSupaplex-psp-${{ steps.get_version.outputs.VERSION }}.zip
+          asset_name: OpenSupaplex-psp-${{ inputs.version }}.zip
           asset_content_type: application/zip
       - name: Upload PS3 Build Asset
         uses: actions/upload-release-asset@v1
@@ -272,7 +274,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ps3-build/OpenSupaplex.pkg
-          asset_name: OpenSupaplex-ps3-${{ steps.get_version.outputs.VERSION }}.pkg
+          asset_name: OpenSupaplex-ps3-${{ inputs.version }}.pkg
           asset_content_type: application/binary
       - name: Upload Wii Build Asset
         uses: actions/upload-release-asset@v1
@@ -281,7 +283,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: wii-build/OpenSupaplex-wii.zip
-          asset_name: OpenSupaplex-wii-${{ steps.get_version.outputs.VERSION }}.zip
+          asset_name: OpenSupaplex-wii-${{ inputs.version }}.zip
           asset_content_type: application/zip
       - name: Upload Wii U Build Asset
         uses: actions/upload-release-asset@v1
@@ -290,7 +292,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: wiiu-build/OpenSupaplex-wiiu.zip
-          asset_name: OpenSupaplex-wiiu-${{ steps.get_version.outputs.VERSION }}.zip
+          asset_name: OpenSupaplex-wiiu-${{ inputs.version }}.zip
           asset_content_type: application/zip
       - name: Upload Nintendo 3DS Build Asset
         uses: actions/upload-release-asset@v1
@@ -299,7 +301,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: 3ds-build/OpenSupaplex-3ds.zip
-          asset_name: OpenSupaplex-3ds-${{ steps.get_version.outputs.VERSION }}.zip
+          asset_name: OpenSupaplex-3ds-${{ inputs.version }}.zip
           asset_content_type: application/zip
       - name: Upload Windows x86_64 Build Asset
         uses: actions/upload-release-asset@v1
@@ -308,5 +310,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: windows-x86_64-build/OpenSupaplex-windows-x86_64.zip
-          asset_name: OpenSupaplex-windows-x86_64-${{ steps.get_version.outputs.VERSION }}.zip
+          asset_name: OpenSupaplex-windows-x86_64-${{ inputs.version }}.zip
           asset_content_type: application/zip
