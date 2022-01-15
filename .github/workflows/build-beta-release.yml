@@ -1,0 +1,17 @@
+name: Build OpenSupaplex Beta Release
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        required: true
+        type: string
+
+jobs:
+  create-release:
+    name: Create release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build
+        - uses: ./.github/actions/build-release@v1
+          with:
+            version: ${{ inputs.version }}

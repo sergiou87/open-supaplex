@@ -1,0 +1,17 @@
+name: Build OpenSupaplex Production Release
+on:
+  push:
+    tags:
+      - v*
+jobs:
+  create-release:
+    name: Create release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
+      - name: Build
+        - uses: ./.github/actions/build-release@v1
+          with:
+            version: ${{ steps.get_version.outputs.VERSION }}
