@@ -280,7 +280,9 @@ uint8_t getGameControllerButtonRightShoulder(void)
 
 uint8_t getGameControllerConfirmButton(void)
 {
-#if defined(__WII__)
+#if defined(_3DS)
+    return getGameControllerButtonB();
+#elif defined(__WII__)
     return (getGameControllerButtonB()
             || getGameControllerButton(GAMEPAD_BUTTON_2));
 #else
@@ -290,7 +292,9 @@ uint8_t getGameControllerConfirmButton(void)
 
 uint8_t getGameControllerCancelButton(void)
 {
-#if defined(__WII__)
+#if defined(_3DS)
+    return getGameControllerButtonA();
+#elif defined(__WII__)
     return (getGameControllerButtonA()
             || getGameControllerButton(GAMEPAD_BUTTON_1));
 #else
