@@ -1167,7 +1167,11 @@ void handleRemoveSnikSnakOptionSelection()
 
 void handleMoveScrollOptionSelection()
 {
-    gIsMoveScrollModeEnabled = 1;
+    if (gIsMoveScrollModeEnabled == 0) {
+        gIsMoveScrollModeEnabled = 1;
+    } else {
+        gIsMoveScrollModeEnabled = 0;
+    }
     gShouldCloseAdvancedMenu = 1;
 }
 
