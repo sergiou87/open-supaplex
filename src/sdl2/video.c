@@ -64,7 +64,7 @@ void initializeVideo(uint8_t fastMode)
                                SDL_WINDOWPOS_UNDEFINED,
                                kWindowWidth,
                                kWindowHeight,
-#if defined(__SWITCH__) || defined(__vita__) || defined(__PSP__) || defined(__PSL1GHT__) || defined(__WIIU__)
+#if defined(__SWITCH__) || defined(__vita__) || defined(__PSP__) || defined(__PSL1GHT__) || defined(__WIIU__) || defined(__PS2__)
                                SDL_WINDOW_FULLSCREEN);
 #else
                                0);
