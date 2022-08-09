@@ -86,6 +86,7 @@ char demoFileName[kMaxFilePathLength] = "";
 FastModeType gFastMode = FastModeTypeNone;
 
 uint8_t gShouldShowFPS = 0;
+uint8_t gShouldLimitFPS = 1;
 
 uint8_t gIsPlayingDemo = 0; // byte_510DE -> 0DCE
 uint8_t gIsRecordingDemo = 0; // byte_510E3 -> 0DD3

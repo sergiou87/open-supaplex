@@ -1342,7 +1342,10 @@ void videoLoop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
     render();
     present();
 
-    limitFPS();
+    if (gShouldLimitFPS)
+    {
+        limitFPS();
+    }
 
     static uint32_t sNumberOfFrames = 0;
 
