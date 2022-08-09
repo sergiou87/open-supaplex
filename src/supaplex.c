@@ -1,17 +1,17 @@
 /*
  * This file is part of the OpenSupaplex distribution (https://github.com/sergiou87/open-supaplex).
  * Copyright (c) 2020 Sergio Padrino
- * 
- * This program is free software: you can redistribute it and/or modify  
- * it under the terms of the GNU General Public License as published by  
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, version 3.
  *
- * This program is distributed in the hope that it will be useful, but 
- * WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
+ * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -2508,7 +2508,7 @@ void readPlayersLst() //  proc near       ; CODE XREF: readEverything+1Bp
     {
         return;
     }
-    
+
     fclose(file);
 }
 
@@ -2519,19 +2519,19 @@ void readHallfameLst() // proc near       ; CODE XREF: readEverything+18p
     {
         return;
     }
-    
+
     FILE *file = openWritableFile(gHallfameLstFilename, "rb");
     if (file == NULL)
     {
         return;
     }
-    
+
     size_t bytes = fileReadBytes(gHallOfFameData, sizeof(gHallOfFameData), file);
     if (bytes == 0)
     {
         return;
     }
-    
+
     fclose (file);
 }
 
@@ -2925,7 +2925,7 @@ void updateZonkTiles(int16_t position) //   proc near       ; DATA XREF: data:16
                                              kTileSize * 2,
                                              kTileSize,
                                              dstX, dstY);
-                
+
                 state = currentTile->state;
                 state++;
 
@@ -9763,7 +9763,7 @@ void getMouseStatus(uint16_t *mouseX, uint16_t *mouseY, uint16_t *mouseButtonSta
     {
         x = CLAMP(x, 0, windowWidth);
         y = CLAMP(y, 0, windowHeight);
-        
+
         // Correct mouse position for future events
         moveMouse(x, y);
     }
