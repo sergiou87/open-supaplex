@@ -1332,7 +1332,7 @@ void videoLoop() //   proc near       ; CODE XREF: crt?2+52p crt?1+3Ep ...
     if (gShouldShowFPS)
     {
         char frameRateString[5] = "";
-        sprintf(frameRateString, "%4.1f", MIN(gFrameRate, 99.9)); // Don't show more than 99.9 FPS, not necessary
+        sprintf(frameRateString, "%4.1f", MIN(gFrameRate, 999.9)); // Don't show more than 999.9 FPS, not necessary
 
         drawTextWithChars6FontWithOpaqueBackground(0, 0, 6, frameRateString);
     }
