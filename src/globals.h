@@ -271,6 +271,7 @@ typedef enum
 extern FastModeType gFastMode;
 
 extern uint8_t gShouldShowFPS;
+extern uint8_t gShouldLimitFPS;
 
 extern uint8_t gIsPlayingDemo; // byte_510DE -> 0DCE
 extern uint8_t gIsRecordingDemo; // byte_510E3 -> 0DD3
