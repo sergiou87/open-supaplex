@@ -23,6 +23,7 @@ Other than that, **OpenSupaplex** can be built for any of the following platform
 - Linux
 - PSP
 - PS Vita
+- PlayStation 2
 - PlayStation 3
 - Nintendo DS
 - Nintendo 3DS
@@ -82,7 +83,7 @@ and add specific implementation files there.
 SDL_mixer or any of their dependencies, please, fix the root of the problem and don't write workarounds
 in the game's codebase. Not only you won't pollute **OpenSupaplex** with hacks that belong elsewhere,
 but you will also be contributing and helping people using SDL and SDL_mixer in that platform.
-I [have](https://github.com/SDL-mirror/SDL_mixer/commit/786f515337a51f3cb5cdbfdba63ffe8ec9c6ff69) [done](https://github.com/devkitPro/SDL/pull/59) [that](https://github.com/ps3dev/PSL1GHT/pull/71) [many](https://github.com/ps3dev/ps3libraries/pull/37) [many](https://github.com/rsn8887/SDL-Vita/pull/8) [times](https://github.com/devkitPro/SDL/pull/57) while working on the different ports, and it's a great experience.
+I [have](https://github.com/libsdl-org/SDL_mixer/commit/fb3af0e06e2d27e699ac6102ce5917ef91622e1f) [done](https://github.com/devkitPro/SDL-mirror/pull/59) [that](https://github.com/ps3dev/PSL1GHT/pull/71) [many](https://github.com/ps3dev/ps3libraries/pull/37) [many](https://github.com/rsn8887/SDL-Vita/pull/8) [times](https://github.com/devkitPro/SDL-mirror/pull/57) while working on the different ports, and it's a great experience.
 - It'd be very helpful if you also got some CI scripts to allow me building the new port from the GitHub Actions.
 
 ### Contributing with feedback
