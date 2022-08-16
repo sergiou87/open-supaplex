@@ -59,6 +59,7 @@ void initializeVideo(uint8_t fastMode)
         exit(1);
     }
 
+    // TODO: Use SDL_WINDOW_FULLSCREEN_DESKTOP in console ports?
     gWindow = SDL_CreateWindow("OpenSupaplex",
                                SDL_WINDOWPOS_UNDEFINED,
                                SDL_WINDOWPOS_UNDEFINED,
@@ -232,7 +233,7 @@ void toggleFullscreen()
 
 void setFullscreenMode(uint8_t fullscreen)
 {
-    SDL_SetWindowFullscreen(gWindow, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
+    SDL_SetWindowFullscreen(gWindow, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
 }
 
 uint8_t getFullscreenMode(void)
