@@ -130,6 +130,21 @@ jobs:
         with:
           name: wiiu-build
           path: wiiu/OpenSupaplex-wiiu.zip
+  build-nds:
+    name: Nintendo DS
+    runs-on: ubuntu-18.04
+    container: sergiou87/nds-docker-open-supaplex:7.2
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build OpenSupaplex
+        run: |
+          ./nds/ci-build-nds.sh
+        shell: bash
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: nds-build
+          path: nds/OpenSupaplex.nds
   build-3ds:
     name: Nintendo 3DS
     runs-on: ubuntu-18.04
@@ -171,6 +186,7 @@ jobs:
         build-vita,
         build-macos,
         build-switch,
+        build-nds,
         build-3ds,
         build-windows-x86_64,
         build-psp,
@@ -220,6 +236,10 @@ jobs:
         uses: actions/download-artifact@v1
         with:
           name: wiiu-build
+      - name: Download Nintendo DS Build Asset
+        uses: actions/download-artifact@v1
+        with:
+          name: nds-build
       - name: Download Nintendo 3DS Build Asset
         uses: actions/download-artifact@v1
         with:
@@ -302,6 +322,15 @@ jobs:
           asset_path: wiiu-build/OpenSupaplex-wiiu.zip
           asset_name: OpenSupaplex-wiiu-${{ inputs.version }}.zip
           asset_content_type: application/zip
+      - name: Upload Nintendo DS Build Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: nds-build/OpenSupaplex.nds
+          asset_name: OpenSupaplex-nds-${{ inputs.version }}.nds
+          asset_content_type: application/binary
       - name: Upload Nintendo 3DS Build Asset
         uses: actions/upload-release-asset@v1
         env:
