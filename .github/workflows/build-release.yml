@@ -145,6 +145,21 @@ jobs:
         with:
           name: 3ds-build
           path: 3ds/OpenSupaplex-3ds.zip
+  build-riscos:
+    name: RISC OS
+    runs-on: ubuntu-18.04
+    container: sergiou87/riscos-docker-open-supaplex:7.2
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build OpenSupaplex
+        run: |
+          ./riscos/ci-build.sh
+        shell: bash
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: riscos-build
+          path: riscos/OpenSupaplex-riscos.zip
   build-windows-x86_64:
     name: Windows x86_64
     runs-on: windows-latest
@@ -172,6 +187,7 @@ jobs:
         build-macos,
         build-switch,
         build-3ds,
+        build-riscos,
         build-windows-x86_64,
         build-psp,
         build-ps3,
@@ -224,6 +240,10 @@ jobs:
         uses: actions/download-artifact@v1
         with:
           name: 3ds-build
+      - name: Download RISC OS Build Asset
+        uses: actions/download-artifact@v1
+        with:
+          name: riscos-build
       - name: Download Windows x86_64 Build Asset
         uses: actions/download-artifact@v1
         with:
@@ -310,6 +330,15 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: 3ds-build/OpenSupaplex-3ds.zip
           asset_name: OpenSupaplex-3ds-${{ inputs.version }}.zip
+          asset_content_type: application/zip
+      - name: Upload RISC OS Build Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: riscos-build/OpenSupaplex-riscos.zip
+          asset_name: OpenSupaplex-riscos-${{ inputs.version }}.zip
           asset_content_type: application/zip
       - name: Upload Windows x86_64 Build Asset
         uses: actions/upload-release-asset@v1

@@ -70,6 +70,7 @@ wasm/opensupaplex.wasm
 
 # RISC OS stuff
 riscos/*,e1f
+riscos/*.zip
 riscos/\!OSupaplex/*,ff8
 riscos/\!OSupaplex/audio
 riscos/\!OSupaplex/data
