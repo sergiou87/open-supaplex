@@ -128,6 +128,21 @@ jobs:
         with:
           name: wiiu-build
           path: wiiu/OpenSupaplex-wiiu.zip
+  build-nds:
+    name: Nintendo DS
+    runs-on: ubuntu-18.04
+    container: sergiou87/nds-docker-open-supaplex:7.2
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build OpenSupaplex
+        run: |
+          ./nds/ci-build-nds.sh
+        shell: bash
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: nds-build
+          path: nds/OpenSupaplex.nds
   build-3ds:
     name: Nintendo 3DS
     runs-on: ubuntu-18.04
