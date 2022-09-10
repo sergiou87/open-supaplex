@@ -143,6 +143,21 @@ jobs:
         with:
           name: 3ds-build
           path: 3ds/OpenSupaplex-3ds.zip
+  build-riscos:
+    name: RISC OS
+    runs-on: ubuntu-18.04
+    container: sergiou87/riscos-docker-open-supaplex:7.2
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build OpenSupaplex
+        run: |
+          ./riscos/ci-build.sh
+        shell: bash
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: riscos-build
+          path: riscos/OpenSupaplex-riscos.zip
   build-windows-x86_64:
     name: Windows x86_64
     runs-on: windows-latest
