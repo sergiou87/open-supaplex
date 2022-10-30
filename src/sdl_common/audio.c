@@ -139,7 +139,7 @@ int8_t initializeAudio()
 
     // Wii and Wii U use ModPlug instead of MikMod, so MIX_INIT_MOD is not required
 #if !defined(__WII__) && !defined(__WIIU__)
-     flags |= MIX_INIT_MOD;
+     flags |= MIX_INIT_OGG;
 #endif
 
     int initted = Mix_Init(flags);
@@ -170,6 +170,7 @@ void destroyAudio()
     }
 
     stopMusic();
+    destroyMusic();
     // TODO: stop sounds
     Mix_Quit();
     Mix_CloseAudio();
@@ -202,7 +203,7 @@ void loadMusic()
     }
 
     char filename[kMaxSoundFilenameLength] = "";
-    snprintf(filename, kMaxSoundFilenameLength, "%s/music-%s.xm", kBaseAudioFolder, musicSuffix);
+    snprintf(filename, kMaxSoundFilenameLength, "%s/music-%s.ogg", kBaseAudioFolder, musicSuffix);
 
     gMusic = Mix_LoadMUS(filename);
 
