@@ -9570,8 +9570,8 @@ void updateHallOfFameEntries() // sub_4D1B6  proc near       ; CODE XREF: change
     }
 
 //loc_4D1BE:              ; CODE XREF: updateHallOfFameEntries+5j
-    PlayerEntry currentPlayerEntry = gPlayerListData[gCurrentPlayerIndex];
-    if (currentPlayerEntry.completedAllLevels != 0)
+    PlayerEntry *currentPlayerEntry = &gPlayerListData[gCurrentPlayerIndex];
+    if (currentPlayerEntry->completedAllLevels != 0)
     {
         return;
     }
@@ -9582,7 +9582,7 @@ void updateHallOfFameEntries() // sub_4D1B6  proc near       ; CODE XREF: change
     for (int i = 0; i < kNumberOfLevels; ++i)
     {
 //loc_4D1E2:              ; CODE XREF: updateHallOfFameEntries+33j
-        if (currentPlayerEntry.levelState[i] == PlayerLevelStateCompleted)
+        if (currentPlayerEntry->levelState[i] == PlayerLevelStateCompleted)
         {
             numberOfCompletedLevels++;
         }
@@ -9594,7 +9594,7 @@ void updateHallOfFameEntries() // sub_4D1B6  proc near       ; CODE XREF: change
         return;
     }
 
-    currentPlayerEntry.completedAllLevels = 1;
+    currentPlayerEntry->completedAllLevels = 1;
 
     int newEntryInsertIndex = -1;
 //    mov cx, 3
@@ -9614,21 +9614,21 @@ void updateHallOfFameEntries() // sub_4D1B6  proc near       ; CODE XREF: change
 
 //loc_4D20E:              ; CODE XREF: updateHallOfFameEntries+48j
 //                ; updateHallOfFameEntries+4Ej ...
-        if (currentPlayerEntry.hours < entry.hours)
+        if (currentPlayerEntry->hours < entry.hours)
         {
             newEntryInsertIndex = i;
             break;
         }
-        else if (currentPlayerEntry.hours == entry.hours)
+        else if (currentPlayerEntry->hours == entry.hours)
         {
-            if (currentPlayerEntry.minutes < entry.minutes)
+            if (currentPlayerEntry->minutes < entry.minutes)
             {
                 newEntryInsertIndex = i;
                 break;
             }
-            else if (currentPlayerEntry.minutes == entry.minutes)
+            else if (currentPlayerEntry->minutes == entry.minutes)
             {
-                if (currentPlayerEntry.seconds < entry.seconds)
+                if (currentPlayerEntry->seconds < entry.seconds)
                 {
                     newEntryInsertIndex = i;
                     break;
@@ -9655,11 +9655,11 @@ void updateHallOfFameEntries() // sub_4D1B6  proc near       ; CODE XREF: change
         HallOfFameEntry *newEntry = &gHallOfFameData[newEntryInsertIndex];
 
         memcpy(newEntry->playerName,
-               currentPlayerEntry.name,
-               sizeof(currentPlayerEntry.name));
-        newEntry->hours = currentPlayerEntry.hours;
-        newEntry->minutes = currentPlayerEntry.minutes;
-        newEntry->seconds = currentPlayerEntry.seconds;
+               currentPlayerEntry->name,
+               sizeof(currentPlayerEntry->name));
+        newEntry->hours = currentPlayerEntry->hours;
+        newEntry->minutes = currentPlayerEntry->minutes;
+        newEntry->seconds = currentPlayerEntry->seconds;
     }
 
 //loc_4D24B:              ; CODE XREF: updateHallOfFameEntries+38j
