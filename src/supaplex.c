@@ -8149,11 +8149,12 @@ void drawHallOfFame() // sub_4C1A9   proc near       ; CODE XREF: handleFloppyDi
 //                    ; drawMenuTitleAndDemoLevelResult+11p
 {
     // 01ED:5546
-    char text[19] = "                  ";
+    char text[19] = { '\0' };
 
     for (int i = 0; i < kNumberOfHallOfFameEntries; ++i)
     {
 //loc_4C1B7:              ; CODE XREF: drawHallOfFame+56j
+        strcpy(text, "                  ");
         HallOfFameEntry entry = gHallOfFameData[i];
 
         convertNumberTo3DigitStringWithPadding0(entry.seconds, &text[15]);
