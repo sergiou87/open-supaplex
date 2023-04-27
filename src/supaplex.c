@@ -6126,6 +6126,11 @@ void restartLevel() // sub_4A3E9   proc near       ; CODE XREF: handleGameUserIn
         addCurrentGameTimeToPlayer();
     }
 
+    if (gIsRecordingDemo != 0)
+    {
+        stopRecordingDemo();
+    }
+
     restartLevelWithoutAddingCurrentGameTimeToPlayer();
 }
 
