@@ -4483,7 +4483,7 @@ void stopRecordingDemo() // somethingspsig  proc near       ; CODE XREF: runLeve
     fileWriteUInt8(gDemoCurrentInput, gCurrentRecordingDemoFile);
     if (byte_5A19B != 0)
     {
-        FILE *sigFile = openWritableFileWithReadonlyFallback("MYSPSIG.TXT", "rb");
+        FILE *sigFile = openWritableFileWithReadonlyFallback("myspsig.txt", "rb");
         if (sigFile != NULL)
         {
             if (fseek(sigFile, 0, SEEK_END) == 0)
@@ -4516,7 +4516,7 @@ void stopRecordingDemo() // somethingspsig  proc near       ; CODE XREF: runLeve
                             sigFileSize = idx;
 
 //loc_4941C:              ; CODE XREF: stopRecordingDemo+BCj
-                            fileWriteBytes(signature, sigFileSize, sigFile);
+                            fileWriteBytes(signature, sigFileSize + 1, gCurrentRecordingDemoFile);
                         }
                     }
                 }
