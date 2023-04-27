@@ -7251,7 +7251,7 @@ void handleStatisticsOptionClick() // sub_4AF0C   proc near
     char averageTimeString[6] = "000.0";
     uint16_t averageMinutesWhole = totalMinutes / currentPlayerEntry.nextLevelToPlay;
     uint16_t averageMinutesFraction = (totalMinutes % currentPlayerEntry.nextLevelToPlay);
-    averageMinutesFraction = averageMinutesFraction / currentPlayerEntry.nextLevelToPlay;
+    averageMinutesFraction = averageMinutesFraction * 10 / currentPlayerEntry.nextLevelToPlay;
     convertNumberTo3DigitStringWithPadding0(averageMinutesFraction, &averageTimeString[2]);
 
     if (averageMinutesWhole == 0)
