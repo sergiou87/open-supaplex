@@ -237,6 +237,8 @@
 		40EE92CF24A8B39E0004152D /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 40EE92CD24A8B39E0004152D /* SDL2.framework */; };
 		40EE92D124A8B3C40004152D /* SDL2_mixer.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 40EE92CC24A8B39D0004152D /* SDL2_mixer.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		40EE92D224A8B3C40004152D /* SDL2.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 40EE92CD24A8B39E0004152D /* SDL2.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		B8C916D529FD2E4200AC324C /* xmp_lite.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = B8C916D429FD2E4200AC324C /* xmp_lite.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		B8C916D629FD2E4600AC324C /* xmp_lite.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8C916D429FD2E4200AC324C /* xmp_lite.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -246,6 +248,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				B8C916D529FD2E4200AC324C /* xmp_lite.framework in CopyFiles */,
 				40EE92D124A8B3C40004152D /* SDL2_mixer.framework in CopyFiles */,
 				40EE92D224A8B3C40004152D /* SDL2.framework in CopyFiles */,
 			);
@@ -396,6 +399,7 @@
 		40E6995324787DAE000ADD53 /* savegame.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = savegame.c; path = ../../../src/savegame.c; sourceTree = "<group>"; };
 		40EE92CC24A8B39D0004152D /* SDL2_mixer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_mixer.framework; path = Frameworks/SDL2_mixer.framework; sourceTree = "<group>"; };
 		40EE92CD24A8B39E0004152D /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = Frameworks/SDL2.framework; sourceTree = "<group>"; };
+		B8C916D429FD2E4200AC324C /* xmp_lite.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = xmp_lite.framework; path = Frameworks/xmp_lite.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -403,6 +407,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B8C916D629FD2E4600AC324C /* xmp_lite.framework in Frameworks */,
 				40EE92CE24A8B39E0004152D /* SDL2_mixer.framework in Frameworks */,
 				40EE92CF24A8B39E0004152D /* SDL2.framework in Frameworks */,
 			);
@@ -616,6 +621,7 @@
 		40C0D73824196423004742A9 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B8C916D429FD2E4200AC324C /* xmp_lite.framework */,
 				40EE92CC24A8B39D0004152D /* SDL2_mixer.framework */,
 				40EE92CD24A8B39E0004152D /* SDL2.framework */,
 			);
