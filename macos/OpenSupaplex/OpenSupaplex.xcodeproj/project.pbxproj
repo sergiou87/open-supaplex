@@ -264,8 +264,8 @@
 		400145AA2462CE9F00620211 /* utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = utils.h; path = ../../../src/utils.h; sourceTree = "<group>"; };
 		400145AB2462CE9F00620211 /* utils.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = utils.c; path = ../../../src/utils.c; sourceTree = "<group>"; };
 		4037C2152487DCFA001B4029 /* virtualKeyboard.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = virtualKeyboard.c; sourceTree = "<group>"; };
-		403839C5247E5D7900C1B08B /* audio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = audio.c; path = ../../../../src/sdl_common/audio.c; sourceTree = "<group>"; };
-		403839C6247E5D7900C1B08B /* system.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = system.c; path = ../../../../src/sdl_common/system.c; sourceTree = "<group>"; };
+		403839C5247E5D7900C1B08B /* audio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = audio.c; path = audio.c; sourceTree = "<group>"; };
+		403839C6247E5D7900C1B08B /* system.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = system.c; path = system.c; sourceTree = "<group>"; };
 		403839CB247E5DAE00C1B08B /* logging.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = logging.c; path = ../../../src/logging.c; sourceTree = "<group>"; };
 		404824402485BA1200D13735 /* audio */ = {isa = PBXFileReference; lastKnownFileType = folder; name = audio; path = ../../resources/audio; sourceTree = "<group>"; };
 		404879BF246B51E600B776FA /* input.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = input.h; path = ../../../src/input.h; sourceTree = "<group>"; };
@@ -384,10 +384,10 @@
 		409F7DD9247B299100BB3B19 /* DEMO1.BIN */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = DEMO1.BIN; path = ../../resources/DEMO1.BIN; sourceTree = "<group>"; };
 		409F7DDA247B299100BB3B19 /* LEVELS.D05 */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.D05; path = ../../resources/LEVELS.D05; sourceTree = "<group>"; };
 		409F7F07247B35AE00BB3B19 /* keyboard.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = keyboard.h; path = ../../../src/keyboard.h; sourceTree = "<group>"; };
-		409F7F24247C74E300BB3B19 /* touchscreen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = touchscreen.c; path = ../../../../src/sdl2/touchscreen.c; sourceTree = "<group>"; };
-		409F7F25247C74E300BB3B19 /* controller.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = controller.c; path = ../../../../src/sdl2/controller.c; sourceTree = "<group>"; };
-		409F7F26247C74E300BB3B19 /* video.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = video.c; path = ../../../../src/sdl2/video.c; sourceTree = "<group>"; };
-		409F7F27247C74E300BB3B19 /* keyboard.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = keyboard.c; path = ../../../../src/sdl2/keyboard.c; sourceTree = "<group>"; };
+		409F7F24247C74E300BB3B19 /* touchscreen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = touchscreen.c; path = touchscreen.c; sourceTree = "<group>"; };
+		409F7F25247C74E300BB3B19 /* controller.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = controller.c; path = controller.c; sourceTree = "<group>"; };
+		409F7F26247C74E300BB3B19 /* video.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = video.c; path = video.c; sourceTree = "<group>"; };
+		409F7F27247C74E300BB3B19 /* keyboard.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = keyboard.c; path = keyboard.c; sourceTree = "<group>"; };
 		40C8290C24673197003A103E /* audio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = audio.h; path = ../../../src/audio.h; sourceTree = "<group>"; };
 		40DA3CF62468717400D4A308 /* menu.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = menu.h; path = ../../../src/menu.h; sourceTree = "<group>"; };
 		40DA3CF72468717400D4A308 /* menu.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = menu.c; path = ../../../src/menu.c; sourceTree = "<group>"; };
@@ -438,7 +438,8 @@
 				403839C5247E5D7900C1B08B /* audio.c */,
 				403839C6247E5D7900C1B08B /* system.c */,
 			);
-			path = sdl_common;
+			name = sdl_common;
+			path = ../../../src/sdl_common;
 			sourceTree = "<group>";
 		};
 		40487A0A246C432E00B776FA /* Resources */ = {
@@ -549,7 +550,8 @@
 				409F7F24247C74E300BB3B19 /* touchscreen.c */,
 				409F7F26247C74E300BB3B19 /* video.c */,
 			);
-			path = sdl2;
+			name = sdl2;
+			path = ../../../src/sdl2;
 			sourceTree = "<group>";
 		};
 		40C0D72324196126004742A9 = {
