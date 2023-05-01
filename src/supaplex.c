@@ -4483,7 +4483,7 @@ void stopRecordingDemo() // somethingspsig  proc near       ; CODE XREF: runLeve
     fileWriteUInt8(gDemoCurrentInput, gCurrentRecordingDemoFile);
     if (byte_5A19B != 0)
     {
-        FILE *sigFile = openWritableFileWithReadonlyFallback("MYSPSIG.TXT", "rb");
+        FILE *sigFile = openWritableFileWithReadonlyFallback("myspsig.txt", "rb");
         if (sigFile != NULL)
         {
             if (fseek(sigFile, 0, SEEK_END) == 0)
@@ -4516,7 +4516,7 @@ void stopRecordingDemo() // somethingspsig  proc near       ; CODE XREF: runLeve
                             sigFileSize = idx;
 
 //loc_4941C:              ; CODE XREF: stopRecordingDemo+BCj
-                            fileWriteBytes(signature, sigFileSize, sigFile);
+                            fileWriteBytes(signature, sigFileSize + 1, gCurrentRecordingDemoFile);
                         }
                     }
                 }
@@ -6126,6 +6126,11 @@ void restartLevel() // sub_4A3E9   proc near       ; CODE XREF: handleGameUserIn
         addCurrentGameTimeToPlayer();
     }
 
+    if (gIsRecordingDemo != 0)
+    {
+        stopRecordingDemo();
+    }
+
     restartLevelWithoutAddingCurrentGameTimeToPlayer();
 }
 
@@ -7251,7 +7256,7 @@ void handleStatisticsOptionClick() // sub_4AF0C   proc near
     char averageTimeString[6] = "000.0";
     uint16_t averageMinutesWhole = totalMinutes / currentPlayerEntry.nextLevelToPlay;
     uint16_t averageMinutesFraction = (totalMinutes % currentPlayerEntry.nextLevelToPlay);
-    averageMinutesFraction = averageMinutesFraction / currentPlayerEntry.nextLevelToPlay;
+    averageMinutesFraction = averageMinutesFraction * 10 / currentPlayerEntry.nextLevelToPlay;
     convertNumberTo3DigitStringWithPadding0(averageMinutesFraction, &averageTimeString[2]);
 
     if (averageMinutesWhole == 0)
@@ -8149,11 +8154,12 @@ void drawHallOfFame() // sub_4C1A9   proc near       ; CODE XREF: handleFloppyDi
 //                    ; drawMenuTitleAndDemoLevelResult+11p
 {
     // 01ED:5546
-    char text[19] = "                  ";
+    char text[19] = { '\0' };
 
     for (int i = 0; i < kNumberOfHallOfFameEntries; ++i)
     {
 //loc_4C1B7:              ; CODE XREF: drawHallOfFame+56j
+        strcpy(text, "                  ");
         HallOfFameEntry entry = gHallOfFameData[i];
 
         convertNumberTo3DigitStringWithPadding0(entry.seconds, &text[15]);
@@ -9569,8 +9575,8 @@ void updateHallOfFameEntries() // sub_4D1B6  proc near       ; CODE XREF: change
     }
 
 //loc_4D1BE:              ; CODE XREF: updateHallOfFameEntries+5j
-    PlayerEntry currentPlayerEntry = gPlayerListData[gCurrentPlayerIndex];
-    if (currentPlayerEntry.completedAllLevels != 0)
+    PlayerEntry *currentPlayerEntry = &gPlayerListData[gCurrentPlayerIndex];
+    if (currentPlayerEntry->completedAllLevels != 0)
     {
         return;
     }
@@ -9581,7 +9587,7 @@ void updateHallOfFameEntries() // sub_4D1B6  proc near       ; CODE XREF: change
     for (int i = 0; i < kNumberOfLevels; ++i)
     {
 //loc_4D1E2:              ; CODE XREF: updateHallOfFameEntries+33j
-        if (currentPlayerEntry.levelState[i] == PlayerLevelStateCompleted)
+        if (currentPlayerEntry->levelState[i] == PlayerLevelStateCompleted)
         {
             numberOfCompletedLevels++;
         }
@@ -9593,7 +9599,7 @@ void updateHallOfFameEntries() // sub_4D1B6  proc near       ; CODE XREF: change
         return;
     }
 
-    currentPlayerEntry.completedAllLevels = 1;
+    currentPlayerEntry->completedAllLevels = 1;
 
     int newEntryInsertIndex = -1;
 //    mov cx, 3
@@ -9613,21 +9619,21 @@ void updateHallOfFameEntries() // sub_4D1B6  proc near       ; CODE XREF: change
 
 //loc_4D20E:              ; CODE XREF: updateHallOfFameEntries+48j
 //                ; updateHallOfFameEntries+4Ej ...
-        if (currentPlayerEntry.hours < entry.hours)
+        if (currentPlayerEntry->hours < entry.hours)
         {
             newEntryInsertIndex = i;
             break;
         }
-        else if (currentPlayerEntry.hours == entry.hours)
+        else if (currentPlayerEntry->hours == entry.hours)
         {
-            if (currentPlayerEntry.minutes < entry.minutes)
+            if (currentPlayerEntry->minutes < entry.minutes)
             {
                 newEntryInsertIndex = i;
                 break;
             }
-            else if (currentPlayerEntry.minutes == entry.minutes)
+            else if (currentPlayerEntry->minutes == entry.minutes)
             {
-                if (currentPlayerEntry.seconds < entry.seconds)
+                if (currentPlayerEntry->seconds < entry.seconds)
                 {
                     newEntryInsertIndex = i;
                     break;
@@ -9654,11 +9660,11 @@ void updateHallOfFameEntries() // sub_4D1B6  proc near       ; CODE XREF: change
         HallOfFameEntry *newEntry = &gHallOfFameData[newEntryInsertIndex];
 
         memcpy(newEntry->playerName,
-               currentPlayerEntry.name,
-               sizeof(currentPlayerEntry.name));
-        newEntry->hours = currentPlayerEntry.hours;
-        newEntry->minutes = currentPlayerEntry.minutes;
-        newEntry->seconds = currentPlayerEntry.seconds;
+               currentPlayerEntry->name,
+               sizeof(currentPlayerEntry->name));
+        newEntry->hours = currentPlayerEntry->hours;
+        newEntry->minutes = currentPlayerEntry->minutes;
+        newEntry->seconds = currentPlayerEntry->seconds;
     }
 
 //loc_4D24B:              ; CODE XREF: updateHallOfFameEntries+38j
