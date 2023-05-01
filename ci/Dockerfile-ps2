@@ -1,0 +1,6 @@
+FROM ps2dev/ps2dev:sha256:c5629318761ee285137a3949e4443d3460095814da3ec7ae2742de6fb2f24716
+
+MAINTAINER Sergio Padrino (@sergiou87)
+
+WORKDIR /src
+CMD ["/bin/ash"]
