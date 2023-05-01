@@ -9,7 +9,7 @@ on:
 jobs:
   build-linux:
     name: Linux
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v1
       - name: Build OpenSupaplex
@@ -39,7 +39,7 @@ jobs:
           path: macos/OpenSupaplex-macOS.zip
   build-vita:
     name: PS Vita
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     container: sergiou87/vita-docker-open-supaplex:7.2
     steps:
       - uses: actions/checkout@v1
@@ -54,7 +54,7 @@ jobs:
           path: vita/build/OpenSupaplex.vpk
   build-switch:
     name: Nintendo Switch
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     container: sergiou87/switch-docker-open-supaplex:7.1
     steps:
       - uses: actions/checkout@v1
@@ -69,7 +69,7 @@ jobs:
           path: switch/OpenSupaplex-switch.zip
   build-psp:
     name: PSP
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     container: sergiou87/pspdev-docker-open-supaplex:7.1
     steps:
       - uses: actions/checkout@v1
@@ -85,7 +85,7 @@ jobs:
           path: psp/OpenSupaplex-psp.zip
   build-ps3:
     name: PS3
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     container: sergiou87/ps3dev-docker-open-supaplex:7.2
     steps:
       - uses: actions/checkout@v1
@@ -100,7 +100,7 @@ jobs:
           path: ps3/OpenSupaplex.pkg
   build-wii:
     name: Wii
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     container: sergiou87/wii-docker-open-supaplex:7.2
     steps:
       - uses: actions/checkout@v1
@@ -115,7 +115,7 @@ jobs:
           path: wii/OpenSupaplex-wii.zip
   build-wiiu:
     name: Wii U
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     container: sergiou87/wiiu-docker-open-supaplex:7.2
     steps:
       - uses: actions/checkout@v1
@@ -130,7 +130,7 @@ jobs:
           path: wiiu/OpenSupaplex-wiiu.zip
   build-nds:
     name: Nintendo DS
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     container: sergiou87/nds-docker-open-supaplex:7.2
     steps:
       - uses: actions/checkout@v1
@@ -145,7 +145,7 @@ jobs:
           path: nds/OpenSupaplex.nds
   build-3ds:
     name: Nintendo 3DS
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     container: sergiou87/3ds-docker-open-supaplex:7.1
     steps:
       - uses: actions/checkout@v1
@@ -160,7 +160,7 @@ jobs:
           path: 3ds/OpenSupaplex-3ds.zip
   build-riscos:
     name: RISC OS
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     container: sergiou87/riscos-docker-open-supaplex:7.2
     steps:
       - uses: actions/checkout@v1
