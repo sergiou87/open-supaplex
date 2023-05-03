@@ -179,6 +179,8 @@ uint8_t isJoystickEnabled = 0; // byte_50940
 uint8_t isMusicEnabled = 0; // byte_59886
 uint8_t isFXEnabled = 0; // byte_59885
 
+uint8_t isFullScreenKeyPressed = 0;
+
 uint8_t gIsFlashingBackgroundModeEnabled = 0; // flashingbackgroundon
 const float kSpeedTimeFactors[kNumberOfGameSpeeds] = { 3.5, 3.0, 2.5, 2.0, 1.5, 1.0, 0.75, 2.0 / 3.0, 5.0 / 8.0, 3.0 / 5.0, 1.0 / 70.0 };
 
@@ -1902,7 +1904,15 @@ void int9handler(uint8_t shouldYieldCpu) // proc far        ; DATA XREF: setint9
 
     if (gIsLeftAltPressed && gIsEnterPressed)
     {
-        toggleFullscreen();
+        if (!isFullScreenKeyPressed)
+        {
+            toggleFullscreen();
+        }
+        isFullScreenKeyPressed = 1;
+    }
+    else
+    {
+        isFullScreenKeyPressed = 0;
     }
 
 //storeKey:               ; CODE XREF: int9handler+2Bj
