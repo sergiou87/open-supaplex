@@ -6,7 +6,7 @@ MAINTAINER Sergio Padrino (@sergiou87)
 
 RUN ln -sf /proc/mounts /etc/mtab \
     && sudo dkp-pacman -Syu --noconfirm \
-    && sudo dkp-pacman -S wii-sdl wii-sdl_mixer --noconfirm \
+    && sudo dkp-pacman -S wii-sdl2 wii-sdl2_mixer --noconfirm \
     && sudo apt-get update \
     && sudo apt-get -y install zip
 
