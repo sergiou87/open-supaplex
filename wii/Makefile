@@ -17,7 +17,7 @@ include $(DEVKITPPC)/wii_rules
 #---------------------------------------------------------------------------------
 TARGET			:=	OpenSupaplex
 BUILD			:=	build
-SOURCES			:=	../src ../src/sdl_common ../src/wii ../src/sdl1 ../src/lib/ini
+SOURCES			:=	../src ../src/sdl_common ../src/wii ../src/sdl2 ../src/lib/ini
 DATA			:=	data
 INCLUDES		:=	
 
@@ -25,7 +25,7 @@ INCLUDES		:=
 # options for code generation
 #---------------------------------------------------------------------------------
 
-CFLAGS	= -g -O2 -Wall $(MACHDEP) $(INCLUDE) -I$(PORTLIBS_PATH)/wii/include -I$(PORTLIBS_PATH)/ppc/include -DHAVE_SDL -Dmain=SDL_main -D__WII__
+CFLAGS	= -g -O2 -Wall $(MACHDEP) $(INCLUDE) -I$(PORTLIBS_PATH)/wii/include -I$(PORTLIBS_PATH)/ppc/include -DHAVE_SDL2 -Dmain=SDL_main -D__WII__
 CXXFLAGS	=	$(CFLAGS)
 
 LDFLAGS	=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map -L$(PORTLIBS_PATH)/wii/lib -L$(PORTLIBS_PATH)/ppc/lib
@@ -33,7 +33,7 @@ LDFLAGS	=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map -L$(PORTLIBS_PATH)/wii/lib -L$
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS	:=	`$(PREFIX)pkg-config --libs SDL_mixer sdl`
+LIBS	:=	`$(PREFIX)pkg-config --libs SDL2_mixer sdl2`
 
 ifeq ($(DEBUG),1)
 	CFLAGS += -DDEBUG=1 -DDEBUGNET
