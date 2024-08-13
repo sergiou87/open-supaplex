@@ -9,4 +9,4 @@ opensupaplex: $(obj)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 clean:
-	rm $(obj)
+	rm -f $(obj)
