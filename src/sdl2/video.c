@@ -251,7 +251,7 @@ void setColorPalette(const ColorPalette palette)
     SDL_SetPaletteColors(gScreenSurface->format->palette, (SDL_Color *)palette, 0, kNumberOfColors);
 }
 
-int windowResizingEventWatcher(void* data, SDL_Event* event)
+int windowResizingEventWatcher(void* /*data*/, SDL_Event* event)
 {
     if (event->type == SDL_WINDOWEVENT
         && event->window.event == SDL_WINDOWEVENT_RESIZED)

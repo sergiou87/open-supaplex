@@ -204,7 +204,7 @@ ini_t* ini_load(const char *filename) {
   ini->data[sz] = '\0';
   ini->end = ini->data  + sz;
   n = fread(ini->data, 1, sz, fp);
-  if (n != sz) {
+  if (n != (unsigned long)sz) {
     goto fail;
   }
 

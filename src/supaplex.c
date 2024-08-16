@@ -976,7 +976,7 @@ void buildScalingModeOptionTitle(char output[kMaxAdvancedOptionsMenuEntryTitleLe
     snprintf(output, kMaxAdvancedOptionsMenuEntryTitleLength, "SCALING MODE: %s", mode);
 }
 
-void buildBooleanOptionTitle(char output[kMaxAdvancedOptionsMenuEntryTitleLength], char title[kMaxAdvancedOptionsMenuEntryTitleLength], uint8_t value)
+void buildBooleanOptionTitle(char output[kMaxAdvancedOptionsMenuEntryTitleLength], const char *title, uint8_t value)
 {
     snprintf(output, kMaxAdvancedOptionsMenuEntryTitleLength, "%s: %s", title, (value == 0 ? "OFF" : "ON"));
 }
@@ -4207,14 +4207,14 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 //loc_48B78:              ; CODE XREF: runLevel+B8j
         if (gIsFlashingBackgroundModeEnabled != 0)
         {
-            replaceCurrentPaletteColor(0, (Color) { 0x35, 0x35, 0x35 });
+            replaceCurrentPaletteColor(0, (Color) { 0x35, 0x35, 0x35, 0 });
         }
 
 //noFlashing:              ; CODE XREF: runLevel+C2j
         updateMovingObjects(); // 01ED:1F28
         if (gIsFlashingBackgroundModeEnabled != 0)
         {
-            replaceCurrentPaletteColor(0, (Color) { 0x21, 0x21, 0x21 });
+            replaceCurrentPaletteColor(0, (Color) { 0x21, 0x21, 0x21, 0 });
         }
 
 //noFlashing2:              ; CODE XREF: runLevel+D8j
@@ -4222,7 +4222,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         clearAdditionalInfoInGamePanelIfNeeded();
         if (gIsFlashingBackgroundModeEnabled != 0)
         {
-            replaceCurrentPaletteColor(0, (Color) { 0x2d, 0x21, 0x0f });
+            replaceCurrentPaletteColor(0, (Color) { 0x2d, 0x21, 0x0f, 0 });
         }
 
 //noFlashing3:              ; CODE XREF: runLevel+F1j
@@ -4235,7 +4235,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 //                ; runLevel+1D2j ...
         if (gIsFlashingBackgroundModeEnabled != 0)
         {
-            replaceCurrentPaletteColor(0, (Color) { 0x3f, 0x3f, 0x3f });
+            replaceCurrentPaletteColor(0, (Color) { 0x3f, 0x3f, 0x3f, 0 });
         }
 
 //noFlashing4:              ; CODE XREF: runLevel+2D1j
@@ -4269,7 +4269,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
 //loc_48DCD:              ; CODE XREF: runLevel+2FCj
         if (gIsFlashingBackgroundModeEnabled != 0)
         {
-            replaceCurrentPaletteColor(0, (Color) { 0, 0, 0 });
+            replaceCurrentPaletteColor(0, (Color) { 0, 0, 0, 0 });
         }
 
 //noFlashing5:              ; CODE XREF: runLevel+317j
@@ -4321,7 +4321,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
     gAdditionalScrollOffsetY = 0;
     gIsFlashingBackgroundModeEnabled = 0;
     gDebugExtraRenderDelay = 1;
-    replaceCurrentPaletteColor(0, (Color) { 0, 0, 0 });
+    replaceCurrentPaletteColor(0, (Color) { 0, 0, 0, 0 });
 }
 
 
@@ -4500,7 +4500,7 @@ void stopRecordingDemo() // somethingspsig  proc near       ; CODE XREF: runLeve
                         uint8_t signature[kMaxDemoSignatureLength + 1];
                         size_t bytes = fileReadBytes(signature, sigFileSize, sigFile);
 
-                        if (bytes == sigFileSize)
+                        if (bytes == (unsigned long)sigFileSize)
                         {
                             int idx = 0;
                             for (idx = 0; idx < sigFileSize; ++idx)
@@ -4578,7 +4578,7 @@ void recordDemo(uint16_t demoIndex) // sub_4945D   proc near       ; CODE XREF: 
     gIsFlashingBackgroundModeEnabled = 0;
     gDebugExtraRenderDelay = 1;
 
-    replaceCurrentPaletteColor(0, (Color) { 0, 0, 0 });
+    replaceCurrentPaletteColor(0, (Color) { 0, 0, 0, 0 });
 
     if (gIsRecordingDemo != 0)
     {
@@ -5201,7 +5201,7 @@ void loadGameSnapshot() // loc_49A89:              ; CODE XREF: handleGameUserIn
     gAdditionalScrollOffsetY = 0;
     gIsFlashingBackgroundModeEnabled = 0;
     gDebugExtraRenderDelay = 1;
-    replaceCurrentPaletteColor(0, (Color) { 0, 0, 0 });
+    replaceCurrentPaletteColor(0, (Color) { 0, 0, 0, 0 });
     generateRandomSeedFromClock();
     generateRandomNumber();
     // I commented out all these video transitions because they're not needed in the reimplementation. They were here
@@ -5266,7 +5266,7 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
         gAdditionalScrollOffsetY = 0;
         gIsFlashingBackgroundModeEnabled = 0;
         gDebugExtraRenderDelay = 1;
-        replaceCurrentPaletteColor(0, (Color) { 0, 0, 0 });
+        replaceCurrentPaletteColor(0, (Color) { 0, 0, 0, 0 });
 
         drawTextWithChars8FontToGamePanel(304, 14, 6, "--"); // Debug mode disabled
         gAdditionalInfoInGamePanelFrameCounter = 0x46; // 70 or '&'
@@ -5452,13 +5452,13 @@ void updateMovingObjects() // gameloop   proc near       ; CODE XREF: runLevel:n
 
     if (gIsFlashingBackgroundModeEnabled != 0)
     {
-        replaceCurrentPaletteColor(0, (Color) { 0x3f, 0x3f, 0x21 });
+        replaceCurrentPaletteColor(0, (Color) { 0x3f, 0x3f, 0x21, 0 });
     }
 
 //loc_49E14:
     if (gIsFlashingBackgroundModeEnabled != 0)
     {
-        replaceCurrentPaletteColor(0, (Color) { 0x3f, 0x21, 0x21 });
+        replaceCurrentPaletteColor(0, (Color) { 0x3f, 0x21, 0x21, 0 });
     }
 
 //loc_49E33:
@@ -6137,7 +6137,7 @@ void restartLevelWithoutAddingCurrentGameTimeToPlayer() //loc_4A3F3:            
     gAdditionalScrollOffsetY = 0;
     gIsFlashingBackgroundModeEnabled = 0;
     gDebugExtraRenderDelay = 1;
-    replaceCurrentPaletteColor(0, (Color) { 0, 0, 0 });
+    replaceCurrentPaletteColor(0, (Color) { 0, 0, 0, 0 });
 
     if (gHasUserInterruptedDemo != 0)
     {
@@ -6925,7 +6925,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
         while (mouseButtonStatus != 0);
 
         // Limit the player number value to avoid -Wformat-truncation warning
-        snprintf(newPlayerName, sizeof(newPlayerName), "PLAYER%2d", MIN(gNewPlayerEntryIndex + 1, kNumberOfPlayers));
+        snprintf(newPlayerName, sizeof(newPlayerName), "PLAYER%2d", MIN((uint8_t)(gNewPlayerEntryIndex + 1), kNumberOfPlayers));
         gNewPlayerNameLength = strlen(newPlayerName);
     }
 

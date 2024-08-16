@@ -125,7 +125,7 @@ void updateKeyboardState()
 
     gKeyPressed = SDL_SCANCODE_UNKNOWN;
 
-    for (SDL_Scancode scancode = 0; scancode < numberOfKeys; ++scancode)
+    for (SDL_Scancode scancode = 0; (int)scancode < numberOfKeys; ++scancode)
     {
         if (keys[scancode])
         {
@@ -204,7 +204,7 @@ uint8_t isAnyKeyPressed()
 
 #define SDL_KEYCODE_TO_CHAR_CASE(keycode, char) case keycode: return char
 
-char characterForSDLScancode(SDL_Scancode scancode)
+char characterForSDLScancode(SDL_Scancode /*scancode*/)
 {
     switch (SDL_GetKeyFromScancode(gKeyPressed))
     {
