@@ -2113,6 +2113,7 @@ void saveConfiguration() // sub_4755A      proc near               ; CODE XREF: 
     size_t bytes = fileWriteBytes(configData, sizeof(configData), file);
     if (bytes < sizeof(configData))
     {
+        fclose(file);
         exitWithError("Error writing SUPAPLEX.CFG\n");
     }
 
@@ -2187,6 +2188,7 @@ uint8_t readDemoFiles() //    proc near       ; CODE XREF: readEverything+12p
 
                 if (bytes < kLevelDataLength)
                 {
+                    fclose(file);
                     return i;
                 }
 
@@ -2452,6 +2454,7 @@ void readLevelsLst() //   proc near       ; CODE XREF: readLevelsLst+CCj
         size_t bytes = fileWriteBytes(gLevelListData, kLevelListDataLength, file);
         if (bytes < kLevelListDataLength)
         {
+            fclose(file);
             exitWithError("Error writing %s\n", gLevelLstFilename);
         }
 
@@ -2498,12 +2501,7 @@ void readPlayersLst() //  proc near       ; CODE XREF: readEverything+1Bp
         return;
     }
 
-    size_t bytes = fileReadBytes(gPlayerListData, sizeof(gPlayerListData), file);
-    if (bytes == 0)
-    {
-        return;
-    }
-
+    fileReadBytes(gPlayerListData, sizeof(gPlayerListData), file);
     fclose(file);
 }
 
@@ -2521,13 +2519,8 @@ void readHallfameLst() // proc near       ; CODE XREF: readEverything+18p
         return;
     }
 
-    size_t bytes = fileReadBytes(gHallOfFameData, sizeof(gHallOfFameData), file);
-    if (bytes == 0)
-    {
-        return;
-    }
-
-    fclose (file);
+    fileReadBytes(gHallOfFameData, sizeof(gHallOfFameData), file);
+    fclose(file);
 }
 
 void readEverything() //  proc near       ; CODE XREF: start+2DBp start+2E3p ...
@@ -9927,6 +9920,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
         int result = fseek(file, fileOffset, SEEK_SET);
         if (result != 0)
         {
+            fclose(file);
             exitWithError("Error seeking %s\n", filename);
         }
 
@@ -9935,6 +9929,7 @@ void readLevels() //  proc near       ; CODE XREF: start:loc_46F3Ep
         size_t bytes = fileReadBytes(levelFileData, kLevelDataLength, file);
         if (bytes < kLevelDataLength)
         {
+            fclose(file);
             exitWithError("Error reading %s\n", filename);
         }
 

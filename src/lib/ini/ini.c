@@ -197,6 +197,9 @@ ini_t* ini_load(const char *filename) {
   /* Get file size */
   fseek(fp, 0, SEEK_END);
   sz = ftell(fp);
+  if (sz < 0) {
+    goto fail;
+  }
   rewind(fp);
 
   /* Load file content into memory, null terminate, init end var */
