@@ -5215,6 +5215,7 @@ void loadGameSnapshot() // loc_49A89:              ; CODE XREF: handleGameUserIn
     drawTextWithChars8FontToGamePanel(304, 14, 6, "LD"); // Means snapshot was loaded successfully
     gAdditionalInfoInGamePanelFrameCounter = 0x46; // 70 or '&'
 
+    gCurrentPanelHeight = (gShouldShowGamePanel ? kPanelBitmapHeight : 0);
     drawCurrentLevelViewport(gCurrentPanelHeight);
     // videoLoop();
 
