@@ -1663,10 +1663,10 @@ int main(int argc, char *argv[])
 
 //isNotFastMode2:              //; CODE XREF: start+373j
             slideDownGameDash(); // 01ED:0351
-            if (byte_59B71 != 0)
-            {
-                loadMurphySprites();
-            }
+            // if (byte_59B71 != 0)
+            // {
+            //     loadMurphySprites();
+            // }
 
 //loc_46FA5:              //; CODE XREF: start+380j
             gIsGameBusy = 0;

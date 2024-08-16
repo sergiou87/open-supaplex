@@ -27,32 +27,32 @@
 #include "logging.h"
 #include "utils.h"
 
-uint8_t word_59B60 = 0; // 'A' command line option
-uint8_t word_59B61 = 0; // 'B' command line option
+//uint8_t word_59B60 = 0; // 'A' command line option
+//uint8_t word_59B61 = 0; // 'B' command line option
 uint8_t gShouldRecreateLevelLstIfNeeded = 0; // 'C' command line option -> If deleted, Create LEVEL.L?? file out of info from LEVELS.D??
 uint8_t byte_59B63 = 0; // 'D' command line option -> Force Debug mode at start: needed to record demo's etc.
-uint8_t byte_59B64 = 0; // 'E' command line option -> Force (buggy) EGA mode on VGA hardware
-uint8_t word_59B65 = 0; // 'F' command line option -> Force original Floppy 1<->2 symbol function (Invert Alt key)
-uint8_t word_59B66 = 0; // 'G' command line option
-uint8_t byte_59B67 = 0; // 'H' command line option -> Force original Supaplex Horizontal smooth-scroll timing
-uint8_t byte_59B68 = 0; // 'I' command line option
-uint8_t byte_59B69 = 0; // 'J' command line option
-uint8_t byte_59B6A = 0; // 'K' command line option
+//uint8_t byte_59B64 = 0; // 'E' command line option -> Force (buggy) EGA mode on VGA hardware
+//uint8_t word_59B65 = 0; // 'F' command line option -> Force original Floppy 1<->2 symbol function (Invert Alt key)
+//uint8_t word_59B66 = 0; // 'G' command line option
+//uint8_t byte_59B67 = 0; // 'H' command line option -> Force original Supaplex Horizontal smooth-scroll timing
+//uint8_t byte_59B68 = 0; // 'I' command line option
+//uint8_t byte_59B69 = 0; // 'J' command line option
+//uint8_t byte_59B6A = 0; // 'K' command line option
 uint8_t gShouldStartFromSavedSnapshot = 0; // byte_59B6B -> 'L' command line option -> Load and play the available saved game at start
-uint8_t byte_59B6C = 0; // 'M' command line option
+//uint8_t byte_59B6C = 0; // 'M' command line option
 uint8_t gShakeWithExplosionsDisabled = 0; // 'N' command line option -> Never shake the screen during explosions (See also "S")
 uint16_t gShouldRecordWithOriginalDemoFilenames = 0; // word_59B6E -> 0x985E -> 'O' command line option -> Record using Original demo names DEMO?.B?? (not ??S???$?.SP)
-uint8_t byte_59B6F = 0; // 'P' command line option
-uint8_t byte_59B70 = 0; // 'Q' command line option
-uint8_t byte_59B71 = 0; // 'R' command line option -> Refresh video memory after each game: reload MOVING.DAT
+//uint8_t byte_59B6F = 0; // 'P' command line option
+//uint8_t byte_59B70 = 0; // 'Q' command line option
+//uint8_t byte_59B71 = 0; // 'R' command line option -> Refresh video memory after each game: reload MOVING.DAT
 uint8_t gShouldShakeWithAllExplosions = 0; // byte_59B72 -> 'S' command line option -> Shake the screen during every explosion (See also "N")
 uint8_t word_59B73 = 0; // 'T' command line option -> Allow the use of the original infinite Red Disk (ch)eat Trick
-uint8_t byte_59B74 = 0; // 'U' command line option
-uint8_t byte_59B75 = 0; // 'V' command line option
+//uint8_t byte_59B74 = 0; // 'U' command line option
+//uint8_t byte_59B75 = 0; // 'V' command line option
 uint8_t gShouldAlwaysWriteSavegameSav = 0; // dword_59B76 -> 'W' command line option -> Force Writing only one SAVEGAME.SAV (else use SAVEGAME.S??)
-uint8_t byte_59B77 = 0; // 'X' command line option
-uint8_t byte_59B78 = 0; // 'Y' command line option
-uint8_t byte_59B79 = 0; // 'Z' command line option
+//uint8_t byte_59B77 = 0; // 'X' command line option
+//uint8_t byte_59B78 = 0; // 'Y' command line option
+//uint8_t byte_59B79 = 0; // 'Z' command line option
 
 uint8_t gForcedInitialGameSpeed = kInvalidForcedInitialGameSpeed;
 

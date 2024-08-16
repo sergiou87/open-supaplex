@@ -19,7 +19,6 @@
 
 const uint8_t kGameVersion = 0x71;
 
-uint16_t gLevelData[kLevelSize];
 uint8_t gPaddedLevelListData[kNumberOfLevelsWithPadding * kListLevelNameLength]; // 0x2A34
 uint8_t *gLevelListData = &gPaddedLevelListData[kFirstLevelIndex * kListLevelNameLength];
 

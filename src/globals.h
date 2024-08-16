@@ -77,8 +77,6 @@ typedef enum
 #define kLevelWidth 60 // 3Ch
 #define kLevelHeight 24 // 18h
 #define kLevelSize (kLevelWidth * kLevelHeight) // 1440  or 5A0h
-//static const size_t kLevelcells = levelSize
-extern uint16_t gLevelData[kLevelSize];
 
 // Seems like the way the game handle the level list is having empty level entries at the beginning and at the
 // end. They do that instead of checking boundaries when drawing the list. So these two empty spaces will be rendered
