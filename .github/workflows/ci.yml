@@ -48,7 +48,7 @@ jobs:
           ./vita/ci-build-vita.sh
         shell: bash
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v1
         with:
           name: vita-build
           path: vita/build/OpenSupaplex.vpk
@@ -63,7 +63,7 @@ jobs:
           ./switch/ci-build-switch.sh
         shell: bash
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v1
         with:
           name: switch-build
           path: switch/OpenSupaplex-switch.zip
@@ -79,7 +79,7 @@ jobs:
           ./psp/ci-build.sh
         shell: bash
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v1
         with:
           name: psp-build
           path: psp/OpenSupaplex-psp.zip
@@ -94,7 +94,7 @@ jobs:
           ./ps3/ci-build.sh
         shell: bash
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v1
         with:
           name: ps3-build
           path: ps3/OpenSupaplex.pkg
@@ -109,7 +109,7 @@ jobs:
           ./wii/ci-build.sh
         shell: bash
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v1
         with:
           name: wii-build
           path: wii/OpenSupaplex-wii.zip
@@ -124,7 +124,7 @@ jobs:
           ./wiiu/ci-build.sh
         shell: bash
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v1
         with:
           name: wiiu-build
           path: wiiu/OpenSupaplex-wiiu.zip
@@ -139,7 +139,7 @@ jobs:
           ./nds/ci-build-nds.sh
         shell: bash
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v1
         with:
           name: nds-build
           path: nds/OpenSupaplex.nds
@@ -154,7 +154,7 @@ jobs:
           ./3ds/ci-build-3ds.sh
         shell: bash
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v1
         with:
           name: 3ds-build
           path: 3ds/OpenSupaplex-3ds.zip
@@ -169,7 +169,7 @@ jobs:
           ./riscos/ci-build.sh
         shell: bash
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v1
         with:
           name: riscos-build
           path: riscos/OpenSupaplex-riscos.zip
