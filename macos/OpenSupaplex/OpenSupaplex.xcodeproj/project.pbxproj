@@ -996,6 +996,10 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Frameworks/SDL2.framework/Headers",
+				);
 				INFOPLIST_FILE = "macOS-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1023,6 +1027,10 @@
 					"$(PROJECT_DIR)/Frameworks",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = HAVE_SDL2;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Frameworks/SDL2.framework/Headers",
+				);
 				INFOPLIST_FILE = "macOS-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
