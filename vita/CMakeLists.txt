@@ -18,8 +18,8 @@ set(VITA_VERSION  "07.20")
 
 option(DEBUGNET "Enable debugnet for logging" ON)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11 -DHAVE_SDL2")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -DHAVE_SDL2")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -I${VITASDK}/include/SDL2 -std=gnu11 -DHAVE_SDL2")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I${VITASDK}/include/SDL2 -std=c++11 -DHAVE_SDL2")
 
 include_directories(
   ../common
