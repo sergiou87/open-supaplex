@@ -17,7 +17,7 @@
 
 #include "../touchscreen.h"
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 uint8_t readTouchScreen(float *x, float *y)
 {
