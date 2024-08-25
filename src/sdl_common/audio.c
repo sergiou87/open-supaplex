@@ -20,7 +20,7 @@
 #include <math.h>
 
 #if HAVE_SDL2
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #if TARGET_OS_MAC
 #include <SDL2_mixer/SDL_mixer.h>
 #else

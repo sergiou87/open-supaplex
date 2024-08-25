@@ -19,7 +19,7 @@
 
 #include <errno.h>
 #if HAVE_SDL2
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #elif HAVE_SDL
 #include <SDL/SDL.h>
 #endif

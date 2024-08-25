@@ -17,7 +17,7 @@
 
 #include "../virtualKeyboard.h"
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 #include <sys/memory.h>
 #include <sysutil/osk.h>
