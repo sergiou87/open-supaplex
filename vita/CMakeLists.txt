@@ -201,7 +201,7 @@ vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
   FILE ../resources/LEVELS.DAT LEVELS.DAT
   FILE ../resources/MENU.DAT MENU.DAT
   FILE ../resources/MOVING.DAT MOVING.DAT
-  FILE ../resources/myspsig.txt myspsig.txt
+  FILE ../resources/MYSPSIG.TXT MYSPSIG.TXT
   FILE ../resources/PALETTES.DAT PALETTES.DAT
   FILE ../resources/PANEL.DAT PANEL.DAT
   FILE ../resources/README.TXT README.TXT

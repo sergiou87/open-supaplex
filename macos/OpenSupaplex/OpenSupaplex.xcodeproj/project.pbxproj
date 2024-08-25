@@ -49,8 +49,8 @@
 		409F7B6C2479D56D00BB3B19 /* animations.c in Sources */ = {isa = PBXBuildFile; fileRef = 409F7B6A2479D56D00BB3B19 /* animations.c */; };
 		409F7DDC247B299100BB3B19 /* LEVEL.L04 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D83247B298900BB3B19 /* LEVEL.L04 */; };
 		409F7DDD247B299100BB3B19 /* LEVEL.L04 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D83247B298900BB3B19 /* LEVEL.L04 */; };
-		409F7DDE247B299100BB3B19 /* myspsig.txt in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D84247B298900BB3B19 /* myspsig.txt */; };
-		409F7DDF247B299100BB3B19 /* myspsig.txt in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D84247B298900BB3B19 /* myspsig.txt */; };
+		409F7DDE247B299100BB3B19 /* MYSPSIG.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D84247B298900BB3B19 /* MYSPSIG.TXT */; };
+		409F7DDF247B299100BB3B19 /* MYSPSIG.TXT in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D84247B298900BB3B19 /* MYSPSIG.TXT */; };
 		409F7DE0247B299100BB3B19 /* LEVELS.D02 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D85247B298900BB3B19 /* LEVELS.D02 */; };
 		409F7DE1247B299100BB3B19 /* LEVELS.D02 in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D85247B298900BB3B19 /* LEVELS.D02 */; };
 		409F7DE2247B299100BB3B19 /* SPFIX63.DOC in Resources */ = {isa = PBXBuildFile; fileRef = 409F7D86247B298900BB3B19 /* SPFIX63.DOC */; };
@@ -296,7 +296,7 @@
 		409F7B692479D56D00BB3B19 /* animations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = animations.h; path = ../../../src/animations.h; sourceTree = "<group>"; };
 		409F7B6A2479D56D00BB3B19 /* animations.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = animations.c; path = ../../../src/animations.c; sourceTree = "<group>"; };
 		409F7D83247B298900BB3B19 /* LEVEL.L04 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LEVEL.L04; path = ../../resources/LEVEL.L04; sourceTree = "<group>"; };
-		409F7D84247B298900BB3B19 /* myspsig.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = myspsig.txt; path = ../../resources/myspsig.txt; sourceTree = "<group>"; };
+		409F7D84247B298900BB3B19 /* MYSPSIG.TXT */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = MYSPSIG.TXT; path = ../../resources/MYSPSIG.TXT; sourceTree = "<group>"; };
 		409F7D85247B298900BB3B19 /* LEVELS.D02 */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.D02; path = ../../resources/LEVELS.D02; sourceTree = "<group>"; };
 		409F7D86247B298900BB3B19 /* SPFIX63.DOC */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = SPFIX63.DOC; path = ../../resources/SPFIX63.DOC; sourceTree = "<group>"; };
 		409F7D87247B298900BB3B19 /* LEVELS.D96 */ = {isa = PBXFileReference; lastKnownFileType = file; name = LEVELS.D96; path = ../../resources/LEVELS.D96; sourceTree = "<group>"; };
@@ -510,7 +510,7 @@
 				409F7DAB247B298C00BB3B19 /* LEVELS.DAT */,
 				409F7DA6247B298B00BB3B19 /* MENU.DAT */,
 				409F7DC3247B298F00BB3B19 /* MOVING.DAT */,
-				409F7D84247B298900BB3B19 /* myspsig.txt */,
+				409F7D84247B298900BB3B19 /* MYSPSIG.TXT */,
 				409F7D9D247B298A00BB3B19 /* PALETTES.DAT */,
 				409F7DCE247B299000BB3B19 /* PANEL.DAT */,
 				409F7D8E247B298900BB3B19 /* README.TXT */,
@@ -758,7 +758,7 @@
 				409F7E0A247B299100BB3B19 /* SPLVLS07.TXT in Resources */,
 				409F7DEA247B299100BB3B19 /* DEMO3.BIN in Resources */,
 				409F7E8A247B299200BB3B19 /* LEVELS.D05 in Resources */,
-				409F7DDE247B299100BB3B19 /* myspsig.txt in Resources */,
+				409F7DDE247B299100BB3B19 /* MYSPSIG.TXT in Resources */,
 				409F7E6A247B299200BB3B19 /* LEVELS.D08 in Resources */,
 				409F7E2C247B299200BB3B19 /* LEVELS.DAT in Resources */,
 				409F7DF4247B299100BB3B19 /* LEVEL.L27 in Resources */,
@@ -855,7 +855,7 @@
 				409F7E0B247B299100BB3B19 /* SPLVLS07.TXT in Resources */,
 				409F7DEB247B299100BB3B19 /* DEMO3.BIN in Resources */,
 				409F7E8B247B299200BB3B19 /* LEVELS.D05 in Resources */,
-				409F7DDF247B299100BB3B19 /* myspsig.txt in Resources */,
+				409F7DDF247B299100BB3B19 /* MYSPSIG.TXT in Resources */,
 				409F7E6B247B299200BB3B19 /* LEVELS.D08 in Resources */,
 				409F7E2D247B299200BB3B19 /* LEVELS.DAT in Resources */,
 				409F7DF5247B299100BB3B19 /* LEVEL.L27 in Resources */,
