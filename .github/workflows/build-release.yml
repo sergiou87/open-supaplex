@@ -35,7 +35,7 @@ jobs:
           ./macos/ci-build.sh
         shell: bash
       - name: Upload artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: macos-build
           path: macos/OpenSupaplex-macOS.zip
@@ -50,7 +50,7 @@ jobs:
           ./vita/ci-build-vita.sh
         shell: bash
       - name: Upload artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: vita-build
           path: vita/build/OpenSupaplex.vpk
@@ -65,7 +65,7 @@ jobs:
           ./switch/ci-build-switch.sh
         shell: bash
       - name: Upload artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: switch-build
           path: switch/OpenSupaplex-switch.zip
@@ -81,7 +81,7 @@ jobs:
           ./psp/ci-build.sh
         shell: bash
       - name: Upload artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: psp-build
           path: psp/OpenSupaplex-psp.zip
@@ -96,7 +96,7 @@ jobs:
           ./ps3/ci-build.sh
         shell: bash
       - name: Upload artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: ps3-build
           path: ps3/OpenSupaplex.pkg
@@ -111,7 +111,7 @@ jobs:
           ./wii/ci-build.sh
         shell: bash
       - name: Upload artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: wii-build
           path: wii/OpenSupaplex-wii.zip
@@ -126,7 +126,7 @@ jobs:
           ./wiiu/ci-build.sh
         shell: bash
       - name: Upload artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: wiiu-build
           path: wiiu/OpenSupaplex-wiiu.zip
@@ -141,7 +141,7 @@ jobs:
           ./nds/ci-build-nds.sh
         shell: bash
       - name: Upload artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: nds-build
           path: nds/OpenSupaplex.nds
@@ -156,7 +156,7 @@ jobs:
           ./3ds/ci-build-3ds.sh
         shell: bash
       - name: Upload artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: 3ds-build
           path: 3ds/OpenSupaplex-3ds.zip
@@ -171,7 +171,7 @@ jobs:
           ./riscos/ci-build.sh
         shell: bash
       - name: Upload artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: riscos-build
           path: riscos/OpenSupaplex-riscos.zip
@@ -190,7 +190,7 @@ jobs:
           cd windows
           msys2 -c './ci-build.sh x86_64'
       - name: Upload artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: windows-x86_64-build
           path: windows/OpenSupaplex-windows-x86_64.zip
@@ -225,47 +225,47 @@ jobs:
         shell: bash
         if: ${{ !inputs.release_notes }}
       - name: Download macOS Build Asset
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: macos-build
       - name: Download PS Vita Build Asset
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: vita-build
       - name: Download Nintendo Switch Build Asset
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: switch-build
       - name: Download PSP Build Asset
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: psp-build
       - name: Download PS3 Build Asset
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: ps3-build
       - name: Download Wii Build Asset
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: wii-build
       - name: Download Wii U Build Asset
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: wiiu-build
       - name: Download Nintendo DS Build Asset
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: nds-build
       - name: Download Nintendo 3DS Build Asset
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: 3ds-build
       - name: Download RISC OS Build Asset
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: riscos-build
       - name: Download Windows x86_64 Build Asset
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: windows-x86_64-build
       - name: Create Release
