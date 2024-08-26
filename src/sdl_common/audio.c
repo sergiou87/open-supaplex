@@ -42,6 +42,7 @@ SoundType musType = SoundTypeInternalStandard;
 static const char *kRolandSoundFileNameSuffix = "roland";
 static const char *kAdlibSoundFileNameSuffix = "adlib";
 static const char *kBlasterSoundFileNameSuffix = "blaster";
+static const char *kSamplesSoundFileNameSuffix = "sample";
 static const char *kStandardSoundFileNameSuffix = "beep";
 
 Mix_Music *gMusic = NULL;
@@ -227,11 +228,13 @@ void loadSounds()
             effectsSuffix = kRolandSoundFileNameSuffix;
             break;
         case SoundTypeSoundBlaster:
-        case SoundTypeInternalSamples:
             effectsSuffix = kBlasterSoundFileNameSuffix;
             break;
         case SoundTypeAdlib:
             effectsSuffix = kAdlibSoundFileNameSuffix;
+            break;
+        case SoundTypeInternalSamples:
+            effectsSuffix = kSamplesSoundFileNameSuffix;
             break;
         case SoundTypeInternalStandard:
             effectsSuffix = kStandardSoundFileNameSuffix;
