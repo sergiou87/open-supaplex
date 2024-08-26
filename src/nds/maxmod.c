@@ -106,7 +106,7 @@ void loadMusic()
             break;
         case SoundTypeAdlib:
         case SoundTypeSoundBlaster:
-            musicID = MOD_MUSIC_BLASTER;
+            musicID = MOD_MUSIC_ADLIB;
             break;
         case SoundTypeInternalSamples:
         case SoundTypeInternalStandard:
