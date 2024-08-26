@@ -65,7 +65,7 @@ jobs:
           ./switch/ci-build-switch.sh
         shell: bash
       - name: Upload artifact
-        uses: actions/upload1
+        uses: actions/upload-artifact@v1
         with:
           name: switch-build
           path: switch/OpenSupaplex-switch.zip
