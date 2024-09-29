@@ -86,7 +86,7 @@ jobs:
   build-ps3:
     name: PS3
     runs-on: ubuntu-22.04
-    container: sergiou87/ps3dev-docker-open-supaplex:7.2
+    container: sergiou87/ps3dev-docker-open-supaplex:7.2-1
     steps:
       - uses: actions/checkout@v1
       - name: Build OpenSupaplex
@@ -101,7 +101,7 @@ jobs:
   build-wii:
     name: Wii
     runs-on: ubuntu-22.04
-    container: sergiou87/wii-docker-open-supaplex:7.2
+    container: sergiou87/wii-docker-open-supaplex:7.2-1
     steps:
       - uses: actions/checkout@v1
       - name: Build OpenSupaplex
@@ -116,7 +116,7 @@ jobs:
   build-wiiu:
     name: Wii U
     runs-on: ubuntu-22.04
-    container: sergiou87/wiiu-docker-open-supaplex:7.2
+    container: sergiou87/wiiu-docker-open-supaplex:7.2-1
     steps:
       - uses: actions/checkout@v1
       - name: Build OpenSupaplex
@@ -146,7 +146,7 @@ jobs:
   build-3ds:
     name: Nintendo 3DS
     runs-on: ubuntu-22.04
-    container: sergiou87/3ds-docker-open-supaplex:7.1
+    container: sergiou87/3ds-docker-open-supaplex:7.1-1
     steps:
       - uses: actions/checkout@v1
       - name: Build OpenSupaplex
