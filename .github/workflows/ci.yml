@@ -40,12 +40,11 @@ jobs:
   build-vita:
     name: PS Vita
     runs-on: ubuntu-22.04
-    container: sergiou87/vita-docker-open-supaplex:7.2-1
     steps:
       - uses: actions/checkout@v4
       - name: Build OpenSupaplex
         run: |
-          ./vita/ci-build-vita.sh
+          ./vita/ci-docker-run.sh ./vita/ci-build.sh
         shell: bash
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -55,12 +54,11 @@ jobs:
   build-switch:
     name: Nintendo Switch
     runs-on: ubuntu-22.04
-    container: sergiou87/switch-docker-open-supaplex:7.1-1
     steps:
       - uses: actions/checkout@v4
       - name: Build OpenSupaplex
         run: |
-          ./switch/ci-build-switch.sh
+          ./switch/ci-docker-run.sh ./switch/ci-build.sh
         shell: bash
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -70,13 +68,12 @@ jobs:
   build-psp:
     name: PSP
     runs-on: ubuntu-22.04
-    container: sergiou87/pspdev-docker-open-supaplex:7.1
     steps:
       - uses: actions/checkout@v4
       - name: Build OpenSupaplex
         run: |
           ./psp/ci-install-dependencies.sh
-          ./psp/ci-build.sh
+          ./psp/ci-docker-run.sh ./psp/ci-build.sh
         shell: bash
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -90,7 +87,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build OpenSupaplex
         run: |
-          docker run --rm -v "$(pwd)":/src -w /src sergiou87/ps3dev-docker-open-supaplex:7.2 ./ps3/ci-build.sh
+          ./ps3/ci-docker-run.sh ./ps3/ci-build.sh
         shell: bash
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -100,12 +97,11 @@ jobs:
   build-wii:
     name: Wii
     runs-on: ubuntu-22.04
-    container: sergiou87/wii-docker-open-supaplex:7.2-1
     steps:
       - uses: actions/checkout@v4
       - name: Build OpenSupaplex
         run: |
-          ./wii/ci-build.sh
+          ./wii/ci-docker-run.sh ./wii/ci-build.sh
         shell: bash
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -115,12 +111,11 @@ jobs:
   build-wiiu:
     name: Wii U
     runs-on: ubuntu-22.04
-    container: sergiou87/wiiu-docker-open-supaplex:7.2-1
     steps:
       - uses: actions/checkout@v4
       - name: Build OpenSupaplex
         run: |
-          ./wiiu/ci-build.sh
+          ./wiiu/ci-docker-run.sh ./wiiu/ci-build.sh
         shell: bash
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -130,12 +125,11 @@ jobs:
   build-nds:
     name: Nintendo DS
     runs-on: ubuntu-22.04
-    container: sergiou87/nds-docker-open-supaplex:7.2
     steps:
       - uses: actions/checkout@v4
       - name: Build OpenSupaplex
         run: |
-          ./nds/ci-build-nds.sh
+          ./nds/ci-docker-run.sh ./nds/ci-build.sh
         shell: bash
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -145,12 +139,11 @@ jobs:
   build-3ds:
     name: Nintendo 3DS
     runs-on: ubuntu-22.04
-    container: sergiou87/3ds-docker-open-supaplex:7.1-1
     steps:
       - uses: actions/checkout@v4
       - name: Build OpenSupaplex
         run: |
-          ./3ds/ci-build-3ds.sh
+          ./3ds/ci-docker-run.sh ./3ds/ci-build.sh
         shell: bash
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -160,12 +153,11 @@ jobs:
   build-riscos:
     name: RISC OS
     runs-on: ubuntu-22.04
-    container: sergiou87/riscos-docker-open-supaplex:7.2
     steps:
       - uses: actions/checkout@v4
       - name: Build OpenSupaplex
         run: |
-          ./riscos/ci-build.sh
+          ./riscos/ci-docker-run.sh ./riscos/ci-build.sh
         shell: bash
       - name: Upload artifact
         uses: actions/upload-artifact@v4
