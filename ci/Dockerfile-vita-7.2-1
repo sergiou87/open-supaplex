@@ -1,0 +1,19 @@
+# Based on the 7.2 image (described in Dockerfile-vita) and upgrades it to the
+# latest LTS release to make it compatible with the newest -artifact GitHub
+# actions, which require node 20 and therefore a newer glibc.
+FROM sergiou87/vita-docker-open-supaplex:7.2
+MAINTAINER Sergio Padrino (@sergiou87)
+
+RUN apt-get -y update \
+  && apt-get -y upgrade \
+  && apt-get -y dist-upgrade \
+  && apt-get -y install update-manager-core \
+  # 18.04 -> 20.04
+  && do-release-upgrade -f DistUpgradeViewNonInteractive \
+  # 20.04 -> 22.04
+  && do-release-upgrade -f DistUpgradeViewNonInteractive \
+  ; exit 0
+
+WORKDIR /src
+CMD ["/bin/ash"]
+
