@@ -18,7 +18,7 @@ jobs:
     name: Linux
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: Build OpenSupaplex
         run: |
           ./linux/ci-prepare.sh
@@ -28,7 +28,7 @@ jobs:
     name: macOS
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: Build OpenSupaplex
         run: |
           ./macos/ci-prepare.sh
@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-22.04
     container: sergiou87/vita-docker-open-supaplex:7.2-1
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: Build OpenSupaplex
         run: |
           ./vita/ci-build-vita.sh
@@ -59,7 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     container: sergiou87/switch-docker-open-supaplex:7.1-1
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: Build OpenSupaplex
         run: |
           ./switch/ci-build-switch.sh
@@ -74,7 +74,7 @@ jobs:
     runs-on: ubuntu-22.04
     container: sergiou87/pspdev-docker-open-supaplex:7.1
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: Build OpenSupaplex
         run: |
           ./psp/ci-install-dependencies.sh
@@ -96,7 +96,7 @@ jobs:
       ACTIONS_RUNNER_FORCE_ACTIONS_NODE_VERSION: node16
       ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: Build OpenSupaplex
         run: |
           ./ps3/ci-build.sh
@@ -111,7 +111,7 @@ jobs:
     runs-on: ubuntu-22.04
     container: sergiou87/wii-docker-open-supaplex:7.2-1
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: Build OpenSupaplex
         run: |
           ./wii/ci-build.sh
@@ -126,7 +126,7 @@ jobs:
     runs-on: ubuntu-22.04
     container: sergiou87/wiiu-docker-open-supaplex:7.2-1
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: Build OpenSupaplex
         run: |
           ./wiiu/ci-build.sh
@@ -141,7 +141,7 @@ jobs:
     runs-on: ubuntu-22.04
     container: sergiou87/nds-docker-open-supaplex:7.2
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: Build OpenSupaplex
         run: |
           ./nds/ci-build-nds.sh
@@ -156,7 +156,7 @@ jobs:
     runs-on: ubuntu-22.04
     container: sergiou87/3ds-docker-open-supaplex:7.1-1
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: Build OpenSupaplex
         run: |
           ./3ds/ci-build-3ds.sh
@@ -171,7 +171,7 @@ jobs:
     runs-on: ubuntu-22.04
     container: sergiou87/riscos-docker-open-supaplex:7.2
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: Build OpenSupaplex
         run: |
           ./riscos/ci-build.sh
@@ -187,7 +187,7 @@ jobs:
     steps:
       - uses: msys2/setup-msys2@v2
       - run: git config --global core.autocrlf false
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: Prepare build environment
         run: |
           msys2 -c './windows/ci-prepare.sh x86_64'
@@ -219,7 +219,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checking out...
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4
       - name: Read release notes
         id: read_release_notes
         run: |
