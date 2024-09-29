@@ -42,7 +42,7 @@ jobs:
   build-vita:
     name: PS Vita
     runs-on: ubuntu-22.04
-    container: sergiou87/vita-docker-open-supaplex:7.2
+    container: sergiou87/vita-docker-open-supaplex:7.2-1
     steps:
       - uses: actions/checkout@v1
       - name: Build OpenSupaplex
