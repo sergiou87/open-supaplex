@@ -57,7 +57,7 @@ jobs:
   build-switch:
     name: Nintendo Switch
     runs-on: ubuntu-latest
-    container: sergiou87/switch-docker-open-supaplex:7.1
+    container: sergiou87/switch-docker-open-supaplex:7.1-1
     steps:
       - uses: actions/checkout@v1
       - name: Build OpenSupaplex
