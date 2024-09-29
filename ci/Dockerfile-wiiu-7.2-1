@@ -1,0 +1,13 @@
+# Based on the 7.2 image (described in Dockerfile-wiiu) and upgrades it to the
+# bullseye release to make it compatible with the newest -artifact GitHub
+# actions, which require node 20 and therefore a newer glibc.
+FROM sergiou87/wiiu-docker-open-supaplex:7.2
+
+MAINTAINER Sergio Padrino (@sergiou87)
+
+RUN sudo sed -i 's/stretch/bullseye/g' /etc/apt/sources.list \
+  && sudo apt-get update \
+  ; sudo apt-get -y --allow-unauthenticated dist-upgrade
+
+WORKDIR /src
+CMD ["/bin/ash"]
