@@ -100,7 +100,7 @@ jobs:
           ./ps3/ci-build.sh
         shell: bash
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: ps3-build
           path: ps3/OpenSupaplex.pkg
