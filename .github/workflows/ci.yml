@@ -86,7 +86,13 @@ jobs:
   build-ps3:
     name: PS3
     runs-on: ubuntu-22.04
-    container: sergiou87/ps3dev-docker-open-supaplex:7.2-1
+    container: sergiou87/ps3dev-docker-open-supaplex:7.2
+    env:
+      # We need to avoid using NodeJS v20, because it doesn't work with glibc 2.17.
+      # See https://github.com/actions/checkout/issues/1809.
+      ACTIONS_RUNNER_FORCED_INTERNAL_NODE_VERSION: node16
+      ACTIONS_RUNNER_FORCE_ACTIONS_NODE_VERSION: node16
+      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
     steps:
       - uses: actions/checkout@v1
       - name: Build OpenSupaplex
