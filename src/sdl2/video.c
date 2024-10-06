@@ -38,6 +38,8 @@ static const int kWindowWidth = kScreenWidth * 4;
 static const int kWindowHeight = kScreenHeight * 4;
 #endif
 
+#define HAVE_PALETTED_TEXTURES 1
+
 SDL_Surface *gScreenSurface = NULL;
 uint8_t *gScreenPixels = NULL;
 SDL_Window *gWindow = NULL;
@@ -97,13 +99,20 @@ void initializeVideo(uint8_t fastMode)
         exit(1);
     }
 
-    Uint32 format = SDL_PIXELFORMAT_RGB24;
+    Uint32 format = SDL_PIXELFORMAT_INDEX8;
+
+#ifndef HAVE_PALETTED_TEXTURES
+    // Older versions of SDL don't support creating paletted textures.
+    // TODO: Use the best format supported by the renderer.
+    //
+    format = SDL_PIXELFORMAT_RGB24;
 
     // HACK: this is needed for my crappy SDL2 implementation (https://github.com/sergiou87/SDL2/commit/962e4e565562c2cd70b877f3d697ad2084d9405b)
     // but this should be fixed on SDL's side (or pspgl's), I think.
     //
 #ifdef __PSP__
     format = SDL_PIXELFORMAT_ABGR32;
+#endif
 #endif
 
     gTexture = SDL_CreateTexture(gRenderer,
@@ -118,15 +127,6 @@ void initializeVideo(uint8_t fastMode)
         exit(1);
     }
 
-    gTextureSurface = SDL_CreateRGBSurfaceWithFormat(0, kScreenWidth, kScreenHeight, 8, SDL_PIXELFORMAT_RGB24);
-
-    if (gTextureSurface == NULL)
-    {
-        spLogInfo("Could not create a texture surface: %s", SDL_GetError());
-        destroyVideo();
-        exit(1);
-    } 
-
     gScreenSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, kScreenWidth, kScreenHeight, 8, 0, 0, 0, 0);
 
     if (gScreenSurface == NULL)
@@ -138,14 +138,35 @@ void initializeVideo(uint8_t fastMode)
 
     gScreenPixels = (uint8_t *)gScreenSurface->pixels;
 
+    // If paletted textures aren't supported, then it's necessary to create an intermediate texture to
+    // convert the screen to the required format before uploading it to the texture.
+    //
+    if (format != SDL_PIXELFORMAT_INDEX8) {
+        gTextureSurface = SDL_CreateRGBSurfaceWithFormat(0, kScreenWidth, kScreenHeight, 8, format);
+
+        if (gTextureSurface == NULL)
+        {
+            spLogInfo("Could not create a texture surface: %s", SDL_GetError());
+            destroyVideo();
+            exit(1);
+        }
+    }
+
     updateWindowViewport();
+
+    spLogInfo("Video initialized: %dx%d, %s", kWindowWidth, kWindowHeight, SDL_GetPixelFormatName(format));
 }
 
 void render()
 {
-    SDL_BlitSurface(gScreenSurface, NULL, gTextureSurface, NULL);
+    if (gTextureSurface) {
+        SDL_BlitSurface(gScreenSurface, NULL, gTextureSurface, NULL);
 
-    SDL_UpdateTexture(gTexture, NULL, gTextureSurface->pixels, gTextureSurface->pitch);
+        SDL_UpdateTexture(gTexture, NULL, gTextureSurface->pixels, gTextureSurface->pitch);
+    } else {
+        SDL_UpdateTexture(gTexture, NULL, gScreenSurface->pixels, gScreenSurface->pitch);
+    }
+
     SDL_RenderClear(gRenderer);
     SDL_RenderCopy(gRenderer, gTexture, NULL, &gWindowViewport);
 }
@@ -244,11 +265,19 @@ uint8_t getFullscreenMode(void)
 void setGlobalPaletteColor(const uint8_t index, const Color color)
 {
     SDL_SetPaletteColors(gScreenSurface->format->palette, (SDL_Color *)&color, index, 1);
+
+#ifdef HAVE_PALETTED_TEXTURES
+    SDL_SetTexturePalette(gTexture, (SDL_Color *)&color, index, 1);
+#endif
 }
 
 void setColorPalette(const ColorPalette palette)
 {
     SDL_SetPaletteColors(gScreenSurface->format->palette, (SDL_Color *)palette, 0, kNumberOfColors);
+
+#ifdef HAVE_PALETTED_TEXTURES
+    SDL_SetTexturePalette(gTexture, (SDL_Color *)palette, 0, kNumberOfColors);
+#endif
 }
 
 int windowResizingEventWatcher(void* data, SDL_Event* event)
