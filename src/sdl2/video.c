@@ -143,6 +143,8 @@ void initializeVideo(uint8_t fastMode)
 
 void render()
 {
+    if (!gScreenSurface) return;
+
     SDL_BlitSurface(gScreenSurface, NULL, gTextureSurface, NULL);
 
     SDL_UpdateTexture(gTexture, NULL, gTextureSurface->pixels, gTextureSurface->pitch);
