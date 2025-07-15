@@ -143,7 +143,12 @@ void initializeVideo(uint8_t fastMode)
 
 void render()
 {
-    if (!gScreenSurface) return;
+    // In some cases (like using Wayland on Linux) some SDL events could be triggered
+    // and end up triggering a render before initializeVideo is done.
+    if (gScreenSurface == NULL)
+    {
+        return;
+    }
 
     SDL_BlitSurface(gScreenSurface, NULL, gTextureSurface, NULL);
 
