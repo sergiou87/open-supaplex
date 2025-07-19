@@ -81,6 +81,21 @@ jobs:
         with:
           name: psp-build
           path: psp/OpenSupaplex-psp.zip
+  build-ps2:
+    name: PS2
+    runs-on: ubuntu-22.04
+    container: ps2dev/ps2dev:sha256:c5629318761ee285137a3949e4443d3460095814da3ec7ae2742de6fb2f24716
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build OpenSupaplex
+        run: |
+          ./ps2/ci-build.sh
+        shell: bash
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: ps2-build
+          path: ps2/OpenSupaplex-ps2.zip
   build-ps3:
     name: PS3
     runs-on: ubuntu-22.04
@@ -196,6 +211,7 @@ jobs:
         build-riscos,
         build-windows-x86_64,
         build-psp,
+        build-ps2,
         build-ps3,
         build-wii,
         build-wiiu,
@@ -230,6 +246,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: psp-build
+      - name: Download PS2 Build Asset
+        uses: actions/download-artifact@v1
+        with:
+          name: ps2-build
       - name: Download PS3 Build Asset
         uses: actions/download-artifact@v4
         with:
@@ -305,6 +325,15 @@ jobs:
           asset_path: psp-build/OpenSupaplex-psp.zip
           asset_name: OpenSupaplex-psp-${{ inputs.version }}.zip
           asset_content_type: application/zip
+      - name: Upload PS2 Build Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ps2-build/OpenSupaplex.pkg
+          asset_name: OpenSupaplex-ps2-${{ inputs.version }}.pkg
+          asset_content_type: application/binary
       - name: Upload PS3 Build Asset
         uses: actions/upload-release-asset@v1
         env:
