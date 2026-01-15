@@ -64,6 +64,9 @@ ps3/*.elf
 ps3/*.pkg
 ps3/*.map
 
+# PS2 stuff
+ps2/*.elf
+
 # WASM stuff
 wasm/opensupaplex.data
 wasm/opensupaplex.html
