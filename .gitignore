@@ -62,6 +62,9 @@ ps3/*.elf
 ps3/*.pkg
 ps3/*.map
 
+# PS2 stuff
+ps2/*.elf
+
 # WASM stuff
 wasm/opensupaplex.data
 wasm/opensupaplex.html
@@ -74,3 +77,4 @@ riscos/*.zip
 riscos/\!OSupaplex/*,ff8
 riscos/\!OSupaplex/audio
 riscos/\!OSupaplex/data
+
