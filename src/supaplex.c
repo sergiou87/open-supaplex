@@ -1941,7 +1941,11 @@ void readConfig() //  proc near       ; CODE XREF: start:loc_46F0Fp
     FILE *file = openWritableFile("SUPAPLEX.CFG", "rb");
     if (file == NULL)
     {
+#ifdef __PS2__ // PS2 for now is not returning errno code properly
+        if (1) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
+#else
         if (errno == ENOENT || errno == ENOSYS || errno == EIO) // ax == 2? ax has error code, 2 is file not found (http://stanislavs.org/helppc/dos_error_codes.html)
+#endif
         {
             // loc_47551:              //; CODE XREF: readConfig+Fj
             //  ; readConfig+17j
