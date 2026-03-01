@@ -34,7 +34,7 @@ INCLUDES		:=	include
 # options for code generation
 #---------------------------------------------------------------------------------
 
-CFLAGS		=	-O2 -Wall -mcpu=cell $(MACHDEP) $(INCLUDE) $(LIBPSL1GHT_INC) -I$(PORTLIBS)/include -DHAVE_SDL2 -D__PSL1GHT__ -DPS3APPID=\"$(APPID)\"
+CFLAGS		=	-O2 -Wall -mcpu=cell $(MACHDEP) $(INCLUDE) $(LIBPSL1GHT_INC) -I$(PORTLIBS)/include -I$(PORTLIBS)/include/SDL2 -DHAVE_SDL2 -D__PSL1GHT__ -DPS3APPID=\"$(APPID)\"
 
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project

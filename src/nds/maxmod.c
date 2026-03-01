@@ -59,6 +59,16 @@ mm_word gSoundEffectsBlaster[SoundEffectCount] = {
     SFX_EXIT_BLASTER,
 };
 
+mm_word gSoundEffectsRoland[SoundEffectCount] = {
+    SFX_EXPLOSION_ROLAND,
+    SFX_INFOTRON_ROLAND,
+    SFX_PUSH_ROLAND,
+    SFX_FALL_ROLAND,
+    SFX_BUG_ROLAND,
+    SFX_BASE_ROLAND,
+    SFX_EXIT_ROLAND,
+};
+
 mm_word gSoundEffectsSamples[SoundEffectCount] = {
     SFX_EXPLOSION_SAMPLE,
     SFX_INFOTRON_SAMPLE,
@@ -106,7 +116,7 @@ void loadMusic()
             break;
         case SoundTypeAdlib:
         case SoundTypeSoundBlaster:
-            musicID = MOD_MUSIC_BLASTER;
+            musicID = MOD_MUSIC_ADLIB;
             break;
         case SoundTypeInternalSamples:
         case SoundTypeInternalStandard:
@@ -130,6 +140,8 @@ void loadSounds()
     switch (sndType)
     {
         case SoundTypeRoland:
+            gSoundEffects = gSoundEffectsRoland;
+            break;
         case SoundTypeSoundBlaster:
             gSoundEffects = gSoundEffectsBlaster;
             break;

@@ -18,8 +18,10 @@ set(VITA_VERSION  "07.20")
 
 option(DEBUGNET "Enable debugnet for logging" ON)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11 -DHAVE_SDL2")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -DHAVE_SDL2")
+# Not a fan of adding -I${VITASDK}/arm-vita-eabi/include/SDL2 manually, but
+# the lack of sdl2-config makes it necessary.
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -I${VITASDK}/arm-vita-eabi/include/SDL2 -std=gnu11 -DHAVE_SDL2")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I${VITASDK}/arm-vita-eabi/include/SDL2 -std=c++11 -DHAVE_SDL2")
 
 include_directories(
   ../common
@@ -113,33 +115,40 @@ vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
   FILE ../resources/audio/base-adlib.wav audio/base-adlib.wav
   FILE ../resources/audio/base-beep.wav audio/base-beep.wav
   FILE ../resources/audio/base-blaster.wav audio/base-blaster.wav
+  FILE ../resources/audio/base-roland.wav audio/base-roland.wav
   FILE ../resources/audio/base-sample.wav audio/base-sample.wav
   FILE ../resources/audio/bug-adlib.wav audio/bug-adlib.wav
   FILE ../resources/audio/bug-beep.wav audio/bug-beep.wav
   FILE ../resources/audio/bug-blaster.wav audio/bug-blaster.wav
+  FILE ../resources/audio/bug-roland.wav audio/bug-roland.wav
   FILE ../resources/audio/bug-sample.wav audio/bug-sample.wav
   FILE ../resources/audio/exit-adlib.wav audio/exit-adlib.wav
   FILE ../resources/audio/exit-beep.wav audio/exit-beep.wav
   FILE ../resources/audio/exit-blaster.wav audio/exit-blaster.wav
+  FILE ../resources/audio/exit-roland.wav audio/exit-roland.wav
   FILE ../resources/audio/exit-sample.wav audio/exit-sample.wav
   FILE ../resources/audio/explosion-adlib.wav audio/explosion-adlib.wav
   FILE ../resources/audio/explosion-beep.wav audio/explosion-beep.wav
   FILE ../resources/audio/explosion-blaster.wav audio/explosion-blaster.wav
+  FILE ../resources/audio/explosion-roland.wav audio/explosion-roland.wav
   FILE ../resources/audio/explosion-sample.wav audio/explosion-sample.wav
   FILE ../resources/audio/fall-adlib.wav audio/fall-adlib.wav
   FILE ../resources/audio/fall-beep.wav audio/fall-beep.wav
   FILE ../resources/audio/fall-blaster.wav audio/fall-blaster.wav
+  FILE ../resources/audio/fall-roland.wav audio/fall-roland.wav
   FILE ../resources/audio/fall-sample.wav audio/fall-sample.wav
   FILE ../resources/audio/infotron-adlib.wav audio/infotron-adlib.wav
   FILE ../resources/audio/infotron-beep.wav audio/infotron-beep.wav
   FILE ../resources/audio/infotron-blaster.wav audio/infotron-blaster.wav
+  FILE ../resources/audio/infotron-roland.wav audio/infotron-roland.wav
   FILE ../resources/audio/infotron-sample.wav audio/infotron-sample.wav
   FILE ../resources/audio/music-beep.xm audio/music-beep.xm
-  FILE ../resources/audio/music-blaster.xm audio/music-blaster.xm
+  FILE ../resources/audio/music-adlib.xm audio/music-adlib.xm
   FILE ../resources/audio/music-roland.xm audio/music-roland.xm
   FILE ../resources/audio/push-adlib.wav audio/push-adlib.wav
   FILE ../resources/audio/push-beep.wav audio/push-beep.wav
   FILE ../resources/audio/push-blaster.wav audio/push-blaster.wav
+  FILE ../resources/audio/push-roland.wav audio/push-roland.wav
   FILE ../resources/audio/push-sample.wav audio/push-sample.wav
   FILE ../resources/BACK.DAT BACK.DAT
   FILE ../resources/CHARS6.DAT CHARS6.DAT
@@ -201,7 +210,7 @@ vita_create_vpk(${PROJECT_NAME}.vpk ${VITA_TITLEID} ${PROJECT_NAME}.self
   FILE ../resources/LEVELS.DAT LEVELS.DAT
   FILE ../resources/MENU.DAT MENU.DAT
   FILE ../resources/MOVING.DAT MOVING.DAT
-  FILE ../resources/myspsig.txt myspsig.txt
+  FILE ../resources/MYSPSIG.TXT MYSPSIG.TXT
   FILE ../resources/PALETTES.DAT PALETTES.DAT
   FILE ../resources/PANEL.DAT PANEL.DAT
   FILE ../resources/README.TXT README.TXT

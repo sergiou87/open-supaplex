@@ -18,7 +18,7 @@
 #include "../video.h"
 
 #include <math.h>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <stdlib.h>
 
 #include "../logging.h"
@@ -143,6 +143,13 @@ void initializeVideo(uint8_t fastMode)
 
 void render()
 {
+    // In some cases (like using Wayland on Linux) some SDL events could be triggered
+    // and end up triggering a render before initializeVideo is done.
+    if (gScreenSurface == NULL)
+    {
+        return;
+    }
+
     SDL_BlitSurface(gScreenSurface, NULL, gTextureSurface, NULL);
 
     SDL_UpdateTexture(gTexture, NULL, gTextureSurface->pixels, gTextureSurface->pitch);

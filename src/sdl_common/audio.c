@@ -20,7 +20,7 @@
 #include <math.h>
 
 #if HAVE_SDL2
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #if TARGET_OS_MAC
 #include <SDL2_mixer/SDL_mixer.h>
 #else
@@ -191,7 +191,7 @@ void loadMusic()
             break;
         case SoundTypeAdlib:
         case SoundTypeSoundBlaster:
-            musicSuffix = kBlasterSoundFileNameSuffix;
+            musicSuffix = kAdlibSoundFileNameSuffix;
             break;
         case SoundTypeInternalSamples:
         case SoundTypeInternalStandard:
@@ -225,6 +225,8 @@ void loadSounds()
     switch (sndType)
     {
         case SoundTypeRoland:
+            effectsSuffix = kRolandSoundFileNameSuffix;
+            break;
         case SoundTypeSoundBlaster:
             effectsSuffix = kBlasterSoundFileNameSuffix;
             break;

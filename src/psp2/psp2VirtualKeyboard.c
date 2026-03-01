@@ -17,7 +17,7 @@
 
 #include "../virtualKeyboard.h"
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 #include <psp2/apputil.h>
 #include <psp2/display.h>

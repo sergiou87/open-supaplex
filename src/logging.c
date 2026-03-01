@@ -18,7 +18,7 @@
 #include "logging.h"
 
 #if HAVE_SDL2
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #endif
 
 #if (defined(__vita__) || defined(__PSL1GHT__)) && DEBUG
