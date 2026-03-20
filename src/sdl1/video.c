@@ -22,40 +22,16 @@
 #include <stdlib.h>
 
 #include "../logging.h"
+#include "../platformCapabilities.h"
 #include "../utils.h"
 
 #if defined(__PSP__)
 #include <pspdisplay.h>
+#endif
 
-static const int kWindowWidth = 480;
-static const int kWindowHeight = 272;
-static const int kWindowFlags = SDL_FULLSCREEN | SDL_SWSURFACE | SDL_HWPALETTE;
-#elif defined(_3DS)
-static const int kWindowWidth = 400;
-static const int kWindowHeight = 240;
-#if DEBUG
-// When building debug mode for 3DS, show stdout in the bottom screen
-static const int kWindowFlags = SDL_FULLSCREEN | SDL_SWSURFACE | SDL_HWPALETTE | SDL_CONSOLEBOTTOM;
-#else
-static const int kWindowFlags = SDL_FULLSCREEN | SDL_SWSURFACE | SDL_HWPALETTE;
-#endif
-#elif defined(__NDS__)
-static const int kWindowWidth = kScreenWidth;
-static const int kWindowHeight = kScreenHeight;
-static const int kWindowFlags = SDL_FULLSCREEN | SDL_SWSURFACE | SDL_HWPALETTE | SDL_BOTTOMSCR;
-#elif defined(__WII__)
-static const int kWindowWidth = 640;
-static const int kWindowHeight = 480;
-static const int kWindowFlags = SDL_FULLSCREEN | SDL_SWSURFACE | SDL_HWPALETTE;
-#elif defined(__riscos__)
-static const int kWindowWidth = kScreenWidth * 2;
-static const int kWindowHeight = kScreenHeight * 2;
-static const int kWindowFlags = SDL_RESIZABLE | SDL_SWSURFACE | SDL_HWPALETTE;
-#else
-static const int kWindowWidth = kScreenWidth * 4;
-static const int kWindowHeight = kScreenHeight * 4;
-static const int kWindowFlags = SDL_RESIZABLE | SDL_SWSURFACE | SDL_HWPALETTE;
-#endif
+static const int kWindowWidth = PLATFORM_SDL1_WINDOW_WIDTH;
+static const int kWindowHeight = PLATFORM_SDL1_WINDOW_HEIGHT;
+static const int kWindowFlags = PLATFORM_SDL1_WINDOW_FLAGS;
 
 SDL_Surface *gScreenSurface = NULL;
 uint8_t *gScreenPixels = NULL;
@@ -125,7 +101,7 @@ void present()
 {
     SDL_Flip(gWindowSurface);
 
-#if defined(__PSP__)
+#if PLATFORM_SDL1_NEEDS_PSP_VBLANK_WAIT
     // On PSP, only enable vsync for integer factor scaling. Otherwise, it will kill performance
     if (gScalingMode == ScalingModeIntegerFactor)
     {

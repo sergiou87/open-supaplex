@@ -19,6 +19,7 @@
 
 #include <string.h>
 
+#include "platformCapabilities.h"
 #include "utils.h"
 
 #if defined(FILE_FHS_XDG_DIRS)
@@ -156,34 +157,16 @@ FILE *openWritableFile(const char *pathname, const char *mode)
 
 #else // the rest of the platforms just have different base paths
 
-#if defined(_3DS)
+#if PLATFORM_NEEDS_POSIX_WRITABLE_DIR_CREATE
 #include <sys/stat.h>
-#define FILE_BASE_PATH "romfs:/"
-#define FILE_BASE_WRITABLE_PATH "sdmc:/OpenSupaplex/"
-#elif defined(__NDS__)
-#define FILE_BASE_PATH "nitro:/resources/"
-#define FILE_BASE_WRITABLE_PATH ""
-#elif defined(__PSL1GHT__)
-#define FILE_BASE_PATH "/dev_hdd0/game/" PS3APPID "/USRDIR/"
-#elif defined(__riscos__)
-#include <sys/stat.h>
-#define FILE_BASE_PATH "/<OpenSupaplex$Dir>/data/"
-#define FILE_BASE_WRITABLE_PATH "/<OpenSupaplex$Saves>/"
-#elif defined(__vita__)
-#include <psp2/io/stat.h>
-#define FILE_BASE_PATH "app0:/"
-#define FILE_BASE_WRITABLE_PATH "ux0:/data/OpenSupaplex/"
-#elif defined(__WII__)
-#define FILE_BASE_PATH "/apps/OpenSupaplex/"
-#elif defined(__WIIU__)
-#define FILE_BASE_PATH "fs:/vol/external01/wiiu/apps/OpenSupaplex/"
-#else
-#define FILE_BASE_PATH ""
 #endif
 
-#ifndef FILE_BASE_WRITABLE_PATH
-#define FILE_BASE_WRITABLE_PATH FILE_BASE_PATH
+#if PLATFORM_NEEDS_SCE_WRITABLE_DIR_CREATE
+#include <psp2/io/stat.h>
 #endif
+
+#define FILE_BASE_PATH PLATFORM_FILE_BASE_PATH
+#define FILE_BASE_WRITABLE_PATH PLATFORM_FILE_BASE_WRITABLE_PATH
 
 void getReadonlyFilePath(const char *pathname, char outPath[kMaxFilePathLength])
 {
@@ -205,9 +188,9 @@ FILE *openReadonlyFile(const char *pathname, const char *mode)
 FILE *openWritableFile(const char *pathname, const char *mode)
 {
     // Create base folder in a writable area
-#ifdef __vita__
+#if PLATFORM_NEEDS_SCE_WRITABLE_DIR_CREATE
     sceIoMkdir(FILE_BASE_WRITABLE_PATH, 0777);
-#elif defined(__riscos__) || defined(_3DS)
+#elif PLATFORM_NEEDS_POSIX_WRITABLE_DIR_CREATE
     mkdir(FILE_BASE_WRITABLE_PATH, 0777);
 #endif
 

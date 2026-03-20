@@ -6,7 +6,7 @@ on:
 jobs:
   create-release:
     name: Create production release
-    uses: sergiou87/open-supaplex/.github/workflows/build-release.yml@master
+    uses: ./.github/workflows/build-release.yml
     with:
       version: ${{ github.ref_name }}
       prerelease: false

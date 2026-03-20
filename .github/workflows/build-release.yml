@@ -13,358 +13,83 @@ on:
         required: false
         type: string
 
+permissions:
+  contents: write
+
 jobs:
-  build-linux:
-    name: Linux
+  validate_platform_metadata:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build OpenSupaplex
-        run: |
-          ./linux/ci-prepare.sh
-          ./linux/ci-build.sh
-        shell: bash
-  build-macos:
-    name: macOS
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build OpenSupaplex
-        run: |
-          ./macos/ci-prepare.sh
-          ./macos/ci-build.sh
-        shell: bash
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos-build
-          path: macos/OpenSupaplex-macOS.zip
-  build-vita:
-    name: PS Vita
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build OpenSupaplex
-        run: |
-          ./vita/ci-docker-run.sh ./vita/ci-build.sh
-        shell: bash
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: vita-build
-          path: vita/build/OpenSupaplex.vpk
-  build-switch:
-    name: Nintendo Switch
+      - name: Validate platform metadata
+        run: python3 scripts/generate_platform_support.py --check
+  prepare_platform_matrix:
+    needs: validate_platform_metadata
     runs-on: ubuntu-latest
+    outputs:
+      release_matrix: ${{ steps.platforms.outputs.release_matrix }}
     steps:
       - uses: actions/checkout@v4
-      - name: Build OpenSupaplex
+      - name: Build release matrix
+        id: platforms
         run: |
-          ./switch/ci-docker-run.sh ./switch/ci-build.sh
-        shell: bash
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: switch-build
-          path: switch/OpenSupaplex-switch.zip
-  build-psp:
-    name: PSP
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build OpenSupaplex
-        run: |
-          ./psp/ci-docker-run.sh sh -c "./psp/ci-install-dependencies.sh && ./psp/ci-build.sh"
-        shell: bash
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: psp-build
-          path: psp/OpenSupaplex-psp.zip
-  build-ps3:
-    name: PS3
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build OpenSupaplex
-        run: |
-          ./ps3/ci-docker-run.sh ./ps3/ci-build.sh
-        shell: bash
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ps3-build
-          path: ps3/OpenSupaplex.pkg
-  build-wii:
-    name: Wii
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build OpenSupaplex
-        run: |
-          ./wii/ci-docker-run.sh ./wii/ci-build.sh
-        shell: bash
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: wii-build
-          path: wii/OpenSupaplex-wii.zip
-  build-wiiu:
-    name: Wii U
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build OpenSupaplex
-        run: |
-          ./wiiu/ci-docker-run.sh ./wiiu/ci-build.sh
-        shell: bash
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: wiiu-build
-          path: wiiu/OpenSupaplex-wiiu.zip
-  build-nds:
-    name: Nintendo DS
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build OpenSupaplex
-        run: |
-          ./nds/ci-docker-run.sh ./nds/ci-build.sh
-        shell: bash
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: nds-build
-          path: nds/OpenSupaplex.nds
-  build-3ds:
-    name: Nintendo 3DS
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build OpenSupaplex
-        run: |
-          ./3ds/ci-docker-run.sh ./3ds/ci-build.sh
-        shell: bash
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: 3ds-build
-          path: 3ds/OpenSupaplex-3ds.zip
-  build-riscos:
-    name: RISC OS
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build OpenSupaplex
-        run: |
-          ./riscos/ci-docker-run.sh ./riscos/ci-build.sh
-        shell: bash
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: riscos-build
-          path: riscos/OpenSupaplex-riscos.zip
-  build-windows-x86_64:
-    name: Windows x86_64
-    runs-on: windows-latest
-    steps:
-      - uses: msys2/setup-msys2@v2
-      - run: git config --global core.autocrlf false
-      - uses: actions/checkout@v4
-      - name: Prepare build environment
-        run: |
-          msys2 -c './windows/ci-prepare.sh x86_64'
-      - name: Build OpenSupaplex
-        run: |
-          cd windows
-          msys2 -c './ci-build.sh x86_64'
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-x86_64-build
-          path: windows/OpenSupaplex-windows-x86_64.zip
+          echo "release_matrix=$(python3 scripts/generate_platform_support.py --matrix release)" >> "$GITHUB_OUTPUT"
+  build-platforms:
+    name: ${{ matrix.name }}
+    needs: prepare_platform_matrix
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare_platform_matrix.outputs.release_matrix) }}
+    uses: ./.github/workflows/build-platform.yml
+    with:
+      runs-on: ${{ matrix.runs_on }}
+      build-command: ${{ matrix.build_command }}
+      pre-build-command: ${{ matrix.pre_build_command }}
+      artifact-name: ${{ matrix.artifact_name }}
+      artifact-path: ${{ matrix.artifact_path }}
+      setup-msys2: ${{ matrix.setup_msys2 }}
   create-release:
     name: Create release
-    needs:
-      [
-        build-vita,
-        build-macos,
-        build-switch,
-        build-nds,
-        build-3ds,
-        build-riscos,
-        build-windows-x86_64,
-        build-psp,
-        build-ps3,
-        build-wii,
-        build-wiiu,
-      ]
+    needs: build-platforms
     runs-on: ubuntu-latest
     steps:
       - name: Checking out...
         uses: actions/checkout@v4
-      - name: Read release notes
-        id: read_release_notes
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ inputs.version }}
+          PRERELEASE: ${{ inputs.prerelease }}
+          RELEASE_NOTES: ${{ inputs.release_notes }}
         run: |
-          CONTENTS=`cat changelog/${{ inputs.version }}.txt`
-          CONTENTS="${CONTENTS//'%'/'%25'}"
-          CONTENTS="${CONTENTS//$'\n'/'%0A'}"
-          CONTENTS="${CONTENTS//$'\r'/'%0D'}"
-          echo "::set-output name=release_notes::${CONTENTS}"
-        shell: bash
-        if: ${{ !inputs.release_notes }}
-      - name: Download macOS Build Asset
-        uses: actions/download-artifact@v4
-        with:
-          name: macos-build
-      - name: Download PS Vita Build Asset
-        uses: actions/download-artifact@v4
-        with:
-          name: vita-build
-      - name: Download Nintendo Switch Build Asset
-        uses: actions/download-artifact@v4
-        with:
-          name: switch-build
-      - name: Download PSP Build Asset
-        uses: actions/download-artifact@v4
-        with:
-          name: psp-build
-      - name: Download PS3 Build Asset
-        uses: actions/download-artifact@v4
-        with:
-          name: ps3-build
-      - name: Download Wii Build Asset
-        uses: actions/download-artifact@v4
-        with:
-          name: wii-build
-      - name: Download Wii U Build Asset
-        uses: actions/download-artifact@v4
-        with:
-          name: wiiu-build
-      - name: Download Nintendo DS Build Asset
-        uses: actions/download-artifact@v4
-        with:
-          name: nds-build
-      - name: Download Nintendo 3DS Build Asset
-        uses: actions/download-artifact@v4
-        with:
-          name: 3ds-build
-      - name: Download RISC OS Build Asset
-        uses: actions/download-artifact@v4
-        with:
-          name: riscos-build
-      - name: Download Windows x86_64 Build Asset
-        uses: actions/download-artifact@v4
-        with:
-          name: windows-x86_64-build
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@latest
+          if [ -n "$RELEASE_NOTES" ]; then
+            printf '%s\n' "$RELEASE_NOTES" > /tmp/open-supaplex-release-notes.txt
+          else
+            cp "changelog/$VERSION.txt" /tmp/open-supaplex-release-notes.txt
+          fi
+
+          prerelease_flag=''
+          if [ "$PRERELEASE" = 'true' ]; then
+            prerelease_flag='--prerelease'
+          fi
+
+          if gh release view "$VERSION" >/dev/null 2>&1; then
+            echo "Release $VERSION already exists; reusing it for asset upload."
+          else
+            gh release create "$VERSION" \
+              --title "OpenSupaplex $VERSION" \
+              --notes-file /tmp/open-supaplex-release-notes.txt \
+              $prerelease_flag
+          fi
+      - name: Upload release assets
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-        with:
-          tag_name: ${{ inputs.version }}
-          release_name: OpenSupaplex ${{ inputs.version }}
-          body: ${{ inputs.release_notes || steps.read_release_notes.outputs.release_notes }}
-          draft: false
-          prerelease: ${{ inputs.prerelease }}
-      - name: Upload macOS Build Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: macos-build/OpenSupaplex-macOS.zip
-          asset_name: OpenSupaplex-macOS-${{ inputs.version }}.zip
-          asset_content_type: application/binary
-      - name: Upload PS Vita Build Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: vita-build/OpenSupaplex.vpk
-          asset_name: OpenSupaplex-vita-${{ inputs.version }}.vpk
-          asset_content_type: application/binary
-      - name: Upload Nintendo Switch Build Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: switch-build/OpenSupaplex-switch.zip
-          asset_name: OpenSupaplex-switch-${{ inputs.version }}.zip
-          asset_content_type: application/zip
-      - name: Upload PSP Build Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: psp-build/OpenSupaplex-psp.zip
-          asset_name: OpenSupaplex-psp-${{ inputs.version }}.zip
-          asset_content_type: application/zip
-      - name: Upload PS3 Build Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ps3-build/OpenSupaplex.pkg
-          asset_name: OpenSupaplex-ps3-${{ inputs.version }}.pkg
-          asset_content_type: application/binary
-      - name: Upload Wii Build Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: wii-build/OpenSupaplex-wii.zip
-          asset_name: OpenSupaplex-wii-${{ inputs.version }}.zip
-          asset_content_type: application/zip
-      - name: Upload Wii U Build Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: wiiu-build/OpenSupaplex-wiiu.zip
-          asset_name: OpenSupaplex-wiiu-${{ inputs.version }}.zip
-          asset_content_type: application/zip
-      - name: Upload Nintendo DS Build Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: nds-build/OpenSupaplex.nds
-          asset_name: OpenSupaplex-nds-${{ inputs.version }}.nds
-          asset_content_type: application/binary
-      - name: Upload Nintendo 3DS Build Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: 3ds-build/OpenSupaplex-3ds.zip
-          asset_name: OpenSupaplex-3ds-${{ inputs.version }}.zip
-          asset_content_type: application/zip
-      - name: Upload RISC OS Build Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: riscos-build/OpenSupaplex-riscos.zip
-          asset_name: OpenSupaplex-riscos-${{ inputs.version }}.zip
-          asset_content_type: application/zip
-      - name: Upload Windows x86_64 Build Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: windows-x86_64-build/OpenSupaplex-windows-x86_64.zip
-          asset_name: OpenSupaplex-windows-x86_64-${{ inputs.version }}.zip
-          asset_content_type: application/zip
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          while IFS='|' read -r asset_path asset_name_template; do
+            [ -n "$asset_path" ] || continue
+            resolved_asset_name=${asset_name_template//\{version\}/$VERSION}
+            gh release upload "$VERSION" "$asset_path#$resolved_asset_name" --clobber
+          done < <(python3 scripts/generate_platform_support.py --release-assets)
