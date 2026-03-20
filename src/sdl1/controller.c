@@ -21,7 +21,7 @@
 #include <stdlib.h>
 
 #include "../logging.h"
-#include "../platformCapabilities.h"
+#include "../platform.h"
 
 #if defined(__PSP__)
 const uint8_t GAMEPAD_BUTTON_DOWN = 6;
@@ -165,22 +165,22 @@ int8_t getGameControllerAxis(int axis, int minButton, int maxButton, int hat, Ui
 
 int8_t getGameControllerX(void)
 {
-#if PLATFORM_SDL1_CONTROLLER_SIDEWAYS_LAYOUT
-    // Wii only supports the Wiimote sideways
-    return getGameControllerAxis(0, GAMEPAD_BUTTON_LEFT, GAMEPAD_BUTTON_RIGHT, 0, SDL_HAT_UP, SDL_HAT_DOWN);
-#else
-    return getGameControllerAxis(0, GAMEPAD_BUTTON_LEFT, GAMEPAD_BUTTON_RIGHT, 0, SDL_HAT_LEFT, SDL_HAT_RIGHT);
-#endif
+    return getGameControllerAxis(0,
+                                 GAMEPAD_BUTTON_LEFT,
+                                 GAMEPAD_BUTTON_RIGHT,
+                                 0,
+                                 platformSdl1HorizontalHatMin(),
+                                 platformSdl1HorizontalHatMax());
 }
 
 int8_t getGameControllerY(void)
 {
-#if PLATFORM_SDL1_CONTROLLER_SIDEWAYS_LAYOUT
-    // Wii only supports the Wiimote sideways
-    return getGameControllerAxis(1, GAMEPAD_BUTTON_UP, GAMEPAD_BUTTON_DOWN, 0, SDL_HAT_RIGHT, SDL_HAT_LEFT);
-#else
-    return getGameControllerAxis(1, GAMEPAD_BUTTON_UP, GAMEPAD_BUTTON_DOWN, 0, SDL_HAT_UP, SDL_HAT_DOWN);
-#endif
+    return getGameControllerAxis(1,
+                                 GAMEPAD_BUTTON_UP,
+                                 GAMEPAD_BUTTON_DOWN,
+                                 0,
+                                 platformSdl1VerticalHatMin(),
+                                 platformSdl1VerticalHatMax());
 }
 
 void gameControllerEmulateMouse(float *x, float *y, uint8_t *leftButton, uint8_t *rightButton)
@@ -241,22 +241,24 @@ uint8_t getGameControllerButtonB(void)
 
 uint8_t getGameControllerButtonX(void)
 {
-#if PLATFORM_SDL1_CONTROLLER_HAS_WII_CONFIRM_CANCEL_ALIASES
-    return (getGameControllerButton(GAMEPAD_BUTTON_X)
-            || getGameControllerButton(GAMEPAD_BUTTON_1));
-#else
+    if (platformSdl1HasWiiConfirmCancelAliases())
+    {
+        return (getGameControllerButton(GAMEPAD_BUTTON_X)
+                || getGameControllerButton(GAMEPAD_BUTTON_1));
+    }
+
     return getGameControllerButton(GAMEPAD_BUTTON_X);
-#endif
 }
 
 uint8_t getGameControllerButtonY(void)
 {
-#if PLATFORM_SDL1_CONTROLLER_HAS_WII_CONFIRM_CANCEL_ALIASES
-    return (getGameControllerButton(GAMEPAD_BUTTON_Y)
-            || getGameControllerButton(GAMEPAD_BUTTON_2));
-#else
+    if (platformSdl1HasWiiConfirmCancelAliases())
+    {
+        return (getGameControllerButton(GAMEPAD_BUTTON_Y)
+                || getGameControllerButton(GAMEPAD_BUTTON_2));
+    }
+
     return getGameControllerButton(GAMEPAD_BUTTON_Y);
-#endif
 }
 
 uint8_t getGameControllerButtonBack(void)
@@ -281,26 +283,34 @@ uint8_t getGameControllerButtonRightShoulder(void)
 
 uint8_t getGameControllerConfirmButton(void)
 {
-#if PLATFORM_SDL1_CONFIRM_IS_B
-    return getGameControllerButtonB();
-#elif PLATFORM_SDL1_CONTROLLER_HAS_WII_CONFIRM_CANCEL_ALIASES
-    return (getGameControllerButtonB()
-            || getGameControllerButton(GAMEPAD_BUTTON_2));
-#else
+    if (platformSdl1ConfirmButtonIsB())
+    {
+        return getGameControllerButtonB();
+    }
+
+    if (platformSdl1HasWiiConfirmCancelAliases())
+    {
+        return (getGameControllerButtonB()
+                || getGameControllerButton(GAMEPAD_BUTTON_2));
+    }
+
     return getGameControllerButtonA();
-#endif
 }
 
 uint8_t getGameControllerCancelButton(void)
 {
-#if PLATFORM_SDL1_CONFIRM_IS_B
-    return getGameControllerButtonA();
-#elif PLATFORM_SDL1_CONTROLLER_HAS_WII_CONFIRM_CANCEL_ALIASES
-    return (getGameControllerButtonA()
-            || getGameControllerButton(GAMEPAD_BUTTON_1));
-#else
+    if (platformSdl1ConfirmButtonIsB())
+    {
+        return getGameControllerButtonA();
+    }
+
+    if (platformSdl1HasWiiConfirmCancelAliases())
+    {
+        return (getGameControllerButtonA()
+                || getGameControllerButton(GAMEPAD_BUTTON_1));
+    }
+
     return getGameControllerButtonB();
-#endif
 }
 
 uint8_t isAnyGameControllerButtonPressed(void)

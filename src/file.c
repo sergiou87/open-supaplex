@@ -19,7 +19,7 @@
 
 #include <string.h>
 
-#include "platformCapabilities.h"
+#include "platform.h"
 #include "utils.h"
 
 #if defined(FILE_FHS_XDG_DIRS)
@@ -157,25 +157,14 @@ FILE *openWritableFile(const char *pathname, const char *mode)
 
 #else // the rest of the platforms just have different base paths
 
-#if PLATFORM_NEEDS_POSIX_WRITABLE_DIR_CREATE
-#include <sys/stat.h>
-#endif
-
-#if PLATFORM_NEEDS_SCE_WRITABLE_DIR_CREATE
-#include <psp2/io/stat.h>
-#endif
-
-#define FILE_BASE_PATH PLATFORM_FILE_BASE_PATH
-#define FILE_BASE_WRITABLE_PATH PLATFORM_FILE_BASE_WRITABLE_PATH
-
 void getReadonlyFilePath(const char *pathname, char outPath[kMaxFilePathLength])
 {
-    snprintf(outPath, kMaxFilePathLength, FILE_BASE_PATH "%s", pathname);
+    snprintf(outPath, kMaxFilePathLength, "%s%s", platformReadonlyBasePath(), pathname);
 }
 
 void getWritableFilePath(const char *pathname, char outPath[kMaxFilePathLength])
 {
-    snprintf(outPath, kMaxFilePathLength, FILE_BASE_WRITABLE_PATH "%s", pathname);
+    snprintf(outPath, kMaxFilePathLength, "%s%s", platformWritableBasePath(), pathname);
 }
 
 FILE *openReadonlyFile(const char *pathname, const char *mode)
@@ -187,12 +176,7 @@ FILE *openReadonlyFile(const char *pathname, const char *mode)
 
 FILE *openWritableFile(const char *pathname, const char *mode)
 {
-    // Create base folder in a writable area
-#if PLATFORM_NEEDS_SCE_WRITABLE_DIR_CREATE
-    sceIoMkdir(FILE_BASE_WRITABLE_PATH, 0777);
-#elif PLATFORM_NEEDS_POSIX_WRITABLE_DIR_CREATE
-    mkdir(FILE_BASE_WRITABLE_PATH, 0777);
-#endif
+    platformCreateWritableBaseFolder();
 
     char finalPathname[kMaxFilePathLength];
     getWritableFilePath(pathname, finalPathname);

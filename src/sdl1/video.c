@@ -22,16 +22,8 @@
 #include <stdlib.h>
 
 #include "../logging.h"
-#include "../platformCapabilities.h"
+#include "../platform.h"
 #include "../utils.h"
-
-#if defined(__PSP__)
-#include <pspdisplay.h>
-#endif
-
-static const int kWindowWidth = PLATFORM_SDL1_WINDOW_WIDTH;
-static const int kWindowHeight = PLATFORM_SDL1_WINDOW_HEIGHT;
-static const int kWindowFlags = PLATFORM_SDL1_WINDOW_FLAGS;
 
 SDL_Surface *gScreenSurface = NULL;
 uint8_t *gScreenPixels = NULL;
@@ -57,11 +49,11 @@ void initializeVideo(uint8_t fastMode)
     }
 
     getWindowSize(&fullScreenWidth, &fullScreenHeight);
-    lastWindowedWidth = kWindowWidth;
-    lastWindowedHeight = kWindowHeight;
+    lastWindowedWidth = platformSdl1WindowWidth();
+    lastWindowedHeight = platformSdl1WindowHeight();
 
     SDL_WM_SetCaption("OpenSupaplex", "OpenSupaplex");
-    gWindowSurface =  SDL_SetVideoMode(kWindowWidth, kWindowHeight, 8, kWindowFlags);
+    gWindowSurface = SDL_SetVideoMode(platformSdl1WindowWidth(), platformSdl1WindowHeight(), 8, platformSdl1WindowFlags());
     if (gWindowSurface == NULL)
     {
         spLogInfo("Could not create a window surface: %s", SDL_GetError());
@@ -100,14 +92,7 @@ void render()
 void present()
 {
     SDL_Flip(gWindowSurface);
-
-#if PLATFORM_SDL1_NEEDS_PSP_VBLANK_WAIT
-    // On PSP, only enable vsync for integer factor scaling. Otherwise, it will kill performance
-    if (gScalingMode == ScalingModeIntegerFactor)
-    {
-        sceDisplayWaitVblankStart();
-    }
-#endif
+    platformSdl1WaitForPresentationSync(gScalingMode);
 }
 
 void destroyVideo()
@@ -153,8 +138,8 @@ void getWindowSize(int *width, int *height)
     }
     else
     {
-        *width = kWindowWidth;
-        *height = kWindowHeight;
+        *width = platformSdl1WindowWidth();
+        *height = platformSdl1WindowHeight();
     }
 }
 

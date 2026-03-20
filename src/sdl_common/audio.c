@@ -44,8 +44,7 @@
 #endif
 
 #include "../logging.h"
-#include "../platformCapabilities.h"
-#include "../system.h"
+#include "../platform.h"
 
 #define kMaxSoundFilenameLength 256
 
@@ -80,35 +79,21 @@ void destroyMusic(void);
 void loadSounds(void);
 void destroySounds(void);
 
-static const char *kBaseAudioFolder = PLATFORM_AUDIO_BASE_PATH;
-
 // Keep buffer size as low as possible to prevent latency with sound effects.
 // In macOS I was able to set it to 512, but that caused a lot of issues playing music on Nintendo Switch.
 // If it ever supports WASM, that needs a power of 2 as buffer size.
 //
 // PS3 seems to ignore this and always use number_of_samples (256) * sizeof(float) * number_of_channels = 2048
 // PSP and PS Vita only need this value to be a multiple of 64
-const int kAudioBufferSize = PLATFORM_AUDIO_BUFFER_SIZE;
-
-// 3DS can't handle High quality audio, it kills performance
-static const int kSampleRate = PLATFORM_AUDIO_SAMPLE_RATE;
-static const int kNumberOfChannels = PLATFORM_AUDIO_CHANNEL_COUNT;
 
 int8_t initializeAudio()
 {
     SDL_InitSubSystem(SDL_INIT_AUDIO);
 
-    int sampleRate = kSampleRate;
-    int numberOfChannels = kNumberOfChannels;
-    int audioBufferSize = kAudioBufferSize;
-
-    // The Old Nintendo 3DS requires very low quality audio to perform well
-    if (isOld3DSSystem())
-    {
-        sampleRate = 11025;
-        numberOfChannels = 1;
-        audioBufferSize = 512;
-    }
+    int sampleRate;
+    int numberOfChannels;
+    int audioBufferSize;
+    platformGetAudioSettings(&sampleRate, &numberOfChannels, &audioBufferSize);
 
     spLogInfo("Trying to initialize audio: %dHz, %d channels, format 0x%04x, %d bytes buffer",
               sampleRate, numberOfChannels, MIX_DEFAULT_FORMAT, audioBufferSize);
@@ -122,10 +107,10 @@ int8_t initializeAudio()
 
     int flags = 0;
 
-    // Wii and Wii U use ModPlug instead of MikMod, so MIX_INIT_MOD is not required
-#if PLATFORM_NEEDS_MIX_INIT_MOD
-     flags |= MIX_INIT_MOD;
-#endif
+    if (platformNeedsMixerInitMod())
+    {
+        flags |= MIX_INIT_MOD;
+    }
 
     int initted = Mix_Init(flags);
     if((initted & flags) != flags)
@@ -141,7 +126,7 @@ int8_t initializeAudio()
     Mix_QuerySpec(&queriedSampleRate, &queriedFormat, &queriedChannels);
     
     spLogInfo("Audio initialized: %dHz, %d channels, format 0x%04x, %d bytes buffer",
-              queriedSampleRate, queriedChannels, queriedFormat, kAudioBufferSize);
+              queriedSampleRate, queriedChannels, queriedFormat, audioBufferSize);
     gIsAudioInitialized = 1;
 
     return 0;
@@ -187,11 +172,11 @@ void loadMusic()
     }
 
     char filename[kMaxSoundFilenameLength] = "";
-    snprintf(filename, kMaxSoundFilenameLength, "%s/music-%s.xm", kBaseAudioFolder, musicSuffix);
+    snprintf(filename, kMaxSoundFilenameLength, "%s/music-%s.xm", platformAudioBasePath(), musicSuffix);
 
     gMusic = Mix_LoadMUS(filename);
 
-    if(gMusic == NULL)
+    if (gMusic == NULL)
     {
         spLogInfo("Unable to load music file: %s\n", Mix_GetError());
         return;
@@ -232,7 +217,7 @@ void loadSounds()
 
     for (int i = 0; i < SoundEffectCount; ++i)
     {
-        snprintf(filename, kMaxSoundFilenameLength, "%s/%s-%s.wav", kBaseAudioFolder, gSoundEffectNames[i], effectsSuffix);
+        snprintf(filename, kMaxSoundFilenameLength, "%s/%s-%s.wav", platformAudioBasePath(), gSoundEffectNames[i], effectsSuffix);
         gSoundEffectChunks[i] = Mix_LoadWAV(filename);
     }
 }
