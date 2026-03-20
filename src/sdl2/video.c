@@ -22,11 +22,8 @@
 #include <stdlib.h>
 
 #include "../logging.h"
-#include "../platformCapabilities.h"
+#include "../platform.h"
 #include "../utils.h"
-
-static const int kWindowWidth = PLATFORM_SDL2_WINDOW_WIDTH;
-static const int kWindowHeight = PLATFORM_SDL2_WINDOW_HEIGHT;
 
 SDL_Surface *gScreenSurface = NULL;
 uint8_t *gScreenPixels = NULL;
@@ -52,13 +49,9 @@ void initializeVideo(uint8_t fastMode)
     gWindow = SDL_CreateWindow("OpenSupaplex",
                                SDL_WINDOWPOS_UNDEFINED,
                                SDL_WINDOWPOS_UNDEFINED,
-                               kWindowWidth,
-                               kWindowHeight,
-#if PLATFORM_SDL2_WINDOW_STARTS_FULLSCREEN
-                               SDL_WINDOW_FULLSCREEN);
-#else
-                               0);
-#endif
+                               platformSdl2WindowWidth(),
+                               platformSdl2WindowHeight(),
+                               platformSdl2WindowFlags());
 
     if (gWindow == NULL)
     {
@@ -87,7 +80,7 @@ void initializeVideo(uint8_t fastMode)
         exit(1);
     }
 
-    Uint32 format = PLATFORM_SDL2_TEXTURE_FORMAT;
+    Uint32 format = platformSdl2TextureFormat();
 
     // HACK: this is needed for my crappy SDL2 implementation (https://github.com/sergiou87/SDL2/commit/962e4e565562c2cd70b877f3d697ad2084d9405b)
     // but this should be fixed on SDL's side (or pspgl's), I think.

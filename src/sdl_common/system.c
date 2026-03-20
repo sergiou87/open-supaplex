@@ -26,19 +26,9 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#include "../platformCapabilities.h"
-
-#if PLATFORM_NEEDS_NITRO_FS_INIT
-#include <stdbool.h>
-#include <filesystem.h>
-#endif
-
-#if PLATFORM_NEEDS_ROMFS_LIFECYCLE
-#include <3ds.h>
-#endif
-
 #include "../globals.h"
 #include "../logging.h"
+#include "../platform.h"
 
 void initializeSystem(void)
 {
@@ -51,43 +41,13 @@ void initializeSystem(void)
 
     spLogInfo("SDL_Init succeeded.");
 
-#if PLATFORM_NEEDS_NITRO_FS_INIT
-    nitroFSInit(NULL);
-#endif
-
-#if PLATFORM_SUPPORTS_3DS_SPEEDUP
-	if(isOld3DSSystem() == 0)
-    {
-		osSetSpeedupEnable(true);
-        spLogInfo("Using New3DS speed up for better performance");
-    }
-#endif
-
-#if PLATFORM_NEEDS_ROMFS_LIFECYCLE
-    romfsInit();
-#endif
+    platformInitializeSystem();
 }
 
 void destroySystem(void)
 {
     SDL_Quit();
-#if PLATFORM_NEEDS_ROMFS_LIFECYCLE
-    romfsExit();
-#endif
-}
-
-uint8_t isOld3DSSystem(void)
-{
-#if PLATFORM_SUPPORTS_3DS_SPEEDUP
-    _Bool isN3DS;
-	APT_CheckNew3DS(&isN3DS);
-	if (isN3DS == 0)
-    {
-        return 1;
-    }
-#endif
-
-    return 0;
+    platformDestroySystem();
 }
 
 void exitWithError(const char *format, ...)
@@ -97,9 +57,7 @@ void exitWithError(const char *format, ...)
     vfprintf(stderr, format, argptr);
     va_end(argptr);
     SDL_Quit();
-#if PLATFORM_NEEDS_ROMFS_LIFECYCLE
-    romfsExit();
-#endif
+    platformDestroySystem();
     exit(errno);
 }
 

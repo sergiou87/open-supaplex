@@ -17,7 +17,7 @@
 
 #include "../controller.h"
 
-#include "../platformCapabilities.h"
+#include "../platform.h"
 
 #include <SDL.h>
 #include <stdlib.h>
@@ -197,20 +197,22 @@ uint8_t getGameControllerButtonRightShoulder(void)
 
 uint8_t getGameControllerConfirmButton(void)
 {
-#if PLATFORM_SDL2_CONFIRM_IS_B
-    return getGameControllerButtonB();
-#else
+    if (platformSdl2ConfirmButtonIsB())
+    {
+        return getGameControllerButtonB();
+    }
+
     return getGameControllerButtonA();
-#endif
 }
 
 uint8_t getGameControllerCancelButton(void)
 {
-#if PLATFORM_SDL2_CONFIRM_IS_B
-    return getGameControllerButtonA();
-#else
+    if (platformSdl2ConfirmButtonIsB())
+    {
+        return getGameControllerButtonA();
+    }
+
     return getGameControllerButtonB();
-#endif
 }
 
 uint8_t isAnyGameControllerButtonPressed(void)
