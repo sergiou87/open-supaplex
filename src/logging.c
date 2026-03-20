@@ -16,12 +16,13 @@
 */
 
 #include "logging.h"
+#include "platformCapabilities.h"
 
 #if HAVE_SDL2
 #include <SDL.h>
 #endif
 
-#if (defined(__vita__) || defined(__PSL1GHT__)) && DEBUG
+#if PLATFORM_USES_DEBUGNET_LOGGING
 #define USE_DEBUGNET 1
 #endif
 
@@ -29,7 +30,7 @@
 #include <debugnet.h>
 #endif
 
-#if defined(__SWITCH__) && DEBUG
+#if PLATFORM_NEEDS_SWITCH_SOCKET_LOGGING && DEBUG
 #include <switch.h>
 #endif
 
@@ -46,7 +47,7 @@ void initializeLogging(void)
     debugNetInit(DEBUGNETIP, 18194, DEBUG);
 #endif
 
-#if defined(__SWITCH__) && DEBUG
+#if PLATFORM_NEEDS_SWITCH_SOCKET_LOGGING && DEBUG
     socketInitializeDefault(); // Initialize sockets
     nxlinkStdio(); // Redirect stdout and stderr over the network to nxlink
 #endif
@@ -58,7 +59,7 @@ void destroyLogging(void)
 {
     spLogInfo("Destroying logging system...");
 
-#if defined(__SWITCH__) && DEBUG
+#if PLATFORM_NEEDS_SWITCH_SOCKET_LOGGING && DEBUG
     socketExit();
 #endif
 

@@ -22,21 +22,11 @@
 #include <stdlib.h>
 
 #include "../logging.h"
+#include "../platformCapabilities.h"
 #include "../utils.h"
 
-#if defined(__PSP__)
-static const int kWindowWidth = 480;
-static const int kWindowHeight = 272;
-#elif defined(__vita__)
-static const int kWindowWidth = 960;
-static const int kWindowHeight = 544;
-#elif defined(__PSL1GHT__) || defined(__WIIU__)
-static const int kWindowWidth = 1280;
-static const int kWindowHeight = 720;
-#else
-static const int kWindowWidth = kScreenWidth * 4;
-static const int kWindowHeight = kScreenHeight * 4;
-#endif
+static const int kWindowWidth = PLATFORM_SDL2_WINDOW_WIDTH;
+static const int kWindowHeight = PLATFORM_SDL2_WINDOW_HEIGHT;
 
 SDL_Surface *gScreenSurface = NULL;
 uint8_t *gScreenPixels = NULL;
@@ -64,7 +54,7 @@ void initializeVideo(uint8_t fastMode)
                                SDL_WINDOWPOS_UNDEFINED,
                                kWindowWidth,
                                kWindowHeight,
-#if defined(__SWITCH__) || defined(__vita__) || defined(__PSP__) || defined(__PSL1GHT__) || defined(__WIIU__) || defined(__PS2__)
+#if PLATFORM_SDL2_WINDOW_STARTS_FULLSCREEN
                                SDL_WINDOW_FULLSCREEN);
 #else
                                0);
@@ -97,15 +87,11 @@ void initializeVideo(uint8_t fastMode)
         exit(1);
     }
 
-    Uint32 format = SDL_PIXELFORMAT_RGB24;
+    Uint32 format = PLATFORM_SDL2_TEXTURE_FORMAT;
 
     // HACK: this is needed for my crappy SDL2 implementation (https://github.com/sergiou87/SDL2/commit/962e4e565562c2cd70b877f3d697ad2084d9405b)
     // but this should be fixed on SDL's side (or pspgl's), I think.
     //
-#ifdef __PSP__
-    format = SDL_PIXELFORMAT_ABGR32;
-#endif
-
     gTexture = SDL_CreateTexture(gRenderer,
                                  format,
                                  SDL_TEXTUREACCESS_STREAMING,

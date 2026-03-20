@@ -16,6 +16,7 @@
 */
 
 #include "conditionals.h"
+#include "platformCapabilities.h"
 
 #ifdef __SWITCH__
 #include <switch.h>
@@ -23,18 +24,14 @@
 
 uint8_t supportsRealKeyboard(void)
 {
-#if defined(__vita__) || defined(__SWITCH__) || defined(__PSP__) || defined(__NDS__) || defined(_3DS) || defined(__PSL1GHT__) || defined(__WII__) || defined(__WIIU__) || defined(__PS2__)
-    return 0;
-#else
-    return 1;
-#endif
+    return PLATFORM_SUPPORTS_REAL_KEYBOARD;
 }
 
 uint8_t supportsVirtualKeyboard(void)
 {
-#if defined(__vita__) || defined(_3DS) || defined(__PSL1GHT__)
+#if PLATFORM_HAS_NATIVE_VIRTUAL_KEYBOARD
     return 1;
-#elif defined(__SWITCH__)
+#elif PLATFORM_HAS_RUNTIME_VIRTUAL_KEYBOARD
     // If app is ran in applet mode, SwKbd will not work
     AppletType at = appletGetAppletType();
     return at == AppletType_Application || at == AppletType_SystemApplication;
@@ -45,9 +42,5 @@ uint8_t supportsVirtualKeyboard(void)
 
 uint8_t supportsSPFileDemoPlayback(void)
 {
-#if defined(__vita__) || defined(__SWITCH__) || defined(__PSP__) || defined(__NDS__) || defined(_3DS) || defined(__PSL1GHT__) || defined(__WII__) || defined(__WIIU__) || defined(__PS2__)
-    return 0;
-#else
-    return 1;
-#endif
+    return PLATFORM_SUPPORTS_SP_FILE_DEMO_PLAYBACK;
 }

@@ -21,10 +21,22 @@
 
 #if HAVE_SDL2
 #include <SDL.h>
+#if defined(__has_include)
+#if __has_include(<SDL2/SDL_mixer.h>)
+#include <SDL2/SDL_mixer.h>
+#elif __has_include(<SDL2_mixer/SDL_mixer.h>)
+#include <SDL2_mixer/SDL_mixer.h>
+#elif __has_include(<SDL_mixer.h>)
+#include <SDL_mixer.h>
+#else
+#include <SDL2/SDL_mixer.h>
+#endif
+#else
 #if TARGET_OS_MAC
 #include <SDL2_mixer/SDL_mixer.h>
 #else
 #include <SDL2/SDL_mixer.h>
+#endif
 #endif
 #elif HAVE_SDL
 #include <SDL/SDL.h>
@@ -32,6 +44,7 @@
 #endif
 
 #include "../logging.h"
+#include "../platformCapabilities.h"
 #include "../system.h"
 
 #define kMaxSoundFilenameLength 256
@@ -67,47 +80,19 @@ void destroyMusic(void);
 void loadSounds(void);
 void destroySounds(void);
 
-#if defined(FILE_DATA_PATH)
-#define FILE_PATH_STR_HELPER(x) #x
-#define FILE_PATH_STR(x) FILE_PATH_STR_HELPER(x)
-#define FILE_BASE_PATH FILE_PATH_STR(FILE_DATA_PATH)
-static const char *kBaseAudioFolder = FILE_BASE_PATH "/audio";
-#elif defined(__vita__)
-static const char *kBaseAudioFolder = "app0:/audio";
-#elif defined(_3DS)
-static const char *kBaseAudioFolder = "romfs:/audio";
-#elif defined(__PSL1GHT__)
-static const char *kBaseAudioFolder = "/dev_hdd0/game/" PS3APPID "/USRDIR/audio";
-#elif defined(__riscos__)
-static const char *kBaseAudioFolder = "/<OpenSupaplex$Dir>/audio";
-#elif defined(__WII__)
-static const char *kBaseAudioFolder = "/apps/OpenSupaplex/audio";
-#elif defined(__WIIU__)
-static const char *kBaseAudioFolder = "fs:/vol/external01/wiiu/apps/OpenSupaplex/audio";
-#else
-static const char *kBaseAudioFolder = "audio";
-#endif
+static const char *kBaseAudioFolder = PLATFORM_AUDIO_BASE_PATH;
 
 // Keep buffer size as low as possible to prevent latency with sound effects.
 // In macOS I was able to set it to 512, but that caused a lot of issues playing music on Nintendo Switch.
 // If it ever supports WASM, that needs a power of 2 as buffer size.
 //
-#if defined(__SWITCH__) || defined(__WIIU__) || defined(__WII__) || defined(_3DS)
-const int kAudioBufferSize = 1024;
-#else // macOS, PS Vita, PS3, PSP and Windows
 // PS3 seems to ignore this and always use number_of_samples (256) * sizeof(float) * number_of_channels = 2048
 // PSP and PS Vita only need this value to be a multiple of 64
-const int kAudioBufferSize = 512;
-#endif
+const int kAudioBufferSize = PLATFORM_AUDIO_BUFFER_SIZE;
 
 // 3DS can't handle High quality audio, it kills performance
-#if defined(_3DS)
-static const int kSampleRate = 22050;
-static const int kNumberOfChannels = 1;
-#else
-static const int kSampleRate = 44100;
-static const int kNumberOfChannels = 2;
-#endif
+static const int kSampleRate = PLATFORM_AUDIO_SAMPLE_RATE;
+static const int kNumberOfChannels = PLATFORM_AUDIO_CHANNEL_COUNT;
 
 int8_t initializeAudio()
 {
@@ -138,7 +123,7 @@ int8_t initializeAudio()
     int flags = 0;
 
     // Wii and Wii U use ModPlug instead of MikMod, so MIX_INIT_MOD is not required
-#if !defined(__WII__) && !defined(__WIIU__)
+#if PLATFORM_NEEDS_MIX_INIT_MOD
      flags |= MIX_INIT_MOD;
 #endif
 

@@ -21,6 +21,7 @@
 #include <stdlib.h>
 
 #include "../logging.h"
+#include "../platformCapabilities.h"
 
 #if defined(__PSP__)
 const uint8_t GAMEPAD_BUTTON_DOWN = 6;
@@ -164,7 +165,7 @@ int8_t getGameControllerAxis(int axis, int minButton, int maxButton, int hat, Ui
 
 int8_t getGameControllerX(void)
 {
-#if defined(__WII__)
+#if PLATFORM_SDL1_CONTROLLER_SIDEWAYS_LAYOUT
     // Wii only supports the Wiimote sideways
     return getGameControllerAxis(0, GAMEPAD_BUTTON_LEFT, GAMEPAD_BUTTON_RIGHT, 0, SDL_HAT_UP, SDL_HAT_DOWN);
 #else
@@ -174,7 +175,7 @@ int8_t getGameControllerX(void)
 
 int8_t getGameControllerY(void)
 {
-#if defined(__WII__)
+#if PLATFORM_SDL1_CONTROLLER_SIDEWAYS_LAYOUT
     // Wii only supports the Wiimote sideways
     return getGameControllerAxis(1, GAMEPAD_BUTTON_UP, GAMEPAD_BUTTON_DOWN, 0, SDL_HAT_RIGHT, SDL_HAT_LEFT);
 #else
@@ -240,7 +241,7 @@ uint8_t getGameControllerButtonB(void)
 
 uint8_t getGameControllerButtonX(void)
 {
-#if defined(__WII__)
+#if PLATFORM_SDL1_CONTROLLER_HAS_WII_CONFIRM_CANCEL_ALIASES
     return (getGameControllerButton(GAMEPAD_BUTTON_X)
             || getGameControllerButton(GAMEPAD_BUTTON_1));
 #else
@@ -250,7 +251,7 @@ uint8_t getGameControllerButtonX(void)
 
 uint8_t getGameControllerButtonY(void)
 {
-#if defined(__WII__)
+#if PLATFORM_SDL1_CONTROLLER_HAS_WII_CONFIRM_CANCEL_ALIASES
     return (getGameControllerButton(GAMEPAD_BUTTON_Y)
             || getGameControllerButton(GAMEPAD_BUTTON_2));
 #else
@@ -280,9 +281,9 @@ uint8_t getGameControllerButtonRightShoulder(void)
 
 uint8_t getGameControllerConfirmButton(void)
 {
-#if defined(_3DS)
+#if PLATFORM_SDL1_CONFIRM_IS_B
     return getGameControllerButtonB();
-#elif defined(__WII__)
+#elif PLATFORM_SDL1_CONTROLLER_HAS_WII_CONFIRM_CANCEL_ALIASES
     return (getGameControllerButtonB()
             || getGameControllerButton(GAMEPAD_BUTTON_2));
 #else
@@ -292,9 +293,9 @@ uint8_t getGameControllerConfirmButton(void)
 
 uint8_t getGameControllerCancelButton(void)
 {
-#if defined(_3DS)
+#if PLATFORM_SDL1_CONFIRM_IS_B
     return getGameControllerButtonA();
-#elif defined(__WII__)
+#elif PLATFORM_SDL1_CONTROLLER_HAS_WII_CONFIRM_CANCEL_ALIASES
     return (getGameControllerButtonA()
             || getGameControllerButton(GAMEPAD_BUTTON_1));
 #else

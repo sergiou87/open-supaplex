@@ -12,7 +12,7 @@ on:
 jobs:
   create-beta-release:
     name: Create beta release
-    uses: sergiou87/open-supaplex/.github/workflows/build-release.yml@master
+    uses: ./.github/workflows/build-release.yml
     with:
       version: ${{ github.event.inputs.version }}
       release_notes: ${{ github.event.inputs.release_notes }}

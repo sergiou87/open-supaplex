@@ -1,0 +1,49 @@
+name: Build OpenSupaplex Platform
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        required: true
+        type: string
+      build-command:
+        required: true
+        type: string
+      pre-build-command:
+        required: false
+        default: ""
+        type: string
+      artifact-name:
+        required: false
+        default: ""
+        type: string
+      artifact-path:
+        required: false
+        default: ""
+        type: string
+      setup-msys2:
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  build:
+    runs-on: ${{ inputs.runs-on }}
+    steps:
+      - name: Set up MSYS2
+        if: ${{ inputs.setup-msys2 }}
+        uses: msys2/setup-msys2@v2
+      - name: Disable Git CRLF conversion
+        if: ${{ inputs.setup-msys2 }}
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@v4
+      - name: Prepare build environment
+        if: ${{ inputs.pre-build-command != '' }}
+        run: ${{ inputs.pre-build-command }}
+      - name: Build OpenSupaplex
+        run: ${{ inputs.build-command }}
+      - name: Upload artifact
+        if: ${{ inputs.artifact-name != '' && inputs.artifact-path != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: ${{ inputs.artifact-path }}

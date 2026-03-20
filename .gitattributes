@@ -1,0 +1,4 @@
+README.md text eol=crlf
+PLATFORM_SUPPORT.md text eol=lf
+scripts/generate_platform_support.py text eol=lf
+ps2/*.sh text eol=lf
