@@ -1,0 +1,8 @@
+FROM ps2dev/ps2dev:latest
+
+MAINTAINER Sergio Padrino (@sergiou87)
+
+RUN apk add --no-cache make gmp mpfr4 mpc1
+
+WORKDIR /src
+CMD ["/bin/sh"]
