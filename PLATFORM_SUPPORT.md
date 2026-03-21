@@ -11,8 +11,8 @@ This document is generated from `.github/platform-builds.json`.
 | Linux | SDL2 | Makefile | `linux` | Yes | Yes |
 | PS Vita | SDL2 | CMake | `vita` | Yes | Yes |
 | PSP | SDL1 | Makefile | `psp` | Yes | Yes |
-| PlayStation 2 | SDL2 | Makefile | `ps2` | No | No |
-| PS3 | SDL2 | Makefile | `ps3` | Yes | Yes |
+| PlayStation 2 | SDL2 | Makefile | `ps2` | Yes | No |
+| PlayStation 3 | SDL2 | Makefile | `ps3` | Yes | Yes |
 | Nintendo DS | SDL1 | Makefile | `nds` | Yes | Yes |
 | Nintendo 3DS | SDL1 | Makefile | `3ds` | Yes | Yes |
 | Wii | SDL1 | Makefile | `wii` | Yes | Yes |
