@@ -11,6 +11,7 @@ tests/
 TESTOUT.TXT
 /tc/
 xcuserdata/
+__pycache__/
 resources/*.CFG
 resources/PLAYER.*
 resources/SAVEGAME.*
