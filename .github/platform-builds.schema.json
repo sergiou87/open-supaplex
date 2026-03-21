@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenSupaplex platform build metadata",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id",
+      "name",
+      "display_order",
+      "port_dir",
+      "backend",
+      "build_system"
+    ],
+    "properties": {
+      "id": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "display_order": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "port_dir": {
+        "type": "string"
+      },
+      "backend": {
+        "type": "string",
+        "enum": [
+          "SDL1",
+          "SDL2"
+        ]
+      },
+      "build_system": {
+        "type": "string"
+      },
+      "runs_on": {
+        "type": "string",
+        "default": ""
+      },
+      "build_command": {
+        "type": "string",
+        "default": ""
+      },
+      "pre_build_command": {
+        "type": "string",
+        "default": ""
+      },
+      "artifact_name": {
+        "type": "string",
+        "default": ""
+      },
+      "artifact_path": {
+        "type": "string",
+        "default": ""
+      },
+      "release_asset_name": {
+        "type": "string",
+        "default": ""
+      },
+      "status_note": {
+        "type": "string",
+        "default": ""
+      },
+      "readme_note": {
+        "type": "string",
+        "default": ""
+      },
+      "setup_msys2": {
+        "type": "boolean",
+        "default": false
+      },
+      "supported": {
+        "type": "boolean",
+        "default": true
+      },
+      "ci": {
+        "type": "boolean",
+        "default": true
+      },
+      "release": {
+        "type": "boolean",
+        "default": true
+      }
+    }
+  }
+}

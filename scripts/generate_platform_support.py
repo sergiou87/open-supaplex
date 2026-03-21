@@ -8,6 +8,7 @@ import sys
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PLATFORM_BUILDS_PATH = REPO_ROOT / ".github" / "platform-builds.json"
+PLATFORM_BUILDS_SCHEMA_PATH = REPO_ROOT / ".github" / "platform-builds.schema.json"
 OUTPUT_PATH = REPO_ROOT / "PLATFORM_SUPPORT.md"
 README_PATH = REPO_ROOT / "README.md"
 README_START_MARKER = "<!-- GENERATED_PLATFORM_SUMMARY_START -->"
@@ -25,6 +26,86 @@ def with_newline_style(text, newline):
 def load_platforms():
     with PLATFORM_BUILDS_PATH.open("r", encoding="utf-8") as file:
         return json.load(file)
+
+
+def load_schema():
+    with PLATFORM_BUILDS_SCHEMA_PATH.open("r", encoding="utf-8") as file:
+        return json.load(file)
+
+
+def apply_defaults(schema, value):
+    schema_type = schema.get("type")
+
+    if schema_type == "array":
+        item_schema = schema.get("items", {})
+        return [apply_defaults(item_schema, item) for item in value]
+
+    if schema_type == "object":
+        result = dict(value)
+        properties = schema.get("properties", {})
+
+        for key, property_schema in properties.items():
+            if key not in result and "default" in property_schema:
+                result[key] = property_schema["default"]
+
+            if key in result:
+                result[key] = apply_defaults(property_schema, result[key])
+
+        return result
+
+    return value
+
+
+def validate_schema(schema, value, path="$"):
+    errors = []
+    schema_type = schema.get("type")
+
+    if schema_type == "array":
+        if not isinstance(value, list):
+            return [f"{path} should be an array"]
+
+        item_schema = schema.get("items", {})
+        for index, item in enumerate(value):
+            errors.extend(validate_schema(item_schema, item, f"{path}[{index}]"))
+
+        return errors
+
+    if schema_type == "object":
+        if not isinstance(value, dict):
+            return [f"{path} should be an object"]
+
+        properties = schema.get("properties", {})
+
+        for key in schema.get("required", []):
+            if key not in value:
+                errors.append(f"{path}.{key} is required")
+
+        if schema.get("additionalProperties") is False:
+            for key in value:
+                if key not in properties:
+                    errors.append(f"{path}.{key} is not allowed")
+
+        for key, item in value.items():
+            if key in properties:
+                errors.extend(validate_schema(properties[key], item, f"{path}.{key}"))
+
+        return errors
+
+    if schema_type == "string" and not isinstance(value, str):
+        errors.append(f"{path} should be a string")
+    elif schema_type == "integer":
+        if isinstance(value, bool) or not isinstance(value, int):
+            errors.append(f"{path} should be an integer")
+        elif "minimum" in schema and value < schema["minimum"]:
+            errors.append(f"{path} should be >= {schema['minimum']}")
+    elif schema_type == "boolean" and not isinstance(value, bool):
+        errors.append(f"{path} should be a boolean")
+
+    if "enum" in schema and value not in schema["enum"]:
+        allowed_values = ", ".join(map(str, schema["enum"]))
+        errors.append(f"{path} should be one of: {allowed_values}")
+
+    return errors
 
 
 def validate(platforms):
@@ -231,9 +312,11 @@ def main():
     parser.add_argument("--release-assets", action="store_true", help="Print release asset upload mappings")
     args = parser.parse_args()
 
-    platforms = load_platforms()
+    schema = load_schema()
+    platforms = apply_defaults(schema, load_platforms())
 
-    errors = validate(platforms)
+    errors = validate_schema(schema, platforms)
+    errors.extend(validate(platforms))
     if errors:
         for error in errors:
             print(error, file=sys.stderr)
