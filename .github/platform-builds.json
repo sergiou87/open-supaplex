@@ -70,7 +70,7 @@
     "runs_on": "ubuntu-22.04",
     "build_command": "sh ./ps2/ci-docker-run.sh sh -c \"sh ./ps2/ci-prepare.sh && sh ./ps2/ci-build.sh\"",
     "artifact_name": "ps2-build",
-    "artifact_path": "ps2/OpenSupaplex-debug.elf",
+    "artifact_path": "ps2/OpenSupaplex-ps2.zip",
     "release": false
   },
   {
