@@ -24,7 +24,7 @@
 		40487A05246C403A00B776FA /* menu.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3CF72468717400D4A308 /* menu.c */; };
 		40487A06246C403A00B776FA /* config.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3D022469C03000D4A308 /* config.c */; };
 		40487A07246C403A00B776FA /* input.c in Sources */ = {isa = PBXBuildFile; fileRef = 404879C0246B51E600B776FA /* input.c */; };
-		40487A08246C403A00B776FA /* platform.c in Sources */ = {isa = PBXBuildFile; fileRef = 404879C3246B609900B776FA /* platform.c */; };
+		40487A08246C403A00B776FA /* conditionals.c in Sources */ = {isa = PBXBuildFile; fileRef = 404879C3246B609900B776FA /* conditionals.c */; };
 		40487A83246CB32400B776FA /* file.m in Sources */ = {isa = PBXBuildFile; fileRef = 40487A82246CB32400B776FA /* file.m */; };
 		40517B152473EC57004E2435 /* graphics.c in Sources */ = {isa = PBXBuildFile; fileRef = 40517B142473EC57004E2435 /* graphics.c */; };
 		40517B162473EC57004E2435 /* graphics.c in Sources */ = {isa = PBXBuildFile; fileRef = 40517B142473EC57004E2435 /* graphics.c */; };
@@ -35,7 +35,7 @@
 		40564317247032640042F34B /* menu.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3CF72468717400D4A308 /* menu.c */; };
 		40564318247032640042F34B /* ini.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3CFB2468BEF900D4A308 /* ini.c */; };
 		4056431B247032640042F34B /* supaplex.c in Sources */ = {isa = PBXBuildFile; fileRef = 4062C246244CE5D5007A07F5 /* supaplex.c */; };
-		4056431C247032640042F34B /* platform.c in Sources */ = {isa = PBXBuildFile; fileRef = 404879C3246B609900B776FA /* platform.c */; };
+		4056431C247032640042F34B /* conditionals.c in Sources */ = {isa = PBXBuildFile; fileRef = 404879C3246B609900B776FA /* conditionals.c */; };
 		40564320247032640042F34B /* config.c in Sources */ = {isa = PBXBuildFile; fileRef = 40DA3D022469C03000D4A308 /* config.c */; };
 		40564321247032640042F34B /* demo.c in Sources */ = {isa = PBXBuildFile; fileRef = 40564312246F5DB60042F34B /* demo.c */; };
 		40564322247032640042F34B /* file.m in Sources */ = {isa = PBXBuildFile; fileRef = 40487A82246CB32400B776FA /* file.m */; };
@@ -270,8 +270,8 @@
 		404824402485BA1200D13735 /* audio */ = {isa = PBXFileReference; lastKnownFileType = folder; name = audio; path = ../../resources/audio; sourceTree = "<group>"; };
 		404879BF246B51E600B776FA /* input.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = input.h; path = ../../../src/input.h; sourceTree = "<group>"; };
 		404879C0246B51E600B776FA /* input.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = input.c; path = ../../../src/input.c; sourceTree = "<group>"; };
-		404879C2246B5FF500B776FA /* platform.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = platform.h; path = ../../../src/platform.h; sourceTree = "<group>"; };
-		404879C3246B609900B776FA /* platform.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = platform.c; path = ../../../src/platform.c; sourceTree = "<group>"; };
+		404879C2246B5FF500B776FA /* conditionals.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = conditionals.h; path = ../../../src/conditionals.h; sourceTree = "<group>"; };
+		404879C3246B609900B776FA /* conditionals.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = conditionals.c; path = ../../../src/conditionals.c; sourceTree = "<group>"; };
 		404879E5246C3FDC00B776FA /* macOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "macOS-Info.plist"; sourceTree = "<group>"; };
 		404879EA246C402900B776FA /* OpenSupaplex.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OpenSupaplex.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		404879EF246C402B00B776FA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -598,8 +598,8 @@
 				40DA3D022469C03000D4A308 /* config.c */,
 				404879BF246B51E600B776FA /* input.h */,
 				404879C0246B51E600B776FA /* input.c */,
-				404879C2246B5FF500B776FA /* platform.h */,
-				404879C3246B609900B776FA /* platform.c */,
+				404879C2246B5FF500B776FA /* conditionals.h */,
+				404879C3246B609900B776FA /* conditionals.c */,
 				4056430B246F49CE0042F34B /* commandLineParser.h */,
 				4056430C246F49CE0042F34B /* commandLineParser.c */,
 				4056430E246F4A9A0042F34B /* globals.h */,
@@ -933,7 +933,7 @@
 				40517B152473EC57004E2435 /* graphics.c in Sources */,
 				404879FD246C403A00B776FA /* supaplex.c in Sources */,
 				409F7F2F247C74E300BB3B19 /* video.c in Sources */,
-				40487A08246C403A00B776FA /* platform.c in Sources */,
+				40487A08246C403A00B776FA /* conditionals.c in Sources */,
 				40487A06246C403A00B776FA /* config.c in Sources */,
 				40564313246F5DB60042F34B /* demo.c in Sources */,
 				40487A83246CB32400B776FA /* file.m in Sources */,
@@ -963,7 +963,7 @@
 				40517B162473EC57004E2435 /* graphics.c in Sources */,
 				4056431B247032640042F34B /* supaplex.c in Sources */,
 				409F7F30247C74E300BB3B19 /* video.c in Sources */,
-				4056431C247032640042F34B /* platform.c in Sources */,
+				4056431C247032640042F34B /* conditionals.c in Sources */,
 				40564320247032640042F34B /* config.c in Sources */,
 				40564321247032640042F34B /* demo.c in Sources */,
 				40564322247032640042F34B /* file.m in Sources */,

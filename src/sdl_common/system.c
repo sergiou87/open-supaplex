@@ -26,9 +26,17 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+#ifdef __NDS__
+#include <stdbool.h>
+#include <filesystem.h>
+#endif
+
+#if defined(_3DS)
+#include <3ds.h>
+#endif
+
 #include "../globals.h"
 #include "../logging.h"
-#include "../platform.h"
 
 void initializeSystem(void)
 {
@@ -41,13 +49,40 @@ void initializeSystem(void)
 
     spLogInfo("SDL_Init succeeded.");
 
-    platformInitializeSystem();
+#ifdef __NDS__
+    nitroFSInit(NULL);
+#endif
+
+#if defined(_3DS)
+	if(isOld3DSSystem() == 0)
+    {
+		osSetSpeedupEnable(true);
+        spLogInfo("Using New3DS speed up for better performance");
+    }
+    romfsInit();
+#endif
 }
 
 void destroySystem(void)
 {
     SDL_Quit();
-    platformDestroySystem();
+#if defined(_3DS)
+    romfsExit();
+#endif
+}
+
+uint8_t isOld3DSSystem(void)
+{
+#if defined(_3DS)
+    _Bool isN3DS;
+	APT_CheckNew3DS(&isN3DS);
+	if (isN3DS == 0)
+    {
+        return 1;
+    }
+#endif
+
+    return 0;
 }
 
 void exitWithError(const char *format, ...)
@@ -57,7 +92,9 @@ void exitWithError(const char *format, ...)
     vfprintf(stderr, format, argptr);
     va_end(argptr);
     SDL_Quit();
-    platformDestroySystem();
+#if defined(_3DS)
+    romfsExit();
+#endif
     exit(errno);
 }
 

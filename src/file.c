@@ -19,7 +19,6 @@
 
 #include <string.h>
 
-#include "platform.h"
 #include "utils.h"
 
 #if defined(FILE_FHS_XDG_DIRS)
@@ -31,10 +30,6 @@
 #else
 #define FILE_BASE_PATH ""
 #endif
-
-static void prepareWritableFilePath(void)
-{
-}
 
 void getReadonlyFilePath(const char *pathname, char outPath[kMaxFilePathLength])
 {
@@ -145,44 +140,83 @@ void getWritableFilePath(const char *pathname, char outPath[kMaxFilePathLength])
     snprintf(outPath, kMaxFilePathLength, "%s/%s", dirPath, pathname);
 }
 
-#else // the rest of the platforms just have different base paths
-
-static void prepareWritableFilePath(void)
-{
-    platformCreateWritableBaseFolder();
-}
-
-void getReadonlyFilePath(const char *pathname, char outPath[kMaxFilePathLength])
-{
-    snprintf(outPath, kMaxFilePathLength, "%s%s", platformReadonlyBasePath(), pathname);
-}
-
-void getWritableFilePath(const char *pathname, char outPath[kMaxFilePathLength])
-{
-    snprintf(outPath, kMaxFilePathLength, "%s%s", platformWritableBasePath(), pathname);
-}
-
-#endif
-
-static FILE *openResolvedFile(void getFilePath(const char *pathname, char outPath[kMaxFilePathLength]),
-                              const char *pathname,
-                              const char *mode)
-{
-    char finalPathname[kMaxFilePathLength];
-    getFilePath(pathname, finalPathname);
-    return fopen(finalPathname, mode);
-}
-
 FILE *openReadonlyFile(const char *pathname, const char *mode)
 {
-    return openResolvedFile(getReadonlyFilePath, pathname, mode);
+    char finalPathname[kMaxFilePathLength];
+    getReadonlyFilePath(pathname, finalPathname);
+    return fopen(finalPathname, mode);
 }
 
 FILE *openWritableFile(const char *pathname, const char *mode)
 {
-    prepareWritableFilePath();
-    return openResolvedFile(getWritableFilePath, pathname, mode);
+    char finalPathname[kMaxFilePathLength];
+    getWritableFilePath(pathname, finalPathname);
+    return fopen(finalPathname, mode);
 }
+
+#else // the rest of the platforms just have different base paths
+
+#if defined(_3DS)
+#include <sys/stat.h>
+#define FILE_BASE_PATH "romfs:/"
+#define FILE_BASE_WRITABLE_PATH "sdmc:/OpenSupaplex/"
+#elif defined(__NDS__)
+#define FILE_BASE_PATH "nitro:/resources/"
+#define FILE_BASE_WRITABLE_PATH ""
+#elif defined(__PSL1GHT__)
+#define FILE_BASE_PATH "/dev_hdd0/game/" PS3APPID "/USRDIR/"
+#elif defined(__riscos__)
+#include <sys/stat.h>
+#define FILE_BASE_PATH "/<OpenSupaplex$Dir>/data/"
+#define FILE_BASE_WRITABLE_PATH "/<OpenSupaplex$Saves>/"
+#elif defined(__vita__)
+#include <psp2/io/stat.h>
+#define FILE_BASE_PATH "app0:/"
+#define FILE_BASE_WRITABLE_PATH "ux0:/data/OpenSupaplex/"
+#elif defined(__WII__)
+#define FILE_BASE_PATH "/apps/OpenSupaplex/"
+#elif defined(__WIIU__)
+#define FILE_BASE_PATH "fs:/vol/external01/wiiu/apps/OpenSupaplex/"
+#else
+#define FILE_BASE_PATH ""
+#endif
+
+#ifndef FILE_BASE_WRITABLE_PATH
+#define FILE_BASE_WRITABLE_PATH FILE_BASE_PATH
+#endif
+
+void getReadonlyFilePath(const char *pathname, char outPath[kMaxFilePathLength])
+{
+    snprintf(outPath, kMaxFilePathLength, FILE_BASE_PATH "%s", pathname);
+}
+
+void getWritableFilePath(const char *pathname, char outPath[kMaxFilePathLength])
+{
+    snprintf(outPath, kMaxFilePathLength, FILE_BASE_WRITABLE_PATH "%s", pathname);
+}
+
+FILE *openReadonlyFile(const char *pathname, const char *mode)
+{
+    char finalPathname[kMaxFilePathLength];
+    getReadonlyFilePath(pathname, finalPathname);
+    return fopen(finalPathname, mode);
+}
+
+FILE *openWritableFile(const char *pathname, const char *mode)
+{
+    // Create base folder in a writable area
+#ifdef __vita__
+    sceIoMkdir(FILE_BASE_WRITABLE_PATH, 0777);
+#elif defined(__riscos__) || defined(_3DS)
+    mkdir(FILE_BASE_WRITABLE_PATH, 0777);
+#endif
+
+    char finalPathname[kMaxFilePathLength];
+    getWritableFilePath(pathname, finalPathname);
+    return fopen(finalPathname, mode);
+}
+
+#endif
 
 FILE *openWritableFileWithReadonlyFallback(const char *pathname, const char *mode)
 {

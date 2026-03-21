@@ -27,7 +27,7 @@
 #include "audio.h"
 #include "buttonBorders.h"
 #include "commandLineParser.h"
-#include "platform.h"
+#include "conditionals.h"
 #include "config.h"
 #include "controller.h"
 #include "demo.h"
