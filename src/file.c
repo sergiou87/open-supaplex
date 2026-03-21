@@ -32,6 +32,10 @@
 #define FILE_BASE_PATH ""
 #endif
 
+static void prepareWritableFilePath(void)
+{
+}
+
 void getReadonlyFilePath(const char *pathname, char outPath[kMaxFilePathLength])
 {
     if (pathname[0] == '/')
@@ -141,21 +145,12 @@ void getWritableFilePath(const char *pathname, char outPath[kMaxFilePathLength])
     snprintf(outPath, kMaxFilePathLength, "%s/%s", dirPath, pathname);
 }
 
-FILE *openReadonlyFile(const char *pathname, const char *mode)
-{
-    char finalPathname[kMaxFilePathLength];
-    getReadonlyFilePath(pathname, finalPathname);
-    return fopen(finalPathname, mode);
-}
-
-FILE *openWritableFile(const char *pathname, const char *mode)
-{
-    char finalPathname[kMaxFilePathLength];
-    getWritableFilePath(pathname, finalPathname);
-    return fopen(finalPathname, mode);
-}
-
 #else // the rest of the platforms just have different base paths
+
+static void prepareWritableFilePath(void)
+{
+    platformCreateWritableBaseFolder();
+}
 
 void getReadonlyFilePath(const char *pathname, char outPath[kMaxFilePathLength])
 {
@@ -167,23 +162,27 @@ void getWritableFilePath(const char *pathname, char outPath[kMaxFilePathLength])
     snprintf(outPath, kMaxFilePathLength, "%s%s", platformWritableBasePath(), pathname);
 }
 
-FILE *openReadonlyFile(const char *pathname, const char *mode)
+#endif
+
+static FILE *openResolvedFile(void getFilePath(const char *pathname, char outPath[kMaxFilePathLength]),
+                              const char *pathname,
+                              const char *mode)
 {
     char finalPathname[kMaxFilePathLength];
-    getReadonlyFilePath(pathname, finalPathname);
+    getFilePath(pathname, finalPathname);
     return fopen(finalPathname, mode);
+}
+
+FILE *openReadonlyFile(const char *pathname, const char *mode)
+{
+    return openResolvedFile(getReadonlyFilePath, pathname, mode);
 }
 
 FILE *openWritableFile(const char *pathname, const char *mode)
 {
-    platformCreateWritableBaseFolder();
-
-    char finalPathname[kMaxFilePathLength];
-    getWritableFilePath(pathname, finalPathname);
-    return fopen(finalPathname, mode);
+    prepareWritableFilePath();
+    return openResolvedFile(getWritableFilePath, pathname, mode);
 }
-
-#endif
 
 FILE *openWritableFileWithReadonlyFallback(const char *pathname, const char *mode)
 {
