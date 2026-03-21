@@ -22,8 +22,40 @@
 #include <stdlib.h>
 
 #include "../logging.h"
-#include "../platform.h"
 #include "../utils.h"
+
+#if defined(__PSP__)
+#include <pspdisplay.h>
+
+static const int kWindowWidth = 480;
+static const int kWindowHeight = 272;
+static const int kWindowFlags = SDL_FULLSCREEN | SDL_SWSURFACE | SDL_HWPALETTE;
+#elif defined(_3DS)
+static const int kWindowWidth = 400;
+static const int kWindowHeight = 240;
+#if DEBUG
+// When building debug mode for 3DS, show stdout in the bottom screen
+static const int kWindowFlags = SDL_FULLSCREEN | SDL_SWSURFACE | SDL_HWPALETTE | SDL_CONSOLEBOTTOM;
+#else
+static const int kWindowFlags = SDL_FULLSCREEN | SDL_SWSURFACE | SDL_HWPALETTE;
+#endif
+#elif defined(__NDS__)
+static const int kWindowWidth = kScreenWidth;
+static const int kWindowHeight = kScreenHeight;
+static const int kWindowFlags = SDL_FULLSCREEN | SDL_SWSURFACE | SDL_HWPALETTE | SDL_BOTTOMSCR;
+#elif defined(__WII__)
+static const int kWindowWidth = 640;
+static const int kWindowHeight = 480;
+static const int kWindowFlags = SDL_FULLSCREEN | SDL_SWSURFACE | SDL_HWPALETTE;
+#elif defined(__riscos__)
+static const int kWindowWidth = kScreenWidth * 2;
+static const int kWindowHeight = kScreenHeight * 2;
+static const int kWindowFlags = SDL_RESIZABLE | SDL_SWSURFACE | SDL_HWPALETTE;
+#else
+static const int kWindowWidth = kScreenWidth * 4;
+static const int kWindowHeight = kScreenHeight * 4;
+static const int kWindowFlags = SDL_RESIZABLE | SDL_SWSURFACE | SDL_HWPALETTE;
+#endif
 
 SDL_Surface *gScreenSurface = NULL;
 uint8_t *gScreenPixels = NULL;
@@ -49,11 +81,11 @@ void initializeVideo(uint8_t fastMode)
     }
 
     getWindowSize(&fullScreenWidth, &fullScreenHeight);
-    lastWindowedWidth = platformSDLWindowWidth();
-    lastWindowedHeight = platformSDLWindowHeight();
+    lastWindowedWidth = kWindowWidth;
+    lastWindowedHeight = kWindowHeight;
 
     SDL_WM_SetCaption("OpenSupaplex", "OpenSupaplex");
-    gWindowSurface = SDL_SetVideoMode(platformSDLWindowWidth(), platformSDLWindowHeight(), 8, platformSDLWindowFlags());
+    gWindowSurface =  SDL_SetVideoMode(kWindowWidth, kWindowHeight, 8, kWindowFlags);
     if (gWindowSurface == NULL)
     {
         spLogInfo("Could not create a window surface: %s", SDL_GetError());
@@ -92,7 +124,14 @@ void render()
 void present()
 {
     SDL_Flip(gWindowSurface);
-    platformSdl1WaitForPresentationSync(gScalingMode);
+
+#if defined(__PSP__)
+    // On PSP, only enable vsync for integer factor scaling. Otherwise, it will kill performance
+    if (gScalingMode == ScalingModeIntegerFactor)
+    {
+        sceDisplayWaitVblankStart();
+    }
+#endif
 }
 
 void destroyVideo()
@@ -138,8 +177,8 @@ void getWindowSize(int *width, int *height)
     }
     else
     {
-        *width = platformSDLWindowWidth();
-        *height = platformSDLWindowHeight();
+        *width = kWindowWidth;
+        *height = kWindowHeight;
     }
 }
 

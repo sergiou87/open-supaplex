@@ -15,20 +15,19 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef system_h
-#define system_h
+#ifndef conditionals_h
+#define conditionals_h
 
 #include <stdint.h>
 
-void initializeSystem(void);
-void destroySystem(void);
+uint8_t supportsRealKeyboard(void);
+uint8_t supportsVirtualKeyboard(void);
 
-uint8_t isOld3DSSystem(void);
+// This is for platforms that allow in some way to select a 00S000$0.SP demo file for playback. For example, on
+// PC the user can use a command line option to play a specific demo. But right now not on consoles using the
+// advanced menu.
+// TODO: add some kind of demo file selector to advanced menu.
+//
+uint8_t supportsSPFileDemoPlayback(void);
 
-void exitWithError(const char *format, ...);
-
-void handleSystemEvents(void);
-uint32_t getTime(void);
-void waitTime(uint32_t time);
-
-#endif /* system_h */
+#endif /* conditionals_h */

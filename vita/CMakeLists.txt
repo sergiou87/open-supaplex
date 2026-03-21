@@ -33,6 +33,7 @@ add_executable(${SHORT_NAME}
   ../src/animations.c
   ../src/buttonBorders.c
   ../src/commandLineParser.c
+  ../src/conditionals.c
   ../src/config.c
   ../src/demo.c
   ../src/file.c
@@ -41,7 +42,6 @@ add_executable(${SHORT_NAME}
   ../src/logging.c
   ../src/input.c
   ../src/menu.c
-  ../src/platform.c
   ../src/utils.c
   ../src/savegame.c
   ../src/sdl_common/audio.c

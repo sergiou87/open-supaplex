@@ -17,8 +17,6 @@
 
 #include "../controller.h"
 
-#include "../platform.h"
-
 #include <SDL.h>
 #include <stdlib.h>
 
@@ -197,22 +195,20 @@ uint8_t getGameControllerButtonRightShoulder(void)
 
 uint8_t getGameControllerConfirmButton(void)
 {
-    if (platformSdl2ConfirmButtonIsB())
-    {
-        return getGameControllerButtonB();
-    }
-
+#if defined(__SWITCH__) || defined(__WIIU__)
+    return getGameControllerButtonB();
+#else
     return getGameControllerButtonA();
+#endif
 }
 
 uint8_t getGameControllerCancelButton(void)
 {
-    if (platformSdl2ConfirmButtonIsB())
-    {
-        return getGameControllerButtonA();
-    }
-
+#if defined(__SWITCH__) || defined(__WIIU__)
+    return getGameControllerButtonA();
+#else
     return getGameControllerButtonB();
+#endif
 }
 
 uint8_t isAnyGameControllerButtonPressed(void)
