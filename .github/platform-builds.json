@@ -67,12 +67,10 @@
     "port_dir": "ps2",
     "backend": "SDL2",
     "build_system": "Makefile",
-    "ci": false,
-    "release": false
   },
   {
     "id": "ps3",
-    "name": "PS3",
+    "name": "PlayStation 3",
     "port_dir": "ps3",
     "backend": "SDL2",
     "build_system": "Makefile",
