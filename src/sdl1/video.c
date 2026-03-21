@@ -49,11 +49,11 @@ void initializeVideo(uint8_t fastMode)
     }
 
     getWindowSize(&fullScreenWidth, &fullScreenHeight);
-    lastWindowedWidth = platformSdl1WindowWidth();
-    lastWindowedHeight = platformSdl1WindowHeight();
+    lastWindowedWidth = platformSDLWindowWidth();
+    lastWindowedHeight = platformSDLWindowHeight();
 
     SDL_WM_SetCaption("OpenSupaplex", "OpenSupaplex");
-    gWindowSurface = SDL_SetVideoMode(platformSdl1WindowWidth(), platformSdl1WindowHeight(), 8, platformSdl1WindowFlags());
+    gWindowSurface = SDL_SetVideoMode(platformSDLWindowWidth(), platformSDLWindowHeight(), 8, platformSDLWindowFlags());
     if (gWindowSurface == NULL)
     {
         spLogInfo("Could not create a window surface: %s", SDL_GetError());
@@ -138,8 +138,8 @@ void getWindowSize(int *width, int *height)
     }
     else
     {
-        *width = platformSdl1WindowWidth();
-        *height = platformSdl1WindowHeight();
+        *width = platformSDLWindowWidth();
+        *height = platformSDLWindowHeight();
     }
 }
 

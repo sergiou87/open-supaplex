@@ -65,9 +65,9 @@ const char *platformAudioBasePath(void);
 void platformGetAudioSettings(int *sampleRate, int *numberOfChannels, int *audioBufferSize);
 uint8_t platformNeedsMixerInitMod(void);
 
-int platformSdl1WindowWidth(void);
-int platformSdl1WindowHeight(void);
-uint32_t platformSdl1WindowFlags(void);
+int platformSDLWindowWidth(void);
+int platformSDLWindowHeight(void);
+uint32_t platformSDLWindowFlags(void);
 void platformSdl1WaitForPresentationSync(uint8_t scalingMode);
 uint8_t platformSdl1HorizontalHatMin(void);
 uint8_t platformSdl1HorizontalHatMax(void);
@@ -77,9 +77,6 @@ uint8_t platformSdl1HasWiiConfirmCancelAliases(void);
 uint8_t platformSdl1ConfirmButtonIsB(void);
 
 uint8_t platformSdl2ConfirmButtonIsB(void);
-int platformSdl2WindowWidth(void);
-int platformSdl2WindowHeight(void);
-uint32_t platformSdl2WindowFlags(void);
 uint32_t platformSdl2TextureFormat(void);
 
 #endif /* platform_h */
