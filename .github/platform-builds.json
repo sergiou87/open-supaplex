@@ -165,7 +165,6 @@
     "backend": "SDL2",
     "build_system": "Makefile",
     "status_note": "PlayStation 2 currently requires a local PS2DEV/PS2SDK toolchain plus ps2-packer. The repository now includes basic helper scripts in ps2/, but it still does not provide a CI toolchain image or automated runner for that platform.",
-    "readme_note": "PlayStation 2 has an in-tree port, Makefile, and basic helper scripts in ps2/, but building it still requires a local PS2DEV/PS2SDK setup and is not automated in CI.",
     "ci": false,
     "release": false
   }
