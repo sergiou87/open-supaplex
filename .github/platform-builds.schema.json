@@ -8,7 +8,6 @@
     "required": [
       "id",
       "name",
-      "display_order",
       "port_dir",
       "backend",
       "build_system"
@@ -19,10 +18,6 @@
       },
       "name": {
         "type": "string"
-      },
-      "display_order": {
-        "type": "integer",
-        "minimum": 1
       },
       "port_dir": {
         "type": "string"
@@ -58,10 +53,6 @@
         "default": ""
       },
       "release_asset_name": {
-        "type": "string",
-        "default": ""
-      },
-      "status_note": {
         "type": "string",
         "default": ""
       },

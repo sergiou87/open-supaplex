@@ -101,21 +101,12 @@ def validate(platforms):
     errors = []
 
     ids = set()
-    display_orders = set()
 
     for platform in platforms:
         platform_id = platform["id"]
         if platform_id in ids:
             errors.append(f"Duplicate platform id: {platform_id}")
         ids.add(platform_id)
-
-        display_order = platform.get("display_order")
-        if display_order is None:
-            errors.append(f"Platform {platform_id} is missing display_order")
-        elif display_order in display_orders:
-            errors.append(f"Duplicate display_order: {display_order}")
-        else:
-            display_orders.add(display_order)
 
         if platform.get("release"):
             if not platform.get("artifact_name", ""):
@@ -132,15 +123,6 @@ def validate(platforms):
 
         if platform.get("release") and not platform.get("artifact_path"):
             errors.append(f"Release platform {platform_id} is missing artifact_path")
-
-        for field_name in ("status_note",):
-            field_value = platform.get(field_name, "")
-            if not isinstance(field_value, str):
-                errors.append(f"Platform {platform_id} has non-string {field_name}")
-
-        if platform.get("supported") and not platform.get("ci"):
-            if not platform.get("status_note", "").strip():
-                errors.append(f"Supported non-CI platform {platform_id} is missing status_note")
 
     return errors
 
@@ -161,7 +143,7 @@ def platforms_for_automation(platforms, field_name):
             "artifact_path": platform["artifact_path"],
             "setup_msys2": platform["setup_msys2"],
         }
-        for platform in sorted(platforms, key=lambda item: item["display_order"])
+        for platform in platforms
         if platform.get(field_name)
     ]
 
@@ -172,7 +154,7 @@ def render_matrix(platforms, field_name):
 
 def render_release_assets(platforms):
     lines = []
-    for platform in sorted(platforms, key=lambda item: item["display_order"]):
+    for platform in platforms:
         if not platform.get("release"):
             continue
 
@@ -180,16 +162,6 @@ def render_release_assets(platforms):
         lines.append(f"{platform['artifact_name']}/{asset_path}|{platform['release_asset_name']}")
 
     return "\n".join(lines)
-
-
-def platform_status_notes(platforms):
-    notes = []
-    for platform in sorted(supported_platforms(platforms), key=lambda item: item["display_order"]):
-        note = platform.get("status_note", "").strip()
-        if note:
-            notes.append(note)
-
-    return notes
 
 
 def render(platforms):
@@ -204,7 +176,7 @@ def render(platforms):
         "| --- | --- | --- | --- | --- | --- |",
     ]
 
-    for platform in sorted(supported_platforms(platforms), key=lambda item: item["display_order"]):
+    for platform in supported_platforms(platforms):
         lines.append(
             "| {name} | {backend} | {build_system} | `{port_dir}` | {ci} | {release} |".format(
                 name=platform["name"],
@@ -226,9 +198,6 @@ def render(platforms):
             "- There is also a `wasm` folder in the repository, but it is not currently listed as a supported platform in the main documentation or wired into CI/release automation.",
         ]
     )
-
-    for note in platform_status_notes(platforms):
-        lines.append(f"- {note}")
 
     lines.append("")
 
