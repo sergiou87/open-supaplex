@@ -258,6 +258,13 @@ void platformGetAudioSettings(int *sampleRate, int *numberOfChannels, int *audio
     int defaultChannelCount;
     int defaultBufferSize;
 
+    // Keep buffer size as low as possible to prevent latency with sound effects.
+    // In macOS I was able to set it to 512, but that caused a lot of issues playing music on Nintendo Switch.
+    // If it ever supports WASM, that needs a power of 2 as buffer size.
+    //
+    // PS3 seems to ignore this and always use number_of_samples (256) * sizeof(float) * number_of_channels = 2048
+    // PSP and PS Vita only need this value to be a multiple of 64
+
 #if defined(__SWITCH__) || defined(__WIIU__) || defined(__WII__) || defined(_3DS)
     defaultBufferSize = 1024;
 #else
@@ -280,7 +287,6 @@ void platformGetAudioSettings(int *sampleRate, int *numberOfChannels, int *audio
     defaultChannelCount = 2;
 #endif
 
-
     *sampleRate = defaultSampleRate;
     *numberOfChannels = defaultChannelCount;
     *audioBufferSize = defaultBufferSize;
@@ -295,8 +301,19 @@ uint8_t platformNeedsMixerInitMod(void)
 #endif
 }
 
-int platformSdl1WindowWidth(void)
+int platformSDLWindowWidth(void)
 {
+#if HAVE_SDL2
+#if defined(__PSP__)
+    return 480;
+#elif defined(__vita__)
+    return 960;
+#elif defined(__PSL1GHT__) || defined(__WIIU__)
+    return 1280;
+#else
+    return kScreenWidth * 4;
+#endif
+#elif HAVE_SDL
 #if defined(__PSP__)
     return 480;
 #elif defined(_3DS)
@@ -310,10 +327,24 @@ int platformSdl1WindowWidth(void)
 #else
     return kScreenWidth * 4;
 #endif
+#else
+    return 0;
+#endif
 }
 
-int platformSdl1WindowHeight(void)
+int platformSDLWindowHeight(void)
 {
+#if HAVE_SDL2
+#if defined(__PSP__)
+    return 272;
+#elif defined(__vita__)
+    return 544;
+#elif defined(__PSL1GHT__) || defined(__WIIU__)
+    return 720;
+#else
+    return kScreenHeight * 4;
+#endif
+#elif HAVE_SDL
 #if defined(__PSP__)
     return 272;
 #elif defined(_3DS)
@@ -327,11 +358,20 @@ int platformSdl1WindowHeight(void)
 #else
     return kScreenHeight * 4;
 #endif
+#else
+    return 0;
+#endif
 }
 
-uint32_t platformSdl1WindowFlags(void)
+uint32_t platformSDLWindowFlags(void)
 {
-#if HAVE_SDL
+#if HAVE_SDL2
+#if defined(__PSP__) || defined(__vita__) || defined(__PSL1GHT__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PS2__)
+    return SDL_WINDOW_FULLSCREEN;
+#else
+    return 0;
+#endif
+#elif HAVE_SDL
 #if defined(__PSP__)
     return SDL_FULLSCREEN | SDL_SWSURFACE | SDL_HWPALETTE;
 #elif defined(_3DS)
@@ -420,45 +460,6 @@ uint8_t platformSdl2ConfirmButtonIsB(void)
 {
 #if defined(__SWITCH__) || defined(__WIIU__)
     return 1;
-#else
-    return 0;
-#endif
-}
-
-int platformSdl2WindowWidth(void)
-{
-#if defined(__PSP__)
-    return 480;
-#elif defined(__vita__)
-    return 960;
-#elif defined(__PSL1GHT__) || defined(__WIIU__)
-    return 1280;
-#else
-    return kScreenWidth * 4;
-#endif
-}
-
-int platformSdl2WindowHeight(void)
-{
-#if defined(__PSP__)
-    return 272;
-#elif defined(__vita__)
-    return 544;
-#elif defined(__PSL1GHT__) || defined(__WIIU__)
-    return 720;
-#else
-    return kScreenHeight * 4;
-#endif
-}
-
-uint32_t platformSdl2WindowFlags(void)
-{
-#if HAVE_SDL2
-#if defined(__PSP__) || defined(__vita__) || defined(__PSL1GHT__) || defined(__WIIU__) || defined(__SWITCH__) || defined(__PS2__)
-    return SDL_WINDOW_FULLSCREEN;
-#else
-    return 0;
-#endif
 #else
     return 0;
 #endif

@@ -79,13 +79,6 @@ void destroyMusic(void);
 void loadSounds(void);
 void destroySounds(void);
 
-// Keep buffer size as low as possible to prevent latency with sound effects.
-// In macOS I was able to set it to 512, but that caused a lot of issues playing music on Nintendo Switch.
-// If it ever supports WASM, that needs a power of 2 as buffer size.
-//
-// PS3 seems to ignore this and always use number_of_samples (256) * sizeof(float) * number_of_channels = 2048
-// PSP and PS Vita only need this value to be a multiple of 64
-
 int8_t initializeAudio()
 {
     SDL_InitSubSystem(SDL_INIT_AUDIO);

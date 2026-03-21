@@ -49,9 +49,9 @@ void initializeVideo(uint8_t fastMode)
     gWindow = SDL_CreateWindow("OpenSupaplex",
                                SDL_WINDOWPOS_UNDEFINED,
                                SDL_WINDOWPOS_UNDEFINED,
-                               platformSdl2WindowWidth(),
-                               platformSdl2WindowHeight(),
-                               platformSdl2WindowFlags());
+                               platformSDLWindowWidth(),
+                               platformSDLWindowHeight(),
+                               platformSDLWindowFlags());
 
     if (gWindow == NULL)
     {
