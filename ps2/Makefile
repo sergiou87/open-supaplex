@@ -1,12 +1,15 @@
 DEBUG              = 0
 
-TARGET = OpenSupaplex-debug.elf
+TARGET = OpenSupaplex.elf
+TARGET_DEBUG = OpenSupaplex-debug.elf
 TARGET_RELEASE = OpenSupaplex.elf
 
 ifeq ($(DEBUG), 1)
+	TARGET := $(TARGET_DEBUG)
    OPTIMIZE_LV	:= -O0 -g
 	RARCH_DEFINES += -DDEBUG
 else
+	TARGET := $(TARGET_RELEASE)
    OPTIMIZE_LV	:= -O3
 	LDFLAGS :=  -s
 endif
@@ -38,10 +41,12 @@ EE_GPVAL = $(GPVAL)
 all: $(EE_BIN)
 
 clean:
-	rm -f $(EE_BIN) $(EE_OBJS)
+	rm -f $(TARGET_DEBUG) $(TARGET_RELEASE) $(TARGET_RELEASE).packed $(EE_OBJS)
 
 release: all
-	ps2-packer $(EE_BIN) $(TARGET_RELEASE)
+	rm -f $(TARGET_RELEASE).packed
+	ps2-packer $(EE_BIN) $(TARGET_RELEASE).packed
+	mv $(TARGET_RELEASE).packed $(TARGET_RELEASE)
 
 #Include preferences
 include $(PS2SDK)/samples/Makefile.pref
