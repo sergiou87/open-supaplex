@@ -1,4 +1,5 @@
 NEW:
+- Added support for Nintendo DS, RISC OS and PS2.
 - Switched music from OGG to MOD files, which are lighter and require less CPU usage, which means better performance! Thanks @mills32 for this contribution!
 - Improved renderer for PSP, getting 60fps most of the time! Thanks @mills32 for this contribution!
 - Thanks to the new renderer, audio quality in PSP has been also bumped.
