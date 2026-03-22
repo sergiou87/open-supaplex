@@ -158,7 +158,7 @@ def render_release_assets(platforms):
         if not platform.get("release"):
             continue
 
-        asset_path = platform["artifact_path"].split("/", 1)[1]
+        asset_path = Path(platform["artifact_path"]).name
         lines.append(f"{platform['artifact_name']}/{asset_path}|{platform['release_asset_name']}")
 
     return "\n".join(lines)
