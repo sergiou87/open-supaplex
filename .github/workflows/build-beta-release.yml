@@ -6,7 +6,7 @@ on:
         required: true
         type: string
       release_notes:
-        required: true
+        required: false
         type: string
 
 jobs:
