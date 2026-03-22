@@ -81,6 +81,7 @@ jobs:
             gh release create "$VERSION" \
               --title "OpenSupaplex $VERSION" \
               --notes-file /tmp/open-supaplex-release-notes.txt \
+              --draft \
               $prerelease_flag
           fi
       - name: Upload release assets
