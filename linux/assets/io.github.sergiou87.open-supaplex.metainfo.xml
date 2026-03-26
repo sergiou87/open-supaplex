@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.sergiou87.open-supaplex</id>
+  <name>Open Supaplex</name>
+  <developer id="io.github.sergiou87.open-supaplex">
+    <name>Open Supaplex contributors</name>
+    <url>https://github.com/sergiou87/open-supaplex/graphs/contributors</url>
+  </developer>
+  <branding>
+    <color type="primary" scheme_preference="light">#b0b0b0</color>
+    <color type="primary" scheme_preference="dark">#606060</color>
+  </branding>
+  <summary>A modern cross-platform port of Supaplex</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT AND GPL-3.0</project_license>
+  <launchable type="desktop-id">io.github.sergiou87.open-supaplex.desktop</launchable>
+  <url type="homepage">https://github.com/sergiou87/open-supaplex</url>
+  <description>
+    <p>Open Supaplex is a reverse engineered multi-platform port of the early-90s puzzle game Supaplex.</p>
+    <p>The original game's source code has been long lost, but enthusiasts have disassembled the game,
+      fixed many bugs, and added many features.</p>
+    <p>OpenSupaplex is a 1:1 reimplementation of the original game in C and SDL, with just a few changes
+      to make it easy to use with game controllers, and also easy to port to any platform.</p>
+  </description>
+  <screenshots>
+    <screenshot type="default">
+      <image type="source">https://cdn.jsdelivr.net/gh/sergiou87/open-supaplex/switch/resources/screenshots/OpenSupaplex-1.png</image>
+      <caption>Title screen</caption>
+    </screenshot>
+    <screenshot>
+      <image type="source">https://cdn.jsdelivr.net/gh/sergiou87/open-supaplex/switch/resources/screenshots/OpenSupaplex-2.png</image>
+      <caption>Main menu</caption>
+    </screenshot>
+    <screenshot>
+      <image type="source">https://cdn.jsdelivr.net/gh/sergiou87/open-supaplex/switch/resources/screenshots/OpenSupaplex-3.png</image>
+      <caption>Start of a new game</caption>
+    </screenshot>
+    <screenshot>
+      <image type="source">https://cdn.jsdelivr.net/gh/sergiou87/open-supaplex/switch/resources/screenshots/OpenSupaplex-4.png</image>
+      <caption>Using a computer...</caption>
+    </screenshot>
+    <screenshot>
+      <image type="source">https://cdn.jsdelivr.net/gh/sergiou87/open-supaplex/switch/resources/screenshots/OpenSupaplex-5.png</image>
+      <caption>... to blow stuff up!</caption>
+    </screenshot>
+  </screenshots>
+  <categories>
+    <category>Game</category>
+  </categories>
+  <supports>
+    <control>gamepad</control>
+  </supports>
+  <recommends>
+    <control>keyboard</control>
+  </recommends>
+  <provides>
+    <binary>opensupaplex</binary>
+  </provides>
+  <keywords>
+    <keyword>puzzle</keyword>
+    <keyword>boulderdash</keyword>
+    <keyword>supaplex</keyword>
+    <keyword>source port</keyword>
+  </keywords>
+  <releases>
+    <release version="7.2" date="2026-03-22" />
+    <release version="7.1.2" date="2020-08-21" />
+  </releases>
+  <content_rating type="oars-1.1" />
+</component>
