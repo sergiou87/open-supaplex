@@ -1,0 +1,20 @@
+[Desktop Entry]
+Categories=Game
+Comment[en_US]=A modern port of Supaplex
+Comment=A modern port of Supaplex
+Exec=opensupaplex
+GenericName[en_US]=
+GenericName=
+Icon=io.github.sergiou87.open-supaplex
+Keywords=supaplex;puzzle
+MimeType=
+Name[en_US]=Open Supaplex
+Name=Open Supaplex
+Path=
+PrefersNonDefaultGPU=true
+StartupNotify=true
+Terminal=false
+TerminalOptions=
+Type=Application
+X-KDE-SubstituteUID=false
+X-KDE-Username=
