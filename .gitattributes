@@ -4,3 +4,5 @@
 *.cmd text eol=crlf
 *.BAT text eol=crlf
 *.CMD text eol=crlf
+# LEVEL.LST stores fixed-width 28-byte records, so CRLF conversion corrupts entry alignment.
+**/LEVEL.LST -text
