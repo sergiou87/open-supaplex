@@ -36,6 +36,9 @@ jobs:
         if: ${{ inputs.setup-msys2 }}
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v4
+      - name: Validate fixed-size level files
+        shell: bash
+        run: scripts/validate-level-files.sh .
       - name: Prepare build environment
         if: ${{ inputs.pre-build-command != '' }}
         run: ${{ inputs.pre-build-command }}
