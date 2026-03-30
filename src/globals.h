@@ -23,7 +23,7 @@
 #include "animations.h"
 #include "file.h"
 
-#define VERSION_STRING "7.2.1"
+#define VERSION_STRING "7.2.2"
 extern const uint8_t kGameVersion;
 
 typedef enum
