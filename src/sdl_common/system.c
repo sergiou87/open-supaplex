@@ -178,7 +178,15 @@ uint32_t getTime(void)
     return SDL_GetTicks();
 }
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 void waitTime(uint32_t time)
 {
+#ifdef __EMSCRIPTEN__
+    emscripten_sleep(time);
+#else
     SDL_Delay(time);
+#endif
 }
