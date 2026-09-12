@@ -80,7 +80,11 @@ void initializeVideo(uint8_t fastMode)
     SDL_SetWindowResizable(gWindow, SDL_TRUE);
     SDL_AddEventWatch(windowResizingEventWatcher, gWindow);
 
+#ifdef __EMSCRIPTEN__
+    Uint32 rendererFlags = SDL_RENDERER_SOFTWARE;
+#else
     Uint32 rendererFlags = SDL_RENDERER_ACCELERATED;
+#endif
 
     // Disable vsync in fast mode to prevent limiting FPS rate
     if (fastMode == 0)
