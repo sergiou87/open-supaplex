@@ -1,5 +1,6 @@
 build/
 tasm/
+tests/
 *.id*
 *.nam
 *.til
@@ -10,6 +11,7 @@ tasm/
 TESTOUT.TXT
 /tc/
 xcuserdata/
+__pycache__/
 resources/*.CFG
 resources/PLAYER.*
 resources/SAVEGAME.*
@@ -62,6 +64,9 @@ ps3/*.elf
 ps3/*.pkg
 ps3/*.map
 
+# PS2 stuff
+ps2/*.elf
+
 # WASM stuff
 wasm/opensupaplex.data
 wasm/opensupaplex.html
@@ -74,3 +79,6 @@ riscos/*.zip
 riscos/\!OSupaplex/*,ff8
 riscos/\!OSupaplex/audio
 riscos/\!OSupaplex/data
+
+/ps2/OpenSupaplex
+ps2/OpenSupaplex-ps2.zip

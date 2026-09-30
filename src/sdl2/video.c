@@ -85,6 +85,9 @@ void initializeVideo(uint8_t fastMode)
     // Disable vsync in fast mode to prevent limiting FPS rate
     if (fastMode == 0)
     {
+#ifdef __PS2__
+        SDL_SetHint(SDL_HINT_PS2_DYNAMIC_VSYNC, "1");
+#endif        
         rendererFlags |= SDL_RENDERER_PRESENTVSYNC;
     }
 
@@ -105,6 +108,9 @@ void initializeVideo(uint8_t fastMode)
 #ifdef __PSP__
     format = SDL_PIXELFORMAT_ABGR32;
 #endif
+#ifdef __PS2__
+    format = SDL_PIXELFORMAT_ABGR1555;
+#endif
 
     gTexture = SDL_CreateTexture(gRenderer,
                                  format,
@@ -118,7 +124,11 @@ void initializeVideo(uint8_t fastMode)
         exit(1);
     }
 
+#ifdef __PS2__
+    gTextureSurface = SDL_CreateRGBSurfaceWithFormat(0, kScreenWidth, kScreenHeight, 8, SDL_PIXELFORMAT_ABGR1555);
+#else
     gTextureSurface = SDL_CreateRGBSurfaceWithFormat(0, kScreenWidth, kScreenHeight, 8, SDL_PIXELFORMAT_RGB24);
+#endif
 
     if (gTextureSurface == NULL)
     {
