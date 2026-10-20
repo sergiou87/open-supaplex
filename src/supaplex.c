@@ -7872,10 +7872,11 @@ void prepareRankingTextEntries() // sub_4BF8D  proc near       ; CODE XREF: draw
     typedef struct
     {
         uint8_t playerIndex;
-        uint8_t nextLevelToPlay;
-        uint8_t hours;
-        uint8_t minutes;
-        uint8_t seconds;
+        // The original sorts these keys with signed byte comparisons.
+        int8_t nextLevelToPlay;
+        int8_t hours;
+        int8_t minutes;
+        int8_t seconds;
     } RankingEntry;
 
     RankingEntry rankingEntries[kNumberOfPlayers];
@@ -7906,10 +7907,25 @@ void prepareRankingTextEntries() // sub_4BF8D  proc near       ; CODE XREF: draw
             RankingEntry *rankingEntry = &rankingEntries[i];
             RankingEntry *nextRankingEntry = &rankingEntries[i + 1];
 
-            uint32_t totalSeconds = rankingEntry->hours * 3600 + rankingEntry->minutes * 60 + rankingEntry->seconds;
-            uint32_t nextTotalSeconds = rankingEntry->hours * 3600 + rankingEntry->minutes * 60 + rankingEntry->seconds;
+            uint8_t shouldSwap;
+            if (nextRankingEntry->nextLevelToPlay != rankingEntry->nextLevelToPlay)
+            {
+                shouldSwap = nextRankingEntry->nextLevelToPlay > rankingEntry->nextLevelToPlay;
+            }
+            else if (nextRankingEntry->hours != rankingEntry->hours)
+            {
+                shouldSwap = nextRankingEntry->hours < rankingEntry->hours;
+            }
+            else if (nextRankingEntry->minutes != rankingEntry->minutes)
+            {
+                shouldSwap = nextRankingEntry->minutes < rankingEntry->minutes;
+            }
+            else
+            {
+                shouldSwap = nextRankingEntry->seconds < rankingEntry->seconds;
+            }
 
-            if (nextRankingEntry->nextLevelToPlay > rankingEntry->nextLevelToPlay || (nextRankingEntry->nextLevelToPlay == rankingEntry->nextLevelToPlay && nextTotalSeconds > totalSeconds))
+            if (shouldSwap)
             {
                 // loc_4BFFD:              ; CODE XREF: prepareRankingTextEntries+4Ej
                 //                 ; prepareRankingTextEntries+58j ...
