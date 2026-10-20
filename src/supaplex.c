@@ -11344,7 +11344,7 @@ int16_t handleMurphyDirectionDown(int16_t position)
         belowTile->state = 11;
         belowTile->tile = LevelTileTypeMurphy;
         murphyTile->state = 3;
-        murphyTile->tile = LevelTileTypeBase;
+        murphyTile->tile = LevelTileTypeSpace;
         gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + kLevelWidth, unknownMurphyData);

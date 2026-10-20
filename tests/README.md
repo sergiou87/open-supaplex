@@ -41,6 +41,20 @@ These files differ by just that supporting tile. Both outcomes were verified aga
 SpeedFix v6.3 executable under DOSBox. The original comparison is `cmp ax, 4` at `loc_4E1A1`
 in `asm/SUPAPLEX.ASM`: both the infotron tile and its zero state are required for collection.
 
+The `debug-base-tests` executable runs the normal game with debug mode enabled and presses B
+at frame 34, during downward infotron collection. Debug keys are not part of the recorded input
+format, so this test adapter supplies that single keyboard event without changing game logic.
+It is built with the main executable and copied beside it by `ci-build.sh`.
+
+- `regressions/debug-failures/vacated-infotron-space.sp` must fail. Murphy's vacated cell remains
+  reserved Space, not Base; B must not clear it early. Otherwise a zonk falls into the cell too
+  soon and is erased when Murphy finishes moving, incorrectly opening the route to the exit.
+- `regressions/debug-solves/base-removal-push-control.sp` changes only one hardware tile to real
+  Base. B removes that Base, creating room to push the surviving zonk aside and reach the exit.
+
+Both outcomes were verified in SpeedFix v6.3 with emulated B-key input during the same movement.
+The Space assignment is at `loc_4E5BA` in `asm/SUPAPLEX.ASM`.
+
 ## "Failed" solutions
 
 …some of these solutions don't seem to be solutions at all in the original game with the SpeedFix v6.3 ([the last official
