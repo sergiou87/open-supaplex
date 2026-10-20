@@ -30,7 +30,7 @@ $totalFailedTests=0
 $failedTests = []
 $globalMutex = Mutex.new
 
-def runSuite(suite, expectedExitCode = 0)
+def runSuite(suite, expectedExitCode = 0, binary = $gameBinary)
 	suiteMutex = Mutex.new
 	
 	suiteTotalPassedTests = 0
@@ -39,7 +39,7 @@ def runSuite(suite, expectedExitCode = 0)
 	suiteTotalTests = 0
 
 	runTest = Proc.new { |path, mutex|
-		system("./#{$gameBinary}", "-u", File.expand_path(path), chdir: $gamePath)
+		system("./#{binary}", "-u", File.expand_path(path), chdir: $gamePath)
 		status = $?
 		result = status && status.exited? && status.exitstatus == expectedExitCode
 
@@ -106,6 +106,8 @@ end
 
 runSuite("regressions/solves")
 runSuite("regressions/failures", 1)
+runSuite("regressions/debug-solves", 0, "debug-base-tests")
+runSuite("regressions/debug-failures", 1, "debug-base-tests")
 
 puts "Finished all tests!"
 puts " - Passed: #{$totalPassedTests}"

@@ -7,8 +7,16 @@ LDFLAGS += -lSDL2_mixer `sdl2-config --libs` -lm
 
 CFLAGS += `sdl2-config --cflags` -O2 -DHAVE_SDL2
 
+all: opensupaplex debug-base-tests
+
 opensupaplex: $(obj)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
+debug-base-tests: debug-base-tests.o $(filter-out ../src/supaplex.o,$(obj))
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+debug-base-tests.o: debug-base-tests.c ../src/supaplex.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
 clean:
-	rm $(obj)
+	rm $(obj) debug-base-tests.o
