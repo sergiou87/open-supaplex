@@ -55,6 +55,20 @@ It is built with the main executable and copied beside it by `ci-build.sh`.
 Both outcomes were verified in SpeedFix v6.3 with emulated B-key input during the same movement.
 The Space assignment is at `loc_4E5BA` in `asm/SUPAPLEX.ASM`.
 
+The zonk right-roll regression checks entry into a `0x9999` reservation beneath a falling zonk:
+
+- `regressions/solves/zonk-roll-under-falling-zonk.sp` has two diagonally placed zonks falling
+  together. The lower zonk must roll right into the upper zonk's reserved destination, even while
+  the upper zonk is moving. Murphy waits four frames, moves right for 32 frames, then waits;
+  rejecting the roll delays the lower zonk and prevents this replay from reaching the exit.
+- `regressions/solves/zonk-roll-right-control.sp` changes only the upper zonk to hardware. The
+  lower zonk rolls into empty space instead, and the same inputs must still solve the level.
+
+Both replays succeed in SpeedFix v6.3. Its unpacked instruction at `CS:1400` is
+`cmp byte [si+0x17be], 1` (bytes `80 BC BE 17 01`), corresponding to `loc_48011` in
+`asm/SUPAPLEX.ASM`. The upper zonk's tile byte, not its animation state, determines eligibility;
+the assembly reference makes that operand width explicit.
+
 ## "Failed" solutions
 
 …some of these solutions don't seem to be solutions at all in the original game with the SpeedFix v6.3 ([the last official
