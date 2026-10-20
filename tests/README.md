@@ -167,6 +167,16 @@ rank. Original `sub_4BF8D` compares progress descending, then hours/minutes/seco
 using signed byte comparisons. Equal sort keys retain file order. Time fields are still displayed
 as unsigned bytes, even when their signed sort keys are negative.
 
+`hall-of-fame-tests` checks `regressions/hall-of-fame-solves/*.csv` against results saved by
+unmodified SpeedFix v6.3 after actually completing the final level. Each case supplies the current
+player's time and all three Hall of Fame entries before and after insertion. The adapter calls
+the real update routine with all levels completed, then checks every entry and the completion flag.
+
+Cases exercise the 127/128-hour boundary and the original signed-byte ordering of 200- and
+255-hour totals. Controls cover faster insertion, hour/minute/second comparisons, and leaving the
+table unchanged for a slower player. Original `sub_4D1B6` uses signed `jl` comparisons for all three time fields;
+the stored/displayed byte values remain unsigned.
+
 ## "Failed" solutions
 
 …some of these solutions don't seem to be solutions at all in the original game with the SpeedFix v6.3 ([the last official
