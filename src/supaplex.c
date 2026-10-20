@@ -7284,7 +7284,7 @@ void handleRankingListScrollUp() // loc_4B262
     gRankingListDownButtonPressed = 0;
     gRankingListUpButtonPressed = 1;
 
-    if (gFrameCounter - gRankingListThrottleCurrentCounter < gRankingListThrottleNextCounter)
+    if ((uint16_t)(gFrameCounter - gRankingListThrottleCurrentCounter) < gRankingListThrottleNextCounter)
     {
         return;
     }
@@ -7315,7 +7315,7 @@ void handleRankingListScrollDown() // loc_4B2AF
     gRankingListDownButtonPressed = 1;
     gRankingListUpButtonPressed = 0;
 
-    if (gFrameCounter - gRankingListThrottleCurrentCounter < gRankingListThrottleNextCounter)
+    if ((uint16_t)(gFrameCounter - gRankingListThrottleCurrentCounter) < gRankingListThrottleNextCounter)
     {
         return;
     }
@@ -7438,7 +7438,7 @@ void throttledRotateLevelSet(uint8_t descending) // sub_4B419  proc near
 {
     // 01ED:47B6
     // loc_4B433:              ; CODE XREF: sub_4B419+15j
-    if (gFrameCounter - gLevelSetRotationThrottleCurrentCounter < gLevelSetRotationThrottleNextCounter)
+    if ((uint16_t)(gFrameCounter - gLevelSetRotationThrottleCurrentCounter) < gLevelSetRotationThrottleNextCounter)
     {
         return;
     }
@@ -7636,7 +7636,7 @@ void handlePlayerListScrollDown() // sub_4B671  proc near
     gPlayerListDownButtonPressed = 1;
     gPlayerListUpButtonPressed = 0;
 
-    if (gFrameCounter - gPlayerListThrottleCurrentCounter < gPlayerListThrottleNextCounter)
+    if ((uint16_t)(gFrameCounter - gPlayerListThrottleCurrentCounter) < gPlayerListThrottleNextCounter)
     {
         return;
     }
@@ -7671,7 +7671,7 @@ void handlePlayerListScrollUp() // sub_4B6C9  proc near
     gPlayerListDownButtonPressed = 0;
     gPlayerListUpButtonPressed = 1;
 
-    if (gFrameCounter - gPlayerListThrottleCurrentCounter < gPlayerListThrottleNextCounter)
+    if ((uint16_t)(gFrameCounter - gPlayerListThrottleCurrentCounter) < gPlayerListThrottleNextCounter)
     {
         return;
     }
@@ -7712,7 +7712,7 @@ void handleLevelListScrollDown() // sub_4B72B  proc near
     gLevelListDownButtonPressed = 1;
     gLevelListUpButtonPressed = 0;
 
-    if (gFrameCounter - gLevelListThrottleCurrentCounter < gLevelListThrottleNextCounter)
+    if ((uint16_t)(gFrameCounter - gLevelListThrottleCurrentCounter) < gLevelListThrottleNextCounter)
     {
         return;
     }
@@ -7742,7 +7742,7 @@ void handleLevelListScrollUp() // sub_4B771  proc near
     gLevelListDownButtonPressed = 0;
     gLevelListUpButtonPressed = 1;
 
-    if (gFrameCounter - gLevelListThrottleCurrentCounter < gLevelListThrottleNextCounter)
+    if ((uint16_t)(gFrameCounter - gLevelListThrottleCurrentCounter) < gLevelListThrottleNextCounter)
     {
         return;
     }

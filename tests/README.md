@@ -134,6 +134,23 @@ The downward-exit state regression uses the same timer-backed tile:
 Both outcomes were verified in SpeedFix v6.3 under DOSBox. At `loc_4E1A9`, the original
 `cmp ax, 7` checks both the exit tile and its zero state, just like movement in other directions.
 
+Menu autorepeat uses CSV input traces because mouse events are not encoded in `.SP` demos.
+`menu-throttle-tests` replays the recorded frame and button state, checking the original level
+selection and repeat-counter values before each event. It also checks the identical throttle
+logic in level/player/ranking scrolling and level-set rotation. The CI build copies this adapter
+beside the game, and `run-tests.rb` runs `regressions/menu-solves/*.csv`.
+
+- `regressions/menu-solves/frame-counter-wrap.csv` was recorded from unmodified SpeedFix v6.3
+  under DOSBox using a virtual mouse driver. The frame counter advances naturally from `0xFF80`
+  through `0xFFFF` to `0x0030`; the driver does not change game state. After the wrap, the original
+  advances the selected level again at frame 13, but unbounded C subtraction would stall.
+- `regressions/menu-solves/frame-counter-control.csv` is the first 65 frames of the same recording,
+  covering a separate button hold/release before the wrap. Its behavior must remain unchanged.
+
+The CSV columns are frame counter, mouse button state (0=released, 1=left, 2=right), selected level,
+repeat interval, and previous-repeat frame. Original menu routines subtract in 16-bit `AX` before
+an unsigned comparison; the C subtraction must retain that same 16-bit wraparound.
+
 ## "Failed" solutions
 
 …some of these solutions don't seem to be solutions at all in the original game with the SpeedFix v6.3 ([the last official
