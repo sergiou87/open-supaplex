@@ -123,6 +123,17 @@ and its explosion timers begin immediately after the 1536 level words at `0x2434
 share storage while keeping the saved level-state and explosion-timer arrays at their existing
 sizes, so older savegames remain compatible.
 
+The downward-exit state regression uses the same timer-backed tile:
+
+- `regressions/failures/downward-exit-nonzero-state.sp` detonates a yellow disk beside two orange
+  disks, making timers 0 and 1 both reach 7. Tile 1536 is then word `0x0707`: an exit with state 7.
+  Moving down must reject that nonzero-state exit, rather than mark the replay successful.
+- `regressions/solves/downward-exit-zero-state-control.sp` changes only the second orange disk
+  to hardware. Timer 1 stays zero, so the target becomes word `0x0007` and must remain usable.
+
+Both outcomes were verified in SpeedFix v6.3 under DOSBox. At `loc_4E1A9`, the original
+`cmp ax, 7` checks both the exit tile and its zero state, just like movement in other directions.
+
 ## "Failed" solutions
 
 …some of these solutions don't seem to be solutions at all in the original game with the SpeedFix v6.3 ([the last official

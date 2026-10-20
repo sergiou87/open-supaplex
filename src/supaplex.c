@@ -11353,7 +11353,7 @@ int16_t handleMurphyDirectionDown(int16_t position)
         return updateMurphyAnimationInfo(position + kLevelWidth, unknownMurphyData);
     }
     // loc_4E1A9:              ; CODE XREF: update?+314j
-    else if (belowTile->tile == LevelTileTypeExit)
+    else if (belowTile->state == 0 && belowTile->tile == LevelTileTypeExit)
     {
         // loc_4E674:              ; CODE XREF: update?+242j update?+2AAj ...
         if (gNumberOfRemainingInfotrons != 0)
