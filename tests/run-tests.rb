@@ -69,7 +69,7 @@ def runSuite(suite, expectedExitCode = 0, binary = $gameBinary, pattern = "*.[sS
 
 		while threads.length() >= $maxSimultaneousTests
 			oldestThread = threads.shift
-			threads.first.join()
+			oldestThread.join()
 		end
 	end
 
