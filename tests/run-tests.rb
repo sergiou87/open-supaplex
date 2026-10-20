@@ -110,6 +110,7 @@ runSuite("regressions/debug-solves", 0, "debug-base-tests")
 runSuite("regressions/debug-failures", 1, "debug-base-tests")
 runSuite("regressions/menu-solves", 0, "menu-throttle-tests", "*.csv")
 runSuite("regressions/ranking-solves", 0, "ranking-tests", "*.csv")
+runSuite("regressions/hall-of-fame-solves", 0, "hall-of-fame-tests", "*.csv")
 
 puts "Finished all tests!"
 puts " - Passed: #{$totalPassedTests}"

@@ -7,7 +7,7 @@ LDFLAGS += -lSDL2_mixer `sdl2-config --libs` -lm
 
 CFLAGS += `sdl2-config --cflags` -O2 -DHAVE_SDL2
 
-all: opensupaplex debug-base-tests menu-throttle-tests ranking-tests
+all: opensupaplex debug-base-tests menu-throttle-tests ranking-tests hall-of-fame-tests
 
 opensupaplex: $(obj)
 	$(CC) -o $@ $^ $(LDFLAGS)
@@ -30,5 +30,11 @@ ranking-tests: ranking-tests.o $(filter-out ../src/supaplex.o,$(obj))
 ranking-tests.o: ranking-tests.c ../src/supaplex.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
+hall-of-fame-tests: hall-of-fame-tests.o $(filter-out ../src/supaplex.o,$(obj))
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+hall-of-fame-tests.o: hall-of-fame-tests.c ../src/supaplex.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
 clean:
-	rm $(obj) debug-base-tests.o menu-throttle-tests.o ranking-tests.o
+	rm $(obj) debug-base-tests.o menu-throttle-tests.o ranking-tests.o hall-of-fame-tests.o

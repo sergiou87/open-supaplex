@@ -9472,21 +9472,22 @@ void updateHallOfFameEntries() // sub_4D1B6  proc near       ; CODE XREF: change
 
         // loc_4D20E:              ; CODE XREF: updateHallOfFameEntries+48j
         //                 ; updateHallOfFameEntries+4Ej ...
-        if (currentPlayerEntry->hours < entry.hours)
+        // The original JL comparisons treat time bytes as signed.
+        if ((int8_t)currentPlayerEntry->hours < (int8_t)entry.hours)
         {
             newEntryInsertIndex = i;
             break;
         }
         else if (currentPlayerEntry->hours == entry.hours)
         {
-            if (currentPlayerEntry->minutes < entry.minutes)
+            if ((int8_t)currentPlayerEntry->minutes < (int8_t)entry.minutes)
             {
                 newEntryInsertIndex = i;
                 break;
             }
             else if (currentPlayerEntry->minutes == entry.minutes)
             {
-                if (currentPlayerEntry->seconds < entry.seconds)
+                if ((int8_t)currentPlayerEntry->seconds < (int8_t)entry.seconds)
                 {
                     newEntryInsertIndex = i;
                     break;

@@ -1,0 +1,8 @@
+kind,index,name,hours,minutes,seconds
+player,0,TESTHERO,1,0,30
+before,0,FIRST,1,0,0
+before,1,SECOND,2,0,0
+before,2,THIRD,3,0,0
+after,0,FIRST,1,0,0
+after,1,TESTHERO,1,0,30
+after,2,SECOND,2,0,0
