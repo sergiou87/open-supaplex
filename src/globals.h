@@ -352,7 +352,7 @@ extern uint8_t gAreEnemiesFrozen; // byte_510D7 -> 1 = turn on, anything else (0
 extern uint8_t gScratchGravity; // byte_510D8 -> not sure what scratch gravity means exactly, but can be 0 (off) or 1 (on)
 extern uint16_t gIsMurphyGoingThroughPortal; // word_510D9
 extern uint8_t gPlantedRedDiskCountdown; // byte_510DB
-extern uint16_t gPlantedRedDiskPosition; // word_510DC
+extern int16_t gPlantedRedDiskPosition; // word_510DC
 extern uint16_t gDemoCurrentInputIndex; // word_510DF
 extern uint8_t gDemoCurrentInput; // byte_510E1 -> 0xDD1
 extern uint8_t gDemoCurrentInputRepeatCounter; // -> 0xDD2 -> byte_510E2
