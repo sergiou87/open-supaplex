@@ -151,6 +151,22 @@ The CSV columns are frame counter, mouse button state (0=released, 1=left, 2=rig
 repeat interval, and previous-repeat frame. Original menu routines subtract in 16-bit `AX` before
 an unsigned comparison; the C subtraction must retain that same 16-bit wraparound.
 
+`ranking-tests` loads the player records in `regressions/ranking-solves/*.csv` and compares
+the real ranking routine's order, displayed progress/time fields, and current-player rank with
+expected ranks captured from unmodified SpeedFix v6.3. The original loaded equivalent binary
+`PLAYER.LST` files and opened its menu; the input driver only closed the menu, without changing
+player data or game state.
+
+- `elapsed-time-ties.csv` covers equal-progress hour/minute/second tie-breaks, stable equal-time
+  ordering, completed players, and the original signed-byte ordering of 127/128/255-hour totals.
+- `progress-priority-control.csv` gives every player different progress, verifying that progress
+  still takes precedence over time.
+
+The columns are player index, name, next level, hours, minutes, seconds, and expected zero-based
+rank. Original `sub_4BF8D` compares progress descending, then hours/minutes/seconds ascending,
+using signed byte comparisons. Equal sort keys retain file order. Time fields are still displayed
+as unsigned bytes, even when their signed sort keys are negative.
+
 ## "Failed" solutions
 
 …some of these solutions don't seem to be solutions at all in the original game with the SpeedFix v6.3 ([the last official
