@@ -7,7 +7,7 @@ LDFLAGS += -lSDL2_mixer `sdl2-config --libs` -lm
 
 CFLAGS += `sdl2-config --cflags` -O2 -DHAVE_SDL2
 
-all: opensupaplex debug-base-tests
+all: opensupaplex debug-base-tests menu-throttle-tests
 
 opensupaplex: $(obj)
 	$(CC) -o $@ $^ $(LDFLAGS)
@@ -18,5 +18,11 @@ debug-base-tests: debug-base-tests.o $(filter-out ../src/supaplex.o,$(obj))
 debug-base-tests.o: debug-base-tests.c ../src/supaplex.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
+menu-throttle-tests: menu-throttle-tests.o $(filter-out ../src/supaplex.o,$(obj))
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+menu-throttle-tests.o: menu-throttle-tests.c ../src/supaplex.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
 clean:
-	rm $(obj) debug-base-tests.o
+	rm $(obj) debug-base-tests.o menu-throttle-tests.o

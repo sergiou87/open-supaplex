@@ -30,7 +30,7 @@ $totalFailedTests=0
 $failedTests = []
 $globalMutex = Mutex.new
 
-def runSuite(suite, expectedExitCode = 0, binary = $gameBinary)
+def runSuite(suite, expectedExitCode = 0, binary = $gameBinary, pattern = "*.[sS][pP]")
 	suiteMutex = Mutex.new
 	
 	suiteTotalPassedTests = 0
@@ -60,7 +60,7 @@ def runSuite(suite, expectedExitCode = 0, binary = $gameBinary)
 
 	threads = []
 
-	Dir.glob("#{suite}/*.[sS][pP]") do |testPath|
+	Dir.glob("#{suite}/#{pattern}") do |testPath|
 		thread = Thread.new do
 			runTest.call(testPath, suiteMutex)
 		end
@@ -108,6 +108,7 @@ runSuite("regressions/solves")
 runSuite("regressions/failures", 1)
 runSuite("regressions/debug-solves", 0, "debug-base-tests")
 runSuite("regressions/debug-failures", 1, "debug-base-tests")
+runSuite("regressions/menu-solves", 0, "menu-throttle-tests", "*.csv")
 
 puts "Finished all tests!"
 puts " - Passed: #{$totalPassedTests}"
