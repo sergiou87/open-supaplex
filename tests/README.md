@@ -66,8 +66,8 @@ The zonk right-roll regression checks entry into a `0x9999` reservation beneath 
 
 Both replays succeed in SpeedFix v6.3. Its unpacked instruction at `CS:1400` is
 `cmp byte [si+0x17be], 1` (bytes `80 BC BE 17 01`), corresponding to `loc_48011` in
-`asm/SUPAPLEX.ASM`. The upper zonk's tile byte, not its animation state, determines eligibility;
-the assembly reference makes that operand width explicit.
+`asm/SUPAPLEX.ASM`. The executable checks the upper zonk's tile byte, not its animation state.
+This executable evidence is recorded here without modifying the read-only assembly reference.
 
 ## "Failed" solutions
 
