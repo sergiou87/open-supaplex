@@ -109,6 +109,20 @@ Both replays succeed in SpeedFix v6.3 under DOSBox, and both engines already con
 word before playback; the test does not inject tile states. `sub_4A61F` in `asm/SUPAPLEX.ASM`
 returns immediately when the explosion center's tile byte is 6, without checking its state byte.
 
+The timer-alias regression checks the original shared playfield/timer memory layout:
+
+- `regressions/solves/explosion-timer-field-alias.sp` starts Murphy near the bottom border and
+  moves into the extra level-file padding. A terminal there detonates a yellow disk beside an
+  orange disk at tile 0. When explosion timer 0 reaches 7, the two timer bytes also represent
+  tile 1536 as an exit with state zero. Murphy moves down at that frame and must complete the level.
+- `regressions/failures/explosion-timer-field-alias-control.sp` changes only the orange disk to
+  hardware, so timer 0 stays zero and the same recorded movement cannot find an exit.
+
+Both outcomes were verified in SpeedFix v6.3 under DOSBox. Its level words begin at `0x1834`,
+and its explosion timers begin immediately after the 1536 level words at `0x2434`. The C views
+share storage while keeping the saved level-state and explosion-timer arrays at their existing
+sizes, so older savegames remain compatible.
+
 ## "Failed" solutions
 
 …some of these solutions don't seem to be solutions at all in the original game with the SpeedFix v6.3 ([the last official
