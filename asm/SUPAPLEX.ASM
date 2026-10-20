@@ -3268,7 +3268,7 @@ loc_48011:              ; CODE XREF: movefun+51j
         jz  short loc_48028
         cmp leveldata[si+2], 9999h
         jnz short locret_48027
-        cmp leveldata[si-78h+2h], 1
+        cmp byte ptr leveldata[si-78h+2h], 1
         jz  short loc_48028
 
 locret_48027:               ; CODE XREF: movefun+8Ej

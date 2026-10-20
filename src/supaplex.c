@@ -2703,7 +2703,7 @@ void updateZonkTiles(int16_t position) //   proc near       ; DATA XREF: data:16
                 // loc_48011:              ; CODE XREF: movefun+51j
                 //                 ; movefun+59j ...
                 //  Only if the right tile is empty or... other circumstances?
-                if ((rightTile->state != 0 || rightTile->tile != LevelTileTypeSpace) && ((rightTile->state != 0x99 || rightTile->tile != 0x99) || (aboveRightTile->state != 0 || aboveRightTile->tile != LevelTileTypeZonk)))
+                if ((rightTile->state != 0 || rightTile->tile != LevelTileTypeSpace) && ((rightTile->state != 0x99 || rightTile->tile != 0x99) || aboveRightTile->tile != LevelTileTypeZonk))
                 {
                     return;
                 }
