@@ -30,7 +30,7 @@ $totalFailedTests=0
 $failedTests = []
 $globalMutex = Mutex.new
 
-def runSuite(suite)
+def runSuite(suite, expectedExitCode = 0)
 	suiteMutex = Mutex.new
 	
 	suiteTotalPassedTests = 0
@@ -39,7 +39,9 @@ def runSuite(suite)
 	suiteTotalTests = 0
 
 	runTest = Proc.new { |path, mutex|
-		result = system("cd #{$gamePath} && ./#{$gameBinary} -u \"#{File.expand_path(path)}\"") # || exit # stop at first failure
+		system("./#{$gameBinary}", "-u", File.expand_path(path), chdir: $gamePath)
+		status = $?
+		result = status && status.exited? && status.exitstatus == expectedExitCode
 
 		testName = File.basename(path)
 
@@ -58,7 +60,7 @@ def runSuite(suite)
 
 	threads = []
 
-	Dir.glob("#{$solvesPath}/#{suite}/*.[sS][pP]") do |testPath|
+	Dir.glob("#{suite}/*.[sS][pP]") do |testPath|
 		thread = Thread.new do
 			runTest.call(testPath, suiteMutex)
 		end
@@ -99,8 +101,11 @@ threads = []
 Dir.foreach($solvesPath) do |suite|
 	next if suite == '.' or suite == '..' or !File.directory?("#{$solvesPath}/#{suite}")
 
-	runSuite(suite)
+	runSuite("#{$solvesPath}/#{suite}")
 end
+
+runSuite("regressions/solves")
+runSuite("regressions/failures", 1)
 
 puts "Finished all tests!"
 puts " - Passed: #{$totalPassedTests}"
