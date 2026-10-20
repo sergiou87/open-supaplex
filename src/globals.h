@@ -312,9 +312,23 @@ typedef struct __attribute__ ((packed)) {
 // initialized and never touched again. Should be enough to simulate the behavior of the original game.
 //
 #define kSizeOfLevelStatePrecedingPadding 344
-extern StatefulLevelTile gCurrentLevelStateWithPadding[kLevelDataLength + kSizeOfLevelStatePrecedingPadding]; // 0x1584
-extern StatefulLevelTile *gCurrentLevelState; // located at 0x1834, size is kLevelDataLength items
-extern int8_t gExplosionTimers[kLevelDataLength]; // 0x2434
+
+// Border glitches can address the timer bytes as tiles. Keep both views in one allocation while
+// preserving the separate array sizes used by savegames.
+typedef union
+{
+    struct
+    {
+        StatefulLevelTile levelStateWithPadding[kLevelDataLength + kSizeOfLevelStatePrecedingPadding];
+        int8_t explosionTimers[kLevelDataLength];
+    } regions;
+    StatefulLevelTile tiles[kSizeOfLevelStatePrecedingPadding + kLevelDataLength + kLevelDataLength / 2];
+} LevelMemory;
+
+extern LevelMemory gLevelMemory;
+#define gCurrentLevelStateWithPadding (gLevelMemory.regions.levelStateWithPadding) // 0x1584
+#define gExplosionTimers (gLevelMemory.regions.explosionTimers) // 0x2434
+extern StatefulLevelTile *gCurrentLevelState; // 0x1834
 extern uint8_t gIsGravityEnabled; // byte_5101C -> 1 = turn on, anything else (0) = turn off
 extern uint8_t gAreZonksFrozen; // byte_51035 -> 2 = turn on, anything else (0) = turn off  (1=off!)
 extern uint8_t gNumberOfInfoTrons; // 0xd26 -> byte_51036 -> this seems to be _inside_ of fileLevelData when a level is read

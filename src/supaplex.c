@@ -1774,6 +1774,9 @@ int main(int argc, char *argv[])
 
 void initializeGameStateData()
 {
+    assert(sizeof(StatefulLevelTile) == 2);
+    assert((void *)gExplosionTimers == (void *)&gCurrentLevelState[kLevelDataLength]);
+
     // Initialize game state with the same values as in the original game
     static const uint16_t kLevelStatePrecedingPadding[kSizeOfLevelStatePrecedingPadding] = {
         0x8995, 0x8995, 0x8995, 0x8a3b, 0x8a3b, 0x8a3b, 0x8a3b, 0x8a3b,
