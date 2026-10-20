@@ -11324,7 +11324,7 @@ int16_t handleMurphyDirectionDown(int16_t position)
         return updateMurphyAnimationInfo(position + kLevelWidth, unknownMurphyData);
     }
     // loc_4E1A1:              ; CODE XREF: update?+30Cj
-    else if (belowTile->tile == LevelTileTypeInfotron)
+    else if (belowTile->state == 0 && belowTile->tile == LevelTileTypeInfotron)
     {
         MurphyAnimationDescriptor unknownMurphyData;
 
