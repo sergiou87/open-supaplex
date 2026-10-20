@@ -146,7 +146,7 @@ uint8_t gAreEnemiesFrozen = 0; // byte_510D7 -> 1 = turn on, anything else (0) =
 uint8_t gScratchGravity = 0; // byte_510D8 -> not sure what scratch gravity means exactly, but can be 0 (off) or 1 (on)
 uint16_t gIsMurphyGoingThroughPortal = 0; // word_510D9
 uint8_t gPlantedRedDiskCountdown = 0; // byte_510DB
-uint16_t gPlantedRedDiskPosition = 0; // word_510DC
+int16_t gPlantedRedDiskPosition = 0; // word_510DC
 uint16_t gDemoCurrentInputIndex = 0;
 uint8_t gDemoCurrentInput = 0; // byte_510E1 -> 0xDD1
 uint8_t gDemoCurrentInputRepeatCounter = 0; // -> 0xDD2 -> byte_510E2

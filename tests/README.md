@@ -82,6 +82,20 @@ Both outcomes were verified in SpeedFix v6.3 under DOSBox. `sub_4F2AF` in `asm/S
 swaps the stored position's bytes and compares the full 16-bit offset with `cmp bx, si`.
 Converting the lookup position to a 16-bit byte offset preserves that exact comparison.
 
+The red-disk border regression uses the existing padding before the playfield:
+
+- `regressions/failures/red-disk-above-top-border.sp` collects a red disk, moves through an empty
+  top border, and plants it at tile index -49. Murphy returns to the playfield and snaps upward,
+  then presses Right for one frame. The snap must keep Murphy busy, so the brief Right input
+  cannot enter the exit and the replay fails.
+- `regressions/solves/red-disk-above-top-border-control.sp` uses the same level and extends that
+  final Right input to nine frames, allowing the snap to finish and Murphy to reach the exit.
+
+Both outcomes were verified in SpeedFix v6.3 under DOSBox. The original stores the disk's byte
+offset as `0xFF9E`, which addresses tile -49 through 16-bit address arithmetic. The C tile index
+must remain signed like Murphy's position; an unsigned index instead accesses tile 65487,
+leaves the off-field red disk missing, and incorrectly lets the shorter replay succeed.
+
 ## "Failed" solutions
 
 …some of these solutions don't seem to be solutions at all in the original game with the SpeedFix v6.3 ([the last official
