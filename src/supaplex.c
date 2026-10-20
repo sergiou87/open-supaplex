@@ -12867,6 +12867,7 @@ void updateSpecialPort(int16_t position) // sub_4F2AF   proc near       ; CODE X
 
     uint8_t isPortInPosition = 0;
     uint8_t portIndex = 0;
+    uint16_t positionInBytes = position * 2;
 
     for (uint8_t i = 0; i < gNumberOfSpecialPorts; ++i)
     {
@@ -12874,9 +12875,8 @@ void updateSpecialPort(int16_t position) // sub_4F2AF   proc near       ; CODE X
         SpecialPortInfo portInfo = gCurrentLevel.specialPortsInfo[i];
         // For _reasons_ the port position has its bytes inverted (first high, then low), so we must reverse them
         uint16_t portPosition = swap16(portInfo.position);
-        portPosition /= 2; // We must divide by 2 because the level format works with words
 
-        if (portPosition == position)
+        if (portPosition == positionInBytes)
         {
             isPortInPosition = 1;
             portIndex = i;

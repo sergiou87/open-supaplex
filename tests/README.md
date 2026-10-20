@@ -69,6 +69,19 @@ Both replays succeed in SpeedFix v6.3. Its unpacked instruction at `CS:1400` is
 `asm/SUPAPLEX.ASM`. The executable checks the upper zonk's tile byte, not its animation state.
 This executable evidence is recorded here without modifying the read-only assembly reference.
 
+The special-port coordinate regression checks that records match exact byte offsets:
+
+- `regressions/solves/special-port-odd-position.sp` contains a downward special port at tile 610
+  and a record with the odd offset 1221. That malformed record must be ignored, not rounded down
+  to the port's actual offset 1220. With gravity unchanged, Murphy can move right into the exit.
+- `regressions/failures/special-port-matching-position.sp` changes only the record's low byte to
+  make the offset exactly 1220. The record then enables gravity and pulls Murphy below the exit;
+  the same recorded inputs must fail.
+
+Both outcomes were verified in SpeedFix v6.3 under DOSBox. `sub_4F2AF` in `asm/SUPAPLEX.ASM`
+swaps the stored position's bytes and compares the full 16-bit offset with `cmp bx, si`.
+Converting the lookup position to a 16-bit byte offset preserves that exact comparison.
+
 ## "Failed" solutions
 
 …some of these solutions don't seem to be solutions at all in the original game with the SpeedFix v6.3 ([the last official
