@@ -6366,7 +6366,7 @@ void detonateBigExplosion(int16_t position) // sub_4A61F   proc near       ; COD
     // 01ED:39BC
     StatefulLevelTile *currentTile = &gCurrentLevelState[position];
 
-    if (currentTile->state == 0 && currentTile->tile == LevelTileTypeHardware)
+    if (currentTile->tile == LevelTileTypeHardware)
     {
         return;
     }

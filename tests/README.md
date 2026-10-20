@@ -96,6 +96,19 @@ offset as `0xFF9E`, which addresses tile -49 through 16-bit address arithmetic. 
 must remain signed like Murphy's position; an unsigned index instead accesses tile 65487,
 leaves the off-field red disk missing, and incorrectly lets the shorter replay succeed.
 
+The hardware-immunity regression reaches a nonzero-state hardware cell in the same padding:
+
+- `regressions/solves/nonzero-state-hardware-immunity.sp` starts Murphy at tile 0, moves up for
+  33 frames, back down for 32, then right into the exit. The extra upward input bumps padding
+  tile -300, whose existing word is `0x8E06`: hardware tile 6 with state `0x8E`. Hardware must
+  remain immune to explosions regardless of its state, so Murphy survives and reaches the exit.
+- `regressions/solves/nonzero-state-hardware-control.sp` moves up for only 32 frames and never
+  bumps the hardware. The remaining movement is identical and must also succeed.
+
+Both replays succeed in SpeedFix v6.3 under DOSBox, and both engines already contain that padding
+word before playback; the test does not inject tile states. `sub_4A61F` in `asm/SUPAPLEX.ASM`
+returns immediately when the explosion center's tile byte is 6, without checking its state byte.
+
 ## "Failed" solutions
 
 …some of these solutions don't seem to be solutions at all in the original game with the SpeedFix v6.3 ([the last official
