@@ -24,6 +24,10 @@ static int sCurrentGameControllerIndex = -1;
 static SDL_GameController *sCurrentGameController = NULL;
 static const float kJoystickDeadzone = 0.5;
 
+// How fast the directional pad moves the menu cursor, in the same units as the
+// analog stick: a full push of the stick is 9, so this is about half of it.
+static const float kDpadMouseSpeed = 5.0;
+
 void initializeControllers(void)
 {
     SDL_InitSubSystem(SDL_INIT_JOYSTICK);
@@ -136,6 +140,23 @@ void gameControllerEmulateMouse(float *x, float *y, uint8_t *leftButton, uint8_t
         *x = 0;
     if (abs(yAxis) < JOYSTICK_MOUSE_THRESHOLD)
         *y = 0;
+
+    // Controllers without an analog stick, such as many handhelds, move the
+    // cursor with the directional pad. The stick wins when it is pushed.
+    if (*x == 0)
+    {
+        if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT))
+            *x = -kDpadMouseSpeed;
+        else if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT))
+            *x = kDpadMouseSpeed;
+    }
+    if (*y == 0)
+    {
+        if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP))
+            *y = -kDpadMouseSpeed;
+        else if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN))
+            *y = kDpadMouseSpeed;
+    }
 
     *leftButton = confirmButton;
     *rightButton = cancelButton;
