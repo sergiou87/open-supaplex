@@ -881,6 +881,7 @@ void advancedOptionsMenuWaitForKeyPress()
     do
     {
         int9handler(1);
+        waitTime(1);
     } while (isUpButtonPressed() == 0 && isDownButtonPressed() == 0 && isLeftButtonPressed() == 0 && isRightButtonPressed() == 0 && isMenuBackButtonPressed() == 0 && isMenuConfirmButtonPressed() == 0 && isMenuCancelButtonPressed() == 0 && isPauseButtonPressed() == 0);
 }
 
@@ -889,6 +890,7 @@ void advancedOptionsMenuWaitForKeyRelease()
     do
     {
         int9handler(1);
+        waitTime(1);
     } while (isUpButtonPressed() || isDownButtonPressed() || isLeftButtonPressed() || isRightButtonPressed() || isMenuBackButtonPressed() || isMenuConfirmButtonPressed() || isMenuCancelButtonPressed() || isPauseButtonPressed());
 }
 
@@ -908,6 +910,7 @@ void runAdvancedOptionsMenu(AdvancedOptionsMenu *menu)
         renderAdvancedOptionsMenu(menu);
         advancedOptionsMenuWaitForKeyRelease();
         advancedOptionsMenuWaitForKeyPress();
+        waitTime(1);
     } while (1);
 
     advancedOptionsMenuWaitForKeyRelease();
@@ -1720,6 +1723,7 @@ int main(int argc, char *argv[])
         }
         gHasUserCheated = 0;
         runMainMenu();
+        waitTime(1);
     } while (gShouldExitGame == 0);
 
     int runResult = 0;
@@ -2332,6 +2336,7 @@ void openCreditsBlock() // proc near      ; CODE XREF: start+2E9p
         }
 
         videoLoop();
+        waitTime(1);
     }
 
     // loc_47884:             // ; CODE XREF: openCreditsBlock+C7j
@@ -2545,6 +2550,7 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
 
         int9handler(1);
         // loc_47EA9:              ; CODE XREF: waitForKeyMouseOrJoystick+Aj
+        waitTime(1);
     } while (isAnyKeyPressed());
 
     uint16_t mouseButtonsStatus = 0;
@@ -2553,6 +2559,7 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
     {
         // mouseIsClicked:              ; CODE XREF: waitForKeyMouseOrJoystick+1Ej
         getMouseStatus(NULL, NULL, &mouseButtonsStatus);
+        waitTime(1);
     } while (mouseButtonsStatus != 0);
 
     for (int i = 0; i < 4200; ++i)
@@ -2587,6 +2594,7 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
         do
         {
             getMouseStatus(NULL, NULL, &mouseButtonsStatus);
+            waitTime(1);
         } while (mouseButtonsStatus != 0);
     }
     else if (isAnyKeyPressed())
@@ -2601,6 +2609,7 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
             }
 
             int9handler(1);
+            waitTime(1);
         } while (isAnyKeyPressed());
     }
     else if (gCurrentUserInput > kUserInputSpaceAndDirectionOffset)
@@ -2616,6 +2625,7 @@ void waitForKeyMouseOrJoystick() // sub_47E98  proc near       ; CODE XREF: reco
 
             int9handler(1);
             updateUserInput();
+            waitTime(1);
         } while (gCurrentUserInput > kUserInputSpaceAndDirectionOffset);
     }
 }
@@ -3192,6 +3202,7 @@ void updateZonkTiles(int16_t position) //   proc near       ; DATA XREF: data:16
             }
         }
 
+        waitTime(1);
         return;
 
     } while (1);
@@ -3712,6 +3723,7 @@ void updateInfotronTiles(int16_t position) // movefun2  proc near       ; DATA X
             }
             return;
         }
+        waitTime(1);
         return;
     } while (1);
 }
@@ -4047,6 +4059,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         {
             // isFunctionKey:              ; CODE XREF: runLevel+35j
             int9handler(1);
+            waitTime(1);
         } while (areAnyF1ToF10KeysPressed());
 
         // notFunctionKey:             ; CODE XREF: runLevel+31j
@@ -4108,6 +4121,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
             {
                 // isFunctionKey:              ; CODE XREF: runLevel+35j
                 int9handler(1);
+                waitTime(1);
             } while (areAnyF1ToF10KeysPressed());
 
             // notFunctionKey:             ; CODE XREF: runLevel+31j
@@ -4220,6 +4234,7 @@ void runLevel() //    proc near       ; CODE XREF: start+35Cp
         {
             break;
         }
+        waitTime(1);
     } while (1);
 
     // loc_48E03:              ; CODE XREF: runLevel+328j
@@ -5206,6 +5221,7 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
         {
             // loc_49CDA:              ; CODE XREF: handleGameUserInput+784j
             int9handler(1);
+            waitTime(1);
         } while (gIsNumLockPressed == 1);
 
         // From the speed fix mod, but in uppercase so I can use characterForLastKeyPressed
@@ -5236,6 +5252,7 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
                     break;
                 }
             }
+            waitTime(1);
         } while (1);
 
         do
@@ -5243,6 +5260,7 @@ void loc_49C41() //              ; CODE XREF: handleGameUserInput+404j
             // loc_49D03:              ; CODE XREF: handleGameUserInput+796j
             //                     ; handleGameUserInput+7ADj
             int9handler(1);
+            waitTime(1);
         } while (gIsNumLockPressed == 1);
         //        mov si, 6015h
         fadeToPalette(gGamePalette);
@@ -6481,6 +6499,7 @@ void addCurrentGameTimeToPlayer() // sub_4A95F   proc near       ; CODE XREF: ru
         }
         seconds -= 60;
         playerEntry->minutes++;
+        waitTime(1);
     } while (1);
 
     // loc_4A99F:              ; CODE XREF: addCurrentGameTimeToPlayer+37j
@@ -6497,6 +6516,7 @@ void addCurrentGameTimeToPlayer() // sub_4A95F   proc near       ; CODE XREF: ru
         }
         minutes -= 60;
         playerEntry->hours++;
+        waitTime(1);
     } while (1);
 
     // loc_4A9B3:              ; CODE XREF: addCurrentGameTimeToPlayer+4Bj
@@ -6698,6 +6718,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
         {
             // loc_4AB7F:              ; CODE XREF: handleNewPlayerOptionClick+6Aj
             getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
+            waitTime(1);
         } while (mouseButtonStatus != 0);
 
         char lastPressedCharacter = '\0';
@@ -6756,6 +6777,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
             newPlayerName[gNewPlayerNameLength] = character; // mov [bx+si], al
             gNewPlayerNameLength++;
             drawTextWithChars6FontWithOpaqueBackgroundIfPossible(232, 127, 6, newPlayerName);
+            waitTime(1);
         } while (1);
 
         do
@@ -6763,6 +6785,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
             // loc_4ABEB:              ; CODE XREF: handleNewPlayerOptionClick+72j
             //                 ; handleNewPlayerOptionClick+8Ej ...
             getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
+            waitTime(1);
         } while (mouseButtonStatus != 0);
     }
     else if (supportsVirtualKeyboard())
@@ -6806,6 +6829,7 @@ void handleNewPlayerOptionClick() // sub_4AB1B  proc near       ; CODE XREF: run
         {
             // loc_4AB7F:              ; CODE XREF: handleNewPlayerOptionClick+6Aj
             getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
+            waitTime(1);
         } while (mouseButtonStatus != 0);
 
         // Limit the player number value to avoid -Wformat-truncation warning
@@ -6912,6 +6936,7 @@ void handleDeletePlayerOptionClick() // sub_4AD0E  proc near
     {
         // loc_4AD6C:              ; CODE XREF: handleDeletePlayerOptionClick+64j
         getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
+        waitTime(1);
     } while (mouseButtonStatus != 0);
 
     do
@@ -6925,6 +6950,7 @@ void handleDeletePlayerOptionClick() // sub_4AD0E  proc near
         restoreLastMouseAreaBitmap();
         saveLastMouseAreaBitmap();
         drawMouseCursor();
+        waitTime(1);
     } while (gMouseButtonStatus == 0);
 
     ButtonDescriptor okButtonDescriptor = kMainMenuButtonDescriptors[9];
@@ -6952,6 +6978,7 @@ void handleDeletePlayerOptionClick() // sub_4AD0E  proc near
     {
         // loc_4ADF3:              ; CODE XREF: handleDeletePlayerOptionClick+EBj
         getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
+        waitTime(1);
     } while (mouseButtonStatus != 0);
     saveLastMouseAreaBitmap();
 }
@@ -7013,6 +7040,7 @@ void handleSkipLevelOptionClick() // sub_4ADFF  proc near
     {
         // loc_4AE89:              ; CODE XREF: handleSkipLevelOptionClick+90j
         getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
+        waitTime(1);
     } while (mouseButtonStatus != 0);
 
     do
@@ -7026,6 +7054,7 @@ void handleSkipLevelOptionClick() // sub_4ADFF  proc near
         restoreLastMouseAreaBitmap();
         saveLastMouseAreaBitmap();
         drawMouseCursor();
+        waitTime(1);
     } while (gMouseButtonStatus == 0);
 
     ButtonDescriptor okButtonDescriptor = kMainMenuButtonDescriptors[9];
@@ -7050,6 +7079,7 @@ void handleSkipLevelOptionClick() // sub_4ADFF  proc near
     {
         // loc_4AF00:              ; CODE XREF: handleSkipLevelOptionClick+107j
         getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
+        waitTime(1);
     } while (mouseButtonStatus != 0);
     saveLastMouseAreaBitmap();
 }
@@ -7195,6 +7225,7 @@ void handleDemoOptionClick() // sub_4B159   proc near       ; CODE XREF: runMain
         }
         idx++;
         numberOfDemos++;
+        waitTime(1);
     } while (1);
     // 01ED:4525
 
@@ -7522,6 +7553,7 @@ void rotateLevelSet(uint8_t descending) // sub_4B419  proc near
                 exitWithError("Error opening %s\n", gLevelsDatFilename);
             }
         }
+        waitTime(1);
     } while (file == NULL);
 
     // loc_4B4B8:              ; CODE XREF: sub_4B419+95j
@@ -7935,6 +7967,7 @@ void prepareRankingTextEntries() // sub_4BF8D  proc near       ; CODE XREF: draw
                 numberOfChanges++;
             }
         }
+        waitTime(1);
     } while (numberOfChanges > 0);
 
     for (int i = 0; i < 20; ++i)
@@ -8341,6 +8374,7 @@ void scrollLeftToMainMenu() // loc_4C44F:              ; CODE XREF: handleGfxTut
 
         // loc_4C466:              ; CODE XREF: sub_4C407+90j
         videoLoop();
+        waitTime(1);
     }
 
     free(currentScreenPixels);
@@ -8434,6 +8468,7 @@ void scrollRightToNewScreen() // sub_4C5AF   proc near       ; CODE XREF: handle
 
         // loc_4C5BA:              ; CODE XREF: scrollRightToGfxTutor+3Cj
         videoLoop();
+        waitTime(1);
     }
 
     free(screenPixelsBackup);
@@ -8773,6 +8808,7 @@ void runMainMenu() // proc near       ; CODE XREF: start+43Ap
             gLevelSetRotationThrottleCurrentCounter = 0x10;
             gLevelSetRotationThrottleNextCounter = 0;
         }
+        waitTime(1);
     }
 
     // loc_4CA34:              // ; CODE XREF: runMainMenu+223j
@@ -8849,10 +8885,12 @@ void handleControlsOptionClick() // showControls:                              ;
                         videoLoop();
                         gFrameCounter++;
                         getMouseStatus(&mouseX, &mouseY, &mouseButtonStatus);
+                        waitTime(1);
                     } while (mouseButtonStatus != 0);
                 }
             }
         }
+        waitTime(1);
     } while (1);
 
     // loc_4CAEC:                              ; CODE XREF: code:5E74j
@@ -14367,5 +14405,6 @@ void drawSpeedFixCredits() // showNewCredits  proc near       ; CODE XREF: start
             gIsDebugModeEnabled = 1;
         }
         // loc_50301:             // ; CODE XREF: drawSpeedFixCredits+1Ej
+        waitTime(1);
     } while (isAnyKeyPressed() == 0 && isAnyGameControllerButtonPressed() == 0);
 }
