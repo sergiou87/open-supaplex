@@ -148,6 +148,7 @@ MAKEROM_ARGS_COMMON = -rsf $(APP_RSF) -exefslogo -elf $(OUTPUT)-strip.elf -icon 
 ifneq ($(ROMFS),)
 	APP_ROMFS := $(TOPDIR)/$(ROMFS)
 	MAKEROM_ARGS_COMMON += -DAPP_ROMFS="$(APP_ROMFS)"
+	export ROMFS_DEPS := $(shell find "$(APP_ROMFS)" -type f -o -type d)
 endif
 
 export MAKEROM_ARGS_COMMON := $(MAKEROM_ARGS_COMMON)
@@ -216,7 +217,7 @@ else
 #---------------------------------------------------------------------------------
 # main targets
 #---------------------------------------------------------------------------------
-$(OUTPUT).3dsx	:	$(OUTPUT).elf $(OUTPUT).cia $(_3DSXDEPS)
+$(OUTPUT).3dsx	:	$(OUTPUT).elf $(OUTPUT).cia $(_3DSXDEPS) $(ROMFS_DEPS)
 
 $(OFILES_SOURCES) : $(HFILES)
 
@@ -231,10 +232,10 @@ $(OUTPUT).bnr:
 $(OUTPUT).icn:
 	@$(BANNERTOOL) makesmdh -s "$(APP_TITLE)" -l "$(APP_TITLE)" -p "$(APP_AUTHOR)" -i $(APP_ICON) -o $@
 
-$(OUTPUT).3ds: $(OUTPUT)-strip.elf $(OUTPUT).bnr $(OUTPUT).icn
+$(OUTPUT).3ds: $(OUTPUT)-strip.elf $(OUTPUT).bnr $(OUTPUT).icn $(APP_RSF) $(ROMFS_DEPS)
 	@$(MAKEROM) -f cci -o $@ $(MAKEROM_ARGS_COMMON) -DAPP_ENCRYPTED=true
 
-$(OUTPUT).cia: $(OUTPUT)-strip.elf $(OUTPUT).bnr $(OUTPUT).icn
+$(OUTPUT).cia: $(OUTPUT)-strip.elf $(OUTPUT).bnr $(OUTPUT).icn $(APP_RSF) $(ROMFS_DEPS)
 	@$(MAKEROM) -f cia -o $@ $(MAKEROM_ARGS_COMMON) -DAPP_ENCRYPTED=false
 
 #---------------------------------------------------------------------------------
