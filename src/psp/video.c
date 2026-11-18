@@ -160,6 +160,21 @@ void setScalingMode(ScalingMode mode)
     present();
 }
 
+uint8_t isPixelFilterSupported(void)
+{
+    return 0;
+}
+
+PixelFilter getPixelFilter(void)
+{
+    return PixelFilterNone;
+}
+
+void setPixelFilter(PixelFilter filter)
+{
+    // Not supported
+}
+
 void getWindowSize(int *width, int *height)
 {
     const SDL_VideoInfo *info = SDL_GetVideoInfo();

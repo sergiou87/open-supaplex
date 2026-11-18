@@ -40,6 +40,14 @@ typedef enum {
     ScalingModeCount,
 } ScalingMode;
 
+// Pixel-art upscaling filter applied to the 320x200 frame before it is
+// scaled to the window. It only changes how the frame is displayed.
+typedef enum {
+    PixelFilterNone,
+    PixelFilterHQ4x,
+    PixelFilterCount,
+} PixelFilter;
+
 #define kNumberOfColors 16
 typedef Color ColorPalette[kNumberOfColors];
 
@@ -52,6 +60,12 @@ void destroyVideo(void);
 
 ScalingMode getScalingMode(void);
 void setScalingMode(ScalingMode mode);
+
+// Backends and platforms without filter support return 0 and ignore
+// setPixelFilter.
+uint8_t isPixelFilterSupported(void);
+PixelFilter getPixelFilter(void);
+void setPixelFilter(PixelFilter filter);
 
 void getWindowSize(int *width, int *height);
 
