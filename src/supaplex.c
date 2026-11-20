@@ -1774,6 +1774,9 @@ int main(int argc, char *argv[])
 
 void initializeGameStateData()
 {
+    assert(sizeof(StatefulLevelTile) == 2);
+    assert((void *)gExplosionTimers == (void *)&gCurrentLevelState[kLevelDataLength]);
+
     // Initialize game state with the same values as in the original game
     static const uint16_t kLevelStatePrecedingPadding[kSizeOfLevelStatePrecedingPadding] = {
         0x8995, 0x8995, 0x8995, 0x8a3b, 0x8a3b, 0x8a3b, 0x8a3b, 0x8a3b,
@@ -2703,7 +2706,7 @@ void updateZonkTiles(int16_t position) //   proc near       ; DATA XREF: data:16
                 // loc_48011:              ; CODE XREF: movefun+51j
                 //                 ; movefun+59j ...
                 //  Only if the right tile is empty or... other circumstances?
-                if ((rightTile->state != 0 || rightTile->tile != LevelTileTypeSpace) && ((rightTile->state != 0x99 || rightTile->tile != 0x99) || (aboveRightTile->state != 0 || aboveRightTile->tile != LevelTileTypeZonk)))
+                if ((rightTile->state != 0 || rightTile->tile != LevelTileTypeSpace) && ((rightTile->state != 0x99 || rightTile->tile != 0x99) || aboveRightTile->tile != LevelTileTypeZonk))
                 {
                     return;
                 }
@@ -6366,7 +6369,7 @@ void detonateBigExplosion(int16_t position) // sub_4A61F   proc near       ; COD
     // 01ED:39BC
     StatefulLevelTile *currentTile = &gCurrentLevelState[position];
 
-    if (currentTile->state == 0 && currentTile->tile == LevelTileTypeHardware)
+    if (currentTile->tile == LevelTileTypeHardware)
     {
         return;
     }
@@ -7281,7 +7284,7 @@ void handleRankingListScrollUp() // loc_4B262
     gRankingListDownButtonPressed = 0;
     gRankingListUpButtonPressed = 1;
 
-    if (gFrameCounter - gRankingListThrottleCurrentCounter < gRankingListThrottleNextCounter)
+    if ((uint16_t)(gFrameCounter - gRankingListThrottleCurrentCounter) < gRankingListThrottleNextCounter)
     {
         return;
     }
@@ -7312,7 +7315,7 @@ void handleRankingListScrollDown() // loc_4B2AF
     gRankingListDownButtonPressed = 1;
     gRankingListUpButtonPressed = 0;
 
-    if (gFrameCounter - gRankingListThrottleCurrentCounter < gRankingListThrottleNextCounter)
+    if ((uint16_t)(gFrameCounter - gRankingListThrottleCurrentCounter) < gRankingListThrottleNextCounter)
     {
         return;
     }
@@ -7435,7 +7438,7 @@ void throttledRotateLevelSet(uint8_t descending) // sub_4B419  proc near
 {
     // 01ED:47B6
     // loc_4B433:              ; CODE XREF: sub_4B419+15j
-    if (gFrameCounter - gLevelSetRotationThrottleCurrentCounter < gLevelSetRotationThrottleNextCounter)
+    if ((uint16_t)(gFrameCounter - gLevelSetRotationThrottleCurrentCounter) < gLevelSetRotationThrottleNextCounter)
     {
         return;
     }
@@ -7633,7 +7636,7 @@ void handlePlayerListScrollDown() // sub_4B671  proc near
     gPlayerListDownButtonPressed = 1;
     gPlayerListUpButtonPressed = 0;
 
-    if (gFrameCounter - gPlayerListThrottleCurrentCounter < gPlayerListThrottleNextCounter)
+    if ((uint16_t)(gFrameCounter - gPlayerListThrottleCurrentCounter) < gPlayerListThrottleNextCounter)
     {
         return;
     }
@@ -7668,7 +7671,7 @@ void handlePlayerListScrollUp() // sub_4B6C9  proc near
     gPlayerListDownButtonPressed = 0;
     gPlayerListUpButtonPressed = 1;
 
-    if (gFrameCounter - gPlayerListThrottleCurrentCounter < gPlayerListThrottleNextCounter)
+    if ((uint16_t)(gFrameCounter - gPlayerListThrottleCurrentCounter) < gPlayerListThrottleNextCounter)
     {
         return;
     }
@@ -7709,7 +7712,7 @@ void handleLevelListScrollDown() // sub_4B72B  proc near
     gLevelListDownButtonPressed = 1;
     gLevelListUpButtonPressed = 0;
 
-    if (gFrameCounter - gLevelListThrottleCurrentCounter < gLevelListThrottleNextCounter)
+    if ((uint16_t)(gFrameCounter - gLevelListThrottleCurrentCounter) < gLevelListThrottleNextCounter)
     {
         return;
     }
@@ -7739,7 +7742,7 @@ void handleLevelListScrollUp() // sub_4B771  proc near
     gLevelListDownButtonPressed = 0;
     gLevelListUpButtonPressed = 1;
 
-    if (gFrameCounter - gLevelListThrottleCurrentCounter < gLevelListThrottleNextCounter)
+    if ((uint16_t)(gFrameCounter - gLevelListThrottleCurrentCounter) < gLevelListThrottleNextCounter)
     {
         return;
     }
@@ -7869,10 +7872,11 @@ void prepareRankingTextEntries() // sub_4BF8D  proc near       ; CODE XREF: draw
     typedef struct
     {
         uint8_t playerIndex;
-        uint8_t nextLevelToPlay;
-        uint8_t hours;
-        uint8_t minutes;
-        uint8_t seconds;
+        // The original sorts these keys with signed byte comparisons.
+        int8_t nextLevelToPlay;
+        int8_t hours;
+        int8_t minutes;
+        int8_t seconds;
     } RankingEntry;
 
     RankingEntry rankingEntries[kNumberOfPlayers];
@@ -7903,10 +7907,25 @@ void prepareRankingTextEntries() // sub_4BF8D  proc near       ; CODE XREF: draw
             RankingEntry *rankingEntry = &rankingEntries[i];
             RankingEntry *nextRankingEntry = &rankingEntries[i + 1];
 
-            uint32_t totalSeconds = rankingEntry->hours * 3600 + rankingEntry->minutes * 60 + rankingEntry->seconds;
-            uint32_t nextTotalSeconds = rankingEntry->hours * 3600 + rankingEntry->minutes * 60 + rankingEntry->seconds;
+            uint8_t shouldSwap;
+            if (nextRankingEntry->nextLevelToPlay != rankingEntry->nextLevelToPlay)
+            {
+                shouldSwap = nextRankingEntry->nextLevelToPlay > rankingEntry->nextLevelToPlay;
+            }
+            else if (nextRankingEntry->hours != rankingEntry->hours)
+            {
+                shouldSwap = nextRankingEntry->hours < rankingEntry->hours;
+            }
+            else if (nextRankingEntry->minutes != rankingEntry->minutes)
+            {
+                shouldSwap = nextRankingEntry->minutes < rankingEntry->minutes;
+            }
+            else
+            {
+                shouldSwap = nextRankingEntry->seconds < rankingEntry->seconds;
+            }
 
-            if (nextRankingEntry->nextLevelToPlay > rankingEntry->nextLevelToPlay || (nextRankingEntry->nextLevelToPlay == rankingEntry->nextLevelToPlay && nextTotalSeconds > totalSeconds))
+            if (shouldSwap)
             {
                 // loc_4BFFD:              ; CODE XREF: prepareRankingTextEntries+4Ej
                 //                 ; prepareRankingTextEntries+58j ...
@@ -9453,21 +9472,22 @@ void updateHallOfFameEntries() // sub_4D1B6  proc near       ; CODE XREF: change
 
         // loc_4D20E:              ; CODE XREF: updateHallOfFameEntries+48j
         //                 ; updateHallOfFameEntries+4Ej ...
-        if (currentPlayerEntry->hours < entry.hours)
+        // The original JL comparisons treat time bytes as signed.
+        if ((int8_t)currentPlayerEntry->hours < (int8_t)entry.hours)
         {
             newEntryInsertIndex = i;
             break;
         }
         else if (currentPlayerEntry->hours == entry.hours)
         {
-            if (currentPlayerEntry->minutes < entry.minutes)
+            if ((int8_t)currentPlayerEntry->minutes < (int8_t)entry.minutes)
             {
                 newEntryInsertIndex = i;
                 break;
             }
             else if (currentPlayerEntry->minutes == entry.minutes)
             {
-                if (currentPlayerEntry->seconds < entry.seconds)
+                if ((int8_t)currentPlayerEntry->seconds < (int8_t)entry.seconds)
                 {
                     newEntryInsertIndex = i;
                     break;
@@ -11324,7 +11344,7 @@ int16_t handleMurphyDirectionDown(int16_t position)
         return updateMurphyAnimationInfo(position + kLevelWidth, unknownMurphyData);
     }
     // loc_4E1A1:              ; CODE XREF: update?+30Cj
-    else if (belowTile->tile == LevelTileTypeInfotron)
+    else if (belowTile->state == 0 && belowTile->tile == LevelTileTypeInfotron)
     {
         MurphyAnimationDescriptor unknownMurphyData;
 
@@ -11344,13 +11364,13 @@ int16_t handleMurphyDirectionDown(int16_t position)
         belowTile->state = 11;
         belowTile->tile = LevelTileTypeMurphy;
         murphyTile->state = 3;
-        murphyTile->tile = LevelTileTypeBase;
+        murphyTile->tile = LevelTileTypeSpace;
         gMurphyCounterToStartPushAnimation = 0;
         gIsMurphyGoingThroughPortal = 0;
         return updateMurphyAnimationInfo(position + kLevelWidth, unknownMurphyData);
     }
     // loc_4E1A9:              ; CODE XREF: update?+314j
-    else if (belowTile->tile == LevelTileTypeExit)
+    else if (belowTile->state == 0 && belowTile->tile == LevelTileTypeExit)
     {
         // loc_4E674:              ; CODE XREF: update?+242j update?+2AAj ...
         if (gNumberOfRemainingInfotrons != 0)
@@ -12867,6 +12887,7 @@ void updateSpecialPort(int16_t position) // sub_4F2AF   proc near       ; CODE X
 
     uint8_t isPortInPosition = 0;
     uint8_t portIndex = 0;
+    uint16_t positionInBytes = position * 2;
 
     for (uint8_t i = 0; i < gNumberOfSpecialPorts; ++i)
     {
@@ -12874,9 +12895,8 @@ void updateSpecialPort(int16_t position) // sub_4F2AF   proc near       ; CODE X
         SpecialPortInfo portInfo = gCurrentLevel.specialPortsInfo[i];
         // For _reasons_ the port position has its bytes inverted (first high, then low), so we must reverse them
         uint16_t portPosition = swap16(portInfo.position);
-        portPosition /= 2; // We must divide by 2 because the level format works with words
 
-        if (portPosition == position)
+        if (portPosition == positionInBytes)
         {
             isPortInPosition = 1;
             portIndex = i;

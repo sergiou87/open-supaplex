@@ -106,9 +106,8 @@ uint8_t gCurrentSoundDuration = 0; // byte_5988B
 
 // ----------- BEGINNING OF STATE SAVED IN SAVEGAMES -----------
 
-StatefulLevelTile gCurrentLevelStateWithPadding[kLevelDataLength + kSizeOfLevelStatePrecedingPadding]; // 0x1584
-StatefulLevelTile *gCurrentLevelState = &gCurrentLevelStateWithPadding[kSizeOfLevelStatePrecedingPadding]; // located at 0x1834, size is kLevelDataLength items
-int8_t gExplosionTimers[kLevelDataLength]; // 0x2434
+LevelMemory gLevelMemory;
+StatefulLevelTile *gCurrentLevelState = &gLevelMemory.tiles[kSizeOfLevelStatePrecedingPadding]; // 0x1834
 uint8_t gIsGravityEnabled = 0; // byte_5101C -> 1 = turn on, anything else (0) = turn off
 uint8_t gAreZonksFrozen = 0; // byte_51035 -> 2 = turn on, anything else (0) = turn off  (1=off!)
 uint8_t gNumberOfInfoTrons = 0; // 0xd26 -> byte_51036 -> this seems to be _inside_ of fileLevelData when a level is read
@@ -146,7 +145,7 @@ uint8_t gAreEnemiesFrozen = 0; // byte_510D7 -> 1 = turn on, anything else (0) =
 uint8_t gScratchGravity = 0; // byte_510D8 -> not sure what scratch gravity means exactly, but can be 0 (off) or 1 (on)
 uint16_t gIsMurphyGoingThroughPortal = 0; // word_510D9
 uint8_t gPlantedRedDiskCountdown = 0; // byte_510DB
-uint16_t gPlantedRedDiskPosition = 0; // word_510DC
+int16_t gPlantedRedDiskPosition = 0; // word_510DC
 uint16_t gDemoCurrentInputIndex = 0;
 uint8_t gDemoCurrentInput = 0; // byte_510E1 -> 0xDD1
 uint8_t gDemoCurrentInputRepeatCounter = 0; // -> 0xDD2 -> byte_510E2
