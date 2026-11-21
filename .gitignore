@@ -1,11 +1,84 @@
 build/
 tasm/
+tests/
 *.id*
 *.nam
 *.til
+*.o
+*.d
+/resources/*.SP
 /solve/
 TESTOUT.TXT
 /tc/
 xcuserdata/
+__pycache__/
+resources/*.CFG
+resources/PLAYER.*
+resources/SAVEGAME.*
+resources/HALLFAME.*
+
+# Linux stuff
+linux/OpenSupaplex-linux
+linux/opensupaplex*
+
+# Windows stuff
+windows/OpenSupaplex*
+
+# Nintendo Switch stuff
+switch/*.nro
+switch/*.elf
+switch/*.nacp
+
+# Wii stuff
+wii/*.dol
+wii/*.elf
+
+# Wii U stuff
+wiiu/*.rpx
+wiiu/*.elf
+
+# Nintendo DS stuff
+nds/*.nds
+nds/*.elf
+nds/nitro
+
+# Nintendo 3DS stuff
+3ds/*.3dsx
+3ds/*.elf
+3ds/*.cia
+3ds/*.bnr
+3ds/*.icn
+3ds/*.smdh
+
+# PS Vita stuff
 vita/debugnetip.txt
 vita/resources/
+
+# PSP stuff
+psp/*.PBP
+psp/*.prx
+
+# PS3 stuff
+ps3/*.self
+ps3/*.elf
+ps3/*.pkg
+ps3/*.map
+
+# PS2 stuff
+ps2/*.elf
+
+# WASM stuff
+wasm/opensupaplex.data
+wasm/opensupaplex.html
+wasm/opensupaplex.js
+wasm/opensupaplex.wasm
+
+# RISC OS stuff
+riscos/*,e1f
+riscos/*.zip
+riscos/\!OSupaplex/*,ff8
+riscos/\!OSupaplex/audio
+riscos/\!OSupaplex/data
+
+/ps2/OpenSupaplex
+ps2/OpenSupaplex-ps2.zip

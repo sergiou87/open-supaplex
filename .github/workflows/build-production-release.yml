@@ -1,0 +1,12 @@
+name: Build OpenSupaplex Production Release
+on:
+  push:
+    tags:
+      - v*
+jobs:
+  create-release:
+    name: Create production release
+    uses: ./.github/workflows/build-release.yml
+    with:
+      version: ${{ github.ref_name }}
+      prerelease: false

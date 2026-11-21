@@ -1,0 +1,41 @@
+name: Run OpenSupaplex CI
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate_platform_metadata:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate platform metadata
+        run: python3 scripts/generate_platform_support.py --check
+  prepare_platform_matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      ci_matrix: ${{ steps.platforms.outputs.ci_matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build CI matrix
+        id: platforms
+        run: |
+          echo "ci_matrix=$(python3 scripts/generate_platform_support.py --matrix ci)" >> "$GITHUB_OUTPUT"
+  build-platforms:
+    name: ${{ matrix.name }}
+    needs:
+      - validate_platform_metadata
+      - prepare_platform_matrix
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare_platform_matrix.outputs.ci_matrix) }}
+    uses: ./.github/workflows/build-platform.yml
+    with:
+      runs-on: ${{ matrix.runs_on }}
+      build-command: ${{ matrix.build_command }}
+      pre-build-command: ${{ matrix.pre_build_command }}
+      artifact-name: ${{ matrix.artifact_name }}
+      artifact-path: ${{ matrix.artifact_path }}
+      setup-msys2: ${{ matrix.setup_msys2 }}

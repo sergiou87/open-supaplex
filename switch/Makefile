@@ -39,14 +39,15 @@ include $(DEVKITPRO)/libnx/switch_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	OpenSupaplex
 BUILD		:=	build
-SOURCES		:=	../src
+SOURCES		:=	../src ../src/nx ../src/sdl_common ../src/sdl2 ../src/lib/ini
 DATA		:=	data
 INCLUDES	:=	include
+EXCLUDE     :=  nullVirtualKeyboard.c
 #ROMFS	:=	romfs
-APP_TITLE	:= OpenSupaplex
-APP_AUTHOR	:= sergiou87
-APP_VERSION	:= 7.0
-ICON        := resources/launcher-icon.jpg
+APP_TITLE	:=  OpenSupaplex
+APP_AUTHOR	:=  sergiou87
+APP_VERSION	:=  7.2.2
+ICON        :=  resources/launcher-icon.jpg
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -56,14 +57,18 @@ ARCH	:=	-march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE
 CFLAGS	:=	-g -Wall -O2 -ffunction-sections \
 			$(ARCH) $(DEFINES)
 
-CFLAGS	+=	$(INCLUDE) -D__SWITCH__ `sdl2-config --cflags`
+CFLAGS	+=	$(INCLUDE) -D__SWITCH__ `$(PREFIX)pkg-config --cflags SDL2_mixer sdl2` -DHAVE_SDL2
+
+ifeq ($(DEBUG),1)
+	CFLAGS += -DDEBUG=1
+endif
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions
 
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
-LIBS	:= `sdl2-config --libs` -lstdc++ -lm
+LIBS	:= `$(PREFIX)pkg-config --libs SDL2_mixer sdl2` -lstdc++ -lm
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
@@ -91,6 +96,8 @@ CFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.c)))
 CPPFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
 SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
 BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
+
+CFILES := $(filter-out $(EXCLUDE),$(CFILES))
 
 #---------------------------------------------------------------------------------
 # use CXX for linking C++ projects, CC for standard C
@@ -177,6 +184,8 @@ else
 	@rm -fr $(BUILD) $(TARGET).nsp $(TARGET).nso $(TARGET).npdm $(TARGET).elf
 endif
 
+run:
+	nxlink -p OpenSupaplex/OpenSupaplex.nro -s OpenSupaplex.nro
 
 #---------------------------------------------------------------------------------
 else

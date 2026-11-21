@@ -1,0 +1,5 @@
+NEW:
+- Added proper Linux support (thanks @DarthGandalf).
+
+FIXED:
+- The Nintendo Switch port can now be played in Applet Mode. Virtual keyboard support has been disabled (thanks @rjimenezda).

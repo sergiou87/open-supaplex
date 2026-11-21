@@ -1,0 +1,6 @@
+Set OpenSupaplex$Dir <Obey$Dir>
+Set OpenSupaplex$Saves <Choices$Write>.OSupaplex
+IconSprites <OpenSupaplex$Dir>.!Sprites
+
+WimpSlot -min 1400K
+Run <OpenSupaplex$Dir>.!RunImage >null: 2>&1

@@ -1,0 +1,15 @@
+FROM devkitpro/devkitarm:latest
+
+MAINTAINER Sergio Padrino (@sergiou87)
+
+# Update all packages and install SDL for Nintendo DS
+
+WORKDIR /tmp
+RUN git clone https://github.com/ccawley2011/SDL-1.2.git -b nds && \
+	cd SDL-1.2 && \
+	make -f Makefile.ds install && \
+	cd .. && \
+	rm -rf SDL-1.2
+
+WORKDIR /src
+CMD ["/bin/bash"]

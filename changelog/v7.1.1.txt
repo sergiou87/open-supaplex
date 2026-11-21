@@ -1,0 +1,4 @@
+FIXED:
+- LB/L1/L and RB/R1/R buttons won't change the game speed anymore when used in the main menu.
+- Wii and Wii U ports had the wrong title in the Homebrew Channel.
+- Fixed game panel behavior when you restart a level with it hidden. Now it will be shown when you restart a level.

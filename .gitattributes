@@ -1,0 +1,8 @@
+* text=auto
+*.sh text eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.BAT text eol=crlf
+*.CMD text eol=crlf
+# LEVEL.L* files are fixed-size assets, so CRLF conversion corrupts their layout.
+**/LEVEL.L* -text

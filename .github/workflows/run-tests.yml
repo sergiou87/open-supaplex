@@ -1,0 +1,47 @@
+name: Run OpenSupaplex Tests
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  run-tests:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare build environment
+        run: |
+          cd tests
+          ./ci-prepare.sh
+        shell: bash
+      - name: Build OpenSupaplex
+        run: |
+          cd tests
+          ./ci-build.sh
+        shell: bash
+      - id: run_tests
+        name: Run tests
+        run: |
+          cd tests
+          # Save the exit code for later, in case it failed, don't fail now.
+          # If it failed because tests failed, at least it will upload the results.
+          run_tests_exit_code=0
+          ./run-tests.rb ./OpenSupaplex-tests/OpenSupaplex > test-results.log \
+            || run_tests_exit_code=1
+          echo "run_tests_exit_code=$run_tests_exit_code" >> "$GITHUB_OUTPUT"
+        shell: bash
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: tests/test-results.log
+      - name: Print test results
+        run: |
+          cd tests
+          cat test-results.log
+        shell: bash
+      - name: Finish job
+        run: |
+          exit ${{ steps.run_tests.outputs.run_tests_exit_code }}

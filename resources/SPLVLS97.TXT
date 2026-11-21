@@ -1,0 +1,111 @@
+Information About Supaplex Level Set 97
+
+Somewhere in the internet I found the Windows game "Mr Matt".
+This is a shareware game with registration fee of $16,- and is crippled
+if not registred.
+
+It has many similarities with Supaplex and BoulderDash, but only knows very
+few objects: Space, Earth, MrMatt, Stone, Apple   , Wall
+Supaplex:    Space, Base , Murphy, Zonk , Infotron, Hard Wall.
+
+(Apples can be Carrots or Hamburgers if a different graphics set is chosen.)
+
+Differences between Mr Matt and Supaplex:
+
+- There is no Exit: The game ends automatically if ALL Apples are eaten.
+
+- Apples (Infotrons) never fall: they act as Bases, but must be eaten ALL.
+
+- Stones never slide off of anything if they are not actively falling:
+  A pile stays even without supporting earth around it, until a lower Stone
+  is able to fall down or is pushed.  All Stones above that will fall and
+  slide if possible (first to the left until blocked, then to the right).
+  They only slide off of other Stones, and not from Earth, Apples or Walls.
+
+- For sliding Stones Mr Matt acts as Space: if he walks underneath such a
+  free pile of two Stones from right to left with no Space underneath him, he
+  is killed by the upper Stone (if at that moment there is Space above him).
+  Murphy lives because he acts as an obstacle for such a sliding Zonk.
+
+- Mr Matt cannot eat without moving (like Murphy with the space key pressed),
+  but he can push Stones the same as Murphy can push Zonks.
+
+- Mr Matt cannot run away from falling Stones: if he is underneath a Stone or
+  a pile of Stones, he is killed if he moves down: He may only move sideward,
+  but is killed if another Stone of that falling pile slides off on his head.
+  This death cannot be avoided by just running away as Murphy can.
+  (There is a game option in Mr Matt: "no stupid moves" which switches off
+  the possibility of moving down if he stands underneath a Stone.)
+
+
+This means there are several translation problems, but we can try anyway.
+
+We cannot change those differences between Zonks vs. Stones and Infotrons vs.
+Apples.
+
+I translated the missing Exit by changing all Walls to Exits.
+This way Murphy may end his journey wherever he can and still finish the game.
+
+Another restriction: Supaplex can only count to 255 Infotrons to eat.
+There is one level with over 255 Apples (Harvest has 288).
+I suggest that all Infotrons must be eaten anyway for an acceptable solution
+of that level, if that level can be solved that way (I didn't try yet).
+
+Mr Matt's levels come in separate level files, of which each seem to contain
+different gradations of difficulty of the same idea.
+
+The order in which I put those separate files in this level-set is random, so
+easy "level files" may follow difficult "level files".
+
+I don't know if all translated levels can be solved in Supaplex, although I
+did solve levels 1 to 7, which look as if those are among the most difficult.
+(It took me some time to solve level 6 and 7 though, but I can prove it.)
+
+My opinion about these levels: A new refreshing aspect to Supaplex.
+
+Have fun too,
+
+Herman Perk
+Spessartstrasse 15
+D-14197 Berlin
+Germany
+
+E-mail:
+100327.467@compuserve.com
+Herman_Perk@compuserve.com
+
+
+
+************************************************************
+*** All 90 Mr. Matt levels are now solvable in Supaplex! ***
+************************************************************
+
+Levels modified  - modification difficulty:
+----------------
+(note that "modification difficulty" doesn't mean "level difficulty"!)
+
+21 - hard
+26 - average
+30 - easy
+33 - easy
+35 - easy
+41 - hard
+64 - easy
+66 - easy
+67 - average
+69 - easy
+72 - easy
+76 - average
+77 - easy
+79 - easy
+86 - average
+88 - easy
+90 - easy
+
+(all levels not mentioned in this list are solvable without any modification)
+
+Modified by:
+------------
+
+Jiri Lauterkranz, <no internet address, use Michael's address instead>
+Michael Grof, <grof@dragon.cz>

@@ -1,0 +1,19 @@
+name: Build OpenSupaplex Beta Release
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        required: true
+        type: string
+      release_notes:
+        required: false
+        type: string
+
+jobs:
+  create-beta-release:
+    name: Create beta release
+    uses: ./.github/workflows/build-release.yml
+    with:
+      version: ${{ github.event.inputs.version }}
+      release_notes: ${{ github.event.inputs.release_notes }}
+      prerelease: true

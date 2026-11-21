@@ -1,0 +1,18 @@
+FROM riscosdotinfo/riscos-gccsdk-4.7:latest
+
+MAINTAINER Sergio Padrino (@sergiou87)
+
+# Update all packages and install SDL and SDL_mixer for RISC OS
+
+RUN apt-get update && apt-get -y install automake1.11 meson cmake rsync
+
+WORKDIR /tmp
+RUN svn co svn://svn.riscos.info/gccsdk/trunk/autobuilder/ autobuilder && \
+	mkdir build && \
+	cd build && \
+	../autobuilder/build -v libsdl1.2debian libsdl-mixer1.2 && \
+	cd .. && \
+	rm -rf autobuilder/ build/
+
+WORKDIR /src
+CMD ["/bin/bash"]

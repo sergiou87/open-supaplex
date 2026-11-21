@@ -1,0 +1,2 @@
+FIXED:
+- The list of levels would render garbage on Windows.

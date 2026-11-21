@@ -1,0 +1,2 @@
+NEW:
+- Initial version for PS Vita and Nintendo Switch! Almost everything is working except sound. The game should be fully playable.

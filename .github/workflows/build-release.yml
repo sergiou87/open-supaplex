@@ -1,0 +1,96 @@
+name: Build OpenSupaplex Release
+on:
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+      prerelease:
+        required: true
+        default: false
+        type: boolean
+      release_notes:
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  validate_platform_metadata:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate platform metadata
+        run: python3 scripts/generate_platform_support.py --check
+  prepare_platform_matrix:
+    needs: validate_platform_metadata
+    runs-on: ubuntu-latest
+    outputs:
+      release_matrix: ${{ steps.platforms.outputs.release_matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build release matrix
+        id: platforms
+        run: |
+          echo "release_matrix=$(python3 scripts/generate_platform_support.py --matrix release)" >> "$GITHUB_OUTPUT"
+  build-platforms:
+    name: ${{ matrix.name }}
+    needs: prepare_platform_matrix
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare_platform_matrix.outputs.release_matrix) }}
+    uses: ./.github/workflows/build-platform.yml
+    with:
+      runs-on: ${{ matrix.runs_on }}
+      build-command: ${{ matrix.build_command }}
+      pre-build-command: ${{ matrix.pre_build_command }}
+      artifact-name: ${{ matrix.artifact_name }}
+      artifact-path: ${{ matrix.artifact_path }}
+      setup-msys2: ${{ matrix.setup_msys2 }}
+  create-release:
+    name: Create release
+    needs: build-platforms
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checking out...
+        uses: actions/checkout@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ inputs.version }}
+          PRERELEASE: ${{ inputs.prerelease }}
+          RELEASE_NOTES: ${{ inputs.release_notes }}
+        run: |
+          if [ -n "$RELEASE_NOTES" ]; then
+            printf '%s\n' "$RELEASE_NOTES" > /tmp/open-supaplex-release-notes.txt
+          else
+            cp "changelog/$VERSION.txt" /tmp/open-supaplex-release-notes.txt
+          fi
+
+          prerelease_flag=''
+          if [ "$PRERELEASE" = 'true' ]; then
+            prerelease_flag='--prerelease'
+          fi
+
+          if gh release view "$VERSION" >/dev/null 2>&1; then
+            echo "Release $VERSION already exists; reusing it for asset upload."
+          else
+            gh release create "$VERSION" \
+              --title "OpenSupaplex $VERSION" \
+              --notes-file /tmp/open-supaplex-release-notes.txt \
+              --draft \
+              $prerelease_flag
+          fi
+      - name: Upload release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          while IFS='|' read -r asset_path asset_name_template; do
+            [ -n "$asset_path" ] || continue
+            resolved_asset_name=${asset_name_template//\{version\}/$VERSION}
+            gh release upload "$VERSION" "$asset_path#$resolved_asset_name" --clobber
+          done < <(python3 scripts/generate_platform_support.py --release-assets)

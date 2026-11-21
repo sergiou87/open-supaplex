@@ -1,0 +1,329 @@
+Information about the Supaplex levelset 98:
+------------------------------------------------------------------------------
+
+Once I found the PC game Boulderoid, which is said to be seen as an
+introduction to Boulderdash.
+I extracted all MAP (text-)files, which I packed in a separate ZIP file here.
+With a small program I converted all those MAP files to Supaplex levels.
+Since not all levels could be solved in Supaplex, these have been altered
+where necessary. So the levels in BLDRMAPS.ZIP are the original levels from
+Boulderoid, the levels in LEVELS.D98 are adapted for Supaplex. All are
+solvable.
+Also all levels from Rockford's Revenge seem to be here. (Those were password-
+protected, but it didn't take long to crack that and extract those maps too.)
+
+The numbers behind the Supaplex level names are the times in seconds in which
+the puzzles had to be solved.  I wanted to keep this information in Supaplex.
+(See also the MAP files in the ZIP.)
+
+Have fun,
+
+Herman Perk (made in Holland!)
+Spessartstrasse 15
+D-14197 Berlin
+Germany
+
+E-mail:
+100327.467@compuserve.com
+Herman_Perk@compuserve.com
+
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+Translations of the used characters (see below for descriptions):
+
+" " = space             -> " ":  0=00h  space
+"r" = rock              -> "o":  1=01h  zonk
+"." = dirt              -> "°":  2=02h  base
+"P" = entry             -> "":  3=03h  Murphy
+"d" = diamond           -> "&":  4=04h  infotron
+             
+"w" = wall              -> "²":  5=05h  small RAM chip
+"W" = hard wall         -> "Û":  6=06h  dull hardware (square, pyramid)
+             
+"O" = firefly (right)   -> "{": 17=11h  snik snak
+"Q" = firefly (left)    -> "{": 17=11h  snik snak
+"q" = firefly (down)    -> "{": 17=11h  snik snak
+            
+"B" = butterfly (right) -> "*": 24=18h  electron
+"c" = butterfly (down)  -> "*": 24=18h  electron
+
+"X" = exit              -> "E":  7=07h  exit
+
+Until here conversion is straight forward, but following is not:
+
+"H" = hidden exit       -> "E":  7=07h  exit
+
+From here conversion is impossible but done anyway:
+             
+"a" = amoeba            -> "R": 20=14h  red utility disk
+"s" = slime             -> "+": 23=17h  horizontal + vertical port
+
+"G" = glue              -> "±": 25=19h  bug
+"F" = dumbford          -> "":  3=03h  Murphy (problem: which is real Murphy?)
+            
+"m" = magic wall        -> "ð": 19=13h  terminal
+"x" = hexpanding wall   -> "G": 18=12h  yellow utility disk
+
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+Supaplex characters
+
+" ":  0=00h  space             (28 = hardware space ...)
+"o":  1=01h  zonk
+"°":  2=02h  base
+"":  3=03h  Murphy            (2B = hardware inverted Murphy)
+"&":  4=04h  infotron
+"²":  5=05h  small RAM chip
+"Û":  6=06h  hardware (square, standard pyramid shape)
+"E":  7=07h  exit
+"B":  8=08h  brown/orange utility disk
+">":  9=09h  port 1 left to right  
+"": 10=0Ah  port 1 up to down
+"<": 11=0Bh  port 1 right to left  
+"": 12=0Ch  port 1 down to up
+">": 13=0Dh  port 2 left to right (gravity change)  
+"": 14=0Eh  port 2 up to down    (gravity change)
+"<": 15=0Fh  port 2 right to left (gravity change)  
+"": 16=10h  port 2 down to up    (gravity change)
+"{": 17=11h  snik snak
+"G": 18=12h  yellow utility disk
+"ð": 19=13h  terminal
+"R": 20=14h  red utility disk
+"|": 21=15h  vertical port
+"-": 22=16h  horizontal port
+"+": 23=17h  horizontal + vertical port
+"*": 24=18h  electron
+"±": 25=19h  bug
+"²": 26=1Ah  horizontal RAM chip, left (pin 1)
+"²": 27=1Bh  horizontal RAM chip, right
+"Û": 28=1Ch  hardware (radial blue circular cap + coloured shapes)
+"Û": 29=1Dh  hardware (green signal lamp)
+"Û": 30=1Eh  hardware (blue signal lamp)
+"Û": 31=1Fh  hardware (red signal lamp)
+"Û": 32=20h  hardware (yellow/black diagonal stripes)
+"Û": 33=21h  hardware (yellow resistor + blue + red shapes)
+"Û": 34=22h  hardware (horizontal red capacitor + smd shape)
+"Û": 35=23h  hardware (red + yellow + blue horizontal resistors)
+"Û": 36=24h  hardware (3 red vertical resistors)
+"Û": 37=25h  hardware (3 yellow horizontal resistors)
+"²": 38=26h  vertical RAM chip, top (pin 1)
+"²": 39=27h  vertical RAM chip, bottom
+"#": 40=28h  invisible wall
+
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+Boulderoid + BoulderDash characters (see also below for more info):
+(The characters in the first column are used in the MAP files)
+
+" ": (used) space                 void = Supaplex space
+".": (used) dirt                  prevents objects from falling = Supaplex base
+"r": (used) rock                  falling objects = Supaplex Zonk
+"d": (used) diamond               to collect = Supaplex Infotron
+"W": (used) hard wall             does not explode, objects stay on it
+"w": (used) wall                  explodable wall, objects fall off
+"m": (used) magic wall            falling rock becomes diamond if space below
+"x": (used) hexpanding wall ><    horizontally expanding wall filling space
+"v":        vexpanding wall ^v    vertically expanding wall filling space
+"V":        expanding wall  ^><v  wall expanding filling all ajacent space
+"P": (used) entry                 Rockford's initial location = Supaplex Murphy
+"X": (used) exit                  exit = Supaplex exit
+"H": (used) hidden exit           looks like hard wall, but is explodable exit
+"a": (used) amoeba                expands, becomes diamonds after fixed time
+"s": (used) slime                 diamonds randomly fall through
+"b":        butterfly ^           moving object, explodes into diamonds
+"B": (used) butterfly >            = Supaplex Electron (but behaves different)
+"c": (used) butterfly v
+"C":        butterfly <
+"o":        firefly ^             moving object, just explodes
+"O": (used) firefly >              = Supaplex Snik Snak
+"q": (used) firefly v
+"Q": (used) firefly <
+"L":        monolith              moving objects get killed if even near it
+"T":        TNT                   big explosion when triggered
+"t":        fuse                  fuse disappears when triggered
+"G": (used) glue                  fixes all moving objects (Rockford too)
+"A":        acid                  kills all moving objects (Rockford too)
+"f":        crazyford             diamond snatcher, otherwise harmless
+"0":        teleport 0            port which transfers to other teleport
+"1":        teleport 1
+"2":        teleport 2
+"3":        teleport 3
+"4":        teleport 4
+"5":        teleport 5
+"6":        teleport 6
+"7":        teleport 7
+"8":        teleport 8
+"9":        teleport 9
+"F": (used) dumbford              game over if killed = Supaplex 2nd Murphy
+
+
+" .BFGHOPQWXacdmqrswx" are used in the available maps
+"vVbCoLTtAf0123456789" are not used in the available maps
+
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+Following information has been extracted from Boulderoid (V1.15) for the PC
+------------------------------------------------------------------------------
+	Gameplay
+Boulderoid is a combination puzzle action game.
+You are a character called Rockford.
+A game is set out as a sequence of caves.
+To complete a cave Rockford must collect a set amount of diamonds in a set
+amount of time, which are different from cave to cave.
+Extra diamonds are worth bonus points.
+Having the diamonds triggers an exit an Rockford must find this to enter the
+next cave.  Bonus lives are given at intervals of a set score.
+Occasionally (once every five caves - Original Boulderdash) intermissions
+occur.  They play the same as normal games but you only get one attempt at
+completing them:
+If you die, you don't lose a life you just proceed to the next level.
+If you complete it you are given a bonus life.
+Caves are made up of many entities that help and hinder your efforts to
+complete the cave.
+------------------------------------------------------------------------------
+        Variables
+Each cave is specified with a different set of properties like maximum time,
+speed of moving objects, amoeba growing speed, percentage of the cave an
+amoeba is allowed to grow, and many more.
+------------------------------------------------------------------------------
+	Space
+Rockford is free to move through space.
+See	BUTTERFLY
+	FIREFLY
+	CRAZYFORD
+------------------------------------------------------------------------------
+	Dirt
+Rockford may move freely through dirt, leaving a tunnel of  SPACE behind.
+------------------------------------------------------------------------------
+	Rock
+Rocks block Rockfords progress.
+He may, with effort, push them or undermine them until they fall.
+Rocks fall whenever there is SPACE below them.
+Falling rocks kill ROCKFORD, CRAZYFORD, FIREFLY and BUTTERFLY entities.
+See	UNSTABLE
+	AMOEBE
+	SLIME
+	MAGIC WALL
+------------------------------------------------------------------------------
+	Diamond
+Rockford must collect sufficient diamonds to trigger the exit and escape the
+cave.  Diamonds will slide off unstable places.
+A falling dianond has the same effect as a ROCK.
+See	EXIT
+	GAMEPLAY
+------------------------------------------------------------------------------
+	Hard Wall
+This structure is indestructible and usually forms the exterior of the cave.
+------------------------------------------------------------------------------
+	Wall
+These structures block Rockfords progress but can be destroyed by an explosion.
+See	UNSTABLE
+------------------------------------------------------------------------------
+	Magic Wall
+The Magic wall looks like an ordinary wall until a rock or diamond falls on it.
+Rocks falling onto a magic wall will emerge as diamonds and vice versa.
+See	ROCK
+	DIAMOND
+------------------------------------------------------------------------------
+	Hexpanding Wall
+This wall will expand to fill a SPACE on either ist left or right.
+------------------------------------------------------------------------------
+	Vexpanding Wall
+Expands to fill any space above or below.
+------------------------------------------------------------------------------
+	Expanding Wall
+This wall will expand into any SPACE around it.
+Premiering in Boulderoid.
+------------------------------------------------------------------------------
+	Entry
+This marks the point where Rockford will enter the cave.
+Note that you may have multiple entry points and hence multiple Rockfords.
+------------------------------------------------------------------------------
+	Exit
+Rockfords way out of the cave.
+The exit only becomes active when sufficient diamonds have been collected.
+See	DIAMOND
+	GAMEPLAY
+* Note exits are destructible.
+------------------------------------------------------------------------------
+	Hidden Exit
+This exit will not signal ist presence, it will remain looking like a HARD
+WALL after being activated. Rockford must find it after completing the cave.
+------------------------------------------------------------------------------
+	Amoeba
+Amoeba grows to fill free SPACE and DIRT.
+When it can't grow any further it mutates into diamonds.
+However if the amoeba grows to fill a set percentage of the cave it will turn
+to rock.  Butterflies and fireflies die on contact.
+See	ROCK
+	DIAMOND
+	BUTTERFLY
+	FIREFLY
+------------------------------------------------------------------------------
+	Slime
+Diamonds and rocks are able to permeate through this substance.
+The rate they fall through is set separately for each cave.
+See	VARIABLES
+------------------------------------------------------------------------------
+	Butterfly
+Butterflies are lethal and if destroyed form diamonds.
+Butterflies move through SPACE to rotate clockwise.
+They can have any of four starting directions.
+------------------------------------------------------------------------------
+	Firefly
+Fireflies are lethal.
+They move only through SPACE and always try to rotate anti-clockwise.
+They can have any of four starting directions.
+------------------------------------------------------------------------------
+	Monolith
+Kills ROCKFORD, CRAZYFORD, FIREFLY and BUTTERFLY entities on contact and is
+indestructible.
+------------------------------------------------------------------------------
+	Tri-Nitro-Toluene
+Drop rocks on it or use a nearby explosions chain reaction to trigger a
+mighty explosion.
+------------------------------------------------------------------------------
+	Fuse
+Drop something on, or explode something next to a fuse to trigger it.
+Premiering in Boulderoid.
+------------------------------------------------------------------------------
+	Glue
+Anything that moves into glue will become frozen solid.
+Premiered in Rockford's Revenge as a quirk of the C64 Construction Kit.
+------------------------------------------------------------------------------
+	Acid
+It is almost instant death for anything that enters acid.
+Premiering in Boulderoid.
+------------------------------------------------------------------------------
+	Crazyford
+Rockford's slightly insane relative.
+Crazyford will destroy diamonds(!) always progressing forward.
+A random decision to change direction is made when progress is hindered.
+Premiering in Boulderoid.
+------------------------------------------------------------------------------
+	Teleport
+Teleport to other areas of the cave.
+Destinations and attributes are defined per cave.
+Premiering in Boulderoid.
+------------------------------------------------------------------------------
+	Dumbford
+Rockfords alter ego.  If Dumbford dies so does Rockford.
+Dumbford however can be eliminated indirectly by an explosion.
+With no personal loss.
+------------------------------------------------------------------------------
+	Unstable Places
+In these places if SPACE exists beside them and one above that an entity that
+is susceptible will slide across to eventually fall into the space beside.
+The following are unstable.
+	WALL
+	ROCK
+	DIAMOND
+The following are susceptible
+	ROCK
+	DIAMOND
+------------------------------------------------------------------------------
+

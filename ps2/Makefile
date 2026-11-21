@@ -1,0 +1,53 @@
+DEBUG              = 0
+
+TARGET = OpenSupaplex.elf
+TARGET_DEBUG = OpenSupaplex-debug.elf
+TARGET_RELEASE = OpenSupaplex.elf
+
+ifeq ($(DEBUG), 1)
+	TARGET := $(TARGET_DEBUG)
+   OPTIMIZE_LV	:= -O0 -g
+	RARCH_DEFINES += -DDEBUG
+else
+	TARGET := $(TARGET_RELEASE)
+   OPTIMIZE_LV	:= -O3
+	LDFLAGS :=  -s
+endif
+
+INCDIR = -I$(PS2DEV)/gsKit/include -I$(PS2SDK)/ports/include -I$(PS2SDK)/ports/include/SDL2
+CFLAGS = $(OPTIMIZE_LV) -ffast-math -fsingle-precision-constant
+ASFLAGS = $(CFLAGS)
+
+CFLAGS += -D__PS2__ -Dmain=SDL_main -DHAVE_SDL2
+
+LDFLAGS += -L$(PS2DEV)/gsKit/lib -L$(PS2SDK)/ports/lib -L.
+LIBS += -lSDL2main -lSDL2 -lSDL2_mixer -lpatches -lmodplug -lxmp -lgskit -ldmakit -lps2_drivers -lstdc++ -lm -lc
+
+SRC = $(wildcard ../src/*.c) $(wildcard ../src/sdl_common/*.c) $(wildcard ../src/sdl2/*.c) ../src/null/virtualKeyboard.c ../src/lib/ini/ini.c
+EXCLUDE = ../src/sdl1/video.c
+SRC := $(filter-out $(EXCLUDE),$(SRC))
+OBJS = $(SRC:.c=.o)
+
+EE_OBJS += $(OBJS)
+EE_CFLAGS = $(CFLAGS)
+EE_CXXFLAGS = $(CFLAGS)
+EE_LDFLAGS = $(LDFLAGS)
+EE_LIBS = $(LIBS)
+EE_ASFLAGS = $(ASFLAGS)
+EE_INCS = $(INCDIR)
+EE_BIN = $(TARGET)
+EE_GPVAL = $(GPVAL)
+
+all: $(EE_BIN)
+
+clean:
+	rm -f $(TARGET_DEBUG) $(TARGET_RELEASE) $(TARGET_RELEASE).packed $(EE_OBJS)
+
+release: all
+	rm -f $(TARGET_RELEASE).packed
+	ps2-packer $(EE_BIN) $(TARGET_RELEASE).packed
+	mv $(TARGET_RELEASE).packed $(TARGET_RELEASE)
+
+#Include preferences
+include $(PS2SDK)/samples/Makefile.pref
+include $(PS2SDK)/samples/Makefile.eeglobal
