@@ -19,10 +19,15 @@
 
 #include <math.h>
 #include <SDL.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "../logging.h"
 #include "../utils.h"
+
+// Included rather than compiled separately, so the build files of the ports
+// that use this backend don't have to list it. See src/lib/hqx/README.md.
+#include "../lib/hqx/hq4x.c"
 
 #if defined(__PSP__)
 static const int kWindowWidth = 480;
@@ -46,6 +51,16 @@ SDL_Renderer *gRenderer = NULL;
 SDL_Texture *gTexture = NULL;
 SDL_Surface *gTextureSurface = NULL;
 ScalingMode gScalingMode = ScalingModeAspectFit;
+
+// hq4x resources, created on demand. hq4x blends colors, so every frame is
+// converted with the current palette first, which keeps fades and color
+// flashes working.
+PixelFilter gPixelFilter = PixelFilterNone;
+static SDL_Texture *sFilteredTexture = NULL;
+static uint32_t *sHQ4xSourcePixels = NULL;
+static uint32_t *sHQ4xOutputPixels = NULL;
+
+static const int kHQ4xScale = 4;
 
 int windowResizingEventWatcher(void* data, SDL_Event* event);
 void updateWindowViewport(void);
@@ -151,12 +166,101 @@ void initializeVideo(uint8_t fastMode)
     updateWindowViewport();
 }
 
+static void applyHQ4xFilter(void)
+{
+    // Convert the palette indices to 0x00RRGGBB colors with the current palette
+    const SDL_Palette *palette = gScreenSurface->format->palette;
+    uint32_t colors[256] = {0};
+    for (int i = 0; i < palette->ncolors && i < 256; ++i)
+    {
+        colors[i] = ((uint32_t)palette->colors[i].r << 16)
+                    | ((uint32_t)palette->colors[i].g << 8)
+                    | palette->colors[i].b;
+    }
+
+    const uint8_t *src = gScreenSurface->pixels;
+    for (int y = 0; y < kScreenHeight; ++y)
+    {
+        const uint8_t *row = src + y * gScreenSurface->pitch;
+        uint32_t *dst = sHQ4xSourcePixels + y * kScreenWidth;
+        for (int x = 0; x < kScreenWidth; ++x)
+        {
+            dst[x] = colors[row[x]];
+        }
+    }
+
+    hq4x_32_rb(sHQ4xSourcePixels, kScreenWidth * sizeof(uint32_t),
+               sHQ4xOutputPixels, kScreenWidth * kHQ4xScale * sizeof(uint32_t),
+               kScreenWidth, kScreenHeight);
+}
+
+static void destroyFilteredResources(void)
+{
+    if (sFilteredTexture != NULL)
+    {
+        SDL_DestroyTexture(sFilteredTexture);
+        sFilteredTexture = NULL;
+    }
+    free(sHQ4xSourcePixels);
+    sHQ4xSourcePixels = NULL;
+    free(sHQ4xOutputPixels);
+    sHQ4xOutputPixels = NULL;
+}
+
+/// @return 1 if the hq4x resources are ready
+static uint8_t ensureFilteredResources(void)
+{
+    if (sFilteredTexture != NULL)
+    {
+        return 1;
+    }
+
+    int width = kScreenWidth * kHQ4xScale;
+    int height = kScreenHeight * kHQ4xScale;
+
+    // The filtered frame is larger than the window viewport in most cases, so
+    // let it be sampled smoothly instead of dropping or doubling pixel rows.
+    char previousScaleQuality[16] = "nearest";
+    const char *hint = SDL_GetHint(SDL_HINT_RENDER_SCALE_QUALITY);
+    if (hint != NULL)
+    {
+        snprintf(previousScaleQuality, sizeof(previousScaleQuality), "%s", hint);
+    }
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+    // hq4x outputs 0x00RRGGBB colors. SDL converts them on upload if the
+    // renderer has no texture format for them.
+    sFilteredTexture = SDL_CreateTexture(gRenderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, width, height);
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, previousScaleQuality);
+
+    sHQ4xSourcePixels = malloc(kScreenWidth * kScreenHeight * sizeof(uint32_t));
+    sHQ4xOutputPixels = malloc(width * height * sizeof(uint32_t));
+
+    if (sFilteredTexture == NULL || sHQ4xSourcePixels == NULL || sHQ4xOutputPixels == NULL)
+    {
+        spLogInfo("Could not create pixel filter resources: %s", SDL_GetError());
+        destroyFilteredResources();
+        gPixelFilter = PixelFilterNone;
+        return 0;
+    }
+
+    return 1;
+}
+
 void render()
 {
     // In some cases (like using Wayland on Linux) some SDL events could be triggered
     // and end up triggering a render before initializeVideo is done.
     if (gScreenSurface == NULL)
     {
+        return;
+    }
+
+    if (gPixelFilter == PixelFilterHQ4x && ensureFilteredResources())
+    {
+        applyHQ4xFilter();
+        SDL_UpdateTexture(sFilteredTexture, NULL, sHQ4xOutputPixels, kScreenWidth * kHQ4xScale * sizeof(uint32_t));
+        SDL_RenderClear(gRenderer);
+        SDL_RenderCopy(gRenderer, sFilteredTexture, NULL, &gWindowViewport);
         return;
     }
 
@@ -175,6 +279,7 @@ void present()
 void destroyVideo()
 {
     SDL_DelEventWatch(windowResizingEventWatcher, gWindow);
+    destroyFilteredResources();
     if (gScreenSurface != NULL)
     {
         SDL_FreeSurface(gScreenSurface);
@@ -211,6 +316,37 @@ void setScalingMode(ScalingMode mode)
 
     gScalingMode = mode;
     updateWindowViewport();
+}
+
+uint8_t isPixelFilterSupported(void)
+{
+    // Only offered on desktop and in the browser, where it has been tested.
+    // On consoles the 1280x800 filtered texture may not fit in video memory
+    // (PS2) or render fast enough.
+#if defined(__EMSCRIPTEN__) || defined(__APPLE__) || defined(_WIN32) || defined(__linux__)
+    return 1;
+#else
+    return 0;
+#endif
+}
+
+PixelFilter getPixelFilter(void)
+{
+    return gPixelFilter;
+}
+
+void setPixelFilter(PixelFilter filter)
+{
+    if (isPixelFilterSupported() == 0
+        || filter < PixelFilterNone
+        || filter >= PixelFilterCount)
+    {
+        filter = PixelFilterNone;
+    }
+
+    // Resources are created by the next render that needs them, and kept
+    // until the video is destroyed
+    gPixelFilter = filter;
 }
 
 void getWindowSize(int *width, int *height)

@@ -65,6 +65,21 @@ void setScalingMode(ScalingMode mode)
     gScalingMode = mode;
 }
 
+uint8_t isPixelFilterSupported(void)
+{
+    return 0;
+}
+
+PixelFilter getPixelFilter(void)
+{
+    return PixelFilterNone;
+}
+
+void setPixelFilter(PixelFilter filter)
+{
+    // Not supported
+}
+
 void getWindowSize(int *width, int *height)
 {
     // Do nothing

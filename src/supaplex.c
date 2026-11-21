@@ -721,6 +721,7 @@ static const char *kAdvancedConfigGameSpeedKey = "gameSpeed";
 static const char *kAdvancedConfigMusicVolumeKey = "musicVolume";
 static const char *kAdvancedConfigFXVolumeKey = "fxVolume";
 static const char *kAdvancedConfigScalingModeKey = "scalingMode";
+static const char *kAdvancedConfigPixelFilterKey = "pixelFilter";
 static const char *kAdvancedConfigFullscreenKey = "fullscreen";
 static const char *kAdvancedConfigDisplayFPSKey = "displayFPS";
 static const char *kAdvancedConfigLimitFPSKey = "limitFPS";
@@ -776,6 +777,9 @@ void readAdvancedConfig()
     int scalingMode = readConfigInt(config, kAdvancedConfigGeneralSection, kAdvancedConfigScalingModeKey, getScalingMode());
     setScalingMode(scalingMode);
 
+    int pixelFilter = readConfigInt(config, kAdvancedConfigGeneralSection, kAdvancedConfigPixelFilterKey, getPixelFilter());
+    setPixelFilter(pixelFilter);
+
     gShouldShowFPS = readConfigInt(config, kAdvancedConfigDebugSection, kAdvancedConfigDisplayFPSKey, gShouldShowFPS);
     gShouldLimitFPS = readConfigInt(config, kAdvancedConfigDebugSection, kAdvancedConfigLimitFPSKey, gShouldLimitFPS);
 
@@ -813,6 +817,7 @@ void writeAdvancedConfig()
     writeConfigInt(config, kAdvancedConfigMusicVolumeKey, getMusicVolume());
     writeConfigInt(config, kAdvancedConfigFXVolumeKey, getSoundEffectsVolume());
     writeConfigInt(config, kAdvancedConfigScalingModeKey, getScalingMode());
+    writeConfigInt(config, kAdvancedConfigPixelFilterKey, getPixelFilter());
     writeConfigInt(config, kAdvancedConfigFullscreenKey, getFullscreenMode());
 
     writeConfigSection(config, kAdvancedConfigDebugSection);
@@ -960,6 +965,23 @@ void buildScalingModeOptionTitle(char output[kMaxAdvancedOptionsMenuEntryTitleLe
     snprintf(output, kMaxAdvancedOptionsMenuEntryTitleLength, "SCALING MODE: %s", mode);
 }
 
+void buildPixelFilterOptionTitle(char output[kMaxAdvancedOptionsMenuEntryTitleLength])
+{
+    const char *filter = "OFF";
+
+    switch (getPixelFilter())
+    {
+    case PixelFilterHQ4x:
+        filter = "HQ4X";
+        break;
+    default:
+        filter = "OFF";
+        break;
+    }
+
+    snprintf(output, kMaxAdvancedOptionsMenuEntryTitleLength, "PIXEL FILTER: %s", filter);
+}
+
 void buildBooleanOptionTitle(char output[kMaxAdvancedOptionsMenuEntryTitleLength], char title[kMaxAdvancedOptionsMenuEntryTitleLength], uint8_t value)
 {
     snprintf(output, kMaxAdvancedOptionsMenuEntryTitleLength, "%s: %s", title, (value == 0 ? "OFF" : "ON"));
@@ -1099,6 +1121,18 @@ void increaseAdvancedMenuScalingMode()
     {
         setScalingMode(0);
     }
+}
+
+void decreaseAdvancedMenuPixelFilter()
+{
+    PixelFilter filter = getPixelFilter();
+    setPixelFilter(filter > 0 ? filter - 1 : PixelFilterCount - 1);
+}
+
+void increaseAdvancedMenuPixelFilter()
+{
+    PixelFilter filter = getPixelFilter();
+    setPixelFilter(filter < PixelFilterCount - 1 ? filter + 1 : 0);
 }
 
 void decreaseFXVolume()
@@ -1428,6 +1462,16 @@ void runAdvancedOptionsRootMenu()
                                        decreaseAdvancedMenuScalingMode,
                                        increaseAdvancedMenuScalingMode,
                                    });
+    if (isPixelFilterSupported())
+    {
+        addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry){
+                                           "",
+                                           buildPixelFilterOptionTitle,
+                                           NULL,
+                                           decreaseAdvancedMenuPixelFilter,
+                                           increaseAdvancedMenuPixelFilter,
+                                       });
+    }
     if (gIsInMainMenu)
     {
         addAdvancedOptionsEntry(&menu, (AdvancedOptionsMenuEntry){
