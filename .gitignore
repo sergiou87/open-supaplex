@@ -1,6 +1,5 @@
 build/
 tasm/
-tests/
 *.id*
 *.nam
 *.til
@@ -12,6 +11,7 @@ TESTOUT.TXT
 /tc/
 xcuserdata/
 __pycache__/
+.DS_Store
 resources/*.CFG
 resources/PLAYER.*
 resources/SAVEGAME.*
@@ -82,3 +82,12 @@ riscos/\!OSupaplex/data
 
 /ps2/OpenSupaplex
 ps2/OpenSupaplex-ps2.zip
+
+# Test build outputs (tests/ci-build.sh)
+/tests/opensupaplex
+/tests/debug-base-tests
+/tests/menu-throttle-tests
+/tests/ranking-tests
+/tests/hall-of-fame-tests
+/tests/OpenSupaplex-tests/
+/tests/test-results.log
