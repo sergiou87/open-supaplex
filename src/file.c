@@ -21,6 +21,73 @@
 
 #include "utils.h"
 
+#if defined(__EMSCRIPTEN__)
+#include <emscripten.h>
+
+// Writable files (savegames, configs, hall of fame, edited level lists) live
+// under /persistent, an IDBFS mount backed by IndexedDB. The mount and the
+// sync-in of the previous session's contents must complete before main reads
+// any file; with -sJSPI the EM_ASYNC_JS call below suspends main until then.
+EM_ASYNC_JS(void, syncInPersistentStorage, (void), {
+    try
+    {
+        FS.mkdir('/persistent');
+        FS.mount(IDBFS, {}, '/persistent');
+        await new Promise((resolve, reject) => FS.syncfs(true, (err) => (err ? reject(err) : resolve())));
+    }
+    catch (err)
+    {
+        // Without IndexedDB (blocked storage, etc.) the game still runs, but
+        // saves only last for the current page session.
+        console.warn('OpenSupaplex: persistent storage unavailable: ' + err);
+    }
+});
+
+EM_JS(void, initializePersistentStorageSync, (void), {
+    let dirty = false;
+    let syncing = false;
+    const flush = () => {
+        if (!dirty || syncing) return;
+        syncing = true;
+        dirty = false;
+        FS.syncfs(false, (err) => {
+            syncing = false;
+            if (err)
+            {
+                dirty = true;
+                console.warn('OpenSupaplex: saving to browser storage failed: ' + err);
+            }
+        });
+    };
+    // openWritableFile returns before the caller writes and closes the file,
+    // so sync out shortly after a write is triggered; the interval and
+    // pagehide flushes bound the window in which a reload can lose data.
+    Module.__markPersistentStorageDirty = () => {
+        dirty = true;
+        if (!Module.__persistentStorageSyncTimer)
+        {
+            Module.__persistentStorageSyncTimer = setTimeout(() => {
+                Module.__persistentStorageSyncTimer = 0;
+                flush();
+            }, 250);
+        }
+    };
+    setInterval(flush, 5000);
+    addEventListener('pagehide', flush);
+});
+
+EM_JS(void, schedulePersistentStorageSyncOut, (void), {
+    Module.__markPersistentStorageDirty?.();
+});
+
+void initializePersistentStorage(void)
+{
+    syncInPersistentStorage();
+    initializePersistentStorageSync();
+}
+
+#endif
+
 #if defined(FILE_FHS_XDG_DIRS)
 
 #if defined(FILE_DATA_PATH)
@@ -177,6 +244,9 @@ FILE *openWritableFile(const char *pathname, const char *mode)
 #define FILE_BASE_PATH "/apps/OpenSupaplex/"
 #elif defined(__WIIU__)
 #define FILE_BASE_PATH "fs:/vol/external01/wiiu/apps/OpenSupaplex/"
+#elif defined(__EMSCRIPTEN__)
+#define FILE_BASE_PATH ""
+#define FILE_BASE_WRITABLE_PATH "/persistent/"
 #else
 #define FILE_BASE_PATH ""
 #endif
@@ -213,6 +283,12 @@ FILE *openWritableFile(const char *pathname, const char *mode)
 
     char finalPathname[kMaxFilePathLength];
     getWritableFilePath(pathname, finalPathname);
+#if defined(__EMSCRIPTEN__)
+    if (strpbrk(mode, "wa+") != NULL)
+    {
+        schedulePersistentStorageSyncOut();
+    }
+#endif
     return fopen(finalPathname, mode);
 }
 

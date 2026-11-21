@@ -240,6 +240,11 @@ void getMouseState(int *x, int *y, uint8_t *leftButton, uint8_t *rightButton)
     Uint32 state = SDL_GetMouseState(x, y);
     *leftButton = (state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     *rightButton = (state & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0;
+#ifdef __EMSCRIPTEN__
+    // Menu handlers poll this in tight "wait for button release" loops with
+    // no frame pacing; without a yield the browser can never deliver mouseup.
+    SDL_Delay(1);
+#endif
 }
 
 void toggleFullscreen()

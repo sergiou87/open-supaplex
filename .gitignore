@@ -72,6 +72,9 @@ wasm/opensupaplex.data
 wasm/opensupaplex.html
 wasm/opensupaplex.js
 wasm/opensupaplex.wasm
+wasm/deploy/opensupaplex.data
+wasm/deploy/opensupaplex.js
+wasm/deploy/opensupaplex.wasm
 
 # RISC OS stuff
 riscos/*,e1f

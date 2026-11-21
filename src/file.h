@@ -34,6 +34,13 @@ FILE *openReadonlyFile(const char *pathname, const char *mode);
 FILE *openWritableFile(const char *pathname, const char *mode);
 FILE *openWritableFileWithReadonlyFallback(const char *pathname, const char *mode);
 
+#if defined(__EMSCRIPTEN__)
+// Mounts the IDBFS-backed directory where writable files live and waits for
+// the previous session's contents to be synced in. Must run before any other
+// file access.
+void initializePersistentStorage(void);
+#endif
+
 size_t fileReadUInt16(uint16_t *value, FILE *file);
 size_t fileReadUInt8(uint8_t *value, FILE *file);
 size_t fileReadBytes(void *buffer, size_t count, FILE *file);
