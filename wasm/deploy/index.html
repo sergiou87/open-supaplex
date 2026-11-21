@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OpenSupaplex</title>
+<style>
+html,body{height:100%;margin:0;background:#000}
+body{display:flex;align-items:center;justify-content:center;overflow:hidden}
+/* no border/padding on the canvas, or mouse coords will be wrong */
+canvas{max-width:100%;max-height:100%}
+</style>
+</head>
+<body>
+<!-- id="canvas" is load-bearing: the runtime resolves the audio-unlock hook
+     and event targets via document.getElementById('canvas') -->
+<canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
+<script>var Module={canvas:document.getElementById("canvas")}</script>
+<script src="opensupaplex.js"></script>
+</body>
+</html>

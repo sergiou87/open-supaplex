@@ -1513,6 +1513,9 @@ void runAdvancedOptionsRootMenu()
 
 int main(int argc, char *argv[])
 {
+#ifdef __EMSCRIPTEN__
+    initializePersistentStorage();
+#endif
     parseCommandLineOptions(argc, argv);
 
     if (gFastMode == FastModeTypeUltra)
